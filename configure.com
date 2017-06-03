@@ -119,7 +119,7 @@ $!plibpth=''                                           !sfn
 $!: List of libraries we want.                         !sfn
 $!libswanted='net socket inet nsl nm ndbm gdbm dbm db malloc dl' !sfn
 $!libswanted="$libswanted ld sun m c cposix posix ndir dir crypt" !sfn
-$!libswanted="$libswanted ucb bsd BSD PW x"            !sfn
+$!libswanted="$libswanted ucb bsd BSD PW x ffi"        !sfn
 $!: We probably want to search /usr/shlib before most other libraries. !sfn
 $!: This is only used by the lib/ExtUtils/MakeMaker.pm routine extliblist. !sfn
 $!glibpth=`echo " $glibpth " | sed -e 's! /usr/shlib ! !'` !sfn
@@ -5803,6 +5803,42 @@ $   ldflags="/NoTrace/NoMap"
 $   dbgprefix = ""
 $ ENDIF
 $!
+$! Check for ffi.h
+$! See libffi in OpenVMS Ports
+$!
+$ tmp = "ffi.h"
+$ GOSUB inhdr
+$ i_ffi = tmp
+$ if i_ffi .EQS. "define"
+$ THEN
+$   OS
+$   WS "#if defined(__DECC) || defined(__DECCXX)"
+$   WS "#include <stdlib.h>"
+$   WS "#endif"
+$   WS "#include <stdio.h>"
+$   WS "#include <ffi.h>"
+$   WS "int main() { "
+$   WS "  ffi_cif* cif;"
+$   WS "  ffi_type *argtypes[0];"
+$   WS "  ffi_type *rtype;"
+$   WS "  ffi_prep_cif(cif, FFI_DEFAULT_ABI, 0, argtypes, rtype);"
+$   WS "  exit(0);"
+$   WS "}"
+$   CS
+$   GOSUB compile_ok
+$   IF compile_status .EQ. good_compile
+$   THEN
+$     d_libffi = "define"
+$     useffi = "define"
+$     libs = libs + " ffi"
+$     echo4 "libffi found."
+$   ELSE
+$     d_tzname = "undef"
+$     useffi = "undef"
+$     echo4 "libffi NOT found. 3.0.9 port on VAX should work, see OpenVMS Ports."
+$   ENDIF
+$ ENDIF
+$!
 $! Okay, we've got everything configured. Now go write out a config.sh.
 $ basename_config_sh = F$PARSE(config_sh,,,"NAME",)+F$PARSE(config_sh,,,"TYPE",)
 $ echo4 "Creating ''basename_config_sh'..."
@@ -6133,7 +6169,7 @@ $ WC "d_lchown='" + d_lchown + "'"
 $ WC "d_ldbl_dig='define'"
 $ WC "d_ldexpl='" + d_ldexpl + "'"
 $ WC "d_lgamma='" + d_lgamma + "'"
-$ WC "d_libffi='undef'"
+$ WC "d_libffi='" + d_libffi + "'"
 $ WC "d_libm_lib_version='undef'"
 $ WC "d_libname_unique='undef'"
 $ WC "d_link='" + d_link + "'"
@@ -6517,7 +6553,7 @@ $ WC "i_dlfcn='undef'"
 $ WC "i_execinfo='undef'"
 $ WC "i_fcntl='" + i_fcntl + "'"
 $ WC "i_fenv='undef'"
-$ WC "i_ffi='undef'"
+$ WC "i_ffi='" + i_ffi + "'"
 $ WC "i_fp='undef'"
 $ WC "i_fp_class='undef'"
 $ WC "i_gdbm='undef'"
@@ -6813,7 +6849,7 @@ $ WC "usecrosscompile='undef'"
 $ WC "usedevel='" + usedevel + "'"
 $ WC "usedl='" + usedl + "'"
 $ WC "usedtrace='undef'"
-$ WC "useffi='undef'"
+$ WC "useffi='" + useffi + "'"
 $ WC "usefaststdio='" + usefaststdio + "'"
 $ WC "useieee='" + useieee + "'"                    ! VMS-specific
 $ WC "useithreads='" + useithreads + "'"
