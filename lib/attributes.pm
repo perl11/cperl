@@ -345,6 +345,16 @@ the ffi function symbol in the shared library.
 I.e. C<sub x :native :symbol("X");> 
 => C<CvXSUB(\&x) = DynaLoader::dl_find_symbol(CvFFILIB(\&x), "X");>
 
+=item encoded(STRING)
+
+Specifies an encoding translation layer for strings passed to or from
+native calls. The argument must be a valid L<Encode::Alias>.
+
+E.g.
+
+  extern sub message_box(Str :encoded('utf8'));
+  extern sub input_box() :Str :encoded('utf8');
+
 =item nativeconv(STRING)
 
 Specifies a different native calling convention, the ABI, than the

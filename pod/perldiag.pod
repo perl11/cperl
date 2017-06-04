@@ -6349,18 +6349,20 @@ position.  See L<perlre>.
 (F) While under the C<use filetest> pragma, we cannot switch the real
 and effective uids or gids.
 
-=item :symbol() argument missing
+=item :%s() argument missing
 
-(S) The C<:symbol()> needs a string argument.
+(S) The C<:symbol()>, C<:nativeconv()>, C<:encoded()> attributes
+require a string argument.
+
+=item :%s is only valid for :native or extern sub
+
+(S) The C<:symbol()>, C<:nativeconv()>, C<:encoded()> attributes for
+external ffi functions cannot be used for non-ffi functions.
 
 =item :symbol is already resolved
 
-(W misc) The C<:native> declaration already succeeded finding a symbol.
-
-=item :symbol is only valid for :native or extern sub
-
-(S) The C<:symbol()> attribute for external ffi functions cannot be
-used for non-ffi functions.
+(W misc) The C<:native> declaration already succeeded finding a symbol
+in one of the loaded shared libraries. It is not overwritten.
 
 =item syntax error
 

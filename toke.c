@@ -6321,11 +6321,12 @@ Perl_yylex(pTHX)
                         }
                         /* handle run-time variables in attrs args */
                         if ((len == 6 && (memEQc(s, "native") || memEQc(s, "symbol")))
-                            || strEQc(s, "nativeconv")) {
+                            || strEQc(s, "nativeconv") || strEQc(s, "encoded")) {
                             /* evaluate scalars and barewords, resp. add CONST strings.
-                               :native($lib) :native("mysqlclient") :native(msqlclient) :symbol('c_sym')
+                                 :native($lib) :native("mysqlclient") :native(msqlclient)
+                                 :symbol('c_sym'), ...
                                but not with:
-                               :prototype($$;@)
+                                 :prototype($$;@)
                                they are passed unparsed to attributes->import.
                             */
                             char *a  = SvPVX(PL_lex_stuff);
