@@ -2797,6 +2797,13 @@ number stopped before the illegal character.
 (F) You tried to divide a number by 0 to get the remainder.  Most
 numbers don't take to this kindly.
 
+=item Illegal :nativeconv(%s) argument
+
+(F) This platform does not define the nativeconv argument
+FFI_%s. Check L<attributes/nativeconv(STRING)> or your F<ffitarget.h>
+for valid calling conventions, or use the default ABI by skipping this
+attribute.
+
 =item Illegal number of bits in vec
 
 (F) The number of bits in vec() (the third argument) must be a power of
@@ -4179,6 +4186,11 @@ format) are considered the same; if a program uses $c only once
 but also uses any of the others it will not trigger this warning.
 Symbols beginning with an underscore and symbols using special
 identifiers (q.v. L<perldata>) are exempt from this warning.
+
+=item :nativeconv is only valid for :native or extern sub
+
+(S) The C<:nativeconv()> attribute to specify the calling convention or ABI
+for external ffi functions cannot be used for non-ffi functions.
 
 =item Need exactly 3 octal digits in regex; marked by S<<-- HERE> in m/%s/
 

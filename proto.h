@@ -11179,6 +11179,15 @@ STATIC void	S_mem_log_common(enum mem_log_type mlt, const UV n, const UV typesiz
 
 #  endif
 #endif
+#if defined(PERL_IN_XSUTILS_C)
+#  if defined(USE_FFI)
+STATIC void	S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_PREP_CIF	\
+	assert(cv)
+
+#  endif
+#endif
 #if defined(PERL_MEM_LOG)
 PERL_CALLCONV Malloc_t	Perl_mem_log_alloc(const UV nconst, UV typesize, const char *type_name, Malloc_t newalloc, const char *filename, const int linenumber, const char *funcname)
 			__attribute__nonnull__(3)

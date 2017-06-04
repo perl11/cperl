@@ -5456,7 +5456,7 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #endif
 
 /* USE_FFI:
- *	header equivalent to \$Config{useffi}, if -lffi is linked.
+ *	C header equivalent to \$Config{useffi}, if -lffi is enabled and linked.
  */
 /* I_FFI:
  *	This symbol, if defined, indicates to the C program that it should
@@ -5464,6 +5464,10 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 /* D_LIBFFI:
  *	This symbol, if defined, indicates to the C program that libffi is usable.
+ */
+/* HAVE_FFI_*:
+ *	These symbols if existing are platform specific alternatives to the
+ *      DEFAULT libffi ABI, needed for :nativeconv(STRING). See also F<have_ffi.h>
  */
 #ifndef USE_FFI
 #$useffi	USE_FFI		/**/

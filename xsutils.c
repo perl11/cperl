@@ -468,8 +468,8 @@ extern sub for C<ffi_prep_cif()>.
 See C<man ffi_prep_cif>.
 =cut
 */
-static void*
-S_prep_cif(pTHX_ CV* cv)
+static void
+S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
 {
     UNOP_AUX *sigop = CvSIGOP(cv);
     UNOP_AUX_item *items = sigop->op_aux;
@@ -481,17 +481,104 @@ S_prep_cif(pTHX_ CV* cv)
     const bool slurpy      = cBOOL((params >> 15) & 1);
     const unsigned int num_args = mand_params + opt_params;
     /* alloca? Does ffi_prep_cif copy the ret and argtypes? No */
-    ffi_type argtypes[] = (ffi_type*)safemalloc(num_args * sizeof(ffi_type));
-    ffi_type rtype;
+    ffi_type **argtypes = (ffi_type**)safemalloc(num_args * sizeof(ffi_type*));
+    ffi_type *rtype;
     ffi_status status;
+    ffi_abi abi = FFI_DEFAULT_ABI;
+    PERL_ARGS_ASSERT_PREP_CIF;
 
+#define CHK_ABI(conv)                    \
+        if (strEQc(nativeconv, #conv)) { \
+            abi = FFI_ ## conv;          \
+        } else
+
+    if (nativeconv && *nativeconv) {
+#ifdef HAVE_FFI_SYSV
+        CHK_ABI(SYSV)
+#endif
+#ifdef HAVE_FFI_UNIX64
+        CHK_ABI(UNIX64)
+#endif
+#ifdef HAVE_FFI_WIN64
+        CHK_ABI(WIN64)
+#endif
+#ifdef HAVE_FFI_STDCALL
+        CHK_ABI(STDCALL)
+#endif
+#ifdef HAVE_FFI_THISCALL
+        CHK_ABI(THISCALL)
+#endif
+#ifdef HAVE_FFI_FASTCALL
+        CHK_ABI(FASTCALL)
+#endif
+#ifdef HAVE_FFI_MS_CDECL
+        CHK_ABI(MS_CDECL)
+#endif
+#ifdef HAVE_FFI_PASCAL
+        CHK_ABI(PASCAL)
+#endif
+#ifdef HAVE_FFI_REGISTER
+        CHK_ABI(REGISTER)
+#endif
+#ifdef HAVE_FFI_VFP
+        CHK_ABI(VFP)
+#endif
+#ifdef HAVE_FFI_O32
+        CHK_ABI(O32)
+#endif
+#ifdef HAVE_FFI_N32
+        CHK_ABI(N32)
+#endif
+#ifdef HAVE_FFI_N64
+        CHK_ABI(N64)
+#endif
+#ifdef HAVE_FFI_O32_SOFT_FLOAT
+        CHK_ABI(O32_SOFT_FLOAT)
+#endif
+#ifdef HAVE_FFI_N32_SOFT_FLOAT
+        CHK_ABI(N32_SOFT_FLOAT)
+#endif
+#ifdef HAVE_FFI_N64_SOFT_FLOAT
+        CHK_ABI(N64_SOFT_FLOAT)
+#endif
+#ifdef HAVE_FFI_AIX
+        CHK_ABI(AIX)
+#endif
+#ifdef HAVE_FFI_DARWIN
+        CHK_ABI(DARWIN)
+#endif
+#ifdef HAVE_FFI_COMPAT_SYSV
+        CHK_ABI(COMPAT_SYSV)
+#endif
+#ifdef HAVE_FFI_COMPAT_GCC_SYSV
+        CHK_ABI(COMPAT_GCC_SYSV)
+#endif
+#ifdef HAVE_FFI_COMPAT_LINUX64
+        CHK_ABI(COMPAT_LINUX64)
+#endif
+#ifdef HAVE_FFI_COMPAT_LINUX
+        CHK_ABI(COMPAT_LINUX)
+#endif
+#ifdef HAVE_FFI_COMPAT_LINUX_SOFT_FLOAT
+        CHK_ABI(COMPAT_LINUX_SOFT_FLOAT)
+#endif
+#ifdef HAVE_FFI_V9
+        CHK_ABI(V9)
+#endif
+#ifdef HAVE_FFI_V8
+        CHK_ABI(V8)
+#endif
+        if (strEQc(nativeconv, "DEFAULT"))
+            abi = FFI_DEFAULT_ABI;
+        else
+            Perl_croak(aTHX_ "Illegal :nativeconv(%s) argument", nativeconv);
+    }
     /* XXX walk sigs */
     argtypes[0] = &ffi_type_sint;
     rtype = &ffi_type_sint;
 
-    if ((status = ffi_prep_cif(cif,
-         FFI_DEFAULT_ABI, /* use stdcall on win32? */
-         num_args, &rtype, &argtypes)) != FFI_OK )
+    if ((status = ffi_prep_cif(cif, abi, num_args, rtype, argtypes))
+        != FFI_OK)
     {
         Perl_croak(aTHX_ "ffi_prep_cif error %d", status );
     }
@@ -565,7 +652,7 @@ S_find_symbol(pTHX_ CV* cv, char *name)
 #ifndef RTLD_DEFAULT
 #define RTLD_DEFAULT -2
 #endif
-    IV handle = CvFFILIB(cv) ? CvFFILIB(cv) : (int)RTLD_DEFAULT;
+    IV handle = CvFFILIB(cv) ? (IV)CvFFILIB(cv) : (IV)RTLD_DEFAULT;
     if (!dl_find_symbol) {
         CvFFILIB(cv) = 0;
         Perl_warn(aTHX_ "no ffi with miniperl");
@@ -657,7 +744,10 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 {
     SV *attr;
     int nret;
+    bool is_native = FALSE;
+    char nativeconv[14];
 
+    nativeconv[0] = '\0';
     for (nret = 0 ; numattrs && (attr = *attrlist++); numattrs--) {
 	STRLEN len;
 	char *name = SvPV_const(attr, len);
@@ -733,6 +823,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                             CvXFFI(cv) = NULL;
                         }
 			else {
+                            is_native = TRUE;
                             S_find_native(aTHX_ cv, NULL);
                         }
                         goto next_attr;
@@ -777,6 +868,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 		if (len >= 7 && memEQc(name, "native(") && !negated) {
                     /* TODO: sig: libname, version, abi */
                     CV *cv = MUTABLE_CV(sv);
+                    is_native = TRUE;
                     if (len == 7 && numattrs>1) {
                         attr = *attrlist++;
                         numattrs--;
@@ -806,6 +898,14 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                             S_find_symbol(aTHX_ cv, name+7);
                         }
                     }
+                    goto next_attr;
+                }
+		if (len >= 11 && memEQc(name, "nativeconv(") && !negated) {
+                    CV *cv = MUTABLE_CV(sv);
+                    if (!CvEXTERN(cv))
+                        Perl_warn(":nativeconv is only valid for :native or extern sub");
+                    name[len-1] = '\0';
+                    Copy(&name[11], nativeconv, len-11, char);
                     goto next_attr;
                 }
 		break;
@@ -855,6 +955,9 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 	nret++;
     next_attr:
         ;
+    }
+    if (is_native) {
+        S_prep_cif(aTHX_ (CV*)sv, nativeconv);
     }
 
     return nret;

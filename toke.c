@@ -6320,7 +6320,8 @@ Perl_yylex(pTHX)
                                 "Unterminated attribute parameter in attribute list");
                         }
                         /* handle run-time variables in attrs args */
-                        if (len == 6 && (memEQc(s, "native") || memEQc(s, "symbol"))) {
+                        if ((len == 6 && (memEQc(s, "native") || memEQc(s, "symbol")))
+                            || strEQc(s, "nativeconv")) {
                             /* evaluate scalars and barewords, resp. add CONST strings.
                                :native($lib) :native("mysqlclient") :native(msqlclient) :symbol('c_sym')
                                but not with:

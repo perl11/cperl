@@ -5421,7 +5421,7 @@
 #endif
 
 /* USE_FFI:
- *	header equivalent to $Config{useffi}, if -lffi is linked.
+ *	C header equivalent to $Config{useffi}, if -lffi is enabled and linked.
  */
 /* I_FFI:
  *	This symbol, if defined, indicates to the C program that it should
@@ -5429,6 +5429,10 @@
  */
 /* D_LIBFFI:
  *	This symbol, if defined, indicates to the C program that libffi is usable.
+ */
+/* HAVE_FFI_*:
+ *	These symbols if existing are platform specific alternatives to the
+ *      DEFAULT libffi ABI, needed for :nativeconv(STRING). See also F<have_ffi.h>
  */
 #ifndef USE_FFI
 /*#define	USE_FFI		/ **/
@@ -5439,6 +5443,6 @@
 #endif
 
 /* Generated from:
- * 64bfac1a714a76fe2c91218d4657965bf89c09870dfdff786bc5bb27e1d7cdbb config_h.SH
+ * 9de5da1769a92874d1321dd9b6c39a95bdfdc36804f110839bc795ed600ab060 config_h.SH
  * 606570a3692585ffc23d6feb5abe4796cad4acae5a65f07fd8a5eeb006a94bf7 uconfig.sh
  * ex: set ro: */
