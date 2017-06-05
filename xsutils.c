@@ -609,7 +609,7 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
 {
     unsigned int i;
     UNOP_AUX *sigop = CvSIGOP(cv);
-    UNOP_AUX_item *items = cUNOP_AUXx(sigop)->op_aux;
+    UNOP_AUX_item *items = sigop->op_aux;
     UV   params      = items[0].uv;
     UV   mand_params = params >> 16;
     UV   opt_params  = params & ((1<<15)-1);
@@ -639,8 +639,7 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, void *rvalue)
 {
     dSP; dTARG;
     PERL_ARGS_ASSERT_PREP_FFI_RET;
-
-    PUSHi((IV)*((long*)rvalue));
+    mXPUSHi((IV)(long)rvalue);
 }
 
 #endif

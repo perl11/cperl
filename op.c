@@ -12157,6 +12157,12 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	else {
 	    /* Might have had built-in attributes applied -- propagate them. */
 	    CvFLAGS(cv) |= (CvFLAGS(PL_compcv) & CVf_BUILTIN_ATTRS);
+            if (CvEXTERN(cv) && CvHASSIG(cv)) { /* XXX */
+                if (CvPADLIST(PL_compcv))
+                    CvPADLIST_set(cv, CvPADLIST(PL_compcv));
+                else
+                    CvPADLIST_set(cv, pad_new(0));
+            }
 	}
 	/* ... before we throw it away */
 	SvREFCNT_dec(PL_compcv);

@@ -71,7 +71,7 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvDEPTHunsafe(sv) ((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_depth
 
 /* these CvPADLIST/CvRESERVED asserts can be reverted one day, once stabilized */
-#define CvPADLIST(sv)	  (*(assert_(!CvISXSUB((CV*)(sv))) \
+#define CvPADLIST(sv)	  (*(assert_(CvEXTERN((CV*)(sv)) || !CvISXSUB((CV*)(sv))) \
 	&(((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_padlist_u.xcv_padlist)))
 /* CvPADLIST_set is not public API, it can be removed one day, once stabilized */
 #ifdef DEBUGGING
@@ -101,8 +101,11 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvSIGOP(sv)	  ((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_sigop
 
 /* experimental: print the type of a cv in %s%s%s style */
-#define CvDESC3(cv)       CvISXSUB(cv) ? "XS " : "", CvMULTI(cv) ? "multi ": "", \
-                          CvMETHOD(cv) ? "method" : "subroutine"
+#define CvDESC3(cv)       \
+        CvEXTERN(cv) ? "extern "                       \
+                     : CvISXSUB(cv) ? "XS " : "",      \
+        CvMULTI(cv)  ? "multi ": "",                   \
+        CvMETHOD(cv) ? "method" : "subroutine"
 
 /* These two are sometimes called on non-CVs */
 #define CvPROTO(sv)                               \

@@ -9352,8 +9352,6 @@ Perl_yylex(pTHX)
                 goto just_a_word;
             /* fall through */
             s = d + 3;
-            /*Copy(d, &PL_tokenbuf, 3, char);
-              Zero(&PL_tokenbuf[3], 8, char);*/
 	case KEY_format:
         case KEY_method:
         case KEY_multi:
@@ -12513,7 +12511,7 @@ Perl_start_subparse(pTHX_ I32 is_format, U32 flags)
     CvPADLIST(PL_compcv) = pad_new(padnew_SAVE|padnew_SAVESUB);
     CvOUTSIDE(PL_compcv) = MUTABLE_CV(SvREFCNT_inc_simple(outsidecv));
     CvOUTSIDE_SEQ(PL_compcv) = PL_cop_seqmax;
-    if (outsidecv && !CvEXTERN(outsidecv) && CvPADLIST(outsidecv))
+    if (outsidecv && /*!CvEXTERN(outsidecv) &&*/ CvPADLIST(outsidecv))
 	CvPADLIST(PL_compcv)->xpadl_outid = CvPADLIST(outsidecv)->xpadl_id;
 
     return oldsavestack_ix;

@@ -554,8 +554,6 @@ PP(pp_enterffi)
 {
     dVAR; dSP; dPOPss;
     CV *cv;
-    SSize_t markix = TOPMARK;
-    bool is_scalar = cBOOL(GIMME_V == G_SCALAR); /* ffi calls are scalar or void */
     const bool hasargs = (PL_op->op_flags & OPf_STACKED) != 0;
     if (UNLIKELY(!sv))
 	DIE(aTHX_ "Not a CODE reference");
@@ -571,28 +569,40 @@ PP(pp_enterffi)
 
     assert(SvTYPE(cv) == SVt_PVCV);
 #ifndef PERL_IS_MINIPERL
-    assert(CvXFFI(cv));
-    if (!hasargs) { /* and !is_scalar, rather is_void */
+    assert(CvXFFI(cv)); /* run-time die with no symbol? */
+    if (!hasargs && GIMME_V == G_VOID) {
         CvXFFI(cv)();
     } else {
 #if defined(D_LIBFFI) && defined(USE_FFI)
-        ffi_arg rvalue;
-        PERL_CONTEXT *cx = &cxstack[cxstack_ix];
-        SV **argp = cx->blk_sub.argarray; /* really -1 */
-        SV **st = (SV**)cx->blk_sub.savearray;
-        const unsigned int num_args = st - argp + 1;
+        dMARK;
         void **argvalues;
+        ffi_arg rvalue;
+        const unsigned int num_args = SP - MARK;
 
         if (CvHASSIG(cv) && num_args) {
             /* XXX prefer alloca() */
             argvalues = (void**)malloc(num_args * sizeof(ffi_arg));
-            prep_ffi_sig(cv, num_args, argp, argvalues);
+            prep_ffi_sig(cv, num_args, MARK+1, argvalues);
         } else {
             argvalues = NULL;
         }
         ffi_call(INT2PTR(ffi_cif*, CvFFILIB(cv)), CvXFFI(cv),
                  &rvalue, argvalues);
-        prep_ffi_ret(cv, (void*)rvalue);
+#if 1
+        /* Enforce some sanity in scalar context. */
+        if (GIMME_V == G_SCALAR) {
+            SV **svp = PL_stack_base + POPMARK;
+            if (svp != PL_stack_sp) {
+                *svp = svp > PL_stack_sp ? UNDEF : *PL_stack_sp;
+                SP = svp;
+            }
+        }
+#endif    
+        if (GIMME_V != G_VOID) {
+            PUTBACK;
+            /*prep_ffi_ret(cv, (void*)rvalue);*/
+            *sp = sv_2mortal(newSViv((IV)(long)rvalue));
+        }
 
         free(argvalues); /* if not alloca */
 #else
@@ -601,14 +611,6 @@ PP(pp_enterffi)
     }
 #endif
 
-    /* Enforce some sanity in scalar context. */
-    if (is_scalar) {
-        SV **svp = PL_stack_base + markix + 1;
-        if (svp != PL_stack_sp) {
-            *svp = svp > PL_stack_sp ? UNDEF : *PL_stack_sp;
-            PL_stack_sp = svp;
-        }
-    }
     return NORMAL;
 }
 
