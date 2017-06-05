@@ -27,5 +27,7 @@ is( scalar keys %vers, 1, 'All Module-CoreList modules should have the same $VER
 my $curver = $];
 $curver .= 'c' if $^V =~ /c$/;
 my $released = $Module::CoreList::released{ $curver };
+# duplicate fetch to avoid 'used only once: possible typo' warning
+$released = $Module::CoreList::released{ $curver };
 ok( defined $released, "There is a released entry for $curver" );
 #like( $released, qr!^\d{4}\-\d{2}\-\d{2}$!, 'It should be a date in YYYY-MM-DD format' );
