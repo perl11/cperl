@@ -1999,6 +1999,8 @@ Perl_bytes_from_utf8(pTHX_ const U8 *s, STRLEN *len, bool *is_utf8)
     *is_utf8 = FALSE;
 
     Newx(d, (*len) - count + 1, U8);
+
+    if (LIKELY(count)) {
     s = start; start = d;
     while (s < send) {
 	U8 c = *s++;
@@ -2011,7 +2013,14 @@ Perl_bytes_from_utf8(pTHX_ const U8 *s, STRLEN *len, bool *is_utf8)
     }
     *d = '\0';
     *len = d - start;
+
     return (U8 *)start;
+    }
+    else {
+        Copy(start, d, *len, U8);
+        *(d + *len) = '\0';
+        return (U8 *)d;
+    }
 }
 
 /*
