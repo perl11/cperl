@@ -456,7 +456,6 @@ XS_EXTERNAL(XS_strict_unimport)
  */
 
 /* ffi helpers */
-#if defined(D_LIBFFI) && defined(USE_FFI)
 
 /* compile-time */
 /*
@@ -471,6 +470,7 @@ See C<man ffi_prep_cif>.
 static void
 S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
 {
+#if defined(D_LIBFFI) && defined(USE_FFI)
     UNOP_AUX *sigop = CvSIGOP(cv);
     UNOP_AUX_item *items = sigop->op_aux;
     ffi_cif* cif = (ffi_cif*)safemalloc(sizeof(ffi_cif));
@@ -583,7 +583,13 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
         Perl_croak(aTHX_ "ffi_prep_cif error %d", status );
     }
     CvFFILIB(cv) = PTR2ul(cif);
+#else
+    Perl_warner(aTHX_ packWARN(WARN_SYNTAX),
+                "libffi not available");
+#endif
 }
+
+#if defined(D_LIBFFI) && defined(USE_FFI)
 
 /* run-time */
 /*
@@ -938,7 +944,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                     if (negated) {
                         /* update nativeconv ABI */
                         nativeconv[0] = '\0';
-                        S_prep_cif(aTHX_ (CV*)sv, NULL);
+                        prep_cif((CV*)sv, NULL);
                     }
                     else {
                         Perl_warn(aTHX_ ":%s() argument missing", name);
@@ -994,7 +1000,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
         ;
     }
     if (is_native) {
-        S_prep_cif(aTHX_ (CV*)sv, nativeconv);
+        prep_cif((CV*)sv, (const char*)nativeconv);
     }
 
     return nret;
