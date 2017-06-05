@@ -458,6 +458,134 @@ XS_EXTERNAL(XS_strict_unimport)
 /* ffi helpers */
 
 /* compile-time */
+
+#if defined(D_LIBFFI) && defined(USE_FFI)
+static ffi_type*
+S_prep_sig(pTHX_ const char *name, int l)
+{
+    if (l>6 && memEQc(name, "main::")) {
+        name += 6;
+        l -= 6;
+    }
+    if (l == 3) {
+        if (memEQc(name, "int") ||
+            memEQc(name, "Int")) {
+            return &ffi_type_sint;
+        }
+        else if (memEQc(name, "str") || /* Uni */
+                 memEQc(name, "Str") ||
+                 memEQc(name, "ptr")) {
+            return &ffi_type_pointer;
+        }
+        else if (memEQc(name, "num") ||
+                 memEQc(name, "Num")) {
+            return &ffi_type_double;
+        }
+    }
+    else if (l == 4) {
+        if (memEQc(name, "void")) {
+            return &ffi_type_void;
+        }
+        else if (memEQc(name, "long")) {
+            return &ffi_type_slong;
+        }
+        else if (memEQc(name, "uint") ||
+                 memEQc(name, "UInt")) {
+            return &ffi_type_uint;
+        }
+        else if (memEQc(name, "char") ||
+                 memEQc(name, "int8")) {
+            return &ffi_type_schar;
+        }
+        else if (memEQc(name, "bool")) {
+            return &ffi_type_schar;
+        }
+        else if (memEQc(name, "byte")) {
+            return &ffi_type_uchar;
+        }
+    } else if (l == 5) {
+        if (memEQc(name, "int32")) {
+            return &ffi_type_sint32;
+        }
+        else if (memEQc(name, "int16")) {
+            return &ffi_type_sint16;
+        }
+        else if (memEQc(name, "int64")) {
+            /* TODO: on 32bit check overflow => Math::BigInt */
+#ifdef HAS_QUAD
+            return &ffi_type_sint64;
+#else
+            Perl_warn(aTHX_ "ffi: Possible %s overflow %" IVdf,
+                      name, (I64TYPE)rvalue);
+            return &ffi_type_sint64;
+#endif
+        }
+        else if (memEQc(name, "uint8")) {
+            return &ffi_type_uint8;
+        }
+        else if (memEQc(name, "ulong")) {
+            return &ffi_type_ulong;
+        }
+        else if (memEQc(name, "float") ||
+                 memEQc(name, "num32")) {
+            return &ffi_type_float;
+        }
+        else if (memEQc(name, "num64")) {
+            return &ffi_type_double;
+        }
+    } else if (l == 6) {
+        if (memEQc(name, "uint32")) {
+            return &ffi_type_uint32;
+        }
+        else if (memEQc(name, "uint16")) {
+            return &ffi_type_uint16;
+        }
+        else if (memEQc(name, "uint64")) {
+            /* TODO: on 32bit check overflow => Math::BigInt */
+#ifdef HAS_QUAD
+            return &ffi_type_uint64;
+#else
+            Perl_warn(aTHX_ "ffi: Possible %s overflow %" UVuf,
+                      name, (UV)rvalue);
+            return &ffi_type_uint64;
+#endif
+        }
+        else if (memEQc(name, "size_t")) {
+            return &ffi_type_sint;
+        }
+        else if (memEQc(name, "double")) {
+            return &ffi_type_double;
+        }
+    } else {
+        if (memEQs(name, l, "longlong")) {
+#ifdef HAS_LONG_LONG
+            return &ffi_type_sint64;
+#elif defined(HAS_QUAD)
+            return &ffi_type_sint64;
+#else
+            /* TODO: check overflow => Math::BigInt */
+            Perl_warn(aTHX_ "ffi: Possible %s overflow %" IVdf,
+                      name, (IV)rvalue);
+            return &ffi_type_sint64;
+#endif
+        }
+        if (memEQs(name, l, "longdouble")) {
+#ifdef ffi_type_longdouble
+            return &ffi_type_longdouble;
+#else
+            return &ffi_type_double;
+#endif
+        }
+        else if (memEQs(name, l, "OpaquePointer") ||
+                 memEQs(name, l, "Pointer")) {
+            return &ffi_type_pointer;
+        }
+    }
+    Perl_warn(aTHX_ "Unknown ffi return type :%s", name);
+    return &ffi_type_void;
+}
+#endif
+
 /*
 =for apidoc prep_cif
 
@@ -478,14 +606,26 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
     const UV   params      = items[0].uv;
     const UV   mand_params = params >> 16;
     const UV   opt_params  = params & ((1<<15)-1);
-    const bool slurpy      = cBOOL((params >> 15) & 1);
+    /*const bool slurpy      = cBOOL((params >> 15) & 1);*/
     const unsigned int num_args = mand_params + opt_params;
-    /* alloca? Does ffi_prep_cif copy the ret and argtypes? No */
-    ffi_type **argtypes = (ffi_type**)safemalloc(num_args * sizeof(ffi_type*));
+    unsigned int i;
+    UV  actions;
+    PADOFFSET pad_ix;
+    PADNAMELIST *namepad = PadlistNAMES(CvPADLIST(cv));
+#define PAD_NAME(pad_ix) padnamelist_fetch(namepad, pad_ix)
+    PADNAME *argname;
+
+    /* alloca? ffi_prep_cif does not copy the ret and argtypes,
+       so we need it on the heap. */
+    ffi_type **argtypes;
     ffi_type *rtype;
     ffi_status status;
     ffi_abi abi = FFI_DEFAULT_ABI;
     PERL_ARGS_ASSERT_PREP_CIF;
+
+    if (!CvXFFI(cv)) /* miniperl */
+        return;
+    argtypes = (ffi_type**)safemalloc(num_args * sizeof(ffi_type*));
 
 #define CHK_ABI(conv)                    \
         if (strEQc(nativeconv, #conv)) { \
@@ -573,13 +713,87 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
         else
             Perl_croak(aTHX_ "Illegal :nativeconv(%s) argument", nativeconv);
     }
-    /* XXX walk sigs */
-    argtypes[0] = &ffi_type_sint;
-    rtype = &ffi_type_sint;
+    /* TODO walk sigs to perform compile-time type checks: sample long labs(long) */
+#if 0
+    argtypes[0] = &ffi_type_sint64;
+    rtype = &ffi_type_sint64;
+#else
+    argname = PAD_NAME(0);
+    if (argname && PadnameTYPE(argname)) {
+        HV *type = PadnameTYPE(argname);
+        rtype = S_prep_sig(aTHX_ HvNAME(type), HvNAMELEN(type));
+    } else {
+        rtype = &ffi_type_void;
+    }
+    if (!num_args)
+        return;
 
-    if ((status = ffi_prep_cif(cif, abi, num_args, rtype, argtypes))
-        != FFI_OK)
-    {
+    actions = (++items)->uv;
+    for (i=0; i<num_args; i++) {
+        UV action = actions & SIGNATURE_ACTION_MASK;
+        if (action == SIGNATURE_reload) {
+            actions = (++items)->uv;
+            action = actions & SIGNATURE_ACTION_MASK;
+        } else if (action == SIGNATURE_padintro) {
+            UV data = (++items)->uv;
+            /*UV varcount = data & OPpPADRANGE_COUNTMASK;*/
+            pad_ix = data >> OPpPADRANGE_COUNTSHIFT;
+            /*padp = &(PAD_SVl(pad_ix));*/
+            actions >>= SIGNATURE_SHIFT;
+            action = actions & SIGNATURE_ACTION_MASK;
+        }
+        argname = PAD_NAME(pad_ix);
+        switch (action) {
+        case SIGNATURE_arg:
+            if (UNLIKELY(actions & SIGNATURE_FLAG_ref)) {
+                /* ffi(\$i :int) semantics: pointer to int? */
+                argtypes[i] = &ffi_type_pointer;
+                /* Perl_croak(aTHX_ "Illegal ref argument for extern sub");*/
+            }
+            items--;
+        case SIGNATURE_arg_default_iv:
+        case SIGNATURE_arg_default_const:
+        case SIGNATURE_arg_default_padsv:
+        case SIGNATURE_arg_default_gvsv:
+            items++; /* the default sv/gv */
+        case SIGNATURE_arg_default_op:
+        case SIGNATURE_arg_default_none:
+        case SIGNATURE_arg_default_undef:
+        case SIGNATURE_arg_default_0:
+        case SIGNATURE_arg_default_1:
+            /*arg++;*/
+            if (argname && PadnameTYPE(argname)) {
+                HV *type = PadnameTYPE(argname);
+                /* ffi(\$i :int) semantics: pointer to int? */
+                if (UNLIKELY(actions & SIGNATURE_FLAG_ref)) {
+                    argtypes[i] = &ffi_type_pointer;
+                } else {
+                    argtypes[i] = S_prep_sig(HvNAME(type), HvNAMELEN(type));
+                }
+            } else {
+                Perl_croak(aTHX_ "Missing type for extern sub argument %s",
+                           PadnamePV(argname));
+            }
+            if (UNLIKELY(actions & SIGNATURE_FLAG_skip)) {
+                items--;
+                break;
+            }
+            /*
+            if (UNLIKELY(action != SIGNATURE_arg)) {
+                /*DEBUG_kv(Perl_deb(aTHX_
+                    "ck_sig: default action=%d (default ignored)\n", (int)action));
+                optional = TRUE;
+                if (actions & SIGNATURE_FLAG_ref) {
+                    Perl_croak(aTHX_ "Reference parameter cannot take default value");
+                }
+            }*/
+        }
+        pad_ix++;
+    }
+#endif
+    
+    status = ffi_prep_cif(cif, abi, num_args, rtype, argtypes);
+    if (status != FFI_OK) {
         Perl_croak(aTHX_ "ffi_prep_cif error %d", status );
     }
     CvFFILIB(cv) = PTR2ul(cif);
@@ -596,7 +810,8 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
 =for apidoc prep_ffi_sig
 
 Check the given arguments for type and arity, and fill the void* argvalue[]
-array with it.
+array with it. Similar to C<pp_signature>, just matching ffi types to libffi,
+not coretypes to perl types.
 
 The ffi_cif at CvFFLIB(cv) contains information describing the data
 types, sizes and alignments of the arguments to and return value from
@@ -610,20 +825,92 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
     unsigned int i;
     UNOP_AUX *sigop = CvSIGOP(cv);
     UNOP_AUX_item *items = sigop->op_aux;
+    /*SV **padp;*/       /* pad slot for signature var */
     UV   params      = items[0].uv;
     UV   mand_params = params >> 16;
     UV   opt_params  = params & ((1<<15)-1);
+    UV   actions;
+    PADNAMELIST *namepad = PadlistNAMES(CvPADLIST(cv));
+#define PAD_NAME(pad_ix) padnamelist_fetch(namepad, pad_ix)
+    HV*  type;
+    PADOFFSET pad_ix;
     bool slurpy      = cBOOL((params >> 15) & 1);
     PERL_ARGS_ASSERT_PREP_FFI_SIG;
 
+    if (UNLIKELY(num_args < mand_params)) {
+	/* diag_listed_as: Not enough arguments for %s%s%s */
+        Perl_croak(aTHX_ "Not enough arguments for %s%s%s %s. Want: %" UVuf
+                   ", but got: %" UVuf,
+                   CvDESC3(cv),
+                   SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                   mand_params, num_args);
+    }
+    if (UNLIKELY(!slurpy && num_args > mand_params + opt_params)) {
+        if (opt_params)
+            /* diag_listed_as: Too many arguments for %s%s%s */
+            Perl_croak(aTHX_ "Too many arguments for %s%s%s %s. Want: %" UVuf "-%" UVuf
+                       ", but got: %" UVuf,
+                       CvDESC3(cv),
+                       SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                       mand_params, mand_params + opt_params, num_args);
+        else
+            /* diag_listed_as: Too many arguments for %s%s%s */
+            Perl_croak(aTHX_ "Too many arguments for %s%s%s %s. Want: %" UVuf
+                       ", but got: %" UVuf,
+                       CvDESC3(cv),
+                       SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                       mand_params, num_args);
+    }
+    /* For an empty signature, our only task was to check that the caller
+     * didn't provide any args */
+    if (!params)
+        return;
+
+    actions = (++items)->uv;
     for (i=0; i<num_args; i++) {
+        UV action = actions & SIGNATURE_ACTION_MASK;
+        PADNAME* argname;
+        ffi_type *argtype;
+        /* if (actions & SIGNATURE_FLAG_ref) yet unhandled: (\$i :int) */
+        if (action == SIGNATURE_reload) {
+            actions = (++items)->uv;
+            action = actions & SIGNATURE_ACTION_MASK;
+        } else if (action == SIGNATURE_padintro) {
+            UV data = (++items)->uv;
+            /*UV varcount = data & OPpPADRANGE_COUNTMASK;*/
+            pad_ix = data >> OPpPADRANGE_COUNTSHIFT;
+            /* padp = &(PAD_SVl(pad_ix)); */
+        }
+        argname = PAD_NAME(pad_ix);
+        if (argname && PadnameTYPE(argname)) {
+            type = PadnameTYPE(argname);
+            argtype = S_prep_sig(HvNAME(type), HvNAMELEN(type));
+        } else {
+            Perl_croak(aTHX_ "Wrong type %s for extern sub argument %d. Need %s",
+                       "?", i, "?");
+        }
+
         /* TODO: walk sig items, add run-time type-checks, add missing default values */
-        if (SvPOK(*argp))
-            *argvalues++ = &SvPVX(*argp++);
-        else if (SvIOK(*argp))
-            *argvalues++ = &SvIVX(*argp++);
-        else if (SvNOK(*argp))
+        if (SvPOK(*argp)) {
+            if (argtype == &ffi_type_pointer)
+                *argvalues++ = &SvPVX(*argp++);
+            else
+                Perl_croak(aTHX_ "Wrong type %s for extern sub argument %d. Need %s",
+                           HvNAME(type), i, "Pointer");
+        }
+        else if (SvIOK(*argp)) {
+            if (argtype != &ffi_type_pointer)
+                *argvalues++ = &SvIVX(*argp++);
+        }
+        else if (SvNOK(*argp)) {
             *argvalues++ = &SvNVX(*argp++);
+        } else {
+            Perl_croak(aTHX_ "Wrong type %s for extern sub argument %d. Need %s",
+                       HvNAME(type), i, "?");
+        }
+
+        actions >>= SIGNATURE_SHIFT;
+        pad_ix++;
     }
 }
 
@@ -636,7 +923,7 @@ The types were declared as sub attribute, defaulting currently to :long.
 
 More types than coretypes supported: void, ptr, float, double, long,
 ulong, char, byte (U8), int8, int16, int64, uint8, uint16, uint32, uint64,
-longlong, num32, num64, bool, size_t, Pointer, OpaquePointer (deprecated),
+longlong, num32, num64, longdouble, bool, size_t, Pointer, OpaquePointer (deprecated),
 but they need a declaration via C<use ffi>.
 
 =cut
@@ -824,7 +1111,8 @@ S_find_symbol(pTHX_ CV* cv, char *name)
     IV handle = CvFFILIB(cv) ? (IV)CvFFILIB(cv) : (IV)RTLD_DEFAULT;
     if (!dl_find_symbol) {
         CvFFILIB(cv) = 0;
-        Perl_warn(aTHX_ "no ffi with miniperl");
+        CvXFFI(cv) = NULL;
+        Perl_ck_warner_d(aTHX_ packWARN(WARN_UTF8), "no ffi with miniperl");
         return; /* miniperl */
     }
 

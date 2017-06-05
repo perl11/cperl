@@ -12218,12 +12218,15 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
         }
     }
 
-    if (block) {
+    if (CvEXTERN(cv)) {
+        CvXSUB(cv) = NULL;
+        CvFFILIB(cv) = 0;
+    } else if (block) {
         /* If we assign an optree to a PVCV, then we've defined a subroutine that
            the debugger could be able to set a breakpoint in, so signal to
            pp_entereval that it should not throw away any saved lines at scope
            exit.  */
-       
+
         PL_breakable_sub_gen++;
 #ifdef PERL_DEBUG_READONLY_OPS
         slab = (OPSLAB *)CvSTART(cv);
@@ -12243,8 +12246,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	apply_attrs(stash, MUTABLE_SV(cv), attrs);
 	if (!name)
             SvREFCNT_inc_simple_void_NN(cv);
-    } else
-    if (CvEXTERN(cv)) {
+    } else if (CvEXTERN(cv)) { /* find the symbol in the loaded libs */
 	HV *stash = GvSTASH(CvGV(cv))
             ? GvSTASH(CvGV(cv))
             : PL_curstash;
@@ -12253,7 +12255,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
     }
 
     if (block && has_name) {
-	if (PERLDB_SUBLINE && PL_curstash != PL_debstash) {
+	if (UNLIKELY(PERLDB_SUBLINE && PL_curstash != PL_debstash)) {
 	    SV * const cvname = cv_name(cv, NULL, CV_NAME_NOMAIN);
 	    GV * const db_postponed = gv_fetchpvs("DB::postponed",
 						  GV_ADDMULTI, SVt_PVHV);

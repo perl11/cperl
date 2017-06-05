@@ -5777,6 +5777,7 @@ t/op/evalbytes.t		See if evalbytes operator works
 t/op/exec.t			See if exec, system and qx work
 t/op/exists_sub.t		See if exists(&sub) works
 t/op/exp.t			See if math functions work
+t/op/extern.t			See if the ffi works
 t/op/fh.t			See if filehandles work
 t/op/filehandle.t		Tests for http://rt.perl.org/rt3/Ticket/Display.html?id=72586
 t/op/filetest.t			See if file tests work

@@ -586,28 +586,16 @@ PP(pp_enterffi)
         } else {
             argvalues = NULL;
         }
+
         ffi_call(INT2PTR(ffi_cif*, CvFFILIB(cv)), CvXFFI(cv),
                  &rvalue, argvalues);
-#if 1
-        /* Enforce some sanity in scalar context. */
-        if (GIMME_V == G_SCALAR) {
-            SV **svp = PL_stack_base + POPMARK;
-            if (svp != PL_stack_sp) {
-                *svp = svp > PL_stack_sp ? UNDEF : *PL_stack_sp;
-                SP = svp;
-            }
-        }
-#endif    
+        SP = MARK; /* PL_stack_base + POPMARK; */
+
         if (GIMME_V != G_VOID) {
-            PUTBACK;
-#if 1
-            prep_ffi_ret(cv, sp, (void*)rvalue);
-#else
-            if (SvIOK(*sp))
-                SvIVX(*sp) = (IV)(long)rvalue;
-            else
-                *sp = sv_2mortal(newSViv((IV)(long)rvalue));
-#endif
+            /* leave room for one return arg. like EXTEND(SP, 1) */
+            SP++;
+            prep_ffi_ret(cv, SP, (void*)rvalue);
+            SPAGAIN;
         }
 
         free(argvalues); /* if not alloca */

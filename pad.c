@@ -65,13 +65,14 @@ implementation detail subject to change.  To test for them, use
 C<!PadnamePV(name)> and S<C<PadnamePV(name) && !PadnameLEN(name)>>,
 respectively.
 
-Only lexical variable slots get valid names (i.e. my/our/state/has).
-The rest are op targets/GVs/constants which are statically allocated
-or resolved at compile time.  These don't have names by which they
-can be looked up from Perl code at run time through eval"" the way
-lexical variables can be.  Since they can't be looked up by "name"
-but only by their index allocated at compile time (which is usually
-in C<< PL_op->op_targ >>), wasting a name SV for them doesn't make sense.
+Only lexical variable slots and signature variables get valid names
+(i.e. my/our/state/has).  The rest are op targets/GVs/constants which
+are statically allocated or resolved at compile time.  These don't
+have names by which they can be looked up from Perl code at run time
+through eval"" the way lexical variables can be.  Since they can't be
+looked up by "name" but only by their index allocated at compile time
+(which is usually in C<< PL_op->op_targ >>), wasting a name SV for
+them doesn't make sense.
 
 The pad names in the PADNAMELIST have their PV holding the name of
 the variable.  The C<COP_SEQ_RANGE_LOW> and C<_HIGH> fields form a range
@@ -116,10 +117,9 @@ is a CV representing a possible closure.
 Note that formats are treated as anon subs, and are cloned each time
 write is called (if necessary).
 
-The flag C<SVs_PADSTALE> is cleared on lexicals each time the C<my()> is executed,
-and set on scope exit.  This allows the
-C<"Variable $x is not available"> warning
-to be generated in evals, such as 
+The flag C<SVs_PADSTALE> is cleared on lexicals each time the C<my()>
+is executed, and set on scope exit.  This allows the C<"Variable $x is
+not available"> warning to be generated in evals, such as
 
     { my $x = 1; sub f { eval '$x'} } f();
 
@@ -383,7 +383,7 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
     /* This statement and the subsequence if block was pad_undef().  */
     pad_peg("pad_undef");
 
-    if (!CvISXSUB(&cvbody) && CvPADLIST(&cvbody)) {
+    if ((!CvISXSUB(&cvbody) || CvEXTERN(&cvbody)) && CvPADLIST(&cvbody)) {
 	PADOFFSET ix;
 	const PADLIST *padlist = CvPADLIST(&cvbody);
 
