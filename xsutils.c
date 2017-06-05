@@ -631,15 +631,152 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
 =for apidoc prep_ffi_ret
 
 Translate the ffi_call return value back to the perl type.
+The types were declared as sub attribute, defaulting to :long.
+
+More types than coretypes supported: void, ptr, float, double, long,
+ulong, char, byte (U8), int8, int16, int64, uint8, uint16, uint32, uint64,
+longlong, num32, num64, Pointer, bool, size_t, OpaquePtr
+but they need a declaration via C<use ffi>.
 
 =cut
 */
 void
-Perl_prep_ffi_ret(pTHX_ CV* cv, void *rvalue)
+Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, void *rvalue)
 {
-    dSP; dTARG;
+    /*dTARG;*/
+    const HV* typestash = PadnameTYPE(PAD_COMPNAME(0)); /* first slot: rettype */
     PERL_ARGS_ASSERT_PREP_FFI_RET;
-    mXPUSHi((IV)(long)rvalue);
+    if (!typestash) {
+        mXPUSHi((IV)(long)rvalue);
+        return;
+    } else {
+        const char *name = HvNAME(typestash);
+        int l = HvNAMELEN(typestash);
+
+        if (!name) {
+            mXPUSHi((IV)(long)rvalue);
+            return;
+        }
+        if (l>6 && memEQc(name, "main::")) {
+            name += 6;
+            l -= 6;
+        }
+        if (l == 3) {
+            if (memEQc(name, "int") ||
+                memEQc(name, "Int")) {
+                mXPUSHi((IV)(int)rvalue);
+                return;
+            }
+            if (memEQc(name, "str") ||
+                memEQc(name, "Str")) {
+                mXPUSHp((char*)rvalue, strlen((char*)rvalue));
+                return;
+            }
+            if (memEQc(name, "ptr")) {
+                mXPUSHi((IV)(long)rvalue);
+                return;
+            }
+            if (memEQc(name, "num") ||
+                memEQc(name, "Num")) {
+                mXPUSHn(PTR2NV(rvalue));
+                return;
+            }
+        }
+        else if (l == 4) {
+            if (memEQc(name, "void"))
+                return;
+            if (memEQc(name, "long")) {
+                mXPUSHi((IV)(long)rvalue);
+                return;
+            }
+            if (memEQc(name, "uint") ||
+                memEQc(name, "UInt")) {
+                mXPUSHu((UV)(unsigned int)rvalue);
+                return;
+            }
+            if (memEQc(name, "char") ||
+                memEQc(name, "bool") ||
+                memEQc(name, "int8")) {
+                mXPUSHi((IV)(signed char)rvalue);
+                return;
+            }
+            if (memEQc(name, "byte")) {
+                mXPUSHu((UV)(unsigned char)rvalue);
+                return;
+            }
+        } else if (l == 5) {
+            if (memEQc(name, "int16")) {
+                mXPUSHi((IV)(I16)rvalue);
+                return;
+            }
+            if (memEQc(name, "int32")) {
+                mXPUSHi((IV)(I32)rvalue);
+                return;
+            }
+            if (memEQc(name, "int64")) {
+                /* TODO: on 32bit check overflow => Math::BigInt */
+#ifdef HAS_QUAD
+                mXPUSHi((IV)(I64)rvalue);
+#endif
+                return;
+            }
+            if (memEQc(name, "uint8")) {
+                mXPUSHu((UV)(U8)rvalue);
+                return;
+            }
+            if (memEQc(name, "ulong")) {
+                mXPUSHu((UV)(unsigned long)rvalue);
+                return;
+            }
+            if (memEQc(name, "float") ||
+                memEQc(name, "num32")) {
+                mXPUSHn((NV)NUM2PTR(float,rvalue));
+                return;
+            }
+            if (memEQc(name, "num64")) {
+                mXPUSHn((NV)NUM2PTR(double,rvalue));
+                return;
+            }
+        } else if (l == 6) {
+            if (memEQc(name, "uint16")) {
+                mXPUSHi((IV)(U16)rvalue);
+                return;
+            }
+            if (memEQc(name, "uint32")) {
+                mXPUSHi((IV)(U32)rvalue);
+                return;
+            }
+            if (memEQc(name, "uint64")) {
+                /* TODO: on 32bit check overflow => Math::BigInt */
+#ifdef HAS_QUAD
+                mXPUSHi((IV)(U64)rvalue);
+#endif
+                return;
+            }
+            if (memEQc(name, "double")) {
+                mXPUSHn((NV)NUM2PTR(double,rvalue));
+                return;
+            }
+        } else {
+            if (memEQs(name, l, "longlong")) {
+#ifdef HAS_LONG_LONG
+                /* TODO: check overflow => Math::BigInt */
+                mXPUSHi((IV)(long long)rvalue);
+#elif defined(HAS_QUAD)
+                mXPUSHi((IV)(Quad_t)rvalue);
+#else
+                mXPUSHi((IV)(I64)rvalue);
+#endif
+                return;
+            }
+            if (memEQs(name, l, "OpaquePtr")) {
+                mXPUSHi((IV)(long)rvalue);
+                return;
+            }
+        }
+        Perl_warn(aTHX_ "Unknown ffi return type :%s, assume :long", name);
+        mXPUSHi((IV)(long)rvalue);
+    }
 }
 
 #endif

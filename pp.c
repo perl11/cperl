@@ -600,8 +600,14 @@ PP(pp_enterffi)
 #endif    
         if (GIMME_V != G_VOID) {
             PUTBACK;
-            /*prep_ffi_ret(cv, (void*)rvalue);*/
-            *sp = sv_2mortal(newSViv((IV)(long)rvalue));
+#if 1
+            prep_ffi_ret(cv, sp, (void*)rvalue);
+#else
+            if (SvIOK(*sp))
+                SvIVX(*sp) = (IV)(long)rvalue;
+            else
+                *sp = sv_2mortal(newSViv((IV)(long)rvalue));
+#endif
         }
 
         free(argvalues); /* if not alloca */

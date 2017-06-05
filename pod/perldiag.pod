@@ -7014,6 +7014,11 @@ compiler does not recognize.  Check your spelling.
 (P) Perl was about to print an error message in C<$@>, but the C<$@> variable
 did not exist, even after an attempt to create it.
 
+=item Unknown ffi return type :%s, assume :long
+
+(S) The extern subroutine return type declaration is not a valid
+package name. See L<ffi/types>.
+
 =item Unknown locale category %d; can't set it to %s
 
 (W locale) You used a locale category that perl doesn't recognize, so it

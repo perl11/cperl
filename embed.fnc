@@ -3512,7 +3512,7 @@ s	|void	|prep_cif	|NN CV* cv|NULLOK const char *nativeconv
 #ifdef USE_FFI
 Apd	|void	|prep_ffi_sig	|NN CV* cv|const unsigned int num_args \
 				|NN SV** argp|NN void **argvalues
-Apd	|void	|prep_ffi_ret	|NN CV* cv|NN void *rvalue
+Apd	|void	|prep_ffi_ret	|NN CV* cv|NN SV** sp|NN void *rvalue
 #endif
 
 : ex: set ts=8 sts=4 sw=4 noet:
