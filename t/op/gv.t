@@ -12,7 +12,7 @@ BEGIN {
 
 use warnings;
 
-plan(tests => 281);
+plan(tests => 283);
 
 # type coercion on assignment
 $foo = 'foo';
@@ -1194,6 +1194,30 @@ is ($? & 127, 0,"[cperl #299] No crash with freed GV");
 # [perl #131085] This used to crash; no ok() necessary.
 $::{"A131085"} = sub {}; my $x = \&{"A131085"};
 
+
+#
+# Deprecated before 5.28, fatal since then
+#
+undef $@;
+eval << '--';
+    sub Other::AUTOLOAD {1}
+    sub Other::fred {}
+    @ISA = qw [Other];
+    fred ();
+    my $x = \&barney;
+    (bless []) -> barney;
+--
+like $@, qr /^Use of inherited AUTOLOAD for non-method main::fred\(\) is no longer allowed/, "Cannot inherit AUTOLOAD";
+
+undef $@;
+eval << '--';
+    use utf8;
+    use open qw [:utf8 :std];
+    sub Oᕞʀ::AUTOLOAD { 1 } sub Oᕞʀ::fᕃƌ {}
+    @ISA = qw(Oᕞʀ) ;
+    fᕃƌ() ;
+--
+like $@, qr /^Use of inherited AUTOLOAD for non-method main::f\x{1543}\x{18c}\(\) is no longer allowed/, "Cannot inherit AUTOLOAD";
 
 __END__
 Perl
