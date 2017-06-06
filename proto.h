@@ -2506,6 +2506,7 @@ PERL_CALLCONV bool	Perl_isIDFIRST_lazy(pTHX_ const char* p)
 /* PERL_CALLCONV bool	Perl_is_ascii_string(const U8* const s, const STRLEN len)
 			__attribute__global__
 			__attribute__warn_unused_result__
+			__attribute__pure__
 			__attribute__nonnull__(1); */
 
 #ifndef PERL_NO_INLINE_FUNCTIONS
@@ -2531,6 +2532,7 @@ PERL_STATIC_INLINE bool	S_is_c9strict_utf8_string_loclen(const U8 *s, const STRL
 /* PERL_CALLCONV bool	Perl_is_invariant_string(const U8* const s, const STRLEN len)
 			__attribute__global__
 			__attribute__warn_unused_result__
+			__attribute__pure__
 			__attribute__nonnull__(1); */
 
 PERL_CALLCONV I32	Perl_is_lvalue_sub(pTHX)
@@ -2838,11 +2840,16 @@ PERL_CALLCONV bool	Perl_is_utf8_idfirst(pTHX_ const U8 *p)
 #define PERL_ARGS_ASSERT_IS_UTF8_IDFIRST	\
 	assert(p)
 
+/* PERL_CALLCONV bool	is_utf8_invariant_string(const U8* const s, STRLEN const len)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(1); */
+
 #ifndef PERL_NO_INLINE_FUNCTIONS
-PERL_STATIC_INLINE bool	S_is_utf8_invariant_string(const U8* const s, STRLEN const len)
+PERL_STATIC_INLINE bool	S_is_utf8_invariant_string_loc(const U8* const s, STRLEN const len, const U8 ** ep)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(1);
-#define PERL_ARGS_ASSERT_IS_UTF8_INVARIANT_STRING	\
+#define PERL_ARGS_ASSERT_IS_UTF8_INVARIANT_STRING_LOC	\
 	assert(s)
 #endif
 
