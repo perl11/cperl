@@ -631,11 +631,12 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
 =for apidoc prep_ffi_ret
 
 Translate the ffi_call return value back to the perl type.
-The types were declared as sub attribute, defaulting to :long.
+The types were declared as sub attribute, defaulting currently to :long.
+(perl6 defaults to :void)
 
 More types than coretypes supported: void, ptr, float, double, long,
 ulong, char, byte (U8), int8, int16, int64, uint8, uint16, uint32, uint64,
-longlong, num32, num64, Pointer, bool, size_t, OpaquePtr
+longlong, num32, num64, bool, size_t, Pointer, OpaquePointer (deprecated),
 but they need a declaration via C<use ffi>.
 
 =cut
@@ -643,139 +644,165 @@ but they need a declaration via C<use ffi>.
 void
 Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, void *rvalue)
 {
-    /*dTARG;*/
     const HV* typestash = PadnameTYPE(PAD_COMPNAME(0)); /* first slot: rettype */
     PERL_ARGS_ASSERT_PREP_FFI_RET;
-    if (!typestash) {
-        mXPUSHi((IV)(long)rvalue);
+    if (!typestash) { /* perl6 has default :void */
+        sp--;
         return;
     } else {
         const char *name = HvNAME(typestash);
         int l = HvNAMELEN(typestash);
 
-        if (!name) {
-            mXPUSHi((IV)(long)rvalue);
+        if (!name) { /* default :void */
+            sp--;
             return;
         }
         if (l>6 && memEQc(name, "main::")) {
             name += 6;
             l -= 6;
         }
+
+#define RET_IV(type)                                \
+    if (SvIOK(*sp))                                 \
+        SvIVX(*sp) = (IV)(type)rvalue;              \
+    else                                            \
+        *sp = sv_2mortal(newSViv((IV)(type)rvalue)); \
+    return
+#define RET_UV(type)                                \
+    if (SvIOK(*sp)) {                               \
+        SvIsUV_on(*sp);                             \
+        SvUVX(*sp) = (UV)(type)rvalue;              \
+    } else                                          \
+        *sp = sv_2mortal(newSVuv((UV)(type)rvalue)); \
+    return
+#define RET_NV(type)                                \
+    if (SvNOK(*sp))                                 \
+        SvNVX(*sp) = (NV)NUM2PTR(type,rvalue);      \
+    else                                            \
+        *sp = sv_2mortal(newSVnv((NV)NUM2PTR(type,rvalue))); \
+    return
+
         if (l == 3) {
             if (memEQc(name, "int") ||
                 memEQc(name, "Int")) {
-                mXPUSHi((IV)(int)rvalue);
+                RET_IV(int);
+            }
+            else if (memEQc(name, "str") || /* Uni */
+                     memEQc(name, "Str")) {
+                /* TODO encoded layer, as magic */
+                if (SvPOK(*sp)) {
+                    SvPV_set(*sp, (char*)rvalue);
+                    SvCUR_set(*sp, strlen((char*)rvalue));
+                    SvUTF8_off(*sp);
+                }
+                else
+                    *sp = sv_2mortal(newSVpvn((char*)rvalue,
+                                              strlen((char*)rvalue)));
                 return;
             }
-            if (memEQc(name, "str") ||
-                memEQc(name, "Str")) {
-                mXPUSHp((char*)rvalue, strlen((char*)rvalue));
-                return;
+            else if (memEQc(name, "ptr")) {
+                RET_IV(long);
             }
-            if (memEQc(name, "ptr")) {
-                mXPUSHi((IV)(long)rvalue);
-                return;
-            }
-            if (memEQc(name, "num") ||
-                memEQc(name, "Num")) {
-                mXPUSHn(PTR2NV(rvalue));
-                return;
+            else if (memEQc(name, "num") ||
+                     memEQc(name, "Num")) {
+                RET_NV(NV);
             }
         }
         else if (l == 4) {
-            if (memEQc(name, "void"))
-                return;
-            if (memEQc(name, "long")) {
-                mXPUSHi((IV)(long)rvalue);
+            if (memEQc(name, "void")) {
+                sp--;
                 return;
             }
-            if (memEQc(name, "uint") ||
-                memEQc(name, "UInt")) {
-                mXPUSHu((UV)(unsigned int)rvalue);
-                return;
+            else if (memEQc(name, "long")) {
+                RET_IV(long);
             }
-            if (memEQc(name, "char") ||
-                memEQc(name, "bool") ||
-                memEQc(name, "int8")) {
-                mXPUSHi((IV)(signed char)rvalue);
-                return;
+            else if (memEQc(name, "uint") ||
+                     memEQc(name, "UInt")) {
+                RET_UV(unsigned int);
             }
-            if (memEQc(name, "byte")) {
-                mXPUSHu((UV)(unsigned char)rvalue);
-                return;
+            else if (memEQc(name, "char") ||
+                     memEQc(name, "int8")) {
+                RET_IV(signed char);
+            }
+            else if (memEQc(name, "bool")) {
+                RET_IV(bool);
+            }
+            else if (memEQc(name, "byte")) {
+                RET_UV(unsigned char);
             }
         } else if (l == 5) {
-            if (memEQc(name, "int16")) {
-                mXPUSHi((IV)(I16)rvalue);
-                return;
-            }
             if (memEQc(name, "int32")) {
-                mXPUSHi((IV)(I32)rvalue);
-                return;
+                RET_IV(I32TYPE);
             }
-            if (memEQc(name, "int64")) {
+            else if (memEQc(name, "int16")) {
+                RET_IV(I16TYPE);
+            }
+            else if (memEQc(name, "int64")) {
                 /* TODO: on 32bit check overflow => Math::BigInt */
 #ifdef HAS_QUAD
-                mXPUSHi((IV)(I64)rvalue);
+                RET_IV(I64TYPE);
+#else
+                Perl_warn(aTHX_ "ffi: Possible %s overflow %" IVdf,
+                          name, (I64TYPE)rvalue);
+                return;
 #endif
-                return;
             }
-            if (memEQc(name, "uint8")) {
-                mXPUSHu((UV)(U8)rvalue);
-                return;
+            else if (memEQc(name, "uint8")) {
+                RET_UV(U8);
             }
-            if (memEQc(name, "ulong")) {
-                mXPUSHu((UV)(unsigned long)rvalue);
-                return;
+            else if (memEQc(name, "ulong")) {
+                RET_UV(unsigned long);
             }
-            if (memEQc(name, "float") ||
+            else if (memEQc(name, "float") ||
                 memEQc(name, "num32")) {
-                mXPUSHn((NV)NUM2PTR(float,rvalue));
-                return;
+                RET_NV(float);
             }
-            if (memEQc(name, "num64")) {
-                mXPUSHn((NV)NUM2PTR(double,rvalue));
-                return;
+            else if (memEQc(name, "num64")) {
+                RET_NV(double);
             }
         } else if (l == 6) {
-            if (memEQc(name, "uint16")) {
-                mXPUSHi((IV)(U16)rvalue);
-                return;
-            }
             if (memEQc(name, "uint32")) {
-                mXPUSHi((IV)(U32)rvalue);
-                return;
+                RET_UV(U32);
             }
-            if (memEQc(name, "uint64")) {
+            else if (memEQc(name, "uint16")) {
+                RET_UV(U16);
+            }
+            else if (memEQc(name, "uint64")) {
                 /* TODO: on 32bit check overflow => Math::BigInt */
 #ifdef HAS_QUAD
-                mXPUSHi((IV)(U64)rvalue);
+                RET_UV(U64);
+#else
+                Perl_warn(aTHX_ "ffi: Possible %s overflow %" UVuf,
+                          name, (UV)rvalue);
+                return;
 #endif
-                return;
             }
-            if (memEQc(name, "double")) {
-                mXPUSHn((NV)NUM2PTR(double,rvalue));
-                return;
+            else if (memEQc(name, "size_t")) {
+                RET_IV(size_t);
+            }
+            else if (memEQc(name, "double")) {
+                RET_NV(double);
             }
         } else {
             if (memEQs(name, l, "longlong")) {
 #ifdef HAS_LONG_LONG
-                /* TODO: check overflow => Math::BigInt */
-                mXPUSHi((IV)(long long)rvalue);
+                RET_IV(long long);
 #elif defined(HAS_QUAD)
-                mXPUSHi((IV)(Quad_t)rvalue);
+                RET_IV(Quad_t);
 #else
-                mXPUSHi((IV)(I64)rvalue);
+                /* TODO: check overflow => Math::BigInt */
+                Perl_warn(aTHX_ "ffi: Possible %s overflow %" IVdf,
+                          name, (IV)rvalue);
+                RET_IV(long);
 #endif
-                return;
             }
-            if (memEQs(name, l, "OpaquePtr")) {
-                mXPUSHi((IV)(long)rvalue);
-                return;
+            else if (memEQs(name, l, "OpaquePointer") ||
+                     memEQs(name, l, "Pointer")) {
+                RET_IV(long);
             }
         }
         Perl_warn(aTHX_ "Unknown ffi return type :%s, assume :long", name);
-        mXPUSHi((IV)(long)rvalue);
+        RET_IV(long);
     }
 }
 
@@ -1070,17 +1097,20 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                 else if (len == 7 && strEQc(name, "encoded")) {
                     if (negated) {
                         /* TODO: remove parameter encoding layer */
+                        encoded[0] = '\0';
                     }
                     else {
-                        Perl_warn(aTHX_ ":%s() argument missing", name);
+                        Copy("utf-8", encoded, 5, char);
                     }
                     goto next_attr;
                 }
                 else if (len == 10 && strEQc(name, "nativeconv")) {
                     if (negated) {
                         /* update nativeconv ABI */
-                        nativeconv[0] = '\0';
-                        prep_cif((CV*)sv, NULL);
+                        if (!is_native)
+                            prep_cif((CV*)sv, NULL);
+                        else /* handled below */
+                            nativeconv[0] = '\0';
                     }
                     else {
                         Perl_warn(aTHX_ ":%s() argument missing", name);
