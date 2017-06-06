@@ -226,7 +226,7 @@ struct Perl_Config { U16 name : 15; U16 type : 1; U16 len; const char *value; };
 #endif
 
 static const struct Perl_Config *
-Config_lookup (register const char *str, register unsigned int len);
+Config_lookup ();
 
 %}
 %language=ANSI-C
