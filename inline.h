@@ -149,10 +149,10 @@ S_TOPMARK(pTHX)
 PERL_STATIC_INLINE I32
 S_POPMARK(pTHX)
 {
-    DEBUG_s(DEBUG_v(PerlIO_printf(Perl_debug_log,
-				 "MARK pop  %p %" IVdf "\n",
-				  (PL_markstack_ptr-1),
-				  (IV)*(PL_markstack_ptr-1))));
+    DEBUG_s(PerlIO_printf(Perl_debug_log,
+                          "MARK pop  %p %" IVdf "\n",
+                          (PL_markstack_ptr-1),
+                          (IV)*(PL_markstack_ptr-1)));
     assert((PL_markstack_ptr > PL_markstack) || !"MARK underflow");
     return *PL_markstack_ptr--;
 }
