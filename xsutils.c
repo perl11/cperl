@@ -780,7 +780,7 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
             }
             /*
             if (UNLIKELY(action != SIGNATURE_arg)) {
-                /*DEBUG_kv(Perl_deb(aTHX_
+                DEBUG_kv(Perl_deb(aTHX_
                     "ck_sig: default action=%d (default ignored)\n", (int)action));
                 optional = TRUE;
                 if (actions & SIGNATURE_FLAG_ref) {
@@ -970,6 +970,8 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, void *rvalue)
         *sp = sv_2mortal(newSVnv((NV)NUM2PTR(type,rvalue))); \
     return
 
+        GCC60_DIAG_IGNORE(-Wnonnull-compare)
+        GCC_DIAG_IGNORE(-Wpointer-to-int-cast)
         if (l == 3) {
             if (memEQc(name, "int") ||
                 memEQc(name, "Int")) {
@@ -1091,6 +1093,8 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, void *rvalue)
         }
         Perl_warn(aTHX_ "Unknown ffi return type :%s, assume :long", name);
         RET_IV(long);
+        GCC_DIAG_RESTORE
+        GCC60_DIAG_RESTORE
     }
 }
 
