@@ -918,10 +918,11 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
 =for apidoc prep_ffi_ret
 
 Translate the ffi_call return value back to the perl type.
-The types were declared as sub attribute, defaulting currently to :long.
-(perl6 defaults to :void)
+The types were declared as sub attribute, defaulting to :void,
+same as perl6.
 
-More types than coretypes supported: void, ptr, float, double, long,
+Via use ffi there are more types than coretypes supported:
+void, ptr, float, double, long,
 ulong, char, byte (U8), int8, int16, int64, uint8, uint16, uint32, uint64,
 longlong, num32, num64, longdouble, bool, size_t, Pointer, OpaquePointer (deprecated),
 but they need a declaration via C<use ffi>.
@@ -934,14 +935,14 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, void *rvalue)
     const HV* typestash = PadnameTYPE(PAD_COMPNAME(0)); /* first slot: rettype */
     PERL_ARGS_ASSERT_PREP_FFI_RET;
     if (!typestash) { /* perl6 has default :void */
-        sp--;
+        PL_stack_sp--;
         return;
     } else {
         const char *name = HvNAME(typestash);
         int l = HvNAMELEN(typestash);
 
         if (!name) { /* default :void */
-            sp--;
+            PL_stack_sp--;
             return;
         }
         if (l>6 && memEQc(name, "main::")) {
@@ -997,7 +998,7 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, void *rvalue)
         }
         else if (l == 4) {
             if (memEQc(name, "void")) {
-                sp--;
+                PL_stack_sp--;
                 return;
             }
             else if (memEQc(name, "long")) {

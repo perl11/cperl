@@ -589,14 +589,12 @@ PP(pp_enterffi)
 
         ffi_call(INT2PTR(ffi_cif*, CvFFILIB(cv)), CvXFFI(cv),
                  &rvalue, argvalues);
-        SP = MARK; /* PL_stack_base + POPMARK; */
-
-        if (GIMME_V != G_VOID) {
-            /* leave room for one return arg. like EXTEND(SP, 1) */
-            SP++;
+        SP = MARK+1; /* PL_stack_base + POPMARK; */
+        PUTBACK;
+        if (GIMME_V != G_VOID) { /* assume XSRETURN(1) */
             prep_ffi_ret(cv, SP, (void*)rvalue);
-            SPAGAIN;
-        }
+        } else
+            PL_stack_sp--;
 
         free(argvalues); /* if not alloca */
 #else
