@@ -76,6 +76,7 @@ typedef struct yy_parser {
     UV		multi_close;	/* delimiter of said string */
     bool        lex_re_reparsing; /* we're doing G_RE_REPARSING */
     U8		lex_super_state;/* lexer state to save */
+    U8		lex_attr_state; /* attr lexer state */
     U16		lex_sub_inwhat;	/* "lex_inwhat" to use in sublex_push */
     I32		lex_allbrackets;/* (), [], {}, ?: bracket count */
     OP		*lex_sub_op;	/* current op in y/// or pattern */
@@ -106,10 +107,10 @@ typedef struct yy_parser {
     COP		*saved_curcop;	/* the previous PL_curcop */
     line_t	herelines;	/* number of lines in here-doc */
     line_t	preambling;	/* line # when processing $ENV{PERL5DB} */
+    U16		in_my;		/* we're compiling a "my"/"our" declaration */
     U8		lex_state;	/* next token is determined */
     U8		error_count;	/* how many compile errors so far, max 10 */
     U8		sub_error_count; /* the number of errors before sublexing */
-    U8		in_my;		/* we're compiling a "my"/"our" declaration */
     U8		form_lex_state;	/* remember lex_state when parsing fmt */
     U8		nexttoke;
     U8		lex_fakeeof;	/* precedence at which to fake EOF */
@@ -120,6 +121,7 @@ typedef struct yy_parser {
     PERL_BITFIELD16	saw_infix_sigil:1; /* saw & or * or % operator */
     PERL_BITFIELD16	parsed_sub:1;  /* last thing parsed was a sub */
     PERL_BITFIELD16	in_class:1;    /* lexer is in a class block */
+    PERL_BITFIELD16	in_sub:1;      /* we're compiling a "sub/method" declaration */
 } yy_parser;
 
 /* flags for lexer API */
