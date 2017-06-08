@@ -96,6 +96,8 @@ MYMETA.*
 
 /miniperl
 /perl
+/perl.devel
+/perl.devel.dSYM
 
 /extra.pods
 /generate_uudmap
@@ -206,6 +208,7 @@ GPATH
 GRPATH
 GRTAGS
 GTAGS
+HTML
 
 .git-rr-cache/DUMMY
 log.test-*

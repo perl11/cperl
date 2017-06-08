@@ -1106,6 +1106,22 @@ $(PERL_EXE): $& $(perlmain_dep) $(LIBPERL) $(static_ext) ext.libs $(PERLEXPORT) 
 
 	$spitshell >>$Makefile <<'!NO!SUBS!'
 
+# perl.devel: skip checking exts and rebuilding miniperl.
+# perl.o always builds miniperl to call make_patchnum.pl for git_version.h
+# perlmain.c ditto
+perl.devel: $(subst $perllib_objs, perl.o,)
+	`sh $(shellflags) cflags "optimize='$(OPTIMIZE)'" perlmain.o` $(PLDLFLAGS) perlmain.c
+	$(SHRPENV) $(LD) -o $@ $(CLDFLAGS) $(CCDLFLAGS) $(perlmain_objs) \
+            $(perllib_objs) $(DYNALOADER) `cat ext.libs` $(libs)
+!NO!SUBS!
+        if test x$osname = xdarwin; then
+	    $spitshell >>$Makefile <<'!NO!SUBS!'
+	dsymutil $@
+!NO!SUBS!
+        fi
+
+	$spitshell >>$Makefile <<'!NO!SUBS!'
+
 # Microperl.  This is just a convenience thing if one happens to
 # build also the full Perl and therefore the real big Makefile:
 # usually one should manually explicitly issue the below command.
@@ -1842,11 +1858,12 @@ distcheck: FORCE
 
 .PHONY: ctags
 
-TAGS: $(c1) $(c2) $(c3) $(c4) $(c5) $(h)
-	etags $(c1) $(c2) $(c3) $(c4) $(c5) $(h)
+TAGS: $(c1) $(c2) $(c3) $(c4) $(c5) $(h) $(inc)
+	etags $(c1) $(c2) $(c3) $(c4) $(c5) $(h) $(inc) mg_*.h
 
 FULLTAGS: $(c1) $(c2) $(c3) $(c4) $(c5) $(h)
-	etags $(c1) $(c2) $(c3) $(c4) $(c5) $(h) `find cpan dist ext -type f -name \*.[ch]`
+	etags $(c1) $(c2) $(c3) $(c4) $(c5) $(h) $(inc) mg_*.h \
+	      `find cpan dist ext -type f -name \*.[ch]`
 
 ctags:
 	ctags -f Tags -N --totals --languages=c --langmap=c:+.h --exclude=opmini.c --exclude=perlmini.c *.c *.h
