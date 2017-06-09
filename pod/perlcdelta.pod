@@ -427,7 +427,11 @@ files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 
 =item *
 
-XXX
+Fixed signature corruption with skip'ed arguments without default and
+with 0, 1, undef or op defaults, such as in C<sub func ($, $=0, $=1,
+$=2, $=do{$i++} $="foo", $a="bar", $b="zoot")>, with the first C<$>,
+the 2nd C<$=0>, the 3rd C<$=1> and the 5th C<$=do{}> argument.
+cperl-only.
 
 =back
 
