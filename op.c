@@ -12353,8 +12353,9 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
                 sv_catpvs(tmpbuf, " ");
                 sv_catsv(tmpbuf, namesv);
                 Perl_sv_catpvf(aTHX_ tmpbuf, " exceeding max %d args", (int)arg);
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: end action=%d pad_ix=%d items=0x%"UVxf" with %d %s op arg\n",
-                                  (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
+                DEBUG_kv(Perl_deb(aTHX_
+                    "ck_sig: end action=%d pad_ix=%d items=0x%"UVxf" with %d %s op arg\n",
+                    (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
                 return too_many_arguments_pv(entersubop, SvPVX_const(tmpbuf), SvUTF8(namesv));
             }
             return entersubop;
@@ -12401,9 +12402,9 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
         case SIGNATURE_arg_default_1:
             arg++;
             if (UNLIKELY(actions & SIGNATURE_FLAG_skip)) {
-                items--;
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: skip action=%d pad_ix=%d with %d %s op arg\n",
-                                  (int)action, (int)pad_ix, (int)arg, OP_NAME(o3)));
+                DEBUG_kv(Perl_deb(aTHX_
+                    "ck_sig: skip action=%d pad_ix=%d with %d %s op arg\n",
+                    (int)action, (int)pad_ix, (int)arg, OP_NAME(o3)));
                 scalar(aop);
                 break;
             }
@@ -12417,10 +12418,12 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
             }
 #ifdef DEBUGGING
             else {
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: arg action=%d pad_ix=%d items=0x%"UVxf" with %d %s op arg\n",
-                                  (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
+                DEBUG_kv(Perl_deb(aTHX_
+                    "ck_sig: arg action=%d pad_ix=%d items=0x%"UVxf" with %d %s op arg\n",
+                    (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
             }
 #endif
+            assert(pad_ix);
             /* TODO: o3 needs to return a scalar */
             /* TODO: o3 can be modified, with added type cast, similar to scalar */
             aop = S_arg_check_type(aTHX_ PAD_NAME(pad_ix), o3, namegv);
