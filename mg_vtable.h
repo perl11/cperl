@@ -27,6 +27,7 @@
 #define PERL_MAGIC_regdatum       'd' /* Regex match position data element */
 #define PERL_MAGIC_env            'E' /* %ENV hash */
 #define PERL_MAGIC_envelem        'e' /* %ENV hash element */
+#define PERL_MAGIC_ffienc         'F' /* FFI :encoded */
 #define PERL_MAGIC_fm             'f' /* Formline ('compiled' format) */
 #define PERL_MAGIC_regex_global   'g' /* m//g target */
 #define PERL_MAGIC_hints          'H' /* %^H hash */
@@ -70,6 +71,7 @@ enum {		/* pass one of these to get_vtbl */
     want_vtbl_defelem,
     want_vtbl_env,
     want_vtbl_envelem,
+    want_vtbl_ffienc,
     want_vtbl_hints,
     want_vtbl_hintselem,
     want_vtbl_isa,
@@ -107,6 +109,7 @@ EXTCONST char * const PL_magic_vtable_names[magic_vtable_max] = {
     "defelem",
     "env",
     "envelem",
+    "ffienc",
     "hints",
     "hintselem",
     "isa",
@@ -167,6 +170,11 @@ EXT_MGVTBL PL_magic_vtables[magic_vtable_max] = {
   { Perl_magic_getdefelem, Perl_magic_setdefelem, 0, 0, 0, 0, 0, 0 },
   { 0, Perl_magic_set_all_env, 0, Perl_magic_clear_all_env, 0, 0, 0, 0 },
   { 0, Perl_magic_setenv, 0, Perl_magic_clearenv, 0, 0, 0, 0 },
+#ifdef USE_FFI
+  { Perl_magic_getffi_encoded, Perl_magic_setffi_encoded, 0, 0, 0, 0, 0, 0 },
+#else
+  { 0, 0, 0, 0, 0, 0, 0, 0 },
+#endif
   { 0, 0, 0, Perl_magic_clearhints, 0, 0, 0, 0 },
   { 0, Perl_magic_sethint, 0, Perl_magic_clearhint, 0, 0, 0, 0 },
   { 0, Perl_magic_setisa, 0, Perl_magic_clearisa, 0, 0, 0, 0 },
@@ -212,6 +220,7 @@ EXT_MGVTBL PL_magic_vtables[magic_vtable_max];
 #define PL_vtbl_defelem PL_magic_vtables[want_vtbl_defelem]
 #define PL_vtbl_env PL_magic_vtables[want_vtbl_env]
 #define PL_vtbl_envelem PL_magic_vtables[want_vtbl_envelem]
+#define PL_vtbl_ffienc PL_magic_vtables[want_vtbl_ffienc]
 #define PL_vtbl_fm PL_magic_vtables[want_vtbl_fm]
 #define PL_vtbl_hints PL_magic_vtables[want_vtbl_hints]
 #define PL_vtbl_hintselem PL_magic_vtables[want_vtbl_hintselem]

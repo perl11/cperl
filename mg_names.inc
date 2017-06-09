@@ -20,6 +20,7 @@
 	{ PERL_MAGIC_regdatum,       "regdatum(d)" },
 	{ PERL_MAGIC_env,            "env(E)" },
 	{ PERL_MAGIC_envelem,        "envelem(e)" },
+	{ PERL_MAGIC_ffienc,         "ffienc(F)" },
 	{ PERL_MAGIC_fm,             "fm(f)" },
 	{ PERL_MAGIC_regex_global,   "regex_global(g)" },
 	{ PERL_MAGIC_hints,          "hints(H)" },

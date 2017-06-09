@@ -1066,6 +1066,10 @@ p	|int	|magic_getvec		|NN SV* sv|NN MAGIC* mg
 p	|int	|magic_nextpack		|NN SV *sv|NN MAGIC *mg|NN SV *key
 p	|U32	|magic_regdata_cnt	|NN SV* sv|NN MAGIC* mg
 p	|int	|magic_regdatum_get	|NN SV* sv|NN MAGIC* mg
+#ifdef USE_FFI
+p	|int	|magic_getffi_encoded	|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_setffi_encoded	|NN SV* sv|NN MAGIC* mg
+#endif
 :removing noreturn to silence a warning for this function resulted in no
 :change to the interpreter DLL image under VS 2003 -O1 -GL 32 bits only because
 :this is used in a magic vtable, do not use this on conventionally called funcs

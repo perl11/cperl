@@ -11278,6 +11278,18 @@ PERL_CALLCONV void	Perl_dtrace_probe_phase(pTHX_ enum perl_phase phase)
 
 #endif
 #if defined(USE_FFI)
+PERL_CALLCONV int	Perl_magic_getffi_encoded(pTHX_ SV* sv, MAGIC* mg)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_MAGIC_GETFFI_ENCODED	\
+	assert(sv); assert(mg)
+
+PERL_CALLCONV int	Perl_magic_setffi_encoded(pTHX_ SV* sv, MAGIC* mg)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_MAGIC_SETFFI_ENCODED	\
+	assert(sv); assert(mg)
+
 PERL_CALLCONV void	Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, void *rvalue)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)

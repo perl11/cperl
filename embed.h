@@ -2295,6 +2295,10 @@
 #  if defined(USE_C_BACKTRACE)
 #define get_c_backtrace(a,b)	Perl_get_c_backtrace(aTHX_ a,b)
 #  endif
+#  if defined(USE_FFI)
+#define magic_getffi_encoded(a,b)	Perl_magic_getffi_encoded(aTHX_ a,b)
+#define magic_setffi_encoded(a,b)	Perl_magic_setffi_encoded(aTHX_ a,b)
+#  endif
 #  if defined(USE_ITHREADS)
 #define mro_meta_dup(a,b)	Perl_mro_meta_dup(aTHX_ a,b)
 #define op_relocate_sv(a,b)	Perl_op_relocate_sv(aTHX_ a,b)

@@ -3745,6 +3745,65 @@ Perl_magic_getdebugvar(pTHX_ SV *sv, MAGIC *mg) {
     return 0;
 }
 
+#ifdef USE_FFI
+/*
+=for apidoc magic_getffi_encoded
+=for apidoc magic_setffi_encoded
+
+Get and set the name of the FFI string argument :encoded() attribute.
+
+=cut
+*/
+int
+Perl_magic_getffi_encoded(pTHX_ SV *sv, MAGIC *mg)
+{
+    PERL_ARGS_ASSERT_MAGIC_GETFFI_ENCODED;
+
+    if (mg->mg_len == HEf_SVKEY) {
+        SV *enc = mg->mg_obj;
+        sv_setpvn(sv, SvPVX(enc), SvCUR(enc));
+    }
+    else
+        sv_setpvn(sv, mg->mg_ptr, mg->mg_len);
+    return 0;
+}
+
+int
+Perl_magic_setffi_encoded(pTHX_ SV *sv, MAGIC *mg)
+{
+    dSP;
+    HEK* hek;
+    PERL_ARGS_ASSERT_MAGIC_SETFFI_ENCODED;
+
+    if (UNLIKELY(SvUTF8(sv) || SvCUR(sv) != strlen(SvPVX(sv)))) {
+    ill_enc:
+        Perl_croak(aTHX_ "Illegal :encoded attribute %" SVf, SVfARG(sv));
+    }
+    /* Encode::resolve_alias (valid name) */
+    if (strNEc(SvPVX(sv), "utf8") && strNEc(SvPVX(sv), "Latin1")) {
+        I32 nret;
+        ENTER;
+        Perl_load_module(aTHX_ 0, newSVpvs("Encode"), NULL, NULL, NULL);
+        PUSHMARK(SP);
+        XPUSHs(sv);
+        PUTBACK;
+        nret = call_pv("Encode::resolve_alias", G_SCALAR);
+        SPAGAIN;
+        if (nret == 1 && SvPOK(TOPs)) {
+            SvREFCNT_dec(sv);
+            sv = TOPs;
+        } else {
+            goto ill_enc;
+        }
+        LEAVE;
+    }
+    hek = share_hek(SvPVX(sv), SvCUR(sv), 0);
+    mg->mg_ptr = HEK_KEY(hek);
+    mg->mg_len = SvCUR(sv);
+    return 0;
+}
+#endif
+
 /*
  * ex: set ts=8 sts=4 sw=4 et:
  */
