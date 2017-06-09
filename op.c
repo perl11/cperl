@@ -13858,7 +13858,6 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
         case SIGNATURE_arg_default_1:
             arg++;
             if (UNLIKELY(actions & SIGNATURE_FLAG_skip)) {
-                items--;
                 DEBUG_kv(Perl_deb(aTHX_
                     "ck_sig: skip action=%d pad_ix=%d with %d %s op arg\n",
                     (int)action, (int)pad_ix, (int)arg, OP_NAME(o3)));
@@ -13881,6 +13880,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
                     (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
             }
 #endif
+            assert(pad_ix);
             /* TODO: o3 needs to return a scalar */
             /* TODO: o3 can be modified, with added type cast, similar to scalar */
             aop = S_arg_check_type(aTHX_ PAD_NAME(pad_ix), o3, namegv);
