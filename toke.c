@@ -13049,6 +13049,7 @@ S_sig_items_grow(pTHX_ struct parse_subsignature_state *stp)
 #define PUSH_ITEM(field, arg)             \
     if (stp->items_ix >= stp->items_size) \
         S_sig_items_grow(aTHX_ stp);      \
+    DEBUG_kv(Perl_deb(aTHX_ "sig[%d] = 0x%" UVxf "\n", stp->items_ix, PTR2UV(arg))); \
     stp->items[stp->items_ix++].field = arg;
 
 
@@ -13261,9 +13262,10 @@ Perl_parse_subsignature(pTHX)
                 {
                     DEBUG_kv(
                       (padintro_ix >= 0 || prev_pad_offset != NOT_IN_PAD)
-                      ? Perl_deb(aTHX_ "sig: non-continuous padintro prev=%d, pad=%u-%u\n",
+                      ? Perl_deb(aTHX_ "sig: non-continuous padintro[%d] prev=%d, pad=%u-%u\n",
+                                 st.items_ix,
                                  (int)prev_pad_offset, (unsigned)pad_base, (unsigned)pad_offset)
-                      : Perl_deb(aTHX_ "sig: new padintro pad=%u-%u\n",
+                      : Perl_deb(aTHX_ "sig: new padintro[%d] pad=%u-%u\n", st.items_ix,
                                  (unsigned)pad_base, (unsigned)pad_offset));
                     pad_base = pad_offset;
                     /* reserve new item for padintro arg */
@@ -13275,8 +13277,8 @@ Perl_parse_subsignature(pTHX)
                      * the args slot are in the wrong order */
                     S_sig_push_action(aTHX_ stp, SIGNATURE_padintro);
                 } else {
-                    DEBUG_kv(Perl_deb(aTHX_ "sig: update padintro prev=%d, pad=%u-%u\n",
-                                      (int)prev_pad_offset, (unsigned)pad_base, (unsigned)pad_offset));
+                    DEBUG_kv(Perl_deb(aTHX_ "sig: update padintro[%d] prev=%d, pad=%u-%u\n",
+                        padintro_ix, (int)prev_pad_offset, (unsigned)pad_base, (unsigned)pad_offset));
                 }
                 st.items[padintro_ix].uv =
                                 (pad_base << OPpPADRANGE_COUNTSHIFT)

@@ -13869,19 +13869,19 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
             return entersubop;
         case SIGNATURE_padintro:
             pad_ix = (++items)->uv >> OPpPADRANGE_COUNTSHIFT;
+#ifdef DEBUGGING
             if (UNLIKELY(items->iv == -1)) /* [cperl #164] */
                 Perl_croak(aTHX_
                       "panic: Missing padintro item in signature of %s",
                       SvPVX_const(cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN)));
-#ifdef DEBUGGING
             varcount = items->uv & OPpPADRANGE_COUNTMASK;
-#endif
             DEBUG_kv(Perl_deb(aTHX_
                 "ck_sig: padintro action=%d pad_ix=%d varcount=%d %s "
                 "items=0x%" UVxf " with %d %s op arg\n",
                 (int)action, (int)pad_ix, (int)varcount,
                 PAD_NAME(pad_ix) ? PadnamePV(PAD_NAME(pad_ix)) : "",
                 items->uv, (int)arg, OP_NAME(o3)));
+#endif
             actions >>= SIGNATURE_SHIFT;
             continue; /* no arg advance */
         case SIGNATURE_arg:
@@ -13913,8 +13913,8 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
             arg++;
             if (UNLIKELY(actions & SIGNATURE_FLAG_skip)) {
                 DEBUG_kv(Perl_deb(aTHX_
-                    "ck_sig: skip action=%d pad_ix=%d with %d %s op arg\n",
-                    (int)action, (int)pad_ix, (int)arg, OP_NAME(o3)));
+                    "ck_sig: skip action=%d pad_ix=%d with %d %s op arg items=0x%x\n",
+                    (int)action, (int)pad_ix, (int)arg, OP_NAME(o3), (unsigned)items->uv));
                 scalar(aop);
                 break;
             }
