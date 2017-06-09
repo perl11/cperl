@@ -5872,6 +5872,7 @@ Perl_yylex(pTHX)
 		}
 		else {
                     const char *pv = SvPVX(sv);
+                    HV *typestash;
 		    if (len == 6) {
                         if (memEQc(pv, "unique")) {
                             sv_free(sv);
@@ -5933,11 +5934,12 @@ Perl_yylex(pTHX)
                     /* Check sub return type here, so we can pass an empty attrs
                        to newATTRSUB. This allows any known user or core type
                        to be used. */
-		    else if (find_in_my_stash(pv, len)) {
+		    else if ((typestash = find_in_my_stash(pv, len))) {
                         CvTYPED_on(PL_compcv);
                         /* skip attr callback for existing coretypes */
                         if (!find_in_coretypes(pv, len))
                             goto load_attributes;
+                        CvTYPE_set(PL_compcv, typestash);
                         sv_free(sv);
 		    }
                     /* skip the attr callback for new coretypes */
