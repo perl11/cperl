@@ -9364,11 +9364,11 @@ Perl_yylex(pTHX)
 	    {
 		char * tmpbuf = PL_tokenbuf + 1;
                 SV *format_name = NULL;
-                expectation attrful;
-                bool have_name, have_proto;
+		expectation attrful;
+		bool have_name, have_proto;
                 bool try_signature = FALSE;
-                bool was_extern = cBOOL(tmp == KEY_extern);
-		const int key = was_extern ? KEY_sub : tmp;
+                bool is_extern = cBOOL(tmp == KEY_extern);
+		const int key = is_extern ? KEY_sub : tmp;
                 SSize_t off = s - SvPVX(PL_linestr);
 
                 PL_lex_stuff = NULL;
@@ -9418,7 +9418,7 @@ Perl_yylex(pTHX)
                     s = skipspace(d);
                 }
                 else {
-                    if (key == KEY_my || key == KEY_our || key==KEY_state || was_extern) {
+                    if (key == KEY_my || key == KEY_our || key==KEY_state || is_extern) {
                         *d = '\0';
                         /* diag_listed_as: Missing name in "%s sub" */
                         Perl_croak(aTHX_ "Missing name in \"%s\"", PL_bufptr);
@@ -9461,7 +9461,9 @@ Perl_yylex(pTHX)
                         have_proto = validate_proto(PL_subname, PL_lex_stuff,
                                                     ckWARN(WARN_ILLEGALPROTO), FALSE, TRUE);
                     }
-                    if (have_proto) {
+                    s = skipspace(s);
+                    /* empty protoypes () are sigs for EXTERNSUB */
+                    if (have_proto && SvCUR(PL_lex_stuff)) {
                         if (PL_parser->in_class && cvflags & CVf_METHOD && !SvCUR(PL_lex_stuff)) {
                             SV* sig = newSVpvn_flags(SvPVX(PL_curstname), SvCUR(PL_curstname),
                                                      SvUTF8(PL_curstname)|SVs_TEMP);
@@ -9480,18 +9482,28 @@ Perl_yylex(pTHX)
                             Perl_croak(aTHX_ "Illegal declaration of extern subroutine %" SVf
                                ". Need signature", SVfARG(PL_subname));
                     } else {
-                        DEBUG_T(printbuf("### No prototype %s, signature probably\n", d));
-                        try_signature = TRUE;
-                        s = skipspace(s);
-                        if (*s == ':' && s[1] != ':')
+                        if (*s == ':' && s[1] != ':') {
                             PL_lex_attr_state = attrful; /* 5 or 6 */
-                        s = PL_bufptr = d;
-                        PL_lex_stuff = NULL;
+                            if (memEQc(&s[1], "native"))
+                                is_extern = TRUE;
+                        }
+                        DEBUG_T(printbuf(
+                            have_proto
+                              ? is_extern
+                                ? "### Empty signature %s\n"
+                                : "### Empty prototype %s\n"
+                              : "### No prototype %s, signature probably\n",
+                            d));
+                        if (!have_proto || is_extern) {
+                            s = PL_bufptr = d;
+                            PL_lex_stuff = NULL;
+                            have_proto = FALSE;
+                        }
                     }
                 }
                 else {
                     have_proto = FALSE;
-                    if (was_extern)
+                    if (is_extern)
                         Perl_croak(aTHX_ "Illegal declaration of extern subroutine %" SVf
                                    ". Need signature", SVfARG(PL_subname));
                 }
@@ -9542,7 +9554,7 @@ Perl_yylex(pTHX)
                     ITOKEN(CVf_MULTI|cvflags,MULTIDECL);
                 else if (key == KEY_method)
                     ITOKEN(CVf_METHOD|cvflags,METHDECL);
-                if (was_extern)
+                if (is_extern)
                     ITOKEN(cvflags,EXTERNSUB);
                 else
                     ITOKEN(cvflags,SUB);
