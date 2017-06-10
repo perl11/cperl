@@ -144,6 +144,10 @@ See L</Protected hash iterators>.
 
 Add ffi support, :native(), :encoded(), :nativeconv(), :symbol().
 
+=item L<B> 1.71_09
+
+Add ffi support: CvXFFI, CvFFLIB. CVf_EXTERN flag
+
 =item L<Errno> 1.29_01
 
 Protect from including some avx512 intrinsics directly on mingw.
