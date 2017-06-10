@@ -144,6 +144,10 @@ See L</Protected hash iterators>.
 
 Add ffi support, :native(), :encoded(), :nativeconv(), :symbol().
 
+=item L<B> 1.71_09
+
+Add ffi support: CvXFFI, CvFFLIB. CVf_EXTERN flag
+
 =item L<Cwd> 4.75c
 
 Fixed long pathnames test for getcwd() on older systems, like debian-7.11 i386,
