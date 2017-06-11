@@ -4604,12 +4604,12 @@ an C</l> regular expression modifier, as that would require deferring
 to run-time the calculation of what it should evaluate to, and it is
 regex compile-time only.
 
-=item no ffi with miniperl
+=item no ffi without DynaLoader
 
-(S) miniperl has no DynaLoader, but DynaLoader is needed to find the
+(W ffi) miniperl has no DynaLoader, but DynaLoader is needed to find the
 shared library and to resolve the function name to the pointer.
-Declarations do compile, but calls do fail with the empty function
-pointer.
+The function declarations do compile with this warning, but run-time calls will
+fail with L</Null extern sub symbol>, caused by the empty function pointer.
 
 =item no UTC offset information; assuming local time is UTC
 
@@ -4623,6 +4623,13 @@ need to be added to UTC to get local time.
 
 (S debugging) Some internal routine called run() with a null opcode
 pointer.
+
+=item Null extern sub symbol
+
+(F) Run-time error when calling extern ffi subroutines with an empty
+function pointer. Either the shared library or the function symbol in it was
+not found, or you are running miniperl, without DynaLoader.
+See L</no ffi without DynaLoader> which is the associated compile-time warning.
 
 =item Null picture in formline
 

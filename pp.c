@@ -569,7 +569,8 @@ PP(pp_enterffi)
 
     assert(SvTYPE(cv) == SVt_PVCV);
 #ifndef PERL_IS_MINIPERL
-    assert(CvXFFI(cv)); /* run-time die with no symbol? */
+    if (UNLIKELY(!CvXFFI(cv)))
+        DIE(aTHX_ "Null extern sub symbol");
     if (!hasargs && GIMME_V == G_VOID) {
         CvXFFI(cv)();
     } else {

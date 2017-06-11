@@ -1902,11 +1902,13 @@ Add F<t/11_taint.t>
 
 Drop VMS::stdio compatibility shim
 
-=item L<warnings> 1.42
+=item L<warnings> 1.38
 
 It now includes new functions with names ending in C<_at_level>, allowing
 callers to specify the exact call frame.
 L<[perl #132468]|https://rt.perl.org/Ticket/Display.html?id=132468>
+
+Added the new ffi warnings category.
 
 =item L<Win32>  0.52_01
 

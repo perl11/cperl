@@ -333,6 +333,9 @@ you cannot run-time DynaLoad specific shared libraries, which is
 problematic as the names for shared libraries don't follow a proper
 naming scheme on some platforms.
 
+The C<CvFFILIB> field is later re-used for the libffi C<ffi_cif* struct>,
+holding the signature: the arity and argument and return types.
+
 =item symbol(STRING)
 
 Only valid for L<C<:native>|/native> extern subroutines, to define a

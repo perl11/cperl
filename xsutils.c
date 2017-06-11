@@ -1117,7 +1117,7 @@ S_find_symbol(pTHX_ CV* cv, char *name)
     if (!dl_find_symbol) {
         CvFFILIB(cv) = 0;
         CvXFFI(cv) = NULL;
-        Perl_ck_warner_d(aTHX_ packWARN(WARN_UTF8), "no ffi with miniperl");
+        Perl_ck_warner(aTHX_ packWARN(WARN_FFI), "no ffi without DynaLoader");
         return; /* miniperl */
     }
 
@@ -1146,7 +1146,7 @@ S_find_native(pTHX_ CV* cv, char *libname)
         CV *dl_load_file = get_cvs("DynaLoader::dl_load_file", 0);
         SV *pv = newSVpvn_flags(libname,strlen(libname),SVs_TEMP);
         if (!dl_load_file) {
-            Perl_warn(aTHX_ "no ffi with miniperl");
+            Perl_ck_warner(aTHX_ packWARN(WARN_FFI), "no ffi without DynaLoader");
             return; /* miniperl */
         }
 
@@ -1173,7 +1173,7 @@ S_find_native(pTHX_ CV* cv, char *libname)
         CV *dl_find_symbol = get_cvs("DynaLoader::dl_find_symbol_anywhere", 0);
         SV *symname;
         if (!dl_find_symbol) {
-            Perl_warn(aTHX_ "no ffi with miniperl");
+            Perl_ck_warner(aTHX_ packWARN(WARN_FFI), "no ffi without DynaLoader");
             return; /* miniperl */
         }
 
