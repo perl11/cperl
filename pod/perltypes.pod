@@ -233,9 +233,11 @@ signature type violations are strict.
 The inferencer runs automatically on some very limited syntax and can
 currently only infer C<Int> on array indices, ranges and C<Str> on
 hash keys, but has to give up on magic, dualvars, and C<no strict
-'refs'>. But the current type inference is fast.  With the help of
-added declarations and type checks, as e.g. in C<smartmatch> or
-C<given>/C<when> with type support it can infer much more.
+'refs'>. But the current type inference is very fast.
+
+In future versions with the help of added declarations and type
+checks, as e.g. in C<if>, C<smartmatch> or C<given>/C<when> with type
+support it will be able to infer much more.
 
     if (type $a == :int) {  => $a is an int in this scope }
 

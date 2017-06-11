@@ -373,6 +373,18 @@ may need to be changed to this:
     SV *
     bitop_handler (lobj, robj, swap, ...)
 
+
+=head2 extern sub - libffi
+
+A new L<ffi> was added to core, with a syntax resembling perl6
+NativeCall.  Perl6 traits are cperl L<attributes>, but attribute
+values may be deferred to run-time. Packagers need to add B<libffi> to
+their library dependencies.
+
+Not yet implemented are the :encoded() attribute for string arguments
+and return values, c-struct helpers, callback helpers and support for
+variadic (varargs) functions.
+
 =head1 Security
 
 =head2 [CVE-2017-12837] Heap buffer overflow in regular expression compiler
@@ -972,6 +984,10 @@ for pure speed or less codesize DynaLoader is still the best solution.
 =head2 New Modules and Pragmata
 
 =over 4
+
+=item L<ffi> 0.01
+
+ffi helpers and types.
 
 =item L<Mu> 0.01
 

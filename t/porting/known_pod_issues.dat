@@ -488,12 +488,11 @@ pod/perlperf.pod	Verbatim line length including indents exceeds 79 by	114
 pod/perlport.pod	? Should you be using L<...> instead of	1
 pod/perlrun.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlsolaris.pod	Verbatim line length including indents exceeds 79 by	13
-pod/perlsub.pod	Apparent broken link	1
 pod/perlsub.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlsymbian.pod	Verbatim line length including indents exceeds 79 by	18
 pod/perltie.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perltru64.pod	Verbatim line length including indents exceeds 79 by	1
-pod/perltypes.pod	Apparent broken link	4
+pod/perltypes.pod	Apparent broken link	3
 pod/perltypes.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlwin32.pod	Verbatim line length including indents exceeds 79 by	7
 porting/epigraphs.pod	Verbatim line length including indents exceeds 79 by	32

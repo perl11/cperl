@@ -1805,6 +1805,7 @@ use File::Glob qw(:case);
                 lib/feature/
                 lib/fields.t
                 lib/filetest.{pm,t}
+                lib/ffi.pm
                 lib/h2ph.t
                 lib/h2xs.t
                 lib/integer.{pm,t}
