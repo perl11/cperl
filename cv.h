@@ -71,7 +71,7 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvDEPTHunsafe(sv) ((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_depth
 
 /* these CvPADLIST/CvRESERVED asserts can be reverted one day, once stabilized */
-#define CvPADLIST(sv)	  (*(assert_(CvEXTERN((CV*)(sv)) || !CvISXSUB((CV*)(sv))) \
+#define CvPADLIST(sv)	  (*(assert_(CvEXTERN(sv) || !CvISXSUB(sv)) \
 	&(((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_padlist_u.xcv_padlist)))
 /* CvPADLIST_set is not public API, it can be removed one day, once stabilized */
 #ifdef DEBUGGING
@@ -79,7 +79,7 @@ See L<perlguts/Autoloading with XSUBs>.
 #else
 #  define CvPADLIST_set(sv, padlist) (CvPADLIST(sv) = (padlist))
 #endif
-#define CvHSCXT(sv)	  *(assert_(CvISXSUB((CV*)(sv))) \
+#define CvHSCXT(sv)	  *(assert_(CvISXSUB(sv)) \
 	&(((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_padlist_u.xcv_hscxt))
 #ifdef DEBUGGING
 #  if PTRSIZE == 8

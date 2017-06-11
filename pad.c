@@ -172,7 +172,7 @@ Perl_set_padlist(CV * cv, PADLIST *padlist){
 #  else
 #    error unknown pointer size
 #  endif
-    assert(!CvISXSUB(cv));
+    assert(CvEXTERN(cv) || !CvISXSUB(cv));
     ((XPVCV*)MUTABLE_PTR(SvANY(cv)))->xcv_padlist_u.xcv_padlist = padlist;
 }
 #endif

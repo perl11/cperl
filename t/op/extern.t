@@ -52,6 +52,7 @@ check_labs_fields("sub labs() :native :int;");
 
 eval 'extern sub ffilabs() :symbol("labs");';
 has_sym(\&ffilabs); undef *ffilabs;
+undef *ffilabs;
 
 eval 'sub llabs() :native :symbol("labs");';
 has_sym(\&llabs);
@@ -63,7 +64,7 @@ my $xsym = B::svref_2object(\&llabs);
 ok ((ref $ori->XFFI eq ref $xsym->XFFI) &&
     (${$ori->XFFI} == ${$xsym->XFFI}), "same CvXFFI sym") # 17
   or note $ori->XFFI, $xsym->XFFI;
-undef *ffilabs;
+undef *llabs;
 
 # now call it with valid sigs and types
 check_labs("extern labs");

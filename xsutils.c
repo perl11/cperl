@@ -1114,17 +1114,22 @@ S_find_symbol(pTHX_ CV* cv, char *name)
 #define RTLD_DEFAULT -2
 #endif
     IV handle = CvFFILIB(cv) ? (IV)CvFFILIB(cv) : (IV)RTLD_DEFAULT;
+
     if (!dl_find_symbol) {
         CvFFILIB(cv) = 0;
         CvXFFI(cv) = NULL;
         Perl_ck_warner(aTHX_ packWARN(WARN_FFI), "no ffi without DynaLoader");
         return; /* miniperl */
     }
+    /* still slabbed PL_compcv? */
+    if (CvSLABBED(cv) && cv == PL_compcv && CvFFILIB(cv))
+        handle = (IV)RTLD_DEFAULT;
 
     SPAGAIN;
     PUSHMARK(SP);
     mXPUSHs(newSViv(handle));
     XPUSHs(pv);
+    mXPUSHs(newSViv(1)); /* ignore error. supported by cperl-only */
     PUTBACK;
     nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
     SPAGAIN;

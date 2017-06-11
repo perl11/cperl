@@ -11951,6 +11951,9 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 		? (CV *)SvRV(gv)
 		: NULL;
 
+    if (CvEXTERN(PL_compcv) && IS_TYPE(block, SIGNATURE)) {
+        block = NULL;
+    }
     if (block) {
 	assert(PL_parser);
 	/* This makes sub {}; work as expected.  */
@@ -12159,7 +12162,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	else {
 	    /* Might have had built-in attributes applied -- propagate them. */
 	    CvFLAGS(cv) |= (CvFLAGS(PL_compcv) & CVf_BUILTIN_ATTRS);
-            if (CvEXTERN(cv) && CvHASSIG(cv)) { /* XXX */
+            if (CvEXTERN(cv) && CvHASSIG(cv)) {
                 if (CvPADLIST(PL_compcv))
                     CvPADLIST_set(cv, CvPADLIST(PL_compcv));
                 else
