@@ -1464,7 +1464,8 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
         ;
     }
 
-    if (UNLIKELY(CvEXTERN(sv) && !CvXFFI(sv))) {
+    /* XXX Missing import call */
+    if (UNLIKELY(SvTYPE(sv) == SVt_PVCV && CvEXTERN(sv) && !CvXFFI(sv))) {
         is_native = TRUE;
         S_find_native(aTHX_ (CV*)sv, NULL);
     }

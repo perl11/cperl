@@ -5476,7 +5476,7 @@ Perl_doref(pTHX_ OP *o, I32 type, bool set_op_ref)
 =for apidoc dup_attrlist
 
 Return a copy of an attribute list, i.e. a CONST or LIST with a
-list of CONST values.
+list of CONST or PADSV/GV values.
 
 =cut
 */
@@ -5489,18 +5489,29 @@ S_dup_attrlist(pTHX_ OP *o)
 
     /* An attrlist is either a simple OP_CONST or an OP_LIST with kids,
      * where the first kid is OP_PUSHMARK and the remaining ones
-     * are OP_CONST.  We need to push the OP_CONST values.
+     * are const or dynamic values OP_GVSV/OP_PADSV.
+     * We need to push the values.
      */
     if (IS_CONST_OP(o))
+        /* dynamic values are always prefixed with a const string */
 	rop = newSVOP(OP_CONST, o->op_flags, SvREFCNT_inc_NN(cSVOPo->op_sv));
     else {
-	assert((IS_TYPE(o, LIST)) && OpKIDS(o));
+	assert(IS_TYPE(o, LIST) && OpKIDS(o));
 	rop = NULL;
 	for (o = OpFIRST(o); o; o = OpSIBLING(o)) {
 	    if (IS_CONST_OP(o))
 		rop = op_append_elem(OP_LIST, rop,
-				  newSVOP(OP_CONST, o->op_flags,
-					  SvREFCNT_inc_NN(cSVOPo->op_sv)));
+		          newSVOP(OP_CONST, o->op_flags /*|| (o->op_private<<8)*/,
+                                  SvREFCNT_inc_NN(cSVOPo->op_sv)));
+	    else if (IS_TYPE(o, GVSV))
+		rop = op_append_elem(OP_LIST, rop,
+                          newSVOP(OP_GVSV, o->op_flags  /*|| (o->op_private<<8)*/,
+                                  cSVOPo->op_sv));
+	    else if (IS_TYPE(o, PADSV)) {
+                OP *pop = newOP(OP_PADSV, o->op_flags /*|| (o->op_private<<8)*/);
+                pop->op_targ = o->op_targ;
+                rop = op_append_elem(OP_LIST, rop, pop);
+            }
 	}
     }
     return rop;
@@ -5591,6 +5602,9 @@ Perl_attrs_has_const(pTHX_ OP *o, bool from_assign)
 Extract the run-time part of attributes with arguments,
 i.e. variables, not just constant barewords or strings.
 
+Returns NULL on none or only constant attribute arguments,
+otherwise returns the run-time attributes->import code.
+
 =cut
 */
 OP*
@@ -5604,13 +5618,18 @@ Perl_attrs_runtime(pTHX_ CV *cv, OP *attrs)
                       : PL_curstash;
         /* check for run-time variables */
         for (; o; o = OpKIDS(o) ? OpFIRST(o) : OpSIBLING(o)) {
-            if (IS_TYPE(o, PADSV) || IS_TYPE(o, GV)) {
-                OP *result;	/* avoid the my part */
-                apply_attrs_my(stash, newSVREF(cv), attrs, &result);
+            if (IS_TYPE(o, PADSV) || IS_TYPE(o, GVSV)) {
+                OP *result = NULL;
+                OP *target = newUNOP(OP_RV2CV, 0,
+				     newGVOP(OP_GV, 0, CvGV(cv)));
+                apply_attrs_my(stash, target, attrs, &result);
+                SAVEFREEOP(attrs);
                 return result;
             }
         }
     }
+    if (!attrs->op_savefree)
+        SAVEFREEOP(attrs);
     return NULL;
 }
 
@@ -5636,7 +5655,7 @@ S_apply_attrs(pTHX_ HV *stash, SV *target, OP *attrs)
         OP *o = attrs;
         /* skip run-time variables */
         for (; o; o = OpKIDS(o) ? OpFIRST(o) : OpSIBLING(o)) {
-            if (IS_TYPE(o, PADSV) || IS_TYPE(o, GV)) {
+            if (IS_TYPE(o, PADSV) || IS_TYPE(o, GVSV)) {
                 return;
             }
         }
@@ -5704,15 +5723,18 @@ S_apply_attrs_my(pTHX_ HV *stash, OP *target, OP *attrs, OP **imopsp)
         arg = newOP(OP_PADSV, 0);
         arg->op_targ = target->op_targ;
         arg = newUNOP(OP_REFGEN, 0, arg);
-    } else if (IS_RV2ANY_OP(target) && /* our LEX :const */
-               IS_TYPE(OpFIRST(target), GV) ) {
+    /* our LEX :const, or sub :ATTR from attrs_runtime() */
+    } else if ( ( IS_RV2ANY_OP(target) || IS_TYPE(target, RV2CV) )
+               && IS_TYPE(OpFIRST(target), GV) ) {
         arg = newSVREF(newGVOP(OP_GV,0,cGVOPx_gv(OpFIRST(target))));
         arg->op_targ = target->op_targ;
         if (ISNT_TYPE(target, RV2SV))
             OpTYPE_set(arg, target->op_type);
         arg = newUNOP(OP_REFGEN,0,arg);
-    } else { /* extern sub */
-        arg = newUNOP(OP_REFGEN,0,target);
+    } else {
+        arg = NULL;
+        Perl_croak(aTHX_ "panic: invalid apply_attrs_my %s target",
+                   OP_NAME(target));
     }
     arg = op_prepend_elem(OP_LIST,
               newSVOP(OP_CONST, 0, stashsv),
@@ -7310,7 +7332,8 @@ S_fold_constants(pTHX_ OP *const o)
 	if (o->op_private & OPpREPEAT_DOLIST) goto nope;
 	break;
     case OP_SREFGEN:
-	if (ISNT_TYPE(OpFIRST(OpFIRST(o)), CONST)
+	if (!OpKIDS(OpFIRST(o))
+         || ISNT_TYPE(OpFIRST(OpFIRST(o)), CONST)
 	 || SvPADTMP(cSVOPx_sv(OpFIRST(OpFIRST(o)))))
 	    goto nope;
     }
@@ -11401,8 +11424,8 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
 
     if (proto)
         SAVEFREEOP(proto);
-    if (attrs)
-        SAVEFREEOP(attrs);
+    /*if (attrs)
+      SAVEFREEOP(attrs);*/
 
     if (PL_parser && PL_parser->error_count) {
 	op_free(block);
@@ -11868,8 +11891,8 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
         SAVEFREEOP(o);
     if (proto)
         SAVEFREEOP(proto);
-    if (attrs)
-        SAVEFREEOP(attrs);
+    /*if (attrs)
+        SAVEFREEOP(attrs);*/
 
     if (ec) {
 	op_free(block);
@@ -17130,7 +17153,7 @@ Perl_ck_entersub_args_proto_or_list(pTHX_ OP *entersubop,
                          ? "GV" : "RV",
                      SVfARG(cv_name((CV*)protosv, NULL, CV_NAME_NOMAIN))));
     if (LIKELY(SvTYPE(protosv) == SVt_PVCV)) {
-        const CV* cv = (const CV*)protosv;
+        CV* cv = (CV*)protosv;
         if (UNLIKELY(HvCLASS(SvTYPE(namegv) == SVt_PVGV   ? GvSTASH(namegv)
                            : SvTYPE(namegv) == SVt_PVCV && CvSTASH(namegv)
                                                           ? CvSTASH(namegv)

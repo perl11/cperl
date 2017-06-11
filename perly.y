@@ -282,13 +282,13 @@ barestmt:	PLUGSTMT
                         }
 		proto subattrlist optsubbody
 			{
-                          CV *cv;
+                          CV *cv; OP* attr = $6;
 			  SvREFCNT_inc_simple_void(PL_compcv);
 			  cv = ($2->op_type == OP_CONST)
 			      ? newATTRSUB($3, $2, $5, $6, $7)
 			      : newMYSUB($3, $2, $5, $6, $7)
 			  ;
-			  $$ = cv && $6 ? attrs_runtime(cv, $6) : NULL;
+                          $$ = cv && attr ? attrs_runtime(cv, attr) : NULL;
 			  intro_my();
 			  parser->parsed_sub = 1;
 			}
@@ -332,7 +332,7 @@ barestmt:	PLUGSTMT
 			  cv = ($2->op_type == OP_CONST)
 			      ? newATTRSUB($3, $2, NULL, attr, body)
 			      : newMYSUB($3, $2, NULL, attr, body);
-			  $$ = attr ? attrs_runtime(cv, attr) : NULL;
+                          $$ = attr ? attrs_runtime(cv, attr) : NULL;
 			  intro_my();
 			  parser->parsed_sub = 1;
 			}
@@ -358,7 +358,7 @@ barestmt:	PLUGSTMT
 			  cv = (name->op_type == OP_CONST)
 			      ? newATTRSUB($3, name, NULL, attr, sig)
 			      : newMYSUB($3, name, NULL, attr, sig);
-			  $$ = attr ? attrs_runtime(cv, attr) : NULL;
+                          $$ = attr ? attrs_runtime(cv, attr) : NULL;
 			  parser->parsed_sub = 1;
 			}
 	|	PACKAGE BAREWORD BAREWORD ';'

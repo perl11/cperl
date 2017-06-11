@@ -259,13 +259,13 @@ case 2:
   case 30:
 #line 284 "perly.y" /* yacc.c:1646  */
     {
-                          CV *cv;
+                          CV *cv; OP* attr = (ps[-1].val.opval);
 			  SvREFCNT_inc_simple_void(PL_compcv);
 			  cv = ((ps[-5].val.opval)->op_type == OP_CONST)
 			      ? newATTRSUB((ps[-4].val.ival), (ps[-5].val.opval), (ps[-2].val.opval), (ps[-1].val.opval), (ps[0].val.opval))
 			      : newMYSUB((ps[-4].val.ival), (ps[-5].val.opval), (ps[-2].val.opval), (ps[-1].val.opval), (ps[0].val.opval))
 			  ;
-			  (yyval.opval) = cv && (ps[-1].val.opval) ? attrs_runtime(cv, (ps[-1].val.opval)) : NULL;
+                          (yyval.opval) = cv && attr ? attrs_runtime(cv, attr) : NULL;
 			  intro_my();
 			  parser->parsed_sub = 1;
 			}
@@ -317,7 +317,7 @@ case 2:
 			  cv = ((ps[-8].val.opval)->op_type == OP_CONST)
 			      ? newATTRSUB((ps[-7].val.ival), (ps[-8].val.opval), NULL, attr, body)
 			      : newMYSUB((ps[-7].val.ival), (ps[-8].val.opval), NULL, attr, body);
-			  (yyval.opval) = attr ? attrs_runtime(cv, attr) : NULL;
+                          (yyval.opval) = attr ? attrs_runtime(cv, attr) : NULL;
 			  intro_my();
 			  parser->parsed_sub = 1;
 			}
@@ -351,7 +351,7 @@ case 2:
 			  cv = (name->op_type == OP_CONST)
 			      ? newATTRSUB((ps[-4].val.ival), name, NULL, attr, sig)
 			      : newMYSUB((ps[-4].val.ival), name, NULL, attr, sig);
-			  (yyval.opval) = attr ? attrs_runtime(cv, attr) : NULL;
+                          (yyval.opval) = attr ? attrs_runtime(cv, attr) : NULL;
 			  parser->parsed_sub = 1;
 			}
 
@@ -2047,6 +2047,6 @@ case 2:
     
 
 /* Generated from:
- * a9d0bfbd4b71ffcab146d92a46e0a071220435017149d82bc9d17e8255aa8081 perly.y
+ * 9e08414bda94501b345f6bc77265d0c40e60ca51cd6dc767cddbfef94ec5f75d perly.y
  * 5132b115dedc64fcaea289ebf11528abd6f23d9b88e5247a236e1116603edcdb regen_perly.pl
  * ex: set ro: */
