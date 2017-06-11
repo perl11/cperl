@@ -1603,6 +1603,10 @@ S_attributes__push_fetch(pTHX_ SV *sv)
 	if (cvflags & CVf_CONST) {
             XPUSHs(newSVpvs_flags("const", SVs_TEMP));
         }
+	if (cvflags & CVf_EXTERN) {
+            XPUSHs(newSVpvs_flags("native", SVs_TEMP));
+            /* TODO: symbol, nativeconv, encoded */
+        }
 	if (cvflags & CVf_TYPED) {
             HV *typestash = CvTYPE((CV*)sv);
             if (typestash)
