@@ -36,6 +36,19 @@ L<perldiag/"Subroutine &%s::%s masks existing package %s::%s">
 and L<perldiag/"Subroutine &%s masks new package %s">.
 Use C<no warnings 'shadow';> to silence these new warnings.
 
+=head2 extern sub - libffi
+
+A new L<ffi> was added to core, with a syntax resembling perl6
+NativeCall.  Perl6 traits are cperl L<attributes>, but attribute
+values may be deferred to run-time. Packagers need to add B<libffi> to
+their library dependencies. Windows packages are provided.
+
+Not yet implemented are the C<:encoded()> attribute for string
+arguments and return values, the various encoded string types Uni,
+wchar, c-struct helpers, native arrays and native classes
+(i.e. structs), callback helpers and support for variadic (varargs)
+functions.
+
 =head1 Security
 
 XXX Any security-related notices go here.  In particular, any security
@@ -157,6 +170,10 @@ Fix the HAS_GET_CURRENT_DIR_NAME check, and the is_ENAMETOOLONG macro.
 =item L<Errno> 1.29_01
 
 Protect from including some avx512 intrinsics directly on mingw.
+
+=item L<ffi> 0.01c
+
+ffi helpers and ffi types.
 
 =item L<Opcode> 1.40_03c
 
@@ -454,8 +471,7 @@ This is now valid again:
 With v5.28.0c only the declaration C<sub don't { 0 }> was valid, it
 accepted the subroutine C<don't>, but the call C<print don't;> was
 invalid, it was looking for a second single-quote string delimiter.
-Note that in cperl since 5.28c C<'> is no perl4-style package seperator
-anymore.
+Note that in cperl C<'> is no perl4-style package seperator.
 
 =back
 
