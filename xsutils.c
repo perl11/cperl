@@ -1382,10 +1382,10 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                     if (!CvEXTERN(cv))
                         Perl_warn(aTHX_ ":%s is only valid for :native or extern sub",
                                   "symbol");
-                    else if (CvXFFI(cv))
-                        Perl_warner(aTHX_ packWARN(WARN_FFI),
-                                  ":symbol is already resolved");
+                    /* sub EXISTING_SYM () :native :symbol(OTHERSYM);
+                     but works fine with extern sub EXISTING_SYM () :symbol(OTHERSYM);*/
                     else {
+                        void *old = CvXFFI(cv);
                         if (len == 7 && numattrs>1) {
                             attr = *attrlist++;
                             numattrs--;
@@ -1394,6 +1394,10 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                             name[len-1] = '\0';
                             S_find_symbol(aTHX_ cv, name+7);
                         }
+                        /* only warn on superfluous :symbol() redefinition */
+                        if (old && old == CvXFFI(cv))
+                            Perl_ck_warner(aTHX_ packWARN(WARN_REDEFINE),
+                                           ":symbol is already resolved");
                     }
                     goto next_attr;
                 }

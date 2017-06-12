@@ -5653,7 +5653,7 @@ S_apply_attrs(pTHX_ HV *stash, SV *target, OP *attrs)
     {
         SV * const stashsv = newSVhek(HvNAME_HEK(stash));
         OP *o = attrs;
-        /* skip run-time variables */
+        /* skip on run-time variables, defer to attrs_runtime */
         for (; o; o = OpKIDS(o) ? OpFIRST(o) : OpSIBLING(o)) {
             if (IS_TYPE(o, PADSV) || IS_TYPE(o, GVSV)) {
                 return;

@@ -6381,8 +6381,10 @@ external ffi functions cannot be used for non-ffi functions.
 
 =item :symbol is already resolved
 
-(W ffi) The C<:native> declaration already succeeded finding a symbol
-in one of the loaded shared libraries. It is not overwritten.
+(W redefine) The C<:native> declaration already succeeded finding the
+same symbol in one of the loaded shared libraries. It's superfluous.
+However if the C<:symbol> attribute leads to a different symbol, no
+redefine warning is printed.
 
 =item syntax error
 

@@ -6362,9 +6362,11 @@ Perl_yylex(pTHX)
                                 arg = newSVOP(OP_CONST, 0, sarg);
                             }
                             SvCUR_set(PL_lex_stuff, 0);
-                            /* len+1: keep the final ( to announce attributes->import an arg */
-                            arg = op_prepend_elem(OP_LIST,
-                                      newSVOP(OP_CONST, 0, newSVpvn(s, len+1)), arg);
+                            /* len+1: keep the final ( in "native(" to announce
+                               attributes->import a single argument. No structure. */
+                            /* produce flat lists for dup_attrlist */
+                            attrs = op_append_elem(OP_LIST, attrs,
+                                                   newSVOP(OP_CONST, 0, newSVpvn(s, len+1)));
                             attrs = op_append_elem(OP_LIST, attrs, arg);
                         }
                         COPLINE_SET_FROM_MULTI_END;

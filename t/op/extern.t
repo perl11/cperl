@@ -13,7 +13,7 @@ skip_all_if_miniperl;
 use Config;
 use B ();
 skip_all "no ffilib" unless $Config{useffi};
-plan(tests => 37);
+plan(tests => 40);
 
 no warnings 'redefine';
 
@@ -54,13 +54,24 @@ eval 'extern sub ffilabs() :symbol("labs");';
 has_sym(\&ffilabs); undef *ffilabs;
 undef *ffilabs;
 
-eval 'sub llabs() :native :symbol("labs");';
+eval 'extern sub llabs() :symbol("labs");';
 has_sym(\&llabs);
 
 # equivalence of XFFI syms
 eval 'extern sub labs(int $i) :int;';
 my $ori  = B::svref_2object(\&labs);
 my $xsym = B::svref_2object(\&llabs);
+ok ((ref $ori->XFFI eq ref $xsym->XFFI) &&
+    (${$ori->XFFI} == ${$xsym->XFFI}), "same CvXFFI sym") # 17
+  or note $ori->XFFI, $xsym->XFFI;
+undef *llabs;
+
+# broken!
+eval 'sub llabs() :native :symbol("labs");';
+has_sym(\&llabs);
+
+# equivalence of XFFI syms
+$xsym = B::svref_2object(\&llabs);
 ok ((ref $ori->XFFI eq ref $xsym->XFFI) &&
     (${$ori->XFFI} == ${$xsym->XFFI}), "same CvXFFI sym") # 17
   or note $ori->XFFI, $xsym->XFFI;
