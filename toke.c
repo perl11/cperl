@@ -69,6 +69,7 @@ Individual members of C<PL_parser> have their own documentation.
 #define PL_lex_repl             (PL_parser->lex_repl)
 #define PL_lex_starts           (PL_parser->lex_starts)
 #define PL_lex_stuff            (PL_parser->lex_stuff)
+#define PL_lex_attr_state       (PL_parser->lex_attr_state) 
 #define PL_multi_start          (PL_parser->multi_start)
 #define PL_multi_open           (PL_parser->multi_open)
 #define PL_multi_close          (PL_parser->multi_close)
@@ -6288,6 +6289,7 @@ Perl_yylex(pTHX)
                 while (isIDFIRST_lazy_if_safe(s, PL_bufend, UTF)) {
                     I32 tmp;
                     SV *sv;
+                    bool saw_native = FALSE;
                     d = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, FALSE,
                                   &len, &normalize);
                     if (isLOWER(*s) && (tmp = keyword(PL_tokenbuf, len, 0))) {
@@ -6322,8 +6324,9 @@ Perl_yylex(pTHX)
                                 "Unterminated attribute parameter in attribute list");
                         }
                         /* handle run-time variables in attrs args */
-                        if ((len == 6 && (memEQc(s, "native") || memEQc(s, "symbol")))
-                            || strEQc(s, "nativeconv") || strEQc(s, "encoded")) {
+                        if (PL_in_sub &&
+                            ((len == 6 && (memEQc(s, "native") || memEQc(s, "symbol")))
+                             || strEQc(s, "nativeconv") || strEQc(s, "encoded"))) {
                             /* evaluate scalars and barewords, resp. add CONST strings.
                                  :native($lib) :native("mysqlclient") :native(msqlclient)
                                  :symbol('c_sym'), ...
@@ -6398,6 +6401,7 @@ Perl_yylex(pTHX)
                                     /*cv_method_on(PL_compcv);*/
                                 }
                                 else if (memEQc(pv, "native")) {
+                                    saw_native = TRUE;
                                     CvEXTERN_on(PL_compcv);
                                     /* need to call DynaLoader::dl_load_file */
                                     goto load_attributes;
@@ -6428,7 +6432,6 @@ Perl_yylex(pTHX)
                                 goto load_attributes;
                             }
                         }
-#else
                         if (!PL_in_my &&
                             len == 5 && memEQc(pv, "const"))
                         {
@@ -6443,7 +6446,7 @@ Perl_yylex(pTHX)
                         }
 #endif
 #ifdef USE_CPERL
-                        else if (!PL_in_my && len == 4 && memEQc(pv, "pure")) {
+                        else if (PL_in_sub && len == 4 && memEQc(pv, "pure")) {
                             sv_free(sv);
                             CvPURE_on(PL_compcv);
                         }
@@ -6466,12 +6469,19 @@ Perl_yylex(pTHX)
                         else if (find_in_coretypes(pv, len))
                             sv_free(sv);
 #endif
-                    /* Handle only the rest via attributes->import */
-                    else {
-                        OP* o;
-                      load_attributes:
-                        o = newSVOP(OP_CONST, 0, sv);
-                        attrs = op_append_elem(OP_LIST, attrs, o);
+                        /* Handle only the rest via attributes->import */
+                        else {
+                            OP* o;
+                        load_attributes:
+                            /* implicit extern sub */
+                            if (PL_in_sub && CvEXTERN(PL_compcv) && !saw_native) {
+                                saw_native = TRUE;
+                                attrs = op_append_elem(OP_LIST, attrs,
+                                                       newSVOP(OP_CONST, 0, newSVpvs("native")));
+                            }
+                            o = newSVOP(OP_CONST, 0, sv);
+                            attrs = op_append_elem(OP_LIST, attrs, o);
+                        }
                     }
                     s = skipspace(d);
                     if (*s == ':' && s[1] != ':')
@@ -9374,6 +9384,7 @@ Perl_yylex(pTHX)
                 bool try_signature = FALSE;
                 bool is_extern = cBOOL(tmp == KEY_extern);
 		const int key = is_extern ? KEY_sub : tmp;
+                int cvflags = tmp == KEY_method ? CVf_METHOD : 0;
                 SSize_t off = s - SvPVX(PL_linestr);
 
                 PL_lex_stuff = NULL;
@@ -9483,7 +9494,7 @@ Perl_yylex(pTHX)
                             DEBUG_T(printbuf("### Is prototype %s\n", d));
                         }
                         s = skipspace(s);
-                        if (was_extern)
+                        if (is_extern)
                             Perl_croak(aTHX_ "Illegal declaration of extern subroutine %" SVf
                                ". Need signature", SVfARG(PL_subname));
                     } else {

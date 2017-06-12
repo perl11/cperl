@@ -647,7 +647,6 @@ startsub:	/* NULL */	/* start a regular subroutine scope */
 
 startanonsub:	/* NULL */	/* start an anonymous subroutine scope */
 			{ $$ = start_subparse(FALSE, CVf_ANON);
-                            parser->in_sub = 0;
 			    SAVEFREESV(PL_compcv); }
 	;
 

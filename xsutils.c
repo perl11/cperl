@@ -1362,7 +1362,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 		    goto next_attr;
 		}
 		else if (len >= 7 && memEQc(name, "native(") && !negated) {
-                    /* TODO: sig: libname, version, abi */
+                    /* TODO: sig: libname, version */
                     CV *cv = MUTABLE_CV(sv);
                     is_native = TRUE;
                     if (len == 7 && numattrs>1) {
@@ -1493,15 +1493,8 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
         ;
     }
 
-    /* XXX Missing import call */
-    if (UNLIKELY(SvTYPE(sv) == SVt_PVCV && CvEXTERN(sv) && !CvXFFI(sv))) {
-        is_native = TRUE;
-        S_find_native(aTHX_ (CV*)sv, NULL);
-    }
-    if (is_native) {
+    if (is_native)
         prep_cif((CV*)sv, (const char*)nativeconv);
-    }
-
     return nret;
 }
 
@@ -1708,7 +1701,7 @@ usage:
             GV * const gv = gv_fetchmeth_pv(stash, name, -1, 0);
             if (gv && isGV(gv) && (cb = MUTABLE_SV(GvCV(gv)))) {
                 SV *pkgname = newSVpvn_flags(HvNAME(stash), HvNAMELEN(stash),
-                                             HvNAMEUTF8(stash));
+                                             HvNAMEUTF8(stash)|SVs_TEMP);
                 PUSHMARK(SP);
                 XPUSHs(pkgname);
                 XPUSHs(rv);

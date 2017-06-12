@@ -572,6 +572,7 @@ PP(pp_enterffi)
     if (UNLIKELY(!CvXFFI(cv)))
         DIE(aTHX_ "Null extern sub symbol");
     if (!hasargs && GIMME_V == G_VOID) {
+        /* TODO: segv signal handler */
         CvXFFI(cv)();
     } else {
 #if defined(D_LIBFFI) && defined(USE_FFI)
