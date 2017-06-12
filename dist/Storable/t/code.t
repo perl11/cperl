@@ -111,7 +111,8 @@ is($thawed->(), "JAPH");
 
 ######################################################################
 
-eval { $freezed = freeze $obj[4] };
+# $Storable::DEBUGME = 1;
+eval { $freezed = freeze $obj[4] }; # a XSUB
 like($@, qr/The result of B::Deparse::coderef2text was empty/);
 
 ######################################################################

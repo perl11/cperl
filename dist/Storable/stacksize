@@ -64,6 +64,7 @@ if ($ENV{PERL_CORE}) {
     }
     $PERL = "\"$PERL\"" if $PERL =~ / /;
     if ($ldlib and $ldlib ne 'PATH') {
+        $path = "$path:$ENV{$ldlib}" if $ENV{$ldlib};
         $PERL = "$ldlib=$path $PERL";
     }
 }
