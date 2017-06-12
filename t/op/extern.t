@@ -66,7 +66,7 @@ ok ((ref $ori->XFFI eq ref $xsym->XFFI) &&
   or note $ori->XFFI, $xsym->XFFI;
 undef *llabs;
 
-# broken!
+# different code-path than extern above. was broken
 eval 'sub llabs() :native :symbol("labs");';
 has_sym(\&llabs);
 

@@ -5506,7 +5506,7 @@ S_dup_attrlist(pTHX_ OP *o)
 	    else if (IS_TYPE(o, GVSV))
 		rop = op_append_elem(OP_LIST, rop,
                           newSVOP(OP_GVSV, o->op_flags  /*|| (o->op_private<<8)*/,
-                                  cSVOPo->op_sv));
+                                  SvREFCNT_inc_NN(cSVOPo->op_sv)));
 	    else if (IS_TYPE(o, PADSV)) {
                 OP *pop = newOP(OP_PADSV, o->op_flags /*|| (o->op_private<<8)*/);
                 pop->op_targ = o->op_targ;
@@ -5621,7 +5621,9 @@ Perl_attrs_runtime(pTHX_ CV *cv, OP *attrs)
             if (IS_TYPE(o, PADSV) || IS_TYPE(o, GVSV)) {
                 OP *result = NULL;
                 OP *target = newUNOP(OP_RV2CV, 0,
-				     newGVOP(OP_GV, 0, CvGV(cv)));
+                                 newGVOP(OP_GV, 0,
+                                     (GV*)SvREFCNT_inc_NN((SV*)CvGV(cv))));
+                SvREFCNT_inc_void_NN(cv);
                 apply_attrs_my(stash, target, attrs, &result);
                 SAVEFREEOP(attrs);
                 return result;
@@ -6226,7 +6228,7 @@ Perl_my_attrs(pTHX_ OP *o, OP *attrs)
 #else
     maybe_scalar = 1;
 #endif
-    if (attrs)
+    if (attrs && !attrs->op_savefree)
 	SAVEFREEOP(attrs);
     rops = NULL;
     o = my_kid(o, attrs, &rops);
