@@ -2434,6 +2434,10 @@ PDP-11 or something?
 (F) A tied array claimed to have a negative number of elements, which
 is not possible.
 
+=item ffi: Possible %s overflow %d
+
+(W ffi) The numeric conversion might be lossy. See L<ffi>.
+
 =item ffi_prep_cif error %d
 
 (F) The libffi call failed. See C<man ffi_prep_cif>.
@@ -2796,6 +2800,11 @@ number stopped before the illegal character.
 
 (F) You tried to divide a number by 0 to get the remainder.  Most
 numbers don't take to this kindly.
+
+=item Illegal :encoded(%s) argument
+
+(F) Wrong encoding string. Check L<attributes/encoded(STRING)>.
+Valid encodings are checked with L<Encode::resolve_alias|Encode/"Defining Aliases">.
 
 =item Illegal :nativeconv(%s) argument
 
@@ -4054,6 +4063,10 @@ were last editing.
 (S syntax) This is an educated guess made in conjunction with the message
 "%s found where operator expected".  Don't automatically put a semicolon on
 the previous line just because you saw this message.
+
+=item Missing type for extern sub argument %s
+
+(F) extern sub declarations need mandatory types. See L<ffi/types>.
 
 =item Modification of a read-only value attempted
 
@@ -6368,7 +6381,7 @@ external ffi functions cannot be used for non-ffi functions.
 
 =item :symbol is already resolved
 
-(W misc) The C<:native> declaration already succeeded finding a symbol
+(W ffi) The C<:native> declaration already succeeded finding a symbol
 in one of the loaded shared libraries. It is not overwritten.
 
 =item syntax error
@@ -6683,6 +6696,8 @@ Configure knows about.
 to be a hard reference to data of the specified type.  Overloading is
 ignored, so a reference to an object that is not the specified type, but
 nonetheless has overloading to handle it, will still not be accepted.
+
+=item Type of arg %s to %s must be %s (not %s)
 
 =item Type of arg %d to %s must be %s (not %s)
 
@@ -7021,10 +7036,10 @@ compiler does not recognize.  Check your spelling.
 (P) Perl was about to print an error message in C<$@>, but the C<$@> variable
 did not exist, even after an attempt to create it.
 
-=item Unknown ffi return type :%s, assume :long
+=item Unknown ffi return type :%s, assume :void
 
-(S) The extern subroutine return type declaration is not a valid
-package name. See L<ffi/types>.
+(S ffi) The extern subroutine return type declaration is not a valid
+package name. See L<ffi>.
 
 =item Unknown locale category %d; can't set it to %s
 

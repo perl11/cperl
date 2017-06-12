@@ -3777,7 +3777,7 @@ Perl_magic_setffi_encoded(pTHX_ SV *sv, MAGIC *mg)
 
     if (UNLIKELY(SvUTF8(sv) || SvCUR(sv) != strlen(SvPVX(sv)))) {
     ill_enc:
-        Perl_croak(aTHX_ "Illegal :encoded attribute %" SVf, SVfARG(sv));
+        Perl_croak(aTHX_ "Illegal :encoded(%" SVf ") argument", SVfARG(sv));
     }
     /* Encode::resolve_alias (valid name) */
     if (strNEc(SvPVX(sv), "utf8") && strNEc(SvPVX(sv), "Latin1")) {

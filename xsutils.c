@@ -515,8 +515,9 @@ S_prep_sig(pTHX_ const char *name, int l)
 #ifdef HAS_QUAD
             return &ffi_type_sint64;
 #else
-            Perl_warn(aTHX_ "ffi: Possible %s overflow %" IVdf,
-                      name, (I64TYPE)rvalue);
+            Perl_warner(aTHX_ packWARN(WARN_FFI),
+                        "ffi: Possible %s overflow %" IVdf,
+                        name, (I64TYPE)rvalue);
             return &ffi_type_sint64;
 #endif
         }
@@ -545,8 +546,9 @@ S_prep_sig(pTHX_ const char *name, int l)
 #ifdef HAS_QUAD
             return &ffi_type_uint64;
 #else
-            Perl_warn(aTHX_ "ffi: Possible %s overflow %" UVuf,
-                      name, (UV)rvalue);
+            Perl_warner(aTHX_ packWARN(WARN_FFI),
+                        "ffi: Possible %s overflow %" UVuf,
+                        name, (UV)rvalue);
             return &ffi_type_uint64;
 #endif
         }
@@ -564,8 +566,9 @@ S_prep_sig(pTHX_ const char *name, int l)
             return &ffi_type_sint64;
 #else
             /* TODO: check overflow => Math::BigInt */
-            Perl_warn(aTHX_ "ffi: Possible %s overflow %" IVdf,
-                      name, (IV)rvalue);
+            Perl_warner(aTHX_ packWARN(WARN_FFI),
+                        "ffi: Possible %s overflow %" IVdf,
+                        name, (IV)rvalue);
             return &ffi_type_sint64;
 #endif
         }
@@ -581,7 +584,8 @@ S_prep_sig(pTHX_ const char *name, int l)
             return &ffi_type_pointer;
         }
     }
-    Perl_warn(aTHX_ "Unknown ffi return type :%s", name);
+    Perl_ck_warner_d(aTHX_ packWARN(WARN_FFI),
+                     "Unknown ffi return type :%s, assume :void", name);
     return &ffi_type_void;
 }
 #endif
@@ -748,7 +752,7 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
             if (UNLIKELY(actions & SIGNATURE_FLAG_ref)) {
                 /* ffi(\$i :int) semantics: pointer to int? */
                 argtypes[i] = &ffi_type_pointer;
-                /* Perl_croak(aTHX_ "Illegal ref argument for extern sub");*/
+                /* Perl_c roak(aTHX_ "Illegal ref argument for extern sub");*/
             }
             items--;
         case SIGNATURE_arg_default_iv:
@@ -886,8 +890,10 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
             type = PadnameTYPE(argname);
             argtype = S_prep_sig(HvNAME(type), HvNAMELEN(type));
         } else {
-            Perl_croak(aTHX_ "Wrong type %s for extern sub argument %d. Need %s",
-                       "?", i, "?");
+            Perl_croak(aTHX_ "Type of arg %s to %s must be %s (not %s)",
+                       argname ? PadnamePV(argname) : "",
+                       SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                       "declared", "empty");
         }
 
         /* TODO: walk sig items, add run-time type-checks, add missing default values */
@@ -895,18 +901,33 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
             if (argtype == &ffi_type_pointer)
                 *argvalues++ = &SvPVX(*argp++);
             else
-                Perl_croak(aTHX_ "Wrong type %s for extern sub argument %d. Need %s",
-                           HvNAME(type), i, "Pointer");
+                Perl_croak(aTHX_ "Type of arg %s to %s must be %s (not %s)",
+                           PadnamePV(argname),
+                           SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                           "of ptr", HvNAME(type));
         }
         else if (SvIOK(*argp)) {
             if (argtype != &ffi_type_pointer)
                 *argvalues++ = &SvIVX(*argp++);
+            else
+                Perl_croak(aTHX_ "Type of arg %s to %s must be %s (not %s)",
+                           PadnamePV(argname),
+                           SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                           "of int", HvNAME(type));
         }
         else if (SvNOK(*argp)) {
-            *argvalues++ = &SvNVX(*argp++);
+            if (argtype != &ffi_type_pointer)
+                *argvalues++ = &SvNVX(*argp++);
+            else
+                Perl_croak(aTHX_ "Type of arg %s to %s must be %s (not %s)",
+                           PadnamePV(argname),
+                           SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                           "of num", HvNAME(type));
         } else {
-            Perl_croak(aTHX_ "Wrong type %s for extern sub argument %d. Need %s",
-                       HvNAME(type), i, "?");
+            Perl_croak(aTHX_ "Type of arg %s to %s must be %s (not %s)",
+                       PadnamePV(argname),
+                       SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                       "valid", HvNAME(type));
         }
 
         actions >>= SIGNATURE_SHIFT;
@@ -1032,8 +1053,9 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, void *rvalue)
 #ifdef HAS_QUAD
                 RET_IV(I64TYPE);
 #else
-                Perl_warn(aTHX_ "ffi: Possible %s overflow %" IVdf,
-                          name, (I64TYPE)rvalue);
+                Perl_warner(aTHX_ packWARN(WARN_FFI),
+                            "ffi: Possible %s overflow %" IVdf,
+                            name, (I64TYPE)rvalue);
                 return;
 #endif
             }
@@ -1062,8 +1084,9 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, void *rvalue)
 #ifdef HAS_QUAD
                 RET_UV(U64);
 #else
-                Perl_warn(aTHX_ "ffi: Possible %s overflow %" UVuf,
-                          name, (UV)rvalue);
+                Perl_warner(aTHX_ packWARN(WARN_FFI),
+                            "ffi: Possible %s overflow %" UVuf,
+                            name, (UV)rvalue);
                 return;
 #endif
             }
@@ -1081,8 +1104,9 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, void *rvalue)
                 RET_IV(Quad_t);
 #else
                 /* TODO: check overflow => Math::BigInt */
-                Perl_warn(aTHX_ "ffi: Possible %s overflow %" IVdf,
-                          name, (IV)rvalue);
+                Perl_warner(aTHX_ packWARN(WARN_FFI),
+                            "ffi: Possible %s overflow %" IVdf,
+                            name, (IV)rvalue);
                 RET_IV(long);
 #endif
             }
@@ -1091,8 +1115,9 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, void *rvalue)
                 RET_IV(long);
             }
         }
-        Perl_warn(aTHX_ "Unknown ffi return type :%s, assume :long", name);
-        RET_IV(long);
+        Perl_ck_warner_d(aTHX_ packWARN(WARN_FFI),
+                         "Unknown ffi return type :%s, assume :void", name);
+        PL_stack_sp--;
         GCC_DIAG_RESTORE
         GCC60_DIAG_RESTORE
     }
@@ -1358,7 +1383,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                         Perl_warn(aTHX_ ":%s is only valid for :native or extern sub",
                                   "symbol");
                     else if (CvXFFI(cv))
-                        Perl_warner(aTHX_ packWARN(WARN_MISC),
+                        Perl_warner(aTHX_ packWARN(WARN_FFI),
                                   ":symbol is already resolved");
                     else {
                         if (len == 7 && numattrs>1) {
