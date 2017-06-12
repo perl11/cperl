@@ -729,7 +729,7 @@ is $@, "", 'substr keys assignment';
 {
 
     no warnings;
-    eval "q" . chr(100000000064);
+    eval "q" . chr(0x7fffffff);
     like $@, qr/Can't find string terminator "." anywhere before EOF/,
         'RT 128952';
 }
