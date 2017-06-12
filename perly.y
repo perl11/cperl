@@ -271,6 +271,7 @@ barestmt:	PLUGSTMT
 			  if (CvOUTSIDE(fmtcv) && !CvEVAL(CvOUTSIDE(fmtcv)))
 			      pad_add_weakref(fmtcv);
 			  parser->parsed_sub = 1;
+			  parser->in_sub = 0;
 			}
 	|	subdecl subname startsub
 			{
@@ -1107,6 +1108,7 @@ term:		termbinop
 			    {
 				$<ival>$ = start_subparse(FALSE, CVf_ANON);
 				SAVEFREESV(PL_compcv);
+                                parser->in_sub = 0;
 			    } else
 				$<ival>$ = 0;
 			}
