@@ -319,7 +319,7 @@ testit split    => 'CORE::split $a, $b, $c;',    q{split(/$a/u, $b, $c);};
 
 testit sub      => 'CORE::sub { $a, $b }',
 		   "sub {\n        \$a, \$b;\n    }\n    ;";
-testit extern   => 'extern sub a ();',	 	 'extern sub a ();';
+#testit extern   => 'extern sub a ();',	 	 'extern sub a ();';
 
 testit system   => 'CORE::system($foo $bar);';
 

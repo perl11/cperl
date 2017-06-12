@@ -311,6 +311,7 @@ the sign of a spoofing attack.  A new regular expression construct
 now allows for easy detection of these.  For example, you can say
 
  qr/(*script_run: \d+ \b )/x
+>>>>>>> B::Deparse 1.40_04c: add ffi support
 
 And the digits matched will all be from the same set of 10.  You won't
 get a look-alike digit from a different script that has a different
@@ -1039,6 +1040,9 @@ with deferring the attributes::import call after an assignment.
 
 See L<[cperl #294]|https://github.com/perl11/cperl/issues/294>.
 
+Support the new core attributes :native, :native($libname), :symbol($c_name),
+:nativeconv(abi), :encoded(encoding) I<(NYI)>.
+
 =item L<Attribute::Handlers> 1.01_01
 
 Remove deprecated no-op attributes :unique, :locked
@@ -1058,6 +1062,8 @@ Internal Refactor: thread API
 Add many missing methods and docs. Some from B::C.
 
 Don't export class anymore.
+
+Add ffi support
 
 =item L<B::C> 1.55_08
 
@@ -1098,6 +1104,8 @@ attributes correctly:
 
     my $x :foo;  # used to deparse as
                  # 'attributes'->import('main', \$x, 'foo'), my $x;
+
+Add ffi support
 
 =item L<B::Terse> 1.09_01
 
