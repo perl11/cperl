@@ -3362,7 +3362,7 @@ PP(pp_iter)
     assert(OpNEXT(PL_op)->op_type == OP_AND);
     assert(OpNEXT(PL_op)->op_ppaddr == Perl_pp_and);
     /* pp_enteriter should have pre-extended the stack */
-    assert(PL_stack_sp < PL_stack_max);
+    EXTEND_SKIP(PL_stack_sp, 1);
     /* we only need this for the rare case where the OP_AND isn't
      * in void context, e.g. $x = do { for (..) {...} };
      * but its cheaper to just push it rather than testing first
