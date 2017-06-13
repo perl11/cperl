@@ -2082,8 +2082,10 @@ PP(pp_reset)
     dSP;
     const char * tmps;
     STRLEN len = 0;
-    if (MAXARG < 1 || (!TOPs && !POPs))
+    if (MAXARG < 1 || (!TOPs && !POPs)) {
+        EXTEND(SP, 1);
 	tmps = NULL, len = 0;
+    }
     else
 	tmps = SvPVx_const(POPs, len);
     sv_resetpvn(tmps, len, CopSTASH(PL_curcop));
