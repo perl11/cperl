@@ -3513,7 +3513,7 @@ XEop	|void   |dtrace_probe_hash |int mode|NN const char *name|bool is_entry
 #if defined(PERL_IN_XSUTILS_C)
 s	|void	|prep_cif	|NN CV* cv|NULLOK const char *nativeconv
 #endif
-#ifdef USE_FFI
+#if defined(D_LIBFFI) && defined(USE_FFI)
 Apd	|void	|prep_ffi_sig	|NN CV* cv|const unsigned int num_args \
 				|NN SV** argp|NN void **argvalues
 Apd	|void	|prep_ffi_ret	|NN CV* cv|NN SV** sp|NULLOK void *rvalue

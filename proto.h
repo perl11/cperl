@@ -7940,6 +7940,23 @@ PERL_CALLCONV void	Perl_dump_sv_child(pTHX_ SV *sv)
 	assert(sv)
 
 #endif
+#if defined(D_LIBFFI) && defined(USE_FFI)
+PERL_CALLCONV void	Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, void *rvalue)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_PREP_FFI_RET	\
+	assert(cv); assert(sp)
+
+PERL_CALLCONV void	Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **argvalues)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_3)
+			__attribute__nonnull__(pTHX_4);
+#define PERL_ARGS_ASSERT_PREP_FFI_SIG	\
+	assert(cv); assert(argp); assert(argvalues)
+
+#endif
 #if defined(HAS_MEMMEM)
 PERL_CALLCONV char*	Perl_ninstr(const char* big, const char* bigend, const char* little, const char* lend)
 			__attribute__global__
@@ -11289,21 +11306,6 @@ PERL_CALLCONV int	Perl_magic_setffi_encoded(pTHX_ SV* sv, MAGIC* mg)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_MAGIC_SETFFI_ENCODED	\
 	assert(sv); assert(mg)
-
-PERL_CALLCONV void	Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, void *rvalue)
-			__attribute__global__
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2);
-#define PERL_ARGS_ASSERT_PREP_FFI_RET	\
-	assert(cv); assert(sp)
-
-PERL_CALLCONV void	Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **argvalues)
-			__attribute__global__
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_3)
-			__attribute__nonnull__(pTHX_4);
-#define PERL_ARGS_ASSERT_PREP_FFI_SIG	\
-	assert(cv); assert(argp); assert(argvalues)
 
 #endif
 #if defined(USE_ITHREADS)
