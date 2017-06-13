@@ -23,8 +23,20 @@
 #include "perl.h"
 #include "XSUB.h"
 
-#if defined(I_FFI) && defined(USE_FFI)
-#include <ffi.h>
+#if defined(USE_FFI) && defined(I_FFI)
+# include <ffi.h>
+#endif
+#ifdef I_DLFCN
+#  include <dlfcn.h> /* for RTLD_DEFAULT: -2 on bsd */
+#endif
+#ifndef RTLD_DEFAULT
+# if defined(PERL_DARWIN) || defined(__APPLE__)   || defined(BSD) || \
+     defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || \
+     defined(__bsdi__)    || defined(__DragonFly__)
+#  define RTLD_DEFAULT -2
+# else /* linux, qnx, aix, windows, cygwin */
+#  define RTLD_DEFAULT 0
+# endif
 #endif
 
 /* public XS package methods */
@@ -1138,9 +1150,6 @@ S_find_symbol(pTHX_ CV* cv, char *name)
     CV *dl_find_symbol = get_cvs("DynaLoader::dl_find_symbol", 0);
     int nret;
     /* can be NULL, searches all libs then */
-#ifndef RTLD_DEFAULT
-#define RTLD_DEFAULT -2
-#endif
     IV handle = CvFFILIB(cv) ? (IV)CvFFILIB(cv) : (IV)RTLD_DEFAULT;
 
     if (!dl_find_symbol) {
@@ -1152,6 +1161,13 @@ S_find_symbol(pTHX_ CV* cv, char *name)
     /* still slabbed PL_compcv? */
     if (CvSLABBED(cv) && cv == PL_compcv && CvFFILIB(cv))
         handle = (IV)RTLD_DEFAULT;
+#ifdef WIN32
+    /* GetProcAddress(NULL) will fail.
+       dl_load_file already tried GetModuleHandle() and dl_find_symbol_anywhere */
+    if (!handle) {
+        return;
+    }
+#endif    
 
     SPAGAIN;
     PUSHMARK(SP);
