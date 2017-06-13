@@ -2119,10 +2119,12 @@ PP(pp_match)
 
     if (PL_op->op_flags & OPf_STACKED)
 	TARG = POPs;
-    else if (ARGTARG)
-	GETTARGET;
     else {
-	TARG = DEFSV;
+        if (ARGTARG)
+            GETTARGET;
+        else {
+            TARG = DEFSV;
+        }
 	EXTEND(SP,1);
     }
 
@@ -3471,10 +3473,12 @@ PP(pp_subst)
 
     if (PL_op->op_flags & OPf_STACKED)
 	TARG = POPs;
-    else if (ARGTARG)
-	GETTARGET;
     else {
-	TARG = DEFSV;
+        if (ARGTARG)
+            GETTARGET;
+        else {
+            TARG = DEFSV;
+        }
 	EXTEND(SP,1);
     }
 
