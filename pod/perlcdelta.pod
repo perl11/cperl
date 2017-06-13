@@ -275,6 +275,12 @@ automatically in debugging builds.
 L<[perl #131732]|https://rt.perl.org/Public/Bug/Display.html?id=131732>
 C<[commit 23891d5581278b]>.
 
+=item *
+
+C<my_atof2> no longer reads beyond the terminating NUL, which previously
+occurred if the decimal point is immediately before the NUL.
+L<[perl #131526]|https://rt.perl.org/Public/Bug/Display.html?id=131526>
+
 =back
 
 =head1 Platform Support
