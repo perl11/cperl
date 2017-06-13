@@ -14929,6 +14929,7 @@ our %delta = (
             'Cpanel::JSON::XS'      => '3.0233',
             'ExtUtils::MakeMaker'   => '8.04_05',
             'ExtUtils::MM_Unix'     => '8.04_05',
+            'File::Spec::Functions' => '3.36_05',
             'IO::Socket'            => '1.38_01',
             'IO::Socket::INET'      => '1.35_01',
             'IO::Socket::UNIX'      => '1.26_01',

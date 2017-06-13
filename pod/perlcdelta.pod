@@ -44,6 +44,11 @@ MSVC 14.0 support and higher, changed nan in the runtime.
 Support IO::Scalar handle as $parsefile argument to
 ExtUtils::MM_Unix::parse_version().
 
+=item L<File::Spec::Functions> 3.36_05
+
+Bumped version from unparsable 3.3.65, which prevented e.g.
+File::chdir to install.
+
 =item L<IO>
 
 Bump versions of 3 Socket modules.
