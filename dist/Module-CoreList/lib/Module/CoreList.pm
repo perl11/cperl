@@ -14928,6 +14928,7 @@ our %delta = (
             'Module::CoreList::Utils'=> '5.20170518c',
             'ExtUtils::Constant'    => '0.23_09',
             'ExtUtils::MakeMaker::Locale' => '8.04_04',
+            'File::Spec::Functions' => '3.36_05',
             'strict'                => '1.13c',
         },
         removed => {
