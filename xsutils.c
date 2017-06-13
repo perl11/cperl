@@ -230,7 +230,7 @@ boot_strict(pTHX_ SV *xsfile)
 static void
 boot_attributes(pTHX_ SV *xsfile)
 {
-    PERL_UNUSED_VAR(xsfile);
+    PERL_UNUSED_ARG(xsfile);
     /* The version needs to be still on disc, as we still have the .pm
        around for a while */
     /*Perl_set_version(aTHX_ STR_WITH_LEN("attributes::VERSION"), STR_WITH_LEN("1.11c"), 1.11);*/
@@ -614,7 +614,7 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
     const unsigned int num_args = mand_params + opt_params;
     unsigned int i;
     UV  actions;
-    PADOFFSET pad_ix;
+    PADOFFSET pad_ix = 0;
     PADNAMELIST *namepad = PadlistNAMES(CvPADLIST(cv));
 #define PAD_NAME(pad_ix) padnamelist_fetch(namepad, pad_ix)
     PADNAME *argname;
@@ -772,7 +772,7 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
                 if (UNLIKELY(actions & SIGNATURE_FLAG_ref)) {
                     argtypes[i] = &ffi_type_pointer;
                 } else {
-                    argtypes[i] = S_prep_sig(HvNAME(type), HvNAMELEN(type));
+                    argtypes[i] = S_prep_sig(aTHX_ HvNAME(type), HvNAMELEN(type));
                 }
             } else {
                 Perl_croak(aTHX_ "Missing type for extern sub argument %s",
@@ -802,6 +802,8 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
     }
     CvFFILIB(cv) = PTR2ul(cif);
 #else
+    PERL_UNUSED_ARG(cv);
+    PERL_UNUSED_ARG(nativeconv);
     Perl_warner(aTHX_ packWARN(WARN_SYNTAX),
                 "libffi not available");
 #endif
@@ -837,14 +839,14 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
     PADNAMELIST *namepad = PadlistNAMES(CvPADLIST(cv));
 #define PAD_NAME(pad_ix) padnamelist_fetch(namepad, pad_ix)
     HV*  type;
-    PADOFFSET pad_ix;
+    PADOFFSET pad_ix = 0;
     bool slurpy      = cBOOL((params >> 15) & 1);
     PERL_ARGS_ASSERT_PREP_FFI_SIG;
 
     if (UNLIKELY(num_args < mand_params)) {
 	/* diag_listed_as: Not enough arguments for %s%s%s */
         Perl_croak(aTHX_ "Not enough arguments for %s%s%s %s. Want: %" UVuf
-                   ", but got: %" UVuf,
+                   ", but got: %u",
                    CvDESC3(cv),
                    SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
                    mand_params, num_args);
@@ -853,14 +855,14 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
         if (opt_params)
             /* diag_listed_as: Too many arguments for %s%s%s */
             Perl_croak(aTHX_ "Too many arguments for %s%s%s %s. Want: %" UVuf "-%" UVuf
-                       ", but got: %" UVuf,
+                       ", but got: %u",
                        CvDESC3(cv),
                        SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
                        mand_params, mand_params + opt_params, num_args);
         else
             /* diag_listed_as: Too many arguments for %s%s%s */
             Perl_croak(aTHX_ "Too many arguments for %s%s%s %s. Want: %" UVuf
-                       ", but got: %" UVuf,
+                       ", but got: %u",
                        CvDESC3(cv),
                        SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
                        mand_params, num_args);
@@ -888,7 +890,7 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
         argname = PAD_NAME(pad_ix);
         if (argname && PadnameTYPE(argname)) {
             type = PadnameTYPE(argname);
-            argtype = S_prep_sig(HvNAME(type), HvNAMELEN(type));
+            argtype = S_prep_sig(aTHX_ HvNAME(type), HvNAMELEN(type));
         } else {
             Perl_croak(aTHX_ "Type of arg %s to %s must be %s (not %s)",
                        argname ? PadnamePV(argname) : "",
@@ -954,6 +956,7 @@ void
 Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, void *rvalue)
 {
     const HV* typestash = PadnameTYPE(PAD_COMPNAME(0)); /* first slot: rettype */
+    PERL_UNUSED_ARG(cv);
     PERL_ARGS_ASSERT_PREP_FFI_RET;
     if (!typestash) { /* perl6 has default :void */
         PL_stack_sp--;
