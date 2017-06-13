@@ -5733,6 +5733,7 @@ PP(pp_lslice)
 
     if (GIMME_V != G_ARRAY) {
         if (lastlelem < firstlelem) {
+            EXTEND(SP, 1);
             *firstlelem = UNDEF;
         }
         else {
