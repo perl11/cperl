@@ -317,8 +317,12 @@ eleak(2, 0, 'no warnings; use feature ":all"; my sub a{1 1}',
   eleak(2, 0, 'sub labs () :native("c");', 'sub :native("c")');
   eleak(2, 0, 'sub ffiabs () :native :symbol("labs");', 'extern sub :symbol("name")');
 }
-leak(2, 0, sub { extern sub labs (int $i) :int; my $i = labs(-1) },
-           'extern sub run-time');
+if ($Config{useffi}) {
+  leak(2, 0, sub { extern sub labs (int $i) :int; my $i = labs(-1) },
+       'extern sub run-time');
+} else {
+  ok(1, "skip no useffi");
+}
 
 # Reification (or lack thereof)
 leak(2, 0, sub { sub { local $_[0]; shift }->(1) },

@@ -12,7 +12,7 @@ BEGIN {
 skip_all_if_miniperl;
 use Config;
 use B ();
-skip_all "no ffilib" unless $Config{useffi};
+skip_all "no ffilib" if !$Config{useffi} or !$Config{d_libffi};
 plan(tests => 40);
 
 no warnings 'redefine';
