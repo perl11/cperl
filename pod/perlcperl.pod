@@ -426,6 +426,8 @@ index, not all the values.
 
     sub foometh($self, ...) { func(...) }
 
+In an extern sub declaration, the C<...> denotes varargs as in C.
+
 =item B<< strict prototype and signature syntax, no pragmas required. >>
 
 Illegal prototype and signature syntax does not just warn, it dies with
@@ -566,14 +568,10 @@ vehemently against this change.
 cperl has a new 'security' warnings category, which bypasses STDERR
 capture and also tries to log the remote user IP.
 
-=head2 strict names (NY)
+=head2 strict names
 
 With C<use strict "names"> we do not accept unparsable symbols created
-from strings.  This is a new run-time error for use strict.
-
-There's currently no room for an explicit C<use strict 'names'> hint
-due to a bad strict implementation. But later when we freed some
-C<PL_hint> bits to hold strict defaults we can add support for that.
+from strings.  This is a new run-time error for use L<strict>.
 
 =head2 TR39 confusable names
 
@@ -626,12 +624,14 @@ chain. This is how you usually implement a slow hash table with linked
 lists.
 
 Use fast hash functions, not secure slow ones. We get security by
-fixing the algorithmic problem, not by obscuring the users and fellow
-developers.  We properly analyzed many hash functions and hash tables,
-for security and speed. The fastest, FNV1a, was the one the fellow
-developer schmorp choose I<by his guts> in his stableperl fork.
+fixing the algorithmic problem in the collision handling, not by
+obscuring the users and fellow developers.  We properly analyzed many
+hash functions and hash tables, for security and speed. The fastest,
+FNV1a, was the one the fellow developer schmorp choose I<by his guts>
+in his stableperl fork.
 
-Provide a Configure argument to define the hash function: -Dhash_func=FNV1A
+Provide a Configure argument to define the hash function:
+C<-Dhash_func=FNV1A>
 
 Make the load factor definable, and change the default from 100% to
 90%, which was tested as superior.
@@ -653,6 +653,7 @@ optimizations on non-const hashes at run-time to allow faster key access.
 
 Added support for restricted hashes, esp. stashes which we need for our
 class implementation, to detect wrong fields at compile-time already.
+restricted hashes are not properly supported in perl5.
 
 =head2 Compile-time attribute hooks
 
@@ -661,7 +662,13 @@ C<:int>, C<:num>, C<:str>, ... attributes for all new core types.
 This is basically a read-only C<MODIFY_*_ATTRIBUTES> hook at
 compile-time with a better name to disassociate from the run-time
 check of C<FETCH_*_ATTRIBUTES> with C<my> lexicals.  See also
-L</"Rewrite critical core modules in C as builtins"> below.
+L</"Rewrote critical core modules in C as builtins"> below.
+
+=head2 Run-time attribute variables
+
+cperl defers the C<<< attribute->import >>> call from compile-time to
+run-time with non-constant attribute arguments. See
+L<http://perl11.org/blog/attributes-args.html>.
 
 =head2 coretypes: Int, UInt, Num, Str
 
@@ -708,8 +715,8 @@ the optimizations involves up- and downgrading of data and ops in
 possible native chains. This leads to much tighter native expressions,
 with performance and memory gains. (3x less memory, ~3x faster).
 
-For the builtin FFI we will also provide FFI-specific native types,
-like int32, int64, uint32, uint64 and ptr.
+For the builtin FFI we provide also FFI-specific native types,
+like int32, int64, uint32, uint64, ptr and more.
 
 See L<perltypes/native types>.
 
@@ -831,6 +838,8 @@ memory (cache friendly), help the type system. See L<perltypes>.
 
 Type arrays specify the uniform type of the values. Typed arrays with
 native types use much less memory and provide faster direct access.
+Natively typed arrays allow access and passing as arguments to
+external C functions.
 
 Shaped arrays define a compile-time constant "shape", the size, which
 cannot be changed.  All values are pre-initialized.
@@ -913,6 +922,8 @@ F<strict.pm> is only provided for documentation, C<$INC{'strict.pm'} =
 reportyed one-by-one, and not together.  All other functionality stays
 the same.
 
+strict hash two new modes: strict hashpairs and names.
+
 =head3 attributes 0.26_01c as builtin
 
 Starting with cperl (based on Perl 5.22) L<attributes> is now again a
@@ -925,17 +936,22 @@ C<CHECK_I<type>_ATTRIBUTES> is a new compile-time hook, like a readonly
 variant of C<MODIFY_I<type>_ATTRIBUTES>, or the compile-time variant of
 C<FETCH_I<type>_ATTRIBUTES>.
 
+Attribute arguments can now be variables, deferred from compile-time
+to run-time.
+
 There are several new builtin attributes:
 
 =over
 
 =item B<< :const for all types >>
 
-=item B<< :unsigned for all integer types, sets SvIsUV_on|off >>
+=item B<< unsigned for all integer types, sets SvIsUV_on|off >>
 
 =item B<< existing classes as types are recognized >>
 
 and stored for lexical types and subroutine return types.
+
+=item B<< some new FFI attributes >>
 
 =back
 
@@ -988,7 +1004,8 @@ smoker platforms (linux 64bit, linux -m32, darwin, windows 32+64bit).
 
 Maybe provide python-like precompiled C<ByteCache> F<.pmc> as
 default. You could pre-compile then modules with higher optimization
-levels, esp. the type inferencer.
+levels, esp. the type inferencer. F<.pmc> handling has been extended
+for reflection inside a .pmc, needed for the jit cache.
 
 Maybe include a C<Data::Compile> module to dump only data without all
 the code to a shared library, and possibly
@@ -1066,7 +1083,7 @@ Optionally omit caller, @_, freetmps, exception handler when possible,
 i.e.  no string eval's are present in the body, the compiler can
 detect it or the right compiler hint is given.
 
-=head2 tailcall eliminiation
+=head2 tailcall elimination
 
 Detect tail positions and replace the call with a fast goto. This
 needs to be in core, not as external module. Without tailcall
@@ -1136,26 +1153,27 @@ compiler, the very same compiler perl was compiled with.
 libffi is the slowest ffi library, but has the best platform support, as it is
 integrated with gcc for java jni support.
 
-   extern sub atoi(str $s):int;
-   extern sub itoa(int $s):str;
-   extern sub printf(str $s, ...):void;
+   extern sub atoi(str $s) :int;
+   extern sub itoa(int $s) :str;
+   extern sub printf(str $s, ...);
 
 Note that this deviates from perl6 synatx with C<is native>, but perl6
 uses the C<is> traits for all function attributes, which we do not.
 And we prefer the more natural C-like syntax over the more obscure perl6 syntax.
 
-The alternative syntax would be via a C<:native> attribute, which would allow
-options, as in C<sub atoi(str $s):int :native($libc);>.
+The alternative syntax to C<extern sub> is via the C<:native> sub
+attribute, which does allow options, as in C<sub atoi(str $s) :int
+:native($libc);>.
 
-But with the jit in core we would not need the external libffi dependency.
+Later with a jit in core we would not need the external F<libffi> dependency.
 
 =head2 Editor integration
 
 With type inference we can provide a much nicer development
-environment, which also supports the debugger.  B<plsense> should give
-type feedback.  I'm thinking of a port of B<ZeroBrane Studio> for
-perl. This means provide core support for the needed serializers and
-introspection facilities.
+environment which also supports the debugger.  B<plsense> for emacs
+should give type feedback.  I'm thinking of a port of B<ZeroBrane
+Studio> for perl. This means provide core support for the needed
+serializers and introspection facilities.
 
 =head2 Jit
 
@@ -1169,10 +1187,11 @@ L<http://nominolo.blogspot.de/2012/07/implementing-fast-interpreters.html>
 A tracing jit, and not a method jit sounds best, together with the
 inliner, native op sequences and loop optimizations.  Currently we are
 trying a simple llvm based method jit, which kicks in after counting
-methods and loops (similar to unladen-swallow and pyston), and inlines
-some C<pp> runtime functions and hereby eliminations to function
-intro, parameter and return overhead, and then can apply the usual
-optimizations applied to the bodies without the call overhead.
+methods and loops (similar to unladen-swallow and pyston, just smaller
+and faster), and inlines some C<pp> runtime functions and hereby
+eliminations to function intro, parameter and return overhead, and
+then can apply the usual optimizations applied to the bodies without
+the call overhead.
 
 =head2 Optimize the vm, the runloop
 
@@ -1324,9 +1343,10 @@ See L<perlclass> (NY)
 
 =item B<< types >>
 
-cperl includes builtin coretypes, and later native types, user-defined
-types and type dispatch, checks, subtype relationships, inference and
+cperl includes builtin coretypes, native ffi types, user-defined types
+and type dispatch, checks, subtype relationships, inference and
 optimizations on user-defined functions and methods, for XS and PP.
+Later native aggregate types for arrays, hashes and native classes (structs).
 
 See L<perltypes>
 
