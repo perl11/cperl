@@ -481,6 +481,14 @@ PERL_CALLCONV U8*	Perl_bytes_from_utf8(pTHX_ const U8 *s, STRLEN *lenp, bool *is
 #define PERL_ARGS_ASSERT_BYTES_FROM_UTF8	\
 	assert(s); assert(lenp); assert(is_utf8p)
 
+PERL_CALLCONV U8*	Perl_bytes_from_utf8_loc(const U8 *s, STRLEN *lenp, bool *is_utf8p, const U8 ** first_unconverted)
+			__attribute__global__
+			__attribute__nonnull__(1)
+			__attribute__nonnull__(2)
+			__attribute__nonnull__(3);
+#define PERL_ARGS_ASSERT_BYTES_FROM_UTF8_LOC	\
+	assert(s); assert(lenp); assert(is_utf8p)
+
 PERL_CALLCONV U8*	Perl_bytes_to_utf8(pTHX_ const U8 *s, STRLEN *lenp)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
