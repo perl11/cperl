@@ -107,6 +107,12 @@
 #   define USE_HEAP_INSTEAD_OF_STACK
 #endif
 
+/* With -Dccflags=... PERL_DARWIN is undefined, breaking some extensions.
+   iOS and unsupported Mac OS Classic is different. [cperl #295] */
+#if defined(__APPLE__) && !defined(PERL_DARWIN) && defined(__MACH__)
+# define PERL_DARWIN
+#endif
+
 /* Use the reentrant APIs like localtime_r and getpwent_r */
 /* Win32 has naturally threadsafe libraries, no need to use any _r variants. */
 #if defined(USE_ITHREADS) && !defined(USE_REENTRANT_API) && !defined(NETWARE) && !defined(WIN32) && !defined(PERL_DARWIN)
