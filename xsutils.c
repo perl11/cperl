@@ -568,11 +568,14 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
             /* fallthru - all other data types */
 	default:
             if (strEQc(name, "const")
-                && !(SvFLAGS(sv) & SVf_PROTECT))
+#if SVf_PROTECT != SVf_READONLY
+                && !(SvFLAGS(sv) & SVf_PROTECT)
+#endif
+                )
             {
                 if (negated)
                     SvREADONLY_off(sv);
-                else
+                else /* TODO: defer after assign statement */
                     SvREADONLY_on(sv);
                 continue;
             }

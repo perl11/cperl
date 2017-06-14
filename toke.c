@@ -6213,18 +6213,24 @@ Perl_yylex(pTHX)
                         else if (!find_in_coretypes(pv, len))
                             goto load_attributes;
 		    }
-		    else if (
-#ifndef USE_CPERL
-                        !PL_in_my &&
-#endif
+		    else
+#ifdef USE_CPERL
+                    if (len == 5 && memEQc(pv, "const"))
+                    {
+                        if (!PL_in_my) {
+                            sv_free(sv);
+                            CvCONST_on(PL_compcv); /* inlinable */
+                            if (CvANON(PL_compcv))
+                                CvANONCONST_on(PL_compcv);
+                        } else { /* my, package */
+                            goto load_attributes;
+                        }
+		    }
+#else
+                    if (!PL_in_my &&
                         len == 5 && memEQc(pv, "const"))
                     {
-			sv_free(sv);
-#ifdef USE_CPERL
-			CvCONST_on(PL_compcv); /* inlinable */
-			if (CvANON(PL_compcv))
-                            CvANONCONST_on(PL_compcv);
-#else
+                        sv_free(sv);
 			Perl_ck_warner_d(aTHX_
 			    packWARN(WARN_EXPERIMENTAL__CONST_ATTR),
 			   ":const is experimental"
@@ -6233,8 +6239,8 @@ Perl_yylex(pTHX)
 			if (!CvANON(PL_compcv))
 			    yyerror(":const is not permitted on named "
 				    "subroutines");
-#endif
 		    }
+#endif
 #ifdef USE_CPERL
 		    else if (!PL_in_my && len == 4 && memEQc(pv, "pure")) {
 			sv_free(sv);
