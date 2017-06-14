@@ -23,12 +23,12 @@ Remember: A type is implemented as package, later also as class. A
 valid type must be an existing and loaded package. Type expressions,
 like parametric types or unions cannot be stored in pad stashes yet.
 
-Global variables can not declare types, only lexicals and
-signatures. Constants are implicitly typed.
+Global variables can not declare to be typed, only lexicals,
+signatures and function returns. Constants are implicitly typed.
 
-B<cperl> adds support for builtin coretypes, has type declarations for
-most internal ops, and can optimize based in type inference or
-declared types.
+B<cperl> adds support for builtin coretypes, ffi types, has type
+declarations for most internal ops, and can optimize based in type
+inference or declared types.
 
 =head2 Why types? Types are unperlish
 
@@ -52,10 +52,10 @@ I<magic>, i.e. checking for extraordinary conditions can be bypassed
 with typed variants. And with unboxed native types all the arithmetic
 ops are at least 2-4x faster.
 
-Without types there will be no multi-dispatch, no proper object
-system, and smartmatch is almost impossible without types. There's no
-need to overload internal methods anymore. The compiler and run-time
-can dispatch on the types of its arguments.
+Without types there will be no multi-dispatch, no FFI, no proper
+object system, and smartmatch is almost impossible without
+types. There's no need to overload internal methods anymore. The
+compiler and run-time can dispatch on the types of its arguments.
 
 Without types no builtin FFI, foreign function interface. You still need
 to call an external FFI module or write a XS function, but loose all the
@@ -66,8 +66,9 @@ can handle the arguments and result types much better as e.g. the
 javascript v8 engine does, but observing the run-time types and
 optimize dynamically. You don't need dart to run fast javascript but
 it helps.
-Every other dynamic languages switched in the meantime to optional typing.
-No other dynamic language forced type optimizations and checkers out of core.
+Every other dynamic languages switched in the meantime to optional
+typing.  No other dynamic language forced type optimizations and
+checkers out of core, only p5p did.
 
 =head2 Type tree
 
@@ -77,9 +78,9 @@ No other dynamic language forced type optimizations and checkers out of core.
 
          -> Object -> ...
 
-From most generic left to more specific to the left.
-Contravariance enables you to use a more generic (less derived, more left) type
-than originally specified.
+From most generic left to more specific to the left.  Contravariance
+enables you to use a more generic (less derived, more left) type than
+originally specified.
 
 =head2 coretypes
 
@@ -138,10 +139,10 @@ Types for perl objects should have classnames names starting as
 uppercase, with several reserved names for core types, see above.
 
 The lower case variants B<int>, B<uint>, B<num> and B<str> are used to
-handle raw unboxed values directly, not refcounted, and are permitted
-for rare cases: in special sequences of ops which do understand
-them. They are also useful for the B<ffi> ("foreign function
-interface") in core, which is in development.
+handle native unboxed values directly, not refcounted, and are permitted
+for rare cases: In special sequences of ops which do understand
+them. They are also mandatory for the B<ffi> ("foreign function
+interface") in core.
 
 The compiler handles boxing and unboxing automatically for the parts
 where unboxed values are not permitted on the stack. Thus you are
@@ -159,17 +160,24 @@ combinations of pure arithmetic code and natively typed arrays.
 Operations on native type int will not promote to double on overflow,
 arithmetic on untyped IV will promote to doubles.
 
-B<Internally>
+C<class :native> declarations uses mandatory types on all fields, and
+guarantees C-like packing of the fields when being used as arguments
+or return types for extern sub calls. The fields resemble C structs
+which can be passed to extern subs, and is similar to the Perl6 C<is
+repr('CStruct')> feature, but has less restrictions.
+
+B<Internally:>
 
 The native op variants start with C<int_>, C<uint_>, C<num_>,
-C<str_>. Any sequence of natively typed ops might need to start with
-an C<unbox_> op to convert the vaues on the stack from boxed to
-unboxed, and end with either a C<box_> op or the C<OPpBOXRET> private
-flag in the op.  This unboxing and boxing adds some runtime costs, so
-the compiler is free to omit such type promotions at it sees
-fit. However with the new FFI the native type declaration is
-guaranteed to be observed by the compiler, and the unbox and box ops
-are added automatically.
+C<str_>. There also exist some more L<ffi> specific native types.  Any
+sequence of natively typed ops might need to start with an C<unbox_>
+op to convert the vaues on the stack from boxed to unboxed, and end
+with either a C<box_> op or the C<OPpBOXRET> private flag in the op.
+This unboxing and boxing adds some runtime costs, so the compiler is
+free to omit such type promotions at it sees fit. However with the new
+FFI the native type declaration is guaranteed to be observed by the
+compiler for every ffi call, and the unbox and box ops are added
+automatically.
 
 Unboxed native values can appear on the stack, on pads and in const
 ops.
@@ -597,7 +605,7 @@ dynamically at run-time.
 External modules, such as L<types>, L<typesafety> or L<Moose>,
 implement their type checks or optimizations for the types they
 declare or allow declaration for during execution of L<perlmod/CHECK>
-blocks.
+blocks. They are very limited and slow in what they do.
 
 =head2 XXX __PACKAGE__ types I<questionable>
 
@@ -623,7 +631,7 @@ the syntax of Perl's future argument and return type declarations.
 L<http://perl.plover.com/classes/typing/> I<Strong Typing Doesn't Have to Suck>
 
 Most dynamic languages are currently in the process to get type
-support:
+support, and are finally happy with it.
 
 =over
 
