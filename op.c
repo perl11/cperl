@@ -8970,6 +8970,8 @@ Perl_cv_const_sv_or_av(const CV * const cv)
 =for apidoc s|SV*    |op_const_sv    |NN const OP *o|NN CV *cv|bool allow_lex
 
 op_const_sv:  examine an optree to determine whether it's in-lineable.
+It walks the tree in exec order (next), not in tree order (sibling, first).
+
 Can be called in 2 ways:
 
 !allow_lex
