@@ -754,7 +754,7 @@ hrstatns(UV *atime_nsec, UV *mtime_nsec, UV *ctime_nsec)
 /* Until Apple implements clock_gettime()
  * (ditto clock_getres() and clock_nanosleep())
  * we will emulate them using the Mach kernel interfaces. */
-#if defined(PERL_DARWIN) && \
+#if (defined(PERL_DARWIN) || defined(__APPLE__)) && \
   (defined(TIME_HIRES_CLOCK_GETTIME_EMULATION)   || \
    defined(TIME_HIRES_CLOCK_GETRES_EMULATION)    || \
    defined(TIME_HIRES_CLOCK_NANOSLEEP_EMULATION))
