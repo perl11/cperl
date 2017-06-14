@@ -44,7 +44,6 @@ BEGIN {
 }
 
 use strict;
-
 use Config;
 
 if ($Config{cc} =~ /g\+\+/) {
@@ -53,7 +52,6 @@ if ($Config{cc} =~ /g\+\+/) {
 }
 
 my $libperl_a;
-
 for my $f (qw(../libperl.a libperl.a)) {
   if (-f $f) {
     $libperl_a = $f;
@@ -81,23 +79,27 @@ END {
     unlink $nm_err_tmp if $nm_err_tmp;
 }
 
-my $fake_input;
-my $fake_style;
+my ($fake_input, $fake_style, $debugdump);
 
 if (@ARGV == 1) {
     $fake_input = shift @ARGV;
-    print "# Faking nm output from $fake_input\n";
-    if ($fake_input =~ s/\@(.+)$//) {
-        $fake_style = $1;
-        print "# Faking nm style from $fake_style\n";
-        if ($fake_style eq 'gnu' ||
-            $fake_style eq 'linux' ||
-            $fake_style eq 'freebsd') {
-            $nm_style = 'gnu'
-        } elsif ($fake_style eq 'darwin' || $fake_style eq 'osx') {
-            $nm_style = 'darwin'
-        } else {
-            die "$0: Unknown explicit nm style '$fake_style'\n";
+    if ($fake_input eq '--dump') {
+        undef $fake_input;
+        $debugdump++;
+    } else {
+        print "# Faking nm output from $fake_input\n";
+        if ($fake_input =~ s/\@(.+)$//) {
+            $fake_style = $1;
+            print "# Faking nm style from $fake_style\n";
+            if ($fake_style eq 'gnu' ||
+                $fake_style eq 'linux' ||
+                $fake_style eq 'freebsd') {
+                $nm_style = 'gnu'
+            } elsif ($fake_style eq 'darwin' || $fake_style eq 'osx') {
+                $nm_style = 'darwin'
+            } else {
+                die "$0: Unknown explicit nm style '$fake_style'\n";
+            }
         }
     }
 }
@@ -282,6 +284,11 @@ sub nm_parse_darwin {
                 # _Perl_pp_gmtime.dayname
                 return if defined $suffix;
                 $symbols->{data}{$dtype}{$symbol}{$symbols->{o}}++;
+            } elsif (/^\(common\) (?:non-)?external _?(\w+)(\.\w+)?$/) {
+                # Without -fno-common: PL_hash_seed, PL_minus_E, ...
+                my ($dtype, $symbol, $suffix) = ('common', $1, $2);
+                return if defined $suffix;
+                $symbols->{data}{$dtype}{$symbol}{$symbols->{o}}++;
             } elsif (/^\(__DATA,__const\) non-external _\.memset_pattern\d*$/) {
                 # Skip these optimized darwin libc variants
             } elsif (/^\(__TEXT,__eh_frame/) {
@@ -324,7 +331,9 @@ while (<$nm_fh>) {
     $nm_parse->(\%symbols);
 }
 
-# use Data::Dumper; print Dumper(\%symbols);
+if ($debugdump) {
+  use Data::Dumper; print Dumper(\%symbols);
+}
 
 # Something went awfully wrong.  Wrong nm?  Wrong options?
 unless (keys %symbols) {
