@@ -74,10 +74,14 @@ Could not find a version of bison in your path. Please install bison.
 EOF
 
 my $proper_version = qr/\b(1\.875[a-z]?|2\.[0134567]|3\.[0])\b/;
-# see if we have a proper old bison-2.7.1 or bison-2.5.1 around
+# see if we have other versions around
 unless ($version =~ $proper_version) {
-    $bison = "bison-2.7.1";
+    $bison = "bison-3.0.4";
     $version = `$bison -V`;
+    unless ($version =~ $proper_version) {
+        $bison = "bison-2.7.1";
+        $version = `$bison -V`;
+    }
     unless ($version =~ $proper_version) {
         $bison = "bison-2.5.1";
         $version = `$bison -V`;
