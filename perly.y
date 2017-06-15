@@ -798,10 +798,7 @@ termbinop:	term ASSIGNOP term %prec ASSIGNOP	/* $x = $y */
 	|	MY myterm myattrlist ASSIGNOP term	/* my $x :const = $y */
                 %prec PREC_LOW
 			{ OP *attr = $3;
-                          /* TODO: this fails with mult. attribs, such as $x :int :const */
-                          if (  OP_TYPE_IS(attr, OP_CONST) &&
-                                SvPOK(cSVOPx_sv(attr)) &&
-                                strEQc(SvPVX(cSVOPx_sv(attr)),"const") ) {
+                          if (attrs_has_const(attr)) {
                               OP *a = newASSIGNOP(OPf_STACKED, $2, $4, $5);
                               OP *import;
                               OpFLAGS(attr) |= OPf_SPECIAL;

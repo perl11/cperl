@@ -279,6 +279,11 @@ PERL_CALLCONV void	Perl_atfork_lock(void)
 PERL_CALLCONV void	Perl_atfork_unlock(void)
 			__attribute__global__;
 
+PERL_CALLCONV bool	Perl_attrs_has_const(pTHX_ OP* o)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__pure__;
+
 PERL_CALLCONV SV**	Perl_av_arylen_p(pTHX_ AV *av)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);

@@ -4301,7 +4301,7 @@ S_dup_attrlist(pTHX_ OP *o)
     if (IS_CONST_OP(o))
 	rop = newSVOP(OP_CONST, o->op_flags, SvREFCNT_inc_NN(cSVOPo->op_sv));
     else {
-	assert((IS_TYPE(o, LIST)) && (OpKIDS(o)));
+	assert((IS_TYPE(o, LIST)) && OpKIDS(o));
 	rop = NULL;
 	for (o = OpFIRST(o); o; o = OpSIBLING(o)) {
 	    if (IS_CONST_OP(o))
@@ -4311,6 +4311,39 @@ S_dup_attrlist(pTHX_ OP *o)
 	}
     }
     return rop;
+}
+
+/*
+=for apidoc attrs_has_const
+
+Checks the attrs list if ":const" is in it.
+
+=cut
+*/
+bool
+Perl_attrs_has_const(pTHX_ OP *o)
+{
+    if (!o)
+        return FALSE;
+
+    /* An attrlist is either a simple OP_CONST or an OP_LIST with kids,
+     * where the first kid is OP_PUSHMARK and the remaining ones
+     * are OP_CONST. Later also OP_GVSV, OP_PADSV.
+     */
+    if (IS_CONST_OP(o)) {
+        if ( SvPOK(cSVOPx_sv(o)) &&
+             strEQc(SvPVX(cSVOPx_sv(o)), "const") )
+        return TRUE;
+    } else {
+	assert(IS_TYPE(o, LIST) && OpKIDS(o));
+	for (o = OpFIRST(o); o; o = OpSIBLING(o)) {
+	    if ( IS_CONST_OP(o) &&
+                 SvPOK(cSVOPx_sv(o)) &&
+                 strEQc(SvPVX(cSVOPx_sv(o)), "const") )
+                return TRUE;
+	}
+    }
+    return FALSE;
 }
 
 /*

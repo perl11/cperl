@@ -55,6 +55,7 @@
 #define apply_attrs_string(a,b,c,d)	Perl_apply_attrs_string(aTHX_ a,b,c,d)
 #define atfork_lock		Perl_atfork_lock
 #define atfork_unlock		Perl_atfork_unlock
+#define attrs_has_const(a)	Perl_attrs_has_const(aTHX_ a)
 #define av_clear(a)		Perl_av_clear(aTHX_ a)
 #define av_delete(a,b,c)	Perl_av_delete(aTHX_ a,b,c)
 #define av_exists(a,b)		Perl_av_exists(aTHX_ a,b)
