@@ -1756,7 +1756,7 @@ PP(pp_sysread)
 	char namebuf[MAXPATHLEN];
         if (fd < 0) {
             SETERRNO(EBADF,SS_IVCHAN);
-            RETPUSHUNDEF;
+            goto say_undef;
         }
 #if (defined(VMS_DO_SOCKETS) && defined(DECCRTL_SOCKETS)) || defined(__QNXNTO__)
 	bufsize = sizeof (struct sockaddr_in);
@@ -1772,7 +1772,7 @@ PP(pp_sysread)
 	count = PerlSock_recvfrom(fd, buffer, length, offset,
 				  (struct sockaddr *)namebuf, &bufsize);
 	if (count < 0)
-	    RETPUSHUNDEF;
+            goto say_undef;
 	/* MSG_TRUNC can give oversized count; quietly lose it */
 	if (count > length)
 	    count = length;
