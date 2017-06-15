@@ -54,9 +54,8 @@ eval_ok 'my ($x,$y) : ;';
 eval 'my ($x,$y) : plugh;';
 like $@, qr/^Invalid SCALAR attribute: ["']?plugh["']? at/;
 
-# bug #16080
 eval '{my $x : plugh}';
-like $@, qr/^Invalid SCALAR attribute: ["']?plugh["']? at/;
+like $@, qr/^Invalid SCALAR attribute: ["']?plugh["']? at/, 'bug #16080';
 eval '{my ($x,$y) : plugh(})}';
 like $@, qr/^Invalid SCALAR attribute: ["']?plugh\(\}\)["']? at/;
 
@@ -156,11 +155,10 @@ eval_ok '
 	my $x : TieLoop = $i;
 	$x != $i*2 and ::is $x, $i*2;
     }
-';
+', 'attributes that tie';
 
-# bug #15898
 eval 'our ${""} : foo = 1';
-like $@, qr/Can't declare scalar dereference in "our"/;
+like $@, qr/Can't declare scalar dereference in "our"/, "bug #15898";
 eval 'my $$foo : bar = 1';
 like $@, qr/Can't declare scalar dereference in "my"/;
 
