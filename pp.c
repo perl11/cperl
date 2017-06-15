@@ -770,7 +770,7 @@ PP(pp_ref)
 	dTARGET;
 	SETs(TARG);
 	sv_ref(TARG, SvRV(sv), TRUE);
-	assert(!SvSMAGICAL(TARG));
+	SvSETMAGIC(TARG);
 	return NORMAL;
     }
 
