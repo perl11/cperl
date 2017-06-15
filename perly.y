@@ -793,8 +793,25 @@ subscripted:    gelem '{' expr ';' '}'        /* *main::{something} */
     ;
 
 /* Binary operators between terms */
-termbinop:	term ASSIGNOP term                     /* $x = $y */
+termbinop:	term ASSIGNOP term %prec ASSIGNOP	/* $x = $y */
 			{ $$ = newASSIGNOP(OPf_STACKED, $1, $2, $3); }
+	|	MY myterm myattrlist ASSIGNOP term	/* my $x :const = $y */
+                %prec PREC_LOW
+			{ OP *attr = $3;
+                          /* TODO: this fails with mult. attribs, such as $x :int :const */
+                          if (  OP_TYPE_IS(attr, OP_CONST) &&
+                                SvPOK(cSVOPx_sv(attr)) &&
+                                strEQc(SvPVX(cSVOPx_sv(attr)),"const") ) {
+                              OP *a = newASSIGNOP(OPf_STACKED, $2, $4, $5);
+                              OP *import;
+                              OpFLAGS(attr) |= OPf_SPECIAL;
+                              import = my_attrs($2,attr);
+                              OpFLAGS(attr) &= ~OPf_SPECIAL;
+                              $$ = op_append_list(OP_LINESEQ,
+                                       a, import); /* defer :const after = */
+                          } else
+                              $$ = newASSIGNOP(OPf_STACKED, my_attrs($2,attr), $4, $5);
+                        }
 	|	term POWOP term                        /* $x ** $y */
 			{ $$ = newBINOP(OP_POW, 0, scalar($1), scalar($3)); }
 	|	term MULOP term                        /* $x * $y, $x x $y */
@@ -896,13 +913,13 @@ anonymous:	'[' expr ']'
     ;
 
 /* Things called with "do" */
-termdo	:       DO term	%prec UNIOP                     /* do $filename */
+termdo:	        DO term	%prec UNIOP                     /* do $filename */
 			{ $$ = dofile($2, $1);}
 	|	DO block	%prec '('               /* do { code */
 			{ $$ = newUNOP(OP_NULL, OPf_SPECIAL, op_scope($2));}
         ;
 
-term	:	termbinop
+term:		termbinop
 	|	termunop
 	|	anonymous
 	|	termdo
@@ -1072,7 +1089,7 @@ myattrterm:	MY myterm myattrlist
 	;
 
 /* Things that can be "my"'d */
-myterm	:	'(' expr ')'
+myterm:		'(' expr ')'
 			{ $$ = sawparens($2); }
 	|	'(' ')'
 			{ $$ = sawparens(newNULLLIST()); }

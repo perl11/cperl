@@ -525,4 +525,21 @@ EOP
     is($out, '', 'RT #3605: $a ? my $var : my $othervar is perfectly valid syntax');
 }
 
+{
+    my $h : const = 1;
+    sub adders{ $h + 1 }
+    is(adders(), 2, 'scalar :const');
+    my @h : const = (1);
+    sub addera{ $h[0] + 1 }
+    is(addera(), 2, 'array :const');
+    my %h : const = (a => 1);
+    sub adderh{ $h{a} + 1 }
+    is(adderh(), 2, 'hash :const');
+    my $hi :int :const = 1;
+    is($hi + 1, 2, 'scalar :int :const');
+    my @ha :int :const = (1);
+    is($ha[0] + 1, 2, 'array :int :const');
+}
+
+
 done_testing();

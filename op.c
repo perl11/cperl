@@ -4660,6 +4660,12 @@ S_my_kid(pTHX_ OP *o, OP *attrs, OP **imopsp)
 
 /*
 =for apidoc my_attrs
+
+Prepend the lexical variable with the attribute->import call.
+
+cperl: With OpSPECIAL(attrs) for const assignment only return the
+import call.
+
 =cut
 */
 OP *
@@ -4684,7 +4690,7 @@ Perl_my_attrs(pTHX_ OP *o, OP *attrs)
 	SAVEFREEOP(attrs);
     rops = NULL;
     o = my_kid(o, attrs, &rops);
-    if (rops) {
+    if (rops && (!attrs || !OpSPECIAL(attrs))) {
 	if (maybe_scalar && IS_TYPE(o, PADSV)) {
 	    o = scalar(op_append_list(OP_LIST, rops, o));
 	    o->op_private |= OPpLVAL_INTRO;
@@ -4706,6 +4712,8 @@ Perl_my_attrs(pTHX_ OP *o, OP *attrs)
     }
     PL_parser->in_my = FALSE;
     PL_parser->in_my_stash = NULL;
+    if (attrs && OpSPECIAL(attrs))
+        return rops;
     return o;
 }
 
