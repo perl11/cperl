@@ -83,7 +83,7 @@ sub version_strip {
   $a
 }
 
-our %delta :const = (
+our %delta = (
     5 => {
         changed => {
             'a2p'                   => '1',

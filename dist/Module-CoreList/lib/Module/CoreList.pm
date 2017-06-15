@@ -15742,7 +15742,7 @@ our %deprecated = (
 
 %deprecated = _undelta(\%deprecated);
 
-our %upstream :const = (
+our %upstream = (
     'App::Cpan'             => 'cpan',
     'App::Prove'            => 'cpan',
     'App::Prove::State'     => 'cpan',
@@ -16066,7 +16066,7 @@ our %upstream :const = (
     'version::vpp'          => 'cpan',
 );
 
-our %bug_tracker :const = (
+our %bug_tracker = (
     'App::Cpan'             => undef,
     'App::Prove'            => 'http://rt.cpan.org/Public/Dist/Display.html?Name=Test-Harness',
     'App::Prove::State'     => 'http://rt.cpan.org/Public/Dist/Display.html?Name=Test-Harness',
