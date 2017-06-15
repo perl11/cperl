@@ -278,11 +278,12 @@ sub nm_parse_darwin {
             } elsif (/^\(__TEXT,__text\) ((?:non-)?external) _(\w+)$/) {
                 my ($exp, $sym) = ($1, $2);
                 $symbols->{text}{$sym}{$symbols->{o}}{$exp =~ /^non/ ? 't' : 'T'}++;
-            } elsif (/^\(__DATA,__\w*?(const|data|bss|common)\w*\) (?:non-)?external _?(\w+)(\.\w+)?$/) {
+            } elsif (/^\(__DATA,__\w*?(const|data|pu_bss|bss|common)\w*\) (?:non-)?external _?(\w+)(\.\w+)?$/) {
                 my ($dtype, $symbol, $suffix) = ($1, $2, $3);
                 # Ignore function-local constants like
                 # _Perl_pp_gmtime.dayname
                 return if defined $suffix;
+                $dtype = 'bss' if $dtype =~ /^pu_bss/; # -flto
                 $symbols->{data}{$dtype}{$symbol}{$symbols->{o}}++;
             } elsif (/^\(common\) (?:non-)?external _?(\w+)(\.\w+)?$/) {
                 # Without -fno-common: PL_hash_seed, PL_minus_E, ...
@@ -459,9 +460,10 @@ if ($GSP) {
 } else {
     print "# neither -DPERL_GLOBAL_STRUCT nor -DPERL_GLOBAL_STRUCT_PRIVATE\n";
 
-    if ( !$symbols{data}{common} ) {
+    if ( !$symbols{data}{common} or %{$symbols{data}{common}} < 2) {
         # This is likely because Perl was compiled with
-        # -Accflags="-fno-common"
+        # -Accflags="-fno-common" or -flto with a single __gnu_lto_v1 key
+        # With -flto the data is in pu_bssN, collapsed to bss.
         $symbols{data}{common} = $symbols{data}{bss};
     }
 
