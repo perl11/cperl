@@ -53,6 +53,7 @@ PERL_CALLCONV void	Perl_Slab_Free(pTHX_ void *op)
 	assert(op)
 
 PERL_CALLCONV char *	Perl__byte_dump_string(pTHX_ const U8 * s, const STRLEN len, const bool format)
+			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT__BYTE_DUMP_STRING	\
 	assert(s)
