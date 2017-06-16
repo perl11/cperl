@@ -793,21 +793,20 @@ subscripted:    gelem '{' expr ';' '}'        /* *main::{something} */
     ;
 
 /* Binary operators between terms */
-termbinop:	term ASSIGNOP term %prec ASSIGNOP	/* $x = $y */
-			{ $$ = newASSIGNOP(OPf_STACKED, $1, $2, $3); }
-	|	MY myterm myattrlist ASSIGNOP term	/* my $x :const = $y */
-                %prec PREC_LOW
-			{ OP *attr = $3;
-                          if (attrs_has_const(attr)) {
-                              OP *a = newASSIGNOP(OPf_STACKED, $2, $4, $5);
-                              OP *import;
-                              OpFLAGS(attr) |= OPf_SPECIAL;
-                              import = my_attrs($2,attr);
-                              OpFLAGS(attr) &= ~OPf_SPECIAL;
+termbinop:	term ASSIGNOP term 			/* $x = $y */
+			{
+                          OP* left = $1;
+                          if ( OP_TYPE_IS(left, OP_LIST) &&
+                               attrs_has_const(left) )
+                          {   /* my $x :const = $y */
+                              OP *attr = OpSIBLING(OpFIRST(left));
+                              left = OpSIBLING(attr);
+                              OpMORESIB_set(attr, NULL);
+                              /* defer :const after = */
                               $$ = op_append_list(OP_LINESEQ,
-                                       a, import); /* defer :const after = */
+                                       newASSIGNOP(OPf_STACKED, left, $2, $3), attr);
                           } else
-                              $$ = newASSIGNOP(OPf_STACKED, my_attrs($2,attr), $4, $5);
+                              $$ = newASSIGNOP(OPf_STACKED, left, $2, $3);
                         }
 	|	term POWOP term                        /* $x ** $y */
 			{ $$ = newBINOP(OP_POW, 0, scalar($1), scalar($3)); }

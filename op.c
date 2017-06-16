@@ -4329,6 +4329,9 @@ Perl_attrs_has_const(pTHX_ OP *o)
     /* An attrlist is either a simple OP_CONST or an OP_LIST with kids,
      * where the first kid is OP_PUSHMARK and the remaining ones
      * are OP_CONST. Later also OP_GVSV, OP_PADSV.
+     * Now we check the attrs after my_attrs, i.e. the list is the entersub
+     * import call already. This would be fragile with a package called "const",
+     * but this is forbidden.
      */
     if (IS_CONST_OP(o)) {
         if ( SvPOK(cSVOPx_sv(o)) &&
@@ -4337,6 +4340,10 @@ Perl_attrs_has_const(pTHX_ OP *o)
     } else {
 	assert(IS_TYPE(o, LIST) && OpKIDS(o));
 	for (o = OpFIRST(o); o; o = OpSIBLING(o)) {
+	    if (IS_TYPE(o, ENTERSUB)) {
+                o = OpFIRST(o);
+                /* TODO: skip the first 4 ops */
+            }
 	    if ( IS_CONST_OP(o) &&
                  SvPOK(cSVOPx_sv(o)) &&
                  strEQc(SvPVX(cSVOPx_sv(o)), "const") )
@@ -4696,9 +4703,6 @@ S_my_kid(pTHX_ OP *o, OP *attrs, OP **imopsp)
 
 Prepend the lexical variable with the attribute->import call.
 
-cperl: With OpSPECIAL(attrs) for const assignment only return the
-import call.
-
 =cut
 */
 OP *
@@ -4723,7 +4727,7 @@ Perl_my_attrs(pTHX_ OP *o, OP *attrs)
 	SAVEFREEOP(attrs);
     rops = NULL;
     o = my_kid(o, attrs, &rops);
-    if (rops && (!attrs || !OpSPECIAL(attrs))) {
+    if (rops) {
 	if (maybe_scalar && IS_TYPE(o, PADSV)) {
 	    o = scalar(op_append_list(OP_LIST, rops, o));
 	    o->op_private |= OPpLVAL_INTRO;
@@ -4745,8 +4749,6 @@ Perl_my_attrs(pTHX_ OP *o, OP *attrs)
     }
     PL_parser->in_my = FALSE;
     PL_parser->in_my_stash = NULL;
-    if (attrs && OpSPECIAL(attrs))
-        return rops;
     return o;
 }
 

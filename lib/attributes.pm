@@ -1,14 +1,13 @@
 package attributes;
 
-our $VERSION = '1.11c';
+# TODO: convert import also to XS
+our $VERSION = '1.12c';
 $VERSION =~ s/c$//;
 #@EXPORT_OK = qw(get reftype);
 @EXPORT = ();
 %EXPORT_TAGS = (ALL => [@EXPORT, @EXPORT_OK]);
 
-# TODO: convert import also to XS
 use strict;
-use Config ();
 
 sub croak {
     require Carp;

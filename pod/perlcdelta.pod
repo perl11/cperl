@@ -183,6 +183,19 @@ XXX
 
 =over 4
 
+=item L<attributes> 1.12c
+
+Fixed :const parsing with SVs (cperl-only). Previously :const would set
+the containing sub to :const, now it sets the lexical to readonly,
+with deferring the attributes::import call after an assignment.
+
+    my %h :const = (a => 1);
+=>
+    assign %h = (...);
+    attributes->import(PACKAGE, \%h, const);
+
+See L<[cperl #294|https://github.com/perl11/cperl/issues/294>.
+
 =item L<Devel::PPPort>
 
 Restore silence under C<make -s>. I broke it in cperl 5.27.0
