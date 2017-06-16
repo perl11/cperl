@@ -267,7 +267,7 @@ Apd	|OP*	|op_prepend_elem|I32 optype|NULLOK OP* first|NULLOK OP* last
 p	|I32	|apply		|I32 type|NN SV** mark|NN SV** sp
 ApM	|void	|apply_attrs_string	|NN const char *stashpv|NN CV *cv \
         				|NN const char *attrstr|STRLEN len
-ApdRP	|bool	|attrs_has_const	|NULLOK OP* o
+ApdRP	|bool	|attrs_has_const	|NULLOK OP* o|bool from_assign
 Apd	|void	|av_clear	|NN AV *av
 Apd	|SV*	|av_delete	|NN AV *av|SSize_t key|I32 flags
 ApdR	|bool	|av_exists	|NN AV *av|SSize_t key

@@ -279,7 +279,7 @@ PERL_CALLCONV void	Perl_atfork_lock(void)
 PERL_CALLCONV void	Perl_atfork_unlock(void)
 			__attribute__global__;
 
-PERL_CALLCONV bool	Perl_attrs_has_const(pTHX_ OP* o)
+PERL_CALLCONV bool	Perl_attrs_has_const(pTHX_ OP* o, bool from_assign)
 			__attribute__global__
 			__attribute__warn_unused_result__
 			__attribute__pure__;

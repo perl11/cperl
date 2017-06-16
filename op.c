@@ -4317,11 +4317,23 @@ S_dup_attrlist(pTHX_ OP *o)
 =for apidoc attrs_has_const
 
 Checks the attrs list if ":const" is in it.
+But not C<("const", my $x)>.
+
+If from_assign is TRUE, the attrs are already expanded to a full
+ENTERSUB import call. If not it's a list, not attrs.
+If from_assign is FALSE, it is from an unexpanded attrlist
+C<our VAR :ATTR> declaration, without ENTERSUB.
+
+  TRUE:  my $s :const = 1;  LIST-PUSHMARK-ENTERSUB
+  TRUE:  my @a :const = 1;  LIST-PUSHMARK-PADAV-ENTERSUB
+  TRUE:  our $s :const = 1; LIST-PUSHMARK-RV2SV(gv)-ENTERSUB
+  FALSE: our $s :const = 1; CONST
+  TRUE:  ("const",my $s) = 1; LIST-PUSHMARK-CONST
 
 =cut
 */
 bool
-Perl_attrs_has_const(pTHX_ OP *o)
+Perl_attrs_has_const(pTHX_ OP *o, bool from_assign)
 {
     if (!o)
         return FALSE;
@@ -4339,11 +4351,18 @@ Perl_attrs_has_const(pTHX_ OP *o)
         return TRUE;
     } else {
 	assert(IS_TYPE(o, LIST) && OpKIDS(o));
-	for (o = OpFIRST(o); o; o = OpSIBLING(o)) {
-	    if (IS_TYPE(o, ENTERSUB)) {
+        o = OpFIRST(o);
+        /* entersub is the either 1st or 2nd sibling */
+        if (from_assign) {
+            o = OpSIBLING(o);
+            if (o && (IS_RV2ANY_OP(o) || IS_PADxV_OP(o))) /* our SCALAR :ATTR */
+                o = OpSIBLING(o);
+            if (!o || !IS_TYPE(o, ENTERSUB))
+                return FALSE;
+            else
                 o = OpFIRST(o);
-                /* TODO: skip the first 4 ops */
-            }
+        }
+	for (; o; o = OpSIBLING(o)) {
 	    if ( IS_CONST_OP(o) &&
                  SvPOK(cSVOPx_sv(o)) &&
                  strEQc(SvPVX(cSVOPx_sv(o)), "const") )
@@ -4392,6 +4411,7 @@ S_apply_attrs(pTHX_ HV *stash, SV *target, OP *attrs)
 Similar to L</apply_attrs> calls the attribute importer with the
 target, which must be a lexical and a list of attributes.  As manually
 done via C<use attributes $pkg, $rv, @attrs>.
+This variant defers the import call to run-time.
 
 Returns the list of attributes in the **imopsp argument.
 
@@ -4408,7 +4428,7 @@ S_apply_attrs_my(pTHX_ HV *stash, OP *target, OP *attrs, OP **imopsp)
     if (!attrs)
 	return;
 
-    assert(IS_PADxV_OP(target));
+    /*assert(IS_PADxV_OP(target));*/
 
     /* Ensure that attributes.pm is loaded. */
     /* Don't force the C<use> if we don't need it. */
@@ -4425,21 +4445,29 @@ S_apply_attrs_my(pTHX_ HV *stash, OP *target, OP *attrs, OP **imopsp)
     /* Build up the real arg-list. */
     stashsv = newSVhek(HvNAME_HEK(stash));
 
-    arg = newOP(OP_PADSV, 0);
-    arg->op_targ = target->op_targ;
+    if (IS_PADxV_OP(target)) {		  /* my LEX :ATTR */
+        arg = newOP(OP_PADSV, 0);
+        arg->op_targ = target->op_targ;
+        arg = newUNOP(OP_REFGEN, 0, arg);
+    } else if (IS_RV2ANY_OP(target) && /* our LEX :const */
+               IS_TYPE(OpFIRST(target), GV) ) {
+        arg = newSVREF(newGVOP(OP_GV,0,cGVOPx_gv(OpFIRST(target))));
+        arg->op_targ = target->op_targ;
+        if (ISNT_TYPE(target, RV2SV))
+            OpTYPE_set(arg, target->op_type);
+        arg = newUNOP(OP_REFGEN,0,arg);
+    }
     arg = op_prepend_elem(OP_LIST,
-		       newSVOP(OP_CONST, 0, stashsv),
-		       op_prepend_elem(OP_LIST,
-				    newUNOP(OP_REFGEN, 0,
-					    arg),
-				    dup_attrlist(attrs)));
+              newSVOP(OP_CONST, 0, stashsv),
+                  op_prepend_elem(OP_LIST, arg,
+                      dup_attrlist(attrs)));
 
     /* Fake up a method call to import */
     meth = newSVpvs_share("import");
     imop = op_convert_list(OP_ENTERSUB, OPf_STACKED|OPf_SPECIAL|OPf_WANT_VOID,
-		   op_append_elem(OP_LIST,
-			       op_prepend_elem(OP_LIST, pack, arg),
-			       newMETHOP_named(OP_METHOD_NAMED, 0, meth)));
+               op_append_elem(OP_LIST,
+                   op_prepend_elem(OP_LIST, pack, arg),
+                       newMETHOP_named(OP_METHOD_NAMED, 0, meth)));
 
     /* Combine the ops. */
     *imopsp = op_append_elem(OP_LIST, *imopsp, imop);
@@ -4650,7 +4678,11 @@ S_my_kid(pTHX_ OP *o, OP *attrs, OP **imopsp)
 	    assert(PL_parser);
 	    PL_parser->in_my = FALSE;
 	    PL_parser->in_my_stash = NULL;
-	    apply_attrs(stash,
+            if (attrs_has_const(attrs, FALSE)) {
+                apply_attrs_my(stash, o, attrs, imopsp);
+            }
+            else
+                apply_attrs(stash,
 			(type == OP_RV2SV ? GvSV(gv) :
 			 type == OP_RV2AV ? MUTABLE_SV(GvAV(gv)) :
 			 type == OP_RV2HV ? MUTABLE_SV(GvHV(gv)) : MUTABLE_SV(gv)),
