@@ -281,6 +281,17 @@ C<my_atof2> no longer reads beyond the terminating NUL, which previously
 occurred if the decimal point is immediately before the NUL.
 L<[perl #131526]|https://rt.perl.org/Public/Bug/Display.html?id=131526>
 
+=item *
+
+Occasional "Malformed UTF-8 character" crashes in C<s//> on utf8 strings have
+been fixed.
+L<[perl #131575]|https://rt.perl.org/Public/Bug/Display.html?id=131575>
+
+=item *
+
+C<perldoc -f s> now finds C<s///>.
+L<[perl #131371]|https://rt.perl.org/Public/Bug/Display.html?id=131371>
+
 =back
 
 =head1 Platform Support
