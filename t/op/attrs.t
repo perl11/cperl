@@ -531,12 +531,12 @@ if ($Config::Config{usecperl}) {
     sub adders () { $h + 1 } # should be constant folded
     is(adders(), 2, 'scalar :const');
     my @h :const = (1);
-    sub addera () { $h[0] + 1 }
+    sub addera () { $h[0] + 1 } # might get constant-folded someday
     is(addera(), 2, 'array :const');
     my %h :const = (a => 1);
-    sub adderh () { $h{a} + 1 }
+    sub adderh () { $h{a} + 1 } # might get constant-folded someday
     is(adderh(), 2, 'hash :const');
-    my $hi :int :const = 1;
+    my $hi :int :const = 1;     # constant-folded but with attributes->import
     is($hi + 1, 2, 'scalar :int :const');
     my @ha :int :const = (1);
     is($ha[0] + 1, 2, 'array :int :const');

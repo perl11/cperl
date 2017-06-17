@@ -4350,7 +4350,8 @@ Perl_attrs_has_const(pTHX_ OP *o, bool from_assign)
              strEQc(SvPVX(cSVOPx_sv(o)), "const") )
             return OpHAS_SIBLING(o) && IS_CONST_OP(OpSIBLING(o)) ? 2 : 1;
     } else {
-        int num = 1;
+        int num = 0;
+        int found = 0;
 	assert(IS_TYPE(o, LIST) && OpKIDS(o));
         o = OpFIRST(o);
         /* entersub is the either 1st or 2nd sibling */
@@ -4358,17 +4359,31 @@ Perl_attrs_has_const(pTHX_ OP *o, bool from_assign)
             o = OpSIBLING(o);
             if (o && (IS_RV2ANY_OP(o) || IS_PADxV_OP(o))) /* our SCALAR :ATTR */
                 o = OpSIBLING(o);
-            if (!o || !IS_TYPE(o, ENTERSUB))
+            if (!o)
                 return 0;
-            else
-                o = OpFIRST(o);
+            if (!IS_TYPE(o, ENTERSUB))
+                return 0;
+            else {
+                o = OpFIRST(o);   /* pushmark */
+                if (!OpHAS_SIBLING(o)) return 0; /* lval sub */
+                o = OpSIBLING(o); /* "attributes" */
+                if (!OpHAS_SIBLING(o)) return 0;
+                o = OpSIBLING(o); /* package */
+                if (!OpHAS_SIBLING(o)) return 0;
+                o = OpSIBLING(o); /* scalarref */
+                if (!OpHAS_SIBLING(o)) return 0;
+                o = OpSIBLING(o); /* 1st REF arg */
+            }
         }
-	for (; o; o = OpSIBLING(o), num++) {
-	    if ( IS_CONST_OP(o) &&
-                 SvPOK(cSVOPx_sv(o)) &&
-                 strEQc(SvPVX(cSVOPx_sv(o)), "const") )
-                return num;
+	for (; o; o = OpSIBLING(o)) {
+            const SV *sv = cSVOPx_sv(o);
+	    if (IS_CONST_OP(o) && SvPOK(sv)) {
+                num++;
+                if (strEQc(SvPVX(sv), "const"))
+                    found++;
+            }
 	}
+        return found ? num : 0;
     }
     return 0;
 }
@@ -4666,7 +4681,7 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
 {
     int num;
     if (UNLIKELY( OP_TYPE_IS(left, OP_LIST) &&
-                  ((num = attrs_has_const(left, TRUE)) != 0) )
+                  ((num = attrs_has_const(left, TRUE)) != 0) ))
     {   /* my $x :const = $y; dissect my_attrs() */
         OP *attr = OpSIBLING(OpFIRST(left));
         /* defer :const after = */
@@ -4678,10 +4693,22 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
         } else
             left = OpSIBLING(attr);
         OpMORESIB_set(left, NULL);
-        if (IS_PADxV_OP(left))
-            SvREADONLY_on(cSVOPx_sv(left));
-        else /* our */
+        OpMORESIB_set(attr, NULL);
+        /* constany folding should probably be deferred to ck_pad or ck_[sa]assign,
+           to get proper lhs values. */
+        if (IS_PADxV_OP(left) && left->op_targ) {
+            if (IS_CONST_OP(right) && left->op_private == OPpLVAL_INTRO) {
+                SV* lsv = PAD_SV(left->op_targ);
+                SV *rsv = cSVOPx_sv(right);
+                if (SvTYPE(lsv) == SvTYPE(rsv)) {
+                    SvSetMagicSV(lsv, rsv);
+                    left->op_private = 0; /* rm LVINTRO */
+                    SvREADONLY_on(lsv);
+                }
+            }
+        }
 #if 0
+        else /* our, but still a NULL sv */
             if (IS_RV2ANY_OP(left)) {
                 GV* gv = cGVOPx_gv(OpFIRST(left));
                 assert(IS_TYPE(OpFIRST(left), GV));
@@ -4696,7 +4723,6 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
 #endif
         /* if :const is the only attrib skip attr */
         if (num > 1) {
-            OpMORESIB_set(attr, NULL);
             return op_append_list(OP_LINESEQ,
                        newASSIGNOP(OPf_STACKED|OPf_SPECIAL,
                                    left, optype, right),
@@ -12231,6 +12257,7 @@ assignment for a lexical C<$_> via L</maybe_targlex>.
 
 Checks types.
 
+TODO: constant folding with OpSPECIAL
 =cut
 */
 OP *
@@ -12238,7 +12265,7 @@ Perl_ck_sassign(pTHX_ OP *o)
 {
     dVAR;
     OP * const right = OpFIRST(o);
-    OP * const left = OpLAST(o);
+    OP * const left  = OpLAST(o);
 
     PERL_ARGS_ASSERT_CK_SASSIGN;
 
@@ -12291,6 +12318,7 @@ CHECK callback for aassign (t2	L L	"(:List,:List):List")
 
 Checks types and adds C<OPpMAP_PAIR> to C<%hash = map>.
 
+TODO: constant folding with OpSPECIAL
 =cut
 */
 OP *
