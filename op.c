@@ -4672,7 +4672,10 @@ If not just const the left side.
 OpSPECIAL on the assign op denotes :const. Undo temp. READONLY-ness via
 a private OPpASSIGN_CONSTINIT bit during assignment at run-time.
 
-Return the newASSIGNOP.
+Do various compile-time assignments on const rhs values, to enable
+constant folding.
+
+Return the newASSIGNOP, or the folded assigned value.
 
 =cut
 */
@@ -4694,7 +4697,7 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
             left = OpSIBLING(attr);
         OpMORESIB_set(left, NULL);
         OpMORESIB_set(attr, NULL);
-        /* Should constany folding be deferred to ck_[sa]assign? */
+        /* Should constant folding be deferred to ck_[sa]assign? */
         if (IS_PADxV_OP(left) && left->op_targ && left->op_private == OPpLVAL_INTRO) {
             if (IS_CONST_OP(right)) {
                 SV* lsv = PAD_SV(left->op_targ);
@@ -4717,23 +4720,60 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
                     return ck_pad(left);
                 }
             }
-            else if (IS_TYPE(left, PADAV) && IS_TYPE(right, LIST)) {
+            /* hashes not yet.
+               they don't fold and are not checked, so we can defer to run-time init */
+            else if (IS_TYPE(left, PADAV) &&
+                     SvFLAGS(PAD_SV(left->op_targ)) == (SVpav_REAL|SVt_PVAV) &&
+                     (IS_TYPE(right, LIST) ||
+                      ( IS_TYPE(right, NULL) && OpKIDS(right) &&
+                        IS_TYPE(OpFIRST(right), FLOP)))) {
                 SSize_t i;
                 AV* lsv = (AV*)PAD_SV(left->op_targ);
                 /* check if all rhs elements are const */
-                OP *o = OpSIBLING(OpFIRST(right));
-                for (;o && IS_CONST_OP(o); o=OpSIBLING(o)) ;
-                if (!o) {
-                    DEBUG_k(Perl_deb(aTHX_ "my %s[1] :const = (...)\n",
-                                     PAD_COMPNAME_PV(left->op_targ)));
-                    for (i=0,o=OpSIBLING(OpFIRST(right)); o; o=OpSIBLING(o), i++) {
-                        SV* rsv = cSVOPx_sv(o); /* XXX check for unique types */
-                        av_store(lsv, i, SvREFCNT_inc_NN(rsv));
+                OP *o;
+                if (IS_TYPE(right, LIST)) {
+                    for (o = OpSIBLING(OpFIRST(right));
+                         o && IS_CONST_OP(o);
+                         o=OpSIBLING(o)) ;
+                    if (!o) { /* is const */
+                        DEBUG_k(Perl_deb(aTHX_ "my %s[1] :const = (...)\n",
+                                         PAD_COMPNAME_PV(left->op_targ)));
+                        for (i=0,o=OpSIBLING(OpFIRST(right)); o; o=OpSIBLING(o), i++) {
+                            SV* rsv = cSVOPx_sv(o); /* XXX check for unique types */
+                            av_store(lsv, i, SvREFCNT_inc_NN(rsv));
+                        }
+                        AvSHAPED_on(lsv); /* check if to set type */
+                        SvREADONLY_on(lsv);
+                        op_free(right);
+                        return ck_pad(left);
                     }
-                    AvSHAPED_on(lsv); /* we can even type it */
-                    SvREADONLY_on(lsv);
-                    op_free(right);
-                    return ck_pad(left);
+                } else { /* range */
+                    o = OpFIRST(OpFIRST(right));
+                    if (OpKIDS(o) && IS_TYPE(OpFIRST(o), RANGE)) {
+                        o = OpFIRST(o); /* range */
+                        if (IS_CONST_OP(OpNEXT(o)) && IS_CONST_OP(OpOTHER(o))) {
+                            SV* from = cSVOPx_sv(OpNEXT(o));
+                            SV* to   = cSVOPx_sv(OpOTHER(o));
+                            if (SvIOK(from) && SvIOK(to) && SvIVX(to) >= SvIVX(from)) {
+                                SSize_t j = 0;
+                                SSize_t fill = SvIVX(to) - SvIVX(from);
+                                av_extend(lsv, fill);
+                                DEBUG_k(Perl_deb(aTHX_
+                                    "my %s[%d] :const = (%" IVdf "..%" IVdf ")\n",
+                                    PAD_COMPNAME_PV(left->op_targ), (int)(fill+1),
+                                    SvIVX(from), SvIVX(to)));
+                                /* XXX native int types */
+                                for (i=SvIVX(from); j <= fill; j++) {
+                                    AvARRAY(lsv)[j] = newSViv(i++);
+                                }
+                                AvFILLp(lsv) = fill;
+                                AvSHAPED_on(lsv);
+                                SvREADONLY_on(lsv);
+                                op_free(right);
+                                return ck_pad(left);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -4781,8 +4821,8 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
                 }
             }
         }
-        /* else not constant foldable. like a lhs ref or list. */
-        /* if :const is the only attrib skip attr */
+        /* else not constant foldable. like a lhs ref, hash or list. */
+        /* if :const is the only attr skip attributes->import */
         if (num > 1) {
             return op_append_list(OP_LINESEQ,
                        newASSIGNOP(OPf_STACKED|OPf_SPECIAL,

@@ -769,6 +769,23 @@ functions, packages + classes. C<:const> hashes should of course be
 perfect, i.e. optimized to constant-time lookup, eliminating hash
 collisions.
 
+The following declarations are all compile-time assigned, and allow subsequent
+constant folding on all usages. I.e. const assignments with all constant rhs
+values.
+
+    my $i :const = 1;
+    our $i :const = 1;
+    my @a :const = (1);    # also sets the array shaped as int @a[1]
+    my @a :const = (1,2);  # shaped as int @a[2]
+    my @a :const = (0..2); # shaped as int @a[3]
+
+With non-constant right-hand side values the assignment is done at run-time
+and as thus only writes are caught at compile-time, but constant folding is not
+available. Hashes are also not yet compile-time assigned.
+
+:const arrays with values of unique types will be optimized to native
+shaped arrays. See L</Typed and shaped arrays>.
+
 See L<perltypes/:const>.
 
 =head2 Compile-time optimizations
