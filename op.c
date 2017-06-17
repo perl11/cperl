@@ -4347,7 +4347,7 @@ Perl_attrs_has_const(pTHX_ OP *o, bool from_assign)
      */
     if (IS_CONST_OP(o)) {
         if ( SvPOK(cSVOPx_sv(o)) &&
-             strEQc(SvPVX(cSVOPx_sv(o)), "const") )
+             strEQc(SvPVX_const(cSVOPx_sv(o)), "const") )
             return OpHAS_SIBLING(o) && IS_CONST_OP(OpSIBLING(o)) ? 2 : 1;
     } else {
         int num = 0;
@@ -4379,7 +4379,7 @@ Perl_attrs_has_const(pTHX_ OP *o, bool from_assign)
             const SV *sv = cSVOPx_sv(o);
 	    if (IS_CONST_OP(o) && SvPOK(sv)) {
                 num++;
-                if (strEQc(SvPVX(sv), "const"))
+                if (strEQc(SvPVX_const(sv), "const"))
                     found++;
             }
 	}
