@@ -800,6 +800,8 @@ termbinop:	term ASSIGNOP term 			/* $x = $y */
                                attrs_has_const(left, TRUE) )
                           {   /* my $x :const = $y; dissect my_attrs() */
                               OP *attr = OpSIBLING(OpFIRST(left));
+                              /* defer :const after = */
+                              /* TODO: if :const is the only attrib skip attr */
                               if (OP_TYPE_ISNT(attr, OP_ENTERSUB)) {
                                   left = attr;
                                   attr = OpSIBLING(attr);
@@ -809,9 +811,9 @@ termbinop:	term ASSIGNOP term 			/* $x = $y */
                                   left = OpSIBLING(attr);
                               OpMORESIB_set(left, NULL);
                               OpMORESIB_set(attr, NULL);
-                              /* defer :const after = */
                               $$ = op_append_list(OP_LINESEQ,
-                                       newASSIGNOP(OPf_STACKED, left, $2, $3),
+                                       newASSIGNOP(OPf_STACKED|OPf_SPECIAL,
+                                           left, $2, $3),
                                        scalar(attr));
                           } else
                               $$ = newASSIGNOP(OPf_STACKED, left, $2, $3);

@@ -523,6 +523,9 @@ addbits('aassign', 4 => qw(OPpASSIGN_COMMON_AGG COM_AGG));
 # for their private flags
 
 addbits('sassign',
+        # 5: Also used together with OPpASSIGN_COMMON_RC1 in aassign temporarily
+        # Volatile flag, see OpSPECIAL.
+    5 => qw(OPpASSIGN_CONSTINIT CONSTINIT), # Bypass :const READONLY-ness.
     6 => qw(OPpASSIGN_BACKWARDS BKWARD), # Left & right switched
     7 => qw(OPpASSIGN_CV_TO_GV  CV2GV),  # Possible optimisation for constants
 );

@@ -245,8 +245,16 @@ PPt(pp_sassign, "(:Scalar,:Scalar):Scalar")
 	Perl_warner(aTHX_ packWARN(WARN_MISC),
                     "Useless assignment to a temporary");
     }
-    SvSetMagicSV(left, right);
-    SETs(left);
+    /* my $i :const = val; initialization must temp. lift constness */
+    if (UNLIKELY(OpSPECIAL(PL_op) && SvREADONLY(left))) {
+        SvREADONLY_off(left);
+        SvSetMagicSV(left, right);
+        SETs(left);
+        SvREADONLY_on(left);
+    } else {
+        SvSetMagicSV(left, right);
+        SETs(left);
+    }
     RETURN;
 }
 
@@ -1471,6 +1479,10 @@ PP(pp_aassign)
 	    lsv = *lelem++;
 	    ASSUME(SvTYPE(lsv) == SVt_PVAV);
 	}
+        if (UNLIKELY(OpSPECIAL(PL_op) && SvREADONLY(lsv))) {
+            SvREADONLY_off(lsv);
+            PL_op->op_private |= OPpASSIGN_CONSTINIT;
+        }
 
 	switch (SvTYPE(lsv)) {
 	case SVt_PVAV: {
@@ -1639,6 +1651,10 @@ PP(pp_aassign)
                 /* its assumed @ISA set magic can't die and leak ary */
 		SvSETMAGIC(MUTABLE_SV(ary));
             SvREFCNT_dec_NN(ary);
+            if (UNLIKELY(OpSPECIAL(PL_op) && OpPRIVATE(PL_op) & OPpASSIGN_CONSTINIT)) {
+                SvREADONLY_on(lsv);
+                PL_op->op_private &= ~OPpASSIGN_CONSTINIT;
+            }
 
             relem = lastrelem + 1;
 	    goto no_relems;
@@ -1846,6 +1862,10 @@ PP(pp_aassign)
             }
 
             SvREFCNT_dec_NN(hash);
+            if (UNLIKELY(OpSPECIAL(PL_op) && OpPRIVATE(PL_op) & OPpASSIGN_CONSTINIT)) {
+                SvREADONLY_on(lsv);
+                PL_op->op_private &= ~OPpASSIGN_CONSTINIT;
+            }
 
             relem = lastrelem + 1;
 	    goto no_relems;
@@ -1884,6 +1904,10 @@ PP(pp_aassign)
                 sv_setsv(lsv, *relem);
                 *relem = lsv;
                 SvSETMAGIC(lsv);
+                if (UNLIKELY(OpSPECIAL(PL_op) && OpPRIVATE(PL_op) & OPpASSIGN_CONSTINIT)) {
+                    SvREADONLY_on(lsv);
+                    PL_op->op_private &= ~OPpASSIGN_CONSTINIT;
+                }
             }
             if (++relem > lastrelem)
                 goto no_relems;

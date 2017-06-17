@@ -157,7 +157,7 @@ Deprecated.  Use C<GIMME_V> instead.
                                 /*  On OP_PADRANGE, push @_ */
                                 /*  On OP_DUMP, has no label */
                                 /*  On OP_UNSTACK, in a C-style for loop */
-                                /*  Temp. on 1st OP_CONST or OP_LIST attrs, :const assign */
+                                /*  On OP_[SA]ASSIGN :const assign */
 /* There is no room in op_flags for this one, so it has its own bit-
    field member (op_folded) instead.  The flag is only used to tell
    op_convert_list to set op_folded.  */
