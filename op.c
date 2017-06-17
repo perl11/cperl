@@ -4694,40 +4694,91 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
             left = OpSIBLING(attr);
         OpMORESIB_set(left, NULL);
         OpMORESIB_set(attr, NULL);
-        /* constany folding should probably be deferred to ck_pad or ck_[sa]assign,
-           to get proper lhs values. */
-        if (IS_PADxV_OP(left) && left->op_targ) {
-            if (IS_CONST_OP(right) && left->op_private == OPpLVAL_INTRO) {
+        /* Should constany folding be deferred to ck_[sa]assign? */
+        if (IS_PADxV_OP(left) && left->op_targ && left->op_private == OPpLVAL_INTRO) {
+            if (IS_CONST_OP(right)) {
                 SV* lsv = PAD_SV(left->op_targ);
                 SV *rsv = cSVOPx_sv(right);
                 if (SvTYPE(lsv) == SVt_NULL || SvTYPE(lsv) == SvTYPE(rsv)) {
-                    DEBUG_k(Perl_deb(aTHX_ "constant fold my %s = %s\n",
-                                     SvPEEK(lsv), SvPEEK(rsv)));
-                    SvSetMagicSV(lsv, rsv);
+                    DEBUG_k(Perl_deb(aTHX_ "my %s :const = %s\n",
+                                     PAD_COMPNAME_PV(left->op_targ), SvPEEK(rsv)));
+                    SvSetMagicSV(lsv, SvREFCNT_inc_NN(rsv));
                     left->op_private = 0; /* rm LVINTRO */
                     SvREADONLY_on(lsv);
+                    op_free(right);
+                    return ck_pad(left);
+                } else if (SvTYPE(lsv) == SVt_PVAV) {
+                    DEBUG_k(Perl_deb(aTHX_ "my %s[1] :const = (%s)\n",
+                                     PAD_COMPNAME_PV(left->op_targ), SvPEEK(rsv)));
+                    AvSHAPED_on((AV*)lsv); /* XXX we can even type it */
+                    av_store((AV*)lsv,0,SvREFCNT_inc_NN(rsv));
+                    SvREADONLY_on(lsv);
+                    op_free(right);
+                    return ck_pad(left);
+                }
+            }
+            else if (IS_TYPE(left, PADAV) && IS_TYPE(right, LIST)) {
+                SSize_t i;
+                AV* lsv = (AV*)PAD_SV(left->op_targ);
+                /* check if all rhs elements are const */
+                OP *o = OpSIBLING(OpFIRST(right));
+                for (;o && IS_CONST_OP(o); o=OpSIBLING(o)) ;
+                if (!o) {
+                    DEBUG_k(Perl_deb(aTHX_ "my %s[1] :const = (...)\n",
+                                     PAD_COMPNAME_PV(left->op_targ)));
+                    for (i=0,o=OpSIBLING(OpFIRST(right)); o; o=OpSIBLING(o), i++) {
+                        SV* rsv = cSVOPx_sv(o); /* XXX check for unique types */
+                        av_store(lsv, i, SvREFCNT_inc_NN(rsv));
+                    }
+                    AvSHAPED_on(lsv); /* we can even type it */
+                    SvREADONLY_on(lsv);
+                    op_free(right);
                     return ck_pad(left);
                 }
             }
         }
-        /* our, but still a NULL sv */
-        else if (IS_RV2ANY_OP(left) && IS_CONST_OP(right)) {
+        /* our, but still mostly a NULL sv */
+        else if (IS_TYPE(left, RV2SV) && IS_CONST_OP(right)) {
             GV* gv = cGVOPx_gv(OpFIRST(left));
             SV *rsv = cSVOPx_sv(right);
-            SV* lsv;
+            SV *lsv = GvSV(gv);
             assert(IS_TYPE(OpFIRST(left), GV));
-            if (IS_TYPE(left, RV2SV))
-                lsv = GvSV(gv);
-            else if (IS_TYPE(left, RV2AV))
-                lsv = (SV*)GvAV(gv);
-            else if (IS_TYPE(left, RV2HV))
-                lsv = (SV*)GvHV(gv);
             if (SvTYPE(lsv) == SVt_NULL || SvTYPE(lsv) == SvTYPE(rsv)) {
-                DEBUG_k(Perl_deb(aTHX_ "constant fold: our %s = %s\n",
+                DEBUG_k(Perl_deb(aTHX_ "our $%s :const = %s\n",
                                  SvPEEK(lsv), SvPEEK(rsv)));
-                SvSetMagicSV(lsv, rsv);
+                SvSetMagicSV(lsv, SvREFCNT_inc_NN(rsv));
                 SvREADONLY_on(lsv);
                 return ck_rvconst(left);
+            }
+        } else if (IS_TYPE(left, RV2AV)) {
+            GV* gv = cGVOPx_gv(OpFIRST(left));
+            AV *lsv = GvAV(gv);
+            /* check if all rhs elements are const */
+            if (IS_CONST_OP(right)) {
+                SV *rsv = cSVOPx_sv(right);
+                DEBUG_k(Perl_deb(aTHX_ "our @%s[1] :const = %s\n",
+                                 SvPEEK((SV*)lsv), SvPEEK(rsv)));
+                AvSHAPED_on(lsv); /* we can even type it */
+                av_store(lsv, 0, SvREFCNT_inc_NN(rsv));
+                SvREADONLY_on(lsv);
+                op_free(right);
+                return ck_rvconst(left);
+            } else if (IS_TYPE(right, LIST)) {
+                SSize_t i;
+                OP *o = OpSIBLING(OpFIRST(right));
+                for (;o && IS_CONST_OP(o); o=OpSIBLING(o)) ;
+                if (!o) {
+                    DEBUG_k(Perl_deb(aTHX_ "our @%s[1] :const = (...)\n",
+                                     SvPEEK((SV*)lsv)));
+                    for (i=0,o=OpSIBLING(OpFIRST(right)); o; o=OpSIBLING(o), i++) {
+                        SV* rsv = cSVOPx_sv(o); /* XXX check for unique types */
+                        av_store(lsv, i, SvREFCNT_inc_NN(rsv));
+                    }
+                    AvSHAPED_on(lsv); /* we can even type it */
+                    SvREADONLY_on(lsv);
+                    op_free(right);
+                    return ck_rvconst(left);
+                }
             }
         }
         /* else not constant foldable. like a lhs ref or list. */
@@ -4779,13 +4830,15 @@ S_my_kid(pTHX_ OP *o, OP *attrs, OP **imopsp)
 	} else if (attrs) {
 	    GV * const gv = cGVOPx_gv(OpFIRST(o));
             HV *stash = GvSTASH(gv);
-            int num_const;
             if (!stash) stash = (HV*)SV_NO;
 	    assert(PL_parser);
 	    PL_parser->in_my = FALSE;
 	    PL_parser->in_my_stash = NULL;
-            num_const = attrs_has_const(attrs, FALSE);
-            if (num_const)
+            /* We cannot get away without loading attributes.pm
+               because our $a :const = $i still needs run-time init.
+               It also simplifies newASSIGNOP_maybe_const().
+            */
+            if (attrs_has_const(attrs, FALSE))
                 apply_attrs_my(stash, o, attrs, imopsp);
             else
                 apply_attrs(stash,
@@ -4827,8 +4880,7 @@ S_my_kid(pTHX_ OP *o, OP *attrs, OP **imopsp)
 	stash = PAD_COMPNAME_TYPE(o->op_targ);
 	if (!stash)
 	    stash = PL_curstash;
-        if (stash != PL_curstash || attrs_has_const(attrs, FALSE) != 1)
-            apply_attrs_my(stash, o, attrs, imopsp);
+        apply_attrs_my(stash, o, attrs, imopsp);
     }
     o->op_flags |= OPf_MOD;
     o->op_private |= OPpLVAL_INTRO;
