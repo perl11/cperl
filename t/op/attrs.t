@@ -528,10 +528,10 @@ EOP
 if ($Config::Config{usecperl}) {
     # cperl only
     my $h :const = 1;
-    sub adders () { $h + 1 } # should be constant folded
+    sub adders () { $h + 1 } # constant-folded
     is(adders(), 2, 'scalar :const');
     my @h :const = (1);
-    sub addera () { $h[0] + 1 } # might get constant-folded someday
+    sub addera () { $h[0] + 1 } # shaped and constant-folded
     is(addera(), 2, 'array :const');
     my %h :const = (a => 1);
     sub adderh () { $h{a} + 1 } # might get constant-folded someday
@@ -540,14 +540,23 @@ if ($Config::Config{usecperl}) {
     is($hi + 1, 2, 'scalar :int :const');
     my @ha :int :const = (1);
     is($ha[0] + 1, 2, 'array :int :const');
+    my @ha1 :const = (1,2,3);
+    is($ha1[0] + 1, 2, 'array :const = ()');
+    my @ha2 :const = (1..3);
+    is($ha2[0] + 1, 2, 'array :const = (..)');
 
-    #note "our SCALAR :const = not yet supported";
     our $ho :const = 1;
     sub adderso () { $ho + 1 }
     is(adderso, 2, 'our scalar :const');
     our %ho :const = (a => 1);
     sub adderho () { $ho{a} + 1 }
     is(adderho, 2, 'our hash :const');
+    our @hoa :int :const = (1);
+    is($hoa[0] + 1, 2, 'our array :int :const');
+    our @hoa1 :const = (1,2,3);
+    is($hoa1[0] + 1, 2, 'our array :const = ()');
+    our @ho2 :const = (1..3);
+    is($ho2[0] + 1, 2, 'our array :const = (..)');
 }
 
 done_testing();
