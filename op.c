@@ -4687,6 +4687,7 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
                   ((num = attrs_has_const(left, TRUE)) != 0) ))
     {   /* my $x :const = $y; dissect my_attrs() */
         OP *attr = OpSIBLING(OpFIRST(left));
+        OP *assign = NULL;
         /* defer :const after = */
         if (OP_TYPE_ISNT(attr, OP_ENTERSUB)) {
             left = attr;
@@ -4709,7 +4710,7 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
                     left->op_private = 0; /* rm LVINTRO */
                     SvREADONLY_on(lsv);
                     op_free(right);
-                    return ck_pad(left);
+                    assign = ck_pad(left);
                 } else if (SvTYPE(lsv) == SVt_PVAV) {
                     DEBUG_k(Perl_deb(aTHX_ "my %s[1] :const = (%s)\n",
                                      PAD_COMPNAME_PV(left->op_targ), SvPEEK(rsv)));
@@ -4717,7 +4718,7 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
                     av_store((AV*)lsv,0,SvREFCNT_inc_NN(rsv));
                     SvREADONLY_on(lsv);
                     op_free(right);
-                    return ck_pad(left);
+                    assign = ck_pad(left);
                 }
             }
             /* hashes not yet.
@@ -4745,7 +4746,7 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
                         AvSHAPED_on(lsv); /* check if to set type */
                         SvREADONLY_on(lsv);
                         op_free(right);
-                        return ck_pad(left);
+                        assign = ck_pad(left);
                     }
                 } else { /* range */
                     o = OpFIRST(OpFIRST(right));
@@ -4770,7 +4771,7 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
                                 AvSHAPED_on(lsv);
                                 SvREADONLY_on(lsv);
                                 op_free(right);
-                                return ck_pad(left);
+                                assign = ck_pad(left);
                             }
                         }
                     }
@@ -4788,7 +4789,7 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
                                  SvPEEK(lsv), SvPEEK(rsv)));
                 SvSetMagicSV(lsv, SvREFCNT_inc_NN(rsv));
                 SvREADONLY_on(lsv);
-                return ck_rvconst(left);
+                assign = ck_rvconst(left);
             }
         } else if (IS_TYPE(left, RV2AV)) {
             GV* gv = cGVOPx_gv(OpFIRST(left));
@@ -4802,7 +4803,7 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
                 av_store(lsv, 0, SvREFCNT_inc_NN(rsv));
                 SvREADONLY_on(lsv);
                 op_free(right);
-                return ck_rvconst(left);
+                assign = ck_rvconst(left);
             } else if (IS_TYPE(right, LIST)) {
                 SSize_t i;
                 OP *o = OpSIBLING(OpFIRST(right));
@@ -4817,7 +4818,7 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
                     AvSHAPED_on(lsv); /* we can even type it */
                     SvREADONLY_on(lsv);
                     op_free(right);
-                    return ck_rvconst(left);
+                    assign = ck_rvconst(left);
                 }
             }
         }
@@ -4825,13 +4826,17 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
         /* if :const is the only attr skip attributes->import */
         if (num > 1) {
             return op_append_list(OP_LINESEQ,
-                       newASSIGNOP(OPf_STACKED|OPf_SPECIAL,
-                                   left, optype, right),
+                       assign
+                         ? assign
+                         : newASSIGNOP(OPf_STACKED|OPf_SPECIAL,
+                               left, optype, right),
                        scalar(attr));
         } else {
             op_free(attr);
-            return newASSIGNOP(OPf_STACKED|OPf_SPECIAL,
-                               left, optype, right);
+            return assign
+                     ? assign
+                     : newASSIGNOP(OPf_STACKED|OPf_SPECIAL,
+                           left, optype, right);
         }
     }
     /* no else as gcc-6 is not clever enough and emits a wrong warning */
