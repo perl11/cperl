@@ -4701,7 +4701,7 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
                 SV* lsv = PAD_SV(left->op_targ);
                 SV *rsv = cSVOPx_sv(right);
                 if (SvTYPE(lsv) == SVt_NULL || SvTYPE(lsv) == SvTYPE(rsv)) {
-                    DEBUG_k(Perl_deb(aTHX_ "constant fold: %s = %s\n",
+                    DEBUG_k(Perl_deb(aTHX_ "constant fold my %s = %s\n",
                                      SvPEEK(lsv), SvPEEK(rsv)));
                     SvSetMagicSV(lsv, rsv);
                     left->op_private = 0; /* rm LVINTRO */
@@ -4710,20 +4710,27 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
                 }
             }
         }
-#if 0
-        else /* our, but still a NULL sv */
-            if (IS_RV2ANY_OP(left)) {
-                GV* gv = cGVOPx_gv(OpFIRST(left));
-                assert(IS_TYPE(OpFIRST(left), GV));
-                if (IS_TYPE(left, RV2SV))
-                    SvREADONLY_on(GvSV(gv));
-                else if (IS_TYPE(left, RV2AV))
-                    SvREADONLY_on(GvAV(gv));
-                else if (IS_TYPE(left, RV2HV))
-                    SvREADONLY_on(GvHV(gv));
+        /* our, but still a NULL sv */
+        else if (IS_RV2ANY_OP(left) && IS_CONST_OP(right)) {
+            GV* gv = cGVOPx_gv(OpFIRST(left));
+            SV *rsv = cSVOPx_sv(right);
+            SV* lsv;
+            assert(IS_TYPE(OpFIRST(left), GV));
+            if (IS_TYPE(left, RV2SV))
+                lsv = GvSV(gv);
+            else if (IS_TYPE(left, RV2AV))
+                lsv = (SV*)GvAV(gv);
+            else if (IS_TYPE(left, RV2HV))
+                lsv = (SV*)GvHV(gv);
+            if (SvTYPE(lsv) == SVt_NULL || SvTYPE(lsv) == SvTYPE(rsv)) {
+                DEBUG_k(Perl_deb(aTHX_ "constant fold: our %s = %s\n",
+                                 SvPEEK(lsv), SvPEEK(rsv)));
+                SvSetMagicSV(lsv, rsv);
+                SvREADONLY_on(lsv);
+                return ck_rvconst(left);
             }
+        }
         /* else not constant foldable. like a lhs ref or list. */
-#endif
         /* if :const is the only attrib skip attr */
         if (num > 1) {
             return op_append_list(OP_LINESEQ,
@@ -4778,10 +4785,9 @@ S_my_kid(pTHX_ OP *o, OP *attrs, OP **imopsp)
 	    PL_parser->in_my = FALSE;
 	    PL_parser->in_my_stash = NULL;
             num_const = attrs_has_const(attrs, FALSE);
-            if (num_const > 1) {
+            if (num_const)
                 apply_attrs_my(stash, o, attrs, imopsp);
-            }
-            else if (num_const == 0)
+            else
                 apply_attrs(stash,
 			(type == OP_RV2SV ? GvSV(gv) :
 			 type == OP_RV2AV ? MUTABLE_SV(GvAV(gv)) :
