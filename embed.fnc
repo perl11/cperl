@@ -266,8 +266,9 @@ Apd	|OP*	|op_prepend_elem|I32 optype|NULLOK OP* first|NULLOK OP* last
 : FIXME - this is only called by pp_chown. They should be merged.
 p	|I32	|apply		|I32 type|NN SV** mark|NN SV** sp
 ApM	|void	|apply_attrs_string	|NN const char *stashpv|NN CV *cv \
-        				|NN const char *attrstr|STRLEN len
-ApdRP	|bool	|attrs_has_const	|NULLOK OP* o|bool from_assign
+					|NN const char *attrstr|STRLEN len
+: Used in perly.y Might be replaced with attrs_runtime
+pMdRP	|int	|attrs_has_const|NULLOK OP* o|bool from_assign
 Apd	|void	|av_clear	|NN AV *av
 Apd	|SV*	|av_delete	|NN AV *av|SSize_t key|I32 flags
 ApdR	|bool	|av_exists	|NN AV *av|SSize_t key
@@ -1123,6 +1124,8 @@ ApR	|OP*	|newANONLIST	|NULLOK OP* o
 ApR	|OP*	|newANONHASH	|NULLOK OP* o
 Ap	|OP*	|newANONSUB	|I32 floor|NULLOK OP* proto|NULLOK OP* block
 ApdR	|OP*	|newASSIGNOP	|I32 flags|NULLOK OP* left|I32 optype|NULLOK OP* right
+: Used in perly.y only
+pdR	|OP*	|newASSIGNOP_maybe_const|NULLOK OP* left|I32 optype|NULLOK OP* right
 ApdR	|OP*	|newCONDOP	|I32 flags|NN OP* first|NULLOK OP* trueop|NULLOK OP* falseop
 Apd	|CV*	|newCONSTSUB	|NULLOK HV* stash|NULLOK const char* name|NULLOK SV* sv
 Apd	|CV*	|newCONSTSUB_flags|NULLOK HV* stash \

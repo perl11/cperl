@@ -55,7 +55,6 @@
 #define apply_attrs_string(a,b,c,d)	Perl_apply_attrs_string(aTHX_ a,b,c,d)
 #define atfork_lock		Perl_atfork_lock
 #define atfork_unlock		Perl_atfork_unlock
-#define attrs_has_const(a,b)	Perl_attrs_has_const(aTHX_ a,b)
 #define av_clear(a)		Perl_av_clear(aTHX_ a)
 #define av_delete(a,b,c)	Perl_av_delete(aTHX_ a,b,c)
 #define av_exists(a,b)		Perl_av_exists(aTHX_ a,b)
@@ -1211,6 +1210,7 @@
 #define allocmy(a,b,c)		Perl_allocmy(aTHX_ a,b,c)
 #define amagic_is_enabled(a)	Perl_amagic_is_enabled(aTHX_ a)
 #define apply(a,b,c)		Perl_apply(aTHX_ a,b,c)
+#define attrs_has_const(a,b)	Perl_attrs_has_const(aTHX_ a,b)
 #define av_extend_guts(a,b,c,d,e)	Perl_av_extend_guts(aTHX_ a,b,c,d,e)
 #define bind_match(a,b,c)	Perl_bind_match(aTHX_ a,b,c)
 #define boot_core_PerlIO()	Perl_boot_core_PerlIO(aTHX)
@@ -1393,6 +1393,7 @@
 #define my_lstat_flags(a)	Perl_my_lstat_flags(aTHX_ a)
 #define my_stat_flags(a)	Perl_my_stat_flags(aTHX_ a)
 #define my_unexec()		Perl_my_unexec(aTHX)
+#define newASSIGNOP_maybe_const(a,b,c)	Perl_newASSIGNOP_maybe_const(aTHX_ a,b,c)
 #define newATTRSUB_x(a,b,c,d,e,f)	Perl_newATTRSUB_x(aTHX_ a,b,c,d,e,f)
 #define newSTUB(a,b)		Perl_newSTUB(aTHX_ a,b)
 #define newSVavdefelem(a,b,c)	Perl_newSVavdefelem(aTHX_ a,b,c)

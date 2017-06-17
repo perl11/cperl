@@ -198,10 +198,6 @@ static const char array_passed_to_stat[] =
       (OP_TYPE_IS_NN((o), OP_RV2SV) \
     || OP_TYPE_IS_NN((o), OP_RV2AV) \
     || OP_TYPE_IS_NN((o), OP_RV2HV))
-#define IS_PADxV_OP(o)  \
-      (OP_TYPE_IS_NN((o), OP_PADSV) \
-    || OP_TYPE_IS_NN((o), OP_PADAV) \
-    || OP_TYPE_IS_NN((o), OP_PADHV))
 #define IS_SUB_OP(o)  \
     (OP_TYPE_IS_NN((o), OP_ENTERSUB) \
   || OP_TYPE_IS_NN((o), OP_ENTERXSSUB))
@@ -4319,6 +4315,10 @@ S_dup_attrlist(pTHX_ OP *o)
 Checks the attrs list if ":const" is in it.
 But not C<("const", my $x)>.
 
+Returns the number of found attribs with const, which is only relevant
+for 1 for const being the single attr, 0 if no const was found, and >1
+if there are also other attribs besides const.
+
 If from_assign is TRUE, the attrs are already expanded to a full
 ENTERSUB import call. If not it's a list, not attrs.
 If from_assign is FALSE, it is from an unexpanded attrlist
@@ -4332,11 +4332,11 @@ C<our VAR :ATTR> declaration, without ENTERSUB.
 
 =cut
 */
-bool
+int
 Perl_attrs_has_const(pTHX_ OP *o, bool from_assign)
 {
     if (!o)
-        return FALSE;
+        return 0;
 
     /* An attrlist is either a simple OP_CONST or an OP_LIST with kids,
      * where the first kid is OP_PUSHMARK and the remaining ones
@@ -4348,8 +4348,9 @@ Perl_attrs_has_const(pTHX_ OP *o, bool from_assign)
     if (IS_CONST_OP(o)) {
         if ( SvPOK(cSVOPx_sv(o)) &&
              strEQc(SvPVX(cSVOPx_sv(o)), "const") )
-        return TRUE;
+            return OpHAS_SIBLING(o) && IS_CONST_OP(OpSIBLING(o)) ? 2 : 1;
     } else {
+        int num = 1;
 	assert(IS_TYPE(o, LIST) && OpKIDS(o));
         o = OpFIRST(o);
         /* entersub is the either 1st or 2nd sibling */
@@ -4358,18 +4359,18 @@ Perl_attrs_has_const(pTHX_ OP *o, bool from_assign)
             if (o && (IS_RV2ANY_OP(o) || IS_PADxV_OP(o))) /* our SCALAR :ATTR */
                 o = OpSIBLING(o);
             if (!o || !IS_TYPE(o, ENTERSUB))
-                return FALSE;
+                return 0;
             else
                 o = OpFIRST(o);
         }
-	for (; o; o = OpSIBLING(o)) {
+	for (; o; o = OpSIBLING(o), num++) {
 	    if ( IS_CONST_OP(o) &&
                  SvPOK(cSVOPx_sv(o)) &&
                  strEQc(SvPVX(cSVOPx_sv(o)), "const") )
-                return TRUE;
+                return num;
 	}
     }
-    return FALSE;
+    return 0;
 }
 
 /*
@@ -4643,6 +4644,71 @@ S_cant_declare(pTHX_ OP *o)
                              PL_parser->in_my == KEY_our   ? "our"   :
                              PL_parser->in_my == KEY_state ? "state" :
                                                              "my"));
+}
+
+/*
+=for apidoc newASSIGNOP_maybe_const
+
+Checks the attrs of the left if it has const.
+If so check dissect my_attrs() and check if there's another attr.
+If so defer attribute->import to run-time.
+If not just const the left side.
+
+OpSPECIAL on the assign op denotes :const. Undo temp. READONLY-ness via
+a private OPpASSIGN_CONSTINIT bit during assignment at run-time.
+
+Return the newASSIGNOP.
+
+=cut
+*/
+OP *
+Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
+{
+    int num;
+    if (UNLIKELY( OP_TYPE_IS(left, OP_LIST) &&
+                  ((num = attrs_has_const(left, TRUE)) != 0) )
+    {   /* my $x :const = $y; dissect my_attrs() */
+        OP *attr = OpSIBLING(OpFIRST(left));
+        /* defer :const after = */
+        if (OP_TYPE_ISNT(attr, OP_ENTERSUB)) {
+            left = attr;
+            attr = OpSIBLING(attr);
+            if (OpKIDS(left)) /* our: rv2Xv -> gv */
+                OpMORESIB_set(OpFIRST(left), NULL);
+        } else
+            left = OpSIBLING(attr);
+        OpMORESIB_set(left, NULL);
+        if (IS_PADxV_OP(left))
+            SvREADONLY_on(cSVOPx_sv(left));
+        else /* our */
+#if 0
+            if (IS_RV2ANY_OP(left)) {
+                GV* gv = cGVOPx_gv(OpFIRST(left));
+                assert(IS_TYPE(OpFIRST(left), GV));
+                if (IS_TYPE(left, RV2SV))
+                    SvREADONLY_on(GvSV(gv));
+                else if (IS_TYPE(left, RV2AV))
+                    SvREADONLY_on(GvAV(gv));
+                else if (IS_TYPE(left, RV2HV))
+                    SvREADONLY_on(GvHV(gv));
+            }
+        /* else not constant foldable. like a lhs ref or list. */
+#endif
+        /* if :const is the only attrib skip attr */
+        if (num > 1) {
+            OpMORESIB_set(attr, NULL);
+            return op_append_list(OP_LINESEQ,
+                       newASSIGNOP(OPf_STACKED|OPf_SPECIAL,
+                                   left, optype, right),
+                       scalar(attr));
+        } else {
+            op_free(attr);
+            return newASSIGNOP(OPf_STACKED|OPf_SPECIAL,
+                               left, optype, right);
+        }
+    }
+    /* no else as gcc-6 is not clever enough and emits a wrong warning */
+    return newASSIGNOP(OPf_STACKED, left, optype, right);
 }
 
 /*
@@ -15197,6 +15263,7 @@ Perl_ck_pad(pTHX_ OP *o)
     PERL_ARGS_ASSERT_CK_PAD;
     if (o->op_targ) { /* newPADOP sets it, newOP only with OA_TARGET */
         SV* sv = PAD_SV(o->op_targ);
+        /* TODO PAD[AH]V :const */
         if (IS_TYPE(o, PADSV) && SvREADONLY(sv)) {
             dVAR;
 #ifdef DEBUGGING

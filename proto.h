@@ -279,8 +279,7 @@ PERL_CALLCONV void	Perl_atfork_lock(void)
 PERL_CALLCONV void	Perl_atfork_unlock(void)
 			__attribute__global__;
 
-PERL_CALLCONV bool	Perl_attrs_has_const(pTHX_ OP* o, bool from_assign)
-			__attribute__global__
+PERL_CALLCONV int	Perl_attrs_has_const(pTHX_ OP* o, bool from_assign)
 			__attribute__warn_unused_result__
 			__attribute__pure__;
 
@@ -3673,6 +3672,9 @@ PERL_CALLCONV OP*	Perl_newANONSUB(pTHX_ I32 floor, OP* proto, OP* block)
 
 PERL_CALLCONV OP*	Perl_newASSIGNOP(pTHX_ I32 flags, OP* left, I32 optype, OP* right)
 			__attribute__global__
+			__attribute__warn_unused_result__;
+
+PERL_CALLCONV OP*	Perl_newASSIGNOP_maybe_const(pTHX_ OP* left, I32 optype, OP* right)
 			__attribute__warn_unused_result__;
 
 /* PERL_CALLCONV CV*	newATTRSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)

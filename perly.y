@@ -794,30 +794,7 @@ subscripted:    gelem '{' expr ';' '}'        /* *main::{something} */
 
 /* Binary operators between terms */
 termbinop:	term ASSIGNOP term 			/* $x = $y */
-			{
-                          OP* left = $1;
-                          if ( OP_TYPE_IS(left, OP_LIST) &&
-                               attrs_has_const(left, TRUE) )
-                          {   /* my $x :const = $y; dissect my_attrs() */
-                              OP *attr = OpSIBLING(OpFIRST(left));
-                              /* defer :const after = */
-                              /* TODO: if :const is the only attrib skip attr */
-                              if (OP_TYPE_ISNT(attr, OP_ENTERSUB)) {
-                                  left = attr;
-                                  attr = OpSIBLING(attr);
-                                  if (OpKIDS(left)) /* our rv2Xv -> gv */
-                                      OpMORESIB_set(OpFIRST(left), NULL);
-                              } else
-                                  left = OpSIBLING(attr);
-                              OpMORESIB_set(left, NULL);
-                              OpMORESIB_set(attr, NULL);
-                              $$ = op_append_list(OP_LINESEQ,
-                                       newASSIGNOP(OPf_STACKED|OPf_SPECIAL,
-                                           left, $2, $3),
-                                       scalar(attr));
-                          } else
-                              $$ = newASSIGNOP(OPf_STACKED, left, $2, $3);
-                        }
+			{ $$ = newASSIGNOP_maybe_const($1, $2, $3); }
 	|	term POWOP term                        /* $x ** $y */
 			{ $$ = newBINOP(OP_POW, 0, scalar($1), scalar($3)); }
 	|	term MULOP term                        /* $x * $y, $x x $y */
