@@ -6939,47 +6939,46 @@ PP(pp_refassign)
 	/* diag_listed_as: Assigned value is not %s reference */
 	DIE(aTHX_ "Assigned value is not a%s reference", bad);
     {
-    MAGIC *mg;
-    HV *stash;
-    switch (left ? SvTYPE(left) : 0) {
-    case 0:
-    {
-	SV * const old = PAD_SV(ARGTARG);
-	PAD_SETSV(ARGTARG, SvREFCNT_inc_NN(SvRV(sv)));
-	SvREFCNT_dec(old);
-	if ((PL_op->op_private & (OPpLVAL_INTRO|OPpPAD_STATE))
-		== OPpLVAL_INTRO)
-	    SAVECLEARSV(PAD_SVl(ARGTARG));
-	break;
-    }
-    case SVt_PVGV:
-	if (PL_op->op_private & OPpLVAL_INTRO) {
-	    S_localise_gv_slot(aTHX_ (GV *)left, type);
-	}
-	gv_setref(left, sv);
-	SvSETMAGIC(left);
-	break;
-    case SVt_PVAV:
-        assert(key);
-	if (UNLIKELY(PL_op->op_private & OPpLVAL_INTRO)) {
-	    S_localise_aelem_lval(aTHX_ (AV *)left, key,
-					SvCANEXISTDELETE(left));
-	}
-	av_store((AV *)left, SvIV(key), SvREFCNT_inc_simple_NN(SvRV(sv)));
-	break;
-    case SVt_PVHV:
-        if (UNLIKELY(PL_op->op_private & OPpLVAL_INTRO)) {
-            assert(key);
-	    S_localise_helem_lval(aTHX_ (HV *)left, key,
-					SvCANEXISTDELETE(left));
+        MAGIC *mg;
+        HV *stash;
+        switch (left ? SvTYPE(left) : 0) {
+        case 0: {
+            SV * const old = PAD_SV(ARGTARG);
+            PAD_SETSV(ARGTARG, SvREFCNT_inc_NN(SvRV(sv)));
+            SvREFCNT_dec(old);
+            if ((PL_op->op_private & (OPpLVAL_INTRO|OPpPAD_STATE))
+                == OPpLVAL_INTRO)
+                SAVECLEARSV(PAD_SVl(ARGTARG));
+            break;
         }
-	(void)hv_store_ent((HV *)left, key, SvREFCNT_inc_simple_NN(SvRV(sv)), 0);
-    }
-    if (PL_op->op_flags & OPf_MOD)
-	SETs(sv_2mortal(newSVsv(sv)));
-    /* XXX else can weak references go stale before they are read, e.g.,
-       in leavesub?  */
-    RETURN;
+        case SVt_PVGV:
+            if (PL_op->op_private & OPpLVAL_INTRO) {
+                S_localise_gv_slot(aTHX_ (GV *)left, type);
+            }
+            gv_setref(left, sv);
+            SvSETMAGIC(left);
+            break;
+        case SVt_PVAV:
+            assert(key);
+            if (UNLIKELY(PL_op->op_private & OPpLVAL_INTRO)) {
+                S_localise_aelem_lval(aTHX_ (AV *)left, key,
+                                      SvCANEXISTDELETE(left));
+            }
+            av_store((AV *)left, SvIV(key), SvREFCNT_inc_simple_NN(SvRV(sv)));
+            break;
+        case SVt_PVHV:
+            if (UNLIKELY(PL_op->op_private & OPpLVAL_INTRO)) {
+                assert(key);
+                S_localise_helem_lval(aTHX_ (HV *)left, key,
+                                      SvCANEXISTDELETE(left));
+            }
+            (void)hv_store_ent((HV *)left, key, SvREFCNT_inc_simple_NN(SvRV(sv)), 0);
+        }
+        if (PL_op->op_flags & OPf_MOD)
+            SETs(sv_2mortal(newSVsv(sv)));
+        /* XXX else can weak references go stale before they are read, e.g.,
+           in leavesub?  */
+        RETURN;
     }
 }
 
