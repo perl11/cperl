@@ -4471,7 +4471,7 @@ S_apply_attrs_my(pTHX_ HV *stash, OP *target, OP *attrs, OP **imopsp)
             OpTYPE_set(arg, target->op_type);
         arg = newUNOP(OP_REFGEN,0,arg);
     } else {
-        /* This will be extended later for the ffi and its deferred attrs */
+        /* This will be extended later for the ffi and its deferred sub attrs */
         arg = NULL;
 	Perl_croak(aTHX_ "panic: invalid target %s in apply_attrs_my",
                    OP_NAME(target));
@@ -4700,10 +4700,13 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
             if (IS_CONST_OP(right) && left->op_private == OPpLVAL_INTRO) {
                 SV* lsv = PAD_SV(left->op_targ);
                 SV *rsv = cSVOPx_sv(right);
-                if (SvTYPE(lsv) == SvTYPE(rsv)) {
+                if (SvTYPE(lsv) == SVt_NULL || SvTYPE(lsv) == SvTYPE(rsv)) {
+                    DEBUG_k(Perl_deb(aTHX_ "constant fold: %s = %s\n",
+                                     SvPEEK(lsv), SvPEEK(rsv)));
                     SvSetMagicSV(lsv, rsv);
                     left->op_private = 0; /* rm LVINTRO */
                     SvREADONLY_on(lsv);
+                    return ck_pad(left);
                 }
             }
         }
@@ -4769,14 +4772,16 @@ S_my_kid(pTHX_ OP *o, OP *attrs, OP **imopsp)
 	} else if (attrs) {
 	    GV * const gv = cGVOPx_gv(OpFIRST(o));
             HV *stash = GvSTASH(gv);
+            int num_const;
             if (!stash) stash = (HV*)SV_NO;
 	    assert(PL_parser);
 	    PL_parser->in_my = FALSE;
 	    PL_parser->in_my_stash = NULL;
-            if (attrs_has_const(attrs, FALSE)) {
+            num_const = attrs_has_const(attrs, FALSE);
+            if (num_const > 1) {
                 apply_attrs_my(stash, o, attrs, imopsp);
             }
-            else
+            else if (num_const == 0)
                 apply_attrs(stash,
 			(type == OP_RV2SV ? GvSV(gv) :
 			 type == OP_RV2AV ? MUTABLE_SV(GvAV(gv)) :
@@ -4816,7 +4821,8 @@ S_my_kid(pTHX_ OP *o, OP *attrs, OP **imopsp)
 	stash = PAD_COMPNAME_TYPE(o->op_targ);
 	if (!stash)
 	    stash = PL_curstash;
-	apply_attrs_my(stash, o, attrs, imopsp);
+        if (stash != PL_curstash || attrs_has_const(attrs, FALSE) != 1)
+            apply_attrs_my(stash, o, attrs, imopsp);
     }
     o->op_flags |= OPf_MOD;
     o->op_private |= OPpLVAL_INTRO;
