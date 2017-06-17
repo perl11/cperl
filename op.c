@@ -4428,8 +4428,6 @@ S_apply_attrs_my(pTHX_ HV *stash, OP *target, OP *attrs, OP **imopsp)
     if (!attrs)
 	return;
 
-    /*assert(IS_PADxV_OP(target));*/
-
     /* Ensure that attributes.pm is loaded. */
     /* Don't force the C<use> if we don't need it. */
     svp = hv_fetchs(GvHVn(PL_incgv), ATTRSMODULE_PM, FALSE);
@@ -4456,6 +4454,11 @@ S_apply_attrs_my(pTHX_ HV *stash, OP *target, OP *attrs, OP **imopsp)
         if (ISNT_TYPE(target, RV2SV))
             OpTYPE_set(arg, target->op_type);
         arg = newUNOP(OP_REFGEN,0,arg);
+    } else {
+        /* This will be extended later for the ffi and its deferred attrs */
+        arg = NULL;
+	Perl_croak(aTHX_ "panic: invalid target %s in apply_attrs_my",
+                   OP_NAME(target));
     }
     arg = op_prepend_elem(OP_LIST,
               newSVOP(OP_CONST, 0, stashsv),
