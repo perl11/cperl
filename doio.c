@@ -670,7 +670,7 @@ S_openn_cleanup(pTHX_ GV *gv, IO *io, PerlIO *fp, char *mode, const char *oname,
 	    && IoTYPE(io) != IoTYPE_WRONLY  /* Dups of STD* filehandles already have */
 	    && IoTYPE(io) != IoTYPE_RDONLY  /* type so they aren't marked as sockets */
 	) {				    /* on OS's that return 0 on fstat()ed pipe */
-	     char tmpbuf[256];
+             char tmpbuf[256];              /* SOCK_MAXADDRLEN 255 */
 	     Sock_size_t buflen = sizeof tmpbuf;
 	     if (PerlSock_getsockname(fd, (struct sockaddr *)tmpbuf, &buflen) >= 0
 		      || errno != ENOTSOCK)

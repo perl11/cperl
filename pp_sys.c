@@ -312,7 +312,7 @@ PP(pp_backtick)
 	    PerlIO_apply_layers(aTHX_ fp,mode,type);
 
 	if (gimme == G_VOID) {
-	    char tmpbuf[256];
+	    char tmpbuf[1024];
 	    while (PerlIO_read(fp, tmpbuf, sizeof tmpbuf) > 0)
 		NOOP;
 	}

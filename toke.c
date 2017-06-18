@@ -556,7 +556,7 @@ S_def_coretype(pTHX_ SV *sv, const char *t1, int len)
 
 static void
 S_no_such_class(pTHX_ char *s) {
-    char tmpbuf[1024];
+    char tmpbuf[TOKENBUF_SIZE];
     int len;
     PL_bufptr = s;
     len = my_snprintf(tmpbuf, sizeof(tmpbuf), "No such class %.1000s", PL_tokenbuf);
@@ -9468,7 +9468,7 @@ S_checkcomma(pTHX_ const char *s, const char *name, const char *what)
 		return;
 	    if (s - w <= 254) {
                 PADOFFSET off;
-		char tmpbuf[256];
+		char tmpbuf[TOKENBUF_SIZE];
 		Copy(w, tmpbuf+1, s - w, char);
 		*tmpbuf = '&';
 		off = pad_findmy_pvn(tmpbuf, s-w+1, 0);
@@ -13209,7 +13209,7 @@ Perl_parse_subsignature(pTHX)
             if (!typestash)
                 typestash = find_in_coretypes(PL_tokenbuf, len);
             if (!typestash) {
-                char tmpbuf[1024];
+                char tmpbuf[TOKENBUF_SIZE];
                 int len;
                 PL_bufptr = s;
                 len = my_snprintf(tmpbuf, sizeof(tmpbuf), "No such class %.1000s", PL_tokenbuf);
