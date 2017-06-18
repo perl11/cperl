@@ -10627,7 +10627,11 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
          * indivisible */
         bool has_intervening_patws = paren == 2 && *(RExC_parse - 1) != '(';
 
-        if (RExC_parse >= RExC_end) {
+        if (RExC_parse >= RExC_end
+#ifdef DEBUGGING
+           || depth > 5000 /* Only with DEBUGGING */
+#endif
+           ) {
 	    vFAIL("Unmatched (");
         }
 
