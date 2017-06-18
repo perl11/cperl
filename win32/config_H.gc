@@ -5244,7 +5244,9 @@
  *	These symbols if existing are platform specific alternatives to the
  *      DEFAULT libffi ABI, needed for :nativeconv(STRING).
  */
-/*#define	USE_FFI		/ **/
+#if $useffi
+#define	USE_FFI			/**/
+#endif
 #ifdef USE_FFI
 #define 	I_FFI		/**/
 #define 	D_LIBFFI        /**/

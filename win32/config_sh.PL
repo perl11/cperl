@@ -351,7 +351,13 @@ if ($opt{useithreads} eq 'define' && $opt{ccflags} =~ /-DPERL_IMPLICIT_SYS\b/) {
 
 if ($opt{usecplusplus} eq 'define') {
     $opt{d_cplusplus} = 'define';
-    $opt{extern_C} = 'extern "C"';
+    $opt{extern_C}    = 'extern "C"';
+}
+
+if (-f 'include/ffi.h' && $opt{useffi} ne 'undef') {
+    $opt{useffi}    = 'define';
+    $opt{d_ffilib}  = 'define';
+    $opt{i_ffi}     = 'define';
 }
 
 #if the fields above are defined, they override the defaults in the premade

@@ -598,6 +598,11 @@ MINIBUILDOPT	+= -fno-strict-aliasing
 
 TESTPREPGCC	= test-prep-gcc
 
+!IF "$(USE_FFI)" == "define"
+LINK_FLAGS	+= -Llib
+LIBFILES	+= -lffi
+!ENDIF
+
 .ELSE
 
 # All but the free version of VC++ 7.1 can load DLLs on demand.  Makes the test
@@ -753,6 +758,10 @@ LIBBASEFILES    += bufferoverflowU.lib
 .ENDIF
 
 LIBFILES	= $(LIBBASEFILES) $(LIBC)
+
+!IF "$(USE_FFI)" == "define"
+LIBFILES	+= ffi.dll.a
+!ENDIF
 
 EXTRACFLAGS	= -nologo -GF -W3
 .IF "$(__ICC)" == "define"
@@ -1503,6 +1512,9 @@ MakePPPort : $(HAVEMINIPERL) $(CONFIGPM)
 # also known as $(HAVE_COREDIR)
 .\.coreheaders : $(CORE_H)
 	$(XCOPY) /k *.h $(COREDIR)\*.* && $(RCOPY) /k include $(COREDIR)\*.* && $(XCOPY) /k ..\*.h $(COREDIR)\*.*
+!IF "$(USE_FFI)" == "define"
+	if exist lib\libffi.dll.a xcopy /f /i /y lib\libffi*.a $(INST_COREDIR)
+!ENDIF
 	rem. > $@
 
 perlmain$(o) : runperl.c $(CONFIGPM)
