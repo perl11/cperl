@@ -194,7 +194,7 @@ with deferring the attributes::import call after an assignment.
     assign %h = (...);
     attributes->import(PACKAGE, \%h, const);
 
-See L<[cperl #294|https://github.com/perl11/cperl/issues/294>.
+See L<[cperl #294]|https://github.com/perl11/cperl/issues/294>.
 
 =item L<Devel::PPPort>
 
@@ -217,7 +217,7 @@ File::chdir to install.
 
 Implemented C<strict 'names'> to reject illegal identifiers created via
 C<no strict 'refs'> also at run-time, not only at compile-time.  See
-L<[cperl #282|https://github.com/perl11/cperl/issues/282>.
+L<[cperl #282]|https://github.com/perl11/cperl/issues/282>.
 
 =back
 
@@ -436,11 +436,6 @@ XXX
 
 =head1 Selected Bug Fixes
 
-XXX Important bug fixes in the core language are summarized here.  Bug fixes in
-files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
-
-[ List each fix as a =item entry ]
-
 =over 4
 
 =item *
@@ -450,6 +445,38 @@ with 0, 1, undef or op defaults, such as in C<sub func ($, $=0, $=1,
 $=2, $=do{$i++} $="foo", $a="bar", $b="zoot")>, with the first C<$>,
 the 2nd C<$=0>, the 3rd C<$=1> and the 5th C<$=do{}> argument.
 cperl-only.
+
+=item *
+
+Harmonized TOKENBUF_SIZE and stack buf sizes
+
+The max identifier length depends on the max tokenbuf size, which went
+from 256 in perl5 to 1024 in cperl, mostly to speed up parsing with a
+larger parser buffer. A few places still had hardcoded 256 tmpbuf sizes, which
+led to wrong error messages.
+See L<[cperl #293]|https://github.com/perl11/cperl/issues/293>.
+
+=item *
+
+Fixed one place in ck_sort for utf8 lexical variable names, which
+passed the unneeded UTF8 flag to C<pad_findmy_pvn()>. In cperl all pads
+are normalized UTF8 for faster searches, the flag argument must be 0.
+See L<[cperl #293]|https://github.com/perl11/cperl/issues/293>.
+
+=item *
+
+Fix regex stack recursion overflow with DEBUGGING
+
+This is a regression since 5.26 (also in upstream perl5). Without
+DEBUGGING it failed with the error message "Unmatched ( in regex", now
+with more than 5000 open parens it will fail with the same error message.
+This would be security relevant if one would use a DEBUGGING perl in
+production as one can construct a pattern which writes arbitrary
+values to the stack, similar to the Storable (L<[cperl
+#257]|https://github.com/perl11/cperl/issues/257>, L<[cpan
+#97526]|https://rt.cpan.org/Public/Bug/Display.html?id=97526>) stack
+overflow and the old 5.10 regex stack overflow attack.  See L<[cperl
+#293]|https://github.com/perl11/cperl/issues/293>.
 
 =back
 
