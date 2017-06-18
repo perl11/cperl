@@ -12630,12 +12630,12 @@ Perl_ck_sort(pTHX_ OP *o)
 	    o->op_flags |= OPf_SPECIAL;
 	}
 	else if (IS_CONST_OP(kid) && kid->op_private & OPpCONST_BARE) {
-	    char tmpbuf[256];
+	    char tmpbuf[TOKENBUF_SIZE];
 	    STRLEN len;
 	    PADOFFSET off;
 	    const char * const name = SvPV(kSVOP_sv, len);
 	    *tmpbuf = '&';
-	    assert (len < 256);
+	    assert (len < TOKENBUF_SIZE);
 	    Copy(name, tmpbuf+1, len, char);
 	    off = pad_findmy_pvn(tmpbuf, len+1, SvUTF8(kSVOP_sv));
 	    if (off != NOT_IN_PAD) {

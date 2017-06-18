@@ -1303,7 +1303,7 @@ Perl_magic_setenv(pTHX_ SV *sv, MAGIC *mg)
             /* set MGf_TAINTEDDIR if any component of the new path is
              * relative or world-writeable */
 	    while (s < strend) {
-		char tmpbuf[256];
+		char tmpbuf[TOKENBUF_SIZE];
 		Stat_t st;
 		I32 i;
 #ifdef __VMS  /* Hmm.  How do we get $Config{path_sep} from C? */
