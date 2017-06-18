@@ -3097,6 +3097,11 @@ Fix the pattern and retry.
 (F) The indicated attribute for a subroutine or variable was not recognized
 by Perl or by a user-supplied handler.  See L<attributes>.
 
+=item Invalid :%s(%s) attribute argument type
+
+(F) The indicated attribute argument for a subroutine or variable was not recognized
+by Perl.  See L<attributes>.
+
 =item Invalid %s attributes: %s
 
 (F) The indicated attributes for a subroutine or variable were not
@@ -6369,10 +6374,10 @@ position.  See L<perlre>.
 (F) While under the C<use filetest> pragma, we cannot switch the real
 and effective uids or gids.
 
-=item :%s() argument missing
+=item :%s() attribute argument missing
 
-(S) The C<:symbol()>, C<:nativeconv()>, C<:encoded()> attributes
-require a string argument.
+(F) The C<:symbol()> and C<:nativeconv()> attributes
+require a string argument or negation. See L<attributes>.
 
 =item :%s is only valid for :native or extern sub
 
