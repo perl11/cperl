@@ -110,9 +110,16 @@ DEFAULT_INC_EXCLUDES_DOT = define
 #
 # Uncomment this if you want to disable looking up values from
 # HKEY_CURRENT_USER\Software\Perl and HKEY_LOCAL_MACHINE\Software\Perl in
-# the Registry.
+# the Registry. Only recommended for faster testing.
 #
 USE_NO_REGISTRY = define
+
+#
+# Uncomment this if you want to enable libffi and calling extern subs
+# via native call. Should be enabled, but needs libffi.
+# See https://github.com/perl11/cperl/releases/tag/libffi-win
+#
+#USE_FFI = define
 
 #
 # uncomment exactly one of the following
@@ -292,6 +299,10 @@ BUILDOPT	= $(BUILDOPT) -DPERL_DEBUGGING_MSTATS
 
 !IF "$(USE_CPERL)" == ""
 USE_CPERL	= undef
+!ENDIF
+
+!IF "$(USE_FFI)" == ""
+USE_FFI	= undef
 !ENDIF
 
 !IF "$(USE_SITECUST)" == ""
@@ -635,6 +646,11 @@ EXEOUT_FLAG	= -Fe
 
 CFLAGS_O	= $(CFLAGS) $(BUILDOPT)
 
+!IF "$(USE_FFI)" == "define"
+LINK_FLAGS	= $(LINK_FLAGS) -libpath:lib
+LIBFILES	= $(LIBFILES) libffi.dll.a
+!ENDIF
+
 !IF "$(PREMSVC80)" == "undef"
 PRIV_LINK_FLAGS	= $(PRIV_LINK_FLAGS) "/manifestdependency:type='Win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'"
 !ELSE
@@ -942,13 +958,14 @@ CFG_VARS	=					\
 		"libperl=$(PERLIMPLIB:..\=)"		\
 		"libpth=$(CCLIBDIR:"=\");$(EXTRALIBDIRS:"=\")"	\
 		"libc=$(LIBC)"				\
-		"make=$(MAKE_BARE)"				\
+		"make=$(MAKE_BARE)"			\
 		"static_ext=$(STATIC_EXT)"		\
 		"usecperl=$(USE_CPERL)"			\
 		"usethreads=$(USE_ITHREADS)"		\
 		"useithreads=$(USE_ITHREADS)"		\
 		"usemultiplicity=$(USE_MULTI)"		\
 		"use64bitint=$(USE_64_BIT_INT)"		\
+		"useffi=$(USE_FFI)"			\
 		"uselongdouble=undef"			\
 		"uselargefiles=$(USE_LARGE_FILES)"	\
 		"usesitecustomize=$(USE_SITECUST)"	\
@@ -1118,6 +1135,9 @@ $(CONFIGPM) : $(MINIPERL) ..\config.sh config_h.PL
 	$(XCOPY) ..\*.h $(COREDIR)\*.*
 	$(XCOPY) *.h $(COREDIR)\*.*
 	$(RCOPY) include $(COREDIR)\*.*
+!IF "$(USE_FFI)" == "define"
+	if exist lib\libffi.dll.a xcopy /f /i /y lib\libffi*.a $(INST_COREDIR)
+!ENDIF
 	-$(MINIPERL) -I..\lib config_h.PL
 	if errorlevel 1 $(MAKE) /$(MAKEFLAGS) $(CONFIGPM)
 
