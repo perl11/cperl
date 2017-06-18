@@ -146,7 +146,8 @@ if( $ExtUtils::MakeMaker::VERSION >= 6.45 ) {
 if (my $gccversion = $Config{gccversion}) {    # ask gcc to be more pedantic
     print "Your perl was compiled with gcc (version $Config{gccversion}), okay.\n";
     $gccversion =~ s/[^\d\.]//g;               # just a number please
-    $mm_opts{DEFINE} .= ' -W -Wall -Wpointer-arith -Wbad-function-cast';
+    $mm_opts{DEFINE} .= ' -W -Wall -Wpointer-arith';
+    $mm_opts{DEFINE} .= ' -Wbad-function-cast' unless $Config{d_cplusplus};
     $mm_opts{DEFINE} .= ' -Wno-comment -Wno-sign-compare -Wno-cast-qual';
     $mm_opts{DEFINE} .= ' -Wmissing-noreturn -Wno-unused-parameter' if $gccversion ge "3.0";
     if ($is_developer && $opt_g) {
