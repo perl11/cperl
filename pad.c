@@ -945,7 +945,7 @@ S_pad_check_dup(pTHX_ PADNAME *name, U32 flags, const HV *ourstash)
 Given the name of a lexical variable, find its position in the
 currently-compiling pad.
 C<namepv>/C<namelen> specify the variable's name, including leading sigil.
-C<flags> is reserved and must be zero.
+C<flags> is reserved and must be zero. (Pads are all UTF8 in cperl)
 If it is not in the current pad but appears in the pad of any lexically
 enclosing scope, then a pseudo-entry for it is added in the current pad.
 Returns the offset in the current pad,
@@ -966,8 +966,8 @@ Perl_pad_findmy_pvn(pTHX_ const char *namepv, STRLEN namelen, U32 flags)
     PERL_ARGS_ASSERT_PAD_FINDMY_PVN;
 
     pad_peg("pad_findmy_pvn");
-
     if (flags)
+        /* With cperl all PADs are UTF8 */
 	Perl_croak(aTHX_ "panic: pad_findmy_pvn illegal flag bits 0x%" UVxf,
 		   (UV)flags);
 
@@ -975,7 +975,7 @@ Perl_pad_findmy_pvn(pTHX_ const char *namepv, STRLEN namelen, U32 flags)
     if (!PL_compcv)
         return NOT_IN_PAD;
 
-    offset = pad_findlex(namepv, namelen, flags,
+    offset = pad_findlex(namepv, namelen, 0,
                 PL_compcv, PL_cop_seqmax, 1, NULL, &out_pn, &out_flags);
     if (offset != NOT_IN_PAD)
 	return offset;
@@ -1010,6 +1010,7 @@ Perl_pad_findmy_pvn(pTHX_ const char *namepv, STRLEN namelen, U32 flags)
 Exactly like L</pad_findmy_pvn>, but takes a nul-terminated string
 instead of a string/length pair.
 
+flags must be 0.
 =cut
 */
 
@@ -1017,6 +1018,7 @@ PADOFFSET
 Perl_pad_findmy_pv(pTHX_ const char *name, U32 flags)
 {
     PERL_ARGS_ASSERT_PAD_FINDMY_PV;
+    assert(!flags);
     return pad_findmy_pvn(name, strlen(name), flags);
 }
 
@@ -1026,6 +1028,7 @@ Perl_pad_findmy_pv(pTHX_ const char *name, U32 flags)
 Exactly like L</pad_findmy_pvn>, but takes the name string in the form
 of an SV instead of a string/length pair.
 
+flags must be 0, all pads are utf8
 =cut
 */
 
@@ -1036,6 +1039,7 @@ Perl_pad_findmy_sv(pTHX_ SV *name, U32 flags)
     STRLEN namelen;
     PERL_ARGS_ASSERT_PAD_FINDMY_SV;
     namepv = SvPVutf8(name, namelen);
+    assert(!flags);
     return pad_findmy_pvn(namepv, namelen, flags);
 }
 
@@ -1125,6 +1129,8 @@ as it goes.  It has to be this way
 because fake names in anon protoypes have to store in C<xpadn_low> the
 index into the parent pad.
 
+PADs are with cperl all UTF8 so the flags argument must be 0 or padadd_STALEOK.
+
 =cut
 */
 
@@ -1159,8 +1165,9 @@ S_pad_findlex(pTHX_ const char *namepv, STRLEN namelen, U32 flags, const CV* cv,
 
     PERL_ARGS_ASSERT_PAD_FINDLEX;
 
-    flags &= ~ padadd_STALEOK; /* one-shot flag */
+    flags &= ~padadd_STALEOK; /* one-shot flag */
     if (flags)
+        /* With cperl all PADs are utf8 */
 	Perl_croak(aTHX_ "panic: pad_findlex illegal flag bits 0x%" UVxf,
 		   (UV)flags);
 
