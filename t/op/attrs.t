@@ -559,4 +559,22 @@ if ($Config::Config{usecperl}) {
     is($ho2[0] + 1, 2, 'our array :const = (..)');
 }
 
+fresh_perl_is('sub dummy {} our $dummy : Dummy', <<EOS, {},
+Invalid SCALAR attribute: Dummy at - line 1.
+BEGIN failed--compilation aborted at - line 1.
+EOS
+              "attribute on our scalar with sub of same name");
+
+fresh_perl_is('sub dummy {} our @dummy : Dummy', <<EOS, {},
+Invalid ARRAY attribute: Dummy at - line 1.
+BEGIN failed--compilation aborted at - line 1.
+EOS
+              "attribute on our array with sub of same name");
+
+fresh_perl_is('sub dummy {} our %dummy : Dummy', <<EOS, {},
+Invalid HASH attribute: Dummy at - line 1.
+BEGIN failed--compilation aborted at - line 1.
+EOS
+              "attribute on our hash with sub of same name");
+
 done_testing();

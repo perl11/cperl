@@ -622,6 +622,13 @@ when trying to update the AMT cache.
 On windows it also tried the C<"(qr"> overload.
 See L<[cperl #308]|https://github.com/perl11/cperl/issues/308>.
 
+=item *
+
+Attempting to apply an attribute to an C<our> variable where a
+function of that name already exists could result in a NULL pointer
+being supplied where an SV was expected, crashing perl.
+See L<[perl #131597]|https://rt.perl.org/Public/Bug/Display.html?id=131597>.
+
 =back
 
 =head1 Known Problems
