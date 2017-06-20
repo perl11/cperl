@@ -17,6 +17,72 @@ Consult your favorite dictionary for details.
 
 =head1 EPIGRAPHS
 
+=head2 v5.27.1 - Rona Munro, Doctor Who: Survival
+
+Announced on 2017-06-20 by Eric Herman
+
+  There are worlds out there where the sky is burning,
+  where the sea's asleep and the rivers dream,
+  people made of smoke and cities made of song.
+  Somewhere there's danger,
+  somewhere there's injustice
+  and somewhere else the tea is getting cold.
+  Come on, Ace, we've got work to do.
+
+=head2 v5.27.0 - Bertrand Russell, The Road to Happiness
+
+L<Announced on 2017-05-31 by Sawyer X| http://www.nntp.perl.org/group/perl.perl5.porters/2017/05/msg244580.html>
+
+  People who have theories as to how one should live tend to forget the
+  limitations of nature. If your way of life involves constant
+  restraint of impulse for the sake of some one supreme aim that you
+  have set yourself, it is likely that the aim will become increasingly
+  distasteful because of the efforts that it demands; impulse, denied
+  its normal outlets, will find others, probably in spite; pleasure, if
+  you allow yourself any at all, will be dissociated from the main
+  current of your life, and will become Bacchic and frivolous. Such
+  pleasure brings no happiness, but only a deeper despair.
+
+    -- Bertrand Russell, The Road to Happiness
+
+=head2 v5.26.0 - Nine Simone, Ain't Got No / I Got Life
+
+L<Announced on 2017-05-30 by Sawyer X|http://www.nntp.perl.org/group/perl.perl5.porters/2017/05/msg244573.html>
+
+  I've got the life
+  And I'm gonna keep it
+  I've got the life
+  And nobody's gonna take it away
+  I've got the life
+
+=head2 v5.26.0-RC2 - Richard Condon, The Manchurian Candidate
+
+L<Announced on 2017-05-23 by Sawyer X|http://www.nntp.perl.org/group/perl.perl5.porters/2017/05/msg244511.html>
+
+  Amateur psychiatric prognosis can be fascinating when there is
+  absolutely nothing else to do.
+
+=head2 v5.26.0-RC1 - Thomas Paine, Common Sense
+
+L<Announced on 2017-05-11 by Sawyer X|http://www.nntp.perl.org/group/perl.perl5.porters/2017/05/msg244337.html>
+
+  A long habit of not thinking a thing WRONG, gives it a superficial
+  appearance of being RIGHT, and raises at first a formidable outcry in
+  defense of custom. But the tumult soon subsides. Time makes more
+  converts than reason.
+
+=head2 v5.25.12 - Kurt Vonnegut, Slaughterhouse-Five
+
+L<Announced on 2017-04-20 by Sawyer X|http://www.nntp.perl.org/group/perl.perl5.porters/2017/04/msg244146.html>
+
+  I have told my sons that they are not under any circumstances to take
+  part in massacres, and that the news of massacres of enemies is not
+  to fill them with satisfaction or glee.
+
+  I have also told them not to work for companies which make massacre
+  machinery, and to express contempt for people who think we need
+  machinery like that.
+
 =head2 v5.25.11 - Daniel Kahneman, Thinking, Fast and Slow
 
 L<Announced on 2017-03-20 by Sawyer X|http://www.nntp.perl.org/group/perl.perl5.porters/2017/03/msg243624.html>
