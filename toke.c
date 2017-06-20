@@ -6004,7 +6004,7 @@ Perl_yylex(pTHX)
 	    s = scan_ident(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &normalize);
             if (UNLIKELY(normalize)) {
                 d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
-                Copy(d, &PL_tokenbuf, len+1, char);
+                Copy(d, PL_tokenbuf, len+1, char);
             }
 	    PL_expect = XOPERATOR;
 	    force_ident(PL_tokenbuf, '*');
@@ -6060,7 +6060,7 @@ Perl_yylex(pTHX)
 	PL_expect = XOPERATOR;
         if (UNLIKELY(normalize)) {
             d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
-            Copy(d, &PL_tokenbuf, len+1, char);
+            Copy(d, PL_tokenbuf, len+1, char);
         }
 	force_ident_maybe_lex('%');
 	TERM('%');
@@ -6159,7 +6159,7 @@ Perl_yylex(pTHX)
 		}
                 if (UNLIKELY(normalize)) {
                     char *s1 = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
-                    Copy(s1, &PL_tokenbuf, len+1, char);
+                    Copy(s1, PL_tokenbuf, len+1, char);
                 }
 		sv = newSVpvn_flags(s, len, UTF ? SVf_UTF8 : 0);
 		if (*d == '(') {
@@ -6648,7 +6648,7 @@ Perl_yylex(pTHX)
 		       sizeof PL_tokenbuf - 1, TRUE, &normalize);
         if (UNLIKELY(normalize)) {
             d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
-            Copy(d, &PL_tokenbuf, len+1, char);
+            Copy(d, PL_tokenbuf, len+1, char);
         }
 	pl_yylval.ival = (OPpENTERSUB_AMPER<<8);
 	if (PL_tokenbuf[1]) {
@@ -6926,7 +6926,7 @@ Perl_yylex(pTHX)
 		PREREF(DOLSHARP);
             if (UNLIKELY(normalize)) {
                 d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
-                Copy(d, &PL_tokenbuf, len+1, char);
+                Copy(d, PL_tokenbuf, len+1, char);
             }
 	    PL_expect = XOPERATOR;
 	    force_ident_maybe_lex('#');
@@ -6995,7 +6995,7 @@ Perl_yylex(pTHX)
                                           &len, &normalize);
                             if (UNLIKELY(normalize)) {
                                 d = pv_uni_normalize(tmpbuf, len, &len);
-                                Copy(d, &tmpbuf, len+1, char);
+                                Copy(d, tmpbuf, len+1, char);
                             }
                             while (isSPACE(*t))
                                 t++;
@@ -7044,7 +7044,7 @@ Perl_yylex(pTHX)
 		    else {
                         if (0 && UNLIKELY(normtmp)) {
                             d = pv_uni_normalize(tmpbuf, len, &len);
-                            Copy(d, &tmpbuf, len+1, char);
+                            Copy(d, tmpbuf, len+1, char);
                         }
 			PL_expect = XTERM;	/* e.g. print $fh subr() */
 		    }
@@ -7068,7 +7068,7 @@ Perl_yylex(pTHX)
 	}
         if (UNLIKELY(normalize)) {
             d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
-            Copy(d, &PL_tokenbuf, len+1, char);
+            Copy(d, PL_tokenbuf, len+1, char);
         }
 	force_ident_maybe_lex('$');
 	TOKEN('$');
@@ -7080,7 +7080,7 @@ Perl_yylex(pTHX)
 	s = scan_ident(s, PL_tokenbuf + 1, sizeof PL_tokenbuf - 1, FALSE, &normalize);
         if (UNLIKELY(normalize)) {
             d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
-            Copy(d, &PL_tokenbuf, len+1, char);
+            Copy(d, PL_tokenbuf, len+1, char);
         }
 	if (PL_expect == XOPERATOR) {
             d = s;
@@ -7365,7 +7365,7 @@ Perl_yylex(pTHX)
 	s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, FALSE, &len, &normalize);
         if (UNLIKELY(normalize)) {
             d = pv_uni_normalize(PL_tokenbuf, len, &len);
-            Copy(d, &PL_tokenbuf, len+1, char);
+            Copy(d, PL_tokenbuf, len+1, char);
         }
 
 	/* Some keywords can be followed by any delimiter, including ':' */
@@ -7605,7 +7605,7 @@ Perl_yylex(pTHX)
 		{
                     if (UNLIKELY(normalize)) {
                         d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
-                        Copy(d, &PL_tokenbuf, len+1, char);
+                        Copy(d, PL_tokenbuf, len+1, char);
                     }
 		    if (ckWARN(WARN_BAREWORD)
 			&& ! gv_fetchpvn_flags(PL_tokenbuf, len, UTF ? SVf_UTF8 : 0, SVt_PVHV))
@@ -8189,7 +8189,7 @@ Perl_yylex(pTHX)
                     SSize_t off = s - SvPVX(PL_linestr);
                     if (UNLIKELY(normalize)) {
                         s = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
-                        Copy(s, &PL_tokenbuf, len+1, char);
+                        Copy(s, PL_tokenbuf, len+1, char);
                     }
 		    d = skipspace(d);
                     s = SvPVX(PL_linestr)+off;
@@ -8330,7 +8330,7 @@ Perl_yylex(pTHX)
                     if (UNLIKELY(normalize)) {
                         char *d1 = pv_uni_normalize(PL_tokenbuf,
                                                     strlen(PL_tokenbuf), &len);
-                        Copy(d1, &PL_tokenbuf, len+1, char);
+                        Copy(d1, PL_tokenbuf, len+1, char);
                     }
                     d = skipspace(d);
                 }
@@ -8589,7 +8589,7 @@ Perl_yylex(pTHX)
 		    goto really_sub;
 		} else if (UNLIKELY(normalize)) {
                     d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
-                    Copy(d, &PL_tokenbuf, len+1, char);
+                    Copy(d, PL_tokenbuf, len+1, char);
                 }
 		PL_in_my_stash = find_in_my_stash(PL_tokenbuf, len);
 		if (!PL_in_my_stash)
@@ -8652,7 +8652,7 @@ Perl_yylex(pTHX)
 		}
                 if (UNLIKELY(normalize)) {
                     d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
-                    Copy(d, &PL_tokenbuf, len+1, char);
+                    Copy(d, PL_tokenbuf, len+1, char);
                 }
 	    }
 	    LOP(OP_OPEN,XTERM);
@@ -12870,7 +12870,7 @@ Perl_parse_label(pTHX_ U32 flags)
 	    PL_bufptr = t+1;
             if (UNLIKELY(normalize)) {
                 s = pv_uni_normalize(s, wlen, &wlen);
-                Copy(s, &PL_tokenbuf, wlen+1, char);
+                Copy(s, PL_tokenbuf, wlen+1, char);
                 need_free = TRUE;
             }
 	    sv = newSVpvn_flags(s, wlen, UTF ? SVf_UTF8 : 0);
@@ -13197,7 +13197,7 @@ Perl_parse_subsignature(pTHX)
             s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len, &normalize);
             if (UNLIKELY(normalize)) {
                 char *d = pv_uni_normalize(s, len, &len);
-                Copy(d, &PL_tokenbuf, len+1, char);
+                Copy(d, PL_tokenbuf, len+1, char);
                 Safefree(d);
             }
             typestash = find_in_my_stash(PL_tokenbuf, len);
