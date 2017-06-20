@@ -2368,7 +2368,7 @@ Perl_gv_fetchpvn_flags(pTHX_ const char *nambeg, STRLEN full_len, I32 flags,
             if (addmg) gv = (GV *)newSV(0);
             else return NULL;
         }
-    gvp = (GV**)hv_fetch(stash, name, is_utf8 ? -(I32)len : (I32)len,add);
+    gvp = (GV**)hv_fetch(stash, name, is_utf8 ? -(I32)len : (I32)len, add);
     if (!gvp || *gvp == (const GV *)UNDEF) {
 	if (addmg) gv = (GV *)newSV(0);
 	else return NULL;

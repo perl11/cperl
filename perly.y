@@ -49,9 +49,9 @@
 
 %token <opval> BAREWORD METHOD FUNCMETH THING PMFUNC PRIVATEREF QWLIST
 %token <opval> FUNC0OP FUNC0SUB UNIOPSUB LSTOPSUB
-%token <opval> PLUGEXPR PLUGSTMT
+%token <opval> PLUGEXPR PLUGSTMT CLASSDECL
 %token <pval> LABEL
-%token <ival> FORMAT SUB METHDECL MULTIDECL ANONSUB PACKAGE CLASS USE
+%token <ival> FORMAT SUB METHDECL MULTIDECL ANONSUB PACKAGE USE
 %token <ival> WHILE UNTIL IF UNLESS ELSE ELSIF CONTINUE FOR
 %token <ival> GIVEN WHEN DEFAULT
 %token <ival> LOOPEX DOTDOT YADAYADA
@@ -486,24 +486,17 @@ barestmt:	PLUGSTMT
 			  if (parser->copline > (line_t)$4)
 			      parser->copline = (line_t)$4;
 			}
-	|	CLASS BAREWORD '{' remember
-			{
-			  package($2);
-                          if (parser->lex_sub_repl) { /* ISA */
-                              AV* av = (AV*)parser->lex_sub_repl;
-                              class_is($2, av);
-                              parser->lex_sub_repl = NULL;
-                          }
-                          if (cSVOPx($2)->op_sv)
-                              HvCLASS_on(cSVOPx($2)->op_sv);
+	|	CLASSDECL '{' remember
+			{ /* includes NAME, is CLASS, does ROLE lists, :native */
+			  class_role($1);
 			}
 		stmtseq '}'
 			{
 			  /* a block is a loop that happens once */
 			  $$ = newWHILEOP(0, 1, (LOOP*)(OP*)NULL,
-				  (OP*)NULL, block_end($4, $6), (OP*)NULL, 0);
-			  if (parser->copline > (line_t)$3)
-			      parser->copline = (line_t)$3;
+				  (OP*)NULL, block_end($3, $5), (OP*)NULL, 0);
+			  if (parser->copline > (line_t)$2)
+			      parser->copline = (line_t)$2;
                           parser->in_class = FALSE;
 			}
 	|	sideff ';'

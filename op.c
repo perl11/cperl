@@ -4279,6 +4279,7 @@ Perl_doref(pTHX_ OP *o, I32 type, bool set_op_ref)
 
 /*
 =for apidoc dup_attrlist
+
 Return a copy of an attribute list, i.e. a CONST or LIST with a
 list of CONST values.
 
@@ -19143,25 +19144,73 @@ S_const_av_xsub(pTHX_ CV* cv)
 }
 
 /*
-=for apidoc class_is
+=for apidoc class_isamagic
 
-Adds a one or more parent classes to the ISA of the class in op,
-and sets the ISA readonly.
+Set closed ISA magic to the array in pkg, either @ISA or @DOES.
+
+=cut
+*/
+STATIC void
+S_class_isamagic(pTHX_ OP* o, SV* pkg, const char* what, int len)
+{
+    GV *gv; AV *av; SV *name;
+    PERL_ARGS_ASSERT_CLASS_ISAMAGIC;
+
+    av = (AV*)cSVOPx_sv(OpFIRST(o));
+    name = newSVpvn_flags(SvPVX(pkg), SvCUR(pkg), SVs_TEMP|SvUTF8(pkg));
+    sv_catpvn_nomg(name, what, len);
+    gv = gv_fetchsv(name, GV_ADD, SVt_PVAV);
+    SvREFCNT_dec(GvAV(gv));
+    GvAV(gv) = av;
+    SvREADONLY_off(av);
+    sv_magic(MUTABLE_SV(av), MUTABLE_SV(gv), PERL_MAGIC_isa, NULL, 0);
+    AvSHAPED_on(av);
+    SvREADONLY_on(av);
+ }
+
+/*
+=for apidoc class_role
+
+Extend a parsed package block to a class or role,
+and add its ISA and DOES arrays. They are closed by default.
+
+:native is parsed as repr(CStruct). This needs a HvAUX flag as well.
 
 =cut
 */
 void
-Perl_class_is(OP* o, AV* av)
+Perl_class_role(pTHX_ OP* o)
 {
-    SV *const name = cSVOPo->op_sv;
-    SV* isa = newSVpvn_flags(SvPVX(name), SvCUR(name), SVs_TEMP|SvUTF8(name));
-    PERL_ARGS_ASSERT_CLASS_IS;
+    bool is_role;
+    SV *pkg;
+    OP *pop;
+    PERL_ARGS_ASSERT_CLASS_ROLE;
 
-    sv_catpvs(isa, "::ISA");
-    isa = (SV*)gv_fetchsv(isa, GV_ADD, SVt_PVAV);
-    AvSHAPED_on(av);
-    SvREADONLY_on(av);
-    GvAV((GV*)isa) = av;
+    if (IS_TYPE(o, LIST)) {
+        o = OpSIBLING(OpFIRST(o));
+    }
+    pop = o;
+    is_role = OpSPECIAL(o);
+    pkg = cSVOPo->op_sv;
+
+    /* get the isa and does AV from the op, not some parser SVs, as
+       the full class block was parsed with this, and there might be some
+       s/// in some method.
+       toke sets the CONST name to SPECIAL on a native repr.
+       LIST-PUSHMARK - NAME - RV2AV-ISA_AV - RV2AV-DOES_AV */
+
+    if (OpSIBLING(o)) {
+        o = OpSIBLING(o);
+        if (IS_TYPE(o, RV2AV))
+            class_isamagic(o, pkg, "::ISA", 5);
+        o = OpSIBLING(o);
+        if (IS_TYPE(o, RV2AV))
+            class_isamagic(o, pkg, "::DOES", 6);
+    }
+    package(pop); /* free's o */
+    HvCLASS_on(PL_curstash);
+    if (is_role)
+        HvROLE_on(PL_curstash);
 }
 
 /*

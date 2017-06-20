@@ -137,6 +137,7 @@ struct xpvhv_aux {
 #define HvAUXf_NO_DEREF     0x2   /* @{}, %{} etc (and nomethod) not present */
 #define HvAUXf_STATIC       0x8   /* HvARRAY and xpvhv_aux is statically allocated (embedders) */
 #define HvAUXf_SMALL       0x10   /* Small hash, linear scan */
+#define HvAUXf_ROLE        0x20   /* The class is a role */
 
 /* hash structure: */
 /* This structure must match the beginning of struct xpvmg in sv.h. */
@@ -303,6 +304,7 @@ C<SV*>.
 #define HvRAND_get(hv)	(SvOOK(hv) ? HvAUX(hv)->xhv_rand : 0)
 #define HvLASTRAND_get(hv)	(SvOOK(hv) ? HvAUX(hv)->xhv_last_rand : 0)
 /* HvSTATIC must be combined with SvREADONLY! */
+#define HvFLAGS(hv)      (SvOOK(hv) ? HvAUX(hv)->xhv_aux_flags : 0)
 #define HvSTATIC_get(hv) (SvOOK(hv) ? HvAUX(hv)->xhv_aux_flags & HvAUXf_STATIC : 0)
 #define HvSTATIC(hv)     HvSTATIC_get(hv)
 
@@ -380,6 +382,10 @@ C<SV*>.
 /* cperl only. basically if the class has a closed compile-time @ISA */
 #define HvCLASS(stash)          (SvFLAGS(stash) & SVphv_CLASS)
 #define HvCLASS_on(stash)       (SvFLAGS(stash) |= SVphv_CLASS)
+#define HvROLE(stash)           (HvFLAGS(stash) & HvAUXf_ROLE)
+#define HvROLE_on(stash)        STMT_START {                            \
+        if (!SvOOK(stash)) { hv_iterinit(stash); SvOOK_on(stash); }     \
+        HvAUX(stash)->xhv_aux_flags |= HvAUXf_ROLE; } STMT_END
 
 /* This is an optimisation flag. It won't be set if all hash keys have a 0
  * flag. Currently the only flags relate to utf8.

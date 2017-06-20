@@ -929,11 +929,10 @@ PERL_CALLCONV bool	Perl_ckwarn_d(pTHX_ U32 w)
 			__attribute__warn_unused_result__
 			__attribute__pure__;
 
-PERL_CALLCONV void	Perl_class_is(pTHX_ OP* o, AV* av)
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2);
-#define PERL_ARGS_ASSERT_CLASS_IS	\
-	assert(o); assert(av)
+PERL_CALLCONV void	Perl_class_role(pTHX_ OP* o)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CLASS_ROLE	\
+	assert(o)
 
 PERL_CALLCONV void	Perl_clear_defarray(pTHX_ AV* av, bool abandon)
 			__attribute__global__
@@ -8373,6 +8372,13 @@ STATIC void	S_check_hash_fields_and_hekify(pTHX_ UNOP *rop, SVOP *key_op)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_CHECK_HASH_FIELDS_AND_HEKIFY	\
 	assert(key_op)
+
+STATIC void	S_class_isamagic(pTHX_ OP* o, SV* pkg, const char* what, int len)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT_CLASS_ISAMAGIC	\
+	assert(o); assert(pkg); assert(what)
 
 STATIC void	S_clear_special_blocks(pTHX_ const char *const fullname, GV *const gv, CV *const cv)
 			__attribute__nonnull__(pTHX_1)

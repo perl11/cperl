@@ -3029,6 +3029,11 @@ produced by the L<perlapi/warn_security> API.
 (F) Only certain characters are valid for character names.  The
 indicated one isn't.  See L<charnames/CUSTOM ALIASES>.
 
+=item Invalid class declaration
+
+(F) cperl class declarations can unfortunately clash with pre-existing
+subroutines. See L<perlclass>.
+
 =item Invalid conversion in %s: "%s"
 
 (W printf) Perl does not understand the given format conversion.  See

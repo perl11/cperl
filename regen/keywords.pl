@@ -292,6 +292,7 @@ __END__
 -rewinddir
 -rindex
 -rmdir
++role
 +s
 +say
 +scalar
