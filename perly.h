@@ -71,14 +71,14 @@ extern int yydebug;
     LSTOPSUB = 274,
     PLUGEXPR = 275,
     PLUGSTMT = 276,
-    LABEL = 277,
-    FORMAT = 278,
-    SUB = 279,
-    METHDECL = 280,
-    MULTIDECL = 281,
-    ANONSUB = 282,
-    PACKAGE = 283,
-    CLASS = 284,
+    CLASSDECL = 277,
+    LABEL = 278,
+    FORMAT = 279,
+    SUB = 280,
+    METHDECL = 281,
+    MULTIDECL = 282,
+    ANONSUB = 283,
+    PACKAGE = 284,
     USE = 285,
     WHILE = 286,
     UNTIL = 287,
@@ -159,14 +159,14 @@ extern int yydebug;
 #define LSTOPSUB 274
 #define PLUGEXPR 275
 #define PLUGSTMT 276
-#define LABEL 277
-#define FORMAT 278
-#define SUB 279
-#define METHDECL 280
-#define MULTIDECL 281
-#define ANONSUB 282
-#define PACKAGE 283
-#define CLASS 284
+#define CLASSDECL 277
+#define LABEL 278
+#define FORMAT 279
+#define SUB 280
+#define METHDECL 281
+#define MULTIDECL 282
+#define ANONSUB 283
+#define PACKAGE 284
 #define USE 285
 #define WHILE 286
 #define UNTIL 287
@@ -231,6 +231,7 @@ static bool
 S_is_opval_token(int type) {
     switch (type) {
     case BAREWORD:
+    case CLASSDECL:
     case FUNC0OP:
     case FUNC0SUB:
     case FUNCMETH:
@@ -277,6 +278,6 @@ int yyparse (void);
 #endif
 
 /* Generated from:
- * 50561269f1a6ba4320b40289d3c3ac09e4f44b30d5c2b6e9fd424610dba80f14 perly.y
+ * d6af211b5c7f7443ab333dfc63fed1d86ee3ea22edb9c7e84871be1a8257dac0 perly.y
  * 34c0653ef7c691f2b4ac71336f4ea94e2bd925344002392f88ceeb0b435555fa regen_perly.pl
  * ex: set ro: */

@@ -443,6 +443,7 @@ pod/perldebguts.pod	Verbatim line length including indents exceeds 79 by	27
 pod/perldebtut.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perldelta.pod	Apparent broken link	4
 pod/perldelta.pod	Apparent internal link is missing its forward slash	6
+pod/perldiag.pod	Apparent broken link	1
 pod/perldtrace.pod	Verbatim line length including indents exceeds 79 by	12
 pod/perlgit.pod	? Should you be using F<...> or maybe L<...> instead of	1
 pod/perlgit.pod	Verbatim line length including indents exceeds 79 by	1

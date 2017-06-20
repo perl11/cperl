@@ -370,7 +370,7 @@ static struct debug_tokens {
     { ASSIGNOP,		TOKENTYPE_OPNUM,	"ASSIGNOP" },
     { BITANDOP,		TOKENTYPE_OPNUM,	"BITANDOP" },
     { BITOROP,		TOKENTYPE_OPNUM,	"BITOROP" },
-    { CLASS,		TOKENTYPE_NONE,		"CLASS" },
+    { CLASSDECL,	TOKENTYPE_OPNUM,	"CLASSDECL" },
     { COLONATTR,	TOKENTYPE_NONE,		"COLONATTR" },
     { CONTINUE,		TOKENTYPE_NONE,		"CONTINUE" },
     { DEFAULT,		TOKENTYPE_NONE,		"DEFAULT" },
@@ -2251,9 +2251,8 @@ S_force_word(pTHX_ char *start, int token, int check_keyword, int allow_pack)
                 Safefree(start);
             }
         }
-	NEXTVAL_NEXTTOKE.opval
-	    = newSVOP(OP_CONST,0,
-			   S_newSV_maybe_utf8(aTHX_ PL_tokenbuf, len));
+	NEXTVAL_NEXTTOKE.opval = newSVOP(OP_CONST,0,
+                                     S_newSV_maybe_utf8(aTHX_ PL_tokenbuf, len));
 	NEXTVAL_NEXTTOKE.opval->op_private |= OPpCONST_BARE;
 	force_next(token);
     }
@@ -4458,6 +4457,7 @@ S_intuit_method(pTHX_ char *start, SV *ioname, CV *cv)
     GV * const gv =
 	ioname ? gv_fetchsv(ioname, GV_NOADD_NOINIT, SVt_PVCV) : NULL;
     int normalize;
+    I32 kw;
 
     PERL_ARGS_ASSERT_INTUIT_METHOD;
 
@@ -4492,12 +4492,16 @@ S_intuit_method(pTHX_ char *start, SV *ioname, CV *cv)
      * tmpbuf is a copy of it (but with single quotes as double colons)
      */
 
-    if (!keyword(tmpbuf, len, 0)) {
+    kw = keyword(tmpbuf, len, 0);
+    if (!kw ||
+        /* allow overrides of the cperl specific OO keywords as user-subs */
+        (cv && (kw == -KEY_class || kw == -KEY_multi ||
+                kw == -KEY_role || kw == -KEY_has || kw == -KEY_method)))
+    {
         if (UNLIKELY(normalize)) {
             char *p = pv_uni_normalize(tmpbuf, len, &len);
             Copy(p, tmpbuf, len+1, char);
             Safefree(p);
-            /*Copy(p, &PL_tokenbuf, len+1, char);*/
         }
 	if (len > 2 && tmpbuf[len - 2] == ':' && tmpbuf[len - 1] == ':') {
 	    len -= 2;
@@ -4517,7 +4521,7 @@ S_intuit_method(pTHX_ char *start, SV *ioname, CV *cv)
 		return 0;	/* no assumptions -- "=>" quotes bareword */
       bare_package:
             NEXTVAL_NEXTTOKE.opval = newSVOP(OP_CONST, 0,
-						  S_newSV_maybe_utf8(aTHX_ tmpbuf, len));
+				       S_newSV_maybe_utf8(aTHX_ tmpbuf, len));
 	    NEXTVAL_NEXTTOKE.opval->op_private = OPpCONST_BARE;
 	    PL_expect = XTERM;
 	    force_next(BAREWORD);
@@ -7672,10 +7676,10 @@ Perl_yylex(pTHX)
 		    goto safe_bareword;
 
 		if (!off) {
-		    OP *const_op = newSVOP(OP_CONST, 0, SvREFCNT_inc_NN(sv));
-		    const_op->op_private = OPpCONST_BARE;
-		    rv2cv_op =
-			newCVREF(OPpMAY_RETURN_CONSTANT<<8, const_op);
+                    /* yes, another copy */
+                    OP *const_op = newSVOP(OP_CONST, 0, SvREFCNT_inc_NN(sv));
+                    const_op->op_private = OPpCONST_BARE;
+                    rv2cv_op = newCVREF(OPpMAY_RETURN_CONSTANT<<8, const_op);
 		    cv = lex
 			? isGV(gv)
 			    ? GvCV(gv)
@@ -7826,7 +7830,6 @@ Perl_yylex(pTHX)
 		}
 
 		/* Not a method, so call it a subroutine (if defined) */
-
 		if (cv) {
 		    /* Check for a constant sub */
 		    if ((sv = cv_const_sv_or_av(cv))) {
@@ -8132,16 +8135,16 @@ Perl_yylex(pTHX)
 	    UNI(OP_CHOP);
 
 	case KEY_continue:
-		    /* We have to disambiguate the two senses of
-		      "continue". If the next token is a '{' then
-		      treat it as the start of a continue block;
-		      otherwise treat it as a control operator.
-		     */
-		    s = skipspace(s);
-		    if (*s == '{')
-	    PREBLOCK(CONTINUE);
-		    else
-			FUN0(OP_CONTINUE);
+            /* We have to disambiguate the two senses of
+               "continue". If the next token is a '{' then
+               treat it as the start of a continue block;
+               otherwise treat it as a control operator.
+            */
+            s = skipspace(s);
+            if (*s == '{')
+                PREBLOCK(CONTINUE);
+            else
+                FUN0(OP_CONTINUE);
 
 	case KEY_chdir:
 	    /* may use HOME */
@@ -8715,28 +8718,120 @@ Perl_yylex(pTHX)
 	    LOP(OP_PACK,XTERM);
 
 	case KEY_class:
+        case KEY_role:
+            /* class NAME '{'
+               class NAME does ROLE... {
+               class NAME is PARENT... {
+               class NAME is repr('CStruct') ... {
+               role NAME ... {
+               my class BAREWORD :native '{' (NY)
+            */
             if (PL_in_class) goto just_a_word;
-            PL_parser->lex_sub_repl = NULL;
-            s = force_word(s,BAREWORD,FALSE,TRUE);
-            s = skipspace(s);
-            /* optional: is parent_class ... */
-            while (memEQc(s, "is")) {
-                AV* class_isa = NULL;
-                d = skipspace(s+2);
-                if (d == s+2)
-                    Perl_croak(aTHX_ "Syntax error %s", s);
-                s = force_word(d,BAREWORD,TRUE,TRUE);
-                if (!find_in_my_stash(PL_tokenbuf, strlen(PL_tokenbuf)))
-                    S_no_such_class(aTHX_ PL_tokenbuf);
-                if (!class_isa) {
-                    class_isa = newAV();
-                    PL_parser->lex_sub_repl = (SV*)class_isa;
+            {
+                int normalize;
+                AV *isa = NULL, *does = NULL;
+                d = skipspace(s);
+                s = scan_word(d,PL_tokenbuf,sizeof PL_tokenbuf,
+                              TRUE, &len, &normalize);
+                if (UNLIKELY(normalize)) {
+                    d = pv_uni_normalize(s, len, &len);
+                    Copy(d, PL_tokenbuf, len+1, char);
+                    Safefree(d);
                 }
-                av_push(class_isa, newSVpvn(PL_tokenbuf, strlen(PL_tokenbuf)));
+                if (!len)
+                    goto cont_as_sub;
+                pl_yylval.opval = newSVOP(OP_CONST,0,
+                                    S_newSV_maybe_utf8(aTHX_ PL_tokenbuf, len));
+                pl_yylval.opval->op_private |= OPpCONST_BARE;
+                if (tmp == KEY_role)
+                    OpFLAGS(pl_yylval.opval) |= OPf_SPECIAL;
+
+                if (0) {
+                cont_as_sub:
+                    len = tmp == KEY_role ? 4 : 5;
+                    s = PL_bufptr;
+                    Copy(s, PL_tokenbuf, len, char);
+                    PL_tokenbuf[len] = '\0';
+                    goto just_a_word;
+                }
                 s = skipspace(s);
+                /* optional: is PARENT, does ROLE, :native */
+                while (memEQc(s, "is") || memEQc(s, "does")) {
+                    const bool is_does = *s == 'd';
+                    const int l = is_does ? 4 : 2;
+                    d = s;
+                    s = skipspace(d+l);
+                    if (s == d+l)
+                        goto cont_as_sub;
+                    if (memEQc(s, "repr(CStruct)") || memEQc(s, "repr(CUnion)")) {
+                        const int l = sizeof("repr(CStruct)")-1;
+                        if (!isa) isa = newAV();
+                        OpFLAGS(pl_yylval.opval) |= OPf_SPECIAL;
+                        s += l;
+                        av_push(isa, newSVpvn(s, l));
+                    }
+                    else if (memEQc(s, "repr(CPointer)")) {
+                        const int l = sizeof("repr(CPointer)")-1;
+                        if (!isa) isa = newAV();
+                        OpFLAGS(pl_yylval.opval) |= OPf_SPECIAL;
+                        s += l;
+                        av_push(isa, newSVpvs("repr(CPointer)"));
+                    }
+                    else {
+                        s = scan_word(s,PL_tokenbuf,sizeof PL_tokenbuf,
+                                      TRUE, &len, &normalize);
+                        if (UNLIKELY(normalize)) {
+                            d = pv_uni_normalize(s, len, &len);
+                            Copy(d, PL_tokenbuf, len+1, char);
+                            Safefree(d);
+                        }
+                        if (!len ||
+                            !find_in_my_stash(PL_tokenbuf, strlen(PL_tokenbuf)))
+                            S_no_such_class(aTHX_ !len ? s : PL_tokenbuf);
+                        if (!is_does && !isa)
+                            isa = newAV();
+                        else if (is_does && !does)
+                            does = newAV();
+                        av_push(is_does ? does : isa,
+                                newSVpvn(PL_tokenbuf, strlen(PL_tokenbuf)));
+                    }
+                    s = skipspace(s);
+                }
+                if (memEQc(s, ":native")) {
+                    if (!isa) isa = newAV();
+                    OpFLAGS(pl_yylval.opval) |= OPf_SPECIAL;
+                    s = skipspace(s+7);
+                    av_push(isa, newSVpvs("repr(CStruct)"));
+                }
+                if (*s != '{') {
+#if 1
+                    if (isa) {
+                        sv_free((SV*)isa);
+                        yyerror("Invalid class declaration");
+                    }
+                    if (does) {
+                        sv_free((SV*)does);
+                        yyerror("Invalid class declaration");
+                    }
+                    /* allow usage elsewhere, such as in B */
+                    goto cont_as_sub;
+#else
+                    yyerror("Invalid class declaration");
+#endif
+                } else if (isa || does) {
+                    OP *op = pl_yylval.opval;
+                    /* First the ISA, then the DOES */
+                    op = op_append_elem(OP_LIST, op,
+                            isa ? newUNOP(OP_RV2AV,0,newSVOP(OP_CONST,0,(SV*)isa))
+                                : newNULLLIST());
+                    op = op_append_elem(OP_LIST, op,
+                          does ? newUNOP(OP_RV2AV,0,newSVOP(OP_CONST,0,(SV*)does))
+                               : newNULLLIST());
+                    pl_yylval.opval = op;
+                }
             }
             PL_in_class = TRUE;
-	    PREBLOCK(CLASS);
+            PREBLOCK(CLASSDECL);
 
 	case KEY_package:
             if (PL_in_class)

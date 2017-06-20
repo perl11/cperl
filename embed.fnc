@@ -536,6 +536,7 @@ i	|OP*	|newMETHOP_internal	|I32 type|I32 flags|NULLOK OP* dynamic_meth \
 : FIXME
 s	|OP*	|fold_constants	|NN OP * const o
 s       |SV*    |op_const_sv    |NN const OP *o|NN CV *cv|bool allow_lex
+s	|void	|class_isamagic |NN OP* o|NN SV* pkg|NN const char* what|int len
 #endif
 #if defined(USE_ITHREADS)
 pXo	|void	|op_relocate_sv	|NN SV** svp|NN PADOFFSET* targp
@@ -1269,7 +1270,7 @@ AMp	|PADOFFSET|alloccopstash|NN HV *hv
 pR	|OP*	|oopsAV		|NN OP* o
 : Used in perly.y
 pR	|OP*	|oopsHV		|NN OP* o
-pM	|void	|class_is	|NN OP* o|NN AV* av
+pM	|void	|class_role	|NN OP* o
 
 : peephole optimiser
 p	|void	|peep		|NULLOK OP* o

@@ -17,7 +17,7 @@ class Foo {
 
   method meth1 {
     print "ok $test\n"; $test++; 
-    $self->a + 1
+    # $self->a + 1
   }
   # quirks: just multi, not perl6-style multi method yet
   multi mul1 (Int $a):method {
@@ -53,5 +53,5 @@ Bar->class();
 class Baz is Foo {
   method new {}
 }
-print @Baz::ISA !=1         ? "not " : "", "ok ", $test++;
+print scalar @Baz::ISA != 1 ? "not " : "", "ok ", $test++;
 print $Baz::ISA[0] ne "Foo" ? "not " : "", "ok ", $test++;
