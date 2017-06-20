@@ -825,7 +825,7 @@ Perl_keyword (pTHX_ const char *name, I32 len, bool all_keywords)
               if (name[2] == 'l' &&
                   name[3] == 'e')
               {                                   /* role             */
-                return KEY_role;
+                return -KEY_role;
               }
 
               goto unknown;
@@ -1110,7 +1110,7 @@ Perl_keyword (pTHX_ const char *name, I32 len, bool all_keywords)
                   if (name[3] == 's' &&
                       name[4] == 's')
                   {                               /* class            */
-                    return KEY_class;
+                    return -KEY_class;
                   }
 
                   goto unknown;
@@ -1263,7 +1263,7 @@ Perl_keyword (pTHX_ const char *name, I32 len, bool all_keywords)
                   name[3] == 't' &&
                   name[4] == 'i')
               {                                   /* multi            */
-                return KEY_multi;
+                return -KEY_multi;
               }
 
               goto unknown;
@@ -1663,7 +1663,7 @@ Perl_keyword (pTHX_ const char *name, I32 len, bool all_keywords)
                   name[4] == 'o' &&
                   name[5] == 'd')
               {                                   /* method           */
-                return KEY_method;
+                return -KEY_method;
               }
 
               goto unknown;
@@ -3508,5 +3508,5 @@ unknown:
 }
 
 /* Generated from:
- * 59ee30c08605fb17aecad11cfa1cd30f4b9bade007c227966ee29d0b437d80da regen/keywords.pl
+ * 077e5a14bb04d2dcfaddcab0c5a9c7141f04d51e5a4261d295a9845c07a2cde5 regen/keywords.pl
  * ex: set ro: */
