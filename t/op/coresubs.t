@@ -14,6 +14,10 @@ BEGIN {
 
 use B;
 
+# allow CORE::class NAME BLOCK, but no matching ops yet for a prototype
+my %ctlwords = map +($_=>1), qw (
+  class method multi has role
+);
 my %unsupported = map +($_=>1), qw (
  __DATA__ __END__ AUTOLOAD BEGIN UNITCHECK CORE DESTROY END INIT CHECK and
   cmp default do dump else elsif eq eval for foreach
@@ -47,9 +51,15 @@ open my $kh, $keywords_file
 while(<$kh>) {
   if (m?__END__?..${\0} and /^[+-]/) {
     chomp(my $word = $');
-    if($unsupported{$word}) {
+    if ($unsupported{$word}) {
       $tests ++;
       ok !defined &{"CORE::$word"}, "no CORE::$word";
+    }
+    elsif($ctlwords{$word}) {
+      $tests ++;
+      ok defined &{"CORE::$word"}, "defined CORE::$word";
+      my $proto = prototype "CORE::$word";
+      note "TODO no CORE::$word prototype yet $proto";
     }
     else {
       $tests += 2;

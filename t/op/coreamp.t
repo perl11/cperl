@@ -1200,7 +1200,7 @@ like $@, qr'^Undefined format "STDOUT" called',
                   (?:quire|turn|do)|__(?:DATA|END)__|for(?:each|mat)?|(?:
                   AUTOLOA|EN)D|n(?:e(?:xt)?|o)|C(?:HECK|ORE)|wh(?:ile|en)
                   |(?:ou?|t)r|m(?:ap|y)?|UNITCHECK|q[qrwx]?|x(?:or)?|DEST
-                  ROY|BEGIN|INIT|and|cmp|if|y)\z/x;
+                  ROY|BEGIN|INIT|and|cmp|if|y|class|has|method|multi|role)\z/x;
       $tests ++;
       ok   exists &{"my$word"}
         || (eval{&{"CORE::$word"}}, $@ =~ /cannot be called directly/),
