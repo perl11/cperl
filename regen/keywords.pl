@@ -145,7 +145,7 @@ __END__
 -chown
 -chr
 -chroot
-+class
+-class
 -close
 -closedir
 -cmp
@@ -244,13 +244,13 @@ __END__
 -lt
 +m
 +map
-+method
+-method
 -mkdir
 -msgctl
 -msgget
 -msgrcv
 -msgsnd
-+multi
+-multi
 -ne
 +next
 +no
@@ -292,7 +292,7 @@ __END__
 -rewinddir
 -rindex
 -rmdir
-+role
+-role
 +s
 +say
 +scalar

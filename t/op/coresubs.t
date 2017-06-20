@@ -20,6 +20,7 @@ my %ctlwords = map +($_=>1), qw (
 );
 my %unsupported = map +($_=>1), qw (
  __DATA__ __END__ AUTOLOAD BEGIN UNITCHECK CORE DESTROY END INIT CHECK and
+  class method multi has role
   cmp default do dump else elsif eq eval for foreach
   format ge given goto grep gt if last le local lt m map my ne next
   no  or  our  package  print  printf  q  qq  qr  qw  qx  redo  require
