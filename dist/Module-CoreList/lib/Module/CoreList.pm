@@ -14927,6 +14927,7 @@ our %delta = (
             'Module::CoreList'      => '5.20170428c',
             'Module::CoreList::Utils'=> '5.20170428c',
             'Cpanel::JSON::XS'      => '3.0233',
+            'Net::Ping'             => '2.61',
         },
         removed => {
         }
