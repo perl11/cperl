@@ -310,7 +310,7 @@ static const char* const lex_state_names[] = {
 	OPERATOR(f); \
 	}
 
-#define UNIBRACK(f) UNI3(f,0,0)
+#define UNIBRACK(f) UNI3(f,XOPERATOR,0)
 
 /* grandfather return to old style */
 #define OLDLOP(f) \
@@ -2076,7 +2076,7 @@ S_check_uni(pTHX)
  */
 
 STATIC I32
-S_lop(pTHX_ I32 f, U8 x, char *s)
+S_lop(pTHX_ I32 f, expectation x, char *s)
 {
     PERL_ARGS_ASSERT_LOP;
 
@@ -4858,11 +4858,11 @@ S_tokenize_use(pTHX_ int is_use, char *s) {
     return s;
 }
 #ifdef DEBUGGING
-    static const char* const exp_name[] =
-	{ "OPERATOR", "TERM", "REF", "STATE", "BLOCK", "ATTRBLOCK",
-	  "ATTRTERM", "TERMBLOCK", "XBLOCKTERM", "POSTDEREF",
-	  "TERMORDORDOR"
-	};
+static const char* const exp_name[] =
+    { "OPERATOR", "TERM", "REF", "STATE", "BLOCK", "ATTRBLOCK",
+      "ATTRTERM", "TERMBLOCK", "XBLOCKTERM", "POSTDEREF",
+      "TERMORDORDOR"
+    };
 #endif
 
 #define word_takes_any_delimiter(p,l) S_word_takes_any_delimiter(p,l)
@@ -6116,210 +6116,213 @@ Perl_yylex(pTHX)
 	}
 	s++;
         {
-        OP *attrs;
+            OP *attrs;
 
-	switch (PL_expect) {
-	case XOPERATOR:
-	    if (!PL_in_my || PL_lex_state != LEX_NORMAL)
-		break;
-	    PL_bufptr = s;	/* update in case we back off */
-	    if (*s == '=') {
-		Perl_croak(aTHX_
-			   "Use of := for an empty attribute list is not allowed");
-	    }
-	    goto grabattrs;
-	case XATTRBLOCK:
-	    PL_expect = XBLOCK;
-	    goto grabattrs;
-	case XATTRTERM:
-	    PL_expect = XTERMBLOCK;
-	 grabattrs:
-	    s = skipspace(s);
-	    attrs = NULL;
-            while (isIDFIRST_lazy_if_safe(s, PL_bufend, UTF)) {
-		I32 tmp;
-		SV *sv;
-		d = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, FALSE, &len, &normalize);
-		if (isLOWER(*s) && (tmp = keyword(PL_tokenbuf, len, 0))) {
-		    if (tmp < 0) tmp = -tmp;
-		    switch (tmp) {
-		    case KEY_or:
-		    case KEY_and:
-		    case KEY_for:
-		    case KEY_foreach:
-		    case KEY_unless:
-		    case KEY_if:
-		    case KEY_while:
-		    case KEY_until:
-			goto got_attrs;
-		    default:
-			break;
-		    }
-		}
-                if (UNLIKELY(normalize)) {
-                    char *s1 = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
-                    Copy(s1, PL_tokenbuf, len+1, char);
+            switch (PL_expect) {
+            case XOPERATOR:
+                if (!PL_in_my || PL_lex_state != LEX_NORMAL)
+                    break;
+                PL_bufptr = s;	/* update in case we back off */
+                if (*s == '=') {
+                    Perl_croak(aTHX_
+                        "Use of := for an empty attribute list is not allowed");
                 }
-		sv = newSVpvn_flags(s, len, UTF ? SVf_UTF8 : 0);
-		if (*d == '(') {
-		    d = scan_str(d,TRUE,TRUE,FALSE,NULL);
-		    if (!d) {
-			if (attrs)
-			    op_free(attrs);
-			sv_free(sv);
-                        Perl_croak(aTHX_ "Unterminated attribute parameter in attribute list");
-		    }
-		    COPLINE_SET_FROM_MULTI_END;
-		}
-		if (PL_lex_stuff) {
-		    sv_catsv(sv, PL_lex_stuff);
-		    attrs = op_append_elem(OP_LIST, attrs,
-					newSVOP(OP_CONST, 0, sv));
-		    SvREFCNT_dec_NN(PL_lex_stuff);
-		    PL_lex_stuff = NULL;
-		}
-		else {
-                    const char *pv = SvPVX(sv);
-                    HV *typestash;
-		    if (len == 6) {
-                        if (memEQc(pv, "unique")) {
-                            sv_free(sv);
-                            if (PL_in_my == KEY_our) {
-                                deprecate_disappears_in("5.28",
-                                    "Attribute \"unique\" is deprecated");
-                            }
-                            else
-                                Perl_croak(aTHX_ "The 'unique' attribute may only be applied to 'our' variables");
+                goto grabattrs;
+            case XATTRBLOCK:
+                PL_expect = XBLOCK;
+                goto grabattrs;
+            case XATTRTERM:
+                PL_expect = XTERMBLOCK;
+            grabattrs:
+                s = skipspace(s);
+                attrs = NULL;
+                while (isIDFIRST_lazy_if_safe(s, PL_bufend, UTF)) {
+                    I32 tmp;
+                    SV *sv;
+                    d = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, FALSE,
+                                  &len, &normalize);
+                    if (isLOWER(*s) && (tmp = keyword(PL_tokenbuf, len, 0))) {
+                        if (tmp < 0) tmp = -tmp;
+                        switch (tmp) {
+                        case KEY_or:
+                        case KEY_and:
+                        case KEY_for:
+                        case KEY_foreach:
+                        case KEY_unless:
+                        case KEY_if:
+                        case KEY_while:
+                        case KEY_until:
+                            goto got_attrs;
+                        default:
+                            break;
                         }
-                        /* NOTE: any CV attrs applied here need to be part of
-                           the CVf_BUILTIN_ATTRS define in cv.h! */
-                        else if (!PL_in_my) {
-                            if (memEQc(pv, "lvalue")) {
+                    }
+                    if (UNLIKELY(normalize)) {
+                        char *s1 = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf),
+                                                    &len);
+                        Copy(s1, PL_tokenbuf, len+1, char);
+                    }
+                    sv = newSVpvn_flags(s, len, UTF ? SVf_UTF8 : 0);
+                    if (*d == '(') {
+                        d = scan_str(d,TRUE,TRUE,FALSE,NULL);
+                        if (!d) {
+                            if (attrs)
+                                op_free(attrs);
+                            sv_free(sv);
+                            Perl_croak(aTHX_
+                                "Unterminated attribute parameter in attribute list");
+                        }
+                        COPLINE_SET_FROM_MULTI_END;
+                    }
+                    if (PL_lex_stuff) {
+                        sv_catsv(sv, PL_lex_stuff);
+                        attrs = op_append_elem(OP_LIST, attrs,
+                                               newSVOP(OP_CONST, 0, sv));
+                        SvREFCNT_dec_NN(PL_lex_stuff);
+                        PL_lex_stuff = NULL;
+                    }
+                    else {
+                        const char *pv = SvPVX(sv);
+                        HV *typestash;
+                        if (len == 6) {
+                            if (memEQc(pv, "unique")) {
                                 sv_free(sv);
-                                CvLVALUE_on(PL_compcv);
+                                if (PL_in_my == KEY_our) {
+                                    deprecate_disappears_in("5.28",
+                                        "Attribute \"unique\" is deprecated");
+                                }
+                                else
+                                    Perl_croak(aTHX_
+                                        "The 'unique' attribute may only be applied to 'our' variables");
                             }
-                            else if (memEQc(pv, "locked")) {
-                                sv_free(sv);
-                                deprecate_disappears_in("5.28",
-                                    "Attribute \"locked\" is deprecated");
+                            /* NOTE: any CV attrs applied here need to be part of
+                               the CVf_BUILTIN_ATTRS define in cv.h! */
+                            else if (!PL_in_my) {
+                                if (memEQc(pv, "lvalue")) {
+                                    sv_free(sv);
+                                    CvLVALUE_on(PL_compcv);
+                                }
+                                else if (memEQc(pv, "locked")) {
+                                    sv_free(sv);
+                                    deprecate_disappears_in("5.28",
+                                        "Attribute \"locked\" is deprecated");
+                                }
+                                else if (memEQc(pv, "method")) {
+                                    sv_free(sv);
+                                    CvMETHOD_on(PL_compcv);
+                                }
+                                /* Scalar */
+                                else if (!find_in_coretypes(pv, len))
+                                    goto load_attributes;
                             }
-                            else if (memEQc(pv, "method")) {
-                                sv_free(sv);
-                                CvMETHOD_on(PL_compcv);
-                            }
-                            /* Scalar */
                             else if (!find_in_coretypes(pv, len))
                                 goto load_attributes;
                         }
-                        else if (!find_in_coretypes(pv, len))
-                            goto load_attributes;
-		    }
-		    else
+                        else
 #ifdef USE_CPERL
-                    if (len == 5 && memEQc(pv, "const"))
-                    {
-                        if (!PL_in_my) {
-                            sv_free(sv);
-                            CvCONST_on(PL_compcv); /* inlinable */
-                            if (CvANON(PL_compcv))
-                                CvANONCONST_on(PL_compcv);
-                        } else { /* my, package */
-                            goto load_attributes;
+                        if (len == 5 && memEQc(pv, "const"))
+                        {
+                            if (!PL_in_my) {
+                                sv_free(sv);
+                                CvCONST_on(PL_compcv); /* inlinable */
+                                if (CvANON(PL_compcv))
+                                    CvANONCONST_on(PL_compcv);
+                            } else { /* my, package */
+                                goto load_attributes;
+                            }
                         }
-		    }
 #else
-                    if (!PL_in_my &&
-                        len == 5 && memEQc(pv, "const"))
-                    {
-                        sv_free(sv);
-			Perl_ck_warner_d(aTHX_
-			    packWARN(WARN_EXPERIMENTAL__CONST_ATTR),
-			   ":const is experimental"
-			);
-			CvANONCONST_on(PL_compcv);
-			if (!CvANON(PL_compcv))
-			    yyerror(":const is not permitted on named "
-				    "subroutines");
-		    }
+                        if (!PL_in_my &&
+                            len == 5 && memEQc(pv, "const"))
+                        {
+                            sv_free(sv);
+                            Perl_ck_warner_d(aTHX_
+                               packWARN(WARN_EXPERIMENTAL__CONST_ATTR),
+                               ":const is experimental");
+                            CvANONCONST_on(PL_compcv);
+                            if (!CvANON(PL_compcv))
+                                yyerror(":const is not permitted on named "
+                                        "subroutines");
+                        }
 #endif
 #ifdef USE_CPERL
-		    else if (!PL_in_my && len == 4 && memEQc(pv, "pure")) {
-			sv_free(sv);
-			CvPURE_on(PL_compcv);
-		    }
-                    /* Check sub return type here, so we can pass an empty attrs
-                       to newATTRSUB. This allows any known user or core type
-                       to be used. */
-		    else if ((typestash = find_in_my_stash(pv, len))) {
-                        CvTYPED_on(PL_compcv);
-                        /* skip attr callback for existing coretypes */
-                        if (!find_in_coretypes(pv, len))
-                            goto load_attributes;
-                        CvTYPE_set(PL_compcv, typestash);
-                        sv_free(sv);
-		    }
-                    /* skip the attr callback for new coretypes */
-                    else if (find_in_coretypes(pv, len))
-                        sv_free(sv);
+                        else if (!PL_in_my && len == 4 && memEQc(pv, "pure")) {
+                            sv_free(sv);
+                            CvPURE_on(PL_compcv);
+                        }
+                        /* Check sub return type here, so we can pass an empty attrs
+                           to newATTRSUB. This allows any known user or core type
+                           to be used. */
+                        else if ((typestash = find_in_my_stash(pv, len))) {
+                            CvTYPED_on(PL_compcv);
+                            /* skip attr callback for existing coretypes */
+                            if (!find_in_coretypes(pv, len))
+                                goto load_attributes;
+                            CvTYPE_set(PL_compcv, typestash);
+                            sv_free(sv);
+                        }
+                        /* skip the attr callback for new coretypes */
+                        else if (find_in_coretypes(pv, len))
+                            sv_free(sv);
 #endif
-		    /* After we've set the flags, it could be argued that
-		       we don't need to do the attributes.pm-based setting
-		       process, and shouldn't bother appending recognized
-		       flags.  To experiment with that, uncomment the
-		       following "else".  (Note that's already been
-		       uncommented.  That keeps the above-applied built-in
-		       attributes from being intercepted (and possibly
-		       rejected) by a package's attribute routines, but is
-		       justified by the performance win for the common case
-		       of applying only built-in attributes.) */
-		    else {
-                    load_attributes:
-		        attrs = op_append_elem(OP_LIST, attrs, newSVOP(OP_CONST, 0, sv));
+                        /* After we've set the flags, it could be argued that
+                           we don't need to do the attributes.pm-based setting
+                           process, and shouldn't bother appending recognized
+                           flags.  To experiment with that, uncomment the
+                           following "else".  (Note that's already been
+                           uncommented.  That keeps the above-applied built-in
+                           attributes from being intercepted (and possibly
+                           rejected) by a package's attribute routines, but is
+                           justified by the performance win for the common case
+                           of applying only built-in attributes.) */
+                        else {
+                        load_attributes:
+                            attrs = op_append_elem(OP_LIST, attrs, newSVOP(OP_CONST, 0, sv));
+                        }
                     }
-		}
-		s = skipspace(d);
-		if (*s == ':' && s[1] != ':')
-		    s = skipspace(s+1);
-		else if (s == d)
-		    break;	/* require real whitespace or :'s */
-		/* XXX losing whitespace on sequential attributes here */
-	    }
-	    {
-		if (*s != ';'
+                    s = skipspace(d);
+                    if (*s == ':' && s[1] != ':')
+                        s = skipspace(s+1);
+                    else if (s == d)
+                        break;	/* require real whitespace or :'s */
+                    /* XXX losing whitespace on sequential attributes here */
+                }
+                if (*s != ';'
                     && *s != '}'
                     && !(PL_expect == XOPERATOR
-			 ? (*s == '=' ||  *s == ')')
-			 : (*s == '{' ||  *s == '(')))
+                         ? (*s == '=' ||  *s == ')')
+                         : (*s == '{' ||  *s == '(')))
                 {
-		    const char q = ((*s == '\'') ? '"' : '\'');
-		    /* If here for an expression, and parsed no attrs, back
-		       off. */
-		    if (PL_expect == XOPERATOR && !attrs) {
-			s = PL_bufptr;
-			break;
-		    }
-		    /* MUST advance bufptr here to avoid bogus "at end of line"
-		       context messages from yyerror().
-		    */
-		    PL_bufptr = s;
-		    yyerror( (const char *)
-			     (*s
-			      ? Perl_form(aTHX_ "Invalid separator character "
-					  "%c%c%c in attribute list", q, *s, q)
-			      : "Unterminated attribute list" ) );
-		    if (attrs)
-			op_free(attrs);
-		    OPERATOR(':');
-		}
-	    }
-	got_attrs:
-	    if (attrs) {
-		NEXTVAL_NEXTTOKE.opval = attrs;
-		force_next(THING);
-	    }
-	    TOKEN(COLONATTR);
-	}
-	}
+                    const char q = ((*s == '\'') ? '"' : '\'');
+                    /* If here for an expression, and parsed no attrs, back
+                       off. */
+                    if (PL_expect == XOPERATOR && !attrs) {
+                        s = PL_bufptr;
+                        break;
+                    }
+                    /* MUST advance bufptr here to avoid bogus "at end of line"
+                       context messages from yyerror().
+                    */
+                    PL_bufptr = s;
+                    yyerror( (const char *)
+                             (*s
+                              ? Perl_form(aTHX_ "Invalid separator character "
+                                          "%c%c%c in attribute list", q, *s, q)
+                              : "Unterminated attribute list" ) );
+                    if (attrs)
+                        op_free(attrs);
+                    OPERATOR(':');
+                }
+            got_attrs:
+                if (attrs) {
+                    NEXTVAL_NEXTTOKE.opval = attrs;
+                    force_next(THING);
+                }
+                TOKEN(COLONATTR);
+            default:
+                break;
+            }
+        }
 	if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_CLOSING) {
 	    s--;
 	    TOKEN(0);
@@ -6584,7 +6587,9 @@ Perl_yylex(pTHX)
 	if (PL_lex_state == LEX_INTERPNORMAL) {
 	    if (PL_lex_brackets == 0) {
 		if (PL_expect & XFAKEBRACK) {
-		    PL_expect &= XENUMMASK;
+                    U8 exp = (U8)PL_expect;
+                    exp &= XENUMMASK;
+                    PL_expect = (expectation)exp;
 		    PL_lex_state = LEX_INTERPEND;
 		    PL_bufptr = s;
 		    return yylex();	/* ignore fake brackets */
@@ -6599,7 +6604,9 @@ Perl_yylex(pTHX)
 	    }
 	}
 	if (PL_expect & XFAKEBRACK) {
-	    PL_expect &= XENUMMASK;
+            U8 exp = (U8)PL_expect;
+            exp &= XENUMMASK;
+            PL_expect = (expectation)exp;
 	    PL_bufptr = s;
 	    return yylex();		/* ignore fake brackets */
 	}
@@ -7428,7 +7435,7 @@ Perl_yylex(pTHX)
 
 	/* Is this a label? */
 	if (!anydelim && PL_expect == XSTATE
-	      && d < PL_bufend && *d == ':' && *(d + 1) != ':') {
+            && d < PL_bufend && *d == ':' && *(d + 1) != ':') {
 	    s = d + 1;
 	    pl_yylval.pval = savepvn(PL_tokenbuf, len+1);
 	    pl_yylval.pval[len] = '\0';

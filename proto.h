@@ -10214,7 +10214,7 @@ STATIC int	S_intuit_more(pTHX_ char *s)
 #define PERL_ARGS_ASSERT_INTUIT_MORE	\
 	assert(s)
 
-STATIC I32	S_lop(pTHX_ I32 f, U8 x, char *s)
+STATIC I32	S_lop(pTHX_ I32 f, expectation x, char *s)
 			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_LOP	\
 	assert(s)

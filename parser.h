@@ -59,7 +59,7 @@ typedef struct yy_parser {
     U8		lex_defer;	/* state after determined token */
     U8		lex_dojoin;	/* doing an array interpolation
 				   1 = @{...}  2 = ->@ */
-    U8		expect;		/* how to interpret ambiguous tokens */
+    expectation	expect;		/* how to interpret ambiguous tokens. <5.6 enum, <5.10 int */
     bool	preambled;
     I32		lex_formbrack;	/* bracket count at outer format level */
     OP		*lex_inpat;	/* in pattern $) and $| are special */

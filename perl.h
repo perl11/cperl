@@ -4089,6 +4089,22 @@ typedef        struct crypt_data {     /* straight from /usr/include/crypt.h */
 #undef _XPVMG_HEAD
 #undef _XPVCV_COMMON
 
+
+typedef enum {
+    XOPERATOR, 	/* 0 */
+    XTERM,	/* 1 */
+    XREF,	/* 2 */
+    XSTATE,	/* 3 */
+    XBLOCK,	/* 4 */
+    XATTRBLOCK, /* 5 */
+    XATTRTERM,  /* 6 */
+    XTERMBLOCK, /* 7 */
+    XBLOCKTERM, /* 8 */
+    XPOSTDEREF, /* 9 */
+    XTERMORDORDOR /* 10 evil hack */
+    /* update exp_name[] in toke.c if adding to this enum */
+} expectation;
+
 #include "parser.h"
 
 typedef struct magic_state MGS;	/* struct magic_state defined in mg.c */
@@ -5614,21 +5630,6 @@ END_EXTERN_C
 #endif
 
 #define LEX_NOTPARSING		11	/* borrowed from toke.c */
-
-typedef enum {
-    XOPERATOR,
-    XTERM,
-    XREF,
-    XSTATE,
-    XBLOCK,
-    XATTRBLOCK,
-    XATTRTERM,
-    XTERMBLOCK,
-    XBLOCKTERM,
-    XPOSTDEREF,
-    XTERMORDORDOR /* evil hack */
-    /* update exp_name[] in toke.c if adding to this enum */
-} expectation;
 
 /* Hints are now stored in a dedicated U32, so the bottom 8 bits are no longer
    special and there is no need for HINT_PRIVATE_MASK for COPs
