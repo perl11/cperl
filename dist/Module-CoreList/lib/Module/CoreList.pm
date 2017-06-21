@@ -3,7 +3,7 @@ use strict;
 use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use version;
-$VERSION = '5.20170518c';
+$VERSION = '5.20170621c';
 $VERSION =~ s/c$//;
 
 sub _undelta {
@@ -337,11 +337,14 @@ our %released = (
     '5.025003c' => '2017-02-23',
     5.025010 => '2017-02-20',
     5.025011 => '2017-03-20',
-    '5.026000c' => '2016-04-25',
-    5.026000 => '????-??-??',
+    5.025012 => '2017-04-20',
+    '5.026000c' => '2017-04-25',
+    '5.027000c' => '2017-05-17',
+    5.026000 => '2017-05-30',
+    5.027000 => '2017-05-31',
+    5.027001 => '2017-06-03',
     '5.024003c' => '????-??-??',
     '5.026001c' => '????-??-??',
-    '5.027000c' => '2017-05-17',
     '5.027001c' => '????-??-??',
  );
 
@@ -14398,6 +14401,26 @@ our %delta = (
         removed => {
         }
     },
+    5.025012 => {
+        delta_from => 5.025011,
+        changed => {
+            'B::Op_private'         => '5.025012',
+            'CPAN'                  => '2.18',
+            'CPAN::Bundle'          => '5.5003',
+            'CPAN::Distribution'    => '2.18',
+            'Config'                => '5.025012',
+            'DynaLoader'            => '1.42',
+            'Module::CoreList'      => '5.20170420',
+            'Module::CoreList::TieHashDelta'=> '5.20170420',
+            'Module::CoreList::Utils'=> '5.20170420',
+            'Safe'                  => '2.40',
+            'XSLoader'              => '0.27',
+            'base'                  => '2.25',
+            'threads::shared'       => '1.56',
+        },
+        removed => {
+        }
+    },
     '5.025000c' => {
         delta_from => '5.024000c',
         changed => {
@@ -14714,7 +14737,7 @@ our %delta = (
         },
     },
     5.026000 => {
-        delta_from => 5.025011,
+        delta_from => 5.025012,
         changed => {
             'Config'                => '5.026',
             'Module::CoreList'      => '5.20170420',
@@ -14897,6 +14920,70 @@ our %delta = (
         removed => {
         }
     },
+    5.027000 => {
+        delta_from => 5.026000,
+        changed => {
+            'Attribute::Handlers'   => '1.00',
+            'B::Concise'            => '1.000',
+            'B::Deparse'            => '1.41',
+            'B::Op_private'         => '5.027000',
+            'Config'                => '5.027',
+            'Module::CoreList'      => '5.20170620',
+            'Module::CoreList::TieHashDelta'=> '5.20170620',
+            'Module::CoreList::Utils'=> '5.20170620',
+            'O'                     => '1.02',
+            'attributes'            => '0.3',
+            'feature'               => '1.48',
+        },
+        removed => {
+        }
+    },
+    5.027001 => {
+        delta_from => 5.027000,
+        changed => {
+            'B::Op_private'         => '5.027001',
+            'Config'                => '5.027001',
+            'GDBM_File'             => '1.16',
+            'Locale::Codes'         => '3.52',
+            'Locale::Codes::Constants'=> '3.52',
+            'Locale::Codes::Country'=> '3.52',
+            'Locale::Codes::Country_Codes'=> '3.52',
+            'Locale::Codes::Country_Retired'=> '3.52',
+            'Locale::Codes::Currency'=> '3.52',
+            'Locale::Codes::Currency_Codes'=> '3.52',
+            'Locale::Codes::Currency_Retired'=> '3.52',
+            'Locale::Codes::LangExt'=> '3.52',
+            'Locale::Codes::LangExt_Codes'=> '3.52',
+            'Locale::Codes::LangExt_Retired'=> '3.52',
+            'Locale::Codes::LangFam'=> '3.52',
+            'Locale::Codes::LangFam_Codes'=> '3.52',
+            'Locale::Codes::LangFam_Retired'=> '3.52',
+            'Locale::Codes::LangVar'=> '3.52',
+            'Locale::Codes::LangVar_Codes'=> '3.52',
+            'Locale::Codes::LangVar_Retired'=> '3.52',
+            'Locale::Codes::Language'=> '3.52',
+            'Locale::Codes::Language_Codes'=> '3.52',
+            'Locale::Codes::Language_Retired'=> '3.52',
+            'Locale::Codes::Script' => '3.52',
+            'Locale::Codes::Script_Codes'=> '3.52',
+            'Locale::Codes::Script_Retired'=> '3.52',
+            'Locale::Country'       => '3.52',
+            'Locale::Currency'      => '3.52',
+            'Locale::Language'      => '3.52',
+            'Locale::Script'        => '3.52',
+            'XS::APItest'           => '0.89',
+            '_charnames'            => '1.45',
+            'charnames'             => '1.45',
+            'if'                    => '0.0607',
+            'mro'                   => '1.21',
+            'threads'               => '2.16',
+            'threads::shared'       => '1.57',
+            'version'               => '0.9918',
+            'version::regex'        => '0.9918',
+         },
+         removed => {
+         },
+    },
     '5.027000c' => {
         delta_from => '5.026000c',
         changed => {
@@ -14909,7 +14996,7 @@ our %delta = (
             'B::Concise'            => '0.9991c',
             'Cpanel::JSON::XS'      => '3.0233',
             'Cwd'                   => '4.68c',
-            'Devel::PPPort'         => '3.35_03',
+            'Devel::PPPort'         => '3.36_01',
             'Encode'                => '2.89',
             'ExtUtils::Install'     => '2.08',
             'IPC::Cmd'              => '0.98',
