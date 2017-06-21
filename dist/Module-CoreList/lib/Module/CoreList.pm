@@ -14891,6 +14891,8 @@ our %delta = (
             'Config'                => '5.026',
             'Module::CoreList'      => '5.20170428c',
             'Module::CoreList::Utils'=> '5.20170428c',
+            'Cpanel::JSON::XS'      => '3.0233',
+            'Net::Ping'             => '2.61',
         },
         removed => {
         }
@@ -14930,6 +14932,7 @@ our %delta = (
             'ExtUtils::Constant'    => '0.23_09',
             'ExtUtils::MakeMaker::Locale' => '8.04_04',
             'File::Spec::Functions' => '3.36_05',
+            'Net::Ping'             => '2.61',
             'strict'                => '1.13c',
         },
         removed => {

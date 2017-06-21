@@ -219,6 +219,16 @@ Implemented C<strict 'names'> to reject illegal identifiers created via
 C<no strict 'refs'> also at run-time, not only at compile-time.  See
 L<[cperl #282]|https://github.com/perl11/cperl/issues/282>.
 
+=item L<Net::Ping> 2.61
+
+Fix ping_udp for a started udp echo server (PR#5 by Stephan Loyd)
+
+Fix t/400_ping_syn.t phases
+
+Try to handle Windows Socket::getnameinfo errors
+
+Improve some tests on missing network connections
+
 =back
 
 =head2 Removed Modules and Pragmata
