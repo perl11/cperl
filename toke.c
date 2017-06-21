@@ -2218,11 +2218,12 @@ S_force_word(pTHX_ char *start, int token, int check_keyword, int allow_pack)
         || (allow_pack && *s == ':' && s[1] == ':') )
     {
         int normalize;
-	s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, allow_pack, &len, &normalize);
+	s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, allow_pack,
+                      &len, &normalize);
 	if (check_keyword) {
             char *s2 = PL_tokenbuf;
             STRLEN len2 = len;
-            if (allow_pack && len > 6 && strnEQ(s2, "CORE::", 6))
+            if (allow_pack && len > 6 && memEQc(s2, "CORE::"))
                 s2 += 6, len2 -= 6;
             if (keyword(s2, len2, 0))
                 return start;
@@ -9405,12 +9406,11 @@ S_pending_ident(pTHX)
 
     /* build ops for a bareword */
     pl_yylval.opval = newSVOP(OP_CONST, 0,
-				   newSVpvn_flags(PL_tokenbuf + 1,
-						      tokenbuf_len - 1,
-                                                      UTF ? SVf_UTF8 : 0 ));
+                          newSVpvn_flags(PL_tokenbuf+1, tokenbuf_len-1,
+                                         UTF ? SVf_UTF8 : 0 ));
     pl_yylval.opval->op_private = OPpCONST_ENTERED;
     if (pit != '&')
-	gv_fetchpvn_flags(PL_tokenbuf+1, tokenbuf_len - 1,
+	gv_fetchpvn_flags(PL_tokenbuf+1, tokenbuf_len-1,
 		     (PL_in_eval ? GV_ADDMULTI : GV_ADD)
                      | ( UTF ? SVf_UTF8 : 0 ),
 		     ((PL_tokenbuf[0] == '$') ? SVt_PV

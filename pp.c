@@ -839,7 +839,7 @@ PP(pp_trans)
 	    sv = DEFSV;
 	}
     }
-    if(PL_op->op_type == OP_TRANSR) {
+    if (PL_op->op_type == OP_TRANSR) {
 	STRLEN len;
 	const char * const pv = SvPV(sv,len);
 	SV * const newsv = newSVpvn_flags(pv, len, SVs_TEMP|SvUTF8(sv));
@@ -1110,8 +1110,8 @@ PP(pp_undef)
                 =   GvCVu((const GV *)sv) && (stash = GvSTASH((const GV *)sv))
                 && HvENAME_get(stash);
             /* undef *Foo:: */
-            if((stash = GvHV((const GV *)sv))) {
-                if(HvENAME_get(stash))
+            if ((stash = GvHV((const GV *)sv))) {
+                if (HvENAME_get(stash))
                     SvREFCNT_inc_simple_void_NN(sv_2mortal((SV *)stash));
                 else stash = NULL;
             }
@@ -1127,18 +1127,16 @@ PP(pp_undef)
 	    GvEGV(sv) = MUTABLE_GV(sv);
 	    GvMULTI_on(sv);
 
-            if(stash)
+            if (stash)
                 mro_package_moved(NULL, stash, (const GV *)sv, 0);
             stash = NULL;
             /* undef *Foo::ISA */
-            if( strEQc(GvNAME((const GV *)sv), "ISA")
-                && (stash = GvSTASH((const GV *)sv))
-                && (method_changed || HvENAME(stash)) )
+            if ( strEQc(GvNAME((const GV *)sv), "ISA")
+                 && (stash = GvSTASH((const GV *)sv))
+                 && (method_changed || HvENAME(stash)) )
                 mro_isa_changed_in(stash);
             else if (method_changed)
-                mro_method_changed_in(
-                                      GvSTASH((const GV *)sv)
-                                      );
+                mro_method_changed_in(GvSTASH((const GV *)sv));
 
 	    break;
 	}
@@ -3433,14 +3431,13 @@ PPt(pp_rand, "(:Num?):Num")
 	dSP;
 	NV value;
     
-	if (MAXARG < 1)
-	{
+	if (MAXARG < 1) {
 	    EXTEND(SP, 1);
 	    value = 1.0;
 	}
 	else {
 	    SV * const sv = POPs;
-	    if(!sv)
+	    if (!sv)
 		value = 1.0;
 	    else
 		value = SvNV(sv);
@@ -3780,7 +3777,7 @@ PP(pp_substr)
 
     if (num_args > 2) {
 	if (num_args > 3) {
-	  if(!(repl_sv = POPs)) num_args--;
+	  if (!(repl_sv = POPs)) num_args--;
 	}
 	if ((len_sv = POPs)) {
 	    len_iv    = SvIV(len_sv);
@@ -6669,7 +6666,8 @@ PP(pp_lock)
     dTOPss;
     SV *retsv = sv;
     SvLOCK(sv);
-    if (SvTYPE(retsv) == SVt_PVAV || SvTYPE(retsv) == SVt_PVHV
+    if (SvTYPE(retsv) == SVt_PVAV
+     || SvTYPE(retsv) == SVt_PVHV
      || SvTYPE(retsv) == SVt_PVCV) {
 	retsv = refto(retsv);
     }
@@ -6694,7 +6692,7 @@ PP(unimplemented_op)
        NULL doesn't generate a useful error message. "custom" does. */
     const char *const name = op_type >= OP_max
 	? "[out of range]" : PL_op_name[PL_op->op_type];
-    if(OP_IS_SOCKET(op_type))
+    if (OP_IS_SOCKET(op_type))
 	DIE(aTHX_ PL_no_sock_func, name);
     DIE(aTHX_ "panic: unimplemented op %s (#%d) called", name,	op_type);
 }
@@ -6735,14 +6733,13 @@ PP(pp_coreargs)
 	oa >>= 4;
     }
 
-    if(numargs < minargs) err = "Not enough";
-    else if(numargs > maxargs) err = "Too many";
+    if      (numargs < minargs) err = "Not enough";
+    else if (numargs > maxargs) err = "Too many";
     if (err)
 	/* diag_listed_as: Too many arguments for %s */
 	Perl_croak(aTHX_
 	  "%s arguments for %s", err,
-	   opnum ? PL_op_desc[opnum] : SvPV_nolen_const(cSVOP_sv)
-	);
+	   opnum ? PL_op_desc[opnum] : SvPV_nolen_const(cSVOP_sv));
 
     /* Reset the stack pointer.  Without this, we end up returning our own
        arguments in list context, in addition to the values we are supposed
@@ -6751,7 +6748,7 @@ PP(pp_coreargs)
        nextstate. */
     SP = PL_stack_base + CX_CUR()->blk_oldsp;
 
-    if(!maxargs) RETURN;
+    if (!maxargs) RETURN;
 
     /* We do this here, rather than with a separate pushmark op, as it has
        to come in between two things this function does (stack reset and
@@ -6773,8 +6770,7 @@ PP(pp_coreargs)
 	    if (!numargs && defgv && whicharg == minargs + 1) {
 		PUSHs(find_rundefsv2(
 		    find_runcv_where(FIND_RUNCV_level_eq, 1, NULL),
-		    cxstack[cxstack_ix].blk_oldcop->cop_seq
-		));
+		    cxstack[cxstack_ix].blk_oldcop->cop_seq));
 	    }
 	    else PUSHs(numargs ? svp && *svp ? *svp : UNDEF : NULL);
 	    break;
@@ -6801,8 +6797,7 @@ PP(pp_coreargs)
 		DIE(aTHX_
 		/* diag_listed_as: Type of arg %d to &CORE::%s must be %s*/
 		 "Type of arg %d to &CORE::%s must be array reference",
-		  whicharg, PL_op_desc[opnum]
-		);
+		  whicharg, PL_op_desc[opnum]);
 	    PUSHs(SvRV(*svp));
 	    break;
 	case OA_HVREF:
@@ -6816,13 +6811,12 @@ PP(pp_coreargs)
 		  whicharg, PL_op_desc[opnum],
 		  opnum == OP_DBMCLOSE || opnum == OP_DBMOPEN
 		     ? ""
-		     : " or array"
-		);
+		     : " or array");
 	    PUSHs(SvRV(*svp));
 	    break;
 	case OA_FILEREF:
 	    if (!numargs) PUSHs(NULL);
-	    else if(svp && *svp && SvROK(*svp) && isGV_with_GP(SvRV(*svp)))
+	    else if (svp && *svp && SvROK(*svp) && isGV_with_GP(SvRV(*svp)))
 		/* no magic here, as the prototype will have added an extra
 		   refgen and we just want what was there before that */
 		PUSHs(SvRV(*svp));
@@ -6831,8 +6825,7 @@ PP(pp_coreargs)
 		PUSHs(S_rv2gv(aTHX_
 		    svp && *svp ? *svp : UNDEF,
 		    constr, cBOOL(CopHINTS_get(PL_curcop) & OPpHINT_STRICT_REFS),
-		    !constr
-		));
+		    !constr));
 	    }
 	    break;
 	case OA_SCALARREF:
@@ -6845,12 +6838,10 @@ PP(pp_coreargs)
 	           *foo is indistinguishable from ${\*foo}, and the proto-
 	           type permits the latter. */
 	     || SvTYPE(SvRV(*svp)) > (
-	             wantscalar       ? SVt_PVLV
-	           : opnum == OP_LOCK || opnum == OP_UNDEF
-	                              ? SVt_PVCV
-	           :                    SVt_PVHV
-	        )
-	       )
+	             wantscalar ? SVt_PVLV
+	               : opnum == OP_LOCK || opnum == OP_UNDEF
+                         ? SVt_PVCV
+                         : SVt_PVHV))
 		DIE(aTHX_
 		 "Type of arg %d to &CORE::%s must be %s",
 		  whicharg, PL_op_name[opnum],
@@ -6858,8 +6849,7 @@ PP(pp_coreargs)
 		    ? "scalar reference"
 		    : opnum == OP_LOCK || opnum == OP_UNDEF || opnum == OP_STUDY
 		       ? "reference to one of [$@%&*]"
-		       : "reference to one of [$@%*]"
-		);
+		       : "reference to one of [$@%*]");
 	    PUSHs(SvRV(*svp));
 	    if (opnum == OP_UNDEF && SvRV(*svp) == (SV *)PL_defgv) {
 		/* Undo @_ localisation, so that sub exit does not undo

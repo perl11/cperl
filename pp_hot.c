@@ -618,14 +618,14 @@ PP(pp_defined)
     }
 
     if (is_dor) {
-        if(defined) 
+        if (defined)
             RETURN; 
-        if(op_type == OP_DOR)
+        if (op_type == OP_DOR)
             --SP;
         RETURNOP(cLOGOP->op_other);
     }
     /* assuming OP_DEFINED */
-    if(defined) 
+    if (defined)
         RETPUSHYES;
     RETPUSHNO;
 }
@@ -4585,7 +4585,7 @@ PP(pp_enterxssub)
             }
             break;
         case SVt_PVLV:
-            if(isGV_with_GP(sv)) goto we_have_a_glob;
+            if (isGV_with_GP(sv)) goto we_have_a_glob;
             /* FALLTHROUGH */
         default:
             if (sv == SV_YES) {		/* unfound import, ignore */
