@@ -68,7 +68,7 @@ deploy:
   prerelease: true
   force_update: true
   on:
-    branch: /(master|relprep|cperl-tag-deploy-test)/
+    branch: /(master|relprep|cperl-tag-deploy-test|maint-5)/
     MSVC_VERSION: 12
 - provider: GitHub
   tag: $(APPVEYOR_REPO_TAG_NAME)-win
