@@ -120,7 +120,7 @@ deploy:
   prerelease: true
   force_update: true
   on:
-    branch: /(master|relprep|cperl-tag-deploy-test)/
+    branch: /(master|relprep|cperl-tag-deploy-test|maint-5)/
 - provider: GitHub
   tag: $(APPVEYOR_REPO_TAG_NAME)-win
   description: 'cperl windows sfx tagged (msvcr120.dll)'
