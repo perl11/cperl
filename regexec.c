@@ -1763,7 +1763,7 @@ static Size_t
 S_get_break_val_cp_checked(SV* const invlist, const UV cp_in) {
   SSize_t cp_out = Perl__invlist_search(invlist, cp_in);
   assert(cp_out >= 0);
-  return cp_out >= 0 ? (Size_t)cp_out : LB_EDGE;
+  return cp_out >= 0 ? (Size_t)cp_out : (Size_t)(int)LB_EDGE;
 }
 #define _generic_GET_BREAK_VAL_CP_CHECKED(invlist, invmap, cp) \
 	invmap[S_get_break_val_cp_checked(invlist, cp)]
