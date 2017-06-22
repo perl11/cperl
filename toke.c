@@ -4123,9 +4123,9 @@ S_scan_const(pTHX_ char *start)
         else if (this_utf8 && has_utf8) {   /* Both UTF-8, can just copy */
 	    const STRLEN len = UTF8SKIP(s);
 
-            /* We expect the source to have already been checked for
-             * malformedness */
-            assert(isUTF8_CHAR((U8 *) s, (U8 *) send));
+            /* utf8n_to_uvchr_error might have only warned: promote to error */
+            if (!isUTF8_CHAR((U8 *) s, (U8 *) send))
+                yyerror("Malformed UTF-8 character");
 
             Copy(s, d, len, U8);
             d += len;

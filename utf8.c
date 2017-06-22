@@ -810,14 +810,14 @@ Perl__byte_dump_string(pTHX_ const U8 * s, const STRLEN len, const bool format)
 PERL_STATIC_INLINE char *
 S_unexpected_non_continuation_text(pTHX_ const U8 * const s,
 
-                                         /* How many bytes to print */
-                                         STRLEN print_len,
+                                   /* How many bytes to print */
+                                   STRLEN print_len,
 
-                                         /* Which one is the non-continuation */
-                                         const STRLEN non_cont_byte_pos,
+                                   /* Which one is the non-continuation */
+                                   const STRLEN non_cont_byte_pos,
 
-                                         /* How many bytes should there be? */
-                                         const STRLEN expect_len)
+                                   /* How many bytes should there be? */
+                                   const STRLEN expect_len)
 {
     /* Return the malformation warning text for an unexpected continuation
      * byte. */
