@@ -41,7 +41,7 @@ Devel::PPPort cpan/Devel-PPPort/parts/inc/misc 91845c5a0081d45a23e9de4a664eae8a0
 Devel::PPPort cpan/Devel-PPPort/parts/todo/5013007 0446df4a31dcd58b8e27ab9e810711f0e4840fee
 Devel::PPPort cpan/Devel-PPPort/parts/todo/5015004 4bdb7b2545380ade42e22dbb097f7fbf07737393
 Devel::PPPort cpan/Devel-PPPort/ppport_h.PL 3aa0b958adf67a9b9385bf2b5b89ecf8cdd391c7
-Devel::PPPort cpan/Devel-PPPort/PPPort_pm.PL 76c19a44b589099c833f485b46f1e3b03fe5bf50
+Devel::PPPort cpan/Devel-PPPort/PPPort_pm.PL fb8b124785ba52b9d4e0c9f11b30980fc986410c
 Devel::PPPort cpan/Devel-PPPort/PPPort_xs.PL 034cce281a0017fe0ba05d9060f34a8c65781553
 Digest::MD5 cpan/Digest-MD5/Makefile.PL 3b5b9693e5a22f5189878d84833b10f98136e619
 Digest::MD5 cpan/Digest-MD5/MD5.pm 866a0ca11d63c257f3c90974704b88c9361e705c
@@ -96,8 +96,8 @@ Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e15
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 06610e9883ce805bcd6543ab959a9826f598eb40
 Math::BigInt cpan/Math-BigInt/t/with_sub.t c040328e223df6f56250f5d67dcb2c9a2f23c110
 Memoize cpan/Memoize/t/expmod_t.t 9386100cd9c95a0e8a4e001bba3aa52eec114d21
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 6b4977ec01256e166d70f3089bf0ad7e53985e39
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 6de0ed2eb41670745b8b8705ac2195520c160027
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm b004bb514930ab96ebaa4e1af46f3acf4090cf20
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 144384c5d1612d554b3f5d3460b5070a24b8dd33
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
 Net::Domain cpan/libnet/lib/Net/Domain.pm 73f78880a95de5372bb234f37c386f52e43795d9

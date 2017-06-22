@@ -268,6 +268,14 @@ statements. It is also possible to combine this with other statements:
     /* b */
   #endif
 
+There's also a CPERL shortcut. Instead of
+
+  #if { VERSION >= 5.027 } && defined(USE_CPERL)
+
+you can write
+
+  #if { CPERL && VERSION >= 5.027 }
+
 This not only works in the C<=implementation> section, but also in
 the C<=xsubs>, C<=xsinit>, C<=xsmisc>, C<=xshead> and C<=xsboot> sections.
 

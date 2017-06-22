@@ -255,6 +255,8 @@ int dummy_parser_warning(void);
 # define ppp_expect_t expectation
 #elif { VERSION < 5.9.5 }
 # define ppp_expect_t int
+#elif { CPERL && VERSION >= 5.27.1 }
+# define ppp_expect_t expectation
 #else
 # define ppp_expect_t U8
 #endif
@@ -405,7 +407,6 @@ other_variables()
                 ppp_TESTVAR(PL_sv_arenaroot);
                 ppp_TESTVAR(PL_tainted);
                 ppp_TESTVAR(PL_tainting);
-
                 ppp_PARSERVAR(ppp_expect_t, PL_expect);
                 ppp_PARSERVAR(line_t, PL_copline);
                 ppp_PARSERVAR(ppp_rsfp_t, PL_rsfp);

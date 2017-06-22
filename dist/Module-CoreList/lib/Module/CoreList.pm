@@ -3,7 +3,7 @@ use strict;
 use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use version;
-$VERSION = '5.20170714c';
+$VERSION = '5.20170803c';
 $VERSION =~ s/c$//;
 
 sub _undelta {
@@ -14926,9 +14926,13 @@ our %delta = (
             'Config'                => '5.026',
             'Module::CoreList'      => '5.20170428c',
             'Module::CoreList::Utils'=> '5.20170428c',
+            'Archive::Tar'          => '0.26',
+            'Archive::Tar::File'    => '0.26',
+            'Archive::Tar::Constant'=> '0.26',
             'B'                     => '1.68_07',
             'B::C'                  => '1.55_04',
             'Cpanel::JSON::XS'      => '3.0233',
+            'Devel::PPPort'         => '3.36_02',
             'ExtUtils::MakeMaker'   => '8.04_05',
             'ExtUtils::MM_Unix'     => '8.04_05',
             'File::Spec::Functions' => '3.36_05',
