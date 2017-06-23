@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.55_10';
+our $VERSION = '1.55_11';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -534,6 +534,7 @@ my $MULTI = $Config{usemultiplicity};
 my $ITHREADS = $Config{useithreads};
 my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);
 my $DEBUG_LEAKING_SCALARS = $Config{ccflags} =~ m/-DDEBUG_LEAKING_SCALARS/;
+my $CPERL5271  = ( $Config{usecperl} and $] >= 5.027001 ); #ppaddr, sibparent
 my $CPERL56  = ( $Config{usecperl} and $] >= 5.025003 ); #sibparent, VALID
 my $CPERL55  = ( $Config{usecperl} and $] >= 5.025001 ); #HVMAX_T, RITER_T, ...
 my $CPERL52  = ( $Config{usecperl} and $] >= 5.022002 ); #sv_objcount, AvSTATIC, sigs
@@ -1377,6 +1378,7 @@ $isa_cache{'B::OBJECT::can'} = 'UNIVERSAL';
 my $opsect_common =
   "next, sibling, ppaddr, " . ( $MAD ? "madprop, " : "" ) . "targ, type, ";
 #$opsect_common =~ s/, sibling/, _OP_SIBPARENT_FIELDNAME/ if $] > 5.021007;
+$opsect_common =~ s/sibling, ppaddr/ppaddr, sibling/ if $CPERL5271;
 $opsect_common =~ s/, sibling/, sibparent/ if $have_sibparent;
 {
 
@@ -1445,8 +1447,14 @@ $opsect_common =~ s/, sibling/, sibparent/ if $have_sibparent;
 
   sub B::OP::_save_common_middle {
     my $op = shift;
+    my $sibling = shift;
     my $madprop = $MAD ? "0," : "";
     my $ret;
+    if ($CPERL5271) {
+      $ret = sprintf( "%s, s\\_%x, ", $op->fake_ppaddr, $sibling);
+    } else {
+      $ret = sprintf( "s\\_%x, %s", $sibling, $op->fake_ppaddr);
+    }
     if ($static =~ / %d,/) {
       my $has_sib;
       if (ref($op) eq 'B::FAKEOP') {
@@ -1456,13 +1464,13 @@ $opsect_common =~ s/, sibling/, sibparent/ if $have_sibparent;
       } else {
         $has_sib = $op->moresib;
       }
-      $ret = sprintf( "%s, %s %u, %u, $static, 0x%x, 0x%x",
-                      $op->fake_ppaddr, $madprop, $op->targ, $op->type,
+      $ret .= sprintf( "%s %u, %u, $static, 0x%x, 0x%x",
+                      $madprop, $op->targ, $op->type,
                       $has_sib,
                       $op->flags, $op->private );
     } else {
-      $ret = sprintf( "%s, %s %u, %u, $static, 0x%x, 0x%x",
-                      $op->fake_ppaddr, $madprop, $op->targ, $op->type,
+      $ret .= sprintf( "%s %u, %u, $static, 0x%x, 0x%x",
+                      $madprop, $op->targ, $op->type,
                       $op->flags, $op->private );
     }
     # XXX maybe add a ix=opindex string for debugging if $debug{flags}
@@ -1521,10 +1529,9 @@ sub B::OP::_save_common {
   } else {
     $sibling = $op->sibling;
   }
-  return sprintf( "s\\_%x, s\\_%x, %s",
+  return sprintf( "s\\_%x, %s",
                   ${ $op->next },
-                  $$sibling,
-                  $op->_save_common_middle
+                  $op->_save_common_middle($$sibling)
                 );
 }
 
@@ -1644,7 +1651,7 @@ sub new {
 sub save {
   my ( $op, $level ) = @_;
   $opsect->add(
-    sprintf( "%s, %s, %s", $op->next, $op->sibling, $op->_save_common_middle )
+    sprintf( "%s, %s", $op->next, $op->_save_common_middle(${$op->sibling}) )
   );
   my $ix = $opsect->index;
   $init->add( sprintf( "op_list[%d].op_ppaddr = %s;", $ix, $op->ppaddr ) )
