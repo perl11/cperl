@@ -310,12 +310,12 @@ PP(pp_rv2gv)
 
     sv = S_rv2gv(aTHX_
                  sv, PL_op->op_private & OPpDEREF,
-                 PL_op->op_private & HINT_STRICT_REFS,
-                 ((PL_op->op_flags & OPf_SPECIAL) && !(PL_op->op_flags & OPf_MOD))
+                 PL_op->op_private & OPpHINT_STRICT_REFS,
+                 (OpSPECIAL(PL_op) && !(PL_op->op_flags & OPf_MOD))
                  || PL_op->op_type == OP_READLINE
                  );
     if (PL_op->op_private & OPpLVAL_INTRO)
-	save_gp(MUTABLE_GV(sv), !(PL_op->op_flags & OPf_SPECIAL));
+	save_gp(MUTABLE_GV(sv), !OpSPECIAL(PL_op));
     SETs(sv);
     RETURN;
 }
@@ -467,7 +467,7 @@ PP(pp_rv2cv)
     dSP;
     GV *gv;
     HV *stash_unused;
-    const I32 flags = (PL_op->op_flags & OPf_SPECIAL)
+    const I32 flags = OpSPECIAL(PL_op)
 	? GV_ADDMG
 	: ((PL_op->op_private & (OPpLVAL_INTRO|OPpMAY_RETURN_CONSTANT))
            == OPpMAY_RETURN_CONSTANT)
@@ -791,7 +791,7 @@ PP(pp_trans)
     dSP; 
     SV *sv;
 
-    if (PL_op->op_flags & OPf_STACKED)
+    if (OpSTACKED(PL_op))
 	sv = POPs;
     else {
 	EXTEND(SP,1);
@@ -5340,7 +5340,7 @@ S_do_delete_local(pTHX)
         }
     }
     else if (type == SVt_PVAV) {                  /* array element */
-        if (PL_op->op_flags & OPf_SPECIAL) {
+        if (OpSPECIAL(PL_op)) {
             AV * const av = MUTABLE_AV(osv);
             while (++MARK <= end) {
                 SSize_t idx = SvIV(*MARK);
@@ -5420,7 +5420,7 @@ PP(pp_delete)
 	    }
 	}
 	else if (hvtype == SVt_PVAV) {                  /* array element */
-            if (PL_op->op_flags & OPf_SPECIAL) {
+            if (OpSPECIAL(PL_op)) {
                 while (++MARK <= SP) {
                     SV * const sv = av_delete(MUTABLE_AV(hv), SvIV(*MARK), discard);
                     *MARK = sv ? sv : UNDEF;
@@ -5447,7 +5447,7 @@ PP(pp_delete)
 	if (SvTYPE(hv) == SVt_PVHV)
 	    sv = hv_delete_ent(hv, keysv, discard, 0);
 	else if (SvTYPE(hv) == SVt_PVAV) {
-	    if (PL_op->op_flags & OPf_SPECIAL)
+	    if (OpSPECIAL(PL_op))
 		sv = av_delete(MUTABLE_AV(hv), SvIV(keysv), discard);
 	    else
 		DIE(aTHX_ "panic: avhv_delete no longer supported");
@@ -5485,7 +5485,7 @@ PP(pp_exists)
 	    RETPUSHYES;
     }
     else if (SvTYPE(hv) == SVt_PVAV) {
-	if (PL_op->op_flags & OPf_SPECIAL) {		/* array element */
+	if (OpSPECIAL(PL_op)) {		/* array element */
 	    if (av_exists(MUTABLE_AV(hv), SvIV(tmpsv)))
 		RETPUSHYES;
 	}
@@ -5535,10 +5535,10 @@ PP(pp_hslice)
             }
             if (localizing) {
 		if (HvNAME_get(hv) && isGV(*svp))
-		    save_gp(MUTABLE_GV(*svp), !(PL_op->op_flags & OPf_SPECIAL));
+		    save_gp(MUTABLE_GV(*svp), !OpSPECIAL(PL_op));
 		else if (preeminent)
 		    save_helem_flags(hv, keysv, svp,
-			 (PL_op->op_flags & OPf_SPECIAL) ? 0 : SAVEf_SETMAGIC);
+			 OpSPECIAL(PL_op) ? 0 : SAVEf_SETMAGIC);
 		else
 		    SAVEHDELETE(hv, keysv);
             }
@@ -5628,7 +5628,6 @@ PP(pp_lslice)
     SV ** const lastlelem = PL_stack_base + POPMARK;
     SV ** const firstlelem = PL_stack_base + POPMARK + 1;
     SV ** const firstrelem = lastlelem + 1;
-    const U8 mod = PL_op->op_flags & OPf_MOD;
 
     const I32 max = lastrelem - lastlelem;
     SV **lelem;
@@ -5664,7 +5663,7 @@ PP(pp_lslice)
 	else {
 	    if (!(*lelem = firstrelem[ix]))
 		*lelem = UNDEF;
-	    else if (mod && SvPADTMP(*lelem)) {
+	    else if (SvPADTMP(*lelem) && OpFLAGS(PL_op) & OPf_MOD) {
 		*lelem = firstrelem[ix] = sv_mortalcopy(*lelem);
             }
 	}
@@ -5679,8 +5678,7 @@ PP(pp_anonlist)
     const I32 items = SP - MARK;
     SV * const av = MUTABLE_SV(av_make(items, MARK+1));
     SP = MARK;
-    mXPUSHs((PL_op->op_flags & OPf_SPECIAL)
-	    ? newRV_noinc(av) : av);
+    mXPUSHs(OpSPECIAL(PL_op) ? newRV_noinc(av) : av);
     RETURN;
 }
 
@@ -5688,7 +5686,7 @@ PP(pp_anonhash)
 {
     dSP; dMARK; dORIGMARK;
     HV* const hv = newHV();
-    SV* const retval = sv_2mortal( PL_op->op_flags & OPf_SPECIAL
+    SV* const retval = sv_2mortal( OpSPECIAL(PL_op)
                                     ? newRV_noinc(MUTABLE_SV(hv))
                                     : MUTABLE_SV(hv) );
 
@@ -5732,8 +5730,8 @@ PP(pp_splice)
 
     if (mg) {
 	return Perl_tied_method(aTHX_ SV_CONST(SPLICE), mark - 1, MUTABLE_SV(ary), mg,
-				    GIMME_V | TIED_METHOD_ARGUMENTS_ON_STACK,
-				    sp - mark);
+                                GIMME_V | TIED_METHOD_ARGUMENTS_ON_STACK,
+                                sp - mark);
     }
 
     SP++;
@@ -5977,7 +5975,7 @@ PP(pp_push)
 PP(pp_shift)
 {
     dSP;
-    AV * const av = PL_op->op_flags & OPf_SPECIAL
+    AV * const av = OpSPECIAL(PL_op)
 	? MUTABLE_AV(GvAVn(PL_defgv)) : MUTABLE_AV(POPs);
     SV * const sv = PL_op->op_type == OP_SHIFT ? av_shift(av) : av_pop(av);
     EXTEND(SP, 1);
@@ -6160,8 +6158,8 @@ PP(pp_reverse)
 PP(pp_split)
 {
     dSP; dTARG;
-    AV *ary = (   (PL_op->op_private & OPpSPLIT_ASSIGN) /* @a = split */
-               && (PL_op->op_flags & OPf_STACKED))      /* @{expr} = split */
+    AV *ary = ((PL_op->op_private & OPpSPLIT_ASSIGN) /* @a = split */
+            && OpSTACKED(PL_op))      /* @{expr} = split */
                ? (AV *)POPs : NULL;
     IV limit = POPi;			/* note, negative is forever */
     SV * const sv = POPs;
@@ -6198,7 +6196,7 @@ PP(pp_split)
 
     /* handle @ary = split(...) optimisation */
     if (PL_op->op_private & OPpSPLIT_ASSIGN) {
-        if (!(PL_op->op_flags & OPf_STACKED)) {
+        if (!OpSTACKED(PL_op)) {
             if (PL_op->op_private & OPpSPLIT_LEX) {
                 if (PL_op->op_private & OPpLVAL_INTRO)
                     SAVECLEARSV(PAD_SVl(pm->op_pmreplrootu.op_pmtargetoff));
@@ -7059,7 +7057,7 @@ PP(pp_lvrefslice)
 
 PP(pp_lvavref)
 {
-    if (PL_op->op_flags & OPf_STACKED)
+    if (OpSTACKED(PL_op))
 	Perl_pp_rv2av(aTHX);
     else
 	Perl_pp_padav(aTHX);
