@@ -288,7 +288,7 @@ See F<Porting/subs.d> for a similar example.
                       printa(\"%10s\t%@8u\n\", @);}"
           -c'./miniperl -Ilib -E0'
 
-  Time (avg ns)
+                 Time (avg ns)
     pushmark	    2149
      sassign	    2160
   multideref	    2176
@@ -347,14 +347,14 @@ average time per mode (ns):
 
 time spent per mode (ns):
 
-                3
+                3 # FETCHMETH
            value  ------------- Distribution ------------- count
             1024 |                                         0
             2048 |@@@@@@@@@@@@@                            1
             4096 |@@@@@@@@@@@@@@@@@@@@@@@@@@@              2
             8192 |                                         0
 
-                1
+                1 # ADD
            value  ------------- Distribution ------------- count
              256 |                                         0
              512 |@@@@@@@@@@@@@@@@@@@@@@@@@                67
@@ -363,7 +363,7 @@ time spent per mode (ns):
             4096 |@                                        2
             8192 |                                         0
 
-                0
+                0 # INIT
            value  ------------- Distribution ------------- count
              256 |                                         0
              512 |@                                        8
@@ -372,7 +372,7 @@ time spent per mode (ns):
             4096 |                                         3
             8192 |                                         0
 
-                2
+                2 # FETCH
            value  ------------- Distribution ------------- count
             1024 |                                         0
             2048 |@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    224
