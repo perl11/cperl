@@ -307,6 +307,8 @@ See F<Porting/subs.d> for a similar example.
 
 See F<Porting/op.d> for a bigger example, with count() and quantize().
 
+C<sudo dtrace -s Porting/op.d -c'./miniperl -Ilib -E0'>
+
 =item What hash operations dominate
 
 Number of modes:
