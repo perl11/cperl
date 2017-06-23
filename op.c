@@ -18782,7 +18782,7 @@ Perl_core_prototype(pTHX_ SV *sv, const char *name, const int code,
 
     if (!sv) sv = sv_newmortal();
 
-#define retsetpvs(x,y) sv_setpvs(sv, x); if(opnum) *opnum=(y); return sv
+#define retsetpvs(x,y) sv_setpvs(sv, x); if (opnum) *opnum=(y); return sv
 
     switch (code < 0 ? -code : code) {
     case KEY_and   : case KEY_chop: case KEY_chomp:
@@ -18801,6 +18801,10 @@ Perl_core_prototype(pTHX_ SV *sv, const char *name, const int code,
     case KEY_each:    retsetpvs("\\[%@]", OP_EACH);
     case KEY_pos:     retsetpvs(";\\[$*]", OP_POS);
     case KEY_dump:    retsetpvs(";\\[$*]", OP_DUMP);
+    case KEY_class: case KEY_role: case KEY_method: case KEY_multi:
+        retsetpvs("$&", 0);
+    case KEY_has:
+        retsetpvs("$", 0);
     case KEY___FILE__: case KEY___LINE__: case KEY___PACKAGE__:
 	retsetpvs("", 0);
     case KEY_evalbytes:
@@ -18866,6 +18870,13 @@ Perl_core_prototype(pTHX_ SV *sv, const char *name, const int code,
 
 /*
 =for apidoc coresub_op
+
+Provide the coreargs arguments for &CORE::* subroutines, usually with
+matching ops. coreargssv is either the opnum (as UV) or the name (as
+PV) of no such op exists.
+code is the result of C<keyword()>, and maybe negative.
+See F<gv.c:S_maybe_add_coresub()>.
+
 =cut
 */
 OP *
@@ -18877,8 +18888,9 @@ Perl_coresub_op(pTHX_ SV * const coreargssv, const int code,
 
     PERL_ARGS_ASSERT_CORESUB_OP;
 
-    switch(opnum) {
+    switch (opnum) {
     case 0:
+        /* TODO: CLASS,ROLE,METHOD,MULTI,HAS */
 	return op_append_elem(OP_LINESEQ, argop,
 	               newSLICEOP(0, newSVOP(OP_CONST, 0, newSViv(-code % 3)),
 	                          newOP(OP_CALLER,0)));
