@@ -53,8 +53,8 @@ typedef PERL_BITFIELD16 Optype;
 #else
 #define BASEOP				\
     OP*		op_next;		\
-    OP*		_OP_SIBPARENT_FIELDNAME;\
     OP*		(*op_ppaddr)(pTHX);	\
+    OP*		_OP_SIBPARENT_FIELDNAME;\
     PADOFFSET	op_targ;		\
     PERL_BITFIELD16 op_type:9;		\
     PERL_BITFIELD16 op_opt:1;		\
