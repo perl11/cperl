@@ -1348,6 +1348,10 @@ open my $kh, $keywords_file
 while(<$kh>) {
     if (m?__END__?..${\0} and /^[+-]/) {
         chomp(my $word = $');
+        if ($word =~ /^(class|role)$/) {
+          note "SKIP $word does not swallow trailing comma";
+          next;
+        }
         # $y should be an error after $x=foo.  The exact error we get may
         # differ if this is __END__ or s or some other special keyword.
         eval 'sub ($x = ' . $word . ', $y) {}';

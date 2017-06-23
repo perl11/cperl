@@ -14,13 +14,12 @@ BEGIN {
 
 use B;
 
-# allow CORE::class NAME BLOCK, but no matching ops yet for a prototype
-my %ctlwords = map +($_=>1), qw (
+# TODO: allow &CORE::class NAME {}, but no matching ops yet
+my %oowords = map +($_=>1), qw (
   class method multi has role
 );
 my %unsupported = map +($_=>1), qw (
  __DATA__ __END__ AUTOLOAD BEGIN UNITCHECK CORE DESTROY END INIT CHECK and
-  class method multi has role
   cmp default do dump else elsif eq eval for foreach
   format ge given goto grep gt if last le local lt m map my ne next
   no  or  our  package  print  printf  q  qq  qr  qw  qx  redo  require
@@ -56,11 +55,13 @@ while(<$kh>) {
       $tests ++;
       ok !defined &{"CORE::$word"}, "no CORE::$word";
     }
-    elsif($ctlwords{$word}) {
+    elsif ($oowords{$word}) { # TODO class,role,method,multi,has
+      $tests ++;
       $tests ++;
       ok defined &{"CORE::$word"}, "defined CORE::$word";
       my $proto = prototype "CORE::$word";
-      note "TODO no CORE::$word prototype yet $proto";
+      *{"my$word"} = \&{"CORE::$word"};
+      is prototype \&{"my$word"}, $proto, "prototype of &CORE::$word";
     }
     else {
       $tests += 2;
