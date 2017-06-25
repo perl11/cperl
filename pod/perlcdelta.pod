@@ -491,6 +491,12 @@ values to the stack, similar to the Storable (L<[cperl
 overflow and the old 5.10 regex stack overflow attack.  See L<[cperl
 #293]|https://github.com/perl11/cperl/issues/293>.
 
+=item *
+
+Fixed wrong "Don’t stringify GV in numeric cx outside warnings scope"
+optimization from 5.18, which fails with code like C<$* += (** = 0)>.
+See L<[cperl #299]|https://github.com/perl11/cperl/issues/299>.
+
 =back
 
 =head1 Known Problems
