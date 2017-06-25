@@ -147,6 +147,12 @@ Backported from 5.27.2.
 Fixed sub rettype. When the sub decl return type attribute is a
 coretype set it. cperl-only.
 
+=item *
+
+Fixed wrong "Don’t stringify GV in numeric cx outside warnings scope"
+optimization from 5.18, which fails with code like C<$* += (** = 0)>.
+See L<[cperl #299]|https://github.com/perl11/cperl/issues/299>.
+
 =back
 
 =head1 Acknowledgements

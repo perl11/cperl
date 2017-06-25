@@ -12,7 +12,7 @@ BEGIN {
 
 use warnings;
 
-plan(tests => 280);
+plan(tests => 281);
 
 # type coercion on assignment
 $foo = 'foo';
@@ -1186,6 +1186,10 @@ package GV_DOWNGRADE {
     # after the eval's ops are freed, the GV should get downgraded again
     ::like "$GV_DOWNGRADE::{FOO}", qr/SCALAR/, "gv_downgrade: post";
 }
+
+# GV stringify assertion perl-5.18 - cperl-5.2[67].1, esp. DEBUGGING perls
+runperl(prog => '$*+=**=0');
+is ($? & 127, 0,"[cperl #299] No crash with freed GV");
 
 __END__
 Perl
