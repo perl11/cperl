@@ -11958,7 +11958,7 @@ Perl_ck_defined(pTHX_ OP *o)
 
 /*
 =for apidoc ck_readline
-CHECK callback for readline, the <> op. (t%	F?	"(:Scalar):Any")
+CHECK callback for readline, the <> op. (t%	F?	"(:Scalar?):Any")
 
 Adds C<*ARGV> if missing.
 =cut
@@ -11971,6 +11971,11 @@ Perl_ck_readline(pTHX_ OP *o)
     if (OpKIDS(o)) {
 	 OP *kid = OpFIRST(o);
 	 if (IS_TYPE(kid, RV2GV)) kid->op_private |= OPpALLOW_FAKE;
+	 if ( IS_TYPE(kid, LIST) &&
+              (kid = OpSIBLING(OpFIRST(kid))) &&
+              OpSIBLING(kid) ) /* e.g. readline(1,2) */
+              too_many_arguments_pv(o, OP_NAME(o), 0);
+         return o; /* ck_fun(o); fails a few tests */
     }
     else {
 	OP * const newop
@@ -11978,7 +11983,6 @@ Perl_ck_readline(pTHX_ OP *o)
 	op_free(o);
 	return newop;
     }
-    return o;
 }
 
 /*

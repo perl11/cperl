@@ -254,7 +254,7 @@ bless		bless			ck_nomg		s@	S S?
 backtick	quoted execution (``, qx)	ck_backtick	tu%	S?
 # glob defaults its first arg to $_
 glob		glob			ck_glob		t@	S?
-readline	<HANDLE>		ck_readline	t%	F?	"(:Scalar):Any"
+readline	<HANDLE>		ck_readline	t%	F?	"(:Scalar?):Any"
 rcatline	append I/O operator	ck_null		t$
 
 # Bindable operators.

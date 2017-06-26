@@ -1098,7 +1098,7 @@ PL_op_type_str[] = {
 	"",	/* 109: bless */
 	"",	/* 110: backtick */
 	"",	/* 111: glob */
-	"(:Scalar):Any",	/* 112: readline */
+	"(:Scalar?):Any",	/* 112: readline */
 	"",	/* 113: rcatline */
 	"():Void",	/* 114: regcmaybe */
 	"",	/* 115: regcreset */
@@ -1521,7 +1521,7 @@ EXTCONST U32 PL_op_type[] = {
 	0xffffff00,	/* 109: bless "" */
 	0xffffff00,	/* 110: backtick "" */
 	0xffffff00,	/* 111: glob "" */
-	0x0bffff13,	/* 112: readline "(:Scalar):Any" */
+	0xebffff13,	/* 112: readline "(:Scalar?):Any" */
 	0xffffff00,	/* 113: rcatline "" */
 	0xffffffff,	/* 114: regcmaybe "():Void" */
 	0xffffff00,	/* 115: regcreset "" */
