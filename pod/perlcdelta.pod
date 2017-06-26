@@ -165,6 +165,12 @@ Backported from 5.27.2.
 
 =item *
 
+Added missing arity check to C<readline>.
+E.g. C<readline(1,2,3)> errors now.
+Backported from 5.27.1c.
+
+=item *
+
 Fixed sub rettype. When the sub decl return type attribute is a
 coretype set it. cperl-only.
 
