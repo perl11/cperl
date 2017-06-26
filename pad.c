@@ -2074,7 +2074,7 @@ S_cv_clone_pad(pTHX_ CV *proto, CV *cv, CV *outside, HV *cloned,
 		    {
 			/* my sub */
 			/* Just provide a stub, but name it.  It will be
-			   upgrade to the real thing on scope entry. */
+			   upgraded to the real thing on scope entry. */
                         dVAR;
 			U32 hash;
                         I32 heklen = 1 - PadnameLEN(namesv);
