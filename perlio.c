@@ -2299,9 +2299,7 @@ S_more_refcounted_fds(pTHX_ const int new_fd)
     new_array = (int*) realloc(PL_perlio_fd_refcnt, new_max * sizeof(int));
 
     if (!new_array) {
-#ifdef USE_ITHREADS
 	MUTEX_UNLOCK(&PL_perlio_mutex);
-#endif
 	croak_no_mem();
     }
 
@@ -2330,9 +2328,7 @@ PerlIOUnix_refcnt_inc(int fd)
     if (fd >= 0) {
 	dVAR;
 
-#ifdef USE_ITHREADS
 	MUTEX_LOCK(&PL_perlio_mutex);
-#endif
 	if (fd >= PL_perlio_fd_refcnt_size)
 	    S_more_refcounted_fds(aTHX_ fd);
 
@@ -2345,9 +2341,7 @@ PerlIOUnix_refcnt_inc(int fd)
 	DEBUG_I(PerlIO_debug("refcnt_inc: fd %d refcnt=%d\n",
                              fd, PL_perlio_fd_refcnt[fd]));
 
-#ifdef USE_ITHREADS
 	MUTEX_UNLOCK(&PL_perlio_mutex);
-#endif
     } else {
 	/* diag_listed_as: refcnt_inc: fd %d%s */
 	Perl_croak(aTHX_ "refcnt_inc: fd %d < 0\n", fd);
@@ -2364,9 +2358,7 @@ PerlIOUnix_refcnt_dec(int fd)
 #else
 	dVAR;
 #endif
-#ifdef USE_ITHREADS
 	MUTEX_LOCK(&PL_perlio_mutex);
-#endif
 	if (fd >= PL_perlio_fd_refcnt_size) {
 	    /* diag_listed_as: refcnt_dec: fd %d%s */
 	    Perl_croak_nocontext("refcnt_dec: fd %d >= refcnt_size %d\n",
@@ -2379,11 +2371,9 @@ PerlIOUnix_refcnt_dec(int fd)
 	}
 	cnt = --PL_perlio_fd_refcnt[fd];
 #ifndef PERL_IMPLICIT_CONTEXT
-    DEBUG_I(PerlIO_debug("refcnt_dec: fd %d refcnt=%d\n", fd, cnt));
+        DEBUG_I(PerlIO_debug("refcnt_dec: fd %d refcnt=%d\n", fd, cnt));
 #endif
-#ifdef USE_ITHREADS
 	MUTEX_UNLOCK(&PL_perlio_mutex);
-#endif
     } else {
 	/* diag_listed_as: refcnt_dec: fd %d%s */
 	Perl_croak_nocontext("refcnt_dec: fd %d < 0\n", fd);
@@ -2398,9 +2388,7 @@ PerlIOUnix_refcnt(int fd)
     int cnt = 0;
     if (fd >= 0) {
 	dVAR;
-#ifdef USE_ITHREADS
 	MUTEX_LOCK(&PL_perlio_mutex);
-#endif
 	if (fd >= PL_perlio_fd_refcnt_size) {
 	    /* diag_listed_as: refcnt: fd %d%s */
 	    Perl_croak(aTHX_ "refcnt: fd %d >= refcnt_size %d\n",
@@ -2412,9 +2400,7 @@ PerlIOUnix_refcnt(int fd)
 		       fd, PL_perlio_fd_refcnt[fd]);
 	}
 	cnt = PL_perlio_fd_refcnt[fd];
-#ifdef USE_ITHREADS
 	MUTEX_UNLOCK(&PL_perlio_mutex);
-#endif
     } else {
 	/* diag_listed_as: refcnt: fd %d%s */
 	Perl_croak(aTHX_ "refcnt: fd %d < 0\n", fd);
@@ -3321,7 +3307,6 @@ PerlIOStdio_close(pTHX_ PerlIO *f)
 	    if (stdio == stdout || stdio == stderr)
 		return PerlIO_flush(f);
         }
-#ifdef USE_ITHREADS
         MUTEX_LOCK(&PL_perlio_mutex);
         /* Right. We need a mutex here because for a brief while we
            will have the situation that fd is actually closed. Hence if
@@ -3340,7 +3325,6 @@ PerlIOStdio_close(pTHX_ PerlIO *f)
 
            Except that correctness trumps speed.
            Advice from klortho #11912. */
-#endif
 	if (invalidate) {
             /* Tricky - must fclose(stdio) to free memory but not close(fd)
 	       Use Sarathy's trick from maint-5.6 to invalidate the
@@ -3378,9 +3362,7 @@ PerlIOStdio_close(pTHX_ PerlIO *f)
 	    PerlLIO_dup2(dupfd,fd);
 	    PerlLIO_close(dupfd);
 	}
-#ifdef USE_ITHREADS
         MUTEX_UNLOCK(&PL_perlio_mutex);
-#endif
 	return result;
     }
 }
