@@ -7050,6 +7050,11 @@ declarations.  You applied it to a subroutine via
 L<attributes.pm|attributes>.  This is only valid as negated variant
 C<:-caller> on subroutines.  (cperl only)
 
+=item Useless use of constant in list at %s()
+
+(W misc) The call of a loop exit with a list only takes the last
+argument, all constants before are ignored.
+
 =item Useless use of /d modifier in transliteration operator
 
 (W misc) You have used the /d modifier where the searchlist has the

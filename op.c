@@ -8880,6 +8880,14 @@ Perl_newLOOPEX(pTHX_ I32 type, OP *label)
 	if (IS_TYPE(label, STUB) && OpPARENS(label)) {
 	    o = newOP(type, OPf_SPECIAL);
 	}
+        /* "last(1,a) means last a. 1 is skipped */
+	else if (UNLIKELY(IS_TYPE(label, LIST) && OpKIDS(label))) {
+            OP* op = OpSIBLING(OpFIRST(label));
+            if ( op && OpSIBLING(op) && IS_CONST_OP(op) )
+		Perl_ck_warner(aTHX_ packWARN(WARN_MISC),
+                               "Useless use of constant in list at %s()",
+                               PL_op_name[type]);
+	}
     }
     else {
 	/* Check whether it's going to be a goto &function */
@@ -18780,6 +18788,7 @@ Perl_core_prototype(pTHX_ SV *sv, const char *name, const int code,
     case KEY_values:  retsetpvs("\\[%@]", OP_VALUES);
     case KEY_each:    retsetpvs("\\[%@]", OP_EACH);
     case KEY_pos:     retsetpvs(";\\[$*]", OP_POS);
+    case KEY_dump:    retsetpvs(";\\[$*]", OP_DUMP);
     case KEY___FILE__: case KEY___LINE__: case KEY___PACKAGE__:
 	retsetpvs("", 0);
     case KEY_evalbytes:

@@ -412,16 +412,16 @@ iter_lazyiv	for (0..9) iterator	ck_null		0
 enterloop	loop entry		ck_null		d{	
 leaveloop	loop exit		ck_null		2	
 return		return			ck_return	m@	L
-last		last			ck_null		s}	
-next		next			ck_null		s}	
-redo		redo			ck_null		s}	
-dump		dump			ck_null		ds}	
-goto		goto			ck_null		s}	
+last		last			ck_null		s}	S?
+next		next			ck_null		s}	S?
+redo		redo			ck_null		s}	S?
+dump		dump			ck_null		ds}	S?
+goto		goto			ck_null		s}	S?
 exit		exit			ck_fun		s%	S?
 method_named	named method		ck_null		d.
 method_super	named super method	ck_null		d.
-method_redir	redirect named method	ck_null	d.
-method_redir_super redirect named super	ck_null	d.
+method_redir	redirect named method	ck_null		d.
+method_redir_super redirect named super	ck_null		d.
 
 entergiven	given()			ck_null		d|
 leavegiven	leave given block	ck_null		1

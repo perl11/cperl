@@ -1001,9 +1001,9 @@ term:		termbinop
 				       scalar(newCVREF($3,$1))); }
 	|	term ARROW '*' '*'	%prec '('
 			{ $$ = newGVREF(0,$1); }
-	|	LOOPEX  /* loop exiting command (goto, last, dump, etc) */
+	|	LOOPEX  /* loop exiting command: goto, last, redo, next, dump */
 			{ $$ = newOP($1, OPf_SPECIAL);
-			    PL_hints |= HINT_BLOCK_SCOPE; }
+			  PL_hints |= HINT_BLOCK_SCOPE; }
 	|	LOOPEX term
 			{ $$ = newLOOPEX($1,$2); }
 	|	NOTOP listexpr                       /* not $foo */

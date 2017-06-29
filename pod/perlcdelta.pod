@@ -303,7 +303,13 @@ XXX L<message|perldiag/"message">
 
 =item *
 
-XXX L<message|perldiag/"message">
+With loopex ops calling a list, all arguments but the last are ignored.
+This might be valid for side-effects, but useless on constants.
+Warn with L<Useless use of constant in list at %s()
+|perldiag/"Useless use of constant in list at %()">
+This affects next, goto, redo, last, dump.
+
+E.g. with C<label:{next(1,label)}> 1 is ignored.
 
 =back
 

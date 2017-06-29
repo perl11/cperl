@@ -74,7 +74,7 @@ defined undef
 delete undef
 die (@)
 do undef
-dump ()
+dump (;\[$*])
 each (\[%@])
 else undef
 elsif undef
