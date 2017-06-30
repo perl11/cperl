@@ -292,6 +292,7 @@ S_emulate_eaccess(pTHX_ const char* path, Mode_t mode)
 #   define PERL_EFF_ACCESS(p,f) (S_emulate_eaccess(aTHX_ (p), (f)))
 #endif
 
+/* tu%	S? "(:Scalar?)(:Str?|:List(:Str))" */
 PP(pp_backtick)
 {
     dSP; dTARGET;

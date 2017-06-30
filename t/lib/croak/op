@@ -229,3 +229,15 @@ use strict; my %h=(0..2);
 EXPECT
 Only pairs in hash assignment allowed while "strict hashpairs", got 3 elements at - line 1.
 Execution of - aborted due to compilation errors.
+########
+# NAME Too many readline arguments, compile-time
+readline("a",2);
+EXPECT
+Too many arguments for readline at - line 1, near "2)"
+Execution of - aborted due to compilation errors.
+########
+# NAME Too many backtick arguments, compile-time
+readpipe("a",2);
+EXPECT
+Too many arguments for backtick at - line 1, near "2)"
+Execution of - aborted due to compilation errors.

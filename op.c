@@ -10904,8 +10904,16 @@ Perl_ck_backtick(pTHX_ OP *o)
         op_sibling_splice(o, OpFIRST(o), -1, NULL);
 	newop = S_new_entersubop(aTHX_ gv, sibl);
     }
-    else if (!OpKIDS(o))
+    else if (!OpKIDS(o)) {
 	newop = newUNOP(OP_BACKTICK, 0,	newDEFSVOP());
+    }
+    else if ( (sibl = OpFIRST(o)) && IS_TYPE(sibl, LIST) &&
+              (sibl = OpSIBLING(OpFIRST(sibl))) &&
+              OpHAS_SIBLING(sibl) ) /* e.g. readpipe("proc",1,2) */
+    {
+        /* DEBUG_kv(op_dump(sibl)); */
+        too_many_arguments_pv(o, OP_NAME(o), 0);
+    }
     if (newop) {
 	op_free(o);
 	return newop;

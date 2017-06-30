@@ -505,8 +505,13 @@ See L<[cperl #299]|https://github.com/perl11/cperl/issues/299>.
 
 =item *
 
-Added missing arity check to C<readline>.
-E.g. C<readline(1,2,3)> errors now.
+Added missing arity checks to C<readline> and C<readpipe>.
+E.g. C<readline(1,2)> and C<readpipe(1,2)> errors now.  Those
+excessive args were previously called for side-effects, in case of
+constants or variables effectively ignored.
+
+All internal ops are now properly arity checked.
+See L<[cperl #301]|https://github.com/perl11/cperl/issues/301>.
 
 =back
 
