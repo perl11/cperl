@@ -34,7 +34,7 @@ Devel::NYTProf cpan/Devel-NYTProf/t/22-readstream.t 58f166ae768877e8f2ec4a6149b6
 Devel::NYTProf cpan/Devel-NYTProf/t/lib/NYTProfTest.pm bc6efbd91bce9b1eae3c341c482dde0ac4c990c5
 Devel::PPPort cpan/Devel-PPPort/Makefile.PL e5a7697054dd2e9cce0ee35e8183af28d8e08ef3
 Devel::PPPort cpan/Devel-PPPort/parts/apidoc.fnc 5f2259de48957df7f7f9cc80d86f202f582ecc6a
-Devel::PPPort cpan/Devel-PPPort/parts/embed.fnc f0284fad158675944e03dabd054fc2a92a1ec923
+Devel::PPPort cpan/Devel-PPPort/parts/embed.fnc 4f0089448f0054db52df4684b4b2466a3b629bb8
 Devel::PPPort cpan/Devel-PPPort/parts/inc/gv ac0ff3ba4cf4b86852c4338a12c5fe27fe7016a6
 Devel::PPPort cpan/Devel-PPPort/parts/inc/HvNAME 5fa336117cbb7f06b8d442ed7bc78ffe34a0ab1f
 Devel::PPPort cpan/Devel-PPPort/parts/inc/misc 91845c5a0081d45a23e9de4a664eae8a01244fe2

@@ -8226,11 +8226,6 @@ PERL_STATIC_INLINE U32	S_ctz(U32 n)
 			__attribute__warn_unused_result__;
 #endif
 
-STATIC void	S_hfreeentries(pTHX_ HV *hv)
-			__attribute__nonnull__(pTHX_1);
-#define PERL_ARGS_ASSERT_HFREEENTRIES	\
-	assert(hv)
-
 STATIC void	S_hsplit(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_HSPLIT	\
@@ -8264,6 +8259,11 @@ STATIC SV*	S_hv_free_ent_ret(pTHX_ HV *hv, HE *entry)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_HV_FREE_ENT_RET	\
 	assert(hv); assert(entry)
+
+STATIC void	S_hv_free_entries(pTHX_ HV *hv)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_HV_FREE_ENTRIES	\
+	assert(hv)
 
 STATIC void	S_hv_magic_check(HV *hv, bool *needs_copy, bool *needs_store)
 			__attribute__nonnull__(1)

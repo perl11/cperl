@@ -2168,7 +2168,7 @@ Perl_hv_clear(pTHX_ HV *hv)
 	}
     }
     else {
-	hfreeentries(hv);
+	hv_free_entries(hv);
 	HvPLACEHOLDERS_set(hv, 0);
 
 	if (SvRMAGICAL(hv))
@@ -2264,13 +2264,13 @@ S_clear_placeholders(pTHX_ HV *hv, U32 items)
 }
 
 STATIC void
-S_hfreeentries(pTHX_ HV *hv)
+S_hv_free_entries(pTHX_ HV *hv)
 {
     U32 index = 0;
     XPVHV * const xhv = (XPVHV*)SvANY(hv);
     SV *sv;
 
-    PERL_ARGS_ASSERT_HFREEENTRIES;
+    PERL_ARGS_ASSERT_HV_FREE_ENTRIES;
 
     while ((sv = Perl_hfree_next_entry(aTHX_ hv, &index)) || xhv->xhv_keys) {
 	SvREFCNT_dec(sv);
@@ -2279,7 +2279,7 @@ S_hfreeentries(pTHX_ HV *hv)
 
 
 /* hfree_next_entry()
- * For use only by S_hfreeentries() and sv_clear().
+ * For use only by S_hv_free_entries() and sv_clear().
  * Delete the next available HE from hv and return the associated SV.
  * Returns null on empty hash. Nevertheless null is not a reliable
  * indicator that the hash is empty, as the deleted entry may have a
@@ -2400,7 +2400,7 @@ Perl_hv_undef_flags(pTHX_ HV *hv, U32 flags)
     DEBUG_A(Perl_hv_assert(aTHX_ hv));
     xhv = (XPVHV*)SvANY(hv);
 
-    /* The name must be deleted before the call to hfreeentries so that
+    /* The name must be deleted before the call to hv_free_entries so that
        CVs are anonymised properly. But the effective name must be pre-
        served until after that call (and only deleted afterwards if the
        call originated from sv_clear). For stashes with one name that is
@@ -2408,7 +2408,7 @@ Perl_hv_undef_flags(pTHX_ HV *hv, U32 flags)
        allocate an array for storing the effective name. We can skip that
        during global destruction, as it does not matter where the CVs point
        if they will be freed anyway. */
-    /* note that the code following prior to hfreeentries is duplicated
+    /* note that the code following prior to hv_free_entries is duplicated
      * in sv_clear(), and changes here should be done there too */
     if (PL_phase != PERL_PHASE_DESTRUCT && HvNAME(hv)) {
         if (PL_stashcache) {
@@ -2427,7 +2427,7 @@ Perl_hv_undef_flags(pTHX_ HV *hv, U32 flags)
         PL_tmps_stack[++PL_tmps_ix] = SvREFCNT_inc_simple_NN(hv);
         orig_ix = PL_tmps_ix;
     }
-    hfreeentries(hv);
+    hv_free_entries(hv);
     if (SvOOK(hv)) {
         struct mro_meta *meta;
         const char *name;
