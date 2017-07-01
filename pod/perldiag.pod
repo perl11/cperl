@@ -671,9 +671,9 @@ checking.  Alternatively, if you are certain that you're calling the
 function correctly, you may put an ampersand before the name to avoid
 the warning.  See L<perlsub>.
 
-=item Can declare %s only within a class
+=item Can declare method %s only within a class
 
-(F) A method declaration is currently only allowed inside a class block.
+(F) A CORE method declaration is currently only allowed inside a class block.
 
 =item Cannot chr %f
 
