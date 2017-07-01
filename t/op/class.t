@@ -9,9 +9,9 @@ print "1..10\n";
 my $test = 1;
 
 class Foo {
-  #has $a = 0; # no has syntax yet
+  #has $a = 0; # no has -> %FIELDS syntax yet
   my $a = 0;
-  method a($self, $v?)       { defined $v ? $a = $v : $a }
+  method a($v?)       { defined $v ? $a = $v : $a }
   sub new                    { bless [], 'Foo' }
 
   method meth1 {
@@ -19,8 +19,7 @@ class Foo {
     # $self->a + 1
   }
   # quirks: just multi, not perl6-style multi method yet
-  # invocant $self not yet added automatically
-  multi mul1 (Foo $self, Int $a) :method {
+  multi mul1 (Int $a) :method {
     print "ok $test\n"; $test++;
     $self->a * $a
   }

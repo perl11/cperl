@@ -13142,7 +13142,7 @@ Perl_parse_stmtseq(pTHX_ U32 flags)
  */
 
 static PADOFFSET
-S_parse_opt_lexvar(pTHX_ bool is_ref)
+S_parse_opt_lexvar(pTHX_ bool is_ref, PADOFFSET pad_base)
 {
     I32 sigil, c;
     char *s, *d;
@@ -13170,12 +13170,32 @@ S_parse_opt_lexvar(pTHX_ bool is_ref)
     if (is_ref && (sigil == '@' || sigil == '%')) {
         PL_tokenbuf[0] = '$';
     }
-    if (is_utf8 && normalize) {
+    if (is_utf8 && normalize) { /* utf8 invocants not supported */
         STRLEN len;
         char *norm = pv_uni_normalize(PL_tokenbuf, d - PL_tokenbuf, &len);
         Copy(norm, &PL_tokenbuf[1], len+1, char);
         return allocmy(norm, len, SVf_UTF8);
     } else {
+        if (*s == ':' && CvMETHOD(PL_compcv)) { /* invocant syntax */
+            PL_bufptr++;
+            *d = '\0';
+            /* my $self already allocated */
+            if (strEQc(PL_tokenbuf, "$self")) {
+                return pad_base;
+            } else {
+                PADNAME *pn = PAD_COMPNAME(pad_base);
+                STRLEN len = d - PL_tokenbuf;
+                DEBUG_kv(Perl_deb(aTHX_ "invocant %s\n", PL_tokenbuf));
+                if (len == PadnameLEN(pn)) { /* $this: the most common */
+                    Copy(PL_tokenbuf, PadnamePV(pn), len, char);
+                } else {
+                    PadnameREFCNT_dec(pn);
+                    padnamelist_store(PL_comppad_name, pad_base,
+                                      newPADNAMEpvn_flags(PL_tokenbuf, len, 0));
+                    return pad_base;
+                }
+            }
+        }
         return allocmy(PL_tokenbuf, d - PL_tokenbuf, UTF ? SVf_UTF8 : 0);
     }
 }
@@ -13347,7 +13367,7 @@ Perl_parse_subsignature(pTHX)
        A cop before a sig resets SP which resets argc to 0. */
     /*initops = newSTATEOP(0, NULL, st.sig_op);*/
 
-    /* support $self: syntax for first arg. move below then */
+    /* support $self: invocant syntax for first arg. move below then */
     if (CvMETHOD(PL_compcv)) {
         pad_base = allocmy("$self", 5, 0);
         padintro_ix = 3;
@@ -13417,7 +13437,7 @@ Perl_parse_subsignature(pTHX)
                 is_ref = FALSE;
             }
 
-            pad_offset = S_parse_opt_lexvar(aTHX_ is_ref);
+            pad_offset = S_parse_opt_lexvar(aTHX_ is_ref, pad_base);
             is_var = (pad_offset != NOT_IN_PAD);
 
             if (is_var) {

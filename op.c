@@ -18875,7 +18875,7 @@ Provide the coreargs arguments for &CORE::* subroutines, usually with
 matching ops. coreargssv is either the opnum (as UV) or the name (as
 PV) of no such op exists.
 code is the result of C<keyword()>, and maybe negative.
-See F<gv.c:S_maybe_add_coresub()>.
+See F<gv.c>: C<S_maybe_add_coresub()>.
 
 =cut
 */

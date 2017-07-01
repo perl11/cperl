@@ -494,7 +494,7 @@ S_gv_init_svtype(pTHX_ GV *gv, const svtype sv_type)
     case SVt_PVGV:
 	break;
     default:
-	if(GvSVn(gv)) {
+	if (GvSVn(gv)) {
 	    /* Work round what appears to be a bug in Sun C++ 5.8 2005/10/13
 	       If we just cast GvSVn(gv) to void, it ignores evaluating it for
 	       its side effect */
