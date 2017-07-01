@@ -9145,8 +9145,6 @@ Perl_yylex(pTHX)
 		bool have_name, have_proto;
 
                 SSize_t off = s - SvPVX(PL_linestr);
-                if (UNLIKELY(!PL_in_class && tmp == KEY_method))
-                    Perl_croak(aTHX_ "Can declare %s only within a class", PL_tokenbuf);
 
 		d = s;
 		s = skipspace(s);
@@ -9194,6 +9192,9 @@ Perl_yylex(pTHX)
 			/* diag_listed_as: Missing name in "%s sub" */
 			Perl_croak(aTHX_ "Missing name in \"%s\"", PL_bufptr);
 		    }
+                    else if (key == KEY_multi || key == KEY_method) {
+                        goto just_a_word; /* old-style sub: call method() */
+                    }
 		    PL_expect = XTERMBLOCK;
 		    attrful = XATTRTERM;
 		    sv_setpvs(PL_subname, "?");
@@ -9245,6 +9246,9 @@ Perl_yylex(pTHX)
 		else
 		    have_proto = FALSE;
 
+                if (UNLIKELY(!PL_in_class && tmp == KEY_method))
+                    Perl_croak(aTHX_ "Can declare method %s only within a class",
+                               PL_tokenbuf);
                 assert(key != KEY_format);
 		if (*s == ':' && s[1] != ':')
 		    PL_expect = attrful;
@@ -9255,7 +9259,7 @@ Perl_yylex(pTHX)
                            key == KEY_INIT || key == KEY_END ||
                            key == KEY_my || key == KEY_state || key == KEY_our);
 		    if (!have_name)
-			Perl_croak(aTHX_ "Illegal declaration of anonymous subroutine");
+                        Perl_croak(aTHX_ "Illegal declaration of anonymous subroutine");
 		    else if (*s != ';' && *s != '}')
 			Perl_croak(aTHX_ "Illegal declaration of subroutine %" SVf,
                                    SVfARG(PL_subname));
