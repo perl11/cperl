@@ -8487,8 +8487,8 @@ STATIC void	S_cant_declare(pTHX_ OP* o)
 #define PERL_ARGS_ASSERT_CANT_DECLARE	\
 	assert(o)
 
-STATIC void	S_check_for_bool_cxt(pTHX_ OP* o, U8 bool_flag, U8 maybe_flag)
-			__attribute__nonnull__(pTHX_1);
+STATIC void	S_check_for_bool_cxt(OP* o, U8 bool_flag, U8 maybe_flag)
+			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_CHECK_FOR_BOOL_CXT	\
 	assert(o)
 

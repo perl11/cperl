@@ -17964,7 +17964,7 @@ time (e.g. sub f { ....; (%h || $y) }), then set maybe_flag instead.
 =cut
 */
 static void
-S_check_for_bool_cxt(pTHX_ OP* o, U8 bool_flag, U8 maybe_flag)
+S_check_for_bool_cxt(OP*o, U8 bool_flag, U8 maybe_flag)
 {
     OP *lop;
     PERL_ARGS_ASSERT_CHECK_FOR_BOOL_CXT;
@@ -18963,7 +18963,7 @@ Perl_rpeep(pTHX_ OP *o)
 	case OP_PADHV:
             /* see if %h is used in boolean context */
             if (OpWANT_SCALAR(o))
-                check_for_bool_cxt(o, OPpTRUEBOOL, OPpMAYBE_TRUEBOOL);
+                S_check_for_bool_cxt(o, OPpTRUEBOOL, OPpMAYBE_TRUEBOOL);
             if (o->op_type != OP_PADHV)
                 break;
             /* FALLTHROUGH */
@@ -19481,12 +19481,12 @@ Perl_rpeep(pTHX_ OP *o)
         case OP_REF:
             /* see if ref() is used in boolean context */
             if (OpWANT_SCALAR(o))
-                check_for_bool_cxt(o, OPpTRUEBOOL, OPpMAYBE_TRUEBOOL);
+                S_check_for_bool_cxt(o, OPpTRUEBOOL, OPpMAYBE_TRUEBOOL);
             break;
         case OP_LENGTH:
             if (OpWANT_SCALAR(o))
-                check_for_bool_cxt(o, OPpLENGTH_TRUEBOOL,
-                                   OPpLENGTH_MAYBE_TRUEBOOL);
+                S_check_for_bool_cxt(o, OPpLENGTH_TRUEBOOL,
+                                     OPpLENGTH_MAYBE_TRUEBOOL);
             break;
 
         case OP_BLESS:
