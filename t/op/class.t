@@ -19,7 +19,7 @@ class Foo {
     # $self->a + 1
   }
   # quirks: just multi, not perl6-style multi method yet
-  multi mul1 (Int $a) :method {
+  multi mul1 ($self, Int $a) :method {
     print "ok $test\n"; $test++;
     $self->a * $a
   }

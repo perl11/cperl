@@ -94,15 +94,14 @@ like a C<foreach> or a C<while>, the returned value is unspecified.  The
 empty sub returns the empty list.
 X<subroutine, return value> X<return value> X<return>
 
-Aside from an experimental facility (see L</Signatures> below),
-Perl does not have named formal parameters.  In practice all you
-do is assign to a C<my()> list of these.  Variables that aren't
-declared to be private are global variables.  For gory details
-on creating private variables, see L</"Private Variables via my()">
-and L</"Temporary Values via local()">.  To create protected
-environments for a set of functions in a separate package (and
-probably a separate file), see L<perlmod/"Packages">.
-X<formal parameter> X<parameter, formal>
+Aside from L</Signatures> Perl does not have named formal
+parameters.  In practice all you do is assign to a C<my()> list of
+these.  Variables that aren't declared to be private are global
+variables.  For gory details on creating private variables, see
+L</"Private Variables via my()"> and L</"Temporary Values via
+local()">.  To create protected environments for a set of functions in
+a separate package (and probably a separate file), see
+L<perlmod/"Packages">.  X<formal parameter> X<parameter, formal>
 
 Example:
 
@@ -539,9 +538,33 @@ a final type attribute:
 	return $left + int($right);
     }
 
-Those types must be existing packages. Those additional types
-declarations help the compiler to produce better code and to throw
-early compile-time errors if possible.
+The types may also be declared as attribute
+
+    sub foo ($left :int, $right :str) :int {
+	return $left + int($right);
+    }
+
+Those types must be existing classes or packages. Those additional
+types declarations help the compiler to produce better code and to
+throw early compile-time errors if possible.
+
+With methods the first parameter, the C<$self> invocant does not need to be declared.
+For another variable than the default C<$self>, the C<:> invocant suffix is used:
+
+    method foo :int {
+	return $self->{foo};
+    }
+
+    method bar ($this:, $baz?) {
+	return $this->{bar};
+    }
+
+C<$self> is not added with C<sub> and the C<:method> attribute.
+
+    sub baz ($self, $bar?) :method {
+	return $self->{baz};
+    }
+
 
 =head2 Private Variables via my()
 X<my> X<variable, lexical> X<lexical> X<lexical variable> X<scope, lexical>
