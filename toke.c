@@ -9144,6 +9144,7 @@ Perl_yylex(pTHX)
 		const int key = tmp;
 		expectation attrful;
 		bool have_name, have_proto;
+                int cvflags = 0;
 
                 SSize_t off = s - SvPVX(PL_linestr);
 
@@ -9161,6 +9162,12 @@ Perl_yylex(pTHX)
 		    attrful = XATTRBLOCK;
 		    d = scan_word(s, tmpbuf, sizeof PL_tokenbuf - 1, TRUE,
 				  &len, &normalize);
+                    if (key == KEY_multi && strEQc(tmpbuf, "method")) {
+                        s = skipspace(d);
+                        cvflags = CVf_METHOD;
+                        d = scan_word(s, tmpbuf, sizeof PL_tokenbuf - 1, TRUE,
+                                      &len, &normalize);
+                    }
                     if (UNLIKELY(key == KEY_format)) {
                         if (UNLIKELY(normalize)) {
                             d = pv_uni_normalize(s, len, &len);
@@ -9280,11 +9287,11 @@ Perl_yylex(pTHX)
 		    TOKEN(ANONSUB);
 		}
 		force_ident_maybe_lex('&');
-                if (key == KEY_multi)
-                    ITOKEN(CVf_MULTI,MULTIDECL);
+                if (key == KEY_multi) /* multi sub, multi, multi method */
+                    ITOKEN(CVf_MULTI|cvflags,MULTIDECL);
                 else if (key == KEY_method)
-                    ITOKEN(CVf_METHOD,METHDECL);
-		ITOKEN(0,SUB);
+                    ITOKEN(CVf_METHOD|cvflags,METHDECL);
+		ITOKEN(cvflags,SUB);
 	    }
 
 	case KEY_system:
