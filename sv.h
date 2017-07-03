@@ -2246,7 +2246,7 @@ properly null terminated. Equivalent to sv_setpvs(""), but more efficient.
 #define SvIMMORTAL(sv)  \
     (SvREADONLY(sv) &&  \
      ((sv)==&PL_sv_undef || (sv)==&PL_sv_yes || (sv)==&PL_sv_no \
-   || (sv)==&PL_sv_placeholder))
+   || (sv)==&PL_sv_zero || (sv)==&PL_sv_placeholder))
 
 #ifdef DEBUGGING
    /* exercise the immortal resurrection code in sv_free2() */
