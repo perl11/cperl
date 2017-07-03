@@ -370,6 +370,8 @@ p	|OP *	|coresub_op	|NN SV *const coreargssv|const int code \
 EMXp	|void	|cv_ckproto_len_flags	|NN const CV* cv|NULLOK const GV* gv\
 				|NULLOK const char* p|const STRLEN len \
                                 |const U32 flags
+: Used in toke.c. questionable
+Xp	|void	|cv_method_on	|NN CV* cv
 : Used in pp.c and pp_sys.c
 ApdR	|SV*	|gv_const_sv	|NN GV* gv
 ApdRn	|SV*	|cv_const_sv	|NULLOK const CV *const cv

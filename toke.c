@@ -6217,6 +6217,7 @@ Perl_yylex(pTHX)
                                 else if (memEQc(pv, "method")) {
                                     sv_free(sv);
                                     CvMETHOD_on(PL_compcv);
+                                    /*cv_method_on(PL_compcv);*/
                                 }
                                 else if (memEQc(pv, "locked")) {
                                     sv_free(sv);
@@ -13299,7 +13300,6 @@ Done:
   so we don't change constants to be called-by-ref, and rather copy it. 
 Todo:
 - error in ck_subr when @_/$_[] in signatured bodies is used
-- add invocant. check $class: syntax or add default $self on CvMETHOD
 
 =cut
 */
@@ -13369,6 +13369,7 @@ Perl_parse_subsignature(pTHX)
 
     /* support $self: invocant syntax for first arg. move below then */
     if (CvMETHOD(PL_compcv)) {
+        /* cv_method_on(PL_compcv); */
         pad_base = allocmy("$self", 5, 0);
         padintro_ix = 3;
         mand_args++;
@@ -13765,6 +13766,86 @@ Perl_parse_subsignature(pTHX)
     CvSIGOP(PL_compcv) = (UNOP_AUX*)st.sig_op;
     return initops;
 }
+
+#if 0
+/* experimental sub NAME :method {} syntax */
+/*
+=for apidoc cv_method_on
+
+Potentially prepend a signature with C<$self>,
+for the C<sub NAME (...) :method {}> case, where the signature is already constructed
+and the :method attribute denotes a method. The preferred and faster declaration is
+via the new C<method NAME () {}> syntax.
+
+The sig can be empty, or an existing items list.
+TODO: If the sig is empty, the body is searched for a reference to C<@_>,
+implicit C<shift> on C<@_> or C<$_[i]> to not add a new signature C<($self)>.
+
+=cut
+*/
+void
+Perl_cv_method_on(pTHX_ CV *cv)
+{
+    struct parse_subsignature_state st;
+    struct parse_subsignature_state *stp = &st;
+    PERL_ARGS_ASSERT_CV_METHOD_ON;
+
+    st.items_ix     = 3;
+    st.action_ix    = 2;
+    st.action_count = 0;
+    st.action_acc   = 0;
+    st.items_size = 3;
+    CvFLAGS(cv) |= CVf_METHOD;
+    if (!CvHASSIG(cv)) {
+        /* TODO: check for old-style sub NAME :method { @_ } methods,
+           and don't add sigs then. */
+        PADOFFSET pad_base;  /* po of $self. no rest, just this one arg */
+        st.items = (UNOP_AUX_item*)PerlMemShared_malloc(
+                       sizeof(UNOP_AUX_item) * 4);
+        st.items[0].uv = 2;
+        st.items[1].uv = 1 << 16;
+        st.sig_op = newUNOP_AUX(OP_SIGNATURE, 0, NULL, st.items+1);
+        pad_base = allocmy("$self", 5, 0);
+        /*PUSH_ITEM(uv, 0);*/
+        S_sig_push_action(aTHX_ stp, SIGNATURE_padintro);
+        st.items[2].uv = (pad_base << OPpPADRANGE_COUNTSHIFT) | 1;
+        PUSH_ITEM(pad_offset, pad_base);
+        S_sig_push_action(aTHX_ stp, SIGNATURE_arg);
+        st.items[4].uv = SIGNATURE_end;
+        CvHASSIG_on(cv);
+        CvSIGOP(cv) = (UNOP_AUX*)st.sig_op;
+    } else {
+        /* insert $self as first arg and copy over the rest */
+        UNOP_AUX *o = CvSIGOP(cv);
+        UNOP_AUX_item *items = o->op_aux;
+        UV params = items[0].uv;
+        UV mand_args, opt_args, slurpy;
+        PADOFFSET pad_base;
+        mand_args = (params >> 16) + 1;
+        opt_args  = params & ((1<<15)-1);
+        slurpy    = (params >> 15) & 1;
+        st.items = (UNOP_AUX_item*)PerlMemShared_malloc
+            (sizeof(UNOP_AUX_item) * (items[-1].uv + 1));
+        st.sig_op = newUNOP_AUX(OP_SIGNATURE, 0, NULL, st.items+1);
+        st.items[0].uv = items[-1].uv + 1;
+        st.items[1].uv = (mand_args << 16) | opt_args | (slurpy << 15);
+        pad_base = allocmy("$self", 5, 0);
+        padintro_ix = 3;
+        PUSH_ITEM(uv, 0);
+        S_sig_push_action(aTHX_ stp, SIGNATURE_padintro);
+        st.items[3].uv = (pad_base << OPpPADRANGE_COUNTSHIFT) | 1;
+        S_sig_push_action(aTHX_ stp, SIGNATURE_arg);
+        /* copy the rest ... */
+        while (items[0].iv != -1) {
+            PUSH_ITEM(iv, items[0].iv);
+            S_sig_push_action(aTHX_ stp, items[0].uv & SIGNATURE_ACTION_MASK);
+            items++;
+        }
+        op_free((OP*)o);
+        CvSIGOP(cv) = (UNOP_AUX*)st.sig_op;
+    }
+}
+#endif
 
 #undef PUSH_ITEM
 

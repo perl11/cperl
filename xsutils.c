@@ -516,8 +516,10 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 		    if (memEQc(name, "method")) {
 			if (negated)
 			    CvFLAGS(MUTABLE_CV(sv)) &= ~CVf_METHOD;
-			else
+			else {
+                            /* cv_method_on(MUTABLE_CV(sv)); */
 			    CvFLAGS(MUTABLE_CV(sv)) |= CVf_METHOD;
+                        }
                         goto next_attr;
 		    }
 		    break;
