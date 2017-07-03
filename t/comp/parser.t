@@ -8,7 +8,7 @@ BEGIN {
     chdir 't' if -d 't';
 }
 
-print "1..214\n";
+print "1..213\n";
 
 sub failed {
     my ($got, $expected, $name) = @_;
@@ -689,15 +689,6 @@ like($@, qr/^\QUnrecognized character \x{ffa0}; marked by <-- HERE after \E/,
 # according to http://www.unicode.org/L2/L2006/06310-hangul-decompose9.pdf
 # ᅟ..ᅠ HANGUL CHOSEONG FILLER..HANGUL JUNGSEONG FILLER
 
-# very large utf8 char in error message was overflowing buffer
-{
-
-    no warnings;
-    eval "q" . chr(100000000064);
-    like $@, qr/Can't find string terminator "." anywhere before EOF/,
-        'RT 128952';
-}
-
 # RT #127993 version control conflict markers
 " this should keep working
 <<<<<<<
@@ -725,13 +716,16 @@ is $@, "", 'read into keys';
 eval 'substr keys(%h),0,=3';
 is $@, "", 'substr keys assignment';
 
-# very large utf8 char in error message was overflowing buffer
-{
-
-    no warnings;
-    eval "q" . chr(100000000064);
-    like $@, qr/Can't find string terminator "." anywhere before EOF/,
-        'RT 128952';
+{ # very large utf8 char in error message was overflowing buffer
+    if (length sprintf("%x", ~0) <= 8) {
+        is 1, 1, "skip because overflows on 32-bit machine";
+    }
+    else {
+        no warnings;
+        eval "q" . chr(100000000064);
+        like $@, qr/Can't find string terminator "." anywhere before EOF/,
+            'RT 128952';
+    }
 }
 
 # RT #130311: many parser shifts before a reduce
