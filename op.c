@@ -14746,24 +14746,31 @@ Perl_ck_entersub_args_proto_or_list(pTHX_ OP *entersubop,
                        ? "GV" : "RV",
                      SVfARG(cv_name((CV*)protosv, NULL, CV_NAME_NOMAIN))));
     if (LIKELY(SvTYPE(protosv) == SVt_PVCV)) {
-        if (CvHASSIG((CV*)protosv) && CvSIGOP((CV*)protosv)) {
+        CV* cv = (CV*)protosv;
+        if (UNLIKELY(HvCLASS(SvTYPE(namegv) == SVt_PVGV   ? GvSTASH(namegv)
+                           : SvTYPE(namegv) == SVt_PVCV && CvSTASH(namegv)
+                                                          ? CvSTASH(namegv)
+                           : PL_defstash
+                     ) && CvMETHOD(cv)))
+            Perl_croak(aTHX_ "Invalid subroutine call on class method %" SVf,
+                       SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN)));
+        if (CvHASSIG(cv) && CvSIGOP(cv)) {
             if (UNLIKELY(PERLDB_SUB)) {
-                (void)ck_entersub_args_signature(entersubop, namegv, (CV*)protosv);
-                S_debug_undo_signature(aTHX_ (CV*)protosv);
+                (void)ck_entersub_args_signature(entersubop, namegv, cv);
+                S_debug_undo_signature(aTHX_ cv);
                 return entersubop;
             }
-            return ck_entersub_args_signature(entersubop, namegv, (CV*)protosv);
+            return ck_entersub_args_signature(entersubop, namegv, cv);
         }
         else {
             /* Try XS call beforehand. Most XS calls are via CV not GV.
                GvXSCV is safe, because CvCONST and CvEXTERN are never set via newXS()
-               which sets this flag.
-             */
-            if (UNLIKELY(CvISXSUB((CV*)protosv) && CvROOT((CV*)protosv) &&
-                         GvXSCV(CvGV((CV*)protosv)) && !PL_perldb))
+               which sets this flag. */
+            if (UNLIKELY(CvISXSUB(cv) && CvROOT(cv) &&
+                         GvXSCV(CvGV(cv)) && !PL_perldb))
             {
                 DEBUG_k(Perl_deb(aTHX_ "entersub -> xs %" SVf "\n",
-                        SVfARG(cv_name((CV*)protosv, NULL, CV_NAME_NOMAIN))));
+                        SVfARG(cv_name(cv, NULL, CV_NAME_NOMAIN))));
                 OpTYPE_set(entersubop, OP_ENTERXSSUB);
             }
             if (SvPOK(protosv))
@@ -19219,6 +19226,14 @@ Perl_class_role(pTHX_ OP* o)
         if (IS_TYPE(o, RV2AV))
             class_isamagic(o, pkg, "::DOES", 6);
     }
+    if ((stash = gv_stashsv(name, 0)))
+        /* diag_listed_as: package %s redefined as class */
+        Perl_ck_warner(aTHX_ packWARN(WARN_REDEFINE),
+                       "%s %" SVf " redefined as %s",
+                       HvCLASS(stash) ? HvROLE(stash) ? "role"
+                                                      : "class"
+                                      : "package",
+                       SVfARG(name), is_role ? "role" : "class");
     package(pop); /* free's o */
     HvCLASS_on(PL_curstash);
     if (is_role)

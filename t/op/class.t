@@ -5,14 +5,14 @@ BEGIN {
     #require './test.pl';
 }
 local($\, $", $,) = (undef, ' ', '');
-print "1..11\n";
+print "1..10\n";
 my $test = 1;
 
 class Foo {
   #has $a = 0; # no has -> %FIELDS syntax yet
   my $a = 0;
   method a($v?)       { defined $v ? $a = $v : $a }
-  sub new             { bless [], 'Foo' }
+  method new          { bless [], 'Foo' }
 
   method meth1 {
     print "ok $test\n"; $test++; 
@@ -36,9 +36,11 @@ $c->meth1;
 $c->mul1(0);
 Foo::sub1(1);
 eval "Foo->sub1(1);";
-print $@ ? "not ":"", "ok $test #TODO class sub as method should error\n"; $test++;
+print $@ =~ /Invalid method/ ? "" : "not ",
+  "ok $test # class sub as method should error\n"; $test++;
 eval "Foo::meth1('Foo');";
-print $@ ? "not ":"", "ok $test # class method as sub should error also\n"; $test++;
+print $@ =~ /Invalid subroutine/ ? "" : "not ",
+  "ok $test # class method as sub should error also\n"; $test++;
 
 # allow class as methodname (B), deal with reserved names: method, class, multi
 package Baz;
@@ -49,8 +51,8 @@ Bar::class();
 Baz->class();
 Bar->class();
 
-class Baz is Foo {
+class Baz1 is Foo {
   method new {}
 }
-print scalar @Baz::ISA != 1 ? "not " : "", "ok ", $test++, "\n";
-print $Baz::ISA[0] ne "Foo" ? "not " : "", "ok ", $test++, "\n";
+print scalar @Baz1::ISA != 1 ? "not " : "", "ok ", $test++, "\n";
+print $Baz1::ISA[0] ne "Foo" ? "not " : "", "ok ", $test++, "\n";
