@@ -1190,7 +1190,7 @@ PP(pp_rv2av)
 	      || (  PL_op->op_private & OPpMAYBE_TRUEBOOL
 		 && block_gimme() == G_VOID  ))
 	      && (!SvRMAGICAL(sv) || !mg_find(sv, PERL_MAGIC_tied)))
-	    SETs(HvUSEDKEYS(MUTABLE_HV(sv)) ? SV_YES : SV_NO);
+	    SETs(HvUSEDKEYS(MUTABLE_HV(sv)) ? SV_YES : &PL_sv_zero);
 	else if (gimme == G_SCALAR) {
 	    dTARG;
 	    TARG = Perl_hv_scalar(aTHX_ MUTABLE_HV(sv));

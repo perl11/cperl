@@ -2304,7 +2304,7 @@ s	|void	|maybe_op_signature|NN CV *cv|NN OP *o
 #endif
 s	|bool	|aassign_padcheck|NN OP* o|bool rhs
 s	|int	|aassign_scan	|NN OP* o|bool rhs|bool top|NN int *scalars_p
-sn	|void	|check_for_bool_cxt |NN OP* o|U8 bool_flag|U8 maybe_flag
+sn	|void	|check_for_bool_cxt |NN OP* o|bool safe_and|U8 bool_flag|U8 maybe_flag
 s	|void	|const_av_xsub	|NN CV* cv
 s	|void	|const_sv_xsub	|NN CV* cv
 s	|void	|Mu_av_xsub	|NN CV* cv

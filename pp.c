@@ -156,7 +156,7 @@ PP(pp_padhv)
                     && block_gimme() == G_VOID  ))
              && (!SvRMAGICAL(TARG) || !mg_find(TARG, PERL_MAGIC_tied))
              )
-	SETs(HvUSEDKEYS(TARG) ? SV_YES : SV_NO);
+	SETs(HvUSEDKEYS(TARG) ? SV_YES : &PL_sv_zero);
     else if (gimme == G_SCALAR) {
 	SV* const sv = Perl_hv_scalar(aTHX_ MUTABLE_HV(TARG));
 	SETs(sv);
