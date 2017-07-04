@@ -5464,18 +5464,21 @@ PP(pp_method)
                 == (PL_sub_generation + HvMROMETA(stash)->cache_gen)))  \
             {                                                           \
                 CV *cv = GvCV(gv);                                      \
-                if (GvXSCV(gv) && !PL_perldb                            \
-                    && OpTYPE(PL_op->op_next) == OP_ENTERSUB)           \
-                {                                                       \
-                    DEBUG_k(Perl_deb(aTHX_ "method_named -> xs %" SVf "\n",\
+                if (OpTYPE(PL_op->op_next) == OP_ENTERSUB) {            \
+                    if (UNLIKELY(HvCLASS(stash) && !CvMETHOD(cv) && CvHASSIG(cv))) \
+                        Perl_croak(aTHX_ "Invalid method call on class subroutine %" SVf, \
+                                   SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN))); \
+                    if (GvXSCV(gv) && !PL_perldb) {                     \
+                        DEBUG_k(Perl_deb(aTHX_ "method_named -> xs %" SVf "\n", \
                             SVfARG(cv_name(cv, NULL, CV_NAME_NOMAIN))));\
-                    OpTYPE_set(PL_op->op_next, OP_ENTERXSSUB);          \
+                        OpTYPE_set(PL_op->op_next, OP_ENTERXSSUB);      \
+                    }                                                   \
                 }                                                       \
                 XPUSHs(MUTABLE_SV(cv));                                 \
                 RETURN;                                                 \
             }                                                           \
         }                                                               \
-    }                                                                   \
+    }
 
 PP(pp_method_named)
 {

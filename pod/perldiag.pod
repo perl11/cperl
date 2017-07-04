@@ -3080,6 +3080,12 @@ variable name created from a dynamic string needs to follow the same
 identifier rules as a constant identifier being parsed.
 See L<perldata/"Identifier parsing"> and L<strict>. cperl only.
 
+=item Invalid method call on class subroutine %s
+
+(F) A cperl class subroutine with signatures cannot be called
+as method. cperl classes are declared via C<use base> or with C<class>.
+See L<perlclass>.
+
 =item Invalid modification of shaped array: %s
 
 =item Invalid modification of shaped array: %s %s
@@ -3182,6 +3188,12 @@ decimal-fraction) without exponentiation or else a dotted-decimal
 v-string with a leading 'v' character and at least three components.
 The parenthesized text indicates which criteria were not met.
 See the L<version> module for more details on allowed version formats.
+
+=item Invalid subroutine call on class method %s
+
+(F) A cperl class method cannot be called as subroutine.
+cperl classes are declared via C<use base> or with C<class>.
+See L<perlclass>.
 
 =item Invalid type '%s' in %s
 
