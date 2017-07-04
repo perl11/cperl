@@ -1791,6 +1791,9 @@ const struct flag_to_name hv_flags_names[] = {
     {SVphv_HASKFLAGS, "HASKFLAGS,"},
     {SVf_AMAGIC, "OVERLOAD,"},
     {SVphv_CLONEABLE, "CLONEABLE,"}
+#ifdef SVphv_CLASS
+    ,{SVphv_CLASS, "CLASS,"}
+#endif
 };
 
 const struct flag_to_name gv_flags_names[] = {
@@ -1857,12 +1860,15 @@ const struct flag_to_name regexp_core_intflags_names[] = {
 
 const struct flag_to_name hv_aux_flags_names[] = {
     {HvAUXf_SCAN_STASH, "SCAN_STASH,"},
-    {HvAUXf_NO_DEREF, "NO_DEREF,"},
+    {HvAUXf_NO_DEREF, "NO_DEREF,"}
 #ifdef HvAUXf_STATIC
-    {HvAUXf_STATIC, "STATIC,"},
+    ,{HvAUXf_STATIC, "STATIC,"}
 #endif
 #ifdef HvAUXf_SMALL
-    {HvAUXf_SMALL, "SMALL,"},
+    ,{HvAUXf_SMALL, "SMALL,"}
+#endif
+#ifdef HvAUXf_ROLE
+    ,{HvAUXf_ROLE, "ROLE,"}
 #endif
 };
 
