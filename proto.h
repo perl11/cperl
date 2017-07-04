@@ -934,6 +934,11 @@ PERL_CALLCONV void	Perl_class_role(pTHX_ OP* o)
 #define PERL_ARGS_ASSERT_CLASS_ROLE	\
 	assert(o)
 
+PERL_CALLCONV void	Perl_class_role_finalize(pTHX_ OP* o)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CLASS_ROLE_FINALIZE	\
+	assert(o)
+
 PERL_CALLCONV void	Perl_clear_defarray(pTHX_ AV* av, bool abandon)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
@@ -1080,6 +1085,7 @@ PERL_CALLCONV void	Perl_cv_get_call_checker(pTHX_ CV *cv, Perl_call_checker *ckf
 	assert(cv); assert(ckfun_p); assert(ckobj_p)
 
 PERL_CALLCONV void	Perl_cv_method_on(pTHX_ CV* cv)
+			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_CV_METHOD_ON	\
 	assert(cv)

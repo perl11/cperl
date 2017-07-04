@@ -487,17 +487,15 @@ barestmt:	PLUGSTMT
 			      parser->copline = (line_t)$4;
 			}
 	|	CLASSDECL '{' remember
-			{ /* includes NAME, is CLASS, does ROLE lists, :native */
-			  class_role($1);
-			}
-		stmtseq '}'
+			{ class_role($1); }
+                stmtseq '}'
 			{
 			  /* a block is a loop that happens once */
-			  $$ = newWHILEOP(0, 1, (LOOP*)(OP*)NULL,
+			  $$ = newWHILEOP(0, 1, (LOOP*)NULL,
 				  (OP*)NULL, block_end($3, $5), (OP*)NULL, 0);
 			  if (parser->copline > (line_t)$2)
 			      parser->copline = (line_t)$2;
-                          parser->in_class = FALSE;
+                          class_role_finalize($1);
 			}
 	|	sideff ';'
 			{
