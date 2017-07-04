@@ -8831,6 +8831,7 @@ Perl_yylex(pTHX)
                     pl_yylval.opval = op;
                 }
             }
+            /*pl_yylval.opval = class_role(pl_yylval.opval);*/
             PL_in_class = TRUE;
             PREBLOCK(CLASSDECL);
 

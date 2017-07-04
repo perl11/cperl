@@ -379,7 +379,8 @@ C<SV*>.
 #define HvSHAREKEYS_on(hv)	(SvFLAGS(hv) |= SVphv_SHAREKEYS)
 #define HvSHAREKEYS_off(hv)	(SvFLAGS(hv) &= ~SVphv_SHAREKEYS)
 
-/* cperl only. basically if the class has a closed compile-time @ISA */
+/* cperl only. basically if the class has a closed compile-time @ISA,
+   and it's objects are copies of [@class::FIELDS]. */
 #define HvCLASS(stash)          (SvFLAGS(stash) & SVphv_CLASS)
 #define HvCLASS_on(stash)       (SvFLAGS(stash) |= SVphv_CLASS)
 #define HvROLE(stash)           (HvFLAGS(stash) & HvAUXf_ROLE)

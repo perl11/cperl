@@ -5,7 +5,7 @@ BEGIN {
     #require './test.pl';
 }
 local($\, $", $,) = (undef, ' ', '');
-print "1..10\n";
+print "1..12\n";
 my $test = 1;
 
 class Foo {
@@ -30,8 +30,10 @@ class Foo {
 
   sub sub1 ($b)              { print "ok $test\n"; $test++; Foo->a - $b }
 }
+print __PACKAGE__ ne 'main' ? "not " : "", "ok ", $test++," # curstash\n";
 
 my $c = new Foo;
+print ref $c ne "Foo" ? "not " : "", "ok ", $test++, " # ref \$c\n";
 $c->meth1;
 $c->mul1(0);
 Foo::sub1(1);
@@ -52,7 +54,7 @@ Baz->class();
 Bar->class();
 
 class Baz1 is Foo {
-  method new {}
+  method new { bless [0], 'Baz1' }
 }
 print scalar @Baz1::ISA != 1 ? "not " : "", "ok ", $test++, "\n";
 print $Baz1::ISA[0] ne "Foo" ? "not " : "", "ok ", $test++, "\n";

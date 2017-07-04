@@ -1273,6 +1273,7 @@ pR	|OP*	|oopsAV		|NN OP* o
 : Used in perly.y
 pR	|OP*	|oopsHV		|NN OP* o
 pM	|void	|class_role	|NN OP* o
+pM	|void	|class_role_finalize|NN OP* o
 
 : peephole optimiser
 p	|void	|peep		|NULLOK OP* o

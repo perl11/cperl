@@ -19195,22 +19195,21 @@ and add its ISA and DOES arrays. They are closed by default.
 
 :native is parsed as repr(CStruct). This needs a HvAUX flag as well.
 
+Warn on existing packages.
+
 =cut
 */
 void
 Perl_class_role(pTHX_ OP* o)
 {
     bool is_role;
-    SV *pkg;
-    OP *pop;
+    SV *name; HV* stash;
     PERL_ARGS_ASSERT_CLASS_ROLE;
 
-    if (IS_TYPE(o, LIST)) {
+    if (IS_TYPE(o, LIST))
         o = OpSIBLING(OpFIRST(o));
-    }
-    pop = o;
     is_role = OpSPECIAL(o);
-    pkg = cSVOPo->op_sv;
+    name = cSVOPo->op_sv;
 
     /* get the isa and does AV from the op, not some parser SVs, as
        the full class block was parsed with this, and there might be some
@@ -19221,10 +19220,10 @@ Perl_class_role(pTHX_ OP* o)
     if (OpSIBLING(o)) {
         o = OpSIBLING(o);
         if (IS_TYPE(o, RV2AV))
-            class_isamagic(o, pkg, "::ISA", 5);
+            class_isamagic(o, name, "::ISA", 5);
         o = OpSIBLING(o);
         if (IS_TYPE(o, RV2AV))
-            class_isamagic(o, pkg, "::DOES", 6);
+            class_isamagic(o, name, "::DOES", 6);
     }
     if ((stash = gv_stashsv(name, 0)))
         /* diag_listed_as: package %s redefined as class */
@@ -19234,10 +19233,60 @@ Perl_class_role(pTHX_ OP* o)
                                                       : "class"
                                       : "package",
                        SVfARG(name), is_role ? "role" : "class");
-    package(pop); /* free's o */
+    /*package(pop);*/ /* free's o */
+    SAVEGENERICSV(PL_curstash);
+    save_item(PL_curstname);
+    PL_curstash = (HV *)SvREFCNT_inc(gv_stashsv(name, GV_ADD));
+    sv_setsv(PL_curstname, name);
+    PL_hints |= HINT_BLOCK_SCOPE;
+    PL_parser->copline = NOLINE;
+    
     HvCLASS_on(PL_curstash);
     if (is_role)
         HvROLE_on(PL_curstash);
+}
+
+/*
+=for apidoc class_role_finalize
+
+Create the field accessors and resolve internal lexicals to fields.
+Apply fields optimizations and type checks.
+Close the class/role.
+
+Note that we need to undo the stash restricted'ness during
+destruction.
+
+=cut
+*/
+void
+Perl_class_role_finalize(pTHX_ OP* o)
+{
+    SV *name; GV* sym; HV* stash;
+    STRLEN len;
+    PERL_ARGS_ASSERT_CLASS_ROLE_FINALIZE;
+
+    if (IS_TYPE(o, LIST))
+        o = OpSIBLING(OpFIRST(o));
+    name = cSVOPo->op_sv;
+    stash = gv_stashsv(name, 0);
+    len = SvCUR(name);
+    /*SvREADONLY_off(stash);*/
+    SvREADONLY_off(name);
+
+    sv_catpvs(name, "::ISA");
+    sym = gv_fetchsv(name, 0, SVt_PVAV);
+    if (sym && GvAV(sym))
+        SvREADONLY_on(GvAV(sym));
+
+    SvCUR_set(name, len);
+    sv_catpvs(name, "::DOES");
+    sym = gv_fetchsv(name, 0, SVt_PVAV);
+    if (sym && GvAV(sym))
+        SvREADONLY_on(GvAV(sym));
+    SvCUR_set(name, len);
+
+    SvREADONLY_on(stash);
+    PL_parser->in_class = FALSE;
 }
 
 /*
