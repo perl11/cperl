@@ -3421,7 +3421,8 @@ Perl_sv_2bool_flags(pTHX_ SV *sv, I32 flags)
                 return cBOOL(svb);
             }
 	}
-	return SvRV(sv) != 0;
+	assert(SvRV(sv));
+	return TRUE;
     }
     if (isREGEXP(sv))
 	return
