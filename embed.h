@@ -97,6 +97,8 @@
 #define ck_warner		Perl_ck_warner
 #define ck_warner_d		Perl_ck_warner_d
 #endif
+#define class_role(a)		Perl_class_role(aTHX_ a)
+#define class_role_finalize(a)	Perl_class_role_finalize(aTHX_ a)
 #define clear_defarray(a,b)	Perl_clear_defarray(aTHX_ a,b)
 #define cop_fetch_label(a,b,c)	Perl_cop_fetch_label(aTHX_ a,b,c)
 #define cop_store_label(a,b,c,d)	Perl_cop_store_label(aTHX_ a,b,c,d)
@@ -1272,8 +1274,6 @@
 #define ck_tell(a)		Perl_ck_tell(aTHX_ a)
 #define ck_trunc(a)		Perl_ck_trunc(aTHX_ a)
 #define ck_type(a)		Perl_ck_type(aTHX_ a)
-#define class_role(a)		Perl_class_role(aTHX_ a)
-#define class_role_finalize(a)	Perl_class_role_finalize(aTHX_ a)
 #define closest_cop(a,b,c,d)	Perl_closest_cop(aTHX_ a,b,c,d)
 #define core_prototype(a,b,c,d)	Perl_core_prototype(aTHX_ a,b,c,d)
 #define coresub_op(a,b,c)	Perl_coresub_op(aTHX_ a,b,c)

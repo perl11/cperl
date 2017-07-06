@@ -5171,6 +5171,7 @@ pod/perlbot.pod
 pod/perlcall.pod		Perl calling conventions from C
 pod/perlcdelta.pod		cperl changes in version 5.27.1c since 5.27.0c
 pod/perlcheat.pod		Perl cheat sheet
+pod/perlclass.pod		Modern cperl classes and roles
 pod/perlclib.pod		Internal replacements for standard C library functions
 pod/perlcommunity.pod		Perl community information
 pod/perlcperl.pod		Perl notes for cperl (variant)
@@ -5247,7 +5248,7 @@ pod/perltodo.pod
 pod/perltooc.pod		
 pod/perltoot.pod		
 pod/perltrap.pod		Perl traps for the unwary
-pod/perltypes.pod		Perl type support
+pod/perltypes.pod		cperl type support
 pod/perlunicode.pod		Perl Unicode support
 pod/perlunicook.pod		Perl Unicode cookbook
 pod/perlunifaq.pod		Perl Unicode FAQ

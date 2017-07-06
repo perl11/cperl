@@ -1,0 +1,176 @@
+=encoding utf8
+
+=head1 NAME
+
+perlclass - Modern cperl classes and roles
+
+=head1 SYNOPSIS
+
+To declare classes and roles:
+X<class> X<role>
+
+    class NAME           { }  # declare a class
+    role NAME            { }  # declare a role
+    class NAME is PARENT { }  # inherit from one or more classes
+    class NAME does ROLE { }  # or roles
+    role NAME is PARENT  { }
+    role NAME does ROLE  { }
+
+    class NAME {
+      has $a;                 # declare a field
+      method new ($a?) { bless [$a], $self } # not needed, inherited from Mu
+    }
+    class NAME :native {      # native C-struct with 2 native int fields
+      has int $a = 0;         # for the ffi
+      has int $b = 0;
+    }
+
+    class NAME :open {        # allows run-time monkey-patching, adding new methods.
+      has $a = 0;             # disables most compile-time optimizations.
+      has $b = 0;
+    }
+
+    my CLASS $obj = CLASS->new; # default object constructor
+    $obj->{field};              # fast pseudo-hash syntax, e.g. a getter
+    $obj->field = 1;            # slow method syntax, here as setter
+
+=head1 DESCRIPTION
+
+This document is a reference to Modern Perl programming in cperl with
+the introduction of five new builtin keywords: B<class> B<role>
+B<method> B<multi> B<has>, enabling the features and performance of
+perl6 object orientation into perl5.
+
+A class or a role is a special package, declared as a block with
+subroutines, methods and has fields, with dynamic run-time inheritance
+from parent classes, compile-time composition of roles, but unlike
+perl6 a class or role is closed by default. I.e. the class namespace
+and the C<@ISA> and C<@DOES> arrays are readonly.  Old open dynamic classes
+can easily be declared with the old package syntax, but methods and
+the other new syntax is forbidden there. Only multi subroutines are
+allowed outside of classes.
+
+Classes define types, and a hierarchy of types. All variables can be
+optionally typed referring to a class, which can be a builtin class
+like the coretypes or a user-defined class. See L<perltypes>.  This is
+the same as in perl6, but fundamentally different to all the naive
+ad-hoc perl5 OO extensions, which treat types as unnecessary and slow
+extensions. Types make cperl faster and safer.
+
+The root of the cperl type hierarchy is L<Mu>, every class is a Mu.
+The MOP is defined in the L<Metamodel> hierarchy, exactly as in
+Perl 6.
+
+=head1 NEW KEYWORDS
+
+=head2 CLASS
+
+A class is a cperl package with a readonly namespace, readonly C<@ISA>
+and C<@DOES> arrays for run-time inheritance and compile-time
+composition, and with compile-time optimized and type-checked fields
+and methods, subroutines and multi methods or subroutines,
+i.e. polymorphic dispatch with generics, dispatching on the method
+types.
+
+It is different from an old package by being declared via C<use
+L<base>> or via the class keyword, and detected by the HvCLASS flag in
+the stash. Anonymous classes can only be created via the API, either
+using L<perlapi/class_role> and L<perlapi/class_role_finalize>, or
+setting C<HvCLASS_on(STASH)> and C<HvROLE_on(STASH)>, or by adding a
+class and changing the name to a unique one. Dispatch and inheritance
+works on the classnames, not its pointers.
+
+Classes can inherit from classes via a sequence of C<is CLASS> traits
+or compose from other roles via C<does ROLE>. Multiple such C<is> or
+C<does> traits are allowed.
+
+The B<:native> attribute or B<:repr(CStruct)>, B<:repr(CUnion)> enforces
+natively typed access to the fields, with the same layout as in C. It is used
+to pass pointers or structs to and from C, e.g. via the L<ffi>. I<(NYI)>
+
+=head2 ROLE
+
+A role is a special class which can be compile-time composed into
+other classes or roles via C<does>. All the fields, methods and
+subroutines are copied into the child class or role.
+
+If a composed method or field already exists, an error is thrown.
+
+Roles can inherit from classes via a sequence of C<is CLASS> traits or
+compose from roles via C<does ROLE>. Multiple such C<is> or C<does>
+traits are allowed.
+
+    role MyRole { has $a }
+    class MyClass does MyRole {}
+
+    MyClass->new->a = 1; # use the a setter method from MyRole
+
+=head2 METHOD
+
+    method NAME (SIGNATURE) :ATTR BLOCK
+
+The signature is optional and defaults to C<($self)>. C<$self> is
+added automatically to all methods as first signature argument.  Using
+a different invocant than C<$self> is possible via the invocant
+signature syntax C<$this:>, a C<:> suffix.
+
+    method new ($this:, @inits) { bless [@inits], $this }
+
+The declaration is similar to the old-style
+C<sub NAME (SIGNATURE) :method BLOCK> declaration, just that with
+C<sub :method> the C<$self> argument is not automatically added.
+
+Calling a method as subroutine is forbidden, and
+calling a subroutine with a signature as method is forbidden also.
+This might bite you with C<use base>, which creates cperl classes.
+The new method keyword is only parsed inside a role or class. Outside it
+will try to call a subroutine C<method>, which usually doesn't exist.
+
+=head1 MULTI
+
+A multi call polymorphically dispatches on all declared types of the
+method or subroutine argument to the best fit of all declared multi
+methods or subroutines. The dispatch strategy is left-to-right without
+backtracking, not smallest distance from all, as e.g. with perl6 or
+L<Class::MultiMethods|http://search.cpan.org/dist/Class-Multimethods/>.
+
+    multi method NAME (SIGNATURE) :ATTR BLOCK
+    multi sub NAME (SIGNATURE) :ATTR BLOCK
+    multi NAME (SIGNATURE) :ATTR BLOCK
+
+The new multi keyword is allowed inside and outside of roles or classes.
+The default C<$self> argument is automatically added for multi methods,
+as with normal methods.
+
+Internally a multi adds the signature types to the name after a C<\0>.
+
+=head1 HAS
+
+A class or role field is declared via C<has TYPE NAME = value;>, with
+the type and the default value being optional, and the name having
+optional attributes, same as MY variable declarations. Internally each
+has field is declared as my variable, and then changed to field
+accessors in all methods.
+
+   has $NAME;
+   has @ARRAY;
+   has int $i = 0;
+   has int $i :const = 0;
+
+Each field generates an entry into the C<@FIELDS> array, used to create
+the field accessors at compile-time, plus a C<%FIELDS> hash entry for
+run-time access for computed field names, as in C<use L<fields>>.
+Native classes requires mandatory types for each field, the layout will aligned
+the same as C structs.
+
+Additionally perl6-like accessors are created, for non-const fields
+getters and lvalue setter methods, for const fields only getters.
+
+Inside a class C<<< $self->{field} >>> is the same as C<<<
+$self->field >>> or just C<$field>.  Outside a class the first two
+accessors must be used.  If the name is computed or the field is
+inherited from a parent class the lookup will be dynamic via method
+inheritance, composed fields from C<does ROLE> compile to direct array
+accesses in C<$self>.
+
+=cut
