@@ -18,7 +18,7 @@ use vars qw(
 
 @ISA = ('Pod::Simple::BlackBox');
 use cperl;
-our $VERSION = '4.35c'; # modernized
+our $VERSION = '4.36c'; # modernized
 $VERSION =~ s/c$//;
 
 @Known_formatting_codes = qw(I B C L E F S X Z); 
@@ -127,7 +127,7 @@ __PACKAGE__->_accessorize(
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-sub any_errata_seen ($self) {  # good for using as an exit() value...
+sub any_errata_seen ($self) :method {  # good for using as an exit() value...
   return $self->{'errors_seen'} || 0;
 }
 
@@ -136,11 +136,11 @@ sub errata_seen {
 }
 
 # Returns the encoding only if it was recognized as being handled and set
-sub detected_encoding ($self) {
+sub detected_encoding ($self) :method {
   return $self->{'detected_encoding'};
 }
 
-sub encoding ($this, @l) {
+sub encoding ($this, @l) :method {
   return $this->{'encoding'} unless @l;  # GET.
 
   $this->_handle_encoding_line("=encoding $l[0]");
@@ -190,7 +190,7 @@ sub version_report {
 #sub _curr_open_listref { $_[0]{'curr_open'} ||= [] }
 
 
-sub output_string ($this, @l) {
+sub output_string ($this, @l) :method {
   # Works by faking out output_fh.  Simplifies our code.
   #
   return $this->{'output_string'} unless @l;  # GET.
@@ -232,15 +232,15 @@ sub new {
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 # OVERRIDE IN DERIVED CLASS
-sub _handle_element_start ($self, $element_name, $attr?) {
+sub _handle_element_start ($self, $element_name, $attr?) :method {
   return;
 }
 # OVERRIDE IN DERIVED CLASS
-sub _handle_element_end ($self, $element_name, $attr?) {
+sub _handle_element_end ($self, $element_name, $attr?) :method {
   return;
 }
 # OVERRIDE IN DERIVED CLASS
-sub _handle_text ($self, $text) {
+sub _handle_text ($self, $text) :method {
   return;
 }
 
@@ -248,17 +248,17 @@ sub _handle_text ($self, $text) {
 #
 # And now directives (not targets)
 
-sub accept_directive_as_verbatim ($self, @args) { 
+sub accept_directive_as_verbatim ($self, @args) :method {
   $self->_accept_directives('Verbatim', @args)
 }
-sub accept_directive_as_data ($self, @args) {
+sub accept_directive_as_data ($self, @args) :method {
   $self->_accept_directives('Data', @args)
 }
-sub accept_directive_as_processed ($self, @args) { 
+sub accept_directive_as_processed ($self, @args) :method {
   $self->_accept_directives('Plain', @args)
 }
 
-sub _accept_directives ($this, $type, @args) {
+sub _accept_directives ($this, $type, @args) :method {
   foreach my $d (@args) {
     next unless defined $d and length $d;
     Carp::croak "\"$d\" isn't a valid directive name"
@@ -278,9 +278,11 @@ sub _accept_directives ($this, $type, @args) {
 #--------------------------------------------------------------------------
 # TODO: document these:
 
-sub unaccept_directive ($self, @directives) { $self->unaccept_directives(@directives) };
+sub unaccept_directive ($self, @directives) :method {
+  $self->unaccept_directives(@directives)
+}
 
-sub unaccept_directives ($self, @directives) {
+sub unaccept_directives ($self, @directives) :method {
   foreach my $d (@directives) {
     next unless defined $d and length $d;
     Carp::croak "\"$d\" isn't a valid directive name"
@@ -298,16 +300,20 @@ sub unaccept_directives ($self, @directives) {
 #
 # And now targets (not directives)
 
-sub accept_target ($this, @args) { $this->accept_targets(@args) } # alias
+sub accept_target ($this, @args) :method { 
+  $this->accept_targets(@args) } # alias
 
-sub accept_target_as_text ($this, @args) { $this->accept_targets_as_text(@args) } # alias
+sub accept_target_as_text ($this, @args) :method {
+  $this->accept_targets_as_text(@args) } # alias
 
-sub accept_targets ($this, @args) { $this->_accept_targets('1', @args) }
+sub accept_targets ($this, @args) :method {
+  $this->_accept_targets('1', @args) }
 
-sub accept_targets_as_text ($this, @args) { $this->_accept_targets('force_resolve', @args) }
+sub accept_targets_as_text ($this, @args) :method {
+  $this->_accept_targets('force_resolve', @args) }
 # forces them to be processed, even when there's no ":".
 
-sub _accept_targets ($this, $type, @args) {
+sub _accept_targets ($this, $type, @args) :method {
   foreach my $t (@args) {
     next unless defined $t and length $t;
     # TODO: enforce some limitations on what a target name can be?
@@ -319,9 +325,10 @@ sub _accept_targets ($this, $type, @args) {
 }
 
 #--------------------------------------------------------------------------
-sub unaccept_target ($this, @args) { $this->unaccept_targets(@args) }
+sub unaccept_target ($this, @args) :method {
+  $this->unaccept_targets(@args) }
 
-sub unaccept_targets ($this, @args) {
+sub unaccept_targets ($this, @args) :method {
   foreach my $t (@args) {
     next unless defined $t and length $t;
     # TODO: enforce some limitations on what a target name can be?
@@ -343,9 +350,10 @@ if (! defined $xml_name_re) {
     $xml_name_re = qr/[\x00-\x2C\x2F\x39\x3B-\x40\x5B-\x5E\x60\x7B-\x7F]/;
 }
 
-sub accept_code ($this, @args) { $this->accept_codes(@args) } # alias
+sub accept_code ($this, @args) :method {
+  $this->accept_codes(@args) } # alias
 
-sub accept_codes ($this, @args) {  # Add some codes
+sub accept_codes ($this, @args) :method {  # Add some codes
   foreach my $new_code (@args) {
     next unless defined $new_code and length $new_code;
     # A good-enough check that it's good as an XML Name symbol:
@@ -373,9 +381,9 @@ sub accept_codes ($this, @args) {  # Add some codes
 }
 
 #--------------------------------------------------------------------------
-sub unaccept_code ($self, @args) { $self->unaccept_codes(@args) }
+sub unaccept_code ($self, @args) :method { $self->unaccept_codes(@args) }
 
-sub unaccept_codes ($this, @args) { # remove some codes
+sub unaccept_codes ($this, @args) :method { # remove some codes
   foreach my $new_code (@args) {
     next unless defined $new_code and length $new_code;
     # A good-enough check that it's good as an XML Name symbol:
@@ -402,7 +410,7 @@ sub unaccept_codes ($this, @args) { # remove some codes
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-sub parse_string_document ($self, @args) {
+sub parse_string_document ($self, @args) :method {
   foreach my $line_group (@args) {
     next unless defined $line_group and length $line_group;
     pos($line_group) = 0;
@@ -422,7 +430,7 @@ sub parse_string_document ($self, @args) {
   return $self;
 }
 
-sub _init_fh_source ($self, $source) {
+sub _init_fh_source ($self, $source) :method {
 
   #DEBUG > 1 and print STDERR "Declaring $source as :raw for starters\n";
   #$self->_apply_binmode($source, ':raw');
@@ -434,9 +442,9 @@ sub _init_fh_source ($self, $source) {
 #:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.
 #
 
-sub parse_file ($self, $source) {
+sub parse_file ($self, $source) :method {
 
-  if(!defined $source) {
+  if (!defined $source) {
     Carp::croak("Can't use empty-string as a source for parse_file");
   } elsif(ref(\$source) eq 'GLOB') {
     $self->{'source_filename'} = '' . ($source);
@@ -457,7 +465,7 @@ sub parse_file ($self, $source) {
 
   $self->{'source_fh'} = $source;
 
-  my($i, @lines);
+  my ($i, @lines);
   until( $self->{'source_dead'} ) {
     splice @lines;
 
@@ -488,7 +496,7 @@ sub parse_file ($self, $source) {
 
 #:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.
 
-sub parse_from_file ($self, $source?, $to?) {
+sub parse_from_file ($self, $source?, $to?) :method {
   # An emulation of Pod::Parser's interface, for the sake of Perldoc.
   # Basically just a wrapper around parse_file.
 
@@ -527,7 +535,7 @@ sub parse_from_file ($self, $source?, $to?) {
 
 #-----------------------------------------------------------------------------
 
-sub whine ($self, $line, $complaint) {
+sub whine ($self, $line, $complaint) :method {
   ++$self->{'errors_seen'};
   if($self->{'no_whining'}) {
     DEBUG > 9 and print STDERR "Discarding complaint (at line $line) $complaint\n because no_whining is on.\n";
@@ -538,19 +546,19 @@ sub whine ($self, $line, $complaint) {
   return $self->_complain_errata($line, $complaint);
 }
 
-sub scream ($self,$line,$complaint) {    # like whine, but not suppressible
+sub scream ($self,$line,$complaint) :method {    # like whine, but not suppressible
   ++$self->{'errors_seen'};
   push @{$self->{'all_errata'}{$line}}, $complaint;
   return $self->_complain_warn($line,$complaint) if $self->{'complain_stderr'};
   return $self->_complain_errata($line,$complaint);
 }
 
-sub _complain_warn ($self,$line,$complaint) {
+sub _complain_warn ($self,$line,$complaint) :method {
   return printf STDERR "%s around line %s: %s\n",
     $self->{'source_filename'} || 'Pod input', $line, $complaint;
 }
 
-sub _complain_errata ($self,$line,$complaint) {
+sub _complain_errata ($self,$line,$complaint) :method {
   if( $self->{'no_errata_section'} ) {
     DEBUG > 9 and print STDERR "Discarding erratum (at line $line) $complaint\n because no_errata_section is on.\n";
   } else {
@@ -563,7 +571,7 @@ sub _complain_errata ($self,$line,$complaint) {
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-sub _get_initial_item_type ($self, $para) {
+sub _get_initial_item_type ($self, $para) :method {
   # A hack-wrapper here for when you have like "=over\n\n=item 456\n\n"
   return $para->[1]{'~type'}  if $para->[1]{'~type'};
 
@@ -575,7 +583,7 @@ sub _get_initial_item_type ($self, $para) {
 
 
 
-sub _get_item_type ($self, $para) {       # mutates the item!!
+sub _get_item_type ($self, $para) :method {       # mutates the item!!
   return $para->[1]{'~type'} if $para->[1]{'~type'};
 
   # Otherwise we haven't yet been to this node.  Maybe alter it...
@@ -653,7 +661,7 @@ sub _make_treelet {
 
 #:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.
 
-sub _wrap_up ($self, @stack) {
+sub _wrap_up ($self, @stack) :method {
   my $nixx  = $self->{'nix_X_codes'};
   my $merge = $self->{'merge_text' };
   return unless $nixx or $merge;
@@ -664,10 +672,10 @@ sub _wrap_up ($self, @stack) {
   ;    
   
 
-  my($i, $treelet);
-  while($treelet = shift @stack) {
+  my ($i, $treelet);
+  while ($treelet = shift @stack) {
     DEBUG > 3 and print STDERR " Considering children of this $treelet->[0] node...\n";
-    for($i = 2; $i < @$treelet; ++$i) { # iterate over children
+    for ($i = 2; $i < @$treelet; ++$i) { # iterate over children
       DEBUG > 3 and print STDERR " Considering child at $i ", pretty($treelet->[$i]), "\n";
       if($nixx and ref $treelet->[$i] and $treelet->[$i][0] eq 'X') {
         DEBUG > 3 and print STDERR "   Nixing X node at $i\n";
@@ -712,7 +720,7 @@ sub _wrap_up ($self, @stack) {
 
 #:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.
 
-sub _remap_sequences ($self,@stack) {
+sub _remap_sequences ($self,@stack) :method {
   
   if(@stack == 1 and @{ $stack[0] } == 3 and !ref $stack[0][2]) {
     # VERY common case: abort it.
@@ -808,7 +816,7 @@ sub _remap_sequences ($self,@stack) {
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-sub _ponder_extend ($self, $para) {
+sub _ponder_extend ($self, $para) :method {
 
   # "Go to an extreme, move back to a more comfortable place"
   #  -- /Oblique Strategies/,  Brian Eno and Peter Schmidt
@@ -931,7 +939,7 @@ sub _ponder_extend ($self, $para) {
 
 #:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.
 
-sub _treat_Zs ($self,@stack) {  # Nix Z<...>'s
+sub _treat_Zs ($self,@stack) :method {  # Nix Z<...>'s
 
   my($i, $treelet);
   my $start_line = $stack[0][1]{'start_line'};
@@ -1026,7 +1034,7 @@ sub _treat_Zs ($self,@stack) {  # Nix Z<...>'s
 # Note, however, that formatting codes and Z<>'s can occur in any and all
 # parts of an L<...> (i.e., in name, section, text, and url).
 
-sub _treat_Ls ($self,@stack) {  # Process our dear dear friends, the L<...> sequences
+sub _treat_Ls ($self,@stack) :method {  # Process our dear dear friends, the L<...> sequences
 
   # L<name>
   # L<name/"sec"> or L<name/sec>
@@ -1332,7 +1340,7 @@ sub _treat_Ls ($self,@stack) {  # Process our dear dear friends, the L<...> sequ
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-sub _treat_Es ($self, @stack) {
+sub _treat_Es ($self, @stack) :method {
 
   my($i, $treelet, $content, $replacer, $charnum);
   my $start_line = $stack[0][1]{'start_line'};
@@ -1424,7 +1432,7 @@ sub _treat_Es ($self, @stack) {
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-sub _treat_Ss ($self,$treelet) {
+sub _treat_Ss ($self,$treelet) :method {
   
   _change_S_to_nbsp($treelet,0) if $self->{'nbsp_for_S'};
 
@@ -1435,7 +1443,7 @@ sub _treat_Ss ($self,$treelet) {
   return;
 }
 
-sub _change_S_to_nbsp ($treelet, $in_s) { #  a recursive function
+sub _change_S_to_nbsp ($treelet, $in_s) :method { #  a recursive function
   # Sanely assumes that the top node in the excursion won't be an S node.
   
   my $is_s = ('S' eq $treelet->[0]);
@@ -1489,7 +1497,7 @@ sub _accessorize {  # A simple-minded method-maker
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #=============================================================================
 
-sub filter ($class, $source) {
+sub filter ($class, $source) :method {
   my $new = $class->new;
   $new->output_fh(*STDOUT{IO});
   
