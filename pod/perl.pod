@@ -109,9 +109,10 @@ aux c2ph h2ph h2xs cperlbug pl2pm pod2html pod2man splain xsubpp
     perlref		Perl references, the rest of the story
     perlform		Perl formats
     perlobj		Perl objects
+    perlclass		Modern cperl classes and roles
     perltie		Perl objects hidden behind simple variables
       perldbmfilter	Perl DBM filters
-    perltypes		Perl type support
+    perltypes		cperl type support
 
     perlipc		Perl interprocess communication
     perlfork		Perl fork() information

@@ -930,11 +930,13 @@ PERL_CALLCONV bool	Perl_ckwarn_d(pTHX_ U32 w)
 			__attribute__pure__;
 
 PERL_CALLCONV void	Perl_class_role(pTHX_ OP* o)
+			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_CLASS_ROLE	\
 	assert(o)
 
 PERL_CALLCONV void	Perl_class_role_finalize(pTHX_ OP* o)
+			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_CLASS_ROLE_FINALIZE	\
 	assert(o)

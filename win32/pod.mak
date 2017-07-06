@@ -92,6 +92,7 @@ POD = cperl.pod	\
 	perlcall.pod	\
 	perlcdelta.pod	\
 	perlcheat.pod	\
+	perlclass.pod	\
 	perlclib.pod	\
 	perlcommunity.pod	\
 	perlcperl.pod	\
@@ -369,6 +370,7 @@ MAN = cperl.man	\
 	perlcall.man	\
 	perlcdelta.man	\
 	perlcheat.man	\
+	perlclass.man	\
 	perlclib.man	\
 	perlcommunity.man	\
 	perlcperl.man	\
@@ -647,6 +649,7 @@ HTML = cperl.html	\
 	perlcall.html	\
 	perlcdelta.html	\
 	perlcheat.html	\
+	perlclass.html	\
 	perlclib.html	\
 	perlcommunity.html	\
 	perlcperl.html	\
@@ -923,6 +926,7 @@ TEX = cperl.tex	\
 	perlcall.tex	\
 	perlcdelta.tex	\
 	perlcheat.tex	\
+	perlclass.tex	\
 	perlclib.tex	\
 	perlcommunity.tex	\
 	perlcperl.tex	\
