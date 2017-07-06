@@ -25,7 +25,7 @@ __PACKAGE__->_accessorize(
 #
 #  And here is how we implement a pull-parser on top of a push-parser...
 
-sub filter ($self, $source?) {
+sub filter ($self, $source?) :method {
   $self = $self->new unless ref $self;
 
   $source = *STDIN{IO} unless defined $source;
@@ -38,12 +38,12 @@ sub filter ($self, $source?) {
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-sub parse_string_document ($this, str $str) {
+sub parse_string_document ($this, str $str) :method {
   $this->set_source(\$str);
   $this->run;
 }
 
-sub parse_file ($this, str $filename) {
+sub parse_file ($this, str $filename) :method {
   $this->set_source($filename);
   $this->run;
 }
@@ -77,7 +77,7 @@ sub parse_line {
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-sub new ($class, @args) {
+sub new ($class, @args) :method {
   my $self = $class->SUPER::new(@args);
   die "Couldn't construct for $class" unless $self;
 
@@ -93,7 +93,7 @@ sub new ($class, @args) {
 
 # ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
-sub get_token ($self) {
+sub get_token ($self) :method {
   DEBUG > 1 and print STDERR "\nget_token starting up on $self.\n";
   DEBUG > 2 and print STDERR " Items in token-buffer (",
    scalar( @{ $self->{'token_buffer'} } ) ,
@@ -201,7 +201,7 @@ sub get_token ($self) {
   return shift @{$self->{'token_buffer'}}; # that's an undef if empty
 }
 
-sub unget_token ($self, @tokens) {
+sub unget_token ($self, @tokens) :method {
   DEBUG and print STDERR "Ungetting ", scalar(@tokens), " tokens: ",
    @tokens ? "@tokens\n" : "().\n";
   foreach my $t (@tokens) {
@@ -270,21 +270,21 @@ sub set_source {
 
 # ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
-sub get_title_short ($self, %attrs) { 
+sub get_title_short ($self, %attrs) :method {
   $self->get_short_title(%attrs)  } # alias
 
-sub get_short_title ($self, %attrs) {
+sub get_short_title ($self, %attrs) :method {
   my $title = $self->get_title(%attrs);
   $title = $1 if $title =~ m/^(\S{1,60})\s+--?\s+./s;
   # turn "Foo::Bar -- bars for your foo" into "Foo::Bar"
   return $title;
 }
 
-sub get_title ($self, %attrs) {
+sub get_title ($self, %attrs) :method {
   $self->_get_titled_section(
     'NAME', max_token => 50, desperate => 1, %attrs)
 }
-sub get_version ($self, %attrs) {
+sub get_version ($self, %attrs) :method {
   $self->_get_titled_section(
    'VERSION',
     max_token => 400,
@@ -293,7 +293,7 @@ sub get_version ($self, %attrs) {
     %attrs,
   );
 }
-sub get_description ($self, %attrs) {
+sub get_description ($self, %attrs) :method {
   $self->_get_titled_section(
    'DESCRIPTION',
     max_token => 400,
@@ -301,9 +301,9 @@ sub get_description ($self, %attrs) {
     %attrs,
 ) }
 
-sub get_authors ($self, %attrs) { $self->get_author(%attrs) }  # a harmless alias
+sub get_authors ($self, %attrs) :method { $self->get_author(%attrs) }  # a harmless alias
 
-sub get_author ($this, %attrs) {
+sub get_author ($this, %attrs) :method {
   # Max_token is so high because these are
   #  typically at the end of the document:
   $this->_get_titled_section('AUTHOR' , max_token => 10_000, %attrs) ||
@@ -312,7 +312,7 @@ sub get_author ($this, %attrs) {
 
 #--------------------------------------------------------------------------
 
-sub _get_titled_section ($self, $titlename, %options) {
+sub _get_titled_section ($self, $titlename, %options) :method {
   # Based on a get_title originally contributed by Graham Barr
   
   my $max_token            = delete $options{'max_token'};
@@ -474,7 +474,7 @@ sub _get_titled_section ($self, $titlename, %options) {
 #
 #  Methods that actually do work at parse-time:
 
-sub _handle_element_start ($self, $element_name, $attr?) {
+sub _handle_element_start ($self, $element_name, $attr?) :method {
   DEBUG > 2 and print STDERR "++ $element_name (", map("<$_> ", %{$attr}), ")\n";
   
   push @{ $self->{'token_buffer'} },
@@ -482,14 +482,14 @@ sub _handle_element_start ($self, $element_name, $attr?) {
   return;
 }
 
-sub _handle_text ($self, str $text) {
+sub _handle_text ($self, str $text) :method {
   DEBUG > 2 and print STDERR "== $text\n";
   push @{ $self->{'token_buffer'} },
        $self->{'text_token_class'}->new($text);
   return;
 }
 
-sub _handle_element_end ($self, str $element_name, $attr?) {
+sub _handle_element_end ($self, str $element_name, $attr?) :method {
   DEBUG > 2 and print STDERR "-- $element_name\n";
   push @{ $self->{'token_buffer'} }, 
        $self->{'end_token_class'}->new($element_name);

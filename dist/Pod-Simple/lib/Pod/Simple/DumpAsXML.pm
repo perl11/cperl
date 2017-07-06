@@ -2,7 +2,7 @@
 require 5;
 package Pod::Simple::DumpAsXML;
 use cperl;
-our $VERSION = '4.35c'; # modernized
+our $VERSION = '4.36c'; # modernized
 $VERSION =~ s/c$//;
 use Pod::Simple ();
 BEGIN {@ISA = ('Pod::Simple')}
@@ -14,7 +14,7 @@ use Text::Wrap qw(wrap);
 
 BEGIN { *DEBUG = \&Pod::Simple::DEBUG unless defined &DEBUG }
 
-sub new ($self, @args) {
+sub new ($self, @args) :method {
   my $new = $self->SUPER::new(@args);
   $new->{'output_fh'} ||= *STDOUT{IO};
   $new->accept_codes('VerbatimFormatted');
@@ -24,7 +24,7 @@ sub new ($self, @args) {
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-sub _handle_element_start ($self, $element_name, $attr?) {
+sub _handle_element_start ($self, $element_name, $attr?) :method {
   my $fh = $self->{'output_fh'};
   my($key, $value);
   DEBUG and print STDERR "++ $element_name\n";
@@ -45,7 +45,7 @@ sub _handle_element_start ($self, $element_name, $attr?) {
   return;
 }
 
-sub _handle_text ($self, str $text='') {
+sub _handle_text ($self, str $text='') :method {
   DEBUG and print STDERR "== \"$text\"\n";
   if(length $text) {
     my $indent = '  ' x $self->{'indent'};
@@ -57,7 +57,7 @@ sub _handle_text ($self, str $text='') {
   return;
 }
 
-sub _handle_element_end ($self, str $element_name, $attr?) {
+sub _handle_element_end ($self, str $element_name, $attr?) :method {
   DEBUG and print STDERR "-- $element_name\n";
   print {$self->{'output_fh'}}
    '  ' x --$self->{'indent'}, "</", $element_name, ">\n";
