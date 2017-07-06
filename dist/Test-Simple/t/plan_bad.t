@@ -18,7 +18,7 @@ is $@, sprintf "Number of tests must be a positive integer.  You gave it 'no_pla
 my $foo = [];
 my @foo = ($foo, 2, 3);
 ok !eval { $tb->plan( tests => @foo ) };
-is $@, sprintf "Too many arguments for subroutine Test::Builder::plan. Want: 1-3, but got: 5 at %s line %d.\n", $0, __LINE__ - 1;
+is $@, sprintf "Too many arguments for method Test::Builder::plan. Want: 1-3, but got: 5 at %s line %d.\n", $0, __LINE__ - 1;
 
 ok !eval { $tb->plan( tests => 9.99 ) };
 is $@, sprintf "Number of tests must be a positive integer.  You gave it '9.99' at %s line %d.\n", $0, __LINE__ - 1;
