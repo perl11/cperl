@@ -282,7 +282,6 @@ typedef struct hek HEK;
 	UV      svu_uv;			\
 	_NV_BODYLESS_UNION		\
 	SV*     svu_rv;		/* pointer to another SV */		\
-	struct regexp* svu_rx;		\
 	SV**    svu_array;		\
 	HE**	svu_hash;		\
 	GP*	svu_gp;			\
@@ -490,7 +489,12 @@ perform the upgrade if necessary.  See C<L</svtype>>.
 					  refers to an eval or once only
 					  [CvEVAL(cv), CvSPECIAL(cv)]
                                        3: HV: informally reserved by DAPM
-                                          for vtables */
+                                          for vtables, used by cperl for CLASS
+                                       4: Together with other flags (or
+                                          lack thereof) indicates a regex,
+                                          including PVLV-as-regex. See
+                                          isREGEXP().
+                                       */
 #define SVphv_CLASS	SVf_FAKE    /* DAPM wants it for vtables, cperl for classes */
 #define SVf_OOK		0x02000000  /* has valid offset value. For a PVHV this
 				       means that a hv_aux struct is present
@@ -570,7 +574,7 @@ perform the upgrade if necessary.  See C<L</svtype>>.
     STRLEN	xpv_cur;	/* length of svu_pv, or GvFLAGS */	\
     union {								\
 	STRLEN	xpvlenu_len; 	/* allocated size */			\
-	char *	xpvlenu_pv;	/* regexp string */			\
+        struct regexp* xpvlenu_rx; /* regex when SV body is XPVLV */    \
     } xpv_len_u	
 
 #define xpv_len	xpv_len_u.xpvlenu_len
@@ -946,7 +950,7 @@ and C<L</SvIV_set>>.
 #define assert_not_ROK(sv)	assert_(!SvROK(sv) || !SvRV(sv))
 #define assert_not_glob(sv)	assert_(!isGV_with_GP(sv))
 
-#define SvOK(sv)		(SvFLAGS(sv) & SVf_OK || isREGEXP(sv))
+#define SvOK(sv)		(SvFLAGS(sv) & SVf_OK)
 #define SvOK_off(sv)		(assert_not_ROK(sv) assert_not_glob(sv)	\
 				 SvFLAGS(sv) &=	~(SVf_OK|		\
 						  SVf_IVisUV|SVf_UTF8),	\
@@ -1318,8 +1322,7 @@ object type. Exposed to perl code via Internals::SvREADONLY().
 	 }))
 #    define SvCUR(sv)							\
 	(*({ const SV *const _svcur = (const SV *)(sv);			\
-	    assert(PL_valid_types_PVX[SvTYPE(_svcur) & SVt_MASK]	\
-		|| SvTYPE(_svcur) == SVt_REGEXP);			\
+	    assert(PL_valid_types_PVX[SvTYPE(_svcur) & SVt_MASK]);	\
 	    assert(!isGV_with_GP(_svcur));				\
 	    assert(!(SvTYPE(_svcur) == SVt_PVIO				\
 		     && !(IoFLAGS(_svcur) & IOf_FAKE_DIRP)));		\
@@ -1452,8 +1455,7 @@ object type. Exposed to perl code via Internals::SvREADONLY().
                 (((XPVMG*)  SvANY(sv))->xmg_stash = (val)); } STMT_END
 #define SvCUR_set(sv, val) \
 	STMT_START { \
-		assert(PL_valid_types_PVX[SvTYPE(sv) & SVt_MASK]	\
-			|| SvTYPE(sv) == SVt_REGEXP);	\
+		assert(PL_valid_types_PVX[SvTYPE(sv) & SVt_MASK]);	\
 		assert(!isGV_with_GP(sv));		\
 		assert(!(SvTYPE(sv) == SVt_PVIO		\
 		     && !(IoFLAGS(sv) & IOf_FAKE_DIRP))); \
@@ -2287,7 +2289,7 @@ See also C<L</PL_sv_yes>> and C<L</PL_sv_no>>.
     } STMT_END
 #define isREGEXP(sv) \
     (SvTYPE(sv) == SVt_REGEXP				      \
-     || (SvFLAGS(sv) & (SVTYPEMASK|SVp_POK|SVpgv_GP|SVf_FAKE)) \
+     || (SvFLAGS(sv) & (SVTYPEMASK|SVpgv_GP|SVf_FAKE))        \
 	 == (SVt_PVLV|SVf_FAKE))
 
 
