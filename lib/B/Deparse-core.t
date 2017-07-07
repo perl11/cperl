@@ -32,6 +32,7 @@ BEGIN {
         print "1..0 # Skip -- Perl configured without B module\n";
         exit 0;
     }
+    chdir 't' if -d 't' && -f 't/TEST';
 }
 
 use strict;
@@ -231,6 +232,11 @@ while (<DATA>) {
 
 # Special cases
 
+#testit class      => 'class XX { my $a }', "class XX\n{   my \$a;\n}";
+#testit class      => 'class XX is main { my $a }', "class XX is main\n{   my \$a;\n}";
+#testit role       => 'role XX { }', "role XX { }";
+#testit role       => 'role XX is main { }', "role XX is main { }";
+
 testit dbmopen  => 'CORE::dbmopen(%foo, $bar, $baz);';
 testit dbmclose => 'CORE::dbmclose %foo;';
 
@@ -357,6 +363,7 @@ my %not_tested = map { $_ => 1} qw(
     END
     INIT
     UNITCHECK
+    class role method multi has
     default
     else
     elsif
@@ -471,6 +478,7 @@ chop             @     $
 chown            @     p1
 chr              01    $
 chroot           01    $
+# class  handled specially
 close            01    -
 closedir         1     -
 cmp              B     -
@@ -506,6 +514,7 @@ fileno           1     -
 flock            2     p
 fork             0     -
 formline         2     p
+# has handled specially
 ge               B     -
 getc             01    -
 getgrent         0     -
@@ -560,11 +569,13 @@ log              01    $
 lstat            01    $
 lt               B     -
 map              123   p+ # also tested specially
+# method  handled specially
 mkdir            @     p$
 msgctl           3     p
 msgget           2     p
 msgrcv           5     p
 msgsnd           3     p
+# multi  handled specially
 my               123   p+ # skip with 0 args, as my() => ()
 ne               B     -
 # next handled specially
@@ -605,6 +616,7 @@ reverse          @     p1 # also tested specially
 rewinddir        1     -
 rindex           23    p
 rmdir            01    $
+# role  handled specially
 say              @     p$+
 scalar           1     +
 seek             3     p
