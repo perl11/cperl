@@ -13776,9 +13776,9 @@ Perl_parse_subsignature(pTHX)
 }
 
 #if 0
-/* experimental sub NAME :method {} syntax */
+/* experimental sub NAME :method {} syntax. not worth the trouble */
 /*
-=for apidoc cv_method_on
+= for api doc cv_method_on
 
 Potentially prepend a signature with C<$self>,
 for the C<sub NAME (...) :method {}> case, where the signature is already constructed
