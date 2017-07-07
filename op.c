@@ -19274,13 +19274,13 @@ Perl_class_role_finalize(pTHX_ OP* o)
     SvREADONLY_off(name);
 
     sv_catpvs(name, "::ISA");
-    sym = gv_fetchsv(name, 0, SVt_PVAV);
+    sym = gv_fetchsv(name, GV_ADD, SVt_PVAV);
     if (sym && GvAV(sym))
         SvREADONLY_on(GvAV(sym));
 
     SvCUR_set(name, len);
     sv_catpvs(name, "::DOES");
-    sym = gv_fetchsv(name, 0, SVt_PVAV);
+    sym = gv_fetchsv(name, GV_ADD, SVt_PVAV);
     if (sym && GvAV(sym))
         SvREADONLY_on(GvAV(sym));
     SvCUR_set(name, len);
