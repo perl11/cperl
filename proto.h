@@ -1086,12 +1086,6 @@ PERL_CALLCONV void	Perl_cv_get_call_checker(pTHX_ CV *cv, Perl_call_checker *ckf
 #define PERL_ARGS_ASSERT_CV_GET_CALL_CHECKER	\
 	assert(cv); assert(ckfun_p); assert(ckobj_p)
 
-PERL_CALLCONV void	Perl_cv_method_on(pTHX_ CV* cv)
-			__attribute__global__
-			__attribute__nonnull__(pTHX_1);
-#define PERL_ARGS_ASSERT_CV_METHOD_ON	\
-	assert(cv)
-
 PERL_CALLCONV SV *	Perl_cv_name(pTHX_ CV *cv, SV *sv, U32 flags)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
