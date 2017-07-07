@@ -68,7 +68,7 @@ use B qw(main_root main_start main_cv svref_2object opnumber perlstring
         SIGNATURE_SHIFT
     );
 
-$VERSION = '1.40_03c';
+$VERSION = '1.40_04c';
 $VERSION =~ s/c$//;
 use strict;
 use vars qw/$AUTOLOAD/;
@@ -85,7 +85,7 @@ BEGIN {
 		CVf_LOCKED OPpREVERSE_INPLACE OPpSUBSTR_REPL_FIRST
 		PMf_NONDESTRUCT OPpCONST_ARYBASE OPpEVAL_BYTES
 		OPpLVREF_TYPE OPpLVREF_SV OPpLVREF_AV OPpLVREF_HV
-		OPpLVREF_CV OPpLVREF_ELEM SVpad_STATE)) {
+		OPpLVREF_CV OPpLVREF_ELEM SVpad_STATE SVphv_CLASS HvAUXf_ROLE)) {
 	eval { B->import($_) };
 	no strict 'refs';
 	*{$_} = sub () {0} unless *{$_}{CODE};
@@ -610,7 +610,11 @@ sub next_todo {
 	if (B::class($cv->STASH) ne "SPECIAL") {
 	    $stash = $cv->STASH->NAME;
 	    if ($stash ne $self->{'curstash'}) {
-		$p = $self->keyword("package") . " $stash;\n";
+                if ($cv->STASH->FLAGS & SVphv_CLASS) {
+                    $p = $self->keyword("class") . " $stash ";
+                } else {
+                    $p = $self->keyword("package") . " $stash;\n";
+                }
 		$name = "$self->{'curstash'}::$name" unless $name =~ /::/;
 		$self->{'curstash'} = $stash;
 	    }
@@ -1003,7 +1007,8 @@ sub compile {
 	no strict 'refs';
 	my $laststash = defined $self->{'curcop'}
 	    ? $self->{'curcop'}->stash->NAME : $self->{'curstash'};
-	if (defined *{$laststash."::DATA"}{IO}) {
+	if (exists ${$laststash."::"}{DATA}
+	    and defined *{$laststash."::DATA"}{IO}) {
 	    print $self->keyword("package") . " $laststash;\n"
 		unless $laststash eq $self->{'curstash'};
 	    print $self->keyword("__DATA__") . "\n";
@@ -2123,7 +2128,11 @@ sub pragmata {
 
     my $stash = $op->stashpv;
     if ($stash ne $self->{'curstash'}) {
-	push @text, $self->keyword("package") . " $stash;\n";
+        #if ($op->stash->FLAGS & SVphv_CLASS) {
+        #    push @text, $self->keyword("class") . " $stash ";
+        #} else {
+            push @text, $self->keyword("package") . " $stash;\n";
+        #}
 	$self->{'curstash'} = $stash;
     }
 
