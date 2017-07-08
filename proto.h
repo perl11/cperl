@@ -4134,6 +4134,12 @@ PERL_CALLCONV void	Perl_op_dump(pTHX_ const OP *o)
 #define PERL_ARGS_ASSERT_OP_DUMP	\
 	assert(o)
 
+PERL_CALLCONV void	Perl_op_dump_cv(pTHX_ const OP *o, const CV *cv)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_OP_DUMP_CV	\
+	assert(o)
+
 PERL_CALLCONV void	Perl_op_free(pTHX_ OP* arg)
 			__attribute__global__;
 
@@ -8011,6 +8017,11 @@ STATIC void	S_debprof(pTHX_ const OP *o)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DEBPROF	\
 	assert(o)
+
+STATIC void	S_do_op_dump_cv(pTHX_ I32 level, PerlIO *file, const OP *o, const CV *cv)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_DO_OP_DUMP_CV	\
+	assert(file)
 
 STATIC SV*	S_pm_description(pTHX_ const PMOP *pm)
 			__attribute__nonnull__(pTHX_1);

@@ -515,6 +515,7 @@ Ap	|void	|dump_form	|NN const GV* gv
 Ap	|void	|gv_dump	|NULLOK GV* gv
 Apd	|OPclass|op_class	|NULLOK const OP *o
 Ap	|void	|op_dump	|NN const OP *o
+Apd	|void	|op_dump_cv	|NN const OP *o|NULLOK const CV *cv
 Ap	|void	|pmop_dump	|NULLOK PMOP* pm
 Ap	|void	|dump_sub	|NN const GV* gv
 Ap	|void	|dump_sub_perl	|NN const GV* gv|bool justperl
@@ -2031,6 +2032,9 @@ Ap	|void	|do_hv_dump	|I32 level|NN PerlIO *file|NN const char *name\
 Ap	|void	|do_magic_dump	|I32 level|NN PerlIO *file|NULLOK const MAGIC *mg|I32 nest \
 				|I32 maxnest|bool dumpops|STRLEN pvlim
 Ap	|void	|do_op_dump	|I32 level|NN PerlIO *file|NULLOK const OP *o
+#if defined(PERL_IN_DUMP_C)
+s	|void	|do_op_dump_cv	|I32 level|NN PerlIO *file|NULLOK const OP *o|NULLOK const CV *cv 
+#endif
 Ap	|void	|do_pmop_dump	|I32 level|NN PerlIO *file|NULLOK const PMOP *pm
 Ap	|void	|do_sv_dump	|I32 level|NN PerlIO *file|NULLOK SV *sv|I32 nest \
 				|I32 maxnest|bool dumpops|STRLEN pvlim

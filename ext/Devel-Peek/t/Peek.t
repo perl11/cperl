@@ -1530,6 +1530,7 @@ dumpindent is 4 at -e line 1.
      TARG = 1
      FLAGS = (VOID,KIDS,PARENS,SLABBED)
      PRIVATE = (REFC)
+     RETTYPE = 255
      REFCNT = 1
      |
 2    +-enter OP(0xNNN) ===> 3 [nextstate 0xNNN]
@@ -1550,13 +1551,16 @@ dumpindent is 4 at -e line 1.
          |
 4        +-pushmark OP(0xNNN) ===> 7 [gv 0xNNN]
          | FLAGS = (SCALAR,SLABBED,MORESIB)
+         | RETTYPE = 255
          |
 8        +-null (ex-rv2cv) UNOP(0xNNN) ===> 6 [null 0xNNN]
            FLAGS = (SCALAR,KIDS,SLABBED)
            PRIVATE = (0x1)
+           RETTYPE = 13
            |
 7          +-gv SVOP(0xNNN) ===> 5 [enterxssub 0xNNN]
              FLAGS = (SCALAR,SLABBED)
+             RETTYPE = 11
              GV = t::DumpProg (0xNNN)
 EODUMP
 

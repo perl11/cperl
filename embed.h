@@ -464,6 +464,7 @@
 #define op_contextualize(a,b)	Perl_op_contextualize(aTHX_ a,b)
 #define op_convert_list(a,b,c)	Perl_op_convert_list(aTHX_ a,b,c)
 #define op_dump(a)		Perl_op_dump(aTHX_ a)
+#define op_dump_cv(a,b)		Perl_op_dump_cv(aTHX_ a,b)
 #define op_free(a)		Perl_op_free(aTHX_ a)
 #define op_linklist(a)		Perl_op_linklist(aTHX_ a)
 #define op_lvalue_flags(a,b,c)	Perl_op_lvalue_flags(aTHX_ a,b,c)
@@ -1641,6 +1642,7 @@
 #define deb_curcv(a)		S_deb_curcv(aTHX_ a)
 #define deb_padvar(a,b,c)	S_deb_padvar(aTHX_ a,b,c)
 #define debprof(a)		S_debprof(aTHX_ a)
+#define do_op_dump_cv(a,b,c,d)	S_do_op_dump_cv(aTHX_ a,b,c,d)
 #define pm_description(a)	S_pm_description(aTHX_ a)
 #define sequence_num(a)		S_sequence_num(aTHX_ a)
 #  endif

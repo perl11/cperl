@@ -196,6 +196,10 @@ with deferring the attributes::import call after an assignment.
 
 See L<[cperl #294]|https://github.com/perl11/cperl/issues/294>.
 
+=item L<Devel::Peek> 1.26_02
+
+Add TYPECHECKED, RETTYPE and pad var names and types.
+
 =item L<Devel::PPPort> 3.36_02
 
 Restore silence under C<make -s>. I broke it in cperl 5.27.0

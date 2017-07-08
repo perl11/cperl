@@ -403,10 +403,10 @@ struct cop {
 				 ? gv_fetchfile(CopFILE(c)) : NULL)
 				 
 #  ifdef NETWARE
-#    define CopFILE_set(c,pv)	((c)->cop_file = savepv(pv))
+#    define CopFILE_set(c,pv)	  ((c)->cop_file = savepv(pv))
 #    define CopFILE_setn(c,pv,l)  ((c)->cop_file = savepvn((pv),(l)))
 #  else
-#    define CopFILE_set(c,pv)	((c)->cop_file = savesharedpv(pv))
+#    define CopFILE_set(c,pv)	  ((c)->cop_file = savesharedpv(pv))
 #    define CopFILE_setn(c,pv,l)  ((c)->cop_file = savesharedpvn((pv),(l)))
 #  endif
 
