@@ -393,6 +393,7 @@ static struct debug_tokens {
     { FUNC1,		TOKENTYPE_OPNUM,	"FUNC1" },
     { FUNCMETH,		TOKENTYPE_OPVAL,	"FUNCMETH" },
     { GIVEN,		TOKENTYPE_IVAL,		"GIVEN" },
+    { HAS,		TOKENTYPE_IVAL,		"HAS" },
     { HASHBRACK,	TOKENTYPE_NONE,		"HASHBRACK" },
     { IF,		TOKENTYPE_IVAL,		"IF" },
     { LABEL,		TOKENTYPE_PVAL,		"LABEL" },
@@ -8497,6 +8498,37 @@ Perl_yylex(pTHX)
 	     orig_keyword==KEY_glob ? -OP_GLOB : OP_GLOB,
 	     XTERM
 	    );
+
+	case KEY_has:
+	    if (!PL_in_class) {
+	        PL_bufptr = s;
+	        yyerror("has field declaration are only allowed inside a class or role block");
+	    }
+            assert(tmp < 65536); /* max U16 */
+	    PL_in_my = (U16)tmp;
+	    s = skipspace(s);
+            if (isIDFIRST_lazy_if_safe(s, PL_bufend, UTF)) {
+                int normalize;
+		s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len, &normalize);
+                if (UNLIKELY(normalize)) {
+                    d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
+                    Copy(d, PL_tokenbuf, len+1, char);
+                }
+		PL_in_my_stash = find_in_my_stash(PL_tokenbuf, len);
+		if (!PL_in_my_stash)
+                    PL_in_my_stash = find_in_coretypes(PL_tokenbuf, len);
+		if (!PL_in_my_stash)
+                    S_no_such_class(aTHX_ s);
+	    }
+	    else if (*s == '\\') {
+		if (!FEATURE_MYREF_IS_ENABLED)
+		    Perl_croak(aTHX_ "The experimental declared_refs "
+				     "feature is not enabled");
+		Perl_ck_warner_d(aTHX_
+		     packWARN(WARN_EXPERIMENTAL__DECLARED_REFS),
+		    "Declaring references is experimental");
+	    }
+	    OPERATOR(HAS);
 
 	case KEY_hex:
 	    UNI(OP_HEX);
