@@ -2592,6 +2592,11 @@ something: a template character or a ()-group.  See L<perlfunc/pack>.
 to have existed already, but for some reason it didn't, and had to be
 created on an emergency basis to prevent a core dump.
 
+=item has field declaration are only allowed inside a class or role block
+
+(F) You can only define a C<has> souroutine and use it outside a class.
+See L<perlclass>.
+
 =item Hash flood
 
 (S security) If the collisions for a hash key lookup exceeds 128 tries

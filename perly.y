@@ -58,7 +58,7 @@
 %token <ival> FUNC0 FUNC1 FUNC UNIOP LSTOP
 %token <ival> RELOP EQOP MULOP ADDOP
 %token <ival> DOLSHARP DO HASHBRACK NOAMP
-%token <ival> LOCAL MY REQUIRE
+%token <ival> LOCAL MY HAS REQUIRE
 %token <ival> COLONATTR FORMLBRACK FORMRBRACK
 
 %type <ival> lpar_or_qw
@@ -75,7 +75,7 @@
 %type <opval> optlistexpr optexpr optrepl indirob listop method
 %type <opval> formname subname proto optsubbody cont my_scalar my_var
 %type <opval> refgen_topic formblock
-%type <opval> subattrlist myattrlist myattrterm myterm
+%type <opval> subattrlist myattrlist myattrterm myterm hasterm
 %type <opval> subsignature termbinop termunop anonymous termdo
 %type <opval> formstmtseq formline formarg
 
@@ -1079,11 +1079,15 @@ term:		termbinop
 	|	PLUGEXPR
 	;
 
-/* "my" declarations, with optional attributes */
+/* my,our,state,has declarations, with optional attributes */
 myattrterm:	MY myterm myattrlist
 			{ $$ = my_attrs($2,$3); }
 	|	MY myterm
 			{ $$ = localize($2,1); }
+	|	HAS hasterm myattrlist
+			{ $$ = my_attrs($2,$3); }
+	|	HAS hasterm
+			{ $$ = localize($2,2); }
 	|	MY REFGEN myterm myattrlist
 			{ $$ = newUNOP(OP_REFGEN, 0, my_attrs($3,$4)); }
 	;
@@ -1095,6 +1099,18 @@ myterm:		'(' expr ')'
 			{ $$ = sawparens(newNULLLIST()); }
 
 	|	scalar	%prec '('
+			{ $$ = $1; }
+	|	hsh 	%prec '('
+			{ $$ = $1; }
+	|	sizearydecl %prec '('
+			{ $$ = $1; }
+	|	ary 	%prec '('
+			{ $$ = $1; }
+	;
+
+/* valid fields declaration */
+hasterm:
+		scalar	%prec '('
 			{ $$ = $1; }
 	|	hsh 	%prec '('
 			{ $$ = $1; }

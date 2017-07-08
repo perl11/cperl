@@ -9,20 +9,19 @@ print "1..13\n";
 my $test = 1;
 
 class Foo {
-  #has $a = 0; # no has -> %FIELDS syntax yet
-  my $a = 0;
+  has $a = 0; # no has -> %FIELDS syntax yet
   method a($v?)       { defined $v ? $a = $v : $a }
   method new          { bless [$a], 'Foo' }
 
   method meth1 {
     print "ok $test\n"; $test++; 
-    # $self->a + 1
+    $a + 1
   }
   multi method mul1 (Foo $self, Int $a) {
     print "ok $test\n"; $test++;
-    $self->a * $a
+    $a * $b
   }
-  # no multi decl and dispatch yet
+  # no multi dispatch yet
   #multi method mul1 (Int $a) { print "ok $test\n"; $test++; $self->a * $a }
   #multi method mul1 (Num $a) { $self->a * $a; print "ok $test\n"; $test++ }
   #multi method mul1 (Str $a) { $self->a . $a; print "ok $test\n"; $test++ }

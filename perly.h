@@ -109,33 +109,34 @@ extern int yydebug;
     NOAMP = 312,
     LOCAL = 313,
     MY = 314,
-    REQUIRE = 315,
-    COLONATTR = 316,
-    FORMLBRACK = 317,
-    FORMRBRACK = 318,
-    PREC_LOW = 319,
-    OROP = 320,
-    DOROP = 321,
-    ANDOP = 322,
-    NOTOP = 323,
-    ASSIGNOP = 324,
-    OROR = 325,
-    DORDOR = 326,
-    ANDAND = 327,
-    BITOROP = 328,
-    BITANDOP = 329,
-    SHIFTOP = 330,
-    MATCHOP = 331,
-    UMINUS = 332,
-    REFGEN = 333,
-    POWOP = 334,
-    POWCOP = 335,
-    PREINC = 336,
-    PREDEC = 337,
-    POSTINC = 338,
-    POSTDEC = 339,
-    POSTJOIN = 340,
-    ARROW = 341
+    HAS = 315,
+    REQUIRE = 316,
+    COLONATTR = 317,
+    FORMLBRACK = 318,
+    FORMRBRACK = 319,
+    PREC_LOW = 320,
+    OROP = 321,
+    DOROP = 322,
+    ANDOP = 323,
+    NOTOP = 324,
+    ASSIGNOP = 325,
+    OROR = 326,
+    DORDOR = 327,
+    ANDAND = 328,
+    BITOROP = 329,
+    BITANDOP = 330,
+    SHIFTOP = 331,
+    MATCHOP = 332,
+    UMINUS = 333,
+    REFGEN = 334,
+    POWOP = 335,
+    POWCOP = 336,
+    PREINC = 337,
+    PREDEC = 338,
+    POSTINC = 339,
+    POSTDEC = 340,
+    POSTJOIN = 341,
+    ARROW = 342
   };
 #endif
 
@@ -197,33 +198,34 @@ extern int yydebug;
 #define NOAMP 312
 #define LOCAL 313
 #define MY 314
-#define REQUIRE 315
-#define COLONATTR 316
-#define FORMLBRACK 317
-#define FORMRBRACK 318
-#define PREC_LOW 319
-#define OROP 320
-#define DOROP 321
-#define ANDOP 322
-#define NOTOP 323
-#define ASSIGNOP 324
-#define OROR 325
-#define DORDOR 326
-#define ANDAND 327
-#define BITOROP 328
-#define BITANDOP 329
-#define SHIFTOP 330
-#define MATCHOP 331
-#define UMINUS 332
-#define REFGEN 333
-#define POWOP 334
-#define POWCOP 335
-#define PREINC 336
-#define PREDEC 337
-#define POSTINC 338
-#define POSTDEC 339
-#define POSTJOIN 340
-#define ARROW 341
+#define HAS 315
+#define REQUIRE 316
+#define COLONATTR 317
+#define FORMLBRACK 318
+#define FORMRBRACK 319
+#define PREC_LOW 320
+#define OROP 321
+#define DOROP 322
+#define ANDOP 323
+#define NOTOP 324
+#define ASSIGNOP 325
+#define OROR 326
+#define DORDOR 327
+#define ANDAND 328
+#define BITOROP 329
+#define BITANDOP 330
+#define SHIFTOP 331
+#define MATCHOP 332
+#define UMINUS 333
+#define REFGEN 334
+#define POWOP 335
+#define POWCOP 336
+#define PREINC 337
+#define PREDEC 338
+#define POSTINC 339
+#define POSTDEC 340
+#define POSTJOIN 341
+#define ARROW 342
 
 /* Value type.  */
 #ifdef PERL_IN_TOKE_C
@@ -278,6 +280,6 @@ int yyparse (void);
 #endif
 
 /* Generated from:
- * 9fe66c5de75ae00fa0b5a3591148e5eb86613ee306a37793474b39edded1e269 perly.y
+ * fc1cf6fe5da890d83c805a8c7a05e10b29397ca0dc146ca760e0c8e6a454e0c5 perly.y
  * 34c0653ef7c691f2b4ac71336f4ea94e2bd925344002392f88ceeb0b435555fa regen_perly.pl
  * ex: set ro: */

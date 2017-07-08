@@ -5412,6 +5412,10 @@ Perl_newPROG(pTHX_ OP *o)
 
 /*
 =for apidoc localize
+
+lex: 0 local
+     1 my|our|state
+     2 has
 =cut
 */
 OP *
@@ -5477,6 +5481,14 @@ Perl_localize(pTHX_ OP *o, I32 lex)
 
 /*
 =for apidoc jmaybe
+
+Join list by C<$;>, \034.
+Adds C<$;>, the $SUBSCRIPT_SEPARATOR before the op list, if there is a list.
+
+If you refer to a hash element as
+C<$foo{$x,$y,$z}> it really means
+C<$foo{join($;, $x, $y, $z)}>
+
 =cut
 */
 OP *
