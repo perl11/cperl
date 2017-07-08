@@ -7,7 +7,7 @@
 #
 package B;
 
-$B::VERSION = '1.68_08';
+$B::VERSION = '1.69_08';
 
 require XSLoader;
 require Exporter;
@@ -78,7 +78,8 @@ use strict;
 # Nullsv *must* come first in the following so that the condition
 # ($$sv == 0) can continue to be used to test (sv == Nullsv).
 @B::specialsv_name = qw(Nullsv &PL_sv_undef &PL_sv_yes &PL_sv_no
-			(SV*)pWARN_ALL (SV*)pWARN_NONE (SV*)pWARN_STD);
+			(SV*)pWARN_ALL (SV*)pWARN_NONE (SV*)pWARN_STD
+                        &PL_sv_zero);
 
 {
     # Stop "-w" from complaining about the lack of a real B::OBJECT class

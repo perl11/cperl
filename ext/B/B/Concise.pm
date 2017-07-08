@@ -14,7 +14,7 @@ use warnings; # uses #3 and #4, since warnings uses Carp
 
 use Exporter (); # use #5
 
-our $VERSION   = "1.001c";
+our $VERSION   = "1.002c";
 $VERSION =~ s/c$//;
 our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw( set_style set_style_standard add_callback
@@ -739,7 +739,8 @@ sub concise_sv {
 	    }
 	}
 	if (B::class($sv) eq "SPECIAL") {
-	    $hr->{svval} .= ["Null", "sv_undef", "sv_yes", "sv_no"]->[$$sv];
+	    $hr->{svval} .= ["Null", "sv_undef", "sv_yes", "sv_no",
+                             '', '', '', "sv_zero"]->[$$sv];
 	} elsif ($preferpv
 	      && ($sv->FLAGS & SVf_POK || B::class($sv) eq "REGEXP")) {
 	    $hr->{svval} .= cstring($sv->PV);
