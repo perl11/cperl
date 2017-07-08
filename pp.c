@@ -2939,8 +2939,11 @@ PPt(pp_negate, "(:Scalar):Numeric")
 PP(pp_not)
 {
     dSP;
+    SV *sv;
+
     tryAMAGICun_MG(not_amg, AMGf_set);
-    *PL_stack_sp = boolSV(!SvTRUE_nomg(*PL_stack_sp));
+    sv = *PL_stack_sp;
+    *PL_stack_sp = boolSV(!SvTRUE_nomg_NN(sv));
     return NORMAL;
 }
 

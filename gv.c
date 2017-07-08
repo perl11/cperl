@@ -3240,7 +3240,7 @@ Perl_amagic_call(pTHX_ SV *left, SV *right, int method, int flags)
                     if (off1 == lt_amg) {
                         SV* const lessp = amagic_call(left,nullsv,
                                                       lt_amg,AMGf_noright);
-                        logic = SvTRUE(lessp);
+                        logic = SvTRUE_NN(lessp);
                     } else {
                         SV* const lessp = amagic_call(left,nullsv,
                                                       ncmp_amg,AMGf_noright);
@@ -3360,23 +3360,23 @@ Perl_amagic_call(pTHX_ SV *left, SV *right, int method, int flags)
                 SV *msg;
                 if (off==-1) off=method;
                 msg = sv_2mortal(Perl_newSVpvf(aTHX_
-                                               "Operation \"%s\": no method found,%sargument %s%" SVf "%s%" SVf,
-                                               AMG_id2name(method + assignshift),
-                                               (flags & AMGf_unary ? " " : "\n\tleft "),
-                                               SvAMAGIC(left)?
-                                               "in overloaded package ":
-                                               "has no overloaded magic",
-                                               SvAMAGIC(left)?
-                                               SVfARG(sv_2mortal(newSVhek(HvNAME_HEK(SvSTASH(SvRV(left)))))):
-                                               SVfARG(SV_NO),
-                                               SvAMAGIC(right)?
-                                               ",\n\tright argument in overloaded package ":
-                                               (flags & AMGf_unary
-                                                ? ""
-                                                : ",\n\tright argument has no overloaded magic"),
-                                               SvAMAGIC(right)?
-                                               SVfARG(sv_2mortal(newSVhek(HvNAME_HEK(SvSTASH(SvRV(right)))))):
-                                               SVfARG(SV_NO)));
+                          "Operation \"%s\": no method found,%sargument %s%" SVf "%s%" SVf,
+                          AMG_id2name(method + assignshift),
+                          (flags & AMGf_unary ? " " : "\n\tleft "),
+                          SvAMAGIC(left)?
+                          "in overloaded package ":
+                          "has no overloaded magic",
+                          SvAMAGIC(left)?
+                          SVfARG(sv_2mortal(newSVhek(HvNAME_HEK(SvSTASH(SvRV(left)))))):
+                          SVfARG(SV_NO),
+                          SvAMAGIC(right)?
+                          ",\n\tright argument in overloaded package ":
+                          (flags & AMGf_unary
+                           ? ""
+                           : ",\n\tright argument has no overloaded magic"),
+                          SvAMAGIC(right)?
+                          SVfARG(sv_2mortal(newSVhek(HvNAME_HEK(SvSTASH(SvRV(right)))))):
+                          SVfARG(SV_NO)));
                 if (use_default_op) {
                     DEBUG_o( Perl_deb(aTHX_ "%" SVf, SVfARG(msg)) );
                 } else {
@@ -3615,7 +3615,7 @@ Perl_amagic_call(pTHX_ SV *left, SV *right, int method, int flags)
             case dec_amg:
                 SvSetSV(left,res); return left;
             case not_amg:
-                ans =! SvTRUE(res); break;
+                ans = !SvTRUE_NN(res); break;
             default:
                 ans = 0; break;
             }
