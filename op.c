@@ -5480,6 +5480,55 @@ Perl_localize(pTHX_ OP *o, I32 lex)
 }
 
 /*
+=for apidoc hasterm
+
+Adds the field padoffset to the @class::FIELDS array,
+and the field index into %class::FIELDS.
+
+=cut
+*/
+OP *
+Perl_hasterm(pTHX_ OP *o)
+{
+    SV *name;
+    GV *gv;
+    PADNAME *pn;
+    char *key;
+    I32 klen;
+    PERL_ARGS_ASSERT_HASTERM;
+    assert(PL_parser->in_class);
+    assert(PL_curstname);
+
+    name = newSVpvn_flags(SvPVX(PL_curstname), SvCUR(PL_curstname),
+                          SvUTF8(PL_curstname)|SVs_TEMP);
+    sv_catpvs(name, "::FIELDS");
+    gv = gv_fetchsv(name, GV_ADD, SVt_PVAV);
+    av_push(GvAVn(gv), newSViv(o->op_targ));
+
+    pn = PAD_COMPNAME(o->op_targ);
+    key = PadnamePV(pn);
+    key++; /* %FIELDS without the $ for compat with use fields. */
+    klen = PadnameLEN(pn) - 1;
+    if (UNLIKELY(PadnameUTF8(pn)))
+        klen = -klen;
+    (void)hv_store(GvHVn(gv), key, klen, newSViv(AvFILLp(GvAV(gv))), 0);
+
+    if (SvPAD_TYPED(pn)) { /* see check_hash_fields_and_hekify() */
+        HV *type = PadnameTYPE(pn);
+        bool is_const = SvREADONLY(type);
+        name = newSVpvn_flags(SvPVX(PL_curstname), SvCUR(PL_curstname),
+                              SvUTF8(PL_curstname)|SVs_TEMP);
+        sv_catpvs(name, "::");
+        /* store in the type the GvHV to curstash */
+        if (is_const) SvREADONLY_off(type);
+        (void)hv_store(type, "FIELDS", 6,
+                       SvREFCNT_inc_NN(gv_fetchsv(name, GV_ADD, SVt_PVHV)), 0);
+        if (is_const) SvREADONLY_on(type);
+    }
+    return o;
+}
+
+/*
 =for apidoc has_field
 
 Searches name without the '$' in %klass::FIELDS.
@@ -5489,7 +5538,19 @@ Searches name without the '$' in %klass::FIELDS.
 PADOFFSET
 S_has_field(pTHX_ const HV* klass, const char* key, I32 klen)
 {
-    return -1;
+    SV* gv;
+    GV* fields;
+    SV** svp;
+    if (!HvNAME(klass)) return NOT_IN_PAD;
+    gv = newSVpvn_flags(HvNAME(klass), HvNAMELEN(klass), HvNAMEUTF8(klass)|SVs_TEMP);
+    sv_catpvs(gv, "::FIELDS");
+    fields = gv_fetchsv(gv, 0, SVt_PVHV);
+    if (!fields) return NOT_IN_PAD;
+    svp = hv_fetch(GvHV(fields), key, klen, FALSE);
+    if (svp && SvIOK(*svp))
+        return (PADOFFSET)SvIVX(*svp);
+    else
+        return NOT_IN_PAD;
 }
 
 /*

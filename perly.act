@@ -1741,25 +1741,25 @@ case 2:
 
   case 239:
 #line 1114 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = (ps[0].val.opval); }
+    { (yyval.opval) = hasterm((ps[0].val.opval)); }
 
     break;
 
   case 240:
 #line 1116 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = (ps[0].val.opval); }
+    { (yyval.opval) = hasterm((ps[0].val.opval)); }
 
     break;
 
   case 241:
 #line 1118 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = (ps[0].val.opval); }
+    { (yyval.opval) = hasterm((ps[0].val.opval)); }
 
     break;
 
   case 242:
 #line 1120 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = (ps[0].val.opval); }
+    { (yyval.opval) = hasterm((ps[0].val.opval)); }
 
     break;
 
@@ -1948,6 +1948,6 @@ case 2:
     
 
 /* Generated from:
- * fc1cf6fe5da890d83c805a8c7a05e10b29397ca0dc146ca760e0c8e6a454e0c5 perly.y
+ * c02cbf3ed3b7e00baa6692892f43ad290efbd9c28564a644db9d40dffd97edbd perly.y
  * 34c0653ef7c691f2b4ac71336f4ea94e2bd925344002392f88ceeb0b435555fa regen_perly.pl
  * ex: set ro: */

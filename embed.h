@@ -1323,6 +1323,7 @@
 #define gv_override(a,b)	Perl_gv_override(aTHX_ a,b)
 #define gv_setref(a,b)		Perl_gv_setref(aTHX_ a,b)
 #define gv_try_downgrade(a)	Perl_gv_try_downgrade(aTHX_ a)
+#define hasterm(a)		Perl_hasterm(aTHX_ a)
 #define hv_ename_add(a,b,c,d)	Perl_hv_ename_add(aTHX_ a,b,c,d)
 #define hv_ename_delete(a,b,c,d)	Perl_hv_ename_delete(aTHX_ a,b,c,d)
 #define init_argv_symbols(a,b)	Perl_init_argv_symbols(aTHX_ a,b)

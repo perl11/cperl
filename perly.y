@@ -1111,13 +1111,13 @@ myterm:		'(' expr ')'
 /* valid fields declaration */
 hasterm:
 		scalar	%prec '('
-			{ $$ = $1; }
+	                { $$ = hasterm($1); }
 	|	hsh 	%prec '('
-			{ $$ = $1; }
+			{ $$ = hasterm($1); }
 	|	sizearydecl %prec '('
-			{ $$ = $1; }
+			{ $$ = hasterm($1); }
 	|	ary 	%prec '('
-			{ $$ = $1; }
+			{ $$ = hasterm($1); }
 	;
 
 /* Basic list expressions */
