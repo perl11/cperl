@@ -15,7 +15,7 @@ use ExtUtils::MakeMaker qw($Verbose neatvalue);
 
 # If we make $VERSION an our variable parse_version() breaks
 use vars qw($VERSION);
-$VERSION = '8.04_03';
+$VERSION = '8.04_04';
 $VERSION = eval $VERSION;  ## no critic [BuiltinFunctions::ProhibitStringyEval]
 
 require ExtUtils::MM_Any;
@@ -2759,7 +2759,8 @@ sub parse_version {
 
     local $/ = "\n";
     local $_;
-    if (!-e $parsefile and $Config::Config{usecperl}) { # builtins not parsable
+    # builtins not parsable
+    if (!ref $parsefile and !-e $parsefile and $Config::Config{usecperl}) {
       no strict 'refs';
       my ($prereq) = $parsefile =~ /\.c:(.*)$/;
       my $normal;
@@ -2768,14 +2769,19 @@ sub parse_version {
       $result = "undef" unless defined $result;
       return $result;
     }
-    open(my $fh, '<', $parsefile) or die "Could not open '$parsefile': $!";
+    my $fh;
+    if (!ref $parsefile) { # IO::Scalar is already open
+      open($fh, '<', $parsefile) or die "Could not open '$parsefile': $!";
+    } else {
+      $fh = $parsefile;
+    }
     my $inpod = 0;
     while (<$fh>) {
         $inpod = /^=(?!cut)/ ? 1 : /^=cut/ ? 0 : $inpod;
         next if $inpod || /^\s*#/;
         chop;
         next if /^\s*(if|unless|elsif)/;
-        if ( m{^ \s* package \s+ \w[\w\:\']* \s+ (v?[0-9._]+) \s* ;  }x ) {
+        if ( m{^ \s* package \s+ \w[\w\:\']* \s+ (v?[0-9._]+) \s* (;|\{)  }x ) {
             local $^W = 0;
             $result = $1;
         }

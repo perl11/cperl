@@ -106,6 +106,10 @@ Update from upstream
 
 =item L<experimental>  0.019_01c
 
+=item L<ExtUtils::MM_Unix>  8.04_04
+
+Support filehandles for C<<< MM->parse_version >>>.
+
 =item L<ExtUtils::Liblist::Kid>  8.04_06
 
 Silence No library found errors on darwin for libSystem.dylib libs.
@@ -190,6 +194,17 @@ Less runtime memory: demand-load Carp, Config
 =item *
 
 Fixed cperl.exe and cperl*.lib installation on windows.
+
+=back
+
+=head1 Testing
+
+=over 4
+
+=item *
+
+F<t/porting/cmp_version.t> was fixed together with EUMM to handle
+parsing versions from filehandles. Backported.
 
 =back
 
