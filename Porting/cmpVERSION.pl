@@ -19,6 +19,10 @@ use 5.006;
 use ExtUtils::MakeMaker;
 use File::Spec::Functions qw(devnull);
 use Getopt::Long;
+BEGIN {
+  push @INC, 'dist/Test-Simple/lib';
+  require Test::Builder::IO::Scalar;
+}
 
 my ($diffs, $exclude_upstream, $tag_to_compare, $tap);
 unless (GetOptions('diffs' => \$diffs,
@@ -38,7 +42,7 @@ my $null = devnull();
 
 unless (defined $tag_to_compare) {
     my $check = 'HEAD';
-    while(1) {
+    while (1) {
         $check = `git describe --abbrev=0 $check 2>$null`;
         chomp $check;
         last unless $check =~ /-RC/;
@@ -46,7 +50,6 @@ unless (defined $tag_to_compare) {
     }
     $tag_to_compare = $check;
     # Thanks to David Golden for this suggestion.
-
 }
 
 unless (length $tag_to_compare) {
@@ -71,7 +74,7 @@ if ($exclude_upstream) {
     require Maintainers;
 
     for my $m (grep {!defined $Maintainers::Modules{$_}{UPSTREAM}
-			 or $Maintainers::Modules{$_}{UPSTREAM} ne 'blead'}
+                     or $Maintainers::Modules{$_}{UPSTREAM} ne 'blead'}
 	       keys %Maintainers::Modules) {
 	$upstream_files{$_} = 1 for Maintainers::get_module_files($m);
     }
@@ -198,9 +201,10 @@ my (@diff);
 foreach my $pm_file (sort keys %module_diffs) {
     # git has already told us that the files differ, so no need to grab each as
     # a blob from git, and do the comparison ourselves.
-    my $pm_version = eval {MM->parse_version($pm_file)};
+    my $pm_version = eval { MM->parse_version($pm_file) };
     my $orig_pm_content = get_file_from_git($pm_file, $tag_to_compare);
-    my $orig_pm_version = eval {MM->parse_version(\$orig_pm_content)};
+    my $pm_handle = new Test::Builder::IO::Scalar \$orig_pm_content;
+    my $orig_pm_version = eval { MM->parse_version($pm_handle) };
     ++$count;
 
     if (!defined $orig_pm_version || $orig_pm_version eq 'undef') { # sigh
