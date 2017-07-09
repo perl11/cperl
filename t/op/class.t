@@ -10,6 +10,7 @@ my $test = 1;
 
 class Foo {
   has $a = 0; # no has -> %FIELDS syntax yet
+  has $b = 1;
   method a($v?)       { defined $v ? $a = $v : $a }
   method new          { bless [$a], 'Foo' }
 

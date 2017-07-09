@@ -8412,6 +8412,12 @@ STATIC void	S_cop_free(pTHX_ COP *cop)
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE const char *	S_core_type_name(pTHX_ core_types_t t);
 #endif
+STATIC void	S_do_method_finalize(pTHX_ const HV* klass, OP* o, const PADOFFSET floor, const PADOFFSET self)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_DO_METHOD_FINALIZE	\
+	assert(klass); assert(o)
+
 STATIC OP *	S_dup_attrlist(pTHX_ OP *o)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DUP_ATTRLIST	\
@@ -8500,6 +8506,12 @@ STATIC bool	S_mderef_uoob_targ(pTHX_ OP* o, PADOFFSET targ)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_MDEREF_UOOB_TARG	\
 	assert(o)
+
+STATIC void	S_method_finalize(pTHX_ const HV* klass, const CV* cv)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_METHOD_FINALIZE	\
+	assert(klass); assert(cv)
 
 STATIC OP*	S_modkids(pTHX_ OP *o, I32 type);
 STATIC void	S_move_proto_attr(pTHX_ OP **proto, OP **attrs, const GV *name)
