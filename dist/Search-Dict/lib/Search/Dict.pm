@@ -13,7 +13,7 @@ BEGIN {
 
 use strict;
 
-our $VERSION = '1.07';
+our $VERSION = '1.07_01';
 our @ISA = qw(Exporter);
 our @EXPORT = qw(look);
 

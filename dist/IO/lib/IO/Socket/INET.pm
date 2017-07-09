@@ -14,7 +14,7 @@ use Exporter   ();
 use Errno      ();
 
 @ISA = qw(IO::Socket);
-$VERSION = "1.35";
+$VERSION = "1.35_01";
 
 BEGIN { sub croak($) { require Carp; Carp::croak(@_) } } 
 

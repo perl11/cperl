@@ -119,6 +119,23 @@ XXX
 
 MSVC 14.0 support and higher, changed nan in the runtime.
 
+=item L<ExtUtils::MakeMaker> 8.04_05
+
+Support IO::Scalar handle as $parsefile argument to
+ExtUtils::MM_Unix::parse_version().
+
+=item L<IO>
+
+Bump versions of 3 Socket modules.
+
+=item L<Search::Dict> 1.07_01
+
+Bump version
+
+=item L<SelectSaver> 1.02_01
+
+Bump version
+
 =item L<Net::Ping> 2.61
 
 Fix ping_udp for a started udp echo server (PR#5 by Stephan Loyd)
@@ -128,6 +145,10 @@ Fix t/400_ping_syn.t phases
 Try to handle Windows Socket::getnameinfo errors
 
 Improve some tests on missing network connections
+
+=item L<VMS::Studio> 2.41_01
+
+Bump version
 
 =back
 
@@ -266,7 +287,7 @@ that they represent may be covered elsewhere.
 
 =item *
 
-XXX
+Fixed F<Porting/cmpVERSION.pl> resp. F<t/porting/cmp_version.t>
 
 =back
 
