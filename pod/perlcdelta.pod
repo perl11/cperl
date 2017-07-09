@@ -231,6 +231,13 @@ ExtUtils::MM_Unix::parse_version().
 
 no strict 'names' for C<$ENCODING_UTF-8>.
 
+=item L<fields> 2.25c
+
+A cperl class has now fields with C<@class::FIELDS> targ offsets to
+the lexical fields, and the old C<%type::FIELDS> hash pointing to the
+C<*class> GV, allowing again compile-time type checks on typed object
+hash accesses.
+
 =item L<File::Spec::Functions> 3.36_05
 
 Bumped version from unparsable 3.3.65, which prevented e.g.
