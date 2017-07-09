@@ -1717,6 +1717,8 @@ use File::Glob qw(:case);
                 lib/Internals.pod
                 lib/Internals.t
                 lib/meta_notation.{pm,t}
+                lib/Metamodel.pm
+                lib/Mu.pm
                 lib/Net/hostent.{pm,t}
                 lib/Net/netent.{pm,t}
                 lib/Net/protoent.{pm,t}

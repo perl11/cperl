@@ -5,7 +5,7 @@ BEGIN {
     #require './test.pl';
 }
 local($\, $", $,) = (undef, ' ', '');
-print "1..13\n";
+print "1..14\n";
 my $test = 1;
 
 class Foo {
@@ -55,7 +55,8 @@ Bar->class();
 class Baz1 is Foo {
   method new { bless [0], 'Baz1' }
 }
-print scalar @Baz1::ISA != 1 ? "not " : "", "ok ", $test++, "\n";
+print scalar @Baz1::ISA != 2 ? "not " : "", "ok ", $test++, " # \@Baz1::ISA\n";
 print $Baz1::ISA[0] ne "Foo" ? "not " : "", "ok ", $test++, "\n";
+print $Baz1::ISA[1] ne "Mu"  ? "not " : "", "ok ", $test++, "\n";
 my $b = new Baz1;
 print ref $b ne "Baz1" ? "not " : "", "ok ", $test++, " # ref \$b\n";

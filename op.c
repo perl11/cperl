@@ -5496,9 +5496,10 @@ Perl_hasterm(pTHX_ OP *o)
     char *key;
     I32 klen;
     PERL_ARGS_ASSERT_HASTERM;
-    assert(PL_parser->in_class);
     assert(PL_curstname);
 
+    if (!PL_parser->in_class)
+        return o;
     name = newSVpvn_flags(SvPVX(PL_curstname), SvCUR(PL_curstname),
                           SvUTF8(PL_curstname)|SVs_TEMP);
     sv_catpvs(name, "::FIELDS");
@@ -19311,8 +19312,11 @@ Perl_class_role(pTHX_ OP* o)
 
     if (OpSIBLING(o)) {
         o = OpSIBLING(o);
-        if (IS_TYPE(o, RV2AV))
+        if (IS_TYPE(o, RV2AV)) {
+            Perl_load_module(aTHX_ PERL_LOADMOD_NOIMPORT,
+                             newSVpvs("Mu"), NULL);
             class_isamagic(o, name, "::ISA", 5);
+        }
         o = OpSIBLING(o);
         if (IS_TYPE(o, RV2AV))
             class_isamagic(o, name, "::DOES", 6);

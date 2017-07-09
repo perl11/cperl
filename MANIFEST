@@ -4727,6 +4727,8 @@ lib/locale.t			See if locale support works
 lib/locale_threads.t		Tes locale and threads interactions
 lib/meta_notation.pm		Helper for certain /lib .pm's
 lib/meta_notation.t		See if meta_notation.t works
+lib/Metamodel.pm		Metaobject representing a cperl class
+lib/Mu.pm			The root of the cperl type hierarchy
 lib/Net/hostent.pm		By-name interface to Perl's builtin gethost*
 lib/Net/hostent.t		See if Net::hostent works
 lib/Net/netent.pm		By-name interface to Perl's builtin getnet*
