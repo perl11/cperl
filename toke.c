@@ -8763,6 +8763,7 @@ Perl_yylex(pTHX)
             {
                 int normalize;
                 AV *isa = NULL, *does = NULL;
+                char *name;
                 d = skipspace(s);
                 s = scan_word(d,PL_tokenbuf,sizeof PL_tokenbuf,
                               TRUE, &len, &normalize);
@@ -8773,6 +8774,7 @@ Perl_yylex(pTHX)
                 }
                 if (!len)
                     goto cont_as_sub;
+                name = PL_tokenbuf;
                 pl_yylval.opval = newSVOP(OP_CONST,0,
                                     S_newSV_maybe_utf8(aTHX_ PL_tokenbuf, len));
                 pl_yylval.opval->op_private |= OPpCONST_BARE;
@@ -8835,6 +8837,11 @@ Perl_yylex(pTHX)
                     OpFLAGS(pl_yylval.opval) |= OPf_SPECIAL;
                     s = skipspace(s+7);
                     av_push(isa, newSVpvs("repr(CStruct)"));
+                }
+                /* All classes derive from Mu */
+                if (tmp == KEY_class && strNEc(name, "Mu")) {
+                    if (!isa) isa = newAV();
+                    av_push(isa, newSVpvs("Mu"));
                 }
                 if (*s != '{') {
 #if 1
