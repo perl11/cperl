@@ -29,7 +29,7 @@ our %macro_dep; # whether a macro is a dependency
 use constant SILENT => (defined $ENV{MAKEFLAGS}
                         and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) ? 1 : 0;
 
-our $VERSION = '8.04_04';
+our $VERSION = '8.04_05';
 $VERSION = eval $VERSION;  ## no critic [BuiltinFunctions::ProhibitStringyEval]
 
 # Emulate something resembling CVS $Revision$

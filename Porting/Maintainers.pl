@@ -655,7 +655,9 @@ use File::Glob qw(:case);
                 ),
         ],
         # support make -s => PERL_INSTALL_QUIET
-        'CUSTOMIZED'   => [ qw( lib/ExtUtils/Install.pm ) ],
+        'CUSTOMIZED'   => [ qw( lib/ExtUtils/Install.pm
+                                t/lib/MakeMaker/Test/Setup/BFD.pm
+                            ) ],
     },
 
     'ExtUtils::MakeMaker' => {
@@ -673,7 +675,8 @@ use File::Glob qw(:case);
         ],
         # Applied upstream remove customisation when updating EUMM
         # cperl skips the ending 'c'
-        # use -e not -f for solibs  
+        # use -e not -f for solibs
+        # fix for Porting/cmpVERSION.pl with IO::Scalar parse_version() handles
         'CUSTOMIZED'   => 
           [ qw[ lib/ExtUtils/MM_Any.pm
                 lib/ExtUtils/MM_Unix.pm
@@ -838,6 +841,9 @@ use File::Glob qw(:case);
         'DISTRIBUTION' => 'GBARR/IO-1.25.tar.gz',
         'FILES'        => q[dist/IO/],
         'EXCLUDED'     => ['t/test.pl'],
+        'CUSTOMIZED' => [ qw( lib/IO/Socket.pm
+                              lib/IO/Socket/INET.pm lib/IO/Socket/UNIX.pm
+                          ) ],
     },
 
     'IO::Compress::Base' => {
@@ -851,7 +857,9 @@ use File::Glob qw(:case);
             't/cz-05examples.t',
           ],
         # cperl arity error message
-        'CUSTOMIZED'   => [ qw( t/cz-14gzopen.t t/compress/encode.pl )],
+        'CUSTOMIZED'   => [ qw( lib/File/GlobMapper.pm
+                                t/cz-14gzopen.t
+                                t/compress/encode.pl )],
     },
 
     'IO::Socket::IP' => {
@@ -1254,6 +1262,7 @@ use File::Glob qw(:case);
     'Search::Dict' => {
         'DISTRIBUTION' => 'DAGOLDEN/Search-Dict-1.07.tar.gz',
         'FILES'        => q[dist/Search-Dict],
+        'CUSTOMIZED'   => [ qw( lib/Search/Dict.pm ) ],
     },
 
     'SelfLoader' => {

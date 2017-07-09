@@ -55,10 +55,11 @@ Encode cpan/Encode/t/enc_utf8.t d3b1c9b3e4410a3e41d2b6dec1b02e6bf4d012e4
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t 9061ebec404019e812d03fa7227dd435d7a71046
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t 71a03fe898634486a5181ac32b6a98f03bb9a914
 ExtUtils::Install cpan/ExtUtils-Install/lib/ExtUtils/Install.pm 0004c64c78cd90f20dc8186261c1b1e291537b9f
+ExtUtils::Install cpan/ExtUtils-Install/t/lib/MakeMaker/Test/Setup/BFD.pm d458c84cf9312319dc588bce371a1ddffb5def3a
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/Command/MM.pm 92397ec3b85c35edd33cbe7b237d244ea2bd00b1
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/Liblist/Kid.pm 31719e78e0a0b2c8449a20bb8d3b40b1605a211a
-ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm 69351c5e5418046f9800b0d78cf454f5c1931e2d
-ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker/Locale.pm da4e6cd57984dc1c0455320a050a8aac7415a4f4
+ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm 6bd4a2a60ba9fb7fb4f225675647aab159f6fa05
+ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker/Locale.pm dd89897d45576ef001087fe6636e11d34e2f55e8
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/Mkbootstrap.pm d79b98465a632dc3bde76a0210d01014d2257dc6
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_Any.pm 3857ce6550b897d8bbc626e11b63c2266d624e07
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_Unix.pm 40cf7b257d212ed68c45692f4699ab69e77f153e
@@ -73,6 +74,10 @@ ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm 32738a67af33c433
 File::Path cpan/File-Path/lib/File/Path.pm 623799e76e11a756ca5e18749d8bc1bdc3800ecd
 File::Path cpan/File-Path/t/Path_win32.t 94b9276557ce7f80b91f6fd9bfa7a0cd9bf9683e
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
+IO dist/IO/lib/IO/Socket.pm 3d66093e85d840248deac734f3651d821c5ec149
+IO dist/IO/lib/IO/Socket/INET.pm 2a9b27038adbded99595ed1ddfd2e00ec7b35a97
+IO dist/IO/lib/IO/Socket/UNIX.pm 5e43fb9b96b9e9e093a0d579e90515365b7c4ecd
+IO::Compress::Base cpan/IO-Compress/lib/File/GlobMapper.pm 81f265ee36efb2b9373a8c32e86df1fc56c8e2de
 IO::Compress::Base cpan/IO-Compress/t/compress/encode.pl 776c114af5146d3c328c247c9550e021bb8bac62
 IO::Compress::Base cpan/IO-Compress/t/cz-14gzopen.t dee09dbad5cb1cad6027fd61d14552a192b68060
 IO::Socket::IP cpan/IO-Socket-IP/lib/IO/Socket/IP.pm d5d2ac7a181c3fd89a924297f032e7ae2e003965
@@ -93,7 +98,7 @@ Math::BigInt cpan/Math-BigInt/t/sub_mif.t e87738bd15116665c38d9f41b310cfe7fbf6da
 Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e1546
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 06610e9883ce805bcd6543ab959a9826f598eb40
 Math::BigInt cpan/Math-BigInt/t/with_sub.t c040328e223df6f56250f5d67dcb2c9a2f23c110
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 7bbb7c093a9f43dfb24a7df3f42eee1d4fa3835a
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 277099180974adb31dea16f1483d95c2731b7031
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 9d45f1f4cef5fec976f46ef0325b6a317e6c6c02
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
@@ -102,6 +107,7 @@ Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 8ac11522808238b028b935fa94bf
 Pod::Usage cpan/Pod-Usage/scripts/pod2usage.PL e78dee490d466191620821446d49794a4ec6254e
 Safe dist/Safe/Safe.pm 4bc5e5c4f38134c342ec786a93d42baaecd13722
 Safe dist/Safe/t/safeops.t 47038564ccb909a2d4052cc73a049a5b4185b991
+Search::Dict dist/Search-Dict/lib/Search/Dict.pm 1a896da1e51d5ab18227b2c28793a37cfd55308b
 Sys::Syslog cpan/Sys-Syslog/t/syslog.t bed4da2de76558f92d354bb83dc01fd7d66cadec
 Term::ReadKey cpan/Term-ReadKey/ReadKey.xs 59b64457d07717565ab7f5163743685f77bb5f4c
 Term::ReadKey cpan/Term-ReadKey/t/02_terminal_functions.t b17051b192850c2fce14842f2f469e1ac1895c4d

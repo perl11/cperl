@@ -225,6 +225,18 @@ no strict 'names' for C<$ENCODING_UTF-8>.
 Bumped version from unparsable 3.3.65, which prevented e.g.
 File::chdir to install.
 
+=item L<IO>
+
+Bump versions of 3 Socket modules.
+
+=item L<Search::Dict> 1.07_01
+
+Bump version
+
+=item L<SelectSaver> 1.02_01
+
+Bump version
+
 =item L<strict> 1.13c
 
 Implemented C<strict 'names'> to reject illegal identifiers created via
@@ -240,6 +252,10 @@ Fix t/400_ping_syn.t phases
 Try to handle Windows Socket::getnameinfo errors
 
 Improve some tests on missing network connections
+
+=item L<VMS::Studio> 2.41_01
+
+Bump version
 
 =back
 
@@ -393,7 +409,7 @@ that they represent may be covered elsewhere.
 
 =item *
 
-XXX
+Fixed F<Porting/cmpVERSION.pl> resp. F<t/porting/cmp_version.t>
 
 =back
 
