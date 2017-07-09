@@ -211,6 +211,11 @@ support parser enum expectation.
 
 C++ compat fixes. -Wliteral-suffix
 
+=item L<ExtUtils::MakeMaker> 8.04_05
+
+Support IO::Scalar handle as $parsefile argument to
+ExtUtils::MM_Unix::parse_version().
+
 =item L<ExtUtils::MakeMaker::Locale> 8.04_04
 
 no strict 'names' for C<$ENCODING_UTF-8>.
