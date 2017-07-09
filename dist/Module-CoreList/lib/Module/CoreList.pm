@@ -15024,6 +15024,7 @@ our %delta = (
             'ExtUtils::MakeMaker::Locale' => '8.04_05',
             'ExtUtils::MakeMaker'   => '8.04_05',
             'ExtUtils::MM_Unix'     => '8.04_05',
+            'fields'                => '2.25c',
             'File::Spec::Functions' => '3.36_05',
             'IO::Socket'            => '1.38_01',
             'IO::Socket::INET'      => '1.35_01',

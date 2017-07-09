@@ -12,7 +12,7 @@ unless( eval q{require warnings::register; warnings::register->import; 1} ) {
 }
 use vars qw(%attr $VERSION);
 
-$VERSION = '2.24c';
+$VERSION = '2.25c';
 $VERSION =~ tr/_//d;
 
 # constant.pm is slow
@@ -238,23 +238,31 @@ at compile-time for it to be fully useful, as is done by this pragma.
 
 If a typed lexical variable (C<my Class $var>) holding a reference is
 used to access a hash element and a package with the same name as the
-type has declared class fields using this pragma, then the hash key is
-verified at compile time.  If the variables are not typed, access is
-only checked at run time.
+type has declared class fields using this pragma or by using the cperl
+class syntax, then the hash key is verified at compile time.  If the
+variables are not typed, access is only checked at run time.
+By using the new class syntax the hash access is turned into an array access
+at compile-time, as with the old pseudo-hash feature. See L<perlclass>.
 
 The related C<base> pragma will combine fields from base classes and any
 fields declared using the C<fields> pragma.  This enables field
 inheritance to work properly.  Inherited fields can be overridden but
 will generate a warning if warnings are enabled.
 
-B<Only valid for Perl 5.8.x and earlier and future cperl versions:>
-Field names that start with an underscore character are made private
-to the class and are not visible to subclasses.
+B<Only valid for Perl 5.8.x and earlier:> Field names that start with
+an underscore character are made private to the class and are not
+visible to subclasses.  Recommended is to use a C<class> or C<package>
+block with C<my> variables instead of public C<has> fields.
 
 Also, B<until in Perl 5.8.x and future cperl versions>, this pragma
 uses pseudo-hashes, the effect being that you can have objects with
 named fields which are as compact and as fast arrays to access, as
 long as the objects are accessed through properly typed variables.
+
+The effect of all this is that you can have objects with named fields
+which are as compact and as fast as arrays to access.  This only works
+as long as the objects are accessed through properly typed variables.
+If the objects are not typed, access is only checked at run time.
 
 The following functions are supported:
 
@@ -272,7 +280,7 @@ This makes it possible to write a constructor like this:
     use fields qw(cat dog bird);
 
     sub new {
-        my $self = shift;
+        my Critter::Sounds $self = shift;
         $self = fields::new($self) unless ref $self;
         $self->{cat} = 'meow';                      # scalar element
         @$self{'dog','bird'} = ('bark','tweet');    # slice
@@ -316,6 +324,9 @@ be used to construct the pseudo hash.  Examples:
 
 =head1 CAVEATS
 
+fields are superceded in cperl by C<has> field declarations inside a
+class or role.
+
 Due to the limitations of the implementation, you must use
 base I<before> you declare any of your own fields.
 
@@ -326,6 +337,7 @@ which enables compile-time type checking of inherited classes.
 
 =head1 SEE ALSO
 
+L<perlclass>,
 L<base>, L<Hash::Util>
 
 =cut
