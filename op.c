@@ -5480,6 +5480,19 @@ Perl_localize(pTHX_ OP *o, I32 lex)
 }
 
 /*
+=for apidoc has_field
+
+Searches name without the '$' in %klass::FIELDS.
+
+=cut
+*/
+PADOFFSET
+S_has_field(pTHX_ const HV* klass, const char* key, I32 klen)
+{
+    return -1;
+}
+
+/*
 =for apidoc jmaybe
 
 Join list by C<$;>, \034.
@@ -16490,6 +16503,12 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                                     || ISNT_TYPE(rop, RV2HV))
                                     rop = NULL;
                             }
+                            /* is $self->{field} -> aelemfast_lex_u */
+#if 0
+                            if (PL_parser->in_class && start->op_targ == 1) {
+                                ; /* TODO: get class and check if key is a field */
+                            }
+#endif
                             S_check_hash_fields_and_hekify(aTHX_ rop, cSVOPo);
 
 #ifdef USE_ITHREADS
@@ -19258,10 +19277,137 @@ Perl_class_role(pTHX_ OP* o)
         HvROLE_on(PL_curstash);
 }
 
+
+/*
+=for apidoc do_method_finalize
+
+A field may starts as lexical or hash access or access call
+in the class block and method pad,
+and needs to be converted to aelemfast_lex_u ops.
+
+  PADxV targ     -> AELEMFAST_LEX_U(self)[targ]
+
+  $field         -> $self->field[i] (same as above)
+  $self->{field} ->     -"-
+  $self->field   ->     -"-
+
+If the field is computed, convert to a new HAS op, which does the
+field lookup at run-time.
+
+=cut
+*/
+void
+S_do_method_finalize(pTHX_ const HV *klass, OP *o,
+                     const PADOFFSET floor, const PADOFFSET self)
+{
+    PERL_ARGS_ASSERT_DO_METHOD_FINALIZE;
+    if (IS_TYPE(o, PADSV)) { /* $field -> $self->field[i] */
+        /* check if it's a field, or a my var. self is the first my var */
+        if (o->op_targ < self && o->op_targ >= floor && PAD_COMPNAME(o->op_targ)) {
+            assert(o->op_targ - floor < 128); /* TODO aelem_u */
+            o->op_private = o->op_targ - floor; /* field offset */
+            DEBUG_k(Perl_deb(aTHX_ "method_finalize: padsv %s %d => aelemfast_lex_u [%d] %d\n",
+                             PAD_COMPNAME_PV(o->op_targ),
+                             (int)o->op_targ, (int)o->op_private, (int)self));
+            o->op_targ = self;
+            OpTYPE_set(o, OP_AELEMFAST_LEX_U);
+        }
+    }
+    /* check hashref $self->{field}.
+       Easier to this in S_maybe_multideref if PL_parser->in_class, but here
+       we are sure it's inside the class method. */
+    else if (IS_TYPE(o, MULTIDEREF)) {
+
+#ifdef USE_ITHREADS
+#  define ITEM_SV(item) (PL_comppad ? \
+    *av_fetch(PL_comppad, (item)->pad_offset, FALSE) : NULL)
+#else
+#  define ITEM_SV(item) UNOP_AUX_item_sv(item)
+#endif
+        UNOP_AUX_item *items = cUNOP_AUXx(o)->op_aux;
+        UV actions = items->uv;
+        const UV mderef_flags = /* $self->{field} */
+            MDEREF_HV_padsv_vivify_rv2hv_helem |
+            MDEREF_INDEX_const |
+            MDEREF_FLAG_last;
+        /* if first and only arg is $self */
+        if (actions == mderef_flags
+            && (++items)->pad_offset == self)
+        {
+            SV* key = ITEM_SV(++items);
+            I32 klen = SvUTF8(key) ? -SvCUR(key) : SvCUR(key);
+            PADOFFSET pad = S_has_field(aTHX_ klass, SvPVX(key), klen);
+            if (pad >= 0 && pad < (self + floor)) {
+                assert(pad < 128);   /* TODO aelem_u */
+                o->op_private = pad; /* field offset */
+                DEBUG_k(Perl_deb(aTHX_ "method_finalize: $self->{%s} => $self->[%d] %d\n",
+                                 SvPVX(key), (int)o->op_private, (int)self));
+                o->op_targ = self;
+                PerlMemShared_free(cUNOP_AUXo->op_aux - 1);
+                OpTYPE_set(o, OP_AELEMFAST_LEX_U);
+            }
+        }
+    }
+    /* optimize typed accessor calls $self->field -> $self->field[i] */
+    else if (IS_TYPE(o, ENTERSUB) && IS_TYPE(OpFIRST(o), PUSHMARK)) {
+        OP *arg = OpNEXT(OpFIRST(o));
+        /* first and only arg is typed $self */
+        if (IS_TYPE(arg, PADSV) &&
+            arg->op_targ == 1 && /* $self is always the first inside the method */
+            IS_TYPE(OpNEXT(arg), METHOD_NAMED))
+        {
+            SV* const meth = cMETHOPx_meth(OpNEXT(arg));
+            if (meth && SvPOK(meth)) {
+                const I32 klen = SvUTF8(meth) ? -SvCUR(meth) : SvCUR(meth);
+                const PADOFFSET pad = has_field(klass, SvPVX(meth), klen);
+                if (pad != NOT_IN_PAD) {
+                    assert(pad < 128);   /* TODO aelem_u */
+                    o->op_private = pad; /* field offset */
+                    DEBUG_k(Perl_deb(aTHX_ "method_finalize: $self->%s => $self->[%d] %d\n",
+                                     SvPVX(meth), (int)o->op_private, (int)self));
+                    o->op_targ = 1;
+                    OpTYPE_set(o, OP_AELEMFAST_LEX_U);
+                } else {
+                    DEBUG_kv(Perl_deb(aTHX_ "method_finalize: $self->%s not a field\n",
+                                     SvPVX(meth)));
+                }
+            }
+        }
+    }
+    else if (OpKIDS(o)) {
+	OP *kid;
+	for (kid = cUNOPo->op_first; kid; kid = OpSIBLING(kid)) {
+            if (IS_PADxV_OP(kid) || OpKIDS(kid))
+                S_do_method_finalize(aTHX_ klass, kid, floor, self);
+        }
+    }
+}
+/*
+=for apidoc method_finalize
+Resolve internal lexicals to fields in the method.
+=cut
+*/
+void
+S_method_finalize(pTHX_ const HV* klass, const CV* cv)
+{
+    OP *o;
+    PADOFFSET self, floor;
+    PERL_ARGS_ASSERT_METHOD_FINALIZE;
+
+    self = 1; /* TODO: find padoffset of $self, first padrange in the signature */
+    /* TODO: find padoffsets of fields */
+    o = CvROOT(cv);
+    if (o && !CvISXSUB(cv)) {
+        floor = o->op_targ;
+        S_do_method_finalize(aTHX_ klass, o, floor, self);
+    }
+}
+
 /*
 =for apidoc class_role_finalize
 
-Create the field accessors and resolve internal lexicals to fields.
+Create the field accessors and resolve internal lexicals to fields in
+all methods.
 Apply fields optimizations and type checks.
 Close the class/role.
 
@@ -19275,6 +19421,7 @@ Perl_class_role_finalize(pTHX_ OP* o)
 {
     SV *name; GV* sym; HV* stash;
     STRLEN len;
+    U32 i;
     PERL_ARGS_ASSERT_CLASS_ROLE_FINALIZE;
 
     if (IS_TYPE(o, LIST))
@@ -19296,6 +19443,28 @@ Perl_class_role_finalize(pTHX_ OP* o)
     if (sym && GvAV(sym))
         SvREADONLY_on(GvAV(sym));
     SvCUR_set(name, len);
+
+    /* walk and finalize the methods */
+    for (i = 0; i <= HvMAX(stash); i++) {
+        const HE *entry;
+	for (entry = HvARRAY(stash)[i]; entry; entry = HeNEXT(entry)) {
+	    GV *gv = (GV*)HeVAL(entry);
+            CV *cv;
+            if (SvROK(gv) && SvTYPE(SvRV(gv)) == SVt_PVCV)
+                (void)CvGV(SvRV(gv)); /* unfake a fake GV */
+	    if (SvTYPE(gv) != SVt_PVGV || !GvGP(gv))
+		continue;
+	    if ((cv = GvCVu(gv)))
+                method_finalize(stash, cv);
+            /* skip nested classes
+	    if (HeKEY(entry)[HeKLEN(entry)-1] == ':') {
+		const HV * const hv = GvHV(gv);
+		if (hv && (hv != PL_defstash))
+                    class_role_finalize(newSVOP(OP_CONST,0,HvNAME(hv)));
+	    }
+            */
+        }
+    }
 
     SvREADONLY_on(stash);
     PL_parser->in_class = FALSE;

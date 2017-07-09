@@ -3030,7 +3030,7 @@ Perl_multideref_stringify(pTHX_ const OP *o, CV *cv)
             if (!derefs++)
                 sv_catpvs_nomg(out, "->");
         do_elem:
-            if ((actions & MDEREF_INDEX_MASK)== MDEREF_INDEX_none) {
+            if ((actions & MDEREF_INDEX_MASK) == MDEREF_INDEX_none) {
                 sv_catpvs_nomg(out, "->");
                 last = 1;
                 break;
