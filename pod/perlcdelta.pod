@@ -50,6 +50,10 @@ Coverity CID #165302 Insecure chroot.
 
 =over 4
 
+=item L<ExtUtils::MM_Unix>  8.04_04
+
+Support filehandles for C<<< MM->parse_version >>>.
+
 =item L<Storable> 3.05_14
 
 Updated from 3.01, many critical fixes.
@@ -140,19 +144,12 @@ XXX
 
 =head1 Testing
 
-XXX Any significant changes to the testing of a freshly built perl should be
-listed here.  Changes which create B<new> files in F<t/> go here as do any
-large changes to the testing harness (e.g. when parallel testing was added).
-Changes to existing files in F<t/> aren't worth summarizing, although the bugs
-that they represent may be covered elsewhere.
-
-[ List each test improvement as a =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+F<t/porting/cmp_version.t> was fixed together with EUMM to handle
+parsing versions from filehandles. Backported.
 
 =back
 

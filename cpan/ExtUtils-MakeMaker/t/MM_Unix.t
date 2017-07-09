@@ -12,7 +12,7 @@ BEGIN {
         plan skip_all => 'Non-Unix platform';
     }
     else {
-        plan tests => 110;
+        plan tests => 109;
     }
 }
 
@@ -31,7 +31,7 @@ my $os =  ($ExtUtils::MM_Unix::Is{OS2}   || 0)
         + ($ExtUtils::MM_Unix::Is{VMS}   || 0);
 cmp_ok ( $os, '<=', 1,  'There can be only one (or none)');
 
-is($ExtUtils::MM_Unix::VERSION, $ExtUtils::MakeMaker::VERSION, 'MM_Unix has a $VERSION');
+#is($ExtUtils::MM_Unix::VERSION, $ExtUtils::MakeMaker::VERSION, 'MM_Unix has a $VERSION');
 
 # when the following calls like canonpath, catdir etc are replaced by
 # File::Spec calls, the test's become a bit pointless

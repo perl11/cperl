@@ -12879,15 +12879,6 @@ our %delta = (
         removed => {
         }
     },
-    '5.024003c' => {
-        delta_from => '5.024002c',
-        changed => {
-            'B::Op_private'         => '5.024003',
-            'Storable'              => '3.05_14',
-        },
-        removed => {
-        }
-    },
     5.025002 => {
         delta_from => 5.025001,
         changed => {
@@ -15189,6 +15180,16 @@ our %delta = (
             'fields'                => '2.26c',
             'Module::Load::Conditional' => '0.68_01',
             'Mu'                    => '0.02c',
+            'Storable'              => '3.05_14',
+        },
+        removed => {
+        }
+    },
+    '5.024003c' => {
+        delta_from => '5.024002c',
+        changed => {
+            'B::Op_private'         => '5.024003',
+            'ExtUtils::MM_Unix'	    => '8.04_05',
             'Storable'              => '3.05_14',
         },
         removed => {
