@@ -2234,7 +2234,7 @@ properly null terminated. Equivalent to sv_setpvs(""), but more efficient.
 
 
 #if !defined(SKIP_DEBUGGING)
-#define SvPEEK(sv) sv_peek(sv)
+#define SvPEEK(sv) sv_peek((SV*)sv)
 #else
 #define SvPEEK(sv) ""
 #endif

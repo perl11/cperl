@@ -461,6 +461,15 @@ Perl_sv_peek(pTHX_ SV *sv)
                                             GvNAMEUTF8(gvcv))
                        : "");
 	goto finish;
+    } else if (type == SVt_PVHV && HvNAME(sv)) {
+        Perl_sv_catpvf(aTHX_ t, "HV(%%%s::)", HvNAME(sv));
+	goto finish;
+    } else if (type == SVt_PVGV && GvNAME(sv)) {
+        Perl_sv_catpvf(aTHX_ t, "GV(*%s)", GvNAME_get(sv));
+	goto finish;
+    } else if (type == SVt_PVAV) {
+        Perl_sv_catpvf(aTHX_ t, "AV(%d)", (int)AvFILLp(sv)+1);
+	goto finish;
     } else if (type < SVt_LAST) {
 	sv_catpv(t, svshorttypenames[type]);
 

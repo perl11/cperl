@@ -264,7 +264,7 @@ Perl_save_scalar(pTHX_ GV *gv)
         PL_localizing = 0;
     }
     save_pushptrptr(SvREFCNT_inc_simple(gv), SvREFCNT_inc(*sptr), SAVEt_SV);
-    DEBUG_lv(Perl_deb(aTHX_ "save SV\n"));
+    DEBUG_lv(Perl_deb(aTHX_ "save SV %s\n",  SvPEEK(*sptr)));
     return save_scalar_at(sptr, SAVEf_SETMAGIC); /* XXX - FIXME - see #60360 */
 }
 
@@ -275,7 +275,8 @@ Perl_save_generic_svref(pTHX_ SV **sptr)
 {
     PERL_ARGS_ASSERT_SAVE_GENERIC_SVREF;
 
-    DEBUG_lv(Perl_deb(aTHX_ "save GENERIC_SVREF\n"));
+    DEBUG_lv(Perl_deb(aTHX_ "save GENERIC_SVREF %s\n",
+                      SvPEEK(*sptr)));
     save_pushptrptr(sptr, SvREFCNT_inc(*sptr), SAVEt_GENERIC_SVREF);
 }
 
@@ -287,7 +288,8 @@ Perl_save_generic_pvref(pTHX_ char **str)
 {
     PERL_ARGS_ASSERT_SAVE_GENERIC_PVREF;
 
-    DEBUG_lv(Perl_deb(aTHX_ "save GENERIC_PVREF\n"));
+    DEBUG_lv(Perl_deb(aTHX_ "save GENERIC_PVREF \"%s\"\n",
+                      *str));
     save_pushptrptr(*str, str, SAVEt_GENERIC_PVREF);
 }
 
@@ -299,7 +301,7 @@ Perl_save_shared_pvref(pTHX_ char **str)
 {
     PERL_ARGS_ASSERT_SAVE_SHARED_PVREF;
 
-    DEBUG_lv(Perl_deb(aTHX_ "save SHARED_PVREF\n"));
+    DEBUG_lv(Perl_deb(aTHX_ "save SHARED_PVREF \"%s\"\n", *str));
     save_pushptrptr(str, *str, SAVEt_SHARED_PVREF);
 }
 
@@ -377,7 +379,7 @@ Perl_save_ary(pTHX_ GV *gv)
     if (UNLIKELY(!AvREAL(oav) && AvREIFY(oav)))
 	av_reify(oav);
     save_pushptrptr(SvREFCNT_inc_simple_NN(gv), oav, SAVEt_AV);
-    DEBUG_lv(Perl_deb(aTHX_ "save AV\n"));
+    DEBUG_lv(Perl_deb(aTHX_ "save AV [%ld]\n", (long)AvFILLp(oav)));
 
     GvAV(gv) = NULL;
     av = GvAVn(gv);
@@ -393,13 +395,10 @@ Perl_save_hash(pTHX_ GV *gv)
 
     PERL_ARGS_ASSERT_SAVE_HASH;
 
-    save_pushptrptr(
-	SvREFCNT_inc_simple_NN(gv), (ohv = GvHVn(gv)), SAVEt_HV
-    );
-    DEBUG_lv(Perl_deb(aTHX_ "save HV\n"));
-
+    save_pushptrptr(SvREFCNT_inc_simple_NN(gv), (ohv = GvHVn(gv)), SAVEt_HV);
     GvHV(gv) = NULL;
     hv = GvHVn(gv);
+    DEBUG_lv(Perl_deb(aTHX_ "save HV %s %s\n", SvPEEK(ohv), SvPEEK(hv)));
     if (UNLIKELY(SvMAGIC(ohv)))
 	mg_localize(MUTABLE_SV(ohv), MUTABLE_SV(hv), TRUE);
     return hv;
@@ -427,7 +426,7 @@ Perl_save_bool(pTHX_ bool *boolp)
     SS_ADD_PTR(boolp);
     SS_ADD_UV(SAVEt_BOOL | (*boolp << 8));
     SS_ADD_END(2);
-    DEBUG_lv(Perl_deb(aTHX_ "save BOOL\n"));
+    DEBUG_lv(Perl_deb(aTHX_ "save BOOL %d\n", (int)*boolp));
 }
 
 void
@@ -455,9 +454,9 @@ Perl_save_int(pTHX_ int *intp)
         SS_ADD_INT(i);
         type = SAVEt_INT;
         size++;
-        DEBUG_lv(Perl_deb(aTHX_ "save INT\n"));
+        DEBUG_lv(Perl_deb(aTHX_ "save INT %d\n", (int)i));
     } else {
-        DEBUG_lv(Perl_deb(aTHX_ "save INT_SMALL\n"));
+        DEBUG_lv(Perl_deb(aTHX_ "save INT_SMALL %d\n", (int)i));
     }
     SS_ADD_PTR(intp);
     SS_ADD_UV(type);
@@ -474,7 +473,7 @@ Perl_save_I8(pTHX_ I8 *bytep)
     SS_ADD_PTR(bytep);
     SS_ADD_UV(SAVEt_I8 | ((UV)*bytep << 8));
     SS_ADD_END(2);
-    DEBUG_lv(Perl_deb(aTHX_ "save I8\n"));
+    DEBUG_lv(Perl_deb(aTHX_ "save I8 %d\n", (int)*bytep));
 }
 
 void
@@ -487,7 +486,7 @@ Perl_save_I16(pTHX_ I16 *intp)
     SS_ADD_PTR(intp);
     SS_ADD_UV(SAVEt_I16 | ((UV)*intp << 8));
     SS_ADD_END(2);
-    DEBUG_lv(Perl_deb(aTHX_ "save I16\n"));
+    DEBUG_lv(Perl_deb(aTHX_ "save I16 %d\n", (int)*intp));
 }
 
 void
@@ -504,9 +503,9 @@ Perl_save_I32(pTHX_ I32 *intp)
         SS_ADD_INT(i);
         type = SAVEt_I32;
         size++;
-        DEBUG_lv(Perl_deb(aTHX_ "save I32\n"));
+        DEBUG_lv(Perl_deb(aTHX_ "save I32 %d\n", (int)i));
     } else {
-        DEBUG_lv(Perl_deb(aTHX_ "save I32_SMALL\n"));
+        DEBUG_lv(Perl_deb(aTHX_ "save I32_SMALL %d\n", (int)i));
     }
     SS_ADD_PTR(intp);
     SS_ADD_UV(type);
@@ -524,7 +523,7 @@ Perl_save_strlen(pTHX_ STRLEN *ptr)
     SS_ADD_PTR(ptr);
     SS_ADD_UV(SAVEt_STRLEN);
     SS_ADD_END(3);
-    DEBUG_lv(Perl_deb(aTHX_ "save STRLEN\n"));
+    DEBUG_lv(Perl_deb(aTHX_ "save STRLEN %ld\n", (long)*ptr));
 }
 
 void
@@ -536,6 +535,7 @@ Perl_save_iv(pTHX_ IV *ivp)
     SSPUSHIV(*ivp);
     SSPUSHPTR(ivp);
     SSPUSHUV(SAVEt_IV);
+    DEBUG_lv(Perl_deb(aTHX_ "save IV %ld\n", (long)*ivp));
 }
 
 /* Cannot use save_sptr() to store a char* since the SV** cast will
@@ -556,7 +556,7 @@ Perl_save_vptr(pTHX_ void *ptr)
     PERL_ARGS_ASSERT_SAVE_VPTR;
 
     save_pushptrptr(*(char**)ptr, ptr, SAVEt_VPTR);
-    DEBUG_lv(Perl_deb(aTHX_ "save VPTR\n"));
+    DEBUG_lv(Perl_deb(aTHX_ "save VPTR %p\n", *(char**)ptr));
 }
 
 void
@@ -565,7 +565,7 @@ Perl_save_sptr(pTHX_ SV **sptr)
     PERL_ARGS_ASSERT_SAVE_SPTR;
 
     save_pushptrptr(*sptr, sptr, SAVEt_SPTR);
-    DEBUG_lv(Perl_deb(aTHX_ "save SPTRsv=0x%" UVxf "\n", PTR2UV(*sptr)));
+    DEBUG_lv(Perl_deb(aTHX_ "save SPTR %p\n", *sptr));
 }
 
 void
@@ -579,7 +579,8 @@ Perl_save_padsv_and_mortalize(pTHX_ PADOFFSET off)
     SS_ADD_UV((UV)off); /* arg0 */
     SS_ADD_UV(SAVEt_PADSV_AND_MORTALIZE);
     SS_ADD_END(4);
-    DEBUG_lv(Perl_deb(aTHX_ "save PADSV_AND_MORTALIZE\n"));
+    DEBUG_lv(Perl_deb(aTHX_ "save PADSV_AND_MORTALIZE %s [%d]\n",
+                      SvPEEK(PL_curpad[off]), (int)off));
 }
 
 void
@@ -1002,14 +1003,16 @@ Perl_leave_scope(pTHX_ I32 base)
 	case SAVEt_GVSV:			/* scalar slot in GV */
             a0 = ap[0]; a1 = ap[1];
 	    a0.any_svp = &GvSV(a0.any_gv);
-            DEBUG_lv(Perl_deb(aTHX_ "restore GVSV %p %p\n",
-                              a1.any_sv, *a0.any_svp));
+            DEBUG_lv(Perl_deb(aTHX_ "restore GVSV %p %p %s %s\n",
+                              a1.any_sv, *a0.any_svp,
+                              SvPEEK(a1.any_sv), SvPEEK(*a0.any_svp)));
 	    goto restore_svp;
 
 	case SAVEt_GENERIC_SVREF:		/* generic sv */
             a0 = ap[0]; a1 = ap[1];
-            DEBUG_lv(Perl_deb(aTHX_ "restore GENERIC_SVREF %p %p\n",
-                              a1.any_sv, *a0.any_svp));
+            DEBUG_lv(Perl_deb(aTHX_ "restore GENERIC_SVREF %p %p %s %s\n",
+                              a1.any_sv, *a0.any_svp,
+                              SvPEEK(a1.any_sv), SvPEEK(*a0.any_svp)));
 	restore_svp:
         {
             /* do *a0.any_svp = a1 */
@@ -1065,7 +1068,9 @@ Perl_leave_scope(pTHX_ I32 base)
 
 	case SAVEt_HV:				/* hash reference */
             a0 = ap[0]; a1 = ap[1];
-            DEBUG_lv(Perl_deb(aTHX_ "restore HV %p %p\n", a1.any_hv, a0.any_gv));
+            DEBUG_lv(Perl_deb(aTHX_ "restore HV %p %p %s %s\n",
+                              a1.any_hv, a0.any_gv,
+                              SvPEEK(a1.any_hv), SvPEEK(GvHV(a0.any_gv))));
 	    SvREFCNT_dec(GvHV(a0.any_gv));
 	    GvHV(a0.any_gv) = a1.any_hv;
             goto avhv_common;
@@ -1132,7 +1137,8 @@ Perl_leave_scope(pTHX_ I32 base)
 
 	case SAVEt_SPTR:			/* SV* reference */
             a0 = ap[0]; a1 = ap[1];
-            DEBUG_lv(Perl_deb(aTHX_ "restore SPTR %p %p\n", *a1.any_svp, a0.any_sv));
+            DEBUG_lv(Perl_deb(aTHX_ "restore SPTR %p %p\n",
+                              *a1.any_svp, a0.any_sv));
 	    *a1.any_svp= a0.any_sv;
 	    break;
 
@@ -1189,7 +1195,8 @@ Perl_leave_scope(pTHX_ I32 base)
 
 	case SAVEt_FREEPADNAME:
             a0 = ap[0];
-            DEBUG_lv(Perl_deb(aTHX_ "restore FREEPADNAME %p\n", a0.any_ptr));
+            DEBUG_lv(Perl_deb(aTHX_ "restore FREEPADNAME %p %s\n", a0.any_ptr,
+                         a0.any_ptr ? PadnamePV((PADNAME *)a0.any_ptr) : ""));
 	    PadnameREFCNT_dec((PADNAME *)a0.any_ptr);
 	    break;
 

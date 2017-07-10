@@ -235,7 +235,8 @@ scope has the given name. C<name> must be a C<NUL>-terminated literal string.
 #define SAVEPADSVANDMORTALIZE(s)	save_padsv_and_mortalize(s)
 #define SAVEFREESV(s)	save_freesv(MUTABLE_SV(s))
 #define SAVEFREEPADNAME(s) save_pushptr((void *)(s), SAVEt_FREEPADNAME); \
-	  DEBUG_lv(Perl_deb(aTHX_ "save FREEPADNAME\n"))
+    DEBUG_lv(Perl_deb(aTHX_ "save FREEPADNAME %s\n", \
+                      s ? PadnamePV((PADNAME *)s) : ""))
 #define SAVEMORTALIZESV(s)	save_mortalizesv(MUTABLE_SV(s))
 #define SAVEFREEOP(o)	save_freeop((OP*)(o))
 #define SAVEFREEPV(p)	save_freepv((char*)(p))
@@ -264,7 +265,8 @@ scope has the given name. C<name> must be a C<NUL>-terminated literal string.
         SS_ADD_INT(PL_stack_sp - PL_stack_base);   \
         SS_ADD_UV(SAVEt_STACK_POS);                \
         SS_ADD_END(2);                             \
-        DEBUG_lv(Perl_deb(aTHX_ "save STACK_POS\n")); \
+        DEBUG_lv(Perl_deb(aTHX_ "save STACK_POS %ld\n",  \
+                          (long)(PL_stack_sp - PL_stack_base))); \
     } STMT_END
 
 #define SAVEOP()	save_op()
@@ -272,7 +274,7 @@ scope has the given name. C<name> must be a C<NUL>-terminated literal string.
 #define SAVEHINTS()	save_hints()
 
 #define SAVECOMPPAD() save_pushptr(MUTABLE_SV(PL_comppad), SAVEt_COMPPAD); \
-	  DEBUG_lv(Perl_deb(aTHX_ "save COMPPAD\n"))
+    DEBUG_lv(Perl_deb(aTHX_ "save COMPPAD %p\n", PL_comppad))
 
 #define SAVESWITCHSTACK(f,t) \
     STMT_START {					\

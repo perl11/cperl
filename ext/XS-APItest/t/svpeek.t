@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 52;
+use Test::More tests => 53;
 
 BEGIN { use_ok('XS::APItest') };
 
@@ -40,10 +40,10 @@ like (DPeek ($!), qr'^PVMG\("',			'$!');
   is (DPeek (\1),    '\IV(1)',			'constant \1');
   is (DPeek (\\1),   '\\\IV(1)',		'constant \\\1');
 
-  is (DPeek (\@ARGV),	'\AV()',		'\@ARGV');
-  is (DPeek (\@INC),	'\AV()',		'\@INC');
+  is (DPeek (\@ARGV),	'\AV(0)',		'\@ARGV');
+  is (DPeek (\@INC),	'\AV(2)',		'\@INC');
   is (DPeek (\%INC),	'\HV()',		'\%INC');
-  is (DPeek (*STDOUT),	'GV()',			'*STDOUT');
+  is (DPeek (*STDOUT),	'GV(*STDOUT)',	'*STDOUT');
   is (DPeek (sub {}),	'\CV(__ANON__)',	'sub {}');
 
 { our ($VAR, @VAR, %VAR);
@@ -79,20 +79,21 @@ if ($^O eq 'vos') {
   is (DPeek (\$VAR),	'\\\CV(__ANON__)',	'\$VAR sub { "VAR" }');
 
   $VAR = eval qq{sub \x{30cd} { "VAR" } \\&\x{30cd}};
-  is (DPeek ($VAR),     '\CV(\x{30cd})',        ' $VAR sub \x{30cd} { "VAR" }');
-  is (DPeek (\$VAR),    '\\\\CV(\x{30cd})',      '\$VAR sub \x{30cd} { "VAR" }');
+  is (DPeek ($VAR),     '\CV(\x{30cd})',	' $VAR sub \x{30cd} { "VAR" }');
+  is (DPeek (\$VAR),    '\\\\CV(\x{30cd})',     '\$VAR sub \x{30cd} { "VAR" }');
 
   $VAR = 0;
 
-  is (DPeek (\&VAR),	'\CV(VAR)',		'\&VAR');
-  is (DPeek ( *VAR),	'GV()',			' *VAR');
+  is (DPeek (\%main::),	'\HV(%main::)',	' %main::');
+  is (DPeek (\&VAR),	'\CV(VAR)',	'\&VAR');
+  is (DPeek ( *VAR),	'GV(*VAR)',	' *VAR');
 
-  is (DPeek (*VAR{GLOB}),	'\GV()',	' *VAR{GLOB}');
-like (DPeek (*VAR{SCALAR}), qr'\\PV(IV|MG)\(0\)',' *VAR{SCALAR}');
-  is (DPeek (*VAR{ARRAY}),	'\AV()',	' *VAR{ARRAY}');
+  is (DPeek (*VAR{GLOB}),	'\GV(*VAR)',	' *VAR{GLOB}');
+like (DPeek (*VAR{SCALAR}),    qr'\\PV(IV|MG)\(0\)',' *VAR{SCALAR}');
+  is (DPeek (*VAR{ARRAY}),	'\AV(0)',	' *VAR{ARRAY}');
   is (DPeek (*VAR{HASH}),	'\HV()',	' *VAR{HASH}');
   is (DPeek (*VAR{CODE}),	'\CV(VAR)',	' *VAR{CODE}');
-  is (DPeek (*VAR{IO}),		'\IO()',	' *VAR{IO}');
+  is (DPeek (*VAR{IO}),	'\IO()',	' *VAR{IO}');
   is (DPeek (*VAR{FORMAT}),$]<5.008?'SV_UNDEF':'\FM()',' *VAR{FORMAT}');
   }
 
