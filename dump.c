@@ -2855,8 +2855,8 @@ Only avalaible with C<-DDEBUGGING>.
 =cut
 */
 #ifdef DEBUGGING
-STATIC void
-S_deb_hek(pTHX_ HEK* hek, SV* val)
+void
+Perl_deb_hek(pTHX_ HEK* hek, SV* val)
 {
     dVAR;
     U32 olddebug;
@@ -2915,7 +2915,7 @@ Perl_deb_hechain(pTHX_ HE* entry)
     if (!entry) return;
     PerlIO_printf(Perl_debug_log, "(");
     for (; entry; entry = HeNEXT(entry), i++) {
-        S_deb_hek(aTHX_ HeKEY_hek(entry), HeVAL(entry));
+        deb_hek(HeKEY_hek(entry), HeVAL(entry));
         assert(entry != HeNEXT(entry));
         assert(i <= PERL_ARENA_SIZE/sizeof(HE));
     }
@@ -3350,7 +3350,7 @@ Perl_op_class(pTHX_ const OP *o)
 	    return OPclass_SVOP;
 #endif
     }
-    
+
 #ifdef USE_ITHREADS
     if (o->op_type == OP_GV || o->op_type == OP_GVSV ||
 	o->op_type == OP_RCATLINE)
@@ -3542,7 +3542,7 @@ S__hv_dump(pTHX_ SV* sv, bool with_values, int level)
     HE **ents = HvARRAY(sv);
     U32 i;
     PERL_ARGS_ASSERT__HV_DUMP;
-    
+
     if (SvTYPE(sv) != SVt_PVHV)
         return;
     Perl_dump_indent(aTHX_ level, file, "KEYS = %u\n", (unsigned)HvUSEDKEYS(sv));
