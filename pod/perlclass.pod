@@ -148,9 +148,9 @@ Internally a multi adds the signature types to the name after a C<\0>.
 
 A class or role field is declared via C<has TYPE NAME = value;>, with
 the type and the default value being optional, and the name having
-optional attributes, same as MY variable declarations. Internally each
-has field is declared as my variable, and then changed to field
-accessors in all methods.
+optional attributes, same as MY variable declarations. Internally
+inside the class each has field is declared as lexical my variable,
+and then changed to efficient field accessors in all methods.
 
    has $NAME;
    has @ARRAY;
@@ -162,9 +162,11 @@ the field accessors at compile-time, plus a C<%FIELDS> hash entry for
 run-time access for computed field names, as in C<use L<fields>>.
 Native classes requires mandatory types for each field, the layout will aligned
 the same as C structs.
+Fields are always compile-time composed, even with C<is CLASS> inheritance.
 
-Additionally perl6-like accessors are created, for non-const fields
-getters and lvalue setter methods, for const fields only getters.
+Additionally perl6-like default accessors are created, for non-const
+fields getters and lvalue setter methods, for const fields only
+getters.  You may define you own accessor methods.
 
 Inside a class C<<< $self->{field} >>> is the same as C<<<
 $self->field >>> or just C<$field>.  Outside a class the first two
@@ -172,5 +174,63 @@ accessors must be used.  If the name is computed or the field is
 inherited from a parent class the lookup will be dynamic via method
 inheritance, composed fields from C<does ROLE> compile to direct array
 accesses in C<$self>.
+
+Note that internally an array ref holds the fields, but to the user it
+looks like a hash ref. The compiler converts the C<$self> hashref
+either to a compile-time array access or to a new run-time C<has> op,
+which performs the hash lookup of the field value. Note that it is 
+not a 5.8 pseudo-hash, it just looks like one.
+
+    my CLASS $obj = new CLASS;
+    $obj->{field}; 	# -> $obj->[0]
+
+    my $field = 'field';
+    $obj->{$field};	# -> has $obj, $field
+
+With method accessors it is similar, but you can override them. When
+the compiler can ensure that a field accessor method is static, it is
+inlined to the array ref.
+It is not static when the class is open, or the object is not typed.
+
+    my CLASS $obj = new CLASS;
+    $obj->field; 	# -> $obj->[0]
+
+    my $obj = new CLASS;
+    $obj->field; 	# call field($obj)
+
+    class OPENCLASS :open {
+      has $field = 1;
+    }
+    my OPENCLASS $obj = new OPENCLASS;
+    $obj->field; 	# call field($obj)
+
+Additionally, with a typed object the compiler only knows about the
+fields of the declared type. When you want to access a field in an
+untyped object , the compiler may not know it's position in the
+C<@FIELDS> array at compile-time, so a slower run-time lookup has to
+be performed.  Also an untyped object may change it's type at
+run-time, via unexpected side-effects. E.g. the object might get tied,
+re-blessed or a MOP method may be added.
+
+    class MyBase {
+      has $a = 1;
+    }
+    class MyClass is MyBase {
+      has $b = 1;
+    }
+
+    my $o = new MyClass;
+    # ... some possible side-effects with the type of $o
+    $o->{a}; 	# has $o, 'a';
+    $o->{b}; 	# has $o, 'b';
+
+    my MyBase $o1 = new MyClass;
+    $o1->{b}; 	# compile-time error
+
+    my MyClass $o2 = new MyClass;
+    $o2->{b}; 	# $o2->[1]  - $o2 is known to be MyClass
+
+    $o = new MyClass;   # and directly afterwards:
+    $o->{a}; 	# $o2->[0]  - $o is known to be MyClass
 
 =cut

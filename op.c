@@ -5204,10 +5204,12 @@ Perl_block_start(pTHX_ int full)
 /*
 =for apidoc Am|OP *	|block_end	|I32 floor|OP *seq
 
-Handles compile-time scope exit.  C<floor>
-is the savestack index returned by
-C<block_start>, and C<seq> is the body of the block.  Returns the block,
-possibly modified.
+Handles compile-time scope exit.
+
+C<floor> is the savestack index returned by C<block_start>, and C<seq>
+is the body of the block.
+
+Returns the block, possibly modified.
 
 =cut
 */
@@ -19313,8 +19315,9 @@ Perl_class_role(pTHX_ OP* o)
     if (OpSIBLING(o)) {
         o = OpSIBLING(o);
         if (IS_TYPE(o, RV2AV)) {
-            Perl_load_module(aTHX_ PERL_LOADMOD_NOIMPORT,
-                             newSVpvs("Mu"), NULL);
+            /* Mu is now implemented in universal.c as XS */
+            /*Perl_load_module(aTHX_ PERL_LOADMOD_NOIMPORT,
+              newSVpvs("Mu"), NULL);*/
             class_isamagic(o, name, "::ISA", 5);
         }
         o = OpSIBLING(o);
@@ -19509,6 +19512,8 @@ Perl_class_role_finalize(pTHX_ OP* o)
         SvREADONLY_on(GvAV(sym));
     SvCUR_set(name, len);
 
+    /* TODO: create accessor methods */
+
     /* walk and finalize the methods */
     for (i = 0; i <= HvMAX(stash); i++) {
         const HE *entry;
@@ -19530,7 +19535,6 @@ Perl_class_role_finalize(pTHX_ OP* o)
             */
         }
     }
-
     SvREADONLY_on(stash);
     PL_parser->in_class = FALSE;
 }
