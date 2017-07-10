@@ -521,7 +521,7 @@ h2 = embed.h form.h gv.h handy.h hv.h hv_func.h keywords.h mg.h op.h opcode.h
 h3 = pad.h patchlevel.h perl.h perlapi.h perly.h pp.h proto.h regcomp.h
 h4 = regexp.h scope.h sv.h unixish.h util.h iperlsys.h thread.h
 h5 = utf8.h warnings.h mydtrace.h op_reg_common.h l1_char_class_tab.h
-h6 = charclass_invlists.h regcharclass.h
+h6 = charclass_invlists.h regcharclass.h inline.h
 h = $(h1) $(h2) $(h3) $(h4) $(h5) $(h6)
 
 inc = mg_names.inc overload.inc packsizetables.inc vxs.inc
@@ -1861,9 +1861,14 @@ distcheck: FORCE
 TAGS: $(c1) $(c2) $(c3) $(c4) $(c5) $(h) $(inc)
 	etags $(c1) $(c2) $(c3) $(c4) $(c5) $(h) $(inc) mg_*.h
 
-FULLTAGS: $(c1) $(c2) $(c3) $(c4) $(c5) $(h)
+FULLTAGS: $(c1) $(c2) $(c3) $(c4) $(c5) $(h) $(inc)
 	etags $(c1) $(c2) $(c3) $(c4) $(c5) $(h) $(inc) mg_*.h \
 	      `find cpan dist ext -type f -name \*.[ch]`
+
+GTAGS: $(c1) $(c2) $(c3) $(c4) $(c5) $(h) $(inc)
+	echo $(c1) $(c2) $(c3) $(c4) $(c5) $(h) $(inc) mg_*.h | \
+		tr ' ' $(TRNL) > gtags.files
+	gtags -v --file gtags.files
 
 ctags:
 	ctags -f Tags -N --totals --languages=c --langmap=c:+.h --exclude=opmini.c --exclude=perlmini.c *.c *.h

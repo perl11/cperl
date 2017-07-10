@@ -204,11 +204,12 @@ ext/re/invlist_inline.h
 tags
 TAGS
 # gtags
-GPATH
-GRPATH
-GRTAGS
-GTAGS
-HTML
+/GPATH
+/GRTAGS
+/GTAGS
+/gtags.conf
+/gtags.files
+/HTML
 
 .git-rr-cache/DUMMY
 log.test-*
