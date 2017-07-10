@@ -1050,6 +1050,70 @@ XS(XS_re_regexp_pattern)
     NOT_REACHED; /* NOTREACHED */
 }
 
+/* TODO: put these into oo.c */
+
+XS(XS_Mu_new); /* prototype to pass -Wmissing-prototypes */
+XS(XS_Mu_new)
+{
+    dXSARGS;
+    SP -= items;
+    if (items < 1 || !SvPOK(ST(0)))
+	croak_xs_usage(cv, "classname");
+    else {
+        SV *name = ST(0);
+        HV *stash = gv_stashsv(name, SvUTF8(name));
+        AV *av = newAV();
+        if (hv_existss(stash, "FIELDS")) { /* has fields? */
+            AV *fields;
+            int i;
+            if (SvREADONLY(name))
+                name = newSVpvn_flags(SvPVX(name), SvCUR(name), SvUTF8(name)|SVs_TEMP);
+            sv_catpvs(name, "::FIELDS");
+            fields = GvAVn(gv_fetchsv(name, 0, SVt_PVAV));
+            av_extend(av, AvFILLp(fields));
+            for (i=0; i<AvFILLp(fields); i++) {
+                /* use a pseudohash with the names as first element?
+                   no, this is just an optional new method. */
+                if (items >= i) {
+                    SV *padix = AvARRAY(fields)[i];
+                    AvARRAY(av)[i] = PAD_SVl(SvIVX(padix));
+                }
+                else /* new CLASS field1, field2, ... */
+                    AvARRAY(av)[i] = ST(i+1);
+            }
+        }
+        AvSHAPED_on(av);
+        ST(0) = sv_bless(newRV((SV*)av), stash);
+        XSRETURN(1);
+    }
+}
+
+XS(XS_Mu_CREATE); /* prototype to pass -Wmissing-prototypes */
+XS(XS_Mu_CREATE)
+{
+    dXSARGS;
+    SP -= items;
+    if (items != 1 || !SvPOK(ST(0)))
+	croak_xs_usage(cv, "classname");
+    else {
+        SV *name = ST(0);
+        HV *stash = gv_stashsv(name, SvUTF8(name));
+        AV *av = newAV();
+        if (hv_existss(stash, "FIELDS")) { /* has fields? */
+            AV *fields;
+            if (SvREADONLY(name))
+                name = newSVpvn_flags(SvPVX(name), SvCUR(name), SvUTF8(name)|SVs_TEMP);
+            sv_catpvs(name, "::FIELDS");
+            fields = GvAVn(gv_fetchsv(name, 0, SVt_PVAV));
+            if (fields)
+                av_extend(av, AvFILLp(fields));
+        }
+        AvSHAPED_on(av);
+        ST(0) = sv_bless(newRV((SV*)av), stash);
+        XSRETURN(1);
+    }
+}
+
 #include "vutil.h"
 #include "vxs.inc"
 
@@ -1085,6 +1149,8 @@ static const struct xsub_details details[] = {
     {"re::regnames", XS_re_regnames, ";$"},
     {"re::regnames_count", XS_re_regnames_count, ""},
     {"re::regexp_pattern", XS_re_regexp_pattern, "$"},
+    {"Mu::new", XS_Mu_new, "$;@"},
+    {"Mu::CREATE", XS_Mu_CREATE, "$"},
 };
 
 STATIC OP*
@@ -1145,6 +1211,7 @@ Perl_boot_core_UNIVERSAL(pTHX)
     /* pre-extend internals stashes to avoid splits from small */
     hv_ksplit(gv_stashpvs("version", GV_ADD), 64);
     hv_ksplit(gv_stashpvs("utf8", GV_ADD), 16);
+    /*hv_ksplit(gv_stashpvs("Mu", GV_ADD), 32);*/
 
     do {
 	newXS_flags(xsub->name, xsub->xsub, file, xsub->proto, 0);

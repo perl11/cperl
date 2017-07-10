@@ -1,6 +1,6 @@
 package Mu;
 our $VERSION = 0.01;
-#method new (); # see XS universal.c
+#method new ();    # see XS universal.c
 #method CREATE (); # see XS
 1;
 __END__
