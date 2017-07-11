@@ -462,10 +462,16 @@ addbits($_, 3 => qw(OPpMAYBE_LVSUB LVSUB))
 # specialize boolean context to WANT_SCALAR
 for (qw(rv2hv padhv ref)) {
     addbits($_,                           # e.g. %hash in (%hash || $foo) ...
-        4 => qw(OPpMAYBE_TRUEBOOL BOOL?), # ... cx not known till run time
-        5 => qw(OPpTRUEBOOL       BOOL),  # ... in void cxt
+        4 => qw(OPpMAYBE_TRUEBOOL BOOL?), # but cx not known till run time
+        5 => qw(OPpTRUEBOOL       BOOL),
     );
 }
+for (qw(padav rv2av)) {
+    addbits($_,
+        5 => qw(OPpTRUEBOOL       BOOL),  # if (@a) {...}
+    );
+}
+
 for (qw(length)) {
     addbits($_,                           # if length($str)
         5 => qw(OPpLENGTH_MAYBE_TRUEBOOL BOOL?), # ... cx not known till run time
