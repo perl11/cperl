@@ -9937,6 +9937,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
         /* check the body if it's in-lineable.
            TODO: return an OP* to be able to inline more ops than just one SV*.
            TODO: should :const enforce inlining?
+           TODO: has $const :const = 1; method x { $self->{const} }
          */
 	const_sv = op_const_sv(start, PL_compcv, cBOOL(CvCLONE(PL_compcv)));
 
@@ -10188,14 +10189,14 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	    GV * const db_postponed = gv_fetchpvs("DB::postponed",
 						  GV_ADDMULTI, SVt_PVHV);
 	    HV *hv;
+            I32 klen = SvUTF8(tmpstr) ? -(I32)SvCUR(tmpstr) : (I32)SvCUR(tmpstr);
 	    SV * const sv = Perl_newSVpvf(aTHX_ "%s:%ld-%ld",
 					  CopFILE(PL_curcop),
 					  (long)PL_subline,
 					  (long)CopLINE(PL_curcop));
-	    (void)hv_store(GvHV(PL_DBsub), SvPVX_const(tmpstr),
-		    SvUTF8(tmpstr) ? -(I32)SvCUR(tmpstr) : (I32)SvCUR(tmpstr), sv, 0);
+	    (void)hv_store(GvHV(PL_DBsub), SvPVX_const(tmpstr), klen, sv, 0);
 	    hv = GvHVn(db_postponed);
-	    if (HvTOTALKEYS(hv) > 0 && hv_exists(hv, SvPVX_const(tmpstr), SvUTF8(tmpstr) ? -(I32)SvCUR(tmpstr) : (I32)SvCUR(tmpstr))) {
+	    if (HvTOTALKEYS(hv) > 0 && hv_exists(hv, SvPVX_const(tmpstr), klen)) {
 		CV * const pcv = GvCV(db_postponed);
 		if (pcv) {
 		    dSP;
@@ -10211,8 +10212,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
             if (PL_parser && PL_parser->error_count)
                 clear_special_blocks(name, gv, cv);
             else
-                evanescent =
-                    process_special_blocks(floor, name, gv, cv);
+                evanescent = process_special_blocks(floor, name, gv, cv);
         }
     }
 

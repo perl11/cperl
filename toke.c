@@ -9145,8 +9145,8 @@ Perl_yylex(pTHX)
 		const int key = tmp;
 		expectation attrful;
 		bool have_name, have_proto;
-                int cvflags = 0;
-
+                bool try_signature = FALSE;
+                int cvflags = key == KEY_method ? CVf_METHOD : 0;
                 SSize_t off = s - SvPVX(PL_linestr);
 
 		d = s;
@@ -9165,7 +9165,7 @@ Perl_yylex(pTHX)
 				  &len, &normalize);
                     if (key == KEY_multi && strEQc(tmpbuf, "method")) {
                         s = skipspace(d);
-                        cvflags = CVf_METHOD;
+                        cvflags |= CVf_METHOD;
                         d = scan_word(s, tmpbuf, sizeof PL_tokenbuf - 1, TRUE,
                                       &len, &normalize);
                     }
@@ -9236,18 +9236,31 @@ Perl_yylex(pTHX)
                         if (!s)
                             Perl_croak(aTHX_ "Prototype not terminated");
 #ifdef USE_CPERL
-                        have_proto = validate_proto(PL_subname, PL_lex_stuff,
-                                                    FALSE);
+#define VALIDATE_PROTO_WARN FALSE
 #else
-                        have_proto = validate_proto(PL_subname, PL_lex_stuff,
-                                                    ckWARN(WARN_ILLEGALPROTO));
+#define VALIDATE_PROTO_WARN ckWARN(WARN_ILLEGALPROTO)
 #endif
+                        have_proto = validate_proto(PL_subname, PL_lex_stuff,
+                                                    VALIDATE_PROTO_WARN);
                     }
                     if (have_proto) {
-                        DEBUG_T(printbuf("### Is prototype %s\n", d));
+                        if (PL_parser->in_class && cvflags & CVf_METHOD && !SvCUR(PL_lex_stuff)) {
+                            SV* sig = newSVpvn_flags(SvPVX(PL_curstname), SvCUR(PL_curstname),
+                                                     SvUTF8(PL_curstname)|SVs_TEMP);
+                            DEBUG_T(printbuf("### Empty method signature %s\n", d));
+                            PL_bufptr = d+1;
+                            sv_catpvs(sig, " $self");
+                            DEBUG_T(printbuf("### Stuff %s\n", SvPVX(sig)));
+                            lex_stuff_pvn(SvPVX(sig), SvCUR(sig), 0);
+                            s = PL_bufptr-1;
+                            PL_lex_stuff = NULL;
+                        } else {
+                            DEBUG_T(printbuf("### Is prototype %s\n", d));
+                        }
                         s = skipspace(s);
                     } else {
                         DEBUG_T(printbuf("### No prototype %s, signature probably\n", d));
+                        try_signature = TRUE;
                         s = PL_bufptr = d;
                         PL_lex_stuff = NULL;
                     }
@@ -9255,7 +9268,7 @@ Perl_yylex(pTHX)
 		else
 		    have_proto = FALSE;
 
-                if (UNLIKELY(!PL_in_class && tmp == KEY_method))
+                if (UNLIKELY(!PL_in_class && (cvflags & CVf_METHOD)))
                     Perl_croak(aTHX_ "Can declare method %s only within a class",
                                PL_tokenbuf);
                 assert(key != KEY_format);
@@ -9275,11 +9288,20 @@ Perl_yylex(pTHX)
 		}
 
 		if (have_proto) {
-		    NEXTVAL_NEXTTOKE.opval =
-                        newSVOP(OP_CONST, 0, PL_lex_stuff);
-		    PL_lex_stuff = NULL;
-		    force_next(THING);
-		}
+                    if (PL_lex_stuff) {
+                        NEXTVAL_NEXTTOKE.opval = newSVOP(OP_CONST,0,PL_lex_stuff);
+                        PL_lex_stuff = NULL;
+                        force_next(THING);
+                    }
+		} else if (!try_signature && PL_parser->in_class && (cvflags & CVf_METHOD)) {
+                    SV* sig = newSVpvs("(");
+                    PL_bufptr = s;
+                    sv_catsv(sig, PL_curstname);
+                    sv_catpvs(sig, " $self)");
+                    DEBUG_T(printbuf("### Stuff %s\n", SvPVX(sig)));
+                    lex_stuff_pvn(SvPVX(sig), SvCUR(sig), 0);
+                    s = PL_bufptr;
+                }
 		if (!have_name) {
 		    if (PL_curstash)
 			sv_setpvs(PL_subname, "__ANON__");
@@ -13144,6 +13166,23 @@ Perl_parse_stmtseq(pTHX_ U32 flags)
 
 /* Helper function for parse_subsignature */
 
+/* These are local vars of Perl_parse_subsignature() that also
+ * need to be accessible by a couple of helper functions */
+
+struct parse_subsignature_state {
+    OP            *sig_op;           /* the OP_SIGNATURE op */
+    UNOP_AUX_item *items;            /* sig_op->op_aux */
+    int            items_size;       /* malloced size of items */
+    int            items_ix;         /* first free slot in items */
+    int            action_ix;        /* current slot holding actions */
+    int            action_count;     /* how many actions have been stored
+                                        in the current items[action_ix] */
+    UV             action_acc;       /* accumulated actions for the current
+                                        items[action_ix] slot, excluding
+                                        the temporary SIGNATURE_end */
+};
+
+
 /* Parse the next token, which should either be a bare sigil, or a
  * sigil + var name. For the latter, allocate a new named pad entry for the
  * lexical and return the pad index. For the former, return NOT_IN_PAD.
@@ -13151,7 +13190,8 @@ Perl_parse_stmtseq(pTHX_ U32 flags)
  */
 
 static PADOFFSET
-S_parse_opt_lexvar(pTHX_ bool is_ref, PADOFFSET pad_base)
+S_parse_opt_lexvar(pTHX_ struct parse_subsignature_state *stp,
+                   bool is_ref, int *have_self)
 {
     I32 sigil, c;
     char *s, *d;
@@ -13185,48 +13225,26 @@ S_parse_opt_lexvar(pTHX_ bool is_ref, PADOFFSET pad_base)
         Copy(norm, &PL_tokenbuf[1], len+1, char);
         return allocmy(norm, len, SVf_UTF8);
     } else {
-        if (*s == ':' && CvMETHOD(PL_compcv)) { /* invocant syntax */
-            PL_bufptr++;
-            *d = '\0';
-            /* my $self already allocated */
-            if (strEQc(PL_tokenbuf, "$self")) {
-                return pad_base;
-            } else {
-                PADNAME *pn = PAD_COMPNAME(pad_base);
-                STRLEN len = d - PL_tokenbuf;
-                DEBUG_kv(Perl_deb(aTHX_ "invocant %s\n", PL_tokenbuf));
-                if (len == PadnameLEN(pn)) { /* $this: the most common */
-                    Copy(PL_tokenbuf, PadnamePV(pn), len, char);
-                } else {
-                    PadnameREFCNT_dec(pn);
-                    padnamelist_store(PL_comppad_name, pad_base,
-                                      newPADNAMEpvn_flags(PL_tokenbuf, len, 0));
-                    return pad_base;
-                }
+        *d = '\0';
+        if (CvMETHOD(PL_compcv)) {
+            if (*s == ':') { /* invocant syntax with first arg */
+                if (stp->items_ix != 3)
+		    /* diag_listed_as: Invocant %s must be the first signature */
+                    Perl_croak(aTHX_ "Invocant %s: must be the first signature\n",
+                               PL_tokenbuf);
+                *have_self = 1;
+                PL_bufptr++;
+            }
+            else if (strEQc(PL_tokenbuf, "$self")) {
+                if (stp->items_ix != 3)
+                    Perl_croak(aTHX_ "Invocant %s must be the first signature\n",
+                               PL_tokenbuf);
+                *have_self = 1;
             }
         }
         return allocmy(PL_tokenbuf, d - PL_tokenbuf, UTF ? SVf_UTF8 : 0);
     }
 }
-
-
-
-/* These are local vars of Perl_parse_subsignature() that also
- * need to be accessible by a couple of helper functions */
-
-struct parse_subsignature_state {
-    OP            *sig_op;           /* the OP_SIGNATURE op */
-    UNOP_AUX_item *items;            /* sig_op->op_aux */
-    int            items_size;       /* malloced size of items */
-    int            items_ix;         /* first free slot in items */
-    int            action_ix;        /* current slot holding actions */
-    int            action_count;     /* how many actions have been stored
-                                        in the current items[action_ix] */
-    UV             action_acc;       /* accumulated actions for the current
-                                        items[action_ix] slot, excluding
-                                        the temporary SIGNATURE_end */
-};
-
 
 /* Reallocate the items buf for sig_op.
  * (Helper function for parse_subsignature()). */
@@ -13334,6 +13352,7 @@ Perl_parse_subsignature(pTHX)
     PADOFFSET top_unsafe_pad  = NOT_IN_PAD; /* highest pad var that may be
                                     affected by non-optimised default exprs */
     HV *typestash = NULL;
+    int have_self = 0;
 
     /* keep some local vars in a struct so they can be accessed by helper
      * functions */
@@ -13375,18 +13394,6 @@ Perl_parse_subsignature(pTHX)
        A cop before a sig resets SP which resets argc to 0. */
     /*initops = newSTATEOP(0, NULL, st.sig_op);*/
 
-    /* support $self: invocant syntax for first arg. move below then */
-    if (CvMETHOD(PL_compcv)) {
-        /* cv_method_on(PL_compcv); */
-        pad_base = allocmy("$self", 5, 0);
-        padintro_ix = 3;
-        mand_args++;
-        PUSH_ITEM(uv, 0);
-        S_sig_push_action(aTHX_ stp, SIGNATURE_padintro);
-        st.items[3].uv = (pad_base << OPpPADRANGE_COUNTSHIFT) | 1;
-        S_sig_push_action(aTHX_ stp, SIGNATURE_arg);
-    }
-
     lex_read_space(0);
     c = lex_peek_unichar(0);
 
@@ -13415,7 +13422,8 @@ Perl_parse_subsignature(pTHX)
                 char tmpbuf[TOKENBUF_SIZE];
                 int len;
                 PL_bufptr = s;
-                len = my_snprintf(tmpbuf, sizeof(tmpbuf), "No such class %.1000s", PL_tokenbuf);
+                len = my_snprintf(tmpbuf, sizeof(tmpbuf), "No such class %.1000s",
+                                  PL_tokenbuf);
                 PERL_MY_SNPRINTF_POST_GUARD(len, sizeof(tmpbuf));
                 yyerror_pv(tmpbuf, UTF ? SVf_UTF8 : 0);
             } else {
@@ -13446,10 +13454,30 @@ Perl_parse_subsignature(pTHX)
                 is_ref = FALSE;
             }
 
-            pad_offset = S_parse_opt_lexvar(aTHX_ is_ref, pad_base);
+            pad_offset = S_parse_opt_lexvar(aTHX_ stp, is_ref, &have_self);
             is_var = (pad_offset != NOT_IN_PAD);
 
             if (is_var) {
+                /* add untyped $self, invocant syntax on methods */
+                if (CvMETHOD(PL_compcv) && stp->items_ix == 3) {
+                    padintro_ix = 3;
+                    PUSH_ITEM(uv, 0);
+                    S_sig_push_action(aTHX_ stp, SIGNATURE_padintro);
+                    prev_pad_offset = pad_offset - 1;
+                    if (!have_self) {
+                        pad_base = allocmy("$self", 5, 0);
+                        DEBUG_kv(Perl_deb(aTHX_ "sig: add $self [3], pad=%u-%u\n",
+                            (unsigned)pad_base, (unsigned)pad_offset));
+                        mand_args++;
+                        PUSH_ITEM(uv, 0);
+                        S_sig_push_action(aTHX_ stp, SIGNATURE_arg);
+                    } else {
+                        DEBUG_kv(Perl_deb(aTHX_ "sig: have $self [3], pad=%u-%u\n",
+                            (unsigned)pad_base, (unsigned)pad_offset));
+                        pad_base = pad_offset;
+                    }
+                }
+
                 top_pad = pad_offset;
                 if (typestash) { /* store type in comppad */
                     PADNAME *pn = padnamelist_fetch(PL_comppad_name, pad_offset);
