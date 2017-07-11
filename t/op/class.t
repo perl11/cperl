@@ -5,21 +5,20 @@ BEGIN {
     #require './test.pl';
 }
 local($\, $", $,) = (undef, ' ', '');
-print "1..12\n";
+print "1..13\n";
 my $test = 1;
 
 class Foo {
   #has $a = 0; # no has -> %FIELDS syntax yet
   my $a = 0;
   method a($v?)       { defined $v ? $a = $v : $a }
-  method new          { bless [], 'Foo' }
+  method new          { bless [$a], 'Foo' }
 
   method meth1 {
     print "ok $test\n"; $test++; 
     # $self->a + 1
   }
-  # quirks: just multi, not perl6-style multi method yet
-  multi mul1 ($self, Int $a) :method {
+  multi method mul1 (Foo $self, Int $a) {
     print "ok $test\n"; $test++;
     $self->a * $a
   }
@@ -58,3 +57,5 @@ class Baz1 is Foo {
 }
 print scalar @Baz1::ISA != 1 ? "not " : "", "ok ", $test++, "\n";
 print $Baz1::ISA[0] ne "Foo" ? "not " : "", "ok ", $test++, "\n";
+my $b = new Baz1;
+print ref $b ne "Baz1" ? "not " : "", "ok ", $test++, " # ref \$b\n";

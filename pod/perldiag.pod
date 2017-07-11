@@ -3251,6 +3251,10 @@ an arbitrary reference was blessed into the "version" class.
 than ':' to DynaLoader, which was replaced by '_' to look up the boot
 name.
 
+=item Invocant %s must be the first signature
+
+(F) The C<$self> argument to a method signature must be the very first.
+
 =item In '(*VERB...)', the '(' and '*' must be adjacent in regex;
 marked by S<<-- HERE> in m/%s/
 
