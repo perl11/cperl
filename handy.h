@@ -88,6 +88,10 @@ Null SV pointer.  (No longer available when C<PERL_CORE> is defined.)
 #  endif
 # endif
 #endif
+/* xkeycheck.h since 11.0 errors on bool redefinition */
+#if defined(_MSC_VER) && defined(__cplusplus) && _MSC_VER >= 1700
+# define HAS_BOOL 1
+#endif
 
 #ifndef HAS_BOOL
 # ifdef bool
