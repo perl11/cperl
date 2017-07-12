@@ -447,6 +447,7 @@ $bits{negate}{0} = $bf[0];
 $bits{next}{0} = $bf[0];
 $bits{not}{0} = $bf[0];
 $bits{oct}{0} = $bf[0];
+@{$bits{oelem}}{1,0} = ($bf[1], $bf[1]);
 $bits{once}{0} = $bf[0];
 @{$bits{open}}{3,2,1,0} = ($bf[4], $bf[4], $bf[4], $bf[4]);
 @{$bits{open_dir}}{3,2,1,0} = ($bf[4], $bf[4], $bf[4], $bf[4]);

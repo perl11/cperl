@@ -448,6 +448,40 @@ PP(pp_rv2sv)
     RETURN;
 }
 
+/* run-time field lookup. possible lvalue. oelem $obj, fieldname.
+   fields may be arrays or hashes.
+ */
+PPt(pp_oelem, "(:Ref,:Str):Any")
+{
+    dSP;
+    SV * const obj   = POPs;
+    SV * const field = TOPs;
+    HV * stash;
+    SV ** svp;
+    PADOFFSET ix;
+    const I32 lvalue = (PL_op->op_flags & OPf_MOD || LVRET);
+    I32 klen;
+
+    if (UNLIKELY(!obj || SvOBJECT(obj) || !(stash = SvSTASH(obj)) || !SvOOK(stash)
+                 || !SvROK(obj) || SvTYPE(SvRV(obj)) != SVt_PVAV))
+        DIE(aTHX_ "Invalid object");
+    if (UNLIKELY(!HvCLASS(stash))) {
+        const char *name = HvNAME_get(stash) ? HEK_KEY(HvNAME_HEK_NN(stash)) : "__ANON__";
+        Perl_die(aTHX_ "Not a class %s", name);
+    }
+    if (UNLIKELY(!SvPOK(field)))
+        DIE(aTHX_ "Invalid object field");
+    klen = SvUTF8(field) ? -(I32)SvCUR(field) : (I32)SvCUR(field);
+    ix = has_field(stash, SvPVX(field), klen);
+    if (UNLIKELY(ix == NOT_IN_PAD)) {
+        const char *name = HvNAME_get(stash) ? HEK_KEY(HvNAME_HEK_NN(stash)) : "__ANON__";
+        Perl_die(aTHX_ "Object field %" SVf " in class %s not found", SVfARG(field), name);
+    }
+    svp = av_fetch(MUTABLE_AV(SvRV(obj)), ix, lvalue);
+    if (svp) TOPs = *svp;
+    RETURN;
+}
+
 PP(pp_av2arylen)
 {
     dSP;

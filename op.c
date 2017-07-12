@@ -5534,16 +5534,21 @@ Perl_hasterm(pTHX_ OP *o)
 /*
 =for apidoc has_field
 
-Searches name without the '$' in %klass::FIELDS.
+Searches for the fieldname without the '$' in %klass::FIELDS
+(or maybe some other internal class structure,
+like linear search in additional @FIELDS)
+
+If klen is negative, the hash key is UTF8.
 
 =cut
 */
 PADOFFSET
-S_has_field(pTHX_ const HV* klass, const char* key, I32 klen)
+Perl_has_field(pTHX_ const HV* klass, const char* key, I32 klen)
 {
     SV* gv;
     GV* fields;
     SV** svp;
+    PERL_ARGS_ASSERT_HAS_FIELD;
     if (!HvNAME(klass)) return NOT_IN_PAD;
     gv = newSVpvn_flags(HvNAME(klass), HvNAMELEN(klass), HvNAMEUTF8(klass)|SVs_TEMP);
     sv_catpvs(gv, "::FIELDS");
@@ -19404,7 +19409,7 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
         {
             SV* key = ITEM_SV(++items);
             I32 klen = SvUTF8(key) ? -SvCUR(key) : SvCUR(key);
-            PADOFFSET pad = S_has_field(aTHX_ klass, SvPVX(key), klen);
+            PADOFFSET pad = has_field(klass, SvPVX(key), klen);
             if (pad >= 0 && pad < (self + floor)) {
                 assert(pad < 128);   /* TODO aelem_u */
                 o->op_private = pad; /* field offset */

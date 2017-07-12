@@ -3123,6 +3123,16 @@ character (U+FFFD).
 (F) You supplied a number to the -C option that either has extra leading
 zeroes or overflows perl's unsigned integer representation.
 
+=item Invalid object
+
+(F) The argument to oelem, a run-time object field was not a proper
+class object, with an array reference to hold the field values.
+
+=item Invalid object field
+
+(F) The second argument to oelem, a run-time object field was not a
+proper string.
+
 =item Invalid op %s for ck_type
 
 (P) The op passed to the internal type check function is invalid.
@@ -4333,6 +4343,12 @@ find out what kind of ref it really was.  See L<perlref>.
 a reference to something else instead.  You can use the ref() function
 to find out what kind of ref it really was.  See L<perlref>.
 
+=item Not a class %s
+
+(F) The argument to oelem, a run-time object field was not a proper
+class object. It's package was not created via class or use base, it
+doesn't have the HvCLASS flag.
+
 =item Not a SCALAR reference
 
 (F) Perl was trying to evaluate a reference to a scalar value, but found
@@ -4426,6 +4442,11 @@ the meantime, try using scientific notation (e.g. "1e6" instead of
 (F) Perl was looking for a number but found nothing that looked like
 a number.  This happens, for example with C<\o{}>, with no number between
 the braces.
+
+=item Object field %s in class %s not found
+
+(F) The second argument to oelem, a run-time object field was not found in
+the class hierarchy.
 
 =item Octal number > 037777777777 non-portable
 

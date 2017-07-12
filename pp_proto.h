@@ -179,6 +179,7 @@ PERL_CALLCONV OP *Perl_pp_nextstate(pTHX);
 PERL_CALLCONV OP *Perl_pp_not(pTHX);
 PERL_CALLCONV OP *Perl_pp_null(pTHX);
 PERL_CALLCONV OP *Perl_pp_oct(pTHX);
+PERL_CALLCONV OP *Perl_pp_oelem(pTHX);
 PERL_CALLCONV OP *Perl_pp_once(pTHX);
 PERL_CALLCONV OP *Perl_pp_open(pTHX);
 PERL_CALLCONV OP *Perl_pp_open_dir(pTHX);

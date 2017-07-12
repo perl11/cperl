@@ -2097,6 +2097,13 @@ PERL_CALLCONV void	Perl_gv_try_downgrade(pTHX_ GV* gv)
 #define PERL_ARGS_ASSERT_GV_TRY_DOWNGRADE	\
 	assert(gv)
 
+PERL_CALLCONV PADOFFSET	Perl_has_field(pTHX_ const HV* klass, const char* key, I32 klen)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_HAS_FIELD	\
+	assert(klass); assert(key)
+
 PERL_CALLCONV OP*	Perl_hasterm(pTHX_ OP *o)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_HASTERM	\
