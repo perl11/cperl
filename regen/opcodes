@@ -64,7 +64,8 @@ padany		private value		ck_null		d0		"():Void"
 # Lvalue operators.
 
 sassign		scalar assignment	ck_sassign	s2	S S	"(:Scalar,:Scalar):Scalar"
-aassign		list assignment		ck_aassign	t2	L L	"(:List,:List):List"
+aassign		list assignment	ck_aassign	t2	L L	"(:List,:List):List"
+oelem		object element	ck_null	2	R S	"(:Ref,:Str):Any"
 
 chop		chop			ck_spair	mts%	L	"(:List(:Str)):Scalar"
 schop		scalar chop		ck_null		stu%	S?	"(:Str):Int"
