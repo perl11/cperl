@@ -35,6 +35,12 @@ hash lookup, not two.
 
 =over 4
 
+=item L<B> 1.68_07
+
+Add non-destructive $cv->PUREGV method, which does not create a GV
+from a CvNAMED $cv.
+Warning: $cv->GV does create a GV from a CvNAMED $cv.
+
 =item L<Cpanel::JSON::XS> 3.0233
 
 MSVC 14.0 support and higher, changed nan in the runtime.

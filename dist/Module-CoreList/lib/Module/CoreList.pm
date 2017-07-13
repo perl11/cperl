@@ -3,7 +3,7 @@ use strict;
 use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use version;
-$VERSION = '5.20170518c';
+$VERSION = '5.20170714c';
 $VERSION =~ s/c$//;
 
 sub _undelta {
@@ -338,11 +338,11 @@ our %released = (
     '5.025003c' => '2017-02-23',
     5.025011 => '2017-03-20',
     5.025012 => '2017-04-20',
-    '5.026000c' => '2016-04-25',
+    '5.026000c' => '2017-04-25',
+    '5.027000c' => '2017-05-17',
     5.026000 => '2017-05-30',
     5.027000 => '2017-05-31',
     5.027001 => '2017-06-03',
-    '5.027000c' => '2017-05-17',
     '5.024003c' => '????-??-??',
     '5.026001c' => '????-??-??',
     '5.027001c' => '????-??-??',
@@ -14749,7 +14749,7 @@ our %delta = (
         },
     },
     5.026000 => {
-        delta_from => 5.025011,
+        delta_from => 5.025012,
         changed => {
             'Config'                => '5.026',
             'Module::CoreList'      => '5.20170420',
@@ -14926,6 +14926,7 @@ our %delta = (
             'Config'                => '5.026',
             'Module::CoreList'      => '5.20170428c',
             'Module::CoreList::Utils'=> '5.20170428c',
+            'B'                     => '1.68_07',
             'Cpanel::JSON::XS'      => '3.0233',
             'ExtUtils::MakeMaker'   => '8.04_05',
             'ExtUtils::MM_Unix'     => '8.04_05',
@@ -15017,7 +15018,7 @@ our %delta = (
             'B::Concise'            => '0.9991c',
             'Cpanel::JSON::XS'      => '3.0233',
             'Cwd'                   => '4.68c',
-            'Devel::PPPort'         => '3.35_03',
+            'Devel::PPPort'         => '3.36_01',
             'Encode'                => '2.89',
             'ExtUtils::Install'     => '2.08',
             'IPC::Cmd'              => '0.98',
@@ -15034,21 +15035,37 @@ our %delta = (
         delta_from => '5.027000c',
         changed => {
             'Config'                => '5.027001',
-            'Module::CoreList'      => '5.20170518c',
-            'Module::CoreList::Utils'=> '5.20170518c',
+            'Module::CoreList'      => '5.20170714c',
+            'Module::CoreList::Utils'=> '5.20170714c',
+            'attributes'            => '1.12c',
+            'B'                     => '1.68_08',
+            'B::C'                  => '1.55_04',
+            'B::Debug'              => '1.25',
+            'base'                  => '2.26c',
+            'Cpanel::JSON::XS'      => '3.0237',
+            'deprecate'             => '0.03_01',
+            'Devel::Peek'           => '1.26_02',
+            'Devel::PPPort'         => '3.36_02',
             'ExtUtils::Constant'    => '0.23_09',
             'ExtUtils::MakeMaker::Locale' => '8.04_05',
             'ExtUtils::MakeMaker'   => '8.04_05',
             'ExtUtils::MM_Unix'     => '8.04_05',
+            'ExtUtils::MM_Win32'    => '8.04_05',
+            'fields'                => '2.25c',
             'File::Spec::Functions' => '3.36_05',
             'IO::Socket'            => '1.38_01',
             'IO::Socket::INET'      => '1.35_01',
             'IO::Socket::UNIX'      => '1.26_01',
+            'Opcode'                => '1.39_02c',
+            'Metamodel'             => '',
+            'Mu'                    => '0.01c',
             'Net::Ping'             => '2.61',
             'Search::Dict'          => '1.07_01',
             'SelectSaver'           => '1.02_01',
+            'Storable'              => '3.05_13',
             'strict'                => '1.13c',
             'VMS::Studio'           => '2.41_01',
+            'Win32API::File'        => '0.1204',
         },
         removed => {
         }
