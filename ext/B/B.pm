@@ -7,7 +7,7 @@
 #
 package B;
 
-$B::VERSION = '1.68_06';
+$B::VERSION = '1.68_07';
 
 require XSLoader;
 require Exporter;
@@ -974,6 +974,13 @@ in with the main SV flags, so this method is no longer present.
 =item ROOT
 
 =item GV
+
+Warning: This is destructive on named CVs, check NAME_HEK first.
+
+=item PUREGV
+
+Non-destructive version of GV, returning either the GV as B::GV,
+or undef.
 
 =item FILE
 

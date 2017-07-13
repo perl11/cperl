@@ -227,7 +227,7 @@ make_cop_io_object(pTHX_ COP *cop)
 
     Perl_emulate_cop_io(aTHX_ cop, value);
 
-    if(SvOK(value)) {
+    if (SvOK(value)) {
 	return make_sv_object(aTHX_ value);
     } else {
 	SvREFCNT_dec(value);
@@ -2104,16 +2104,23 @@ CvXSUB(cv)
 void
 const_sv(cv)
 	B::CV	cv
-    PPCODE:
-	PUSHs(make_sv_object(aTHX_ (SV *)cv_const_sv(cv)));
+    CODE:
+        ST(0) = make_sv_object(aTHX_ (SV *)cv_const_sv(cv));
 
 void
 GV(cv)
 	B::CV cv
     CODE:
-	ST(0) = make_sv_object(aTHX_ (SV*)CvGV(cv));
+        ST(0) = make_sv_object(aTHX_ (SV*)CvGV(cv));
 
 #if PERL_VERSION > 17
+
+void
+PUREGV(cv)
+	B::CV cv
+    CODE:
+	ST(0) = CvNAMED(cv) ? &PL_sv_undef
+                            : make_sv_object(aTHX_ (SV*)CvGV(cv));
 
 SV *
 NAME_HEK(cv)
@@ -2127,11 +2134,11 @@ NAME_HEK(cv)
 
 MODULE = B	PACKAGE = B::HV		PREFIX = Hv
 
-SSize_t
+U32
 HvFILL(hv)
 	B::HV	hv
 
-SSize_t
+U32
 HvRITER(hv)
 	B::HV	hv
 

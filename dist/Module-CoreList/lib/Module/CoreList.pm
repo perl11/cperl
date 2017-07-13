@@ -15016,6 +15016,7 @@ our %delta = (
             'Module::CoreList'      => '5.20170518c',
             'Module::CoreList::Utils'=> '5.20170518c',
             'attributes'            => '1.12c',
+            'B'                     => '1.68_07',
             'Devel::Peek'           => '1.26_02',
             'Devel::PPPort'         => '3.36_02',
             'ExtUtils::Constant'    => '0.23_09',

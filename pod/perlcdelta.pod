@@ -196,6 +196,12 @@ with deferring the attributes::import call after an assignment.
 
 See L<[cperl #294]|https://github.com/perl11/cperl/issues/294>.
 
+=item L<B> 1.68_07
+
+Add non-destructive $cv->PUREGV method, which does not create a GV
+from a CvNAMED $cv.
+Warning: $cv->GV does create a GV from a CvNAMED $cv.
+
 =item L<Devel::Peek> 1.26_02
 
 Add TYPECHECKED, RETTYPE and pad var names and types.
