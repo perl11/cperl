@@ -2077,10 +2077,14 @@ PP(pp_aassign)
     if (gimme == G_VOID)
 	SP = firstrelem - 1;
     else if (gimme == G_SCALAR) {
-	dTARGET;
 	SP = firstrelem;
         EXTEND(SP, 1);
-	SETi(firstlelem - firstrelem);
+        if (PL_op->op_private & OPpASSIGN_TRUEBOOL)
+            SETs((firstlelem - firstrelem) ? SV_YES : SV_ZERO);
+        else {
+            dTARGET;
+            SETi(firstlelem - firstrelem);
+        }
     }
     else
         SP = relem - 1;
@@ -3731,7 +3735,10 @@ PP(pp_subst)
 		Move(s, d, i+1, char);		/* include the NUL */
 	    }
 	    SPAGAIN;
-	    mPUSHi(iters);
+            if (PL_op->op_private & OPpTRUEBOOL)
+                PUSHs(iters ? &PL_sv_yes : &PL_sv_zero);
+            else
+                mPUSHi(iters);
 	}
     }
     else {
@@ -3907,7 +3914,9 @@ PP(pp_grepwhile)
 		sv_setiv(sv, items);
 		PUSHs(sv);
 	    }
-	    else {
+	    else if (PL_op->op_private & OPpTRUEBOOL) {
+                XPUSHs(items ? SV_YES : SV_ZERO);
+            } else {
 		dTARGET;
 		XPUSHi(items);
 	    }

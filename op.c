@@ -1984,12 +1984,18 @@ PERL_STATIC_INLINE OP*
 S_set_boolean(pTHX_ OP* o)
 {
     PERL_ARGS_ASSERT_SET_BOOLEAN;
-    if (IS_TYPE(o, RV2HV) ||
-        IS_TYPE(o, PADHV) ||
-        IS_TYPE(o, REF))
+    if ( IS_TYPE(o, RV2HV)  ||
+         IS_TYPE(o, RV2AV)  ||
+         IS_TYPE(o, PADHV)  ||
+         IS_TYPE(o, PADAV)  ||
+         IS_TYPE(o, LENGTH) ||
+         IS_TYPE(o, GREPWHILE) ||
+         IS_TYPE(o, SUBST)  ||
+         IS_TYPE(o, POS)    ||
+         IS_TYPE(o, REF) )
         o->op_private |= OPpTRUEBOOL;
-    else if (IS_TYPE(o, LENGTH))
-        o->op_private |= OPpLENGTH_TRUEBOOL;
+    else if (IS_TYPE(o, AASSIGN))
+        o->op_private |= OPpASSIGN_TRUEBOOL;
     return o;
 }
 
@@ -19015,7 +19021,7 @@ Perl_rpeep(pTHX_ OP *o)
         }
 
 	case OP_RV2AV:
-            if ((o->op_flags & OPf_WANT) == OPf_WANT_SCALAR)
+            if (OpWANT_SCALAR(o))
                 S_check_for_bool_cxt(o, 1, OPpTRUEBOOL, 0);
             break;
 
@@ -19052,9 +19058,7 @@ Perl_rpeep(pTHX_ OP *o)
                 break;
             /* FALLTHROUGH */
 	case OP_PADAV:
-            if (   o->op_type == OP_PADAV
-                && (o->op_flags & OPf_WANT) == OPf_WANT_SCALAR
-            )
+            if (IS_TYPE(o, PADAV) && OpWANT_SCALAR(o))
                 S_check_for_bool_cxt(o, 1, OPpTRUEBOOL, 0);
             /* FALLTHROUGH */
 	case OP_PADSV:
@@ -19203,9 +19207,12 @@ Perl_rpeep(pTHX_ OP *o)
 	    o->op_opt = 1;
 	    break;
 	
+	case OP_GREPWHILE:
+            if (OpWANT_SCALAR(o))
+                S_check_for_bool_cxt(o, 1, OPpTRUEBOOL, 0);
+            /* FALLTHROUGH */
 	case OP_COND_EXPR:
 	case OP_MAPWHILE:
-	case OP_GREPWHILE:
 	case OP_ANDASSIGN:
 	case OP_ORASSIGN:
 	case OP_DORASSIGN:
@@ -19236,6 +19243,8 @@ Perl_rpeep(pTHX_ OP *o)
 	    break;
 
 	case OP_SUBST:
+            if (OpWANT_SCALAR(o))
+                S_check_for_bool_cxt(o, 1, OPpTRUEBOOL, 0);
 	    assert(!(cPMOPo->op_pmflags & PMf_ONCE));
 	    while (OP_TYPE_IS(cPMOPo->op_pmstashstartu.op_pmreplstart, OP_NULL))
 		cPMOPo->op_pmstashstartu.op_pmreplstart
@@ -19564,6 +19573,8 @@ Perl_rpeep(pTHX_ OP *o)
                 o->op_private &=
                         ~(OPpASSIGN_COMMON_SCALAR|OPpASSIGN_COMMON_RC1);
 
+            if (OpWANT_SCALAR(o))
+                S_check_for_bool_cxt(o, 1, OPpASSIGN_TRUEBOOL, 0);
 	    break;
         }
 
@@ -19572,9 +19583,13 @@ Perl_rpeep(pTHX_ OP *o)
             if (OpWANT_SCALAR(o))
                 S_check_for_bool_cxt(o, 1, OPpTRUEBOOL, OPpMAYBE_TRUEBOOL);
             break;
+
         case OP_LENGTH:
+            /* see if the op is used in known boolean context */
             if (OpWANT_SCALAR(o))
-                S_check_for_bool_cxt(o, 1, OPpLENGTH_TRUEBOOL,
+                /* but not if OA_TARGLEX optimisation is enabled */
+                /* && !(o->op_private & OPpTARGET_MY)) */
+                S_check_for_bool_cxt(o, 1, OPpTRUEBOOL,
                                      OPpLENGTH_MAYBE_TRUEBOOL);
             break;
 
@@ -19592,6 +19607,12 @@ Perl_rpeep(pTHX_ OP *o)
                 CvTYPED_on(PL_compcv);
                 CvTYPE_set(PL_compcv, gv_stashsv(name, SvUTF8(name)|GV_NO_SVGMAGIC));
             }
+            break;
+
+        case OP_POS:
+            /* see if the op is used in known boolean context */
+            if (OpWANT_SCALAR(o))
+                S_check_for_bool_cxt(o, 1, OPpTRUEBOOL, 0);
             break;
 
 	case OP_CUSTOM: {

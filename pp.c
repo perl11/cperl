@@ -603,11 +603,15 @@ PP(pp_pos)
     else {
         const MAGIC * const mg = mg_find_mglob(sv);
         if (mg && mg->mg_len != -1) {
-            dTARGET;
             STRLEN i = mg->mg_len;
-            if (mg->mg_flags & MGf_BYTES && DO_UTF8(sv))
-                i = sv_pos_b2u_flags(sv, i, SV_GMAGIC|SV_CONST_RETURN);
-            SETu(i);
+            if (PL_op->op_private & OPpTRUEBOOL)
+                SETs(i ? SV_YES : SV_ZERO);
+            else {
+                dTARGET;
+                if (mg->mg_flags & MGf_BYTES && DO_UTF8(sv))
+                    i = sv_pos_b2u_flags(sv, i, SV_GMAGIC|SV_CONST_RETURN);
+                SETu(i);
+            }
             return NORMAL;
         }
         SETs(UNDEF);
@@ -3726,10 +3730,10 @@ PP(pp_length)
     STATIC_ASSERT_STMT(SVf_UTF8 == (HINT_BYTES << 26));
 
     if (LIKELY(svflags == SVf_POK)) {
-        if (UNLIKELY((PL_op->op_private & OPpLENGTH_TRUEBOOL)
+        if (UNLIKELY((PL_op->op_private & OPpTRUEBOOL)
                      || ((PL_op->op_private & OPpLENGTH_MAYBE_TRUEBOOL)
                          && block_gimme() == G_VOID))) {
-            SETs(SvCUR(sv) ? SV_YES : SV_NO);
+            SETs(SvCUR(sv) ? SV_YES : SV_ZERO);
             return NORMAL;
         } else {
             SETs(TARG);
@@ -3747,6 +3751,11 @@ PP(pp_length)
 	if (!IN_BYTES) { /* reread to avoid using an C auto/register */
             if ((SvFLAGS(sv) & (SVf_POK|SVf_UTF8)) == SVf_POK)
                 goto simple_pv;
+            if ( SvPOK(sv) && (PL_op->op_private & OPpTRUEBOOL)) {
+                /* no need to convert from bytes to chars */
+                len = SvCUR(sv);
+                goto return_bool;
+            }
 	    len = sv_len_utf8_nomg(sv);
         }
 	else {
@@ -3754,6 +3763,11 @@ PP(pp_length)
             if (SvPOK_nog(sv)) {
               simple_pv:
                 len = SvCUR(sv);
+                if (PL_op->op_private & OPpTRUEBOOL) {
+                  return_bool:
+                    SETs(len ? &PL_sv_yes : &PL_sv_zero);
+                    return NORMAL;
+                }
             }
             else {
                 (void)sv_2pv_flags(sv, &len, 0|SV_CONST_RETURN);
