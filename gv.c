@@ -701,7 +701,8 @@ CV, which can be obtained from the GV with the C<GvCV> macro.
 /* NOTE: No support for tied ISA */
 
 PERL_STATIC_INLINE GV*
-S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len, I32 level, U32 flags)
+S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
+                        I32 level, U32 flags)
 {
     GV** gvp;
     HE* he;
@@ -714,9 +715,11 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
     GV* topgv = NULL;
     const char *hvname;
     I32 create = (level >= 0) ? HV_FETCH_LVALUE : 0;
+    I32 action;
     I32 items;
     U32 topgen_cmp;
-    U32 is_utf8 = flags & SVf_UTF8;
+    const U32 is_utf8 = flags & SVf_UTF8;
+    const U32 hv_utf8 = is_utf8 ? HVhek_UTF8 : 0;
 
     /* UNIVERSAL methods should be callable without a stash */
     if (!stash) {
@@ -730,7 +733,6 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
     hvname = HvNAME_get(stash);
     if (!hvname)
       Perl_croak(aTHX_ "Can't use anonymous symbol table for method lookup");
-
     assert(hvname);
     assert(name || meth);
 
@@ -748,17 +750,17 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
     else
         cachestash = stash;
 
-    items = create;
+    action = create | HV_FETCH_JUST_SV;
     /* check locally for a real method or a cache entry */
-    if (SvREADONLY(cachestash))
-        create = HV_FETCH_ISEXISTS;
+    if (UNLIKELY(SvREADONLY(cachestash)))
+        action = HV_FETCH_ISEXISTS;
     he = (HE*)hv_common(cachestash, meth, name, len,
-                        is_utf8 ? HVhek_UTF8 : 0, create, NULL, 0);
+                        hv_utf8, action, NULL, 0);
     if (he) {
-        gvp = UNLIKELY(create == HV_FETCH_ISEXISTS)
-            ? (GV**)&HeVAL((HE*)hv_common(cachestash, meth, name, len,
-                        is_utf8 ? HVhek_UTF8 : 0, items, NULL, 0))
-            : (GV**)&HeVAL(he);
+        gvp = UNLIKELY(action == HV_FETCH_ISEXISTS)
+            ? (GV**)hv_common(cachestash, meth, name, len,
+                              hv_utf8, create, NULL, 0)
+            : (GV**)he;
     }
     else
         gvp = NULL;
@@ -796,14 +798,18 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
 	    goto have_gv;
     }
 
+    /* only with global destruction. otherwise just looking at \&->DESTROY
+       will change constness */
+    if (UNLIKELY(name && strEQc(name, "DESTROY") && PL_phase == PERL_PHASE_DESTRUCT))
+        SvREADONLY_off(stash);
     linear_av = mro_get_linear_isa(stash); /* has ourselves at the top of the list */
     linear_svp = AvARRAY(linear_av) + 1; /* skip over self */
     items = AvFILLp(linear_av); /* no +1, to skip over self */
     while (items--) {
+        action = HV_FETCH_JUST_SV;
         linear_sv = *linear_svp++;
         assert(linear_sv);
         cstash = gv_stashsv(linear_sv, 0);
-
         if (!cstash) {
 	    Perl_ck_warner(aTHX_ packWARN(WARN_SYNTAX),
                            "Can't locate package %" SVf " for @%" HEKf "::ISA",
@@ -811,10 +817,18 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
                            HEKfARG(HvNAME_HEK(stash)));
             continue;
         }
+        else if (UNLIKELY(SvREADONLY(cstash)))
+            action = HV_FETCH_ISEXISTS;
 
-        assert(cstash);
-
-        gvp = (GV**)hv_fetch(cstash, name, is_utf8 ? -(I32)len : (I32)len, 0);
+        he = (HE*)hv_common(cstash, meth, name, len,
+                            hv_utf8, action, NULL, 0);
+        if (he) {
+            gvp = UNLIKELY(action == HV_FETCH_ISEXISTS)
+                ? (GV**)hv_common(cstash, meth, name, len,
+                                  hv_utf8, HV_FETCH_JUST_SV, NULL, 0)
+                : (GV**)he;
+        }
+        /*gvp = (GV**)hv_fetch(cstash, name, is_utf8 ? -(I32)len : (I32)len, 0);*/
         if (!gvp) {
             if (len > 1 && HvNAMELEN_get(cstash) == 4) {
                 const char *hvname = HvNAME(cstash); assert(hvname);
@@ -1025,7 +1039,7 @@ Perl_gv_fetchmethod_pv_flags(pTHX_ HV *stash, const char *name, U32 flags)
     return gv_fetchmethod_pvn_flags(stash, name, strlen(name), flags);
 }
 
-/* Fixed in cperl for protected stashes, #171 */
+/* Fixed in cperl for protected stashes (classes), #171 */
 GV *
 Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN len, U32 flags)
 {
