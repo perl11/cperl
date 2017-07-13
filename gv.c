@@ -708,7 +708,6 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
                         I32 level, U32 flags)
 {
     GV** gvp;
-    HE* he;
     AV* linear_av;
     SV** linear_svp;
     SV* linear_sv;
@@ -718,7 +717,8 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
     GV* topgv = NULL;
     const char *hvname;
     I32 create = (level >= 0) ? HV_FETCH_LVALUE : 0;
-    I32 action;
+    /* skip class errors with restricted stashes, to try the next */
+    I32 action = create | HV_FETCH_JUST_SV | HV_FETCH_ISEXISTS;
     I32 items;
     U32 topgen_cmp;
     const U32 is_utf8 = flags & SVf_UTF8;
@@ -753,21 +753,9 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
     else
         cachestash = stash;
 
-    action = create | HV_FETCH_JUST_SV;
     /* check locally for a real method or a cache entry */
-    if (UNLIKELY(SvREADONLY(cachestash)))
-        action = HV_FETCH_ISEXISTS;
-    he = (HE*)hv_common(cachestash, meth, name, len,
-                        hv_utf8, action, NULL, 0);
-    if (he) {
-        gvp = UNLIKELY(action == HV_FETCH_ISEXISTS)
-            ? (GV**)hv_common(cachestash, meth, name, len,
-                              hv_utf8, create, NULL, 0)
-            : (GV**)he;
-    }
-    else
-        gvp = NULL;
-
+    gvp = (GV**)hv_common(cachestash, meth, name, len,
+                          hv_utf8, action, NULL, 0);
     if (gvp) {
         topgv = *gvp;
       have_gv:
@@ -807,9 +795,9 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
         SvREADONLY_off(stash);
     linear_av = mro_get_linear_isa(stash); /* has ourselves at the top of the list */
     linear_svp = AvARRAY(linear_av) + 1; /* skip over self */
+    action = HV_FETCH_JUST_SV | HV_FETCH_ISEXISTS;
     items = AvFILLp(linear_av); /* no +1, to skip over self */
     while (items--) {
-        action = HV_FETCH_JUST_SV;
         linear_sv = *linear_svp++;
         assert(linear_sv);
         cstash = gv_stashsv(linear_sv, 0);
@@ -820,18 +808,8 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
                            HEKfARG(HvNAME_HEK(stash)));
             continue;
         }
-        else if (UNLIKELY(SvREADONLY(cstash)))
-            action = HV_FETCH_ISEXISTS;
-
-        he = (HE*)hv_common(cstash, meth, name, len,
-                            hv_utf8, action, NULL, 0);
-        if (he) {
-            gvp = UNLIKELY(action == HV_FETCH_ISEXISTS)
-                ? (GV**)hv_common(cstash, meth, name, len,
-                                  hv_utf8, HV_FETCH_JUST_SV, NULL, 0)
-                : (GV**)he;
-        }
-        /*gvp = (GV**)hv_fetch(cstash, name, is_utf8 ? -(I32)len : (I32)len, 0);*/
+        gvp = (GV**)hv_common(cstash, meth, name, len,
+                              hv_utf8, action, NULL, 0);
         if (!gvp) {
             if (len > 1 && HvNAMELEN_get(cstash) == 4) {
                 const char *hvname = HvNAME(cstash); assert(hvname);
@@ -842,17 +820,19 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
             continue;
         }
         else candidate = *gvp;
-       have_candidate:
+    have_candidate:
         assert(candidate);
         if (SvTYPE(candidate) != SVt_PVGV)
             gv_init_pvn(candidate, cstash, name, len, GV_ADDMULTI|is_utf8);
-        if (SvTYPE(candidate) == SVt_PVGV && (cand_cv = GvCV(candidate)) && !GvCVGEN(candidate)) {
+        if (SvTYPE(candidate) == SVt_PVGV &&
+            (cand_cv = GvCV(candidate)) && !GvCVGEN(candidate)) {
             /*
              * Found real method, cache method in topgv if:
              *  1. topgv has no synonyms (else inheritance crosses wires)
              *  2. method isn't a stub (else AUTOLOAD fails spectacularly)
              */
-            if (topgv && (GvREFCNT(topgv) == 1) && (CvROOT(cand_cv) || CvXSUB(cand_cv))) {
+            if (topgv && (GvREFCNT(topgv) == 1) &&
+                (CvROOT(cand_cv) || CvXSUB(cand_cv))) {
                   CV *old_cv = GvCV(topgv);
                   SvREFCNT_dec(old_cv);
                   SvREFCNT_inc_simple_void_NN(cand_cv);
@@ -869,7 +849,8 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
                                           flags &~GV_SUPER);
         if(candidate) {
             cand_cv = GvCV(candidate);
-            if (topgv && (GvREFCNT(topgv) == 1) && (CvROOT(cand_cv) || CvXSUB(cand_cv))) {
+            if (topgv && (GvREFCNT(topgv) == 1) &&
+                (CvROOT(cand_cv) || CvXSUB(cand_cv))) {
                   CV *old_cv = GvCV(topgv);
                   SvREFCNT_dec(old_cv);
                   SvREFCNT_inc_simple_void_NN(cand_cv);
@@ -889,7 +870,8 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
 }
 
 GV *
-Perl_gv_fetchmeth_pvn(pTHX_ HV *stash, const char *name, STRLEN len, I32 level, U32 flags)
+Perl_gv_fetchmeth_pvn(pTHX_ HV *stash, const char *name, STRLEN len,
+                      I32 level, U32 flags)
 {
     PERL_ARGS_ASSERT_GV_FETCHMETH_PVN;
     return gv_fetchmeth_internal(stash, NULL, name, len, level, flags);
@@ -953,7 +935,8 @@ Currently, the only significant value for C<flags> is C<SVf_UTF8>.
 */
 
 GV *
-Perl_gv_fetchmeth_pvn_autoload(pTHX_ HV *stash, const char *name, STRLEN len, I32 level, U32 flags)
+Perl_gv_fetchmeth_pvn_autoload(pTHX_ HV *stash, const char *name, STRLEN len,
+                               I32 level, U32 flags)
 {
     GV *gv = gv_fetchmeth_pvn(stash, name, len, level, flags);
 
