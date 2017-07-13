@@ -750,21 +750,9 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
     else
         cachestash = stash;
 
-    action = create | HV_FETCH_JUST_SV;
     /* check locally for a real method or a cache entry */
-    if (UNLIKELY(SvREADONLY(cachestash)))
-        action = HV_FETCH_ISEXISTS;
-    he = (HE*)hv_common(cachestash, meth, name, len,
-                        hv_utf8, action, NULL, 0);
-    if (he) {
-        gvp = UNLIKELY(action == HV_FETCH_ISEXISTS)
-            ? (GV**)hv_common(cachestash, meth, name, len,
-                              hv_utf8, create, NULL, 0)
-            : (GV**)he;
-    }
-    else
-        gvp = NULL;
-
+    gvp = (GV**)hv_common(cachestash, meth, name, len,
+                          hv_utf8, action, NULL, 0);
     if (gvp) {
         topgv = *gvp;
       have_gv:
@@ -807,7 +795,6 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
     action = HV_FETCH_JUST_SV | HV_FETCH_ISEXISTS;
     items = AvFILLp(linear_av); /* no +1, to skip over self */
     while (items--) {
-        action = HV_FETCH_JUST_SV;
         linear_sv = *linear_svp++;
         assert(linear_sv);
         cstash = gv_stashsv(linear_sv, 0);
@@ -818,18 +805,8 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
                            HEKfARG(HvNAME_HEK(stash)));
             continue;
         }
-        else if (UNLIKELY(SvREADONLY(cstash)))
-            action = HV_FETCH_ISEXISTS;
-
-        he = (HE*)hv_common(cstash, meth, name, len,
-                            hv_utf8, action, NULL, 0);
-        if (he) {
-            gvp = UNLIKELY(action == HV_FETCH_ISEXISTS)
-                ? (GV**)hv_common(cstash, meth, name, len,
-                                  hv_utf8, HV_FETCH_JUST_SV, NULL, 0)
-                : (GV**)he;
-        }
-        /*gvp = (GV**)hv_fetch(cstash, name, is_utf8 ? -(I32)len : (I32)len, 0);*/
+        gvp = (GV**)hv_common(cstash, meth, name, len,
+                              hv_utf8, action, NULL, 0);
         if (!gvp) {
             if (len > 1 && HvNAMELEN_get(cstash) == 4) {
                 const char *hvname = HvNAME(cstash); assert(hvname);
