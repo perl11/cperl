@@ -130,8 +130,17 @@ For all versions see [bench-all/](bench-all/index.html)
 * length and ref are optimized in boolean context
 * UNITCHECK global phase introspection
 * base/fields classes behave now like closed cperl classes: The ISA is readonly,
-  inheritance checks are performed at compile-time already. More support for
-  closed classes, esp. restricted stashes and readonly ISA.
+  inheritance checks are performed at compile-time already.
+* Support restricted stashes, i.e. closed classes, esp. method lookup, destruction
+  and readonly ISA.
+
+# In the latest development releases additionally:
+  
+* study with HASH, ARRAY, CODE
+* enhanced dtrace probes
+* support for long path names, > 4096
+* support for unicode BOMs, setting the unicode hints
+* class/role/method/has
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.
@@ -193,7 +202,9 @@ and install it into drive and directory `C:\cperl`.
 
 # Known bugs
 
-See the github issues: [github.com/perl11/cperl/issues](https://github.com/perl11/cperl/issues)
+The -d debugger fails on most signatures.
+
+See the github issues: [github.com/perl11/cperl/issues](https://github.com/perl11/cperl/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
 
 The following CPAN modules have no patches for 5.26.0c yet:
 
@@ -319,10 +330,27 @@ were rejected and 2 were butchered, i.e. rewritten in a worse way.
 Those branches could have theoretically been merged upstream, but the chances
 are limited. So they are based on master.
 
+* [builtin ffi](https://github.com/perl11/cperl/issues/22)
+  
+  [code](http://github.com/perl11/cperl/commits/smoke/gh22-ffi)
+  
+  windows: autoinstall of binary libffi missing, some tests failing.
+  more convenience methods needed.
+
+* [smoke/gh16-class](https://github.com/perl11/cperl/issues/16)
+
+  [code](http://github.com/perl11/cperl/commits/smoke/gh16-class)
+
+  user facing classes, internal-only pseudohashes.
+  class, role, method, multi, has keywords, but no multi dispatch yet.
+  HvCLASS merged to master with 5.26.
+  class, role, method, has passes smokes, planned for 5.27.1,
+  multi for 5.27.2.
+
 * [bugfix/gh8-cowrefcnt](https://github.com/perl11/cperl/issues/8)
-
+  
   [code](http://github.com/perl11/cperl/commits/bugfix/gh8-cowrefcnt)
-
+  
   works for the compiler, but does not do COW yet, i.e. slower for
   uncompiled perls, faster for compiled.
   The upstream COW implementation is still a complete mess.
@@ -330,19 +358,19 @@ are limited. So they are based on master.
 * [feature/CM-367-cperl-warnings-xs-carp](http://github.com/perl11/cperl/commits/feature/CM-367-cperl-warnings-xs-carp)
 * [feature/CM-367-cperl-carp-builtin](http://github.com/perl11/cperl/commits/feature/CM-367-cperl-carp-builtin)
 * [feature/gh9-warnings-xs](https://github.com/perl11/cperl/issues/9)
-
+  
   [code](http://github.com/perl11/cperl/commits/feature/gh9-warnings-xs)
-
+  
   much faster and much less memory, but 3 minor scope tests fails.
 
 * [feature/gh6-no-miniperl](https://github.com/perl11/cperl/issues/6)
-
+  
   [code](http://github.com/perl11/cperl/commits/feature/gh6-no-miniperl)
-
+  
   Need to fix some Makefile deps and break cross-references.
 
 * [feature/CM-626-cperl-use-dots](http://github.com/perl11/cperl/commits/feature/CM-626-cperl-use-dots)
-
+  
   works, but unsure if good enough. `.` instead of `->` works only for
   a few method calls and clashes with string concat. A disruptive
   design decision, which probably cannot be backported. Chip has a
@@ -350,22 +378,23 @@ are limited. So they are based on master.
   but this doesn't accept valid perl5 syntax then. A blocker.
 
 * [feature/gh102-smallhash](https://github.com/perl11/cperl/issues/102)
-
+  
   [code](http://github.com/perl11/cperl/commits/feature/gh102-smallhash)
-
-  optimize the speed for small hashes, less keys.
+  
+  optimize the speed for small hashes, less keys, inline 3-7 as array.
+  esp. needed for the new objects.
 
 * [feature/gh176-unexec](https://github.com/perl11/cperl/issues/176)
-
+  
   [code](http://github.com/perl11/cperl/commits/feature/gh176-unexec)
-
+  
   compile/dump to native code via emacs unexec, on most platforms.
   Questionable if to keep our private malloc soon.
 
 * [feature/gh141-smallstring](https://github.com/perl11/cperl/issues/141)
-
+  
   [code](http://github.com/perl11/cperl/commits/feature/gh141-smallstring)
-
+  
   optimize space for small strings.
 
 and various [hash tables refactorings]((https://github.com/perl11/cperl/issues/24):
@@ -404,13 +433,6 @@ They also revert some wrong decisions p5p already made.
   lots of small attempts, but still too hairy. needs a complete hash table rewrite.
   getting there, but not yet finished for 5.26.
 
-* [feature/gh16-multi](https://github.com/perl11/cperl/issues/16)
-
-  [code](http://github.com/perl11/cperl/commits/feature/gh16-multi)
-
-  class, method, multi, has keywords but no dispatch, subtyping and type checks yet.
-  in work. HvCLASS merged to master with 5.26.
-
 * various more hash tables:
 
 [featurex/gh24-one-word-ahe](http://github.com/perl11/cperl/commits/featurex/gh24-one-word-ahe)
@@ -419,15 +441,12 @@ They also revert some wrong decisions p5p already made.
 
 ## Soon
 
-* the jit
+* multiple dispatch (fast for binary, slow for mega), tiny MOP (Mu, Metamodel::ClassHOW).
 
-* user facing classes, multiple dispatch (fast for binary, slow for mega),
-  internal-only pseudohashes.
+* [the jit](https://github.com/perl11/cperl/issues/220) code: [feature/gh220-llvmjit](http://github.com/perl11/cperl/commits/feature/gh220-llvmjit)
 
 * builtin macros
 
-* builtin ffi
-
 --
 
-2017-04-19 rurban
+2017-07-13 rurban
