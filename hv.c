@@ -436,16 +436,19 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     assert(SvTYPE(hv) == SVt_PVHV);
 #if defined(USE_DTRACE)
     if (PERL_HASH_ENTRY_ENABLED()) {
-        if (action & HV_FETCH_ISEXISTS) {
+        if (action & (HV_FETCH_JUST_SV | HV_FETCH_LVALUE)) {
+            Perl_dtrace_probe_hash(aTHX_ PERL_DTRACE_HASH_MODE_FETCH,  key, TRUE);
+        } else if (action & HV_FETCH_ISEXISTS) {
             dtrace_mode = PERL_DTRACE_HASH_MODE_EXISTS;
             Perl_dtrace_probe_hash(aTHX_ PERL_DTRACE_HASH_MODE_EXISTS, key, TRUE);
         } else if (action & HV_FETCH_ISSTORE) {
             dtrace_mode = PERL_DTRACE_HASH_MODE_STORE;
-            Perl_dtrace_probe_hash(aTHX_ PERL_DTRACE_HASH_MODE_STORE, key, TRUE);
+            Perl_dtrace_probe_hash(aTHX_ PERL_DTRACE_HASH_MODE_STORE,  key, TRUE);
         } else if (action & HV_DELETE) {
             dtrace_mode = PERL_DTRACE_HASH_MODE_DELETE;
+            Perl_dtrace_probe_hash(aTHX_ PERL_DTRACE_HASH_MODE_DELETE, key, TRUE);
         } else {
-            Perl_dtrace_probe_hash(aTHX_ PERL_DTRACE_HASH_MODE_FETCH, key, TRUE);
+            Perl_dtrace_probe_hash(aTHX_ PERL_DTRACE_HASH_MODE_FETCH,  key, TRUE);
         }
     }
 #endif
