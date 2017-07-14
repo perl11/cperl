@@ -41,6 +41,11 @@ Add non-destructive $cv->PUREGV method, which does not create a GV
 from a CvNAMED $cv.
 Warning: $cv->GV does create a GV from a CvNAMED $cv.
 
+=item L<B::C> 1.55_04
+
+Protect from destructive $cv->GV, renamed is_lexsub to is_named,
+allow @0, &0, ... types.
+
 =item L<Cpanel::JSON::XS> 3.0233
 
 MSVC 14.0 support and higher, changed nan in the runtime.

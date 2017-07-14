@@ -14927,6 +14927,7 @@ our %delta = (
             'Module::CoreList'      => '5.20170428c',
             'Module::CoreList::Utils'=> '5.20170428c',
             'B'                     => '1.68_07',
+            'B::C'                  => '1.55_04',
             'Cpanel::JSON::XS'      => '3.0233',
             'ExtUtils::MakeMaker'   => '8.04_05',
             'ExtUtils::MM_Unix'     => '8.04_05',
