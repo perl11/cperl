@@ -181,20 +181,7 @@ aux c2ph h2ph h2xs cperlbug pl2pm pod2html pod2man splain xsubpp
     perldoc		Look up Perl documentation in Pod format
 
     perlhist		Perl history records
-    perldelta		Perl changes since previous version
-    perl52512delta	Perl changes in version 5.25.12
-    perl52511delta	Perl changes in version 5.25.11
-    perl52510delta	Perl changes in version 5.25.10
-    perl5259delta	Perl changes in version 5.25.9
-    perl5258delta	Perl changes in version 5.25.8
-    perl5257delta	Perl changes in version 5.25.7
-    perl5256delta	Perl changes in version 5.25.6
-    perl5255delta	Perl changes in version 5.25.5
-    perl5254delta	Perl changes in version 5.25.4
-    perl5253delta	Perl changes in version 5.25.3
-    perl5252delta	Perl changes in version 5.25.2
-    perl5251delta	Perl changes in version 5.25.1
-    perl5250delta	Perl changes in version 5.25.0
+    perldelta	Perl changes in version 5.26.0
     perl5241delta	Perl changes in version 5.24.1
     perl5240delta	Perl changes in version 5.24.0
     perl5223delta	Perl changes in version 5.22.3
@@ -245,6 +232,7 @@ aux c2ph h2ph h2xs cperlbug pl2pm pod2html pod2man splain xsubpp
 
     perlcperl		Perl notes for cperl (variant)
     perlcdelta		cperl changes in version 5.26.1c since 5.26.0c
+    perl5270cdelta	cperl changes in version 5.27.0c
     perl5260cdelta	cperl changes in version 5.26.0c
     perl5242cdelta	cperl changes in version 5.24.2c
     perl5241cdelta	cperl changes in version 5.24.1c
