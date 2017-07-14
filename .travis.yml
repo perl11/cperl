@@ -43,8 +43,9 @@ matrix:
   allow_failures:
     - env: CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall -Dld=c++' XCC='c++'
 script:
-- function shell_session_update { true; } ; CFG=$CONFIGURE_OPTION ;
-  test -n "$TRAVIS_TAG" && CONFIGURE_OPTION="$CFG -Dusedevel";
+- function shell_session_update { true; } ;
+  CFG=$CONFIGURE_OPTION ;
+  CONFIGURE_OPTION="$CFG -Dusedevel";
   test -z "$DEPLOY" && CONFIGURE_OPTION="$CONFIGURE_OPTION -Dprefix=$HOME/cperl/usr";
   ./Configure -des -Uversiononly -Dcc="$XCC" $CONFIGURE_OPTION &&
   make -s -j4 || ( test "${TRAVIS_OS_NAME}" = "linux" -a
@@ -54,7 +55,12 @@ script:
 - if [ "${TRAVIS_OS_NAME}" = "linux" -o -z "`echo $CONFIGURE_OPTION | grep 'DDEBUGGING'
   2>/dev/null`" ]; then
     if [ -n "$DEPLOY" ]; then
-      TEST_JOBS=4 make -s -j4 all test_harness install DESTDIR=$HOME/cperl-inst ;
+      version=`Porting/perl_version` ;
+      make -s -j4 all &&
+      TEST_JOBS=4 make -s -j4 test_harness &&
+      make -s -j4 install DESTDIR=$HOME/cperl-inst &&
+      cd $HOME/cperl-inst/usr/local/bin && 
+      ./cperl -I../lib/cperl/$version -I../lib/cperl/$version/x86_64-linux cperlivp -p ;
     else
       TEST_JOBS=4 make -s -j4 test_harness ;
     fi
