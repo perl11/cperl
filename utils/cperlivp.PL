@@ -31,7 +31,7 @@ print "Extracting $file (with variable substitutions)\n"
 print OUT <<"!GROK!THIS!";
 $Config{'startperl'}
     eval 'exec $Config{'perlpath'} -S \$0 \${1+"\$@"}'
-        if \$running_under_some_shell;
+        if 0;
 !GROK!THIS!
 
 print OUT "\n# cperlivp $^V\n";
@@ -47,9 +47,10 @@ sub usage {
     print << "    EOUSAGE";
 Usage:
 
-    $0 [-p] [-v] | [-h]
+    $0 [-p] [-v] | [-h] | [-d DESTDIR]
 
     -p Print a preface before each test telling what it will test.
+    -d destdir
     -v Verbose mode in which extra information about test results
        is printed.  Test failures always print out some extra information
        regardless of whether or not this switch is set.
@@ -60,7 +61,7 @@ Usage:
 
 use vars qw(%opt); # allow testing with older versions (do not use our)
 
-@opt{ qw/? H h P p V v/ } = qw(0 0 0 0 0 0 0);
+@opt{ qw/? H h P p V v d/ } = qw(0 0 0 0 0 0 0 0);
 
 while ($ARGV[0] =~ /^-/) {
     $ARGV[0] =~ s/^-//; 
@@ -68,10 +69,14 @@ while ($ARGV[0] =~ /^-/) {
         usage() if '?' =~ /\Q$flag/;
         usage() if 'h' =~ /\Q$flag/;
         usage() if 'H' =~ /\Q$flag/;
-        usage("unknown flag: '$flag'") unless 'HhPpVv' =~ /\Q$flag/;
+        usage("unknown flag: '$flag'") unless 'HhPpVvd' =~ /\Q$flag/;
         warn "$0: '$flag' flag already set\n" if $opt{$flag}++;
     } 
     shift;
+    if ($opt{d}) {
+        $opt{d} = shift;
+        die "destdir $opt{d} does not exist\n" unless -d $opt{d};
+    }
 }
 
 $opt{p}++ if $opt{P};
@@ -105,6 +110,7 @@ print "## Checking Perl binary via variable '\$perlpath' = $perlpath.\n" if $opt
 
 my $label = 'Executable perl binary';
 
+$perlpath = "$opt{d}/$perlpath" if $opt{d};
 if (-x $perlpath) {
     print "## Perl binary '$perlpath' appears executable.\n" if $opt{'v'};
     print "ok 1 $label\n";
@@ -141,6 +147,10 @@ else {
 }
 $tests_total++;
 
+if ($opt{d}) {
+    unshift @INC, "$opt{d}/$Config{archlib}", "$opt{d}/$Config{privlib}";
+}
+
 # We have the right perl and version, so now reset @INC so we ignore
 # PERL5LIB and '.'
 {
@@ -148,6 +158,9 @@ $tests_total++;
     my $perl_V = qx($perlpath -V);
     $perl_V =~ s{.*\@INC:\n}{}ms;
     @INC = grep { length && $_ ne '.' } split ' ', $perl_V;
+    if ($opt{d}) {
+        @INC = map { m{^$opt{d}} ? $_ : "$opt{d}/$_" } @INC;
+    }
 }
 
 print "## Checking roots of the Perl library directory tree via variable '\@INC'.\n" if $opt{'p'};
@@ -166,7 +179,7 @@ foreach (@INC) {
     $INC_total++;
 }
 
-$label = '@INC directoreis exist';
+$label = '@INC directories exist';
 if ($INC_total == $INC_there) {
     print "ok 3 $label\n";
     $pass__total++;
