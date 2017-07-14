@@ -55,12 +55,10 @@ script:
 - if [ "${TRAVIS_OS_NAME}" = "linux" -o -z "`echo $CONFIGURE_OPTION | grep 'DDEBUGGING'
   2>/dev/null`" ]; then
     if [ -n "$DEPLOY" ]; then
-      version=`Porting/perl_version` ;
       make -s -j4 all &&
       TEST_JOBS=4 make -s -j4 test_harness &&
       make -s -j4 install DESTDIR=$HOME/cperl-inst &&
-      cd $HOME/cperl-inst/usr/local/bin && 
-      ./cperl -I../lib/cperl/$version -I../lib/cperl/$version/x86_64-linux cperlivp -p ;
+      ./perl -Ilib $HOME/cperl-inst/usr/local/bin/cperlivp -p -d $HOME/cperl-inst ;
     else
       TEST_JOBS=4 make -s -j4 test_harness ;
     fi

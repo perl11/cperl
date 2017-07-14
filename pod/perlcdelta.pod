@@ -72,6 +72,22 @@ Bump version
 
 =back
 
+=head1 Utility Changes
+
+=head2 L<cperlivp>
+
+=over 4
+
+=item *
+
+Add support for C<-d DESTDIR>, e.g. after
+
+    make -s -j4 install DESTDIR=$HOME/cperl-inst
+    cd $HOME/cperl-inst/usr/local/bin &&
+    ./cperl cperlivp -p -d $HOME/cperl-inst
+
+=back
+
 =head1 Testing
 
 =over 4
