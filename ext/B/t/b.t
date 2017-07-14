@@ -300,7 +300,7 @@ is(B::class(bless {}, "Wibble::Bibble"), "Bibble", "Testing B::class()");
 is(B::cast_I32(3.14), 3, "Testing B::cast_I32()");
 is(B::opnumber("null"), 0, "Testing opnumber with opname (null)");
 is(B::opnumber("stub"), 1, "Testing opnumber with opname (stub)");
-is(B::opnumber("chop"), 15, "Testing opnumber with opname (chop)");
+is(B::opnumber("sassign"), 13, "Testing opnumber with opname (sassign)");
 
 {
     no warnings 'once';
