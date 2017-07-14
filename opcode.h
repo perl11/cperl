@@ -350,40 +350,40 @@ EXTCONST char* const PL_op_name[] = {
 	"andassign",	/* 194: logical and assignment (&&=) */
 	"orassign",	/* 195: logical or assignment (||=) */
 	"dorassign",	/* 196: defined or assignment (//=) */
-	"method",	/* 197: method lookup */
-	"entersub",	/* 198: subroutine entry */
-	"enterxssub",	/* 199: XS subroutine entry */
-	"leavesub",	/* 200: subroutine exit */
-	"leavesublv",	/* 201: lvalue subroutine return */
-	"signature",	/* 202: subroutine signature processing */
-	"caller",	/* 203: caller */
-	"warn",	/* 204: warn */
-	"die",	/* 205: die */
-	"reset",	/* 206: symbol reset */
-	"lineseq",	/* 207: line sequence */
-	"nextstate",	/* 208: next statement */
-	"dbstate",	/* 209: debug next statement */
-	"unstack",	/* 210: iteration finalizer */
-	"enter",	/* 211: block entry */
-	"leave",	/* 212: block exit */
-	"scope",	/* 213: block */
-	"enteriter",	/* 214: for loop entry */
-	"iter",	/* 215: generic for loop iterator */
-	"iter_ary",	/* 216: for (@ary) iterator */
-	"iter_lazyiv",	/* 217: for (0..9) iterator */
-	"enterloop",	/* 218: loop entry */
-	"leaveloop",	/* 219: loop exit */
-	"return",	/* 220: return */
-	"last",	/* 221: last */
-	"next",	/* 222: next */
-	"redo",	/* 223: redo */
-	"dump",	/* 224: dump */
-	"goto",	/* 225: goto */
-	"exit",	/* 226: exit */
-	"method_named",	/* 227: named method */
-	"method_super",	/* 228: named super method */
-	"method_redir",	/* 229: redirect named method */
-	"method_redir_super",	/* 230: redirect named super */
+	"entersub",	/* 197: subroutine entry */
+	"enterxssub",	/* 198: XS subroutine entry */
+	"method",	/* 199: method lookup */
+	"method_named",	/* 200: named method */
+	"method_super",	/* 201: named super method */
+	"method_redir",	/* 202: redirect named method */
+	"method_redir_super",	/* 203: redirect named super */
+	"leavesub",	/* 204: subroutine exit */
+	"leavesublv",	/* 205: lvalue subroutine return */
+	"signature",	/* 206: subroutine signature processing */
+	"caller",	/* 207: caller */
+	"warn",	/* 208: warn */
+	"die",	/* 209: die */
+	"reset",	/* 210: symbol reset */
+	"lineseq",	/* 211: line sequence */
+	"nextstate",	/* 212: next statement */
+	"dbstate",	/* 213: debug next statement */
+	"unstack",	/* 214: iteration finalizer */
+	"enter",	/* 215: block entry */
+	"leave",	/* 216: block exit */
+	"scope",	/* 217: block */
+	"enteriter",	/* 218: for loop entry */
+	"iter",	/* 219: generic for loop iterator */
+	"iter_ary",	/* 220: for (@ary) iterator */
+	"iter_lazyiv",	/* 221: for (0..9) iterator */
+	"enterloop",	/* 222: loop entry */
+	"leaveloop",	/* 223: loop exit */
+	"return",	/* 224: return */
+	"last",	/* 225: last */
+	"next",	/* 226: next */
+	"redo",	/* 227: redo */
+	"dump",	/* 228: dump */
+	"goto",	/* 229: goto */
+	"exit",	/* 230: exit */
 	"entergiven",	/* 231: given() */
 	"leavegiven",	/* 232: leave given block */
 	"enterwhen",	/* 233: when() */
@@ -769,40 +769,40 @@ EXTCONST char* const PL_op_desc[] = {
 	"logical and assignment (&&=)",	/* 194: andassign */
 	"logical or assignment (||=)",	/* 195: orassign */
 	"defined or assignment (//=)",	/* 196: dorassign */
-	"method lookup",	/* 197: method */
-	"subroutine entry",	/* 198: entersub */
-	"XS subroutine entry",	/* 199: enterxssub */
-	"subroutine exit",	/* 200: leavesub */
-	"lvalue subroutine return",	/* 201: leavesublv */
-	"subroutine signature processing",	/* 202: signature */
-	"caller",	/* 203: caller */
-	"warn",	/* 204: warn */
-	"die",	/* 205: die */
-	"symbol reset",	/* 206: reset */
-	"line sequence",	/* 207: lineseq */
-	"next statement",	/* 208: nextstate */
-	"debug next statement",	/* 209: dbstate */
-	"iteration finalizer",	/* 210: unstack */
-	"block entry",	/* 211: enter */
-	"block exit",	/* 212: leave */
-	"block",	/* 213: scope */
-	"for loop entry",	/* 214: enteriter */
-	"generic for loop iterator",	/* 215: iter */
-	"for (@ary) iterator",	/* 216: iter_ary */
-	"for (0..9) iterator",	/* 217: iter_lazyiv */
-	"loop entry",	/* 218: enterloop */
-	"loop exit",	/* 219: leaveloop */
-	"return",	/* 220: return */
-	"last",	/* 221: last */
-	"next",	/* 222: next */
-	"redo",	/* 223: redo */
-	"dump",	/* 224: dump */
-	"goto",	/* 225: goto */
-	"exit",	/* 226: exit */
-	"named method",	/* 227: method_named */
-	"named super method",	/* 228: method_super */
-	"redirect named method",	/* 229: method_redir */
-	"redirect named super",	/* 230: method_redir_super */
+	"subroutine entry",	/* 197: entersub */
+	"XS subroutine entry",	/* 198: enterxssub */
+	"method lookup",	/* 199: method */
+	"named method",	/* 200: method_named */
+	"named super method",	/* 201: method_super */
+	"redirect named method",	/* 202: method_redir */
+	"redirect named super",	/* 203: method_redir_super */
+	"subroutine exit",	/* 204: leavesub */
+	"lvalue subroutine return",	/* 205: leavesublv */
+	"subroutine signature processing",	/* 206: signature */
+	"caller",	/* 207: caller */
+	"warn",	/* 208: warn */
+	"die",	/* 209: die */
+	"symbol reset",	/* 210: reset */
+	"line sequence",	/* 211: lineseq */
+	"next statement",	/* 212: nextstate */
+	"debug next statement",	/* 213: dbstate */
+	"iteration finalizer",	/* 214: unstack */
+	"block entry",	/* 215: enter */
+	"block exit",	/* 216: leave */
+	"block",	/* 217: scope */
+	"for loop entry",	/* 218: enteriter */
+	"generic for loop iterator",	/* 219: iter */
+	"for (@ary) iterator",	/* 220: iter_ary */
+	"for (0..9) iterator",	/* 221: iter_lazyiv */
+	"loop entry",	/* 222: enterloop */
+	"loop exit",	/* 223: leaveloop */
+	"return",	/* 224: return */
+	"last",	/* 225: last */
+	"next",	/* 226: next */
+	"redo",	/* 227: redo */
+	"dump",	/* 228: dump */
+	"goto",	/* 229: goto */
+	"exit",	/* 230: exit */
 	"given()",	/* 231: entergiven */
 	"leave given block",	/* 232: leavegiven */
 	"when()",	/* 233: enterwhen */
@@ -1187,40 +1187,40 @@ PL_op_type_str[] = {
 	"",	/* 194: andassign */
 	"",	/* 195: orassign */
 	"",	/* 196: dorassign */
-	"",	/* 197: method */
-	"",	/* 198: entersub */
-	"",	/* 199: enterxssub */
-	"",	/* 200: leavesub */
-	"",	/* 201: leavesublv */
-	"",	/* 202: signature */
-	"",	/* 203: caller */
-	"",	/* 204: warn */
-	"",	/* 205: die */
-	"",	/* 206: reset */
-	"():Void",	/* 207: lineseq */
-	"():Void",	/* 208: nextstate */
-	"():Void",	/* 209: dbstate */
-	"():Void",	/* 210: unstack */
-	"",	/* 211: enter */
-	"",	/* 212: leave */
-	"():Void",	/* 213: scope */
-	"",	/* 214: enteriter */
-	"",	/* 215: iter */
-	"",	/* 216: iter_ary */
-	"",	/* 217: iter_lazyiv */
-	"",	/* 218: enterloop */
-	"",	/* 219: leaveloop */
-	"",	/* 220: return */
-	"",	/* 221: last */
-	"",	/* 222: next */
-	"",	/* 223: redo */
-	"",	/* 224: dump */
-	"",	/* 225: goto */
-	"",	/* 226: exit */
-	"",	/* 227: method_named */
-	"",	/* 228: method_super */
-	"",	/* 229: method_redir */
-	"",	/* 230: method_redir_super */
+	"",	/* 197: entersub */
+	"",	/* 198: enterxssub */
+	"",	/* 199: method */
+	"",	/* 200: method_named */
+	"",	/* 201: method_super */
+	"",	/* 202: method_redir */
+	"",	/* 203: method_redir_super */
+	"",	/* 204: leavesub */
+	"",	/* 205: leavesublv */
+	"",	/* 206: signature */
+	"",	/* 207: caller */
+	"",	/* 208: warn */
+	"",	/* 209: die */
+	"",	/* 210: reset */
+	"():Void",	/* 211: lineseq */
+	"():Void",	/* 212: nextstate */
+	"():Void",	/* 213: dbstate */
+	"():Void",	/* 214: unstack */
+	"",	/* 215: enter */
+	"",	/* 216: leave */
+	"():Void",	/* 217: scope */
+	"",	/* 218: enteriter */
+	"",	/* 219: iter */
+	"",	/* 220: iter_ary */
+	"",	/* 221: iter_lazyiv */
+	"",	/* 222: enterloop */
+	"",	/* 223: leaveloop */
+	"",	/* 224: return */
+	"",	/* 225: last */
+	"",	/* 226: next */
+	"",	/* 227: redo */
+	"",	/* 228: dump */
+	"",	/* 229: goto */
+	"",	/* 230: exit */
 	"",	/* 231: entergiven */
 	"",	/* 232: leavegiven */
 	"",	/* 233: enterwhen */
@@ -1612,40 +1612,40 @@ EXTCONST U32 PL_op_type[] = {
 	0xffffff00,	/* 194: andassign "" */
 	0xffffff00,	/* 195: orassign "" */
 	0xffffff00,	/* 196: dorassign "" */
-	0xffffff00,	/* 197: method "" */
-	0xffffff00,	/* 198: entersub "" */
-	0xffffff00,	/* 199: enterxssub "" */
-	0xffffff00,	/* 200: leavesub "" */
-	0xffffff00,	/* 201: leavesublv "" */
-	0xffffff00,	/* 202: signature "" */
-	0xffffff00,	/* 203: caller "" */
-	0xffffff00,	/* 204: warn "" */
-	0xffffff00,	/* 205: die "" */
-	0xffffff00,	/* 206: reset "" */
-	0xffffffff,	/* 207: lineseq "():Void" */
-	0xffffffff,	/* 208: nextstate "():Void" */
-	0xffffffff,	/* 209: dbstate "():Void" */
-	0xffffffff,	/* 210: unstack "():Void" */
-	0xffffff00,	/* 211: enter "" */
-	0xffffff00,	/* 212: leave "" */
-	0xffffffff,	/* 213: scope "():Void" */
-	0xffffff00,	/* 214: enteriter "" */
-	0xffffff00,	/* 215: iter "" */
-	0xffffff00,	/* 216: iter_ary "" */
-	0xffffff00,	/* 217: iter_lazyiv "" */
-	0xffffff00,	/* 218: enterloop "" */
-	0xffffff00,	/* 219: leaveloop "" */
-	0xffffff00,	/* 220: return "" */
-	0xffffff00,	/* 221: last "" */
-	0xffffff00,	/* 222: next "" */
-	0xffffff00,	/* 223: redo "" */
-	0xffffff00,	/* 224: dump "" */
-	0xffffff00,	/* 225: goto "" */
-	0xffffff00,	/* 226: exit "" */
-	0xffffff00,	/* 227: method_named "" */
-	0xffffff00,	/* 228: method_super "" */
-	0xffffff00,	/* 229: method_redir "" */
-	0xffffff00,	/* 230: method_redir_super "" */
+	0xffffff00,	/* 197: entersub "" */
+	0xffffff00,	/* 198: enterxssub "" */
+	0xffffff00,	/* 199: method "" */
+	0xffffff00,	/* 200: method_named "" */
+	0xffffff00,	/* 201: method_super "" */
+	0xffffff00,	/* 202: method_redir "" */
+	0xffffff00,	/* 203: method_redir_super "" */
+	0xffffff00,	/* 204: leavesub "" */
+	0xffffff00,	/* 205: leavesublv "" */
+	0xffffff00,	/* 206: signature "" */
+	0xffffff00,	/* 207: caller "" */
+	0xffffff00,	/* 208: warn "" */
+	0xffffff00,	/* 209: die "" */
+	0xffffff00,	/* 210: reset "" */
+	0xffffffff,	/* 211: lineseq "():Void" */
+	0xffffffff,	/* 212: nextstate "():Void" */
+	0xffffffff,	/* 213: dbstate "():Void" */
+	0xffffffff,	/* 214: unstack "():Void" */
+	0xffffff00,	/* 215: enter "" */
+	0xffffff00,	/* 216: leave "" */
+	0xffffffff,	/* 217: scope "():Void" */
+	0xffffff00,	/* 218: enteriter "" */
+	0xffffff00,	/* 219: iter "" */
+	0xffffff00,	/* 220: iter_ary "" */
+	0xffffff00,	/* 221: iter_lazyiv "" */
+	0xffffff00,	/* 222: enterloop "" */
+	0xffffff00,	/* 223: leaveloop "" */
+	0xffffff00,	/* 224: return "" */
+	0xffffff00,	/* 225: last "" */
+	0xffffff00,	/* 226: next "" */
+	0xffffff00,	/* 227: redo "" */
+	0xffffff00,	/* 228: dump "" */
+	0xffffff00,	/* 229: goto "" */
+	0xffffff00,	/* 230: exit "" */
 	0xffffff00,	/* 231: entergiven "" */
 	0xffffff00,	/* 232: leavegiven "" */
 	0xffffff00,	/* 233: enterwhen "" */
@@ -2038,40 +2038,40 @@ EXTCONST signed char PL_op_type_variants[][8] = {
 	/* 194 andassign        */ {0},	/*  */
 	/* 195 orassign         */ {0},	/*  */
 	/* 196 dorassign        */ {0},	/*  */
-	/* 197 method           */ {0},	/*  */
-	/* 198 entersub         */ {0},	/*  */
-	/* 199 enterxssub       */ {0},	/*  */
-	/* 200 leavesub         */ {0},	/*  */
-	/* 201 leavesublv       */ {0},	/*  */
-	/* 202 signature        */ {0},	/*  */
-	/* 203 caller           */ {0},	/*  */
-	/* 204 warn             */ {0},	/*  */
-	/* 205 die              */ {0},	/*  */
-	/* 206 reset            */ {0},	/*  */
-	/* 207 lineseq          */ {0},	/*  */
-	/* 208 nextstate        */ {0},	/*  */
-	/* 209 dbstate          */ {0},	/*  */
-	/* 210 unstack          */ {0},	/*  */
-	/* 211 enter            */ {0},	/*  */
-	/* 212 leave            */ {0},	/*  */
-	/* 213 scope            */ {0},	/*  */
-	/* 214 enteriter        */ {0},	/*  */
-	/* 215 iter             */ {0},	/*  */
-	/* 216 iter_ary         */ {0},	/*  */
-	/* 217 iter_lazyiv      */ {0},	/*  */
-	/* 218 enterloop        */ {0},	/*  */
-	/* 219 leaveloop        */ {0},	/*  */
-	/* 220 return           */ {0},	/*  */
-	/* 221 last             */ {0},	/*  */
-	/* 222 next             */ {0},	/*  */
-	/* 223 redo             */ {0},	/*  */
-	/* 224 dump             */ {0},	/*  */
-	/* 225 goto             */ {0},	/*  */
-	/* 226 exit             */ {0},	/*  */
-	/* 227 method_named     */ {0},	/*  */
-	/* 228 method_super     */ {0},	/*  */
-	/* 229 method_redir     */ {0},	/*  */
-	/* 230 method_redir_super */ {0},	/*  */
+	/* 197 entersub         */ {0},	/*  */
+	/* 198 enterxssub       */ {0},	/*  */
+	/* 199 method           */ {0},	/*  */
+	/* 200 method_named     */ {0},	/*  */
+	/* 201 method_super     */ {0},	/*  */
+	/* 202 method_redir     */ {0},	/*  */
+	/* 203 method_redir_super */ {0},	/*  */
+	/* 204 leavesub         */ {0},	/*  */
+	/* 205 leavesublv       */ {0},	/*  */
+	/* 206 signature        */ {0},	/*  */
+	/* 207 caller           */ {0},	/*  */
+	/* 208 warn             */ {0},	/*  */
+	/* 209 die              */ {0},	/*  */
+	/* 210 reset            */ {0},	/*  */
+	/* 211 lineseq          */ {0},	/*  */
+	/* 212 nextstate        */ {0},	/*  */
+	/* 213 dbstate          */ {0},	/*  */
+	/* 214 unstack          */ {0},	/*  */
+	/* 215 enter            */ {0},	/*  */
+	/* 216 leave            */ {0},	/*  */
+	/* 217 scope            */ {0},	/*  */
+	/* 218 enteriter        */ {0},	/*  */
+	/* 219 iter             */ {0},	/*  */
+	/* 220 iter_ary         */ {0},	/*  */
+	/* 221 iter_lazyiv      */ {0},	/*  */
+	/* 222 enterloop        */ {0},	/*  */
+	/* 223 leaveloop        */ {0},	/*  */
+	/* 224 return           */ {0},	/*  */
+	/* 225 last             */ {0},	/*  */
+	/* 226 next             */ {0},	/*  */
+	/* 227 redo             */ {0},	/*  */
+	/* 228 dump             */ {0},	/*  */
+	/* 229 goto             */ {0},	/*  */
+	/* 230 exit             */ {0},	/*  */
 	/* 231 entergiven       */ {0},	/*  */
 	/* 232 leavegiven       */ {0},	/*  */
 	/* 233 enterwhen        */ {0},	/*  */
@@ -2493,9 +2493,13 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_andassign,	/* implemented by Perl_pp_and */
 	Perl_pp_orassign,	/* implemented by Perl_pp_or */
 	Perl_pp_dorassign,	/* implemented by Perl_pp_defined */
-	Perl_pp_method,
 	Perl_pp_entersub,
 	Perl_pp_enterxssub,
+	Perl_pp_method,
+	Perl_pp_method_named,
+	Perl_pp_method_super,
+	Perl_pp_method_redir,
+	Perl_pp_method_redir_super,
 	Perl_pp_leavesub,
 	Perl_pp_leavesublv,
 	Perl_pp_signature,
@@ -2523,10 +2527,6 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_dump,	/* implemented by Perl_pp_goto */
 	Perl_pp_goto,
 	Perl_pp_exit,
-	Perl_pp_method_named,
-	Perl_pp_method_super,
-	Perl_pp_method_redir,
-	Perl_pp_method_redir_super,
 	Perl_pp_entergiven,
 	Perl_pp_leavegiven,
 	Perl_pp_enterwhen,
@@ -2922,9 +2922,13 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_null,		/* andassign */
 	Perl_ck_null,		/* orassign */
 	Perl_ck_null,		/* dorassign */
-	Perl_ck_method,		/* method */
 	Perl_ck_subr,		/* entersub */
 	Perl_ck_subr,		/* enterxssub */
+	Perl_ck_method,		/* method */
+	Perl_ck_null,		/* method_named */
+	Perl_ck_null,		/* method_super */
+	Perl_ck_null,		/* method_redir */
+	Perl_ck_null,		/* method_redir_super */
 	Perl_ck_null,		/* leavesub */
 	Perl_ck_null,		/* leavesublv */
 	Perl_ck_null,		/* signature */
@@ -2952,10 +2956,6 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_null,		/* dump */
 	Perl_ck_null,		/* goto */
 	Perl_ck_fun,		/* exit */
-	Perl_ck_null,		/* method_named */
-	Perl_ck_null,		/* method_super */
-	Perl_ck_null,		/* method_redir */
-	Perl_ck_null,		/* method_redir_super */
 	Perl_ck_null,		/* entergiven */
 	Perl_ck_null,		/* leavegiven */
 	Perl_ck_null,		/* enterwhen */
@@ -3345,9 +3345,13 @@ EXTCONST U32 PL_opargs[] = {
 	0x00000c04,	/* andassign */
 	0x00000c04,	/* orassign */
 	0x00000c04,	/* dorassign */
-	0x00003840,	/* method */
 	0x00008441,	/* entersub */
 	0x00008441,	/* enterxssub */
+	0x00003840,	/* method */
+	0x00003840,	/* method_named */
+	0x00003840,	/* method_super */
+	0x00003840,	/* method_redir */
+	0x00003840,	/* method_redir_super */
 	0x00000400,	/* leavesub */
 	0x00000400,	/* leavesublv */
 	0x00003c00,	/* signature */
@@ -3375,10 +3379,6 @@ EXTCONST U32 PL_opargs[] = {
 	0x00027444,	/* dump */
 	0x00027404,	/* goto */
 	0x00026c04,	/* exit */
-	0x00003840,	/* method_named */
-	0x00003840,	/* method_super */
-	0x00003840,	/* method_redir */
-	0x00003840,	/* method_redir_super */
 	0x00000c40,	/* entergiven */
 	0x00000400,	/* leavegiven */
 	0x00000c40,	/* enterwhen */
@@ -4028,9 +4028,13 @@ EXTCONST I16  PL_op_private_bitdef_ix[] = {
        0, /* andassign */
        0, /* orassign */
        0, /* dorassign */
-       0, /* method */
      173, /* entersub */
      173, /* enterxssub */
+       0, /* method */
+       0, /* method_named */
+       0, /* method_super */
+       0, /* method_redir */
+       0, /* method_redir_super */
      180, /* leavesub */
      180, /* leavesublv */
      182, /* signature */
@@ -4058,10 +4062,6 @@ EXTCONST I16  PL_op_private_bitdef_ix[] = {
      196, /* dump */
      196, /* goto */
       80, /* exit */
-       0, /* method_named */
-       0, /* method_super */
-       0, /* method_redir */
-       0, /* method_redir_super */
        0, /* entergiven */
        0, /* leavegiven */
        0, /* enterwhen */
@@ -4535,9 +4535,13 @@ EXTCONST U8 PL_op_private_valid[] = {
     /* ANDASSIGN  */ (OPpARG1_MASK),
     /* ORASSIGN   */ (OPpARG1_MASK),
     /* DORASSIGN  */ (OPpARG1_MASK),
-    /* METHOD     */ (OPpARG1_MASK),
     /* ENTERSUB   */ (OPpENTERSUB_INARGS|OPpHINT_STRICT_REFS|OPpENTERSUB_HASTARG|OPpENTERSUB_AMPER|OPpDEREF|OPpENTERSUB_DB|OPpLVAL_INTRO),
     /* ENTERXSSUB */ (OPpENTERSUB_INARGS|OPpHINT_STRICT_REFS|OPpENTERSUB_HASTARG|OPpENTERSUB_AMPER|OPpDEREF|OPpENTERSUB_DB|OPpLVAL_INTRO),
+    /* METHOD     */ (OPpARG1_MASK),
+    /* METHOD_NAMED */ (OPpARG1_MASK),
+    /* METHOD_SUPER */ (OPpARG1_MASK),
+    /* METHOD_REDIR */ (OPpARG1_MASK),
+    /* METHOD_REDIR_SUPER */ (OPpARG1_MASK),
     /* LEAVESUB   */ (OPpARG1_MASK|OPpREFCOUNTED),
     /* LEAVESUBLV */ (OPpARG1_MASK|OPpREFCOUNTED),
     /* SIGNATURE  */ (OPpARG1_MASK|OPpSIGNATURE_FAKE),
@@ -4565,10 +4569,6 @@ EXTCONST U8 PL_op_private_valid[] = {
     /* DUMP       */ (OPpARG1_MASK|OPpPV_IS_UTF8),
     /* GOTO       */ (OPpARG1_MASK|OPpPV_IS_UTF8),
     /* EXIT       */ (OPpARG4_MASK),
-    /* METHOD_NAMED */ (OPpARG1_MASK),
-    /* METHOD_SUPER */ (OPpARG1_MASK),
-    /* METHOD_REDIR */ (OPpARG1_MASK),
-    /* METHOD_REDIR_SUPER */ (OPpARG1_MASK),
     /* ENTERGIVEN */ (OPpARG1_MASK),
     /* LEAVEGIVEN */ (OPpARG1_MASK),
     /* ENTERWHEN  */ (OPpARG1_MASK),
