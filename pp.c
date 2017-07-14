@@ -3710,18 +3710,21 @@ PPt(pp_oct, "(:Numeric):UInt")
 
 /* String stuff. */
 
+
 PP(pp_length)
 {
     dSP; dTARGET;
     SV * const sv = TOPs;
 
     U32 in_bytes = IN_BYTES;
-    /* simplest case shortcut */
-    /* turn off SVf_UTF8 in tmp flags if HINT_BYTES on*/
+    /* Simplest case shortcut:
+     * set svflags to just the SVf_POK|SVs_GMG|SVf_UTF8 from the SV,
+     * with the SVf_UTF8 flag inverted if under 'use bytes' (HINT_BYTES
+     * set)
+     */
     U32 svflags = (SvFLAGS(sv) ^ (in_bytes << 26)) & (SVf_POK|SVs_GMG|SVf_UTF8);
-    STATIC_ASSERT_STMT(HINT_BYTES == 0x00000008
-                       && SVf_UTF8 == 0x20000000
-                       && (SVf_UTF8 == HINT_BYTES << 26));
+    STATIC_ASSERT_STMT(SVf_UTF8 == (HINT_BYTES << 26));
+
     if (LIKELY(svflags == SVf_POK)) {
         if (UNLIKELY((PL_op->op_private & OPpLENGTH_TRUEBOOL)
                      || ((PL_op->op_private & OPpLENGTH_MAYBE_TRUEBOOL)
@@ -3733,9 +3736,12 @@ PP(pp_length)
             goto simple_pv;
         }
     }
+
     SETs(TARG);
+
     if (svflags & SVs_GMG)
         mg_get(sv);
+
     if (SvOK(sv)) {
         STRLEN len;
 	if (!IN_BYTES) { /* reread to avoid using an C auto/register */
@@ -3743,29 +3749,32 @@ PP(pp_length)
                 goto simple_pv;
 	    len = sv_len_utf8_nomg(sv);
         }
-	else
-	{
+	else {
             /* unrolled SvPV_nomg_const(sv,len) */
             if (SvPOK_nog(sv)) {
               simple_pv:
                 len = SvCUR(sv);
-            } else  {
+            }
+            else {
                 (void)sv_2pv_flags(sv, &len, 0|SV_CONST_RETURN);
             }
 	}
         TARGi((IV)(len), 1);
-    } else {
+    }
+    else {
 	if (!SvPADTMP(TARG)) {
+            /* OPpTARGET_MY: targ is var in '$lex = length()' */
             sv_set_undef(TARG);
             SvSETMAGIC(TARG);
 	} else { /* TARG is on stack at this point and is overwriten by SETs.
-                   This branch is the odd one out, so put TARG by default on
-                   stack earlier to let local SP go out of liveness sooner */
+                  * This branch is the odd one out, so put TARG by default on
+                  * stack earlier to let local SP go out of liveness sooner */
             SETs(UNDEF);
         }
     }
     return NORMAL; /* no putback, SP didn't move in this opcode */
 }
+
 
 /* Returns false if substring is completely outside original string.
    No length is indicated by len_iv = 0 and len_is_uv = 0.  len_is_uv must
