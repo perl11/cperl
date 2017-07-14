@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.55_02';
+our $VERSION = '1.55_04';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -4107,11 +4107,16 @@ sub try_autoload {
 }
 sub Dummy_initxs { }
 
-sub B::CV::is_lexsub {
-  my ($cv, $gv) = @_;
-  # logical shortcut perl5 bug since ~ 5.19: testcc.sh 42
-  # return ($PERL518 and (!$gv or ref($gv) eq 'B::SPECIAL') and $cv->can('NAME_HEK'));
-  return ($PERL518 and (!$gv or ref($gv) eq 'B::SPECIAL') and $cv->can('NAME_HEK')) ? 1 : 0;
+# A lexical sub contains no CvGV, just a NAME_HEK, thus the name CvNAMED.
+# More problematically $cv->GV vivifies the GV of a NAMED cv from an RV, so avoid !$cv->GV
+# See https://github.com/perl11/cperl/issues/63
+sub B::CV::is_named {
+  my ($cv) = @_;
+  return 0 unless $PERL518;
+  return $cv->NAME_HEK if $cv->can('NAME_HEK');
+  return 0;
+  # my $gv = $cv->GV;
+  # return (!$gv or ref($gv) eq 'B::SPECIAL')) ? 1 : 0;
 }
 
 sub is_phase_name {
@@ -4125,11 +4130,21 @@ sub B::CV::save {
     warn sprintf( "CV 0x%x already saved as $sym\n", $$cv ) if $$cv and $debug{cv};
     return $sym;
   }
-  my $gv = $cv->GV;
+  my $gv = $cv->is_named ? undef : $cv->GV;
   my ( $cvname, $cvstashname, $fullname, $isutf8 );
   $fullname = '';
   my $CvFLAGS = $cv->CvFLAGS;
-  if ($gv and $$gv) {
+  if (!$gv and $cv->is_named) {
+    $fullname = $cv->NAME_HEK;
+    $fullname = '' unless defined $fullname;
+    $isutf8   = $cv->FLAGS & SVf_UTF8;
+    warn sprintf( "CV lexsub NAME_HEK $fullname\n") if $debug{cv};
+    if ($fullname =~ /^(.*)::(.*?)$/) {
+      $cvstashname = $1;
+      $cvname      = $2;
+    }
+  }
+  elsif ($gv and $$gv) {
     $cvstashname = $gv->STASH->NAME;
     $cvname      = $gv->NAME;
     $isutf8      = ($gv->FLAGS & SVf_UTF8) || ($gv->STASH->FLAGS & SVf_UTF8);
@@ -4162,16 +4177,6 @@ sub B::CV::save {
     return '0' if $all_bc_subs{$fullname} or skip_pkg($cvstashname);
     $CvFLAGS &= ~0x400 if $PERL514; # no CVf_CVGV_RC otherwise we cannot set the GV
     mark_package($cvstashname, 1) unless $include_package{$cvstashname};
-  }
-  elsif ($cv->is_lexsub($gv)) {
-    $fullname = $cv->NAME_HEK;
-    $fullname = '' unless defined $fullname;
-    $isutf8   = $cv->FLAGS & SVf_UTF8;
-    warn sprintf( "CV lexsub NAME_HEK $fullname\n") if $debug{cv};
-    if ($fullname =~ /^(.*)::(.*?)$/) {
-      $cvstashname = $1;
-      $cvname      = $2;
-    }
   }
   $cvstashname = '' unless defined $cvstashname;
 
@@ -4450,7 +4455,7 @@ sub B::CV::save {
     if (exists &$fullname) {
       warn "Warning: Empty &".$fullname."\n" if $debug{sub};
       $init->add( "/* empty CV $fullname */" ) if $verbose or $debug{sub};
-    } elsif ($cv->is_lexsub($gv)) {
+    } elsif ($cv->is_named) {
       # need to find the attached lexical sub (#130 + #341) at run-time
       # in the PadNAMES array. So keep the empty PVCV
       warn "lexsub &".$fullname." saved as empty $sym\n" if $debug{sub};
@@ -4488,7 +4493,7 @@ sub B::CV::save {
                   $$cv, $$root )
       if $debug{cv} and $debug{gv};
     my $ppname = "";
-    if ($cv->is_lexsub($gv)) {
+    if ($cv->is_named) {
       my $name = $cv->can('NAME_HEK') ? $cv->NAME_HEK : "anonlex";
       $ppname = "pp_lexsub_".$name;
       $fullname = "<lex>".$name;
@@ -4549,7 +4554,7 @@ sub B::CV::save {
     }
     warn $fullname."\n" if $debug{sub};
   }
-  elsif ($cv->is_lexsub($gv)) {
+  elsif ($cv->is_named) {
     ;
   }
   elsif (!exists &$fullname) {
@@ -4907,7 +4912,7 @@ sub B::GV::save {
     $sym = savesym( $gv, "gv_list[$ix]" );
     warn sprintf( "Saving GV 0x%x as $sym\n", $$gv ) if $debug{gv};
   }
-  warn sprintf( "  GV %s $sym type=%d, flags=0x%x %s\n", $gv->NAME,
+  warn sprintf( "  GV *%s $sym type=%d, flags=0x%x %s\n", $gv->NAME,
                 # B::SV::SvTYPE not with 5.6
                 B::SV::SvTYPE($gv), $gv->FLAGS) if $debug{gv} and !$PERL56;
   if ($PERL510 and !$PERL5257 and $gv->FLAGS & 0x40000000) { # SVpbm_VALID
@@ -4934,6 +4939,7 @@ sub B::GV::save {
   sub Save_CV()   { 8 }
   sub Save_FORM() { 16 }
   sub Save_IO()   { 32 }
+  sub Save_ALL()  { 63 }
   if ( $filter and $filter =~ m/ :pad/ ) {
     $fancyname = cstring($filter);
     $filter = 0;
@@ -5030,9 +5036,11 @@ sub B::GV::save {
     return $sym;
   }
   elsif ($fullname eq 'main::0') { # dollar_0 already handled before, so don't overwrite it
-    $init->add(qq[$sym = gv_fetchpv($cname, $notqual, SVt_PV);]);
-    $init->add( sprintf( "SvREFCNT(%s) = $u32fmt;", $sym, $gv->REFCNT ) );
-    return $sym;
+    # only the $0 part, not @0 &0 ...
+    #$init->add(qq[$sym = gv_fetchpv($cname, $notqual, SVt_PV);]);
+    #$init->add( sprintf( "SvREFCNT(%s) = $u32fmt;", $sym, $gv->REFCNT ) );
+    $filter = Save_SV;
+    #return $sym;
   }
   elsif ($B::C::ro_inc and $fullname =~ /^main::([0-9])$/) { # ignore PV regexp captures with -O2
     $filter = Save_SV;
@@ -5085,17 +5093,14 @@ sub B::GV::save {
                   )) if $debug{gv};
       # XXX !PERL510 and OPf_COP_TEMP we need to fake PL_curcop for gp_file hackery
       $init->add("$sym = ".gv_fetchpvn($name, $gvadd, "SVt_PV").";");
-      #$init->add(qq[$sym = gv_fetchpv($name, $gvadd, SVt_PV);]);
-      $savefields = Save_HV | Save_AV | Save_SV | Save_CV | Save_FORM | Save_IO;
+      $savefields = Save_ALL;
       $gptable{0+$gp} = "GvGP($sym)";
     }
     else {
       $init->add("$sym = ".gv_fetchpvn($name, $gvadd, "SVt_PVGV").";");
-      # $init->add(qq[$sym = gv_fetchpv($name, $gvadd, SVt_PVGV);]);
     }
   } elsif (!$is_coresym) {
     $init->add("$sym = ".gv_fetchpvn($name, $gvadd, "SVt_PV").";");
-    # $init->add(qq[$sym = gv_fetchpv($name, $gvadd, SVt_PV);]);
   }
   my $gvflags = $gv->GvFLAGS;
   if ($gvflags > 256 and !$PERL510) { # $gv->GvFLAGS as U8 single byte only
@@ -5294,8 +5299,10 @@ sub B::GV::save {
         if $package and exists ${"$package\::"}{CLONE};
       $gvcv = $gv->CV; # try again
     }
+    # This will autovivify the CvGV of a named CV
     if ( $$gvcv and $savefields & Save_CV
          and ref($gvcv) eq 'B::CV'
+         #and !is_named($gvcv)
          and ref($gvcv->GV->EGV) ne 'B::SPECIAL'
          and !skip_pkg($package) )
     {
