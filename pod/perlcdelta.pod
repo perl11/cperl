@@ -102,6 +102,8 @@ Add support for C<-d DESTDIR>, e.g. after
     cd $HOME/cperl-inst/usr/local/bin &&
     ./cperl cperlivp -p -d $HOME/cperl-inst
 
+See L<[cperl #305]|https://github.com/perl11/cperl/issues/305>
+
 =back
 
 =head1 Testing
