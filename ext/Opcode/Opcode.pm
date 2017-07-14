@@ -6,7 +6,7 @@ use strict;
 
 our($VERSION, $XS_VERSION, @ISA, @EXPORT_OK);
 
-$VERSION = "1.39_01c";
+$VERSION = "1.39_02c";
 $XS_VERSION = $VERSION;
 $VERSION =~ s/_//g; $VERSION =~ s/c$//;
 
@@ -316,7 +316,7 @@ invert_opset function.
     n_aelem s_aelem_u i_aelem_u i_aelem n_aelem_u s_aelem
 
     rv2hv helem hslice kvhslice each values keys exists delete
-    aeach akeys avalues multideref signature
+    aeach akeys avalues multideref signature oelem
 
     preinc i_preinc predec i_predec postinc i_postinc
     postdec i_postdec int hex oct abs pow i_pow

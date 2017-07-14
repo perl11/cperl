@@ -3,7 +3,7 @@ use strict;
 use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use version;
-$VERSION = '5.20170621c';
+$VERSION = '5.20170714c';
 $VERSION =~ s/c$//;
 
 sub _undelta {
@@ -15029,6 +15029,7 @@ our %delta = (
             'IO::Socket'            => '1.38_01',
             'IO::Socket::INET'      => '1.35_01',
             'IO::Socket::UNIX'      => '1.26_01',
+            'Opcode'                => '1.39_02c',
             'Metamodel'             => '',
             'Mu'                    => '0.01c',
             'Net::Ping'             => '2.61',
