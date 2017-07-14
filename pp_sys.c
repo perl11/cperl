@@ -658,6 +658,8 @@ PP(pp_open)
 PP(pp_close)
 {
     dSP;
+    /* pp_coreargs pushes a NULL to indicate no args passed to
+     * CORE::close() */
     GV * const gv =
 	MAXARG == 0 || (!TOPs && !POPs) ? PL_defoutgv : MUTABLE_GV(POPs);
 
@@ -1364,6 +1366,8 @@ PP(pp_select)
 PP(pp_getc)
 {
     dSP; dTARGET;
+    /* pp_coreargs pushes a NULL to indicate no args passed to
+     * CORE::getc() */
     GV * const gv =
 	MAXARG==0 || (!TOPs && !POPs) ? PL_stdingv : MUTABLE_GV(POPs);
     IO *const io = GvIO(gv);

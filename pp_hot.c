@@ -466,6 +466,8 @@ PPt(pp_padsv, "(:Any):Any")
 PPt(pp_readline, "(:Scalar):Any")
 {
     dSP;
+    /* pp_coreargs pushes a NULL to indicate no args passed to
+     * CORE::readline() */
     if (TOPs) {
 	SvGETMAGIC(TOPs);
 	tryAMAGICunTARGETlist(iter_amg, 0);
