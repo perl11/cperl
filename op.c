@@ -5481,6 +5481,43 @@ Perl_localize(pTHX_ OP *o, I32 lex)
     return o;
 }
 
+/* name: "CLASS" */
+static void
+S_addfield(pTHX_ SV* name, GV *fsym, PADOFFSET targ)
+{
+    PADNAME *pn;
+    char *key;
+    I32 klen;
+    AV *fields = GvAVn(fsym);
+    assert(fsym);
+    assert(name);
+    assert(targ >= 0);
+
+    av_push(fields, newSViv(targ));
+
+    pn = PAD_COMPNAME(targ);
+    key = PadnamePV(pn);
+    key++; /* %FIELDS without the $ for compat with use fields. */
+    klen = PadnameLEN(pn) - 1;
+    if (UNLIKELY(PadnameUTF8(pn)))
+        klen = -klen;
+    (void)hv_store(GvHVn(fsym), key, klen, newSViv(AvFILLp(fields)), 0);
+
+    if (SvPAD_TYPED(pn)) { /* see check_hash_fields_and_hekify() */
+        HV *type = PadnameTYPE(pn);
+        bool is_const = SvREADONLY(type);
+        name = newSVpvn_flags(SvPVX(name), SvCUR(name),
+                              SvUTF8(name)|SVs_TEMP);
+        sv_catpvs(name, "::");
+        /* store in the type the GvHV to curstash */
+        if (is_const) SvREADONLY_off(type);
+        (void)hv_store(type, "FIELDS", 6,
+                       SvREFCNT_inc_NN(gv_fetchsv(name, GV_ADD, SVt_PVHV)), 0);
+        if (is_const) SvREADONLY_on(type);
+    }
+}
+
+
 /*
 =for apidoc hasterm
 
@@ -5494,9 +5531,6 @@ Perl_hasterm(pTHX_ OP *o)
 {
     SV *name;
     GV *gv;
-    PADNAME *pn;
-    char *key;
-    I32 klen;
     PERL_ARGS_ASSERT_HASTERM;
     assert(PL_curstname);
 
@@ -5506,28 +5540,7 @@ Perl_hasterm(pTHX_ OP *o)
                           SvUTF8(PL_curstname)|SVs_TEMP);
     sv_catpvs(name, "::FIELDS");
     gv = gv_fetchsv(name, GV_ADD, SVt_PVAV);
-    av_push(GvAVn(gv), newSViv(o->op_targ));
-
-    pn = PAD_COMPNAME(o->op_targ);
-    key = PadnamePV(pn);
-    key++; /* %FIELDS without the $ for compat with use fields. */
-    klen = PadnameLEN(pn) - 1;
-    if (UNLIKELY(PadnameUTF8(pn)))
-        klen = -klen;
-    (void)hv_store(GvHVn(gv), key, klen, newSViv(AvFILLp(GvAV(gv))), 0);
-
-    if (SvPAD_TYPED(pn)) { /* see check_hash_fields_and_hekify() */
-        HV *type = PadnameTYPE(pn);
-        bool is_const = SvREADONLY(type);
-        name = newSVpvn_flags(SvPVX(PL_curstname), SvCUR(PL_curstname),
-                              SvUTF8(PL_curstname)|SVs_TEMP);
-        sv_catpvs(name, "::");
-        /* store in the type the GvHV to curstash */
-        if (is_const) SvREADONLY_off(type);
-        (void)hv_store(type, "FIELDS", 6,
-                       SvREFCNT_inc_NN(gv_fetchsv(name, GV_ADD, SVt_PVHV)), 0);
-        if (is_const) SvREADONLY_on(type);
-    }
+    S_addfield(aTHX_ PL_curstname, gv, o->op_targ);
     return o;
 }
 
@@ -12322,6 +12335,7 @@ get the name of those with S_typename().
 
 TODO: add defined return types of all ops, and
 user-defined CV types for entersub.
+
 =cut
 */
 static core_types_t
@@ -12653,7 +12667,9 @@ Perl_ck_method(pTHX_ OP *o)
 {
     SV *sv, *methsv, *rclass;
     const char* method;
+#ifndef PERL_NO_QUOTE_PKGSEPERATOR
     char* compatptr;
+#endif
     int utf8;
     STRLEN len, nsplit = 0, i;
     OP* new_op;
@@ -12664,11 +12680,13 @@ Perl_ck_method(pTHX_ OP *o)
 
     sv = kSVOP->op_sv;
 
+#ifndef PERL_NO_QUOTE_PKGSEPERATOR
     /* replace ' with :: */
     while ((compatptr = strchr(SvPVX(sv), '\''))) {
         *compatptr = ':';
         sv_insert(sv, compatptr - SvPVX_const(sv), 0, ":", 1);
     }
+#endif
 
     method = SvPVX_const(sv);
     len = SvCUR(sv);
@@ -15170,9 +15188,7 @@ Perl_ck_subr(pTHX_ OP *o)
 		if (len) {
 		    SV* const shared = newSVpvn_share(
 			str, SvUTF8(*const_class)
-                                    ? -(SSize_t)len : (SSize_t)len,
-                        0
-		    );
+                             ? -(SSize_t)len : (SSize_t)len, 0);
                     if (SvREADONLY(*const_class))
                         SvREADONLY_on(shared);
 		    SvREFCNT_dec(*const_class);
@@ -19541,13 +19557,14 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
         }
     }
 }
+
 /*
 =for apidoc method_finalize
 Resolve internal lexicals or field helem's or field accessors 
 to fields in the class method or sub.
 =cut
 */
-void
+static void
 S_method_finalize(pTHX_ const HV* klass, const CV* cv)
 {
     OP *o;
@@ -19556,7 +19573,7 @@ S_method_finalize(pTHX_ const HV* klass, const CV* cv)
 
     if (CvHASSIG(cv)) {
         UNOP_AUX *o = CvSIGOP((SV*)cv);
-        /* padoffset of $self, the first padrange in the signature */
+        /* padoffset of $self, the first padrange in the signature. Always 1. */
         UNOP_AUX_item *items = cUNOP_AUXo->op_aux;
         if ((items[1].uv & SIGNATURE_ACTION_MASK) == SIGNATURE_padintro)
             self = items[2].uv >> OPpPADRANGE_COUNTSHIFT;
@@ -19564,6 +19581,162 @@ S_method_finalize(pTHX_ const HV* klass, const CV* cv)
     if ((o = CvROOT(cv))) {
         floor = o->op_targ;
         S_do_method_finalize(aTHX_ klass, o, floor, self);
+    }
+}
+
+/*
+=for apidoc add_isa_fields
+Copy all not-existing fields from parent classes or roles to the class of
+C<name>. Duplicates are fatal with roles, ignored with classes.
+=cut
+*/
+static void
+S_add_isa_fields(pTHX_ HV* klass, AV* isa)
+{
+    const char const * klassname = HvNAME(klass);
+    STRLEN len = HvNAMELEN(klass);
+    SV *name = newSVpvn_flags(klassname, len, HvNAMEUTF8(klass)|SVs_TEMP);
+    GV *fsym;
+    SSize_t i;
+    PERL_ARGS_ASSERT_ADD_ISA_FIELDS;
+
+    sv_catpvs(name, "::FIELDS");
+    fsym = gv_fetchsv(name, 0, SVt_PVAV); /* might be empty */
+    SvCUR_set(name, len);
+    SvPVX(name)[len] = '\0';
+
+    for (i=0; i<=AvFILL(isa); i++) {
+        SV *tmpnam;
+        SV** svp = av_fetch(isa, i, FALSE);
+        GV *sym;
+        HV *curclass;
+        AV *f;
+        SSize_t j;
+        if (!svp) continue;
+        if (SvPOK(*svp))
+            tmpnam = newSVpvn_flags(SvPVX(*svp), SvCUR(*svp), SvUTF8(*svp));
+        else if (SvTYPE(*svp) == SVt_PVHV)
+            tmpnam = newSVpvn_flags(HvNAME(*svp), HvNAMELEN(*svp), HvNAMEUTF8(*svp));
+        else
+            continue;
+        assert(klassname);
+        if (strEQ(SvPVX(tmpnam), klassname))
+            continue;
+        if (strEQc(SvPVX(tmpnam), "Mu"))
+            continue;
+
+        curclass = gv_stashsv(tmpnam, 0);
+        sv_catpvs(tmpnam, "::FIELDS");
+        sym = gv_fetchsv(tmpnam, 0, SVt_PVAV);
+        if (!sym || !GvAV(sym)) {
+            SvREFCNT_dec(tmpnam);
+            continue;
+        }
+        SvCUR_set(tmpnam, SvCUR(*svp));
+        SvPVX(tmpnam)[SvCUR(*svp)] = '\0';
+
+        f = GvAV(sym);
+        for (j=0; j<=AvFILL(f); j++) {
+            SV* padix = AvARRAY(f)[j];
+            PADOFFSET po = (PADOFFSET)SvIVX(padix);
+            const PADNAME *pn = PAD_COMPNAME(po);
+            char *key = PadnamePV(pn);
+            I32 klen = PadnameLEN(pn);
+            /* check for duplicate */
+            if (has_field(klass, key+1, klen-1) >= 0) {
+                /* fatal with roles, valid and ignored for classes */
+                if (HvROLE(curclass))
+                    Perl_croak(aTHX_
+                        "Field %s from %s already exists in %s during role composition",
+                        key, SvPVX(tmpnam), klassname);
+                DEBUG_kv(Perl_deb(aTHX_ "add_isa_fields: exists %s from %s in %s [%d]\n",
+                                  key, SvPVX(tmpnam), klassname, (int)po));
+                continue;
+            }
+
+            po = allocmy(key, klen, 0);
+            if (!fsym) {
+                sv_catpvs(name, "::FIELDS");
+                fsym = gv_fetchsv(name, GV_ADD, SVt_PVAV);
+                av_extend(GvAVn(fsym), 0);
+                SvCUR_set(name, len);
+                SvPVX(name)[len] = '\0';
+            }
+            DEBUG_k(Perl_deb(aTHX_ "add_isa_fields: add %s from %s to %s [%d]\n",
+                             key, SvPVX(tmpnam), klassname, (int)po));
+            S_addfield(aTHX_ name, fsym, po);
+        }
+        SvREFCNT_dec(tmpnam);
+    }
+}
+
+/*
+=for apidoc add_does_methods
+Copy all not-existing methods from parent roles to the class of C<name>.
+Duplicates are fatal with roles.
+=cut
+*/
+static void
+S_add_does_methods(pTHX_ HV* klass, AV* does)
+{
+    const char const * klassname = HvNAME(klass);
+    STRLEN len = HvNAMELEN(klass);
+    SV *name = newSVpvn_flags(klassname, len, HvNAMEUTF8(klass)|SVs_TEMP);
+    SSize_t i;
+    PERL_ARGS_ASSERT_ADD_DOES_METHODS;
+
+    for (i=0; i<=AvFILL(does); i++) {
+        SV **classp = av_fetch(does, i, FALSE);
+        HV *curclass;
+        HE *entry;
+
+        if (!classp) continue;
+        if (SvPOK(*classp))
+            curclass = gv_stashsv(*classp, 0);
+        else if (SvTYPE(*classp) == SVt_PVHV)
+            curclass = MUTABLE_HV(*classp);
+        else
+            continue;
+
+        (void)hv_iterinit(curclass);
+        HvAUX(curclass)->xhv_aux_flags |= HvAUXf_SCAN_STASH;
+        while ((entry = hv_iternext(curclass))) {
+            GV *gv = MUTABLE_GV(HeVAL(entry));
+            CV *cv;
+            GV *sym;
+
+            if (isGV(gv) && (cv = GvCV(gv))) {
+                /* check for duplicates */
+                if (has_field(klass, HeKEY(entry), HeKLEN(entry)) >= 0) {
+                    Perl_croak(aTHX_
+                        "Field %s from %s already exists in %s during role composition",
+                        HeKEY(entry), HvNAME(curclass), SvPVX(name));
+                }
+
+                sv_catpvn_flags(name, HeKEY(entry), HeKLEN(entry), HeUTF8(entry));
+                sym = gv_fetchsv(name, 0, SVt_PVCV);
+                SvCUR_set(name, len);
+                if (sym && GvCV(sym)) {
+                    CV *cv = GvCV(sym);
+                    if (CvMETHOD(cv) && !CvMULTI(cv)) {
+                        DEBUG_kv(Perl_deb(aTHX_ "add_does_methods: exists method %s::%s\n",
+                                          SvPVX(name), HeKEY(entry)));
+                        continue;
+                    } else {
+                        /* perl6: Method '%s' must be resolved by class %s because it
+                           exists in multiple roles (%s, %s) */
+                        Perl_croak(aTHX_
+                            "Method %s from %s already exists in %s during role composition",
+                            HeKEY(entry), GvNAME(gv), klassname);
+                    }
+                }
+                /* but we also might have class methods without a GV! */
+
+                /* XXX copy method */
+                DEBUG_k(Perl_deb(aTHX_ "add_does_methods: add %s::%s to %*s\n",
+                    HvNAME(curclass), HeKEY(entry), (int)len, SvPVX(name)));
+            }
+        }
     }
 }
 
@@ -19605,35 +19778,39 @@ Perl_class_role_finalize(pTHX_ OP* o)
     /*SvREADONLY_off(stash);*/
     SvREADONLY_off(name);
 
-    sv_catpvs(name, "::ISA");
-    sym = gv_fetchsv(name, GV_ADD, SVt_PVAV);
-    if (sym && GvAV(sym)) {
-        isa = GvAV(sym);
-        SvREADONLY_on(isa);
-    }
-
-    SvCUR_set(name, len);
     sv_catpvs(name, "::DOES");
     sym = gv_fetchsv(name, GV_ADD, SVt_PVAV);
     if (sym && GvAV(sym)) {
         does = GvAV(sym);
+        if (AvARRAY(does) && AvFILL(does) >= 0) {
+            S_add_isa_fields(aTHX_ stash, does);
+            S_add_does_methods(aTHX_ stash, does);
+        }
         SvREADONLY_on(does);
     }
     SvCUR_set(name, len);
 
-    /* add the inherited fields from ISA and DOES
-       and composed methods from DOES */
+    sv_catpvs(name, "::ISA");
+    sym = gv_fetchsv(name, GV_ADD, SVt_PVAV);
+    if (sym && GvAV(sym)) {
+        isa = GvAV(sym);
+        if (AvARRAY(isa) && AvFILL(isa) > 0) { /* skip Mu only */
+            S_add_isa_fields(aTHX_ stash, isa);
+        }
+        SvREADONLY_on(isa);
+    }
+    SvCUR_set(name, len);
+
     sv_catpvs(name, "::FIELDS");
     sym = gv_fetchsv(name, 0, SVt_PVAV);
-    
     SvCUR_set(name, len);
     SvPVX(name)[len] = '\0';
-    if (!sym || !GvAV(sym)) {
+    if (!sym || !GvAV(sym)) { /* no fields */
         SvREADONLY_on(stash);
         PL_parser->in_class = FALSE;
         return;
     }
-    fields = GvAVn(sym);
+    fields = GvAV(sym);
 
     /* create the field accessor methods */
     ENTER;
@@ -19664,24 +19841,26 @@ Perl_class_role_finalize(pTHX_ OP* o)
         if (sym && GvCV(sym)) {
             SvCUR_set(name, len);
             SvPVX(name)[len] = '\0';
-            continue; /* already exists */
+            continue; /* Already exists. This is a valid accessor override. */
         }
-        DEBUG_k(Perl_deb(aTHX_ "add class accessor method %*s->%s()%s%s%s { $self->[%d] }\n",
-                         (int)len, SvPVX(name), key, lval ? " :lvalue" : "",
-                         PadnameTYPE(pn) ? " :" : "",
-                         PadnameTYPE(pn) ? HvNAME(PadnameTYPE(pn)) : "",
-                         (int)po));
 #if 1
         cv = newXS_len_flags(SvPVX(name), SvCUR(name),
                              *reftype == '$' ? S_Mu_sv_xsub : S_Mu_av_xsub,
-                             file ? file : "", "",
-                             NULL, XS_DYNAMIC_FILENAME | utf8);
+                             file ? file : "",
+                             "" /* proto */, NULL /*&const_sv*/,
+                             XS_DYNAMIC_FILENAME | utf8);
         CvXSUBANY(cv).any_u32 = i;
         SvCUR_set(name, len);
         SvPVX(name)[len] = '\0';
         CvMETHOD_on(cv);
+        CvPURE_on(cv);
         if (lval)
             CvLVALUE_on(cv);
+        DEBUG_k(Perl_deb(aTHX_ "add class accessor method %*s->%s()%s%s%s { $self->[%d] }\n",
+                         (int)len, SvPVX(name), key, lval ? " :lvalue" : "",
+                         PadnameTYPE(pn) ? " :" : "",
+                         PadnameTYPE(pn) ? HvNAME(PadnameTYPE(pn)) : "",
+                         (int)i));
         /* Cannot type a XS yet. no padlist[0], only sigop or hscxt */
         if (PadnameTYPE(pn)) {
             CvTYPED_on(cv);
@@ -19689,6 +19868,13 @@ Perl_class_role_finalize(pTHX_ OP* o)
         }
 #else
         /* TODO: scope fixup */
+        SvCUR_set(name, len);
+        SvPVX(name)[len] = '\0';
+        DEBUG_k(Perl_deb(aTHX_ "add class accessor method %*s->%s()%s%s%s { $self->[%d] }\n",
+                         (int)len, SvPVX(name), key, lval ? " :lvalue" : "",
+                         PadnameTYPE(pn) ? " :" : "",
+                         PadnameTYPE(pn) ? HvNAME(PadnameTYPE(pn)) : "",
+                         (int)i));
         start_subparse(0, CVf_METHOD | (lval ? CVf_LVALUE : 0));
         po = pad_add_name_pvn("$self", 5, padadd_NO_DUP_CHECK, PadnameTYPE(pn), NULL);
         assert(po == 1);

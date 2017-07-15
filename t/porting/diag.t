@@ -503,6 +503,8 @@ Malformed UTF-8 character (unexpected non-continuation byte 0x%x, immediately af
 
 Cannot apply "%s" in non-PerlIO perl
 Cannot set timer
+Cannot yet set array fields
+Cannot yet set array length
 Can't find DLL name for the module `%s' by the handle %d, rc=%u=%x
 Can't find string terminator %c%s%c anywhere before EOF
 Can't fix broken locale name "%s"
@@ -595,6 +597,7 @@ Illegal hexadecimal digit '%c' ignored
 Illegal octal digit '%c' ignored
 INSTALL_PREFIX too long: `%s'
 Invalid argument to sv_cat_decode
+Invalid object field type
 Invalid range "%c-%c" in transliteration operator
 Invalid separator character %c%c%c in PerlIO layer specification %s
 Invalid TOKEN object ignored

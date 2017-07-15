@@ -8339,6 +8339,18 @@ STATIC int	S_aassign_scan(pTHX_ OP* o, bool rhs, bool top, int *scalars_p)
 #define PERL_ARGS_ASSERT_AASSIGN_SCAN	\
 	assert(o); assert(scalars_p)
 
+STATIC void	S_add_does_methods(pTHX_ HV* klass, AV* does)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_ADD_DOES_METHODS	\
+	assert(klass); assert(does)
+
+STATIC void	S_add_isa_fields(pTHX_ HV* klass, AV* isa)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_ADD_ISA_FIELDS	\
+	assert(klass); assert(isa)
+
 STATIC void	S_apply_attrs(pTHX_ HV *stash, SV *target, OP *attrs)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);

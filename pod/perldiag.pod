@@ -2380,6 +2380,12 @@ PDP-11 or something?
 (F) A tied array claimed to have a negative number of elements, which
 is not possible.
 
+=item Field %s from %s already exists in %s during role composition
+
+(F) Copying duplicate fields from inherited roles or classes is
+forbidden.  The matching perl6 error message is "Attribute '%s'
+conflicts in role composition".
+
 =item Field too wide in 'u' format in pack
 
 (W pack) Each line in an uuencoded string starts with a length indicator
@@ -3741,6 +3747,13 @@ path.  (cperl only)
 
 (F) An attempt was made to specify an entry in an overloading table that
 doesn't resolve to a valid subroutine.  See L<overload>.
+
+=item Method %s from %s already exists in %s during role composition
+
+(F) Copying duplicate method names from inherited roles is
+forbidden. Maybe use a multi instead. The matching perl6 error message
+is "Method '%s' must be resolved by class %s because it exists in
+multiple roles (%s, %s)".
 
 =item Method %s not permitted
 
