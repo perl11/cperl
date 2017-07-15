@@ -3917,11 +3917,11 @@ PP(pp_grepwhile)
 		PUSHs(sv);
 	    }
 	    else if (PL_op->op_private & OPpTRUEBOOL) {
-                XPUSHs(items ? SV_YES : SV_ZERO);
+                PUSHs(items ? SV_YES : SV_ZERO);
             } else {
 		dTARGET;
-		XPUSHi(items);
-	    }
+		PUSHi(items);
+            }
 	}
 	else if (gimme == G_ARRAY)
 	    SP += items;
