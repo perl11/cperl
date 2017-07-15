@@ -451,7 +451,7 @@ compiling pad (lvalue).
 
 =for apidoc m|STRLEN|PAD_COMPNAME_GEN_set|PADOFFSET po|int gen
 Sets the generation number of the name at offset C<po> in the current
-ling pad (lvalue) to C<gen>.
+compiling pad (lvalue) to C<gen>.
 =cut
 
 */

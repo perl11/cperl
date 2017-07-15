@@ -539,6 +539,8 @@ i	|OP*	|newMETHOP_internal	|I32 type|I32 flags|NULLOK OP* dynamic_meth \
 s	|OP*	|fold_constants	|NN OP * const o
 s       |SV*    |op_const_sv    |NN const OP *o|NN CV *cv|bool allow_lex
 s	|void	|class_isamagic |NN OP* o|NN SV* pkg|NN const char* what|int len
+s	|void	|add_isa_fields	|NN HV* klass|NN AV* isa
+s	|void	|add_does_methods	|NN HV* klass|NN AV* does
 #endif
 #if defined(USE_ITHREADS)
 pXo	|void	|op_relocate_sv	|NN SV** svp|NN PADOFFSET* targp
