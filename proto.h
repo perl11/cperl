@@ -4132,9 +4132,7 @@ PERL_CALLCONV CV *	Perl_newXS_len_flags(pTHX_ const char *name, STRLEN len, XSUB
 #define PERL_ARGS_ASSERT_NEWXS_LEN_FLAGS	\
 	assert(subaddr)
 
-PERL_CALLCONV void	Perl_new_numeric(pTHX_ const char* newcoll)
-			__attribute__global__;
-
+PERL_CALLCONV void	Perl_new_numeric(pTHX_ const char* newcoll);
 PERL_CALLCONV PERL_SI*	Perl_new_stackinfo(pTHX_ I32 stitems, I32 cxitems)
 			__attribute__global__
 			__attribute__warn_unused_result__;
