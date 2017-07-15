@@ -4132,15 +4132,6 @@ PERL_CALLCONV CV *	Perl_newXS_len_flags(pTHX_ const char *name, STRLEN len, XSUB
 #define PERL_ARGS_ASSERT_NEWXS_LEN_FLAGS	\
 	assert(subaddr)
 
-PERL_CALLCONV void	Perl_new_collate(pTHX_ const char* newcoll)
-			__attribute__global__;
-
-PERL_CALLCONV void	Perl_new_ctype(pTHX_ const char* newctype)
-			__attribute__global__
-			__attribute__nonnull__(pTHX_1);
-#define PERL_ARGS_ASSERT_NEW_CTYPE	\
-	assert(newctype)
-
 PERL_CALLCONV void	Perl_new_numeric(pTHX_ const char* newcoll)
 			__attribute__global__;
 
@@ -5274,9 +5265,6 @@ PERL_CALLCONV void	Perl_set_context(void *t)
 PERL_CALLCONV void	Perl_set_numeric_local(pTHX)
 			__attribute__global__;
 
-PERL_CALLCONV void	Perl_set_numeric_radix(pTHX)
-			__attribute__global__;
-
 PERL_CALLCONV void	Perl_set_numeric_standard(pTHX)
 			__attribute__global__;
 
@@ -5292,6 +5280,9 @@ PERL_CALLCONV void	Perl_setdefout(pTHX_ GV* gv)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SETDEFOUT	\
 	assert(gv)
+
+PERL_CALLCONV char*	Perl_setlocale(int category, const char* locale)
+			__attribute__global__;
 
 PERL_CALLCONV HEK*	Perl_share_hek(pTHX_ const char* str, I32 len, U32 hash)
 			__attribute__global__
@@ -6965,11 +6956,6 @@ STATIC void	S_op_clear_gv(pTHX_ OP* o, SV** svp)
 
 #  endif
 #endif
-#if !(defined(WIN32))
-/* PERL_CALLCONV char*	my_setlocale(pTHX_ int category, const char* locale)
-			__attribute__global__; */
-
-#endif
 #if !(defined(_MSC_VER))
 PERL_CALLCONV_NO_RET int	Perl_magic_regdatum_set(pTHX_ SV* sv, MAGIC* mg)
 			__attribute__noreturn__
@@ -7596,12 +7582,6 @@ STATIC int	S_tokereport(pTHX_ I32 rv, const YYSTYPE* lvalp)
 	assert(lvalp)
 
 #  endif
-#  if defined(USE_LOCALE)     && (defined(PERL_IN_LOCALE_C) || defined (PERL_EXT_POSIX))
-PERL_CALLCONV char *	Perl__setlocale_debug_string(const int category, const char* const locale, const char* const retval)
-			__attribute__global__
-			__attribute__warn_unused_result__;
-
-#  endif
 #  if defined(USE_LOCALE) && defined(PERL_IN_LOCALE_C)
 STATIC void	S_print_bytes_for_locale(pTHX_ const char * const s, const char * const e, const bool is_utf8)
 			__attribute__nonnull__(pTHX_1)
@@ -7614,6 +7594,9 @@ STATIC void	S_print_collxfrm_input_and_return(pTHX_ const char * const s, const 
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_PRINT_COLLXFRM_INPUT_AND_RETURN	\
 	assert(s); assert(e)
+
+STATIC char *	S_setlocale_debug_string(const int category, const char* const locale, const char* const retval)
+			__attribute__warn_unused_result__;
 
 #  endif
 #endif
@@ -10993,11 +10976,21 @@ PERL_CALLCONV bool	Perl__is_cur_LC_category_utf8(pTHX_ int category)
 
 #endif
 #if defined(USE_LOCALE) && defined(PERL_IN_LOCALE_C)
+STATIC void	S_new_collate(pTHX_ const char* newcoll);
+STATIC void	S_new_ctype(pTHX_ const char* newctype)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_NEW_CTYPE	\
+	assert(newctype)
+
+STATIC void	S_set_numeric_radix(pTHX);
 STATIC char*	S_stdize_locale(pTHX_ char* locs)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_STDIZE_LOCALE	\
 	assert(locs)
 
+#  if defined(WIN32)
+STATIC char*	S_my_setlocale(pTHX_ int category, const char* locale);
+#  endif
 #endif
 #if defined(USE_LOCALE_COLLATE)
 PERL_CALLCONV int	Perl_magic_setcollxfrm(pTHX_ SV* sv, MAGIC* mg)
@@ -11140,9 +11133,6 @@ PERL_CALLCONV const char*	Perl_quadmath_format_single(const char* format)
 
 #endif
 #if defined(WIN32)
-PERL_CALLCONV char*	Perl_my_setlocale(pTHX_ int category, const char* locale)
-			__attribute__global__;
-
 PERL_CALLCONV_NO_RET void	win32_croak_not_implemented(const char * fname)
 			__attribute__noreturn__
 			__attribute__nonnull__(1);
