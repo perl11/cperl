@@ -3724,9 +3724,7 @@ PERL_CALLCONV I32	Perl_my_stat(pTHX)
 PERL_CALLCONV I32	Perl_my_stat_flags(pTHX_ const U32 flags)
 			__attribute__global__;
 
-PERL_CALLCONV char*	Perl_my_strerror(pTHX_ const int errnum)
-			__attribute__global__;
-
+PERL_CALLCONV char*	Perl_my_strerror(pTHX_ const int errnum);
 PERL_CALLCONV char *	Perl_my_strftime(pTHX_ const char *fmt, int sec, int min, int hour, int mday, int mon, int year, int wday, int yday, int isdst)
 			__attribute__global__
 			__attribute__format__(__strftime__,pTHX_1,0)
