@@ -3177,7 +3177,6 @@ PP(pp_iter)
     PERL_CONTEXT *cx;
     SV *oldsv;
     SV **itersvp;
-    SV *retsv;
 
     SV *sv;
     AV *av;
@@ -3349,17 +3348,27 @@ PP(pp_iter)
 	DIE(aTHX_ "panic: pp_iter, type=%u", CxTYPE(cx));
     }
 
-    retsv = SV_YES;
-    if (0) {
-      retno:
-        retsv = SV_NO;
-    }
+    /* Bypass pushing &PL_sv_yes and calling pp_and(); instead
+     * jump straight to the AND op's op_other */
+    assert(OpNEXT(PL_op)->op_type == OP_AND);
+    assert(OpNEXT(PL_op)->op_ppaddr == Perl_pp_and);
+    return OpOTHER(OpNEXT(PL_op));
+
+  retno:
+    /* Bypass pushing &PL_sv_no and calling pp_and(); instead
+     * jump straight to the AND op's op_next */
+    assert(OpNEXT(PL_op)->op_type == OP_AND);
+    assert(OpNEXT(PL_op)->op_ppaddr == Perl_pp_and);
     /* pp_enteriter should have pre-extended the stack */
     assert(PL_stack_sp < PL_stack_max);
-    *++PL_stack_sp =retsv;
-
-    return PL_op->op_next;
+    /* we only need this for the rare case where the OP_AND isn't
+     * in void context, e.g. $x = do { for (..) {...} };
+     * but its cheaper to just push it rather than testing first
+     */
+    *++PL_stack_sp = SV_NO;
+    return OpNEXT(OpNEXT(PL_op));
 }
+
 
 /*
 A description of how taint works in pattern matching and substitution.

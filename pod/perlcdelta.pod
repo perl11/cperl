@@ -163,6 +163,14 @@ the "Attempt to access disallowed key %s in the restricted hash
 %CLASS::" errors. Stash lookup now got a B<GV_CLASS> flag and C<hv_fetch*_ifexists>
 macros, which does the EXISTS and FETCH hash actions in the stash on one.
 
+=item *
+
+Optimized the loop op ITER to jump directly to the subsequent AND op.
+For an empty body, this cuts about 20% off the time of an iteration.
+Backported from perl-5.27.3. This is a simplier implementation of
+the cperl F<feature/gh138-iter-and> branch from L<[cperl
+#138]|https://github.com/perl11/cperl/issues/138>.
+
 =back
 
 =head1 Modules and Pragmata
