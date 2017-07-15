@@ -8508,6 +8508,7 @@ Perl_newRANGE(pTHX_ I32 flags, OP *left, OP *right)
     OP *flop;
     OP *leftstart;
     OP *o;
+    const U32 padflag = padadd_NO_DUP_CHECK|padadd_STATE;
 
     PERL_ARGS_ASSERT_NEWRANGE;
 
@@ -8529,11 +8530,9 @@ Perl_newRANGE(pTHX_ I32 flags, OP *left, OP *right)
     OpNEXT(left) = flip;
     OpNEXT(right) = flop;
 
-    range->op_targ =
-	pad_add_name_pvn("$", 1, padadd_NO_DUP_CHECK|padadd_STATE, 0, 0);
+    range->op_targ = pad_add_name_pvn("$", 1, padflag, 0, 0);
     sv_upgrade(PAD_SV(range->op_targ), SVt_PVNV);
-    flip->op_targ =
-	pad_add_name_pvn("$", 1, padadd_NO_DUP_CHECK|padadd_STATE, 0, 0);;
+    flip->op_targ = pad_add_name_pvn("$", 1, padflag, 0, 0);;
     sv_upgrade(PAD_SV(flip->op_targ), SVt_PVNV);
     SvPADTMP_on(PAD_SV(flip->op_targ));
 
@@ -12513,6 +12512,7 @@ Perl_ck_sassign(pTHX_ OP *o)
 		newCONDOP(0, first, S_maybe_targlex(aTHX_ o), other);
 	     */
 	    OP *const condop = OpNEXT(first);
+            const U32 padflag = padadd_NO_DUP_CHECK|padadd_STATE;
 
             OpTYPE_set(condop, OP_ONCE);
 	    other->op_targ = target;
@@ -12520,8 +12520,7 @@ Perl_ck_sassign(pTHX_ OP *o)
 
 	    /* Store the initializedness of state vars in a separate
 	       pad entry.  */
-	    condop->op_targ =
-	      pad_add_name_pvn("$",1,padadd_NO_DUP_CHECK|padadd_STATE,0,0);
+	    condop->op_targ = pad_add_name_pvn("$", 1, padflag, 0, 0);
 	    /* hijacking PADSTALE for uninitialized state variables */
 	    SvPADSTALE_on(PAD_SVl(condop->op_targ));
 
@@ -19426,11 +19425,11 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
         OP *arg = OpNEXT(OpFIRST(o));
         /* first and only arg is typed $self */
         if (IS_TYPE(arg, PADSV) &&
-            arg->op_targ == 1 && /* $self is always the first inside the method */
+            arg->op_targ == self && /* $self is always the first inside the method */
             IS_TYPE(OpNEXT(arg), METHOD_NAMED))
         {
             SV* const meth = cMETHOPx_meth(OpNEXT(arg));
-            if (meth && SvPOK(meth)) {
+            if (meth && SvPOK(meth) && PAD_COMPNAME_TYPE(self)) {
                 const I32 klen = SvUTF8(meth) ? -SvCUR(meth) : SvCUR(meth);
                 const PADOFFSET pad = has_field(klass, SvPVX(meth), klen);
                 if (pad != NOT_IN_PAD) {
@@ -19457,20 +19456,25 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
 }
 /*
 =for apidoc method_finalize
-Resolve internal lexicals to fields in the method.
+Resolve internal lexicals or field helem's or field accessors 
+to fields in the class method or sub.
 =cut
 */
 void
 S_method_finalize(pTHX_ const HV* klass, const CV* cv)
 {
     OP *o;
-    PADOFFSET self, floor;
+    PADOFFSET self = 1, floor = 0;
     PERL_ARGS_ASSERT_METHOD_FINALIZE;
 
-    self = 1; /* TODO: find padoffset of $self, first padrange in the signature */
-    /* TODO: find padoffsets of fields */
-    o = CvROOT(cv);
-    if (o && !CvISXSUB(cv)) {
+    if (CvHASSIG(cv)) {
+        UNOP_AUX *o = CvSIGOP((SV*)cv);
+        /* padoffset of $self, the first padrange in the signature */
+        UNOP_AUX_item *items = cUNOP_AUXo->op_aux;
+        if ((items[1].uv & SIGNATURE_ACTION_MASK) == SIGNATURE_padintro)
+            self = items[2].uv >> OPpPADRANGE_COUNTSHIFT;
+    }
+    if ((o = CvROOT(cv))) {
         floor = o->op_targ;
         S_do_method_finalize(aTHX_ klass, o, floor, self);
     }
@@ -19529,7 +19533,7 @@ Perl_class_role_finalize(pTHX_ OP* o)
                 (void)CvGV(SvRV(gv)); /* unfake a fake GV */
 	    if (SvTYPE(gv) != SVt_PVGV || !GvGP(gv))
 		continue;
-	    if ((cv = GvCVu(gv)))
+	    if ((cv = GvCVu(gv)) && !CvISXSUB(cv))
                 method_finalize(stash, cv);
             /* skip nested classes
 	    if (HeKEY(entry)[HeKLEN(entry)-1] == ':') {
