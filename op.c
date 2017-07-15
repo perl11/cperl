@@ -5540,6 +5540,7 @@ like linear search in additional @FIELDS)
 
 If klen is negative, the hash key is UTF8.
 
+Returns the pad offset in comppad_name.
 =cut
 */
 PADOFFSET
@@ -19262,13 +19263,96 @@ S_const_av_xsub(pTHX_ CV* cv)
 }
 
 /*
+=for apidoc Mu_sv_xsub
+
+XS template to return an object scalar value from it's compile-time
+field offset.
+
+=cut
+*/
+static void
+S_Mu_sv_xsub(pTHX_ CV* cv)
+{
+    dXSARGS;
+    const U32 ix = XSANY.any_u32;
+    SV* self = ST(0);
+    PERL_ARGS_ASSERT_MU_SV_XSUB;
+    if (items != 1 || !SvROK(self)) {
+        croak_xs_usage(cv, "object");
+    } else
+        self = SvRV(self);
+    /* if (CvLVALUE(cv) && (PL_op->op_private & OPpLVAL_INTRO)) */
+    assert(AvARRAY(self));
+    assert(AvFILLp(self) >= ix);
+    ST(0) = AvARRAY(self)[ix];
+    XSRETURN(1);
+}
+
+/*
+=for apidoc Mu_av_xsub
+
+XS template to return object array values from it's compile-time
+field offset.
+
+    class MY {
+      has @a;
+    }
+    my $c = new MY;
+    $c->a = (0..5);
+    print scalar $c->a; # => 6
+
+=cut
+*/
+static void
+S_Mu_av_xsub(pTHX_ CV* cv)
+{
+    dXSARGS;
+    const U32 ix = XSANY.any_u32;
+    SV* self = ST(0);
+    AV* av;
+    U8 gimme = GIMME_V;
+    PERL_ARGS_ASSERT_MU_AV_XSUB;
+    if (items != 1 || !SvROK(self)) {
+        croak_xs_usage(cv, "object");
+    }
+    av = (AV*)AvARRAY(SvRV(self))[ix];
+    if (gimme != G_ARRAY) {
+        /* has @a; $o->a = 5; */
+        if (CvLVALUE(cv) && (PL_op->op_private & OPpLVAL_INTRO)) {
+            /*if (SvTYPE(av) == SVt_PVAV)
+                av_extend(av, 1);
+            else */ /* has %a; $o->a = 5 */
+            Perl_croak(aTHX_ "Cannot yet set array length");
+        }
+        if (SvTYPE(av) == SVt_PVAV)
+            ST(0) = sv_2mortal(newSViv((IV)AvFILLp(av)+1));
+        else if (SvTYPE(av) == SVt_PVHV)
+            ST(0) = sv_2mortal(newSViv((IV)HvFILL((HV*)av)+1));
+        else
+            Perl_croak(aTHX_ "Invalid object field type");
+	XSRETURN(1);
+    }
+    if (CvLVALUE(cv) && (PL_op->op_private & OPpLVAL_INTRO)) {
+        /* XXX set the array values via aassign */
+        Perl_croak(aTHX_ "Cannot yet set array fields");
+    }
+    if (SvTYPE(av) == SVt_PVAV) {
+        EXTEND(SP, AvFILLp(av)+1);
+        Copy(AvARRAY(av), &ST(0), AvFILLp(av)+1, SV *);
+        XSRETURN(AvFILLp(av)+1);
+    } else {
+        Perl_croak(aTHX_ "Invalid object field type");
+    }
+}
+
+/*
 =for apidoc class_isamagic
 
 Set closed ISA magic to the array in pkg, either @ISA or @DOES.
 
 =cut
 */
-STATIC void
+static void
 S_class_isamagic(pTHX_ OP* o, SV* pkg, const char* what, int len)
 {
     GV *gv; AV *av; SV *name;
@@ -19363,12 +19447,15 @@ and needs to be converted to aelemfast_lex_u ops.
   $self->{field} ->     -"-
   $self->field   ->     -"-
 
-If the field is computed, convert to a new HAS op, which does the
+  exists $self->{field}  -> compile-time const
+  exists $self->{$field} -> exists oelem
+
+If the field is computed, convert to a new 'oelem' op, which does the
 field lookup at run-time.
 
 =cut
 */
-void
+static void
 S_do_method_finalize(pTHX_ const HV *klass, OP *o,
                      const PADOFFSET floor, const PADOFFSET self)
 {
@@ -19496,9 +19583,17 @@ destruction.
 void
 Perl_class_role_finalize(pTHX_ OP* o)
 {
-    SV *name; GV* sym; HV* stash;
+    SV *name;
+    GV* sym; HV* stash;
+    CV *savecv, *cv;
+    AV *isa = NULL;
+    AV *does = NULL;
+    AV *fields = NULL;
+    const char *const file = CopFILE(PL_curcop);
     STRLEN len;
+    /*PADOFFSET floor = 1;*/
     U32 i;
+    bool is_utf8;
     PERL_ARGS_ASSERT_CLASS_ROLE_FINALIZE;
 
     if (IS_TYPE(o, LIST))
@@ -19506,24 +19601,126 @@ Perl_class_role_finalize(pTHX_ OP* o)
     name = cSVOPo->op_sv;
     stash = gv_stashsv(name, 0);
     len = SvCUR(name);
+    is_utf8 = cBOOL(SvUTF8(name));
     /*SvREADONLY_off(stash);*/
     SvREADONLY_off(name);
 
     sv_catpvs(name, "::ISA");
     sym = gv_fetchsv(name, GV_ADD, SVt_PVAV);
-    if (sym && GvAV(sym))
-        SvREADONLY_on(GvAV(sym));
+    if (sym && GvAV(sym)) {
+        isa = GvAV(sym);
+        SvREADONLY_on(isa);
+    }
 
     SvCUR_set(name, len);
     sv_catpvs(name, "::DOES");
     sym = gv_fetchsv(name, GV_ADD, SVt_PVAV);
-    if (sym && GvAV(sym))
-        SvREADONLY_on(GvAV(sym));
+    if (sym && GvAV(sym)) {
+        does = GvAV(sym);
+        SvREADONLY_on(does);
+    }
     SvCUR_set(name, len);
 
-    /* TODO: create accessor methods */
+    /* add the inherited fields from ISA and DOES
+       and composed methods from DOES */
+    sv_catpvs(name, "::FIELDS");
+    sym = gv_fetchsv(name, 0, SVt_PVAV);
+    
+    SvCUR_set(name, len);
+    SvPVX(name)[len] = '\0';
+    if (!sym || !GvAV(sym)) {
+        SvREADONLY_on(stash);
+        PL_parser->in_class = FALSE;
+        return;
+    }
+    fields = GvAVn(sym);
 
-    /* walk and finalize the methods */
+    /* create the field accessor methods */
+    ENTER;
+    savecv = PL_compcv;
+    /*assert(AvFILLp(fields) < 128);*/
+    assert(AvFILLp(fields) < U32_MAX);
+    for (i=0; i<=AvFILLp(fields); i++) {
+        SV* ix = AvARRAY(fields)[i];
+        PADOFFSET po = (PADOFFSET)SvIVX(ix);
+        PADNAME *pn = PAD_COMPNAME(po);
+        char *reftype = PadnamePV(pn);
+        char *key = reftype + 1; /* skip the $ */
+        /*OP *body;*/
+        U32 klen = PadnameLEN(pn) - 1;
+        U32 utf8 = is_utf8 ? SVf_UTF8
+                           : PadnameUTF8(pn) ? SVf_UTF8 : 0;
+        bool lval = !SvREADONLY(PAD_SV(po));
+
+        /* Or maybe install the accessor as XS, with XSANY for the field ix.
+           Mouse does it with a template and magic. They support write-only,
+           exists and clear, we only read and read-write.
+
+           TODO: exists $obj->field
+         */
+        sv_catpvs(name, "::");
+        sv_catpvn_flags(name, key, klen, utf8);
+        sym = gv_fetchsv(name, 0, SVt_PVCV);
+        if (sym && GvCV(sym)) {
+            SvCUR_set(name, len);
+            SvPVX(name)[len] = '\0';
+            continue; /* already exists */
+        }
+        DEBUG_k(Perl_deb(aTHX_ "add class accessor method %*s->%s()%s%s%s { $self->[%d] }\n",
+                         (int)len, SvPVX(name), key, lval ? " :lvalue" : "",
+                         PadnameTYPE(pn) ? " :" : "",
+                         PadnameTYPE(pn) ? HvNAME(PadnameTYPE(pn)) : "",
+                         (int)po));
+#if 1
+        cv = newXS_len_flags(SvPVX(name), SvCUR(name),
+                             *reftype == '$' ? S_Mu_sv_xsub : S_Mu_av_xsub,
+                             file ? file : "", "",
+                             NULL, XS_DYNAMIC_FILENAME | utf8);
+        CvXSUBANY(cv).any_u32 = i;
+        SvCUR_set(name, len);
+        SvPVX(name)[len] = '\0';
+        CvMETHOD_on(cv);
+        if (lval)
+            CvLVALUE_on(cv);
+        /* Cannot type a XS yet. no padlist[0], only sigop or hscxt */
+        if (PadnameTYPE(pn)) {
+            CvTYPED_on(cv);
+            CvHSCXT(cv) = PadnameTYPE(pn); /* XXX NYI XS typecheck. Clashes with implicit context &sp? */
+        }
+#else
+        /* TODO: scope fixup */
+        start_subparse(0, CVf_METHOD | (lval ? CVf_LVALUE : 0));
+        po = pad_add_name_pvn("$self", 5, padadd_NO_DUP_CHECK, PadnameTYPE(pn), NULL);
+        assert(po == 1);
+        body = newOP(OP_AELEMFAST_LEX_U, i<<8);
+        body->op_targ = po; /* self */
+        {
+            UNOP_AUX_item *items = (UNOP_AUX_item*)PerlMemShared_malloc
+                (sizeof(UNOP_AUX_item) * 5);
+            OP *op;
+            items[0].uv = 3;
+            items[1].uv = 1 << 16;
+            items[2].uv = 0x10c2; /* padrange + arg + end */
+            items[3].uv = (po << OPpPADRANGE_COUNTSHIFT) | 1; /* 0x81 */
+            op = newUNOP_AUX(OP_SIGNATURE, 0, NULL, items+1);
+            body = op_append_list(OP_LINESEQ, op, body);
+        }
+        cv = newSUB(floor,
+                    newSVOP(OP_CONST, 0, newSVpvn_flags(key, klen, PadnameUTF8(pn))),
+                    NULL, body);
+        CvSTASH_set(cv, stash);
+        CvHASSIG_on(cv);
+        CvSIGOP(cv) = (UNOP_AUX*)CvSTART(cv);
+        if (PadnameTYPE(pn)) {
+            CvTYPED_on(cv);
+            CvTYPE_set(cv, PadnameTYPE(pn));
+        }
+#endif
+    }
+    PL_compcv = savecv;
+    LEAVE;
+
+    /* walk and finalize the subs and methods, i.e. fixup field accessors */
     for (i = 0; i <= HvMAX(stash); i++) {
         const HE *entry;
 	for (entry = HvARRAY(stash)[i]; entry; entry = HeNEXT(entry)) {

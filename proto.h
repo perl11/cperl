@@ -8312,6 +8312,16 @@ STATIC AV*	S_mro_get_linear_isa_dfs(pTHX_ HV* stash, U32 level)
 
 #endif
 #if defined(PERL_IN_OP_C)
+STATIC void	S_Mu_av_xsub(pTHX_ CV* cv)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_MU_AV_XSUB	\
+	assert(cv)
+
+STATIC void	S_Mu_sv_xsub(pTHX_ CV* cv)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_MU_SV_XSUB	\
+	assert(cv)
+
 STATIC OP*	S__op_check_type(pTHX_ const PADNAME* pn, OP* o, const char *opdesc)
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3);

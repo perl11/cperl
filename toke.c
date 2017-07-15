@@ -13905,7 +13905,6 @@ Perl_cv_method_on(pTHX_ CV *cv)
         st.items[0].uv = items[-1].uv + 1;
         st.items[1].uv = (mand_args << 16) | opt_args | (slurpy << 15);
         pad_base = allocmy("$self", 5, 0);
-        padintro_ix = 3;
         PUSH_ITEM(uv, 0);
         S_sig_push_action(aTHX_ stp, SIGNATURE_padintro);
         st.items[3].uv = (pad_base << OPpPADRANGE_COUNTSHIFT) | 1;

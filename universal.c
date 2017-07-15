@@ -1065,18 +1065,22 @@ XS(XS_Mu_new)
         AV *av = newAV();
         if (hv_existss(stash, "FIELDS")) { /* has fields? */
             AV *fields;
-            int i;
+            SSize_t i, fill;
             if (SvREADONLY(name))
                 name = newSVpvn_flags(SvPVX(name), SvCUR(name), SvUTF8(name)|SVs_TEMP);
             sv_catpvs(name, "::FIELDS");
             fields = GvAVn(gv_fetchsv(name, 0, SVt_PVAV));
-            av_extend(av, AvFILLp(fields));
-            for (i=0; i<AvFILLp(fields); i++) {
-                /* use a pseudohash with the names as first element?
+            fill = AvFILLp(fields);
+            av_extend(av, fill);
+            AvFILLp(av) = fill;
+            for (i=0; i<=fill; i++) {
+                /* use a pseudohash or string with all the names as first element?
                    no, this is just an optional new method. */
                 if (items >= i) {
-                    SV *padix = AvARRAY(fields)[i];
-                    AvARRAY(av)[i] = PAD_SVl(SvIVX(padix));
+                    const SV *padix = AvARRAY(fields)[i];
+                    const SV *sv = PAD_SVl(SvIVX(padix));
+                    SvPADSTALE_off(sv);
+                    AvARRAY(av)[i] = sv;
                 }
                 else /* new CLASS field1, field2, ... */
                     AvARRAY(av)[i] = ST(i+1);

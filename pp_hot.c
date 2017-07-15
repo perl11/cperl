@@ -5469,7 +5469,7 @@ PP(pp_method)
                         Perl_croak(aTHX_ "Invalid method call on class subroutine %" SVf, \
                                    SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN))); \
                     if (GvXSCV(gv) && !PL_perldb) {                     \
-                        DEBUG_k(Perl_deb(aTHX_ "method_named -> xs %" SVf "\n", \
+                        DEBUG_k(Perl_deb(aTHX_ "  cvt method sub -> xs %" SVf "\n", \
                             SVfARG(cv_name(cv, NULL, CV_NAME_NOMAIN))));\
                         OpTYPE_set(PL_op->op_next, OP_ENTERXSSUB);      \
                     }                                                   \

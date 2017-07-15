@@ -1710,6 +1710,8 @@
 #define mro_get_linear_isa_dfs(a,b)	S_mro_get_linear_isa_dfs(aTHX_ a,b)
 #  endif
 #  if defined(PERL_IN_OP_C)
+#define Mu_av_xsub(a)		S_Mu_av_xsub(aTHX_ a)
+#define Mu_sv_xsub(a)		S_Mu_sv_xsub(aTHX_ a)
 #define _op_check_type(a,b,c)	S__op_check_type(aTHX_ a,b,c)
 #define aassign_padcheck(a,b)	S_aassign_padcheck(aTHX_ a,b)
 #define aassign_scan(a,b,c,d)	S_aassign_scan(aTHX_ a,b,c,d)

@@ -44,6 +44,11 @@ eval "Foo::meth1('Foo');";
 print $@ =~ /Invalid subroutine/ ? "" : "not ",
   "ok $test # class method as sub should error also\n"; $test++;
 
+# created accessors
+print $c->a != 0 ? "not " : "", "ok ", $test++, " # \$c->a\n";
+$c->a = 1;
+print $c->a == 1 ? "not " : "", "ok ", $test++, " # \$c->a :lvalue\n";
+
 # allow class as methodname (B), deal with reserved names: method, class, multi
 package Baz;
 sub class { print "ok $test\n"; $test++ }
@@ -62,7 +67,7 @@ my $b = new Baz1;
 print ref $b ne "Baz1" ? "not " : "", "ok ", $test++, " # ref \$b=",ref $b,"\n";
 # TODO compose fields
 print $b->a == 0 ? "not " : "", "ok ", $test++, " #TODO \$b->a\n";
-#$b->a(1);
+#$b->a = 1;
 #print $b->a == 1 ? "not " : "", "ok ", $test++, " # \$b->a(1)\n";
 
 # defaults. skipping over Foo1::new

@@ -2275,6 +2275,8 @@ s	|int	|aassign_scan	|NN OP* o|bool rhs|bool top|NN int *scalars_p
 s	|void	|check_for_bool_cxt |NN OP* o|U8 bool_flag|U8 maybe_flag
 s	|void	|const_av_xsub	|NN CV* cv
 s	|void	|const_sv_xsub	|NN CV* cv
+s	|void	|Mu_av_xsub	|NN CV* cv
+s	|void	|Mu_sv_xsub	|NN CV* cv
 s	|void	|io_hints	|NN OP* o
 s	|void	|maybe_multideref|NN OP *start|NN OP *orig_o|UV orig_action|U8 hints
 s	|OP*	|maybe_targlex	|NN OP* o
