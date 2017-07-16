@@ -374,13 +374,16 @@ E.g. with C<label:{next(1,label)}> 1 is ignored.
 
 =head2 Changes to Existing Diagnostics
 
-XXX Changes (i.e. rewording) of diagnostic messages go here
-
 =over 4
 
 =item *
 
-XXX Describe change here
+"Can't modify non-lvalue subroutine call of &%s"
+was extended to support methods.
+
+The new message is "Can't modify non-lvalue %s call of %s",
+with the variants "Can't modify non-lvalue subroutine call of &CLASS::sub"
+and "Can't modify non-lvalue method call of CLASS->sub".
 
 =back
 

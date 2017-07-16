@@ -4532,10 +4532,14 @@ PP(pp_entersub)
             cx->blk_sub.argarray  = MARK+1;
             cx->blk_sub.savearray = (AV*)SP;
         }
-	if (UNLIKELY((cx->blk_u16 & OPpENTERSUB_LVAL_MASK) == OPpLVAL_INTRO &&
-	    !CvLVALUE(cv)))
-            DIE(aTHX_ "Can't modify non-lvalue subroutine call of &%" SVf,
-                SVfARG(cv_name(cv, NULL, 0)));
+	if (UNLIKELY((cx->blk_u16 & OPpENTERSUB_LVAL_MASK) == OPpLVAL_INTRO
+                     && !CvLVALUE(cv))) {
+            /* TODO: field access? */
+            DIE(aTHX_ "Can't modify non-lvalue %s call of %s%" SVf,
+                CvMETHOD(cv) ? "method" : "subroutine",
+                CvMETHOD(cv) ? "" : "&",
+                SVfARG(cv_name(cv, NULL, CV_NAME_METHOD)));
+        }
 	/* warning must come *after* we fully set up the context
 	 * stuff so that __WARN__ handlers can safely dounwind()
 	 * if they want to
@@ -4667,10 +4671,14 @@ PP(pp_enterxssub)
 
 	if (UNLIKELY(((PL_op->op_private
 	       & CX_PUSHSUB_GET_LVALUE_MASK(Perl_is_lvalue_sub)
-             ) & OPpENTERSUB_LVAL_MASK) == OPpLVAL_INTRO &&
-	    !CvLVALUE(cv)))
-            DIE(aTHX_ "Can't modify non-lvalue subroutine call of &%" SVf,
-                SVfARG(cv_name(cv, NULL, 0)));
+             ) & OPpENTERSUB_LVAL_MASK) == OPpLVAL_INTRO
+                     && !CvLVALUE(cv))) {
+            /* TODO: field access? */
+            DIE(aTHX_ "Can't modify non-lvalue %s call of %s%" SVf,
+                CvMETHOD(cv) ? "method" : "subroutine",
+                CvMETHOD(cv) ? "" : "&",
+                SVfARG(cv_name(cv, NULL, CV_NAME_METHOD)));
+        }
 
 	if (UNLIKELY(!(PL_op->op_flags & OPf_STACKED) && GvAV(PL_defgv))) {
 	    /* Need to copy @_ to stack. Alternative may be to
