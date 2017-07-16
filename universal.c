@@ -1080,10 +1080,13 @@ XS(XS_Mu_new)
                     const SV *padix = AvARRAY(fields)[i];
                     const SV *sv = PAD_SVl(SvIVX(padix));
                     SvPADSTALE_off(sv);
-                    AvARRAY(av)[i] = sv;
+                    AvARRAY(av)[i] = SvREFCNT_inc_NN(sv);
+                    DEBUG_kv(Perl_deb(aTHX_ "Mu->new: %s[%d] use default %s [%d]\n",
+                                      SvPVX(name), (int)i, SvPEEK(sv),
+                                      (int)SvIVX(padix)));
                 }
                 else /* new CLASS field1, field2, ... */
-                    AvARRAY(av)[i] = ST(i+1);
+                    AvARRAY(av)[i] = SvREFCNT_inc_NN(ST(i+1));
             }
         }
         AvSHAPED_on(av);

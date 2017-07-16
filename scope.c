@@ -630,7 +630,7 @@ Perl_save_clearsv(pTHX_ SV **svp)
         dSS_ADD;
         SS_ADD_UV(offset_shifted | SAVEt_CLEARSV);
         SS_ADD_END(1);
-        DEBUG_lv(Perl_deb(aTHX_ "save CLEARSV\n"));
+        DEBUG_lv(Perl_deb(aTHX_ "save CLEARSV %d\n", (int)offset));
     }
 }
 
