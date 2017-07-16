@@ -11,7 +11,7 @@ my $test = 1;
 class Foo {
   has $a = 0;
   has $b = 1;
-  method new         { bless [$a], ref $self ? ref $self : $self }
+  #method new         { bless [$a,$b], ref $self ? ref $self : $self }
 
   method meth1 {
     print "ok $test # Foo->meth1\n"; $test++; 
@@ -48,7 +48,7 @@ print $@ =~ /Invalid subroutine/ ? "" : "not ",
 # created accessors
 print $c->a != 0 ? "not " : "", "ok ", $test++, " # \$c->a read\n";
 $c->a = 1;
-print $c->a == 1 ? "not " : "", "ok ", $test++, " #TODO \$c->a :lvalue write\n";
+print $c->a != 1 ? "not " : "", "ok ", $test++, " # \$c->a :lvalue write\n";
 
 # allow class as methodname (B), deal with reserved names: method, class, multi
 package Baz;
@@ -67,16 +67,16 @@ print $Baz1::ISA[1] ne "Mu"  ? "not " : "", "ok ", $test++, " # Mu\n";
 my $b = new Baz1;
 print ref $b ne "Baz1" ? "not " : "", "ok ", $test++, " # ref \$b=",ref $b,"\n";
 # compose fields
-print $b->a == 0 ? "not " : "", "ok ", $test++, " #TODO \$b->a copied class w/ custom new\n";
+print !defined $b->a ? "not " : "", "ok ", $test++, " # \$b->a copied class w/ custom new\n";
 $b->a = 1;
-print $b->a == 1 ? "not " : "", "ok ", $test++, " #TODO \$b->a = 1 copied\n";
+print $b->a != 1 ? "not " : "", "ok ", $test++, " # \$b->a = 1 copied\n";
 
 # defaults. skipping over Foo1::new
 role Foo1 { has $a = 0 }
 class Baz2 is Foo1 {}
 my $b1 = new Baz2;
 # compose fields
-print $b1->a == 0 ? "not " : "", "ok ", $test++, " #TODO \$b1->a copied role\n";
+print $b1->a != 0 ? "not " : "", "ok ", $test++, " # \$b1->a copied role\n";
 $b1->a = 1;
-print $b1->a == 1 ? "not " : "", "ok ", $test++, " #TODO \$b1->a = 1 copied role\n";
+print $b1->a != 1 ? "not " : "", "ok ", $test++, " # \$b1->a = 1 copied role\n";
 

@@ -12471,7 +12471,7 @@ S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
                 PADOFFSET po;
                 if (klass &&
                     HvCLASS(klass) &&
-                    (po = has_field(klass, SvPVX(field), SvCUR(field)) >= 0))
+                    (po = has_field(klass, SvPVX(field), SvCUR(field)) != NOT_IN_PAD))
                 {
                     PADNAME * const pnf = PAD_COMPNAME(po); /* XXX */
                     const HV *stash = pnf ? PadnameTYPE(pnf) : NULL;
@@ -19355,7 +19355,7 @@ S_Mu_sv_xsub(pTHX_ CV* cv)
         self = SvRV(self);
     /* if (CvLVALUE(cv) && (PL_op->op_private & OPpLVAL_INTRO)) */
     assert(AvARRAY(self));
-    assert(AvFILLp(self) >= ix);
+    assert((U32)AvFILLp(self) >= ix);
     ST(0) = AvARRAY(self)[ix];
     XSRETURN(1);
 }
@@ -19568,7 +19568,7 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
             SV* key = ITEM_SV(++items);
             I32 klen = SvUTF8(key) ? -SvCUR(key) : SvCUR(key);
             PADOFFSET pad = has_field(klass, SvPVX(key), klen);
-            if (pad >= 0 && pad < (self + floor)) {
+            if (pad != NOT_IN_PAD && pad < (self + floor)) {
                 assert(pad < 128);   /* TODO aelem_u */
                 o->op_private = pad; /* field offset */
                 DEBUG_k(Perl_deb(aTHX_ "method_finalize: $self->{%s} => $self->[%d] %d\n",
@@ -19652,7 +19652,7 @@ C<name>. Duplicates are fatal with roles, ignored with classes.
 static void
 S_add_isa_fields(pTHX_ HV* klass, AV* isa)
 {
-    const char const * klassname = HvNAME(klass);
+    const char * const klassname = HvNAME(klass);
     STRLEN len = HvNAMELEN(klass);
     SV *name = newSVpvn_flags(klassname, len, HvNAMEUTF8(klass)|SVs_TEMP);
     GV *fsym;
@@ -19702,7 +19702,7 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
             char *key = PadnamePV(pn);
             I32 klen = PadnameLEN(pn);
             /* check for duplicate */
-            if (has_field(klass, key+1, klen-1) >= 0) {
+            if (has_field(klass, key+1, klen-1) != NOT_IN_PAD) {
                 /* fatal with roles, valid and ignored for classes */
                 if (HvROLE(curclass))
                     Perl_croak(aTHX_
@@ -19739,7 +19739,7 @@ Duplicates are fatal with roles.
 static void
 S_add_does_methods(pTHX_ HV* klass, AV* does)
 {
-    const char const * klassname = HvNAME(klass);
+    const char *klassname = HvNAME(klass);
     STRLEN len = HvNAMELEN(klass);
     SV *name = newSVpvn_flags(klassname, len, HvNAMEUTF8(klass)|SVs_TEMP);
     SSize_t i;
@@ -19767,7 +19767,7 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
 
             if (isGV(gv) && (cv = GvCV(gv))) {
                 /* check for duplicates */
-                if (has_field(klass, HeKEY(entry), HeKLEN(entry)) >= 0) {
+                if (has_field(klass, HeKEY(entry), HeKLEN(entry)) != NOT_IN_PAD) {
                     Perl_croak(aTHX_
                         "Field %s from %s already exists in %s during role composition",
                         HeKEY(entry), HvNAME(curclass), SvPVX(name));
@@ -19877,7 +19877,7 @@ Perl_class_role_finalize(pTHX_ OP* o)
     savecv = PL_compcv;
     /*assert(AvFILLp(fields) < 128);*/
     assert(AvFILLp(fields) < U32_MAX);
-    for (i=0; i<=AvFILLp(fields); i++) {
+    for (i=0; i<=(U32)AvFILLp(fields); i++) {
         SV* ix = AvARRAY(fields)[i];
         PADOFFSET po = (PADOFFSET)SvIVX(ix);
         PADNAME *pn = PAD_COMPNAME(po);
