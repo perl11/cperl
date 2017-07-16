@@ -1051,7 +1051,10 @@ XS(XS_re_regexp_pattern)
 }
 
 /* TODO: put these into oo.c */
-/* Copies over has field :const */
+/* Copies over has field :const.
+   Allows new [array] being assigned to an @array,
+   and {href} being assigned to an %hash.
+ */
 
 XS(XS_Mu_new); /* prototype to pass -Wmissing-prototypes */
 XS(XS_Mu_new)
@@ -1076,19 +1079,29 @@ XS(XS_Mu_new)
             AvFILLp(av) = fill;
             items--; /* skip $self */
             for (i=0; i<=fill; i++) {
+                const SV *padix = AvARRAY(fields)[i];
+                const PADOFFSET po = SvIVX(padix);
+                const PADNAME *pn = PAD_COMPNAME(po);
                 /* use a pseudohash or string with all the names as first element?
                    no, this is just an optional new method. */
                 if (items > i) { /* copy from args */
-                    AvARRAY(av)[i] = SvREFCNT_inc_NN(ST(i+1));
+                    /* deref [ah]vrefs to lists? */
+                    SV* arg = ST(i+1);
+                    if (UNLIKELY(*PadnamePV(pn) != '$') && SvROK(arg)) {
+                        arg = SvRV(arg);
+                        if ( (*PadnamePV(pn) == '@' && SvTYPE(arg) != SVt_PVAV)
+                          || (*PadnamePV(pn) == '%' && SvTYPE(arg) != SVt_PVHV) )
+                            Perl_croak(aTHX_ "Invalid object field type");
+                    }
+                    AvARRAY(av)[i] = arg;
                 }
                 else { /* new CLASS field1, field2, ... */
-                    const SV *padix = AvARRAY(fields)[i];
-                    const SV *sv = PAD_SVl(SvIVX(padix));
+                    const SV *sv = PAD_SVl(po);
                     SvPADSTALE_off(sv);
                     AvARRAY(av)[i] = SvREFCNT_inc_NN(sv);
                     DEBUG_kv(Perl_deb(aTHX_ "Mu->new: %s[%d] use default %s [%d]\n",
                                       SvPVX(name), (int)i, SvPEEK(sv),
-                                      (int)SvIVX(padix)));
+                                      (int)po));
                 }
             }
         }
