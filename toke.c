@@ -6242,6 +6242,12 @@ Perl_yylex(pTHX)
                                 if (CvANON(PL_compcv))
                                     CvANONCONST_on(PL_compcv);
                             } else { /* my, package */
+                                /* has needs it earlier */
+                                if (PL_in_my == KEY_has) {
+                                    PADOFFSET po = AvFILLp(PL_comppad);
+                                    PadnameFLAGS(PAD_COMPNAME(po)) |= PADNAMEt_CONST;
+                                    SvREADONLY_on(PAD_SVl(po));
+                                }
                                 goto load_attributes;
                             }
                         }

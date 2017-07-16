@@ -336,6 +336,7 @@ Restore the old pad saved into the local variable C<opad> by C<PAD_SAVE_LOCAL()>
 #define PadnameOUTER(pn)	(PadnameFLAGS(pn) & PADNAMEt_OUTER)
 #define PadnameIsSTATE(pn)	(PadnameFLAGS(pn) & PADNAMEt_STATE)
 #define PadnameLVALUE(pn)	(PadnameFLAGS(pn) & PADNAMEt_LVALUE)
+#define PadnameCONST(pn)	(PadnameFLAGS(pn) & PADNAMEt_CONST)
 
 #define PadnameLVALUE_on(pn)	(PadnameFLAGS(pn) |= PADNAMEt_LVALUE)
 #define PadnameIsSTATE_on(pn)	(PadnameFLAGS(pn) |= PADNAMEt_STATE)
@@ -346,6 +347,8 @@ Restore the old pad saved into the local variable C<opad> by C<PAD_SAVE_LOCAL()>
 #define PADNAMEt_TYPED	8	/* for B; unused by core */
 #define PADNAMEt_OUR	16	/* for B; unused by core */
 #define PADNAMEt_UTF8	32	/* cperl only */
+#define PADNAMEt_CONST	64	/* cperl only. has :const field */
+/* max 128 */
 
 /* backward compatibility */
 #define SvPAD_STATE		PadnameIsSTATE
