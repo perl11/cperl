@@ -42,6 +42,18 @@ The array is shaped, and the field entries are initialized from the
 given positional args, and if missing from the initial class value, or
 if that is missing as C<undef>.
 
+:const fields are being initialized without problems, :const only
+means that the method accessor is not :lvalue.
+
+array fields, like C<has @a> are initialized as array refs,
+has fields, like C<has %h> are initialized as hash refs.
+
+  class XX {
+    has @a :const = (0..2);
+    has %h :const;
+  }
+  XX->new([0..4],{key => $val});
+
 =item CREATE CLASSNAME
 
 Creates a new object as avref with the declared number of fields (i.e.
