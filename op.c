@@ -5541,6 +5541,7 @@ Perl_hasterm(pTHX_ OP *o)
     sv_catpvs(name, "::FIELDS");
     gv = gv_fetchsv(name, GV_ADD, SVt_PVAV);
     S_addfield(aTHX_ PL_curstname, gv, o->op_targ);
+    OpPRIVATE(o) |= OPpPAD_STATE; /* keep it, protect from clearsv */
     return o;
 }
 
@@ -19709,7 +19710,8 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
                 continue;
             }
 
-            po = allocmy(key, klen, 0);
+            /* use the upper padix, not a new one. */
+            /*new_po = allocmy(key, klen, 0);*/
             if (!fsym) {
                 sv_catpvs(name, "::FIELDS");
                 fsym = gv_fetchsv(name, GV_ADD, SVt_PVAV);
@@ -19868,7 +19870,7 @@ Perl_class_role_finalize(pTHX_ OP* o)
     fields = GvAV(sym);
 
     /* create the field accessor methods */
-    ENTER;
+    /*ENTER;*/
     savecv = PL_compcv;
     /*assert(AvFILLp(fields) < 128);*/
     assert(AvFILLp(fields) < U32_MAX);
@@ -19878,11 +19880,15 @@ Perl_class_role_finalize(pTHX_ OP* o)
         PADNAME *pn = PAD_COMPNAME(po);
         char *reftype = PadnamePV(pn);
         char *key = reftype + 1; /* skip the $ */
+        SV *sv = PAD_SV(po);
         /*OP *body;*/
         U32 klen = PadnameLEN(pn) - 1;
         U32 utf8 = is_utf8 ? SVf_UTF8
                            : PadnameUTF8(pn) ? SVf_UTF8 : 0;
-        bool lval = !SvREADONLY(PAD_SV(po));
+        bool lval = !SvREADONLY(sv);
+
+        /* fixup the pad field for Mu->new */
+        SvFLAGS(sv) &= ~(SVs_PADTMP|SVs_PADSTALE);
 
         /* Or maybe install the accessor as XS, with XSANY for the field ix.
            Mouse does it with a template and magic. They support write-only,
@@ -19961,7 +19967,7 @@ Perl_class_role_finalize(pTHX_ OP* o)
 #endif
     }
     PL_compcv = savecv;
-    LEAVE;
+    /*LEAVE;*/
 
     /* walk and finalize the subs and methods, i.e. fixup field accessors */
     for (i = 0; i <= HvMAX(stash); i++) {

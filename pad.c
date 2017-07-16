@@ -1297,8 +1297,7 @@ S_pad_findlex(pTHX_ const char *namepv, STRLEN namelen, U32 flags, const CV* cv,
 			&& (!CvDEPTH(cv) || !staleok)
 			&& !PadnameIsSTATE(name_p[offset]))
 		    {
-			S_unavailable(aTHX_
-				      name_p[offset]);
+			S_unavailable(aTHX_ name_p[offset]);
 			*out_capture = NULL;
 		    }
 		}
