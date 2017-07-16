@@ -12430,9 +12430,60 @@ S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
         break;
     }
     case OP_RV2CV:
-    case OP_ENTERSUB: {
-        PADNAME * const pn = PAD_COMPNAME(0); /* first slot: rettype */
-        return stash_to_coretype(PadnameTYPE(pn));
+    case OP_ENTERSUB:
+        /* This is wrong: The first slot inside a function is not
+           the first slot from outside. CvPADLIST(cv)[0][0] it would be.
+           PADNAME * const pn = PAD_COMPNAME(0);
+           if (pn != &PL_padname_undef) {
+            return stash_to_coretype(PadnameTYPE(pn));
+        } else */
+        {   /* typed methods: */
+            OP* pop = OpSIBLING(OpFIRST(o));
+            OP *m;
+            /* XXX We should really check if Mu::new is still pristine */
+            /* CLASS->new -> always typed */
+            if ( pop && (m = OpSIBLING(pop)) &&
+                 IS_TYPE(pop, CONST) &&
+                 IS_TYPE(m, METHOD_NAMED) &&
+                 SvPOK(cMETHOPx_meth(m)) &&
+                 strEQc(SvPVX(cMETHOPx_meth(m)), "new") )
+            {
+                HV *stash = gv_stashsv(cSVOPx_sv(pop),0);
+                if (stash && HvCLASS(stash)) {
+                    t = stash_to_coretype(stash);
+                    if (usertype && t == type_Object) {
+                        *usertype = (char*)typename(stash);
+                        *u8 = HvNAMEUTF8(stash);
+                    }
+                    return t;
+                }
+            }
+            /* typed $classobj->field:
+               $obj->meth has PAD_COMPNAME($obj) a PadnameTYPE of HvCLASS. */
+            if ( pop && (m = OpSIBLING(pop)) &&
+                 IS_TYPE(pop, PADSV) &&
+                 IS_TYPE(m, METHOD_NAMED) &&
+                 SvPOK(cMETHOPx_meth(m)) )
+            {
+                SV *field = cMETHOPx_meth(m);
+                HV *klass = PadnameTYPE(PAD_COMPNAME(pop->op_targ));
+                PADOFFSET po;
+                if (klass &&
+                    HvCLASS(klass) &&
+                    (po = has_field(klass, SvPVX(field), SvCUR(field)) >= 0))
+                {
+                    PADNAME * const pnf = PAD_COMPNAME(po); /* XXX */
+                    const HV *stash = pnf ? PadnameTYPE(pnf) : NULL;
+                    if (stash) {
+                        t = stash_to_coretype(stash);
+                        if (usertype && t == type_Object) {
+                            *usertype = (char*)typename(stash);
+                            *u8 = HvNAMEUTF8(stash);
+                        }
+                        return t;
+                    }
+                }
+            }
         /*return type_none;*/
         }
     case OP_SHIFT:
@@ -12482,6 +12533,10 @@ S_op_check_type(pTHX_ OP* o, OP* left, OP* right)
             _op_check_type(PAD_NAME(left->op_targ), right, OP_DESC(o));
         else if (IS_TYPE(left, PADAV) || IS_TYPE(left, PADHV))
             _op_check_type(PAD_NAME(left->op_targ), right, OP_DESC(o));
+        /* TODO CvTYPED -> entersub
+        else if (IS_TYPE(left, ENTERSUB) && OpPRIVATE(left) & OPpLVAL_INTRO)
+            _op_check_type(PAD_NAME(left->op_targ), right, OP_DESC(o));
+        */
 
 #undef PAD_NAME
     }
@@ -19864,7 +19919,9 @@ Perl_class_role_finalize(pTHX_ OP* o)
         /* Cannot type a XS yet. no padlist[0], only sigop or hscxt */
         if (PadnameTYPE(pn)) {
             CvTYPED_on(cv);
-            CvHSCXT(cv) = PadnameTYPE(pn); /* XXX NYI XS typecheck. Clashes with implicit context &sp? */
+            /* XXX NYI XS typecheck. Clashes with implicit context &sp? */
+            CvHSCXT(cv) = PadnameTYPE(pn);
+            /*PAD_COMPNAME(0) = pn;*/
         }
 #else
         /* TODO: scope fixup */
