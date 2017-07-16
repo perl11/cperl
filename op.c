@@ -19618,6 +19618,9 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
 =for apidoc method_finalize
 Resolve internal lexicals or field helem's or field accessors 
 to fields in the class method or sub.
+
+Field helem's might get deleted, as they don't work outside of classes.
+Only subs and methods inside the class are processed, not outside!
 =cut
 */
 static void
@@ -19885,7 +19888,7 @@ Perl_class_role_finalize(pTHX_ OP* o)
         U32 klen = PadnameLEN(pn) - 1;
         U32 utf8 = is_utf8 ? SVf_UTF8
                            : PadnameUTF8(pn) ? SVf_UTF8 : 0;
-        bool lval = !SvREADONLY(sv);
+        bool lval = !PadnameCONST(pn);
 
         /* fixup the pad field for Mu->new */
         SvFLAGS(sv) &= ~(SVs_PADTMP|SVs_PADSTALE);

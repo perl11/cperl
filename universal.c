@@ -1051,6 +1051,7 @@ XS(XS_re_regexp_pattern)
 }
 
 /* TODO: put these into oo.c */
+/* Copies over has field :const */
 
 XS(XS_Mu_new); /* prototype to pass -Wmissing-prototypes */
 XS(XS_Mu_new)
@@ -1073,10 +1074,14 @@ XS(XS_Mu_new)
             fill = AvFILLp(fields);
             av_extend(av, fill);
             AvFILLp(av) = fill;
+            items--; /* skip $self */
             for (i=0; i<=fill; i++) {
                 /* use a pseudohash or string with all the names as first element?
                    no, this is just an optional new method. */
-                if (items >= i) {
+                if (items > i) { /* copy from args */
+                    AvARRAY(av)[i] = SvREFCNT_inc_NN(ST(i+1));
+                }
+                else { /* new CLASS field1, field2, ... */
                     const SV *padix = AvARRAY(fields)[i];
                     const SV *sv = PAD_SVl(SvIVX(padix));
                     SvPADSTALE_off(sv);
@@ -1085,8 +1090,6 @@ XS(XS_Mu_new)
                                       SvPVX(name), (int)i, SvPEEK(sv),
                                       (int)SvIVX(padix)));
                 }
-                else /* new CLASS field1, field2, ... */
-                    AvARRAY(av)[i] = SvREFCNT_inc_NN(ST(i+1));
             }
         }
         AvSHAPED_on(av);
