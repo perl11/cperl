@@ -340,6 +340,7 @@ typedef OP *(*Perl_call_checker)(pTHX_ OP *, GV *, SV *);
 #define CV_NAME_NOTQUAL		1
 /* cv_name flag to omit "main::" */
 #define CV_NAME_NOMAIN		2
+#define CV_NAME_METHOD                  4
 
 #ifdef PERL_CORE
 # define CV_UNDEF_KEEP_NAME	1

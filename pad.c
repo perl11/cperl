@@ -2352,6 +2352,8 @@ ignored (subject to change).
 
 If the I<flags> include CV_NAME_NOMAIN, then "main:::" will be omitted
 as package name.
+If the I<flags> include CV_NAME_METHOD, then the last "::" will be printed
+as "->.
 
 =cut
 */
@@ -2365,8 +2367,8 @@ Perl_cv_name(pTHX_ CV *cv, SV *sv, U32 flags)
 	return sv ? (sv) : (SV *)cv;
     }
     {
-	SV * const retsv = sv ? (sv) : sv_newmortal();
-    	if (SvTYPE(cv) == SVt_PVCV) {
+        SV * const retsv = sv ? (sv) : sv_newmortal();
+        if (SvTYPE(cv) == SVt_PVCV) {
 	    if (CvNAMED(cv)) {
                 HEK *const cvname = CvNAME_HEK(cv);
 		if (CvLEXICAL(cv) || flags & CV_NAME_NOTQUAL) {
@@ -2394,6 +2396,14 @@ Perl_cv_name(pTHX_ CV *cv, SV *sv, U32 flags)
 		sv_sethek(retsv, GvNAME_HEK(GvEGV(CvGV(cv))));
 	    else if (CvGV(cv))
                 gv_efullname4(retsv, CvGV(cv), NULL, !(flags & CV_NAME_NOMAIN));
+            if (CvMETHOD(cv) && flags & CV_NAME_METHOD) {
+                const char *arrow = "::";
+                char *c = rninstr(SvPVX(retsv), SvEND(retsv), arrow, arrow+2);
+                if (c) {
+                    *c++ = '-';
+                    *c = '>';
+                }
+            }
 	}
 	else if (flags & CV_NAME_NOTQUAL) {
             sv_sethek(retsv, GvNAME_HEK(cv));
