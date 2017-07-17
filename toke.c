@@ -8508,7 +8508,8 @@ Perl_yylex(pTHX)
 	case KEY_has:
 	    if (!PL_in_class) {
 	        PL_bufptr = s;
-	        yyerror("has field declaration are only allowed inside a class or role block");
+                /* allow sub has, and hash fields (YAML::Mo) */
+                goto just_a_word; /* old-style sub or hash field */
 	    }
             assert(tmp < 65536); /* max U16 */
 	    PL_in_my = (U16)tmp;

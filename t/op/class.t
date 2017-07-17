@@ -8,6 +8,9 @@ local($\, $", $,) = (undef, ' ', '');
 print "1..24\n";
 my $test = 1;
 
+# allow has hash fields (YAML::Mo)
+my %h=(has,1);
+
 class Foo {
   has $a = 0;
   has $b = 1;
