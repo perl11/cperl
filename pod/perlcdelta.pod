@@ -361,25 +361,6 @@ XXX Describe change here
 
 =back
 
-=head1 Utility Changes
-
-XXX Changes to installed programs such as F<cperlbug> and F<xsubpp> go here.
-Most of these are built within the directory F<utils>.
-
-[ List utility changes as a =head2 entry for each utility and =item
-entries for each change
-Use L<XXX> with program names to get proper documentation linking. ]
-
-=head2 L<XXX>
-
-=over 4
-
-=item *
-
-XXX
-
-=back
-
 =head1 Configuration and Compilation
 
 XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
@@ -419,6 +400,8 @@ Add support for C<-d DESTDIR>, e.g. after
     make -s -j4 install DESTDIR=$HOME/cperl-inst
     cd $HOME/cperl-inst/usr/local/bin &&
     ./cperl cperlivp -p -d $HOME/cperl-inst
+
+See L<[cperl #305]|https://github.com/perl11/cperl/issues/305>
 
 =back
 
