@@ -1325,6 +1325,7 @@
 #define hasterm(a)		Perl_hasterm(aTHX_ a)
 #define hv_ename_add(a,b,c,d)	Perl_hv_ename_add(aTHX_ a,b,c,d)
 #define hv_ename_delete(a,b,c,d)	Perl_hv_ename_delete(aTHX_ a,b,c,d)
+#define hv_pushkv(a)		Perl_hv_pushkv(aTHX_ a)
 #define init_argv_symbols(a,b)	Perl_init_argv_symbols(aTHX_ a,b)
 #define init_constants()	Perl_init_constants(aTHX)
 #define init_debugger()		Perl_init_debugger(aTHX)

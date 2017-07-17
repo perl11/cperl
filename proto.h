@@ -2386,6 +2386,11 @@ PERL_CALLCONV void	Perl_hv_placeholders_set(pTHX_ HV *hv, U32 ph)
 #define PERL_ARGS_ASSERT_HV_PLACEHOLDERS_SET	\
 	assert(hv)
 
+PERL_CALLCONV void	Perl_hv_pushkv(pTHX_ HV *hv)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_HV_PUSHKV	\
+	assert(hv)
+
 PERL_CALLCONV void	Perl_hv_rand_set(pTHX_ HV *hv, U32 new_xhv_rand)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
