@@ -73,9 +73,10 @@ my %problematical_tests;
 # If any %problematical_tests fails in one of these locales, it is
 # considered a TODO.
 my %known_bad_locales = (
-                          irix   => qr/ ^ (?: cs | hu | sk ) $/x,
-                          #darwin => qr/ ^ lt_LT.ISO8859 /ix,
-                          os390  => qr/ ^ italian /ix,
+                          irix => qr/ ^ (?: cs | hu | sk ) $/x,
+                          darwin => qr/ ^ lt_LT.ISO8859 /ix,
+                          os390 => qr/ ^ italian /ix,
+                          netbsd => qr/\bISO8859-2\b/i,
                         );
 
 # cygwin isn't returning proper radix length in this locale, but supposedly to
