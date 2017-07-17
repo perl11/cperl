@@ -5,7 +5,7 @@ BEGIN {
     #require './test.pl';
 }
 local($\, $", $,) = (undef, ' ', '');
-print "1..24\n";
+print "1..26\n";
 my $test = 1;
 
 # allow has hash fields (YAML::Mo)
@@ -83,3 +83,11 @@ print $b1->a != 0 ? "not " : "", "ok ", $test++, " # \$b1->a copied role\n";
 $b1->a = 1;
 print $b1->a != 1 ? "not " : "", "ok ", $test++, " # \$b1->a = 1 copied role\n";
 
+class Baz3 { has @a; has %h; }
+my Baz3 $b3 = new Baz3; # b3 must be typed, not inferred yet
+$b3->a = (0,1);
+print scalar $b3->a != 2 ? "not " : "", "ok ", $test++, " # array field\n";
+#print $b3->a;
+$b3->h = (has => "field");
+print $b3->h != 1 ? "not " : "", "ok ", $test++, " # hash field\n";
+#print scalar $b3->h, $b3->h;

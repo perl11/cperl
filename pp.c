@@ -472,7 +472,7 @@ PPt(pp_oelem, "(:Ref,:Str):Any")
     if (UNLIKELY(!SvPOK(field)))
         DIE(aTHX_ "Invalid object field");
     klen = SvUTF8(field) ? -(I32)SvCUR(field) : (I32)SvCUR(field);
-    ix = has_field(stash, SvPVX(field), klen);
+    ix = field_index(stash, SvPVX(field), klen, FALSE);
     if (UNLIKELY(ix == NOT_IN_PAD)) {
         const char *name = HvNAME_get(stash) ? HEK_KEY(HvNAME_HEK_NN(stash)) : "__ANON__";
         Perl_die(aTHX_ "Object field %" SVf " in class %s not found", SVfARG(field), name);

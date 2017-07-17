@@ -929,7 +929,8 @@ Ap	|void	|vload_module	|U32 flags|NN SV* name|NULLOK SV* ver|NULLOK va_list* arg
 p	|OP*	|localize	|NN OP *o|I32 lex
 p	|OP*	|hasterm	|NN OP *o
 : Used in pp.c
-Apd	|PADOFFSET	|has_field	|NN const HV* klass|NN const char* key|I32 klen
+Apd	|PADOFFSET	|field_index	|NN const HV* klass|NN const char* key|I32 klen|bool want_pad
+Apd	|PADOFFSET	|field_pad	|NN const HV* klass|NN const char* key|I32 klen
 ApdR	|I32	|looks_like_number|NN SV *const sv
 Apd	|UV	|grok_bin	|NN const char* start|NN STRLEN* len_p|NN I32* flags \
 				|NULLOK NV *result

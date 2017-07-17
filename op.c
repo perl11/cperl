@@ -5546,7 +5546,47 @@ Perl_hasterm(pTHX_ OP *o)
 }
 
 /*
-=for apidoc has_field
+=for apidoc field_index
+
+Searches for the fieldname without the '$' in %klass::FIELDS
+(or maybe some other internal class structure,
+like linear search in additional @FIELDS)
+
+If klen is negative, the hash key is UTF8.
+
+Returns the field index in the object/class @FIELDS av
+or with want_pad set, the padoffset into comppad.
+=cut
+*/
+PADOFFSET
+Perl_field_index(pTHX_ const HV* klass, const char* key, I32 klen, bool want_pad)
+{
+    SV* gv;
+    GV* fields;
+    SV** svp;
+    PERL_ARGS_ASSERT_FIELD_INDEX;
+    if (!HvNAME(klass)) return NOT_IN_PAD;
+    gv = newSVpvn_flags(HvNAME(klass), HvNAMELEN(klass), HvNAMEUTF8(klass)|SVs_TEMP);
+    sv_catpvs(gv, "::FIELDS");
+    fields = gv_fetchsv(gv, 0, SVt_PVHV);
+    if (!fields) return NOT_IN_PAD;
+    svp = hv_fetch(GvHV(fields), key, klen, FALSE);
+
+    if (svp && SvIOK(*svp)) {
+        if (want_pad) {
+            SV *po = AvARRAY(GvAV(fields))[SvIVX(*svp)];
+            return po && SvIOK(po)
+                ? (PADOFFSET)SvIVX(po)
+                : NOT_IN_PAD;
+        }
+        return (PADOFFSET)SvIVX(*svp);
+    }
+    else
+        return NOT_IN_PAD;
+}
+
+/*
+=for apidoc field_pad
 
 Searches for the fieldname without the '$' in %klass::FIELDS
 (or maybe some other internal class structure,
@@ -5558,22 +5598,10 @@ Returns the pad offset in comppad_name.
 =cut
 */
 PADOFFSET
-Perl_has_field(pTHX_ const HV* klass, const char* key, I32 klen)
+Perl_field_pad(pTHX_ const HV* klass, const char* key, I32 klen)
 {
-    SV* gv;
-    GV* fields;
-    SV** svp;
-    PERL_ARGS_ASSERT_HAS_FIELD;
-    if (!HvNAME(klass)) return NOT_IN_PAD;
-    gv = newSVpvn_flags(HvNAME(klass), HvNAMELEN(klass), HvNAMEUTF8(klass)|SVs_TEMP);
-    sv_catpvs(gv, "::FIELDS");
-    fields = gv_fetchsv(gv, 0, SVt_PVHV);
-    if (!fields) return NOT_IN_PAD;
-    svp = hv_fetch(GvHV(fields), key, klen, FALSE);
-    if (svp && SvIOK(*svp))
-        return (PADOFFSET)SvIVX(*svp);
-    else
-        return NOT_IN_PAD;
+    PERL_ARGS_ASSERT_FIELD_PAD;
+    return field_index(klass, key, klen, TRUE);
 }
 
 /*
@@ -7850,9 +7878,7 @@ S_assignment_type(pTHX_ const OP *o)
 	    yyerror("Assignment to both a list and a scalar");
 	return FALSE;
     }
-
-    if (type == OP_SREFGEN)
-    {
+    else if (type == OP_SREFGEN) {
 	OP * const kid = OpFIRST(OpFIRST(o));
 	type = kid->op_type;
 	flags |= kid->op_flags;
@@ -7878,6 +7904,27 @@ S_assignment_type(pTHX_ const OP *o)
 
     if (type == OP_RV2SV)
 	return ret;
+
+    /* $self->field for @field or %field */
+    else if (type == OP_ENTERSUB && OP_TYPE_IS(OpFIRST(o), OP_PUSHMARK)) {
+        OP *arg = OpSIBLING(OpFIRST(o));
+        /* first and only arg is typed $self */
+        if (OP_TYPE_IS(arg, OP_PADSV) &&
+            arg->op_targ &&
+            (o = OpSIBLING(arg)) &&
+            IS_TYPE(o, METHOD_NAMED))
+        {
+            SV* const meth = cMETHOPx_meth(o);
+            HV *klass = PAD_COMPNAME_TYPE(arg->op_targ);
+            if (meth && SvPOK(meth) && klass && HvCLASS(klass)) {
+                const I32 klen = SvUTF8(meth) ? -SvCUR(meth) : SvCUR(meth);
+                const PADOFFSET pad = field_pad(klass, SvPVX(meth), klen);
+                if (pad != NOT_IN_PAD && *PAD_COMPNAME_PV(pad) != '$') {
+                    return ASSIGN_LIST;
+                }
+            }
+        }
+    }
 
     return ret;
 }
@@ -12471,9 +12518,10 @@ S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
                 PADOFFSET po;
                 if (klass &&
                     HvCLASS(klass) &&
-                    (po = has_field(klass, SvPVX(field), SvCUR(field)) != NOT_IN_PAD))
+                    (po = field_pad(klass, SvPVX(field), SvCUR(field))
+                          != NOT_IN_PAD))
                 {
-                    PADNAME * const pnf = PAD_COMPNAME(po); /* XXX */
+                    PADNAME * const pnf = PAD_COMPNAME(po);
                     const HV *stash = pnf ? PadnameTYPE(pnf) : NULL;
                     if (stash) {
                         t = stash_to_coretype(stash);
@@ -19583,12 +19631,12 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
         {
             SV* key = ITEM_SV(++items);
             I32 klen = SvUTF8(key) ? -SvCUR(key) : SvCUR(key);
-            PADOFFSET pad = has_field(klass, SvPVX(key), klen);
-            if (pad != NOT_IN_PAD && pad < (self + floor)) {
-                assert(pad < 128);   /* TODO aelem_u or oelem */
-                o->op_private = pad; /* field offset */
+            PADOFFSET ix = field_index(klass, SvPVX(key), klen, FALSE);
+            if (ix != NOT_IN_PAD && ix < (self + floor)) {
+                assert(ix < 128);   /* TODO aelem_u or oelem */
+                o->op_private = ix; /* field offset */
                 DEBUG_k(Perl_deb(aTHX_ "method_finalize: $self->{%s} => $self->[%d] %d\n",
-                                 SvPVX(key), (int)o->op_private, (int)self));
+                                 SvPVX(key), (int)ix, (int)self));
                 o->op_targ = self;
                 PerlMemShared_free(cUNOP_AUXo->op_aux - 1);
                 OpTYPE_set(o, OP_AELEMFAST_LEX_U);
@@ -19606,12 +19654,12 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
             SV* const meth = cMETHOPx_meth(OpNEXT(arg));
             if (meth && SvPOK(meth) && PAD_COMPNAME_TYPE(self)) {
                 const I32 klen = SvUTF8(meth) ? -SvCUR(meth) : SvCUR(meth);
-                const PADOFFSET pad = has_field(klass, SvPVX(meth), klen);
-                if (pad != NOT_IN_PAD) {
-                    assert(pad < 128);   /* TODO aelem_u or oelem */
-                    o->op_private = pad; /* field offset */
+                const PADOFFSET ix = field_index(klass, SvPVX(meth), klen, FALSE);
+                if (ix != NOT_IN_PAD) {
+                    assert(ix < 128);   /* TODO aelem_u or oelem */
+                    o->op_private = ix; /* field offset */
                     DEBUG_k(Perl_deb(aTHX_ "method_finalize: $self->%s => $self->[%d] %d\n",
-                                     SvPVX(meth), (int)o->op_private, (int)self));
+                                     SvPVX(meth), (int)ix, (int)self));
                     o->op_targ = 1;
                     OpTYPE_set(o, OP_AELEMFAST_LEX_U);
                 } else {
@@ -19718,7 +19766,7 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
             char *key = PadnamePV(pn);
             I32 klen = PadnameLEN(pn);
             /* check for duplicate */
-            if (has_field(klass, key+1, klen-1) != NOT_IN_PAD) {
+            if (field_index(klass, key+1, klen-1, FALSE) != NOT_IN_PAD) {
                 /* fatal with roles, valid and ignored for classes */
                 if (HvROLE(curclass))
                     Perl_croak(aTHX_
@@ -19783,7 +19831,7 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
 
             if (isGV(gv) && (cv = GvCV(gv))) {
                 /* check for duplicates */
-                if (has_field(klass, HeKEY(entry), HeKLEN(entry)) != NOT_IN_PAD) {
+                if (field_index(klass, HeKEY(entry), HeKLEN(entry), FALSE) != NOT_IN_PAD) {
                     Perl_croak(aTHX_
                         "Field %s from %s already exists in %s during role composition",
                         HeKEY(entry), HvNAME(curclass), SvPVX(name));

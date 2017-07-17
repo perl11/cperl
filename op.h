@@ -1006,8 +1006,8 @@ C<sib> is non-null. For a higher-level interface, see C<L</op_sibling_splice>>.
     ( !(o) || OP_TYPE_ISNT_AND_WASNT_NN(o, type) )
 
 #define OpTYPECHECKED(o)	(0 + (o)->op_typechecked)
-#define OpRETTYPE(o)		(0 + (o)->op_rettype)
-#define OpRETTYPE_set(o, type)	(o)->op_rettype = (type)
+#define OpRETTYPE(o)		(U8)(0 + (o)->op_rettype)
+#define OpRETTYPE_set(o, type)	(o)->op_rettype = (U8)(type)
 
 #define OpNEXT(o)    (o)->op_next
 #define OpFIRST(o)   cUNOPx(o)->op_first
