@@ -69,6 +69,9 @@ typedef PERL_BITFIELD16 Optype;
     U8		op_rettype;
 #endif
 
+/* Class::XSAccessor abuses this */
+#define op_spare op_typechecked
+
 /* If op_type:9 is changed to :10, also change cx_pusheval()
    Also, if the type of op_type is ever changed (e.g. to PERL_BITFIELD32)
    then all the other bit-fields before/after it should change their
