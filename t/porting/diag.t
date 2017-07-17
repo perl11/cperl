@@ -597,7 +597,7 @@ Illegal hexadecimal digit '%c' ignored
 Illegal octal digit '%c' ignored
 INSTALL_PREFIX too long: `%s'
 Invalid argument to sv_cat_decode
-Invalid object field type
+Invalid object field type %x
 Invalid range "%c-%c" in transliteration operator
 Invalid separator character %c%c%c in PerlIO layer specification %s
 Invalid TOKEN object ignored

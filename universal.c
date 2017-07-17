@@ -1096,10 +1096,10 @@ XS(XS_Mu_new)
                     AvARRAY(av)[i] = arg;
                 }
                 else { /* new CLASS field1, field2, ... */
-                    const SV *sv = PAD_SVl(po);
+                    SV * const sv = PAD_SVl(po);
                     SvPADSTALE_off(sv);
                     AvARRAY(av)[i] = SvREFCNT_inc_NN(sv);
-                    DEBUG_kv(Perl_deb(aTHX_ "Mu->new: %s[%d] use default %s [%d]\n",
+                    DEBUG_kv(Perl_deb(aTHX_ "  Mu->new: %s[%d] use default %s [%d]\n",
                                       SvPVX(name), (int)i, SvPEEK(sv),
                                       (int)po));
                 }

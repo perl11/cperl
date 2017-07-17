@@ -19291,7 +19291,7 @@ static void
 S_const_sv_xsub(pTHX_ CV* cv)
 {
     dXSARGS;
-    SV *const sv = MUTABLE_SV(XSANY.any_ptr);
+    SV * const sv = MUTABLE_SV(XSANY.any_ptr);
     PERL_ARGS_ASSERT_CONST_SV_XSUB;
     PERL_UNUSED_ARG(items);
     if (!sv) {
@@ -19363,15 +19363,18 @@ S_Mu_sv_xsub(pTHX_ CV* cv)
 /*
 =for apidoc Mu_av_xsub
 
-XS template to return object array values from it's compile-time
-field offset.
+XS template to set or return object array values from it's
+compile-time field offset.
 
     class MY {
       has @a;
     }
     my $c = new MY;
-    $c->a = (0..5);
-    print scalar $c->a; # => 6
+    $c->a = (0..2); # (0,1,2)
+    print scalar $c->a; # 3
+    $c->a = 1;     # (1)
+    $c->a = 0..2;  # (0,1,2)
+    $c->a = 1,2;   # (1,2)
 
 =cut
 */
@@ -19380,7 +19383,7 @@ S_Mu_av_xsub(pTHX_ CV* cv)
 {
     dXSARGS;
     const U32 ix = XSANY.any_u32;
-    SV* self = ST(0);
+    SV* const self = ST(0);
     AV* av;
     U8 gimme = GIMME_V;
     PERL_ARGS_ASSERT_MU_AV_XSUB;
@@ -19388,32 +19391,44 @@ S_Mu_av_xsub(pTHX_ CV* cv)
         croak_xs_usage(cv, "object");
     }
     av = (AV*)AvARRAY(SvRV(self))[ix];
-    if (gimme != G_ARRAY) {
-        /* has @a; $o->a = 5; */
-        if (CvLVALUE(cv) && (PL_op->op_private & OPpLVAL_INTRO)) {
-            /*if (SvTYPE(av) == SVt_PVAV)
-                av_extend(av, 1);
-            else */ /* has %a; $o->a = 5 */
-            Perl_croak(aTHX_ "Cannot yet set array length");
-        }
-        if (SvTYPE(av) == SVt_PVAV)
+    /* setters are usually G_SCALAR */
+    if (CvLVALUE(cv) && (PL_op->op_private & OPpLVAL_INTRO)) {
+        ST(0) = (SV*)av; /* set the av or hv */
+        XSRETURN(1);
+    }
+    else if (gimme != G_ARRAY) {
+        if (SvTYPE(av) == SVt_PVAV) /* scalar @a */
             ST(0) = sv_2mortal(newSViv((IV)AvFILLp(av)+1));
-        else if (SvTYPE(av) == SVt_PVHV)
-            ST(0) = sv_2mortal(newSViv((IV)HvFILL((HV*)av)+1));
+        else if (SvTYPE(av) == SVt_PVHV) /* scalar %a*/
+            ST(0) = sv_2mortal(newSViv((IV)HvKEYS((HV*)av)));
         else
-            Perl_croak(aTHX_ "Invalid object field type");
+            Perl_croak(aTHX_ "Invalid object field type %x", SvTYPE(av));
 	XSRETURN(1);
     }
-    if (CvLVALUE(cv) && (PL_op->op_private & OPpLVAL_INTRO)) {
-        /* XXX set the array values via aassign */
-        Perl_croak(aTHX_ "Cannot yet set array fields");
-    }
     if (SvTYPE(av) == SVt_PVAV) {
-        EXTEND(SP, AvFILLp(av)+1);
-        Copy(AvARRAY(av), &ST(0), AvFILLp(av)+1, SV *);
-        XSRETURN(AvFILLp(av)+1);
+        const SSize_t fill = AvFILL(av); /* last elem */
+        if (fill >= 0) {
+            EXTEND(SP, fill);
+            Copy(AvARRAY(av), &ST(0), fill+1, SV *);
+        }
+        XSRETURN(fill+1);
+    } else if (SvTYPE(av) == SVt_PVHV) { /* %a as list */
+        HV* const hv = (HV* const)av;
+        HE *he;
+        const U32 keys = HvKEYS(hv);
+        U32 i = 0;
+        if (keys > 0) {
+            EXTEND(SP, (SSize_t)(keys*2));
+            (void)hv_iterinit(hv);
+            while ((he = hv_iternext(hv))) {
+                ST(i++) = newSVhek(HeKEY_hek(he));
+                ST(i++) = HeVAL(he);
+            }
+            XSRETURN(i-1);
+        }
+        XSRETURN(0);
     } else {
-        Perl_croak(aTHX_ "Invalid object field type");
+        Perl_croak(aTHX_ "Invalid object field type %x", SvTYPE(av));
     }
 }
 
@@ -19516,10 +19531,11 @@ and needs to be converted to aelemfast_lex_u ops.
   PADxV targ     -> AELEMFAST_LEX_U(self)[targ]
 
   $field         -> $self->field[i] (same as above)
-  $self->{field} ->     -"-
+  $self->{field} ->     -"- (do not use)
   $self->field   ->     -"-
 
-  exists $self->{field}  -> compile-time const
+  exists $self->field    -> compile-time const if exists
+  exists $self->{field}  -> compile-time const (do not use)
   exists $self->{$field} -> exists oelem
 
 If the field is computed, convert to a new 'oelem' op, which does the
@@ -19569,7 +19585,7 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
             I32 klen = SvUTF8(key) ? -SvCUR(key) : SvCUR(key);
             PADOFFSET pad = has_field(klass, SvPVX(key), klen);
             if (pad != NOT_IN_PAD && pad < (self + floor)) {
-                assert(pad < 128);   /* TODO aelem_u */
+                assert(pad < 128);   /* TODO aelem_u or oelem */
                 o->op_private = pad; /* field offset */
                 DEBUG_k(Perl_deb(aTHX_ "method_finalize: $self->{%s} => $self->[%d] %d\n",
                                  SvPVX(key), (int)o->op_private, (int)self));
@@ -19592,7 +19608,7 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
                 const I32 klen = SvUTF8(meth) ? -SvCUR(meth) : SvCUR(meth);
                 const PADOFFSET pad = has_field(klass, SvPVX(meth), klen);
                 if (pad != NOT_IN_PAD) {
-                    assert(pad < 128);   /* TODO aelem_u */
+                    assert(pad < 128);   /* TODO aelem_u or oelem */
                     o->op_private = pad; /* field offset */
                     DEBUG_k(Perl_deb(aTHX_ "method_finalize: $self->%s => $self->[%d] %d\n",
                                      SvPVX(meth), (int)o->op_private, (int)self));
