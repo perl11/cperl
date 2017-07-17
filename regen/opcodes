@@ -327,7 +327,7 @@ values		values			ck_each		dt%	H
 keys		keys			ck_each		t%	H
 delete		delete			ck_delete	%	S	"(:Str):Void"
 exists		exists			ck_exists	is%	S	"(:Str):Bool"
-rv2hv		hash dereference	ck_rvconst	d1	R	"(:Ref):Hash"
+rv2hv		hash dereference	ck_rvconst	dt1	R	"(:Ref):Hash"
 helem		hash element		ck_null		s2	H S	"(:Hash(:Scalar)):Scalar"
 #i_helem	int hash		ck_null		s2	H S	"(:Hash(:Int)):Int"
 #n_helem	num hash		ck_null		s2	H S	"(:Hash(:Num)):Num"
