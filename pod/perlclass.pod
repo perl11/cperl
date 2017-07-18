@@ -33,7 +33,7 @@ X<class> X<role>
     }
 
     my CLASS $obj = CLASS->new; # default object constructor
-    $obj->field;                # the better method
+    $obj->field;                # the getter method
     $obj->field = 1;            # the setter method
 
 =head1 DESCRIPTION
