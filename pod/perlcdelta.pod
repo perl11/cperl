@@ -207,6 +207,15 @@ Warning: $cv->GV does create a GV from a CvNAMED $cv.
 Protect from destructive $cv->GV, renamed is_lexsub to is_named,
 allow @0, &0, ... types.
 
+=item L<base> 2.26c
+
+Turn off HvCLASS again, just turn on SvREADONLY C<@ISA>.
+With all the new class features, we cannot and should not compete.
+
+The problem is the new sub as :method warning with classes, which
+would cause all Test::Simple methods to be declared as :method, as they
+derive from base.
+
 =item L<Devel::Peek> 1.26_02
 
 Add TYPECHECKED, RETTYPE and pad var names and types.

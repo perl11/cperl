@@ -3,7 +3,7 @@ package base;
 
 use strict 'vars';
 use vars qw($VERSION);
-$VERSION = '2.25c';
+$VERSION = '2.26c';
 $VERSION =~ tr/_//d;
 
 # constant.pm is slow
@@ -163,7 +163,8 @@ ERROS
     Internals::SvREADONLY(@{"$inheritor\::ISA"}, 0); # only when fields is before base.
     push @{"$inheritor\::ISA"}, @bases;
     # cperl: set the class flag in the stash, and close the ISA
-    Internals::HvCLASS($inheritor, 1);
+    # Internals::HvCLASS($inheritor, 1);
+    Internals::SvREADONLY(@{"$inheritor\::ISA"}, 1)
 }
 
 
