@@ -931,6 +931,7 @@ p	|OP*	|hasterm	|NN OP *o
 : Used in pp.c
 Apd	|PADOFFSET	|field_index	|NN const HV* klass|NN const char* key|I32 klen|bool want_pad
 Apd	|PADOFFSET	|field_pad	|NN const HV* klass|NN const char* key|I32 klen
+Apd	|int	|method_field_type	|NN OP* o
 ApdR	|I32	|looks_like_number|NN SV *const sv
 Apd	|UV	|grok_bin	|NN const char* start|NN STRLEN* len_p|NN I32* flags \
 				|NULLOK NV *result
@@ -1079,7 +1080,7 @@ s	|OP*	|arg_check_type |NULLOK const PADNAME* pn|NN OP* o|NULLOK GV *cvname
 s	|OP*	|ret_check_type |NULLOK const PADNAME* pn|NN OP* o|NN const char *opdesc
 #endif
 s	|OP*	|_op_check_type |NULLOK const PADNAME* pn|NN OP* o|NN const char *opdesc
-s	|void	|op_check_type  |NN OP* o|NN OP* left|NN OP* right
+s	|void	|op_check_type  |NN OP* o|NN OP* left|NN OP* right|bool is_assign
 s	|void	|bad_type_core	|NN const char *argname|NN GV *gv \
                 	|core_types_t got|NN const char* gotname|bool gotu8 \
                 	|NN const char *wanted|bool wu8

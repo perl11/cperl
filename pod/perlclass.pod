@@ -18,7 +18,9 @@ X<class> X<role>
 
     class NAME {
       has $a;                 # declare a field
-      method new ($a?) { bless [$a], $self } # not needed, inherited from Mu
+      method new ($a?) {      # not needed, inherited from Mu
+        bless [$a], ref $self ? ref $self : $self;
+      }
     }
     class NAME :native {      # native C-struct with 2 native int fields
       has int $a = 0;         # for the ffi
@@ -31,8 +33,8 @@ X<class> X<role>
     }
 
     my CLASS $obj = CLASS->new; # default object constructor
-    $obj->{field};              # fast pseudo-hash syntax, e.g. a getter
-    $obj->field = 1;            # slow method syntax, here as setter
+    $obj->field;                # the better method
+    $obj->field = 1;            # the setter method
 
 =head1 DESCRIPTION
 
@@ -55,7 +57,7 @@ optionally typed referring to a class, which can be a builtin class
 like the coretypes or a user-defined class. See L<perltypes>.  This is
 the same as in perl6, but fundamentally different to all the naive
 ad-hoc perl5 OO extensions, which treat types as unnecessary and slow
-extensions. Types make cperl faster and safer.
+extensions. Types do make cperl faster and safer.
 
 The root of the cperl type hierarchy is L<Mu>, every class is a Mu.
 The MOP is defined in the L<Metamodel> hierarchy, exactly as in
@@ -120,11 +122,20 @@ The declaration is similar to the old-style
 C<sub NAME (SIGNATURE) :method BLOCK> declaration, just that with
 C<sub :method> the C<$self> argument is not automatically added.
 
-Calling a method as subroutine is forbidden, and
-calling a subroutine with a signature as method is forbidden also.
-This might bite you with C<use base>, which creates cperl classes.
-The new method keyword is only parsed inside a role or class. Outside it
-will try to call a subroutine C<method>, which usually doesn't exist.
+Calling a method as subroutine is forbidden, and calling a subroutine
+with a signature as method is forbidden also.  This might bite you
+with C<use base>, which creates cperl classes.  The new C<method>
+keyword is only parsed inside a role or class. Outside it will try to
+call a subroutine C<method>, which usually doesn't exist.
+
+The special constructor methods C<new> and C<CREATE> are provided by
+L<Mu>. Every method derives from C<Mu>.  So if a class doesn't provide
+a C<new> method, C<Mu::new> is used, which provides a typed array ref.
+If a class provides a C<new> or C<CREATE> method, the result must be
+typed to the given classname, i.e. C<bless [], $self;>, and the fields
+layout must match the order of declaration, and the helper C<@FIELDS>
+array and C<%FIELDS> hash must be provided to resolve the field index
+and pad index of the field.
 
 =head1 MULTI
 
@@ -149,7 +160,7 @@ Internally a multi adds the signature types to the name after a C<\0>.
 A class or role field is declared via C<has TYPE NAME = value;>, with
 the type and the default value being optional, and the name having
 optional attributes, same as MY variable declarations. Internally
-inside the class each has field is declared as lexical my variable,
+inside the class each has field is declared as lexical C<my> variable,
 and then changed to efficient field accessors in all methods.
 
    has $NAME;
@@ -157,52 +168,43 @@ and then changed to efficient field accessors in all methods.
    has int $i = 0;
    has int $i :const = 0;
 
-Each field generates an entry into the C<@FIELDS> array, used to create
-the field accessors at compile-time, plus a C<%FIELDS> hash entry for
-run-time access for computed field names, as in C<use L<fields>>.
-Native classes requires mandatory types for each field, the layout will aligned
-the same as C structs.
-Fields are always compile-time composed, even with C<is CLASS> inheritance.
+Each field generates an entry into an internal C<@FIELDS> array, used
+to create the field accessors at compile-time, plus currently a
+C<%FIELDS> hash entry for run-time access for computed field names, as
+in C<use L<fields>>.  Native classes requires mandatory types for each
+field, the layout will aligned the same as C structs.  Fields are
+always compile-time composed, even with C<is CLASS> inheritance.
 
 Additionally perl6-like default accessors are created, for non-const
 fields getters and lvalue setter methods, for const fields only
-getters.  You may define you own accessor methods.
+getters.  You may define you own accessor methods, overriding the defaults.
 
-Inside a class C<<< $self->{field} >>> is the same as C<<<
-$self->field >>> or just C<$field>.  Outside a class the first two
-accessors must be used.  If the name is computed or the field is
-inherited from a parent class the lookup will be dynamic via method
-inheritance, composed fields from C<does ROLE> compile to direct array
-accesses in C<$self>.
+Inside a class C<<< $self->field >>> is the same as C<$field>.
+Outside a class the first accessor, the method must be used.  If the
+name is computed or the field is inherited from a parent class the
+lookup will be dynamic via method inheritance, composed fields from
+C<does ROLE> compile to direct array accesses in C<$self>.
 
-Note that internally an array ref holds the fields, but to the user it
-looks like a hash ref. The compiler converts the C<$self> hashref
-either to a compile-time array access or to a new run-time C<has> op,
-which performs the hash lookup of the field value. Note that it is 
-not a 5.8 pseudo-hash, it just looks like one.
+The compiler converts every typed C<$self> method call on a field to a
+static compile-time array access via C<oelemfast>, which is the same
+as C<aelemfast_lex_u>, or to a new dynamic run-time C<aelem> op, which
+performs the field lookup of the field value.  It is not static when
+the class is open, or the object is not typed.
 
-    my CLASS $obj = new CLASS;
-    $obj->{field}; 	# -> $obj->[0]
+    my CLASS $obj = new CLASS; # explicit CLASS type for $obj
+    $obj->field; 	   # -> $obj->[0] (via oelemfast $obj, index)
 
-    my $field = 'field';
-    $obj->{$field};	# -> has $obj, $field
+    my $field = 'field';   # computed field name -> dynamic
+    $obj->$field;	   # -> oelem $obj, $field
 
-With method accessors it is similar, but you can override them. When
-the compiler can ensure that a field accessor method is static, it is
-inlined to the array ref.
-It is not static when the class is open, or the object is not typed.
-
-    my CLASS $obj = new CLASS;
-    $obj->field; 	# -> $obj->[0]
-
-    my $obj = new CLASS;
-    $obj->field; 	# call field($obj)
+    my $obj = new CLASS; # type CLASS is inferred to $obj
+    $obj->field; 	 # -> $obj->[0] (via oelemfast $obj, index)
 
     class OPENCLASS :open {
       has $field = 1;
     }
     my OPENCLASS $obj = new OPENCLASS;
-    $obj->field; 	# call field($obj)
+    $obj->field; 	# calls field($obj)
 
 Additionally, with a typed object the compiler only knows about the
 fields of the declared type. When you want to access a field in an
@@ -215,22 +217,22 @@ re-blessed or a MOP method may be added.
     class MyBase {
       has $a = 1;
     }
-    class MyClass is MyBase {
+    class MyClass is MyBase :open {
       has $b = 1;
     }
 
     my $o = new MyClass;
     # ... some possible side-effects with the type of $o
-    $o->{a}; 	# has $o, 'a';
-    $o->{b}; 	# has $o, 'b';
+    $o->a; 	# oelem $o, 'a';
+    $o->b; 	# oelem $o, 'b';
 
     my MyBase $o1 = new MyClass;
-    $o1->{b}; 	# compile-time error
+    $o1->b; 	# compile-time error
 
     my MyClass $o2 = new MyClass;
-    $o2->{b}; 	# $o2->[1]  - $o2 is known to be MyClass
+    $o2->b; 	# $o2->[1]  - $o2 is known to be MyClass
 
     $o = new MyClass;   # and directly afterwards:
-    $o->{a}; 	# $o2->[0]  - $o is known to be MyClass
+    $o->a; 	# $o2->[0]  - $o is known to be MyClass
 
 =cut

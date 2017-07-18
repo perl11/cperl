@@ -2360,6 +2360,8 @@ Perl_scalarvoid(pTHX_ OP *arg)
         case OP_AELEMFAST:
         case OP_AELEMFAST_LEX:
         case OP_AELEMFAST_LEX_U:
+        case OP_OELEM:
+        case OP_OELEMFAST:
         case OP_ASLICE:
         case OP_HELEM:
         case OP_HSLICE:
@@ -7906,24 +7908,9 @@ S_assignment_type(pTHX_ const OP *o)
 	return ret;
 
     /* $self->field for @field or %field */
-    else if (type == OP_ENTERSUB && OP_TYPE_IS(OpFIRST(o), OP_PUSHMARK)) {
-        OP *arg = OpSIBLING(OpFIRST(o));
-        /* first and only arg is typed $self */
-        if (OP_TYPE_IS(arg, OP_PADSV) &&
-            arg->op_targ &&
-            (o = OpSIBLING(arg)) &&
-            IS_TYPE(o, METHOD_NAMED))
-        {
-            SV* const meth = cMETHOPx_meth(o);
-            HV *klass = PAD_COMPNAME_TYPE(arg->op_targ);
-            if (meth && SvPOK(meth) && klass && HvCLASS(klass)) {
-                const I32 klen = SvUTF8(meth) ? -SvCUR(meth) : SvCUR(meth);
-                const PADOFFSET pad = field_pad(klass, SvPVX(meth), klen);
-                if (pad != NOT_IN_PAD && *PAD_COMPNAME_PV(pad) != '$') {
-                    return ASSIGN_LIST;
-                }
-            }
-        }
+    else if (type == OP_ENTERSUB) {
+        if (method_field_type((OP*)o) > METHOD_FIELD_SCALAR)
+            return ASSIGN_LIST;
     }
 
     return ret;
@@ -12384,6 +12371,8 @@ get the name of those with S_typename().
 TODO: add defined return types of all ops, and
 user-defined CV types for entersub.
 
+u8 returns 0 or 1 (HEKf_UTF8), not SVf_UTF8
+
 =cut
 */
 static core_types_t
@@ -12403,6 +12392,7 @@ S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
             return type_none;
         t = stash_to_coretype(PadnameTYPE(pn));
         if (usertype && t == type_Object) {
+            OpRETTYPE_set(o, t);
             *usertype = (char*)typename(PadnameTYPE(pn));
             *u8 = HvNAMEUTF8(PadnameTYPE(pn));
         }
@@ -12488,13 +12478,16 @@ S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
         {   /* typed methods: */
             OP* pop = OpSIBLING(OpFIRST(o));
             OP *m;
-            /* XXX We should really check if Mu::new is still pristine */
+            /* XXX We should really check if Mu::new is still pristine.
+               But better document the required ctor behavior. */
             /* CLASS->new -> always typed */
             if ( pop && (m = OpSIBLING(pop)) &&
                  IS_TYPE(pop, CONST) &&
                  IS_TYPE(m, METHOD_NAMED) &&
                  SvPOK(cMETHOPx_meth(m)) &&
-                 strEQc(SvPVX(cMETHOPx_meth(m)), "new") )
+                 /* One of the default Mu constructors */
+                 (strEQc(SvPVX(cMETHOPx_meth(m)), "new")
+               || strEQc(SvPVX(cMETHOPx_meth(m)), "CREATE") ))
             {
                 HV *stash = gv_stashsv(cSVOPx_sv(pop),0);
                 if (stash && HvCLASS(stash)) {
@@ -12564,13 +12557,15 @@ core_types_t S_op_typed(pTHX_ OP* o)
     return S_op_typed_user(aTHX_ o, NULL, 0);
 }
 
+/* on is_assign copies the right type to the left */
 STATIC void
-S_op_check_type(pTHX_ OP* o, OP* left, OP* right)
+S_op_check_type(pTHX_ OP* o, OP* left, OP* right, bool is_assign)
 {
     const core_types_t t_left = (const core_types_t)op_typed(left);
     PERL_ARGS_ASSERT_OP_CHECK_TYPE;
     /* check types, same as for an argument check */
     if (t_left > type_none) {
+/* the safe variant to PAD_COMPNAME */
 #define PAD_NAME(pad_ix) padnamelist_fetch(PL_comppad_name, pad_ix)
         DEBUG_kv(Perl_deb(aTHX_ "ck op types %s: %s <=> %s\n", OP_NAME(o),
                           OP_NAME(left), OP_NAME(right)));
@@ -12586,8 +12581,26 @@ S_op_check_type(pTHX_ OP* o, OP* left, OP* right)
         else if (IS_TYPE(left, ENTERSUB) && OpPRIVATE(left) & OPpLVAL_INTRO)
             _op_check_type(PAD_NAME(left->op_targ), right, OP_DESC(o));
         */
-
 #undef PAD_NAME
+    } else if (is_assign) {
+        const core_types_t t_right = (const core_types_t)op_typed(right);
+        DEBUG_kv(Perl_deb(aTHX_ "ck_sassign: set type %d\n", (int)t_right));
+        OpRETTYPE_set(left, t_right);
+        if (IS_TYPE(left, PADSV) &&
+            OpRETTYPE(right) == type_Object &&
+            left->op_targ)
+        {
+            /* set the lhs typestash */
+            PADNAME *pn = PAD_COMPNAME(left->op_targ);
+            char *usertype = NULL;
+            int  u8;
+            op_typed_user(right, &usertype, &u8);
+            if (usertype) {
+                HV *typ = gv_stashpvn(usertype, strlen(usertype), u8 ? SVf_UTF8 : 0);
+                PadnameTYPE(pn) = MUTABLE_HV(SvREFCNT_inc(MUTABLE_SV(typ)));
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sassign: set type %s\n", usertype));
+            }
+        }
     }
 }
 
@@ -12650,8 +12663,7 @@ Perl_ck_sassign(pTHX_ OP *o)
     }
 
     DEBUG_kv(Perl_deb(aTHX_ "ck_sassign: check types\n"));
-    op_check_type(o, left, right);
-
+    op_check_type(o, left, right, TRUE);
     return S_maybe_targlex(aTHX_ o);
 }
 
@@ -12689,7 +12701,7 @@ Perl_ck_aassign(pTHX_ OP *o)
     DEBUG_kv(Perl_deb(aTHX_ "ck_aassign: check types\n"));
     while (left && right) {
         /* my int %a; my str %b; %a = %b; (...) = (...); */
-        op_check_type(o, left, right);
+        op_check_type(o, left, right, TRUE);
         if (IS_TYPE(left, RV2HV) || IS_TYPE(left, PADHV)) {
             if (PL_hints & HINT_STRICT_HASHPAIRS) {
                 AV* av = NULL;
@@ -15257,6 +15269,9 @@ Perl_ck_subr(pTHX_ OP *o)
     for (cvop = aop; OpHAS_SIBLING(cvop); cvop = OpSIBLING(cvop)) ;
     cv = rv2cv_op_cv(cvop, RV2CVOPCV_MARK_EARLY);
     namegv = cv ? (GV*)rv2cv_op_cv(cvop, RV2CVOPCV_MAYBE_NAME_GV) : NULL;
+#if 0
+    if (cv && CvPURE(cv)) /* check for method field op. only for rv2cv */
+#endif
 
     o->op_private &= ~1;
     o->op_private |= (PL_hints & HINT_STRICT_REFS);
@@ -15267,8 +15282,27 @@ Perl_ck_subr(pTHX_ OP *o)
 	    o->op_private |= (cvop->op_private & OPpENTERSUB_AMPER);
 	    op_null(cvop);
 	    break;
+	case OP_METHOD_NAMED: /* check for method field or ctor op */
+            /* ctor CLASS->new */
+	    if (IS_CONST_OP(aop)) {
+                OP *m;
+                if ( (m = OpSIBLING(aop)) &&
+                     IS_TYPE(m, METHOD_NAMED) &&
+                     SvPOK(cMETHOPx_meth(m)) &&
+                     /* Mu ctor's */
+                     ( strEQc(SvPVX(cMETHOPx_meth(m)), "new")
+                    || strEQc(SvPVX(cMETHOPx_meth(m)), "CREATE")) )
+                {
+                    HV *stash = gv_stashsv(cSVOPx_sv(aop), 0);
+                    if (stash && HvCLASS(stash))
+                        OpRETTYPE_set(o, type_Object);
+                }
+            }
+            else if (method_field_type(o)) {
+                /* TODO: check default accessor and convert to oelem */
+                OpRETTYPE_set(o, type_Object);
+            }
 	case OP_METHOD:
-	case OP_METHOD_NAMED:
 	case OP_METHOD_SUPER:
 	case OP_METHOD_REDIR:
 	case OP_METHOD_REDIR_SUPER:
@@ -19568,15 +19602,14 @@ Perl_class_role(pTHX_ OP* o)
         HvROLE_on(PL_curstash);
 }
 
-
 /*
 =for apidoc do_method_finalize
 
-A field may starts as lexical or hash access or access call
-in the class block and method pad,
-and needs to be converted to aelemfast_lex_u ops.
+A field may start as lexical or access call in the class block and
+method pad, and needs to be converted to oelemfast ops, which are
+basically aelemfast_lex_u (lexical typed self, const ix < 128).
 
-  PADxV targ     -> AELEMFAST_LEX_U(self)[targ]
+  PADxV targ     -> OELEMFAST(self)[targ]
 
   $field         -> $self->field[i] (same as above)
   $self->{field} ->     -"- (do not use)
@@ -19599,15 +19632,17 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
     if (IS_TYPE(o, PADSV)) { /* $field -> $self->field[i] */
         /* check if it's a field, or a my var. self is the first my var */
         if (o->op_targ < self && o->op_targ >= floor && PAD_COMPNAME(o->op_targ)) {
-            assert(o->op_targ - floor < 128); /* TODO aelem_u */
+            assert(o->op_targ - floor < 128);   /* TODO aelem_u/oelem */
             o->op_private = o->op_targ - floor; /* field offset */
-            DEBUG_k(Perl_deb(aTHX_ "method_finalize: padsv %s %d => aelemfast_lex_u [%d] %d\n",
+            DEBUG_k(Perl_deb(aTHX_ "method_finalize: padsv %s %d => oelemfast [%d] %d\n",
                              PAD_COMPNAME_PV(o->op_targ),
                              (int)o->op_targ, (int)o->op_private, (int)self));
             o->op_targ = self;
-            OpTYPE_set(o, OP_AELEMFAST_LEX_U);
+            OpTYPE_set(o, OP_OELEMFAST);
         }
     }
+    /* TODO: disable hashref syntax for fields. only direct lexical inside
+       or method outside.*/
     /* check hashref $self->{field}.
        Easier to this in S_maybe_multideref if PL_parser->in_class, but here
        we are sure it's inside the class method. */
@@ -19639,7 +19674,7 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
                                  SvPVX(key), (int)ix, (int)self));
                 o->op_targ = self;
                 PerlMemShared_free(cUNOP_AUXo->op_aux - 1);
-                OpTYPE_set(o, OP_AELEMFAST_LEX_U);
+                OpTYPE_set(o, OP_OELEMFAST);
             }
         }
     }
@@ -19661,7 +19696,7 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
                     DEBUG_k(Perl_deb(aTHX_ "method_finalize: $self->%s => $self->[%d] %d\n",
                                      SvPVX(meth), (int)ix, (int)self));
                     o->op_targ = 1;
-                    OpTYPE_set(o, OP_AELEMFAST_LEX_U);
+                    OpTYPE_set(o, OP_OELEMFAST);
                 } else {
                     DEBUG_kv(Perl_deb(aTHX_ "method_finalize: $self->%s not a field\n",
                                      SvPVX(meth)));
@@ -20008,7 +20043,7 @@ Perl_class_role_finalize(pTHX_ OP* o)
         start_subparse(0, CVf_METHOD | (lval ? CVf_LVALUE : 0));
         po = pad_add_name_pvn("$self", 5, padadd_NO_DUP_CHECK, PadnameTYPE(pn), NULL);
         assert(po == 1);
-        body = newOP(OP_AELEMFAST_LEX_U, i<<8);
+        body = newOP(OP_OELEMFAST, i<<8);
         body->op_targ = po; /* self */
         {
             UNOP_AUX_item *items = (UNOP_AUX_item*)PerlMemShared_malloc
@@ -20059,6 +20094,58 @@ Perl_class_role_finalize(pTHX_ OP* o)
     }
     SvREADONLY_on(stash);
     PL_parser->in_class = FALSE;
+}
+
+/*
+=for apidoc method_field_type
+
+Try to detect if the method_named call is a method call on an object class field.
+$self, the object target needs to be typed to a class.
+
+Returns the field type:
+   1 - scalar
+   2 - array
+   3 - hash
+or 0 if none.
+=cut
+*/
+int
+Perl_method_field_type(pTHX_ OP* o)
+{
+    PERL_ARGS_ASSERT_METHOD_FIELD_TYPE;
+    assert(IS_TYPE(o, ENTERSUB));
+    /* TODO: there might be a nullified list before */
+    if (OP_TYPE_IS(OpFIRST(o), OP_PUSHMARK)) {
+        OP *arg = OpSIBLING(OpFIRST(o));
+        /* first and only arg is typed $self */
+        if (OP_TYPE_IS(arg, OP_PADSV) &&
+            arg->op_targ &&
+            (o = OpSIBLING(arg)) &&
+            IS_TYPE(o, METHOD_NAMED))
+        {
+            SV* const meth  = cMETHOPx_meth(o);
+            HV* const klass = PAD_COMPNAME_TYPE(arg->op_targ);
+            if (meth && SvPOK(meth) && klass && HvCLASS(klass)) {
+                const I32 klen = SvUTF8(meth) ? -SvCUR(meth) : SvCUR(meth);
+                const PADOFFSET pad = field_pad(klass, SvPVX(meth), klen);
+                OpRETTYPE_set(arg, type_Object);
+                if (pad != NOT_IN_PAD) {
+                    const char c = *PAD_COMPNAME_PV(pad);
+                    if (c == '$')
+                        return METHOD_FIELD_SCALAR;
+                    else if (c == '@')
+                        return METHOD_FIELD_ARRAY;
+                    else if (c == '%')
+                        return METHOD_FIELD_HASH;
+                    else /* cannot happen */
+                        Perl_croak(aTHX_
+                            "panic: Unknown method field type for %s",
+                             PAD_COMPNAME_PV(pad));
+                }
+            }
+        }
+    }
+    return METHOD_FIELD_NONE;
 }
 
 /*

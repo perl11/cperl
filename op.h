@@ -1138,6 +1138,13 @@ static const char * const deprecated_above_ff_msg
       "Perl 5.28";
 #endif
 
+/* See L<perlapi/method_field_type> */
+/* Corresponding to has $field, @field or %field */
+#define METHOD_FIELD_NONE   0
+#define METHOD_FIELD_SCALAR 1
+#define METHOD_FIELD_ARRAY  2
+#define METHOD_FIELD_HASH   3
+
 /*
  * ex: set ts=8 sts=4 sw=4 et:
  */

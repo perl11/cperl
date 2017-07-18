@@ -3428,6 +3428,12 @@ PERL_CALLCONV SV*	Perl_mess_sv(pTHX_ SV* basemsg, bool consume)
 #define PERL_ARGS_ASSERT_MESS_SV	\
 	assert(basemsg)
 
+PERL_CALLCONV int	Perl_method_field_type(pTHX_ OP* o)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_METHOD_FIELD_TYPE	\
+	assert(o)
+
 PERL_CALLCONV Free_t	Perl_mfree(Malloc_t where)
 			__attribute__global__;
 
@@ -8594,7 +8600,7 @@ STATIC OP*	S_no_fh_allowed(pTHX_ OP *o)
 #define PERL_ARGS_ASSERT_NO_FH_ALLOWED	\
 	assert(o)
 
-STATIC void	S_op_check_type(pTHX_ OP* o, OP* left, OP* right)
+STATIC void	S_op_check_type(pTHX_ OP* o, OP* left, OP* right, bool is_assign)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3);

@@ -358,6 +358,7 @@
 #define mess			Perl_mess
 #endif
 #define mess_sv(a,b)		Perl_mess_sv(aTHX_ a,b)
+#define method_field_type(a)	Perl_method_field_type(aTHX_ a)
 #define mg_clear(a)		Perl_mg_clear(aTHX_ a)
 #define mg_copy(a,b,c,d)	Perl_mg_copy(aTHX_ a,b,c,d)
 #define mg_find			Perl_mg_find
@@ -1766,7 +1767,7 @@
 #define new_slab(a)		S_new_slab(aTHX_ a)
 #define no_bareword_allowed(a)	S_no_bareword_allowed(aTHX_ a)
 #define no_fh_allowed(a)	S_no_fh_allowed(aTHX_ a)
-#define op_check_type(a,b,c)	S_op_check_type(aTHX_ a,b,c)
+#define op_check_type(a,b,c,d)	S_op_check_type(aTHX_ a,b,c,d)
 #define op_const_sv(a,b,c)	S_op_const_sv(aTHX_ a,b,c)
 #define op_destroy(a)		S_op_destroy(aTHX_ a)
 #define op_integerize(a)	S_op_integerize(aTHX_ a)

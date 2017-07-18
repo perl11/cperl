@@ -437,7 +437,7 @@ pod/perlapi.pod	Verbatim line length including indents exceeds 79 by	9
 pod/perlbook.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlce.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlclass.pod	Apparent broken link	1
-pod/perlclass.pod	Verbatim line length including indents exceeds 79 by	3
+pod/perlclass.pod	Verbatim line length including indents exceeds 79 by	2
 pod/perlcperl.pod	? Should you be using F<...> or maybe L<...> instead of	1
 pod/perlcperl.pod	Apparent broken link	1
 pod/perlcperl.pod	Verbatim line length including indents exceeds 79 by	11
