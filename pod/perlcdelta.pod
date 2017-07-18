@@ -64,6 +64,11 @@ File::chdir to install.
 
 Bump versions of 3 Socket modules.
 
+=item L<Memoize> 1.03
+
+Skip flapping, timer-sensitive F<t/expmod_t.t> tests
+on Travis CI.
+
 =item L<Net::Ping> 2.61
 
 Fix ping_udp for a started udp echo server (PR#5 by Stephan Loyd)
