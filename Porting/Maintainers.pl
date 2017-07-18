@@ -579,6 +579,7 @@ use File::Glob qw(:case);
                             encoding.pm
                             t/enc_eucjp.t
                             t/enc_utf8.t
+                            t/Aliases.t
                             )],
     },
 

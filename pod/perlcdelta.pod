@@ -218,6 +218,13 @@ Restore silence under C<make -s>. I broke it in cperl 5.27.0
 Add C<#if { CPERL && VERSION > 5.26.0 }> support,
 support parser enum expectation.
 
+=item L<Encode>
+
+Skip the flapping test F<t/Aliases.t> on threaded smokers, with random
+segfaults.  This is a long standing core bug, with PMOP aliases or
+clone. First observed at L<https://github.com/rurban/perl-compiler/issues/73>
+(since 5.6)
+
 =item L<ExtUtils::Constant> 0.23_09
 
 C++ compat fixes. -Wliteral-suffix
