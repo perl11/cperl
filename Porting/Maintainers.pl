@@ -1034,6 +1034,7 @@ use File::Glob qw(:case);
         'DISTRIBUTION' => 'MJD/Memoize-1.03.tgz',
         'FILES'        => q[cpan/Memoize],
         'EXCLUDED'     => ['article.html'],
+        'CUSTOMIZED'   => ['t/expmod_t.t'],
     },
 
     'MIME::Base64' => {
