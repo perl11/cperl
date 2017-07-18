@@ -50,6 +50,13 @@ allow @0, &0, ... types.
 
 MSVC 14.0 support and higher, changed nan in the runtime.
 
+=item L<Encode>
+
+Skip the flapping test F<t/Aliases.t> on threaded smokers, with random
+segfaults.  This is a long standing core bug, with PMOP aliases or
+clone. First observed at L<https://github.com/rurban/perl-compiler/issues/73>
+(since 5.6)
+
 =item L<ExtUtils::MakeMaker> 8.04_05
 
 Support IO::Scalar handle as $parsefile argument to
