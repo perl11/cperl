@@ -449,7 +449,8 @@ PP(pp_rv2sv)
 }
 
 /* run-time field lookup. possible lvalue. oelem $obj, fieldname.
-   fields may be arrays or hashes.
+   obj might be a global SV, not a lexical.
+   fields may also be arrays or hashes.
  */
 PPt(pp_oelem, "(:Ref,:Str):Any")
 {
@@ -479,6 +480,54 @@ PPt(pp_oelem, "(:Ref,:Str):Any")
     }
     svp = av_fetch(MUTABLE_AV(SvRV(obj)), ix, lvalue);
     if (svp) TOPs = *svp;
+    RETURN;
+}
+
+/* fast field lookup. possible lvalue. oelemfast $obj, fieldindex
+   obj is already checked for a class object at compile-time,
+   ditto ix for a valid field index.
+   fields may be also arrays or hashes.
+ */
+PPt(pp_oelemfast, "(:Ref,:Int):Any")
+{
+    dSP;
+    SV * const obj = PAD_SVl(PL_op->op_targ);
+    const U8 ix    = PL_op->op_private;
+    const bool lvalue = cBOOL((PL_op->op_flags & OPf_MOD || LVRET));
+    /*HV * stash;
+
+    if (UNLIKELY(!obj || SvOBJECT(obj) || !(stash = SvSTASH(obj)) || !SvOOK(stash)
+                 || !SvROK(obj) || SvTYPE(SvRV(obj)) != SVt_PVAV))
+        DIE(aTHX_ "Invalid object");
+    if (UNLIKELY(!HvCLASS(stash))) {
+        const char *name = HvNAME_get(stash) ? HEK_KEY(HvNAME_HEK_NN(stash)) : "__ANON__";
+        Perl_die(aTHX_ "Not a class %s", name);
+    }*/
+    EXTEND(SP, 1);
+    SETs(AvARRAY(MUTABLE_AV(SvRV(obj)))[ix]);
+    if (lvalue && !TOPs) {
+        GV *fields;
+        HV *stash = SvSTASH(obj);
+        SV *name = newSVhek(HvNAME_HEK_NN(stash));
+        assert(HvCLASS(stash));
+        sv_catpvs(name, "::FIELDS");
+        fields = gv_fetchsv(name, 0, SVt_PVAV);
+        assert(fields && GvAV(fields));
+        {
+            SV *pad = AvARRAY(GvAV(fields))[ix];
+            const PADOFFSET po = SvIVX(pad);
+            const PADNAME* pn = PAD_COMPNAME(po);
+            assert(SvIOK(pad));
+            /* XXX typed? */
+
+            if (*PadnamePV(pn) == '$')
+                SETs(newSV(0));
+            else if (*PadnamePV(pn) == '@')
+                SETs(newSV_type(SVt_PVAV));
+            else if (*PadnamePV(pn) == '%')
+                SETs(newSV_type(SVt_PVHV));
+        }
+    }
     RETURN;
 }
 

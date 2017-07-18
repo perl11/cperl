@@ -271,7 +271,7 @@ Improve some tests on missing network connections
 
 =item L<Opcode> 1.39_02c
 
-Added new 'oelem' to :base_core
+Added new 'oelem' and 'oelemfast' to :base_core
 
 =item L<Search::Dict> 1.07_01
 

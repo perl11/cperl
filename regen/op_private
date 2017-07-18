@@ -299,7 +299,7 @@ for (qw(nextstate dbstate)) {
 # disabled for aelem*_u
 
 addbits($_, 7 => qw(OPpLVAL_INTRO LVINTRO))
-    for qw(gvsv rv2sv rv2hv rv2gv rv2av aelem helem aslice split
+    for qw(gvsv rv2sv rv2hv rv2gv rv2av aelem helem oelem aslice split
            hslice delete padsv padav padhv enteriter entersub enterxssub padrange
            pushmark cond_expr refassign lvref lvrefslice lvavref multideref
            ),
@@ -449,9 +449,9 @@ addbits($_, 6 => qw(OPpOUR_INTRO OURINTR)) # Variable was in an our()
 
 # We might be an lvalue to return
 addbits($_, 3 => qw(OPpMAYBE_LVSUB LVSUB))
-    for qw(aassign rv2av rv2gv rv2hv padav padhv aelem aelem_u helem aslice
-           hslice av2arylen keys akeys avhvswitch kvaslice kvhslice substr
-           pos vec multideref);
+    for qw(aassign rv2av rv2gv rv2hv padav padhv aelem aelem_u helem oelem
+           aslice hslice av2arylen keys akeys avhvswitch kvaslice kvhslice
+           substr pos vec multideref);
 
 
 # specialize boolean context to WANT_SCALAR
@@ -625,7 +625,7 @@ addbits('padrange',
 
 
 
-for (qw(aelemfast aelemfast_lex aelemfast_lex_u)) {
+for (qw(aelemfast aelemfast_lex aelemfast_lex_u oelemfast)) {
     addbits($_,
         '0..7' =>  {
                 label     => 'key',

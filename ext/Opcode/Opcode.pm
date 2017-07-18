@@ -316,7 +316,7 @@ invert_opset function.
     n_aelem s_aelem_u i_aelem_u i_aelem n_aelem_u s_aelem
 
     rv2hv helem hslice kvhslice each values keys exists delete
-    aeach akeys avalues multideref signature oelem
+    aeach akeys avalues multideref signature oelem oelemfast
 
     preinc i_preinc predec i_predec postinc i_postinc
     postdec i_postdec int hex oct abs pow i_pow
