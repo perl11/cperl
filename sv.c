@@ -7004,7 +7004,6 @@ S_curse(pTHX_ SV * const sv, const bool check_refcnt) {
             struct mro_meta *meta;
 
 	    assert (SvOOK(stash));
-
             DEBUG_o( Perl_deb(aTHX_ "Looking for DESTROY method for %s\n",
                          HvNAME(stash)) );
 
@@ -7018,8 +7017,7 @@ S_curse(pTHX_ SV * const sv, const bool check_refcnt) {
             }
             else {
                 bool autoload = FALSE;
-		GV *gv =
-                    gv_fetchmeth_pvn(stash, S_destroy, S_destroy_len, -1, 0);
+		GV *gv = gv_fetchmeth_pvn(stash, S_destroy, S_destroy_len, -1, 0);
 		if (gv)
                     destructor = GvCV(gv);
                 if (!destructor) {

@@ -58,7 +58,7 @@ S_mro_get_linear_isa_c3(pTHX_ HV* stash, U32 level)
 
     /* not in cache, make a new one */
 
-    gvp = (GV**)hv_fetchs(stash, "ISA", FALSE);
+    gvp = (GV**)hv_fetchs_ifexists(stash, "ISA", FALSE);
     isa = (gvp && (gv = *gvp) && isGV_with_GP(gv)) ? GvAV(gv) : NULL;
 
     /* For a better idea how the rest of this works, see the much clearer
@@ -666,7 +666,7 @@ mro__nextcan(...)
 
             assert(curstash);
 
-            gvp = (GV**)hv_fetch(curstash, subname,
+            gvp = (GV**)hv_fetch_ifexists(curstash, subname,
                             subname_utf8 ? -(I32)subname_len : (I32)subname_len, 0);
             if (!gvp) continue;
 
