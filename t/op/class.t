@@ -5,7 +5,7 @@ BEGIN {
     #require './test.pl';
 }
 local($\, $", $,) = (undef, ' ', '');
-print "1..26\n";
+print "1..27\n";
 my $test = 1;
 
 # allow has hash fields (YAML::Mo)
@@ -17,7 +17,7 @@ class Foo {
   #method new         { bless [$a,$b], ref $self ? ref $self : $self }
 
   method meth1 {
-    print "ok $test # Foo->meth1\n"; $test++; 
+    print "ok $test # Foo->meth1 w/ $self\n"; $test++; 
     $a + 1
   }
   multi method mul1 (Foo $self, Int $a) {
@@ -56,11 +56,13 @@ print $c->a != 1 ? "not " : "", "ok ", $test++, " # \$c->a :lvalue write\n";
 # allow class as methodname (B), deal with reserved names: method, class, multi
 package Baz;
 sub class { print "ok $test # Baz::class\n"; $test++ }
+sub meth ($self) :method { print "ok $test # :method w/ self \n"; $test++ }
 package main;
 sub Bar::class { print "ok $test # Bar::class\n"; $test++ }
 Bar::class();
 Baz->class();
 Bar->class();
+Baz->meth();
 
 # custom new
 class Baz1 is Foo {}

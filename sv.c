@@ -5903,18 +5903,15 @@ Perl_sv_magic(pTHX_ SV *const sv, SV *const obj, const int how,
 	? NULL : PL_magic_vtables + vtable_index;
 
     if (SvREADONLY(sv)) {
-	if (
-	    !PERL_MAGIC_TYPE_READONLY_ACCEPTABLE(how)
-	   )
-	{
+	if (!PERL_MAGIC_TYPE_READONLY_ACCEPTABLE(how) &&
+            (!HvCLASS(sv) || how != PERL_MAGIC_overload_table)) {
 	    Perl_croak_no_modify();
 	}
     }
     if (SvMAGICAL(sv) || (how == PERL_MAGIC_taint && SvTYPE(sv) >= SVt_PVMG)) {
 	if (SvMAGIC(sv) && (mg = mg_find(sv, how))) {
 	    /* sv_magic() refuses to add a magic of the same 'how' as an
-	       existing one
-	     */
+	       existing one. */
 	    if (how == PERL_MAGIC_taint)
 		mg->mg_len |= 1;
 	    return;

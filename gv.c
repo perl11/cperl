@@ -739,9 +739,10 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
     assert(hvname);
     assert(name || meth);
 
-    DEBUG_o( Perl_deb(aTHX_ "Looking for %smethod %s in package %s\n",
+    DEBUG_o( Perl_deb(aTHX_ "Looking for %smethod %s in %s %s\n",
 		      flags & GV_SUPER ? "SUPER " : "",
-		      name ? name : SvPV_nolen(meth), hvname) );
+		      name ? name : SvPV_nolen(meth),
+                      HvPKGTYPE_NN(stash), hvname) );
 
     topgen_cmp = HvMROMETA(stash)->cache_gen + PL_sub_generation;
 
@@ -2726,176 +2727,188 @@ Perl_magic_freeovrld(pTHX_ SV *sv, MAGIC *mg)
 
 /* Updates and caches the CV's */
 /* Returns:
- * 1 on success and there is some overload
- * 0 if there is no overload
- * -1 if some error occurred and it couldn't croak
+ *   1 on success and there is some overload
+ *   0 if there is no overload
+ *  -1 if some error occurred and it couldn't croak
  */
 
 int
 Perl_Gv_AMupdate(pTHX_ HV *stash, bool destructing)
 {
-  MAGIC* const mg = mg_find((const SV *)stash, PERL_MAGIC_overload_table);
-  const struct mro_meta* stash_meta = HvMROMETA(stash);
-  AMT amt;
-  U32 newgen;
+    MAGIC* const mg = mg_find((const SV *)stash, PERL_MAGIC_overload_table);
+    const struct mro_meta* stash_meta = HvMROMETA(stash);
+    AMT amt;
+    U32 newgen;
+    bool is_closed = SvREADONLY(MUTABLE_SV(stash));
 
-  PERL_ARGS_ASSERT_GV_AMUPDATE;
+    PERL_ARGS_ASSERT_GV_AMUPDATE;
 
-  newgen = PL_sub_generation + stash_meta->pkg_gen + stash_meta->cache_gen;
-  if (mg) {
-      const AMT * const amtp = (AMT*)mg->mg_ptr;
-      if (amtp->was_ok_sub == newgen) {
-	  return AMT_AMAGIC(amtp) ? 1 : 0;
-      }
-      sv_unmagic(MUTABLE_SV(stash), PERL_MAGIC_overload_table);
-  }
-
-  DEBUG_o( Perl_deb(aTHX_ "Recalcing overload magic in package %s\n",HvNAME_get(stash)) );
-
-  Zero(&amt,1,AMT);
-  amt.was_ok_sub = newgen;
-  amt.fallback = AMGfallNO;
-  amt.flags = 0;
-
-  {
-    int filled = 0;
-    int i;
-    bool deref_seen = 0;
-
-
-    /* Work with "fallback" key, which we assume to be first in PL_AMG_names */
-
-    /* Try to find via inheritance. */
-    GV *gv = gv_fetchmeth_pvn(stash, PL_AMG_names[0], 2, -1, 0);
-    SV * const sv = gv ? GvSV(gv) : NULL;
-    CV* cv;
-
-    if (!gv) {
-      if (!gv_fetchmeth_pvn(stash, "((", 2, -1, 0))
-	goto no_table;
+    newgen = PL_sub_generation + stash_meta->pkg_gen + stash_meta->cache_gen;
+    if (mg) {
+        const AMT * const amtp = (AMT*)mg->mg_ptr;
+        if (amtp->was_ok_sub == newgen) {
+            return AMT_AMAGIC(amtp) ? 1 : 0;
+        }
+        sv_unmagic(MUTABLE_SV(stash), PERL_MAGIC_overload_table);
     }
+
+    DEBUG_o( Perl_deb(aTHX_ "Recalcing overload magic in %s %s\n",
+                      HvPKGTYPE_NN(stash),
+                      HvNAME_get(stash)) );
+
+    Zero(&amt, 1, AMT);
+    amt.was_ok_sub = newgen;
+    amt.fallback = AMGfallNO;
+    amt.flags = 0;
+
+    {
+        int filled = 0;
+        int i;
+        bool deref_seen = 0;
+
+
+        /* Work with "fallback" key, which we assume to be first in PL_AMG_names */
+
+        /* Try to find via inheritance. First "$CLASS::x()" */
+        GV *gv = gv_fetchmeth_pvn(stash, PL_AMG_names[0], 2, -1, 0);
+        SV * const sv = gv ? GvSV(gv) : NULL;
+        CV* cv;
+
+        if (!gv) {
+            /* Then "$CLASS::x((" */
+            if (!gv_fetchmeth_pvn(stash, "((", 2, -1, 0)) {
+                /* Dont cache readonly classes */
+                if (is_closed) return 0;
+                goto no_table;
+            }
+        }
 #ifdef PERL_DONT_CREATE_GVSV
-    else if (!sv) {
-	NOOP;   /* Equivalent to !SvTRUE and !SvOK  */
-    }
+        else if (!sv) {
+            NOOP;   /* Equivalent to !SvTRUE and !SvOK  */
+        }
 #endif
-    else if (SvTRUE(sv))
-        /* don't need to set overloading here because fallback => 1
-         * is the default setting for classes without overloading */
-	amt.fallback=AMGfallYES;
-    else if (SvOK(sv)) {
-	amt.fallback=AMGfallNEVER;
-        filled = 1;
-    }
-    else {
-        filled = 1;
-    }
+        else if (SvTRUE(sv))
+            /* don't need to set overloading here because fallback => 1
+             * is the default setting for classes without overloading */
+            amt.fallback = AMGfallYES;
+        else if (SvOK(sv)) {
+            amt.fallback = AMGfallNEVER;
+            filled = 1;
+        }
+        else {
+            filled = 1;
+        }
 
-    assert(SvOOK(stash));
-    /* initially assume the worst */
-    HvAUX(stash)->xhv_aux_flags &= ~HvAUXf_NO_DEREF;
+        assert(SvOOK(stash));
+        /* initially assume the worst */
+        HvAUX(stash)->xhv_aux_flags &= ~HvAUXf_NO_DEREF;
 
-    for (i = 1; i < NofAMmeth; i++) {
-	const char * const cooky = PL_AMG_names[i];
-	/* Human-readable form, for debugging: */
-	const char * const cp = AMG_id2name(i);
-	const STRLEN l = PL_AMG_namelens[i];
+        for (i = 1; i < NofAMmeth; i++) {
+            const char * const cooky = PL_AMG_names[i];
+            /* Human-readable form, for debugging: */
+            const char * const cp = AMG_id2name(i);
+            const STRLEN l = PL_AMG_namelens[i];
 
-	DEBUG_o( Perl_deb(aTHX_ "Checking overloading of \"%s\" in package \"%.256s\"\n",
-		     cp, HvNAME_get(stash)) );
-	/* don't fill the cache while looking up!
-	   Creation of inheritance stubs in intermediate packages may
-	   conflict with the logic of runtime method substitution.
-	   Indeed, for inheritance A -> B -> C, if C overloads "+0",
-	   then we could have created stubs for "(+0" in A and C too.
-	   But if B overloads "bool", we may want to use it for
-	   numifying instead of C's "+0". */
-	gv = Perl_gv_fetchmeth_pvn(aTHX_ stash, cooky, l, -1, 0);
-        cv = 0;
-        if (gv && (cv = GvCV(gv)) && CvHASGV(cv)) {
-            const HEK * const gvhek =
-                CvNAMED(cv) ? CvNAME_HEK(cv) : GvNAME_HEK(CvGV(cv));
-            const HEK * const stashek =
-                HvNAME_HEK(CvNAMED(cv) ? CvSTASH(cv) : GvSTASH(CvGV(cv)));
-            if (HEK_LEN(gvhek) == 3 && strEQc(HEK_KEY(gvhek), "nil")
-             && stashek && HEK_LEN(stashek) == 8
-             && strEQc(HEK_KEY(stashek), "overload")) {
-		/* This is a hack to support autoloading..., while
-		   knowing *which* methods were declared as overloaded. */
-		/* GvSV contains the name of the method. */
-		GV *ngv = NULL;
-		SV *gvsv = GvSV(gv);
+            DEBUG_o( Perl_deb(aTHX_ "Checking overloading of \"%s\" in %s \"%.256s\"\n",
+                              cp, HvPKGTYPE_NN(stash), HvNAME_get(stash)) );
+            /* don't fill the cache while looking up!
+               Creation of inheritance stubs in intermediate packages may
+               conflict with the logic of runtime method substitution.
+               Indeed, for inheritance A -> B -> C, if C overloads "+0",
+               then we could have created stubs for "(+0" in A and C too.
+               But if B overloads "bool", we may want to use it for
+               numifying instead of C's "+0". */
+            gv = gv_fetchmeth_pvn(stash, cooky, l, -1, 0);
+            cv = 0;
+            if (gv && (cv = GvCV(gv)) && CvHASGV(cv)) {
+                const HEK * const gvhek =
+                    CvNAMED(cv) ? CvNAME_HEK(cv) : GvNAME_HEK(CvGV(cv));
+                const HEK * const stashek =
+                    HvNAME_HEK(CvNAMED(cv) ? CvSTASH(cv) : GvSTASH(CvGV(cv)));
+                if ( HEK_LEN(gvhek) == 3 && strEQc(HEK_KEY(gvhek), "nil")
+                     && stashek && HEK_LEN(stashek) == 8
+                     && strEQc(HEK_KEY(stashek), "overload") )
+                {
+                    /* This is a hack to support autoloading..., while
+                       knowing *which* methods were declared as overloaded. */
+                    /* GvSV contains the name of the method. */
+                    GV *ngv = NULL;
+                    SV *gvsv = GvSV(gv);
 
-		DEBUG_o( Perl_deb(aTHX_ "Resolving method \"%" SVf256\
-			"\" for overloaded \"%s\" in package \"%.256s\"\n",
-			     (void*)GvSV(gv), cp, HvNAME(stash)) );
-		if (!gvsv || !SvPOK(gvsv)
-		    || !(ngv = gv_fetchmethod_sv_flags(stash, gvsv, 0)))
-		{
-		    /* Can be an import stub (created by "can"). */
-		    if (destructing) {
-			return -1;
-		    }
-		    else {
-			const SV * const name = (gvsv && SvPOK(gvsv))
-                                                    ? gvsv
-                                                    : newSVpvs_flags("???", SVs_TEMP);
-			/* diag_listed_as: Can't resolve method "%s" overloading "%s" in package "%s" */
-			Perl_croak(aTHX_ "%s method \"%" SVf256
+                    DEBUG_o( Perl_deb(aTHX_ "Resolving method \"%" SVf256 \
+                        "\" for overloaded \"%s\" in %s \"%.256s\"\n",
+                        (void*)GvSV(gv), cp, HvPKGTYPE_NN(stash), HvNAME(stash)) );
+                    if (!gvsv || !SvPOK(gvsv)
+                        || !(ngv = gv_fetchmethod_sv_flags(stash, gvsv, 0)))
+                    {
+                        /* Can be an import stub (created by "can"). */
+                        if (destructing) {
+                            return -1;
+                        }
+                        else {
+                            const SV * const name = (gvsv && SvPOK(gvsv))
+                                ? gvsv
+                                : newSVpvs_flags("???", SVs_TEMP);
+                            /* diag_listed_as: Can't resolve method "%s" overloading "%s" in package "%s" */
+                            Perl_croak(aTHX_ "%s method \"%" SVf256
 				    "\" overloading \"%s\" "\
-				    "in package \"%" HEKf256 "\"",
+				    "in %s \"%" HEKf256 "\"",
 				   (GvCVGEN(gv) ? "Stub found while resolving"
 				    : "Can't resolve"),
 				   SVfARG(name), cp,
-                                   HEKfARG(
-					HvNAME_HEK(stash)
-				   ));
-		    }
-		}
-		cv = GvCV(gv = ngv);
-	    }
-	    DEBUG_o( Perl_deb(aTHX_ "Overloading \"%s\" in package \"%.256s\" via \"%.256s::%.256s\"\n",
-			 cp, HvNAME_get(stash), HvNAME_get(GvSTASH(CvGV(cv))),
-			 GvNAME(CvGV(cv))) );
-	    filled = 1;
-	} else if (gv) {		/* Autoloaded... */
-	    cv = MUTABLE_CV(gv);
-	    filled = 1;
-	}
-	amt.table[i]=MUTABLE_CV(SvREFCNT_inc_simple(cv));
+                                   HvPKGTYPE_NN(stash),
+                                   HEKfARG(HvNAME_HEK(stash)));
+                        }
+                    }
+                    cv = GvCV(gv = ngv);
+                }
+                DEBUG_o( Perl_deb(aTHX_
+                    "Overloading \"%s\" in %s \"%.256s\" via \"%.256s::%.256s\"\n",
+                     cp, HvPKGTYPE_NN(stash), HvNAME_get(stash), HvNAME_get(GvSTASH(CvGV(cv))),
+                     GvNAME(CvGV(cv))) );
+                filled = 1;
+            } else if (gv) {		/* Autoloaded... */
+                cv = MUTABLE_CV(gv);
+                filled = 1;
+            }
+            amt.table[i] = MUTABLE_CV(SvREFCNT_inc_simple(cv));
 
-        if (gv) {
-            switch (i) {
-            case to_sv_amg:
-            case to_av_amg:
-            case to_hv_amg:
-            case to_gv_amg:
-            case to_cv_amg:
-            case nomethod_amg:
-                deref_seen = 1;
-                break;
+            if (gv) {
+                switch (i) {
+                case to_sv_amg:
+                case to_av_amg:
+                case to_hv_amg:
+                case to_gv_amg:
+                case to_cv_amg:
+                case nomethod_amg:
+                    deref_seen = 1;
+                    break;
+                }
             }
         }
-    }
-    if (!deref_seen)
-        /* none of @{} etc overloaded; we can do $obj->[N] quicker.
-         * NB - aux var invalid here, HvARRAY() could have been
-         * reallocated since it was assigned to */
-        HvAUX(stash)->xhv_aux_flags |= HvAUXf_NO_DEREF;
+        if (!deref_seen)
+            /* none of @{} etc overloaded; we can do $obj->[N] quicker.
+             * NB - aux var invalid here, HvARRAY() could have been
+             * reallocated since it was assigned to */
+            HvAUX(stash)->xhv_aux_flags |= HvAUXf_NO_DEREF;
 
-    if (filled) {
-      AMT_AMAGIC_on(&amt);
-      sv_magic(MUTABLE_SV(stash), 0, PERL_MAGIC_overload_table,
-						(char*)&amt, sizeof(AMT));
-      return TRUE;
+        if (filled) {
+            AMT_AMAGIC_on(&amt);
+            sv_magic(MUTABLE_SV(stash), 0, PERL_MAGIC_overload_table,
+                     (char*)&amt, sizeof(AMT));
+            return TRUE;
+        }
     }
-  }
-  /* Here we have no table: */
+    /* Here we have no table, cache the empty amt. */
  no_table:
-  AMT_AMAGIC_off(&amt);
-  sv_magic(MUTABLE_SV(stash), 0, PERL_MAGIC_overload_table,
-						(char*)&amt, sizeof(AMTS));
-  return 0;
+    AMT_AMAGIC_off(&amt);
+    if (is_closed)
+        SvFLAGS(stash) &= ~SVf_READONLY;
+    sv_magic(MUTABLE_SV(stash), 0, PERL_MAGIC_overload_table,
+             (char*)&amt, sizeof(AMTS));
+    if (is_closed)
+        SvFLAGS(stash) |= SVf_READONLY;
+    return 0;
 }
 
 
@@ -3108,273 +3121,273 @@ Perl_amagic_is_enabled(pTHX_ int method)
 SV*
 Perl_amagic_call(pTHX_ SV *left, SV *right, int method, int flags)
 {
-  dVAR;
-  MAGIC *mg;
-  CV *cv=NULL;
-  CV **cvp=NULL, **ocvp=NULL;
-  AMT *amtp=NULL, *oamtp=NULL;
-  HV* stash=NULL;
-  int off = 0, off1, lr = 0, notfound = 0;
-  int postpr = 0, force_cpy = 0;
-  int assign = AMGf_assign & flags;
-  const int assignshift = assign ? 1 : 0;
-  int use_default_op = 0;
-  int force_scalar = 0;
+    dVAR;
+    MAGIC *mg;
+    CV *cv = NULL;
+    CV **cvp = NULL, **ocvp = NULL;
+    AMT *amtp = NULL, *oamtp = NULL;
+    HV* stash = NULL;
+    int off = 0, off1, lr = 0, notfound = 0;
+    int postpr = 0, force_cpy = 0;
+    int assign = AMGf_assign & flags;
+    const int assignshift = assign ? 1 : 0;
+    int use_default_op = 0;
+    int force_scalar = 0;
 #ifdef DEBUGGING
-  int fl=0;
+    int fl=0;
 #endif
 
-  PERL_ARGS_ASSERT_AMAGIC_CALL;
+    PERL_ARGS_ASSERT_AMAGIC_CALL;
 
-  if ( PL_curcop->cop_hints & HINT_NO_AMAGIC ) {
-      if (!amagic_is_enabled(method)) return NULL;
-  }
+    if ( PL_curcop->cop_hints & HINT_NO_AMAGIC ) {
+        if (!amagic_is_enabled(method)) return NULL;
+    }
 
-  if (!(AMGf_noleft & flags) && SvAMAGIC(left)
-      && (stash = SvSTASH(SvRV(left))) && Gv_AMG(stash)
-      && (mg = mg_find((const SV *)stash, PERL_MAGIC_overload_table))
-      && (ocvp = cvp = (AMT_AMAGIC((AMT*)mg->mg_ptr)
+    if (!(AMGf_noleft & flags) && SvAMAGIC(left)
+        && (stash = SvSTASH(SvRV(left))) && Gv_AMG(stash)
+        && (mg = mg_find((const SV *)stash, PERL_MAGIC_overload_table))
+        && (ocvp = cvp = (AMT_AMAGIC((AMT*)mg->mg_ptr)
 			? (oamtp = amtp = (AMT*)mg->mg_ptr)->table
 			: NULL))
-      && ((cv = cvp[off=method+assignshift])
+        && ((cv = cvp[off=method+assignshift])
 	  || (assign && amtp->fallback > AMGfallNEVER && /* fallback to
 						          * usual method */
-		  (
+              (
 #ifdef DEBUGGING
-		   fl = 1,
+               fl = 1,
 #endif
-		   cv = cvp[off=method])))) {
-    lr = -1;			/* Call method for left argument */
-  } else {
-    if (cvp && amtp->fallback > AMGfallNEVER && flags & AMGf_unary) {
-      int logic;
-
-      /* look for substituted methods */
-      /* In all the covered cases we should be called with assign==0. */
-	 switch (method) {
-	 case inc_amg:
-	   force_cpy = 1;
-	   if ((cv = cvp[off=add_ass_amg])
-	       || ((cv = cvp[off = add_amg]) && (force_cpy = 0, postpr = 1))) {
-	     right = SV_YES; lr = -1; assign = 1;
-	   }
-	   break;
-	 case dec_amg:
-	   force_cpy = 1;
-	   if ((cv = cvp[off = subtr_ass_amg])
-	       || ((cv = cvp[off = subtr_amg]) && (force_cpy = 0, postpr=1))) {
-	     right = SV_YES; lr = -1; assign = 1;
-	   }
-	   break;
-	 case bool__amg:
-	   (void)((cv = cvp[off=numer_amg]) || (cv = cvp[off=string_amg]));
-	   break;
-	 case numer_amg:
-	   (void)((cv = cvp[off=string_amg]) || (cv = cvp[off=bool__amg]));
-	   break;
-	 case string_amg:
-	   (void)((cv = cvp[off=numer_amg]) || (cv = cvp[off=bool__amg]));
-	   break;
-         case not_amg:
-           (void)((cv = cvp[off=bool__amg])
-                  || (cv = cvp[off=numer_amg])
-                  || (cv = cvp[off=string_amg]));
-           if (cv)
-               postpr = 1;
-           break;
-	 case copy_amg:
-	   {
-	     /*
-		  * SV* ref causes confusion with the interpreter variable of
-		  * the same name
-		  */
-	     SV* const tmpRef=SvRV(left);
-	     if (!SvROK(tmpRef) && SvTYPE(tmpRef) <= SVt_PVMG) {
-		/*
-		 * Just to be extra cautious.  Maybe in some
-		 * additional cases sv_setsv is safe, too.
-		 */
-		SV* const newref = newSVsv(tmpRef);
-		SvOBJECT_on(newref);
-		/* No need to do SvAMAGIC_on here, as SvAMAGIC macros
-		   delegate to the stash. */
-		SvSTASH_set(newref, MUTABLE_HV(SvREFCNT_inc(SvSTASH(tmpRef))));
-		return newref;
-	     }
-	   }
-	   break;
-	 case abs_amg:
-	   if ((cvp[off1=lt_amg] || cvp[off1=ncmp_amg])
-	       && ((cv = cvp[off=neg_amg]) || (cv = cvp[off=subtr_amg]))) {
-	     SV* const nullsv=sv_2mortal(newSViv(0));
-	     if (off1==lt_amg) {
-	       SV* const lessp = amagic_call(left,nullsv,
-				       lt_amg,AMGf_noright);
-	       logic = SvTRUE(lessp);
-	     } else {
-	       SV* const lessp = amagic_call(left,nullsv,
-				       ncmp_amg,AMGf_noright);
-	       logic = (SvNV(lessp) < 0);
-	     }
-	     if (logic) {
-	       if (off==subtr_amg) {
-		 right = left;
-		 left = nullsv;
-		 lr = 1;
-	       }
-	     } else {
-	       return left;
-	     }
-	   }
-	   break;
-	 case neg_amg:
-	   if ((cv = cvp[off=subtr_amg])) {
-	     right = left;
-	     left = sv_2mortal(newSViv(0));
-	     lr = 1;
-	   }
-	   break;
-	 case int_amg:
-	 case iter_amg:			/* XXXX Eventually should do to_gv. */
-	 case ftest_amg:		/* XXXX Eventually should do to_gv. */
-	 case regexp_amg:
-	     /* FAIL safe */
-	     return NULL;	/* Delegate operation to standard mechanisms. */
-
-	 case to_sv_amg:
-	 case to_av_amg:
-	 case to_hv_amg:
-	 case to_gv_amg:
-	 case to_cv_amg:
-	     /* FAIL safe */
-	     return left;	/* Delegate operation to standard mechanisms. */
-
-	 default:
-	   goto not_found;
-	 }
-	 if (!cv) goto not_found;
-    } else if (!(AMGf_noright & flags) && SvAMAGIC(right)
-	       && (stash = SvSTASH(SvRV(right))) && Gv_AMG(stash)
-	       && (mg = mg_find((const SV *)stash, PERL_MAGIC_overload_table))
-	       && (cvp = (AMT_AMAGIC((AMT*)mg->mg_ptr)
-			  ? (amtp = (AMT*)mg->mg_ptr)->table
-			  : NULL))
-	       && (cv = cvp[off=method])) { /* Method for right
-					     * argument found */
-      lr=1;
-    } else if (((cvp && amtp->fallback > AMGfallNEVER)
-                || (ocvp && oamtp->fallback > AMGfallNEVER))
-	       && !(flags & AMGf_unary)) {
-				/* We look for substitution for
-				 * comparison operations and
-				 * concatenation */
-      if (method==concat_amg || method==concat_ass_amg
-	  || method==repeat_amg || method==repeat_ass_amg) {
-	return NULL;		/* Delegate operation to string conversion */
-      }
-      off = -1;
-      switch (method) {
-	 case lt_amg:
-	 case le_amg:
-	 case gt_amg:
-	 case ge_amg:
-	 case eq_amg:
-	 case ne_amg:
-             off = ncmp_amg;
-             break;
-	 case slt_amg:
-	 case sle_amg:
-	 case sgt_amg:
-	 case sge_amg:
-	 case seq_amg:
-	 case sne_amg:
-             off = scmp_amg;
-             break;
-	 }
-      if (off != -1) {
-          if (ocvp && (oamtp->fallback > AMGfallNEVER)) {
-              cv = ocvp[off];
-              lr = -1;
-          }
-          if (!cv && (cvp && amtp->fallback > AMGfallNEVER)) {
-              cv = cvp[off];
-              lr = 1;
-          }
-      }
-      if (cv)
-          postpr = 1;
-      else
-          goto not_found;
+               cv = cvp[off=method])))) {
+        lr = -1;			/* Call method for left argument */
     } else {
-    not_found:			/* No method found, either report or croak */
-      switch (method) {
-	 case to_sv_amg:
-	 case to_av_amg:
-	 case to_hv_amg:
-	 case to_gv_amg:
-	 case to_cv_amg:
-	     /* FAIL safe */
-	     return left;	/* Delegate operation to standard mechanisms. */
-      }
-      if (ocvp && (cv=ocvp[nomethod_amg])) { /* Call report method */
-	notfound = 1; lr = -1;
-      } else if (cvp && (cv=cvp[nomethod_amg])) {
-	notfound = 1; lr = 1;
-      } else if ((use_default_op =
-                  (!ocvp || oamtp->fallback >= AMGfallYES)
-                  && (!cvp || amtp->fallback >= AMGfallYES))
-                 && !DEBUG_o_TEST) {
-	/* Skip generating the "no method found" message.  */
-	return NULL;
-      } else {
-	SV *msg;
-	if (off==-1) off=method;
-	msg = sv_2mortal(Perl_newSVpvf(aTHX_
-		      "Operation \"%s\": no method found,%sargument %s%" SVf "%s%" SVf,
- 		      AMG_id2name(method + assignshift),
- 		      (flags & AMGf_unary ? " " : "\n\tleft "),
- 		      SvAMAGIC(left)?
- 		        "in overloaded package ":
- 		        "has no overloaded magic",
- 		      SvAMAGIC(left)?
-		        SVfARG(sv_2mortal(newSVhek(HvNAME_HEK(SvSTASH(SvRV(left)))))):
-		        SVfARG(SV_NO),
- 		      SvAMAGIC(right)?
- 		        ",\n\tright argument in overloaded package ":
- 		        (flags & AMGf_unary
- 			 ? ""
- 			 : ",\n\tright argument has no overloaded magic"),
- 		      SvAMAGIC(right)?
-		        SVfARG(sv_2mortal(newSVhek(HvNAME_HEK(SvSTASH(SvRV(right)))))):
-		        SVfARG(SV_NO)));
-        if (use_default_op) {
-	  DEBUG_o( Perl_deb(aTHX_ "%" SVf, SVfARG(msg)) );
-	} else {
-	  Perl_croak(aTHX_ "%" SVf, SVfARG(msg));
-	}
-	return NULL;
-      }
-      force_cpy = force_cpy || assign;
-    }
-  }
+        if (cvp && amtp->fallback > AMGfallNEVER && flags & AMGf_unary) {
+            int logic;
 
-  switch (method) {
-    /* in these cases, we're calling '+' or '-' as a fallback for a ++ or --
-     * operation. we need this to return a value, so that it can be assigned
-     * later on, in the postpr block (case inc_amg/dec_amg), even if the
-     * increment or decrement was itself called in void context */
+            /* look for substituted methods */
+            /* In all the covered cases we should be called with assign==0. */
+            switch (method) {
+            case inc_amg:
+                force_cpy = 1;
+                if ((cv = cvp[off=add_ass_amg])
+                    || ((cv = cvp[off = add_amg]) && (force_cpy = 0, postpr = 1))) {
+                    right = SV_YES; lr = -1; assign = 1;
+                }
+                break;
+            case dec_amg:
+                force_cpy = 1;
+                if ((cv = cvp[off = subtr_ass_amg])
+                    || ((cv = cvp[off = subtr_amg]) && (force_cpy = 0, postpr=1))) {
+                    right = SV_YES; lr = -1; assign = 1;
+                }
+                break;
+            case bool__amg:
+                (void)((cv = cvp[off=numer_amg]) || (cv = cvp[off=string_amg]));
+                break;
+            case numer_amg:
+                (void)((cv = cvp[off=string_amg]) || (cv = cvp[off=bool__amg]));
+                break;
+            case string_amg:
+                (void)((cv = cvp[off=numer_amg]) || (cv = cvp[off=bool__amg]));
+                break;
+            case not_amg:
+                (void)((cv = cvp[off=bool__amg])
+                       || (cv = cvp[off=numer_amg])
+                       || (cv = cvp[off=string_amg]));
+                if (cv)
+                    postpr = 1;
+                break;
+            case copy_amg:
+                {
+                    /*
+                     * SV* ref causes confusion with the interpreter variable of
+                     * the same name
+                     */
+                    SV* const tmpRef=SvRV(left);
+                    if (!SvROK(tmpRef) && SvTYPE(tmpRef) <= SVt_PVMG) {
+                        /*
+                         * Just to be extra cautious.  Maybe in some
+                         * additional cases sv_setsv is safe, too.
+                         */
+                        SV* const newref = newSVsv(tmpRef);
+                        SvOBJECT_on(newref);
+                        /* No need to do SvAMAGIC_on here, as SvAMAGIC macros
+                           delegate to the stash. */
+                        SvSTASH_set(newref, MUTABLE_HV(SvREFCNT_inc(SvSTASH(tmpRef))));
+                        return newref;
+                    }
+                }
+                break;
+            case abs_amg:
+                if ((cvp[off1 = lt_amg] || cvp[off1 = ncmp_amg])
+                    && ((cv = cvp[off=neg_amg]) || (cv = cvp[off=subtr_amg]))) {
+                    SV* const nullsv=sv_2mortal(newSViv(0));
+                    if (off1 == lt_amg) {
+                        SV* const lessp = amagic_call(left,nullsv,
+                                                      lt_amg,AMGf_noright);
+                        logic = SvTRUE(lessp);
+                    } else {
+                        SV* const lessp = amagic_call(left,nullsv,
+                                                      ncmp_amg,AMGf_noright);
+                        logic = (SvNV(lessp) < 0);
+                    }
+                    if (logic) {
+                        if (off == subtr_amg) {
+                            right = left;
+                            left = nullsv;
+                            lr = 1;
+                        }
+                    } else {
+                        return left;
+                    }
+                }
+                break;
+            case neg_amg:
+                if ((cv = cvp[off=subtr_amg])) {
+                    right = left;
+                    left = sv_2mortal(newSViv(0));
+                    lr = 1;
+                }
+                break;
+            case int_amg:
+            case iter_amg:			/* XXXX Eventually should do to_gv. */
+            case ftest_amg:		/* XXXX Eventually should do to_gv. */
+            case regexp_amg:
+                /* FAIL safe */
+                return NULL;	/* Delegate operation to standard mechanisms. */
+
+            case to_sv_amg:
+            case to_av_amg:
+            case to_hv_amg:
+            case to_gv_amg:
+            case to_cv_amg:
+                /* FAIL safe */
+                return left;	/* Delegate operation to standard mechanisms. */
+
+            default:
+                goto not_found;
+            }
+            if (!cv) goto not_found;
+        } else if (!(AMGf_noright & flags) && SvAMAGIC(right)
+                   && (stash = SvSTASH(SvRV(right))) && Gv_AMG(stash)
+                   && (mg = mg_find((const SV *)stash, PERL_MAGIC_overload_table))
+                   && (cvp = (AMT_AMAGIC((AMT*)mg->mg_ptr)
+                              ? (amtp = (AMT*)mg->mg_ptr)->table
+                              : NULL))
+                   && (cv = cvp[off = method])) { /* Method for right
+                                                 * argument found */
+            lr = 1;
+        } else if (((cvp && amtp->fallback > AMGfallNEVER)
+                    || (ocvp && oamtp->fallback > AMGfallNEVER))
+                   && !(flags & AMGf_unary)) {
+            /* We look for substitution for
+             * comparison operations and
+             * concatenation */
+            if (method == concat_amg || method == concat_ass_amg
+             || method == repeat_amg || method == repeat_ass_amg) {
+                return NULL;		/* Delegate operation to string conversion */
+            }
+            off = -1;
+            switch (method) {
+            case lt_amg:
+            case le_amg:
+            case gt_amg:
+            case ge_amg:
+            case eq_amg:
+            case ne_amg:
+                off = ncmp_amg;
+                break;
+            case slt_amg:
+            case sle_amg:
+            case sgt_amg:
+            case sge_amg:
+            case seq_amg:
+            case sne_amg:
+                off = scmp_amg;
+                break;
+            }
+            if (off != -1) {
+                if (ocvp && (oamtp->fallback > AMGfallNEVER)) {
+                    cv = ocvp[off];
+                    lr = -1;
+                }
+                if (!cv && (cvp && amtp->fallback > AMGfallNEVER)) {
+                    cv = cvp[off];
+                    lr = 1;
+                }
+            }
+            if (cv)
+                postpr = 1;
+            else
+                goto not_found;
+        } else {
+        not_found:			/* No method found, either report or croak */
+            switch (method) {
+            case to_sv_amg:
+            case to_av_amg:
+            case to_hv_amg:
+            case to_gv_amg:
+            case to_cv_amg:
+                /* FAIL safe */
+                return left;	/* Delegate operation to standard mechanisms. */
+            }
+            if (ocvp && (cv=ocvp[nomethod_amg])) { /* Call report method */
+                notfound = 1; lr = -1;
+            } else if (cvp && (cv=cvp[nomethod_amg])) {
+                notfound = 1; lr = 1;
+            } else if ((use_default_op =
+                        (!ocvp || oamtp->fallback >= AMGfallYES)
+                        && (!cvp || amtp->fallback >= AMGfallYES))
+                       && !DEBUG_o_TEST) {
+                /* Skip generating the "no method found" message.  */
+                return NULL;
+            } else {
+                SV *msg;
+                if (off==-1) off=method;
+                msg = sv_2mortal(Perl_newSVpvf(aTHX_
+                                               "Operation \"%s\": no method found,%sargument %s%" SVf "%s%" SVf,
+                                               AMG_id2name(method + assignshift),
+                                               (flags & AMGf_unary ? " " : "\n\tleft "),
+                                               SvAMAGIC(left)?
+                                               "in overloaded package ":
+                                               "has no overloaded magic",
+                                               SvAMAGIC(left)?
+                                               SVfARG(sv_2mortal(newSVhek(HvNAME_HEK(SvSTASH(SvRV(left)))))):
+                                               SVfARG(SV_NO),
+                                               SvAMAGIC(right)?
+                                               ",\n\tright argument in overloaded package ":
+                                               (flags & AMGf_unary
+                                                ? ""
+                                                : ",\n\tright argument has no overloaded magic"),
+                                               SvAMAGIC(right)?
+                                               SVfARG(sv_2mortal(newSVhek(HvNAME_HEK(SvSTASH(SvRV(right)))))):
+                                               SVfARG(SV_NO)));
+                if (use_default_op) {
+                    DEBUG_o( Perl_deb(aTHX_ "%" SVf, SVfARG(msg)) );
+                } else {
+                    Perl_croak(aTHX_ "%" SVf, SVfARG(msg));
+                }
+                return NULL;
+            }
+            force_cpy = force_cpy || assign;
+        }
+    }
+
+    switch (method) {
+        /* in these cases, we're calling '+' or '-' as a fallback for a ++ or --
+         * operation. we need this to return a value, so that it can be assigned
+         * later on, in the postpr block (case inc_amg/dec_amg), even if the
+         * increment or decrement was itself called in void context */
     case inc_amg:
-      if (off == add_amg)
-        force_scalar = 1;
-      break;
+        if (off == add_amg)
+            force_scalar = 1;
+        break;
     case dec_amg:
-      if (off == subtr_amg)
-        force_scalar = 1;
-      break;
-    /* in these cases, we're calling an assignment variant of an operator
-     * (+= rather than +, for instance). regardless of whether it's a
-     * fallback or not, it always has to return a value, which will be
-     * assigned to the proper variable later */
+        if (off == subtr_amg)
+            force_scalar = 1;
+        break;
+        /* in these cases, we're calling an assignment variant of an operator
+         * (+= rather than +, for instance). regardless of whether it's a
+         * fallback or not, it always has to return a value, which will be
+         * assigned to the proper variable later */
     case add_amg:
     case subtr_amg:
     case mult_amg:
@@ -3391,49 +3404,50 @@ Perl_amagic_call(pTHX_ SV *left, SV *right, int method, int flags)
     case sband_amg:
     case sbor_amg:
     case sbxor_amg:
-      if (assign)
-        force_scalar = 1;
-      break;
-    /* the copy constructor always needs to return a value */
+        if (assign)
+            force_scalar = 1;
+        break;
+        /* the copy constructor always needs to return a value */
     case copy_amg:
-      force_scalar = 1;
-      break;
-    /* because of the way these are implemented (they don't perform the
-     * dereferencing themselves, they return a reference that perl then
-     * dereferences later), they always have to be in scalar context */
+        force_scalar = 1;
+        break;
+        /* because of the way these are implemented (they don't perform the
+         * dereferencing themselves, they return a reference that perl then
+         * dereferences later), they always have to be in scalar context */
     case to_sv_amg:
     case to_av_amg:
     case to_hv_amg:
     case to_gv_amg:
     case to_cv_amg:
-      force_scalar = 1;
-      break;
-    /* these don't have an op of their own; they're triggered by their parent
-     * op, so the context there isn't meaningful ('$a and foo()' in void
-     * context still needs to pass scalar context on to $a's bool overload) */
+        force_scalar = 1;
+        break;
+        /* these don't have an op of their own; they're triggered by their parent
+         * op, so the context there isn't meaningful ('$a and foo()' in void
+         * context still needs to pass scalar context on to $a's bool overload) */
     case bool__amg:
     case numer_amg:
     case string_amg:
-      force_scalar = 1;
-      break;
-  }
+        force_scalar = 1;
+        break;
+    }
 
 #ifdef DEBUGGING
-  if (!notfound) {
-    DEBUG_o(Perl_deb(aTHX_
-		     "Overloaded operator \"%s\"%s%s%s:\n\tmethod%s found%s in package %" SVf "%s\n",
-		     AMG_id2name(off),
-		     method+assignshift==off? "" :
-		     " (initially \"",
-		     method+assignshift==off? "" :
-		     AMG_id2name(method+assignshift),
-		     method+assignshift==off? "" : "\")",
-		     flags & AMGf_unary? "" :
-		     lr==1 ? " for right argument": " for left argument",
-		     flags & AMGf_unary? " for argument" : "",
-		     stash ? SVfARG(sv_2mortal(newSVhek(HvNAME_HEK(stash)))) : SVfARG(newSVpvs_flags("null", SVs_TEMP)),
-		     fl? ",\n\tassignment variant used": "") );
-  }
+    if (!notfound) {
+        DEBUG_o(Perl_deb(aTHX_
+            "Overloaded operator \"%s\"%s%s%s:\n\tmethod%s found%s in %s %" HEKf "%s\n",
+            AMG_id2name(off),
+            method+assignshift == off? "" :
+            " (initially \"",
+            method+assignshift == off? "" :
+            AMG_id2name(method+assignshift),
+            method+assignshift == off? "" : "\")",
+            flags & AMGf_unary? "" :
+            lr==1 ? " for right argument": " for left argument",
+            flags & AMGf_unary? " for argument" : "",
+            HvPKGTYPE(stash),
+            HEKfARG(HvNAME_HEK(stash)),
+            fl ? ",\n\tassignment variant used": "") );
+    }
 #endif
     /* Since we use shallow copy during assignment, we need
      * to dublicate the contents, probably calling user-supplied
@@ -3457,36 +3471,37 @@ Perl_amagic_call(pTHX_ SV *left, SV *right, int method, int flags)
     /*	off is method, method+assignshift, or a result of opcode substitution.
      *	In the latter case assignshift==0, so only notfound case is important.
      */
-  if ( (lr == -1) && ( ( (method + assignshift == off)
-	&& (assign || (method == inc_amg) || (method == dec_amg)))
-      || force_cpy) )
-  {
-      /* newSVsv does not behave as advertised, so we copy missing
-       * information by hand */
-      SV *tmpRef = SvRV(left);
-      SV *rv_copy;
-      if (SvREFCNT(tmpRef) > 1 && (rv_copy = AMG_CALLunary(left,copy_amg))) {
-	  SvRV_set(left, rv_copy);
-	  SvSETMAGIC(left);
-	  SvREFCNT_dec_NN(tmpRef);  
-      }
-  }
+    if ( (lr == -1) &&
+         ( ( (method + assignshift == off)
+             && (assign || (method == inc_amg) || (method == dec_amg)))
+           || force_cpy) )
+    {
+        /* newSVsv does not behave as advertised, so we copy missing
+         * information by hand */
+        SV *tmpRef = SvRV(left);
+        SV *rv_copy;
+        if (SvREFCNT(tmpRef) > 1 && (rv_copy = AMG_CALLunary(left,copy_amg))) {
+            SvRV_set(left, rv_copy);
+            SvSETMAGIC(left);
+            SvREFCNT_dec_NN(tmpRef);  
+        }
+    }
 
-  {
-    dSP;
-    BINOP myop;
-    SV* res;
-    const bool oldcatch = CATCH_GET;
-    I32 oldmark, nret;
-    U8 gimme = force_scalar ? G_SCALAR : GIMME_V;
+    {
+        dSP;
+        BINOP myop;
+        SV* res;
+        const bool oldcatch = CATCH_GET;
+        I32 oldmark, nret;
+        U8 gimme = force_scalar ? G_SCALAR : GIMME_V;
 
-    CATCH_SET(TRUE);
-    Zero(&myop, 1, BINOP);
-    myop.op_last = (OP *) &myop;
-    myop.op_next = NULL;
-    myop.op_flags = OPf_STACKED;
+        CATCH_SET(TRUE);
+        Zero(&myop, 1, BINOP);
+        myop.op_last = (OP *) &myop;
+        myop.op_next = NULL;
+        myop.op_flags = OPf_STACKED;
 
-    switch (gimme) {
+        switch (gimme) {
         case G_VOID:
             myop.op_flags |= OPf_WANT_VOID;
             break;
@@ -3499,39 +3514,39 @@ Perl_amagic_call(pTHX_ SV *left, SV *right, int method, int flags)
         default:
             myop.op_flags |= OPf_WANT_SCALAR;
             break;
-    }
+        }
 
-    PUSHSTACKi(PERLSI_OVERLOAD);
-    ENTER;
-    SAVEOP();
-    PL_op = (OP *) &myop;
-    if (PERLDB_SUB && PL_curstash != PL_debstash)
-	PL_op->op_private |= OPpENTERSUB_DB;
-    Perl_pp_pushmark(aTHX);
+        PUSHSTACKi(PERLSI_OVERLOAD);
+        ENTER;
+        SAVEOP();
+        PL_op = (OP *) &myop;
+        if (PERLDB_SUB && PL_curstash != PL_debstash)
+            PL_op->op_private |= OPpENTERSUB_DB;
+        Perl_pp_pushmark(aTHX);
 
-    EXTEND(SP, notfound + 5);
-    PUSHs(lr>0? right: left);
-    PUSHs(lr>0? left: right);
-    PUSHs( lr > 0 ? SV_YES : ( assign ? UNDEF : SV_NO ));
-    if (notfound) {
-      PUSHs(newSVpvn_flags(AMG_id2name(method + assignshift),
-			   AMG_id2namelen(method + assignshift), SVs_TEMP));
-    }
-    else if (flags & AMGf_numarg)
-      PUSHs(UNDEF);
-    if (flags & AMGf_numarg)
-      PUSHs(SV_YES);
-    PUSHs(MUTABLE_SV(cv));
-    PUTBACK;
-    oldmark = TOPMARK;
+        EXTEND(SP, notfound + 5);
+        PUSHs(lr>0? right: left);
+        PUSHs(lr>0? left: right);
+        PUSHs( lr > 0 ? SV_YES : ( assign ? UNDEF : SV_NO ));
+        if (notfound) {
+            PUSHs(newSVpvn_flags(AMG_id2name(method + assignshift),
+                                 AMG_id2namelen(method + assignshift), SVs_TEMP));
+        }
+        else if (flags & AMGf_numarg)
+            PUSHs(UNDEF);
+        if (flags & AMGf_numarg)
+            PUSHs(SV_YES);
+        PUSHs(MUTABLE_SV(cv));
+        PUTBACK;
+        oldmark = TOPMARK;
 
-    if ((PL_op = PL_ppaddr[OP_ENTERSUB](aTHX)))
-      CALLRUNOPS(aTHX);
-    LEAVE;
-    SPAGAIN;
-    nret = SP - (PL_stack_base + oldmark);
+        if ((PL_op = PL_ppaddr[OP_ENTERSUB](aTHX)))
+            CALLRUNOPS(aTHX);
+        LEAVE;
+        SPAGAIN;
+        nret = SP - (PL_stack_base + oldmark);
 
-    switch (gimme) {
+        switch (gimme) {
         case G_VOID:
             /* returning NULL has another meaning, and we check the context
              * at the call site too, so this can be differentiated from the
@@ -3552,51 +3567,51 @@ Perl_amagic_call(pTHX_ SV *left, SV *right, int method, int flags)
         default:
             res = POPs;
             break;
-    }
+        }
 
-    PUTBACK;
-    POPSTACK;
-    CATCH_SET(oldcatch);
+        PUTBACK;
+        POPSTACK;
+        CATCH_SET(oldcatch);
 
-    if (postpr) {
-      int ans;
-      switch (method) {
-      case le_amg:
-      case sle_amg:
-	ans=SvIV(res)<=0; break;
-      case lt_amg:
-      case slt_amg:
-	ans=SvIV(res)<0; break;
-      case ge_amg:
-      case sge_amg:
-	ans=SvIV(res)>=0; break;
-      case gt_amg:
-      case sgt_amg:
-	ans=SvIV(res)>0; break;
-      case eq_amg:
-      case seq_amg:
-	ans=SvIV(res)==0; break;
-      case ne_amg:
-      case sne_amg:
-	ans=SvIV(res)!=0; break;
-      case inc_amg:
-      case dec_amg:
-	SvSetSV(left,res); return left;
-      case not_amg:
-	ans=!SvTRUE(res); break;
-      default:
-        ans=0; break;
-      }
-      return boolSV(ans);
-    } else if (method==copy_amg) {
-      if (!SvROK(res)) {
-	Perl_croak(aTHX_ "Copy method did not return a reference");
-      }
-      return SvREFCNT_inc(SvRV(res));
-    } else {
-      return res;
+        if (postpr) {
+            int ans;
+            switch (method) {
+            case le_amg:
+            case sle_amg:
+                ans = SvIV(res) <= 0; break;
+            case lt_amg:
+            case slt_amg:
+                ans = SvIV(res) < 0; break;
+            case ge_amg:
+            case sge_amg:
+                ans = SvIV(res) >= 0; break;
+            case gt_amg:
+            case sgt_amg:
+                ans = SvIV(res) > 0 ; break;
+            case eq_amg:
+            case seq_amg:
+                ans = SvIV(res) == 0; break;
+            case ne_amg:
+            case sne_amg:
+                ans = SvIV(res) != 0; break;
+            case inc_amg:
+            case dec_amg:
+                SvSetSV(left,res); return left;
+            case not_amg:
+                ans =! SvTRUE(res); break;
+            default:
+                ans = 0; break;
+            }
+            return boolSV(ans);
+        } else if (method == copy_amg) {
+            if (!SvROK(res)) {
+                Perl_croak(aTHX_ "Copy method did not return a reference");
+            }
+            return SvREFCNT_inc(SvRV(res));
+        } else {
+            return res;
+        }
     }
-  }
 }
 
 void

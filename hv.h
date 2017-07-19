@@ -313,6 +313,13 @@ C<SV*>.
 #define HvENAME(hv)	HvENAME_get(hv)
 #define HvENAMELEN(hv)  HvENAMELEN_get(hv)
 
+#define HvPKGTYPE(hv) (stash && HvCLASS(stash) \
+                        ? HvROLE(stash) ? "role" : "class" \
+                       : "package")
+#define HvPKGTYPE_NN(hv) HvCLASS(stash) \
+                           ? HvROLE(stash) ? "role" : "class" \
+                           : "package"
+
 /* Checking that hv is a valid package stash is the
    caller's responsibility */
 #define HvMROMETA(hv) (HvAUX(hv)->xhv_mro_meta \
