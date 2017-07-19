@@ -360,6 +360,12 @@ S_pushav(pTHX_ AV* const av)
     dSP;
     const SSize_t elems = AvFILL(av) + 1;
 
+    if ((OpPRIVATE(PL_op) & OPpHASHPAIRS) && (elems % 2)) {
+        Perl_croak(aTHX_
+                   "Only pairs in hash assignment allowed while \"strict hashpairs\","
+                   " got %" IVdf " elements", (IV)elems);
+        OpPRIVATE(PL_op) &= ~OPpHASHPAIRS;
+    }
     EXTEND(SP, elems);
     if (UNLIKELY(SvRMAGICAL(av))) {
         SSize_t i;
@@ -1189,30 +1195,8 @@ PP(pp_padav)
 
     gimme = GIMME_V;
     if (gimme == G_ARRAY) {
-        /* XXX see also S_pushav in pp_hot.c */
-	const SSize_t elems = AvFILL(MUTABLE_AV(TARG)) + 1;
-        if ((OpPRIVATE(PL_op) & OPpHASHPAIRS) && (elems % 2)) {
-            Perl_croak(aTHX_
-                       "Only pairs in hash assignment allowed while \"strict hashpairs\","
-                       " got %" IVdf " elements", (IV)elems);
-            OpPRIVATE(PL_op) &= ~OPpHASHPAIRS;
-        }
-	EXTEND(SP, elems);
-	if (SvRMAGICAL(TARG)) {
-	    SSize_t i;
-	    for (i=0; i < elems; i++) {
-		SV * const * const svp = av_fetch(MUTABLE_AV(TARG), i, FALSE);
-		SP[i+1] = (svp) ? *svp : UNDEF;
-	    }
-	}
-	else {
-	    SSize_t i;
-	    for (i=0; i < elems; i++) {
-		SV * const sv = AvARRAY((const AV *)TARG)[i];
-		SP[i+1] = sv ? sv : UNDEF;
-	    }
-	}
-	SP += elems;
+        S_pushav(aTHX_ (AV*)TARG);
+        return NORMAL;
     }
     else if (gimme == G_SCALAR) {
 	const SSize_t elems = AvFILL(MUTABLE_AV(TARG)) + 1;
