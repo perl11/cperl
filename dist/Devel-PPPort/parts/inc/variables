@@ -36,8 +36,9 @@ PL_hexdigit
 PL_hints
 PL_in_my
 PL_in_my_stash
-PL_in_my_class
-PL_in_my_pod
+PL_in_class
+PL_in_pod
+PL_in_sub
 PL_laststatval
 PL_lex_state
 PL_lex_stuff
@@ -193,8 +194,9 @@ __NEED_DUMMY_VAR__ yy_parser PL_parser;
 # define PL_tokenbuf       D_PPP_my_PL_parser_var(tokenbuf)
 # define PL_in_my          D_PPP_my_PL_parser_var(in_my)
 # define PL_in_my_stash    D_PPP_my_PL_parser_var(in_my_stash)
-# define PL_in_my_class    D_PPP_my_PL_parser_var(in_my_class)
-# define PL_in_my_pod      D_PPP_my_PL_parser_var(in_my_pod)
+# define PL_in_class       D_PPP_my_PL_parser_var(in_class)
+# define PL_in_pod         D_PPP_my_PL_parser_var(in_pod)
+# define PL_in_sub         D_PPP_my_PL_parser_var(in_sub)
 # define PL_error_count    D_PPP_my_PL_parser_var(error_count)
 
 
@@ -243,6 +245,13 @@ int dummy_parser_warning(void);
                                     mXPUSHi(&var != NULL);       \
                                     count++;                     \
                                   } STMT_END
+
+#define ppp_PARSERBITVAR(var)  STMT_START {                      \
+                                    int my_i_ ## var = (int)var; \
+                                    mXPUSHi(my_i_ ## var);       \
+                                    count++;                     \
+                                  } STMT_END
+
 
 #define ppp_PARSERVAR_dummy       STMT_START {                   \
                                     mXPUSHi(1);                  \
@@ -428,6 +437,11 @@ other_variables()
                 ppp_PARSERVAR(HV*, PL_in_my_stash);
 #else
                 ppp_PARSERVAR_dummy;
+#endif
+#if { CPERL && VERSION >= 5.27.1 }
+                ppp_PARSERBITVAR(PL_in_class);
+                ppp_PARSERBITVAR(PL_in_sub);
+                ppp_PARSERBITVAR(PL_in_pod);
 #endif
                 XSRETURN(count);
 
