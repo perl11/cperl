@@ -5903,18 +5903,18 @@ Perl_sv_magic(pTHX_ SV *const sv, SV *const obj, const int how,
 	? NULL : PL_magic_vtables + vtable_index;
 
     if (SvREADONLY(sv)) {
-	if (
-	    !PERL_MAGIC_TYPE_READONLY_ACCEPTABLE(how)
-	   )
-	{
-	    Perl_croak_no_modify();
+        DEBUG_o(PerlIO_printf(Perl_debug_log, "Readonly mg how: %d 0x%x [%u] %s\n",
+                how, flags, vtable_index,
+                vtable_index < magic_vtable_max
+                              ? PL_magic_vtable_names[vtable_index] : ""));
+	if (!PERL_MAGIC_TYPE_READONLY_ACCEPTABLE(how)) {
+	    croak_no_modify_sv(sv);
 	}
     }
     if (SvMAGICAL(sv) || (how == PERL_MAGIC_taint && SvTYPE(sv) >= SVt_PVMG)) {
 	if (SvMAGIC(sv) && (mg = mg_find(sv, how))) {
 	    /* sv_magic() refuses to add a magic of the same 'how' as an
-	       existing one
-	     */
+	       existing one. */
 	    if (how == PERL_MAGIC_taint)
 		mg->mg_len |= 1;
 	    return;

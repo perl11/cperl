@@ -31,6 +31,7 @@ my %mg =
      # often called AMAGIC internally, even though it does not use "A"
      # magic any more.
      overload_table => { char => 'c', vtable => 'ovrld',
+                         readonly_acceptable => 1,
 			 desc => 'Holds overload table (AMT) on stash' },
      bm => { char => 'B', vtable => 'regexp', value_magic => 1,
 	     readonly_acceptable => 1,

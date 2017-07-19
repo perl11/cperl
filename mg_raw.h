@@ -24,7 +24,7 @@
       "/* arylen_p '@' To move arylen out of XPVAV */" },
     { 'B', "want_vtbl_regexp | PERL_MAGIC_READONLY_ACCEPTABLE | PERL_MAGIC_VALUE_MAGIC",
       "/* bm 'B' Boyer-Moore (fast string search) */" },
-    { 'c', "want_vtbl_ovrld",
+    { 'c', "want_vtbl_ovrld | PERL_MAGIC_READONLY_ACCEPTABLE",
       "/* overload_table 'c' Holds overload table (AMT) on stash */" },
     { 'D', "want_vtbl_regdata",
       "/* regdata 'D' Regex match position data (@+ and @- vars) */" },

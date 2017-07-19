@@ -583,6 +583,14 @@ constants or variables effectively ignored.
 All internal ops are now properly arity checked.
 See L<[cperl #301]|https://github.com/perl11/cperl/issues/301>.
 
+=item *
+
+More fixes for handling readonly packages, aka classes.
+Allow AMT (overload) cache updates.
+E.g. this works now: C<class XX{method m{"ok $self"}} XX->new->m>
+The string concat looked in the class XX for an overload for the concat "." op,
+and failed with "Modification of a read-only value attempted" on the class.
+
 =back
 
 =head1 Known Problems
