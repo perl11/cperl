@@ -32,7 +32,7 @@ BEGIN {
 
   if (52) {
     load();
-    plan(tests => 52);
+    plan(tests => $^V =~ /c$/ && $] > 5.027 ? 55 : 52);
   }
 }
 
