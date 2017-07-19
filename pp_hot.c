@@ -1121,6 +1121,7 @@ PERL_STATIC_INLINE OP*
 S_padhv_rv2hv_common(pTHX_ HV *hv, U8 gimme, bool is_keys, bool has_targ)
 {
     bool tied;
+    MAGIC *mg;
     dSP;
 
     assert(PL_op->op_type == OP_PADHV || PL_op->op_type == OP_RV2HV);
@@ -1134,7 +1135,7 @@ S_padhv_rv2hv_common(pTHX_ HV *hv, U8 gimme, bool is_keys, bool has_targ)
         /* 'keys %h' masquerading as '%h': reset iterator */
         (void)hv_iterinit(hv);
 
-    tied = SvRMAGICAL(hv) && mg_find(MUTABLE_SV(hv), PERL_MAGIC_tied);
+    tied = SvRMAGICAL(hv) && (mg = mg_find(MUTABLE_SV(hv), PERL_MAGIC_tied));
 
     if (  (  PL_op->op_private & OPpTRUEBOOL
 	  || (  PL_op->op_private & OPpMAYBE_TRUEBOOL
@@ -1142,7 +1143,7 @@ S_padhv_rv2hv_common(pTHX_ HV *hv, U8 gimme, bool is_keys, bool has_targ)
           )
     ) {
         if (tied)
-            PUSHs(Perl_hv_scalar(aTHX_ hv));
+            PUSHs(magic_scalarpack(hv, mg));
         else
             PUSHs(HvUSEDKEYS(hv) ? SV_YES : SV_ZERO);
     }
@@ -1163,8 +1164,12 @@ S_padhv_rv2hv_common(pTHX_ HV *hv, U8 gimme, bool is_keys, bool has_targ)
             else
                 mPUSHi(i);
         }
-        else
-            PUSHs(Perl_hv_scalar(aTHX_ hv));
+        else {
+            if (tied)
+                PUSHs(magic_scalarpack(hv, mg));
+            else
+                mPUSHi(HvUSEDKEYS(hv));
+        }
     }
 
     PUTBACK;
