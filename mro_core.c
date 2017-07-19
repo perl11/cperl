@@ -260,7 +260,7 @@ S_mro_get_linear_isa_dfs(pTHX_ HV *stash, U32 level)
     av_push(retval, our_name); /* add ourselves at the top */
 
     /* fetch our @ISA */
-    gvp = (GV**)hv_fetchs(stash, "ISA", FALSE);
+    gvp = (GV**)hv_fetchs_ifexists(stash, "ISA", FALSE);
     av = (gvp && (gv = *gvp) && isGV_with_GP(gv)) ? GvAV(gv) : NULL;
 
     /* "stored" is used to keep track of all of the classnames we have added to
@@ -774,7 +774,7 @@ Perl_mro_package_moved(pTHX_ HV * const stash, HV * const oldstash,
 	SV **svp;
 	if (!GvSTASH(gv)
             || !HvENAME(GvSTASH(gv))
-            || !(svp = hv_fetchhek(GvSTASH(gv), GvNAME_HEK(gv), 0))
+            || !(svp = hv_fetchhek_ifexists(GvSTASH(gv), GvNAME_HEK(gv), 0))
             || *svp != (SV *)gv)
             return;
     }
@@ -1116,7 +1116,7 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
 		 || (len == 1 && key[0] == ':')) {
 		    HV * const oldsubstash = GvHV(HeVAL(entry));
 		    SV ** const stashentry = stash
-                        ? hv_fetch(stash, key, HeUTF8(entry) ? -(I32)len : (I32)len, 0)
+                        ? hv_fetch_ifexists(stash, key, HeUTF8(entry) ? -(I32)len : (I32)len, 0)
                         : NULL;
 		    HV *substash = NULL;
 

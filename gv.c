@@ -270,6 +270,7 @@ Perl_cvgv_from_hek(pTHX_ CV *cv)
     assert(SvTYPE(cv) == SVt_PVCV);
     if (!CvSTASH(cv)) return NULL;
     ASSUME(CvNAME_HEK(cv));
+    /* This will fail with missing names from classes */
     svp = hv_fetchhek(CvSTASH(cv), CvNAME_HEK(cv), 0);
     gv = MUTABLE_GV(svp && *svp ? *svp : newSV(0));
     if (!isGV(gv)) {
@@ -688,10 +689,15 @@ side-effect creates a glob with the given C<name> in the given C<stash>
 which in the case of success contains an alias for the subroutine, and sets
 up caching info for this glob.
 
-The only significant values for C<flags> are C<GV_SUPER> and C<SVf_UTF8>.
+The only significant values for C<flags> are C<GV_SUPER>, C<SVf_UTF8>,
+and C<GV_CLASS>.
 
 C<GV_SUPER> indicates that we want to look up the method in the superclasses
 of the C<stash>.
+
+C<GV_CLASS> allows for non-existing methods to be searched in classes
+or readonly packages. Normally a failing lookup will throw a
+restricted hash error.
 
 The GV returned from C<gv_fetchmeth> may be a method cache entry,
 which is not visible to Perl code.  So when calling C<call_sv>, you
@@ -730,7 +736,6 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
 	if (!(stash = gv_stashpvs("UNIVERSAL", 0)))
 	    return 0;
     }
-
     assert(stash);
 
     hvname = HvNAME_get(stash);
@@ -809,6 +814,10 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
                            HEKfARG(HvNAME_HEK(stash)));
             continue;
         }
+        DEBUG_ov(Perl_deb(aTHX_ "Looking for %smethod %s in %s %" HEKf "\n",
+		      flags & GV_SUPER ? "SUPER " : "",
+		      name ? name : SvPV_nolen(meth),
+                      HvPKGTYPE_NN(cstash), HEKfARG(HvNAME_HEK(cstash)) ));
         gvp = (GV**)hv_common(cstash, meth, name, len,
                               hv_utf8, action, NULL, 0);
         if (!gvp) {
@@ -1040,6 +1049,8 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
     const U32 autoload = flags & GV_AUTOLOAD;
     const U32 do_croak = flags & GV_CROAK;
     const U32 is_utf8  = flags & SVf_UTF8;
+    const U32 ifexists = flags & GV_CLASS;
+    bool is_import;
 
     PERL_ARGS_ASSERT_GV_FETCHMETHOD_PVN_FLAGS;
     PERL_DTRACE_PROBE_GLOB_ENTRY(PERL_DTRACE_GLOB_MODE_FETCHMETH, name);
@@ -1069,14 +1080,14 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
 	if ((nsplit - origname) == 5 && memEQc(origname, "SUPER")) {
 	    /* ->SUPER::method should really be looked up in original stash */
 	    stash = CopSTASH(PL_curcop);
-	    flags |= GV_SUPER;
+	    flags |= GV_SUPER | ifexists;
 	    DEBUG_o( Perl_deb(aTHX_ "Treating %s as %s::%s\n",
 			 origname, HvENAME_get(stash), name) );
 	}
 	else if ((nsplit - origname) >= 7 && memEQc(nsplit - 7, "::SUPER")) {
             /* don't autovifify if ->NoSuchStash::SUPER::method */
 	    stash = gv_stashpvn(origname, nsplit - origname - 7, is_utf8);
-	    if (stash) flags |= GV_SUPER;
+	    if (stash) flags |= GV_SUPER | ifexists;
 	}
 	else {
             /* don't autovifify if ->NoSuchStash::method */
@@ -1085,17 +1096,19 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
 	ostash = stash;
     }
 
+    is_import = cBOOL(strEQc(name,"import") || strEQc(name,"unimport"));
+    if (is_import)
+	flags |= GV_CLASS;
     gv = gv_fetchmeth_pvn(stash, name, nend - name, 0, flags);
     if (!gv) {
 	/* This is the special case that exempts Foo->import and
 	   Foo->unimport from being an error even if there's no
            import/unimport subroutine */
-	if (strEQc(name,"import") || strEQc(name,"unimport"))
+        if (is_import)
 	    gv = MUTABLE_GV(SV_YES);
 	else if (autoload)
 	    gv = gv_autoload_pvn(
-		ostash, name, nend - name, GV_AUTOLOAD_ISMETHOD|flags
-	    );
+		ostash, name, nend - name, GV_AUTOLOAD_ISMETHOD|flags);
 	if (!gv && do_croak) {
 	    /* Right now this is exclusively for the benefit of S_method_common
 	       in pp_hot.c  */
@@ -1107,8 +1120,8 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
 		if (stash_name && memEQs(stash_name, HvNAMELEN_get(stash), "IO::File")
 		    && !Perl_hv_common(aTHX_ GvHVn(PL_incgv), NULL,
 				       STR_WITH_LEN("IO/File.pm"), 0,
-				       HV_FETCH_ISEXISTS, NULL, 0)
-		) {
+				       HV_FETCH_ISEXISTS, NULL, 0))
+		{
 		    require_pv("IO/File.pm");
 		    gv = gv_fetchmeth_pvn(stash, name, nend - name, 0, flags);
 		    if (gv)
@@ -1261,8 +1274,8 @@ Perl_gv_autoload_pvn(pTHX_ HV *stash, const char *name, STRLEN len, U32 flags)
 		sv_utf8_upgrade_flags_grow(tmpsv, 0, CvPROTOLEN(cv) + 2);
 	    ulen = SvCUR(tmpsv);
 	    SvCUR(tmpsv)++; /* include null in string */
-	    sv_catpvn_flags(
-		tmpsv, proto, CvPROTOLEN(cv), SV_CATBYTES*!SvUTF8(cv));
+	    sv_catpvn_flags(tmpsv, proto, CvPROTOLEN(cv),
+                            SV_CATBYTES*!SvUTF8(cv));
 	    SvTEMP_on(tmpsv); /* Allow theft */
 	    sv_setsv_nomg((SV *)cv, tmpsv);
 	    SvTEMP_off(tmpsv);
@@ -1286,7 +1299,7 @@ Perl_gv_autoload_pvn(pTHX_ HV *stash, const char *name, STRLEN len, U32 flags)
      * original package to look up $AUTOLOAD.
      */
     varstash = CvNAMED(cv) ? CvSTASH(cv) : GvSTASH(CvGV(cv));
-    vargv = *(GV**)hv_fetch(varstash, S_autoload, S_autolen, TRUE);
+    vargv = *(GV**)hv_fetch_ifexists(varstash, S_autoload, S_autolen, TRUE);
     ENTER;
 
     if (!isGV(vargv)) {
@@ -1303,9 +1316,8 @@ Perl_gv_autoload_pvn(pTHX_ HV *stash, const char *name, STRLEN len, U32 flags)
     sv_catpvs(varsv, "::");
     /* Ensure SvSETMAGIC() is called if necessary. In particular, to clear
        tainting if $FOO::AUTOLOAD was previously tainted, but is not now.  */
-    sv_catpvn_flags(
-	varsv, name, len,
-	SV_SMAGIC|(is_utf8 ? SV_CATUTF8 : SV_CATBYTES));
+    sv_catpvn_flags(varsv, name, len,
+                    SV_SMAGIC|(is_utf8 ? SV_CATUTF8 : SV_CATBYTES));
     if (is_utf8)
         SvUTF8_on(varsv);
     return gv;
@@ -1334,42 +1346,42 @@ S_require_tie_mod(pTHX_ GV *gv, const char varname, const char * name,
 
     /* If it is not tied */
     if (!target || !SvRMAGICAL(target)
-     || !mg_find(target,
-                 varname == '[' ? PERL_MAGIC_tiedscalar : PERL_MAGIC_tied))
+     || !mg_find(target, varname == '[' ? PERL_MAGIC_tiedscalar
+                                        : PERL_MAGIC_tied))
     {
-      HV *stash;
-      GV **gvp;
-      dSP;
+        HV *stash;
+        GV **gvp;
+        dSP;
 
-      ENTER;
+        ENTER;
 
-#define HV_FETCH_TIE_FUNC (GV **)hv_fetchs(stash, "_tie_it", 0)
+#define HV_FETCH_TIE_FUNC (GV **)hv_fetchs_ifexists(stash, "_tie_it", 0)
 
-      /* Load the module if it is not loaded.  */
-      if (!(stash = gv_stashpvn(name, len, 0))
-       || !(gvp = HV_FETCH_TIE_FUNC) || !*gvp || !GvCV(*gvp))
-      {
-	SV * const module = newSVpvn(name, len);
-	const char type = varname == '[' ? '$' : '%';
-	if ( flags & 1 )
-	    save_scalar(gv);
-	Perl_load_module(aTHX_ PERL_LOADMOD_NOIMPORT, module, NULL);
-	assert(sp == PL_stack_sp);
-	stash = gv_stashpvn(name, len, 0);
-	if (!stash)
-	    Perl_croak(aTHX_ "panic: Can't use %c%c because %s is not available",
-		    type, varname, name);
-	else if (!(gvp = HV_FETCH_TIE_FUNC) || !*gvp || !GvCV(*gvp))
-	    Perl_croak(aTHX_ "panic: Can't use %c%c because %s does not define _tie_it",
-		    type, varname, name);
-      }
-      /* Now call the tie function.  It should be in *gvp.  */
-      assert(gvp); assert(*gvp); assert(GvCV(*gvp));
-      PUSHMARK(SP);
-      XPUSHs((SV *)gv);
-      PUTBACK;
-      call_sv((SV *)*gvp, G_VOID|G_DISCARD);
-      LEAVE;
+        /* Load the module if it is not loaded.  */
+        if (!(stash = gv_stashpvn(name, len, 0))
+         || !(gvp = HV_FETCH_TIE_FUNC) || !*gvp || !GvCV(*gvp))
+        {
+            SV * const module = newSVpvn(name, len);
+            const char type = varname == '[' ? '$' : '%';
+            if ( flags & 1 )
+                save_scalar(gv);
+            Perl_load_module(aTHX_ PERL_LOADMOD_NOIMPORT, module, NULL);
+            assert(sp == PL_stack_sp);
+            stash = gv_stashpvn(name, len, 0);
+            if (!stash)
+                Perl_croak(aTHX_ "panic: Can't use %c%c because %s is not available",
+                           type, varname, name);
+            else if (!(gvp = HV_FETCH_TIE_FUNC) || !*gvp || !GvCV(*gvp))
+                Perl_croak(aTHX_ "panic: Can't use %c%c because %s does not define _tie_it",
+                           type, varname, name);
+        }
+        /* Now call the tie function.  It should be in *gvp.  */
+        assert(gvp); assert(*gvp); assert(GvCV(*gvp));
+        PUSHMARK(SP);
+        XPUSHs((SV *)gv);
+        PUTBACK;
+        call_sv((SV *)*gvp, G_VOID|G_DISCARD);
+        LEAVE;
     }
 }
 
@@ -1416,6 +1428,7 @@ Flags may be one of:
     GV_ADDMG
     GV_CACHE_ONLY
     GV_NO_SVGMAGIC
+    GV_CLASS
 
 The most important of which are probably C<GV_ADD> and C<SVf_UTF8>.
 
@@ -1640,7 +1653,7 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
                     tmpbuf[(*len)++] = ':';
                     key = tmpbuf;
                 }
-                gvp = (GV**)hv_fetch(*stash, key, is_utf8 ? -((I32)*len) : (I32)*len, add);
+                gvp = (GV**)hv_fetch_ifexists(*stash, key, is_utf8 ? -((I32)*len) : (I32)*len, add);
                 *gv = gvp ? *gvp : NULL;
                 if (*gv && *gv != (const GV *)UNDEF) {
                     if (SvTYPE(*gv) != SVt_PVGV)
@@ -1680,8 +1693,7 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
 		    if (SvTYPE(*gv) != SVt_PVGV) {
 			gv_init_pvn(*gv, PL_defstash, "main::", 6,
 				    GV_ADDMULTI);
-			GvHV(*gv) =
-			    MUTABLE_HV(SvREFCNT_inc_simple(PL_defstash));
+			GvHV(*gv)=MUTABLE_HV(SvREFCNT_inc_simple(PL_defstash));
 		    }
 		}
                 return TRUE;
@@ -1776,7 +1788,7 @@ S_find_default_stash(pTHX_ HV **stash, const char *name, STRLEN len,
                 !(len == 1 && sv_type == SVt_PV &&
                 (*name == 'a' || *name == 'b')) )
             {
-                GV**gvp = (GV**)hv_fetch(*stash,name,is_utf8 ? -(I32)len : (I32)len,0);
+                GV**gvp = (GV**)hv_fetch_ifexists(*stash,name,is_utf8 ? -(I32)len : (I32)len,0);
                 if (!gvp || *gvp == (const GV *)UNDEF ||
                     SvTYPE(*gvp) != SVt_PVGV)
                 {
@@ -1985,7 +1997,8 @@ S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len,
 		    hv = GvHVn(gv);
 		    hv_magic(hv, NULL, PERL_MAGIC_sig);
 		    for (i = 1; i < SIG_SIZE; i++) {
-			SV * const * const init = hv_fetch(hv, PL_sig_name[i], strlen(PL_sig_name[i]), 1);
+			SV * const * const init
+                            = hv_fetch_ifexists(hv, PL_sig_name[i], strlen(PL_sig_name[i]), 1);
 			if (init)
 			    sv_setsv(*init, UNDEF);
 		    }
@@ -2364,11 +2377,11 @@ Perl_gv_fetchpvn_flags(pTHX_ const char *nambeg, STRLEN full_len, I32 flags,
     
     /* By this point we should have a stash and a name */
     /* On protected stashes and !add try exists first */
-    if (SvREADONLY(stash) && !add)
+    /*if (SvREADONLY(stash) && !add)
         if (!hv_exists(stash, name, is_utf8 ? -(I32)len : (I32)len)) {
             if (addmg) gv = (GV *)newSV(0);
             else return NULL;
-        }
+        }*/
     gvp = (GV**)hv_fetch(stash, name, is_utf8 ? -(I32)len : (I32)len, add);
     if (!gvp || *gvp == (const GV *)UNDEF) {
 	if (addmg) gv = (GV *)newSV(0);
@@ -3695,7 +3708,7 @@ Perl_gv_try_downgrade(pTHX_ GV *gv)
 	    CvCONST(cv) && !CvMETHOD(cv) && !CvLVALUE(cv) && !CvUNIQUE(cv) &&
 	    !CvNODEBUG(cv) && !CvCLONE(cv) && !CvCLONED(cv) && !CvANON(cv) &&
 	    (namehek = GvNAME_HEK(gv)) &&
-	    (gvp = hv_fetchhek(stash, namehek, 0)) &&
+	    (gvp = hv_fetchhek_ifexists(stash, namehek, 0)) &&
 	    *gvp == (SV*)gv) {
 	SV *value = SvREFCNT_inc(CvXSUBANY(cv).any_ptr);
 	const bool imported = !!GvIMPORTED_CV(gv);

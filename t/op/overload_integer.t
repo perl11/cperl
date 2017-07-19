@@ -9,7 +9,7 @@ BEGIN {
 use strict;
 use warnings;
 
-plan tests => 2;
+plan tests => 3;
 
 package Foo;
 
@@ -33,3 +33,6 @@ $result //= '';
 is ($error, '', "No exception was thrown with an overload::constant 'integer' inside an eval.");
 is ($result, 11, "Correct solution");
 
+Internals::SvREADONLY(%Foo::, 1);
+my $o = bless [1], 'Foo';
+ok("ok $o", "avoid AMT cache update errors on readonly packages \#308");

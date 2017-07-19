@@ -576,7 +576,27 @@ C<SV*>.
 #define hv_stores(hv, key, val) \
     hv_store((hv), ("" key ""), (sizeof(key)-1), (val), 0)
 
+/* Internal class fetchers which bypass not existing names */
+#define hv_fetch_ifexists(hv, key, klen, lval) \
+    ((SV**) hv_common_key_len((hv), (key), (klen), (lval)                \
+              ? (HV_FETCH_ISEXISTS | HV_FETCH_JUST_SV | HV_FETCH_LVALUE) \
+              : (HV_FETCH_ISEXISTS | HV_FETCH_JUST_SV), NULL, 0))
+#define hv_fetchs_ifexists(hv, key, lval) \
+    ((SV**) hv_common_key_len((hv), ("" key ""), (sizeof(key)-1), (lval) \
+	      ? (HV_FETCH_ISEXISTS | HV_FETCH_JUST_SV | HV_FETCH_LVALUE) \
+              : (HV_FETCH_ISEXISTS | HV_FETCH_JUST_SV), NULL, 0))
+#define hv_fetch_ent_ifexists(hv, keysv, lval, hash)     \
+    ((HE *) hv_common((hv), (keysv), NULL, 0, 0, (lval)  \
+              ? (HV_FETCH_ISEXISTS | HV_FETCH_LVALUE)    \
+              : HV_FETCH_ISEXISTS, NULL, (hash)))
+
 #ifdef PERL_CORE
+
+#define hv_fetchhek_ifexists(hv, hek, lval)     \
+    ((SV **) hv_common((hv), NULL, HEK_KEY(hek), HEK_LEN(hek), HEK_UTF8(hek), \
+                (lval) ? (HV_FETCH_ISEXISTS | HV_FETCH_JUST_SV | HV_FETCH_LVALUE) \
+                       : (HV_FETCH_ISEXISTS | HV_FETCH_JUST_SV), \
+                       NULL, HEK_HASH(hek)))
 
 /* TODO: for HvSHAREKEYS(hv) use the SvIsCOW_shared_hash string
    after the hek as keysv, thus comparing ptrs not values.
