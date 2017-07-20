@@ -1297,11 +1297,11 @@ foreach my $op (qw(<=> == != < <= > >=)) {
     # scalars or no (brought up in bug #109744)
     BEGIN { overload::constant integer => sub { "main" }; }
     eval { ${\5} = 'whatever' };
-    like $@, qr/^Modification of a read-only value attempted at /,
+    like $@, qr/^Modification of a read-only value attempted /,
 	'constant overloading makes read-only constants';
     BEGIN { overload::constant integer => sub { __PACKAGE__ }; }
     eval { ${\5} = 'whatever' };
-    like $@, qr/^Modification of a read-only value attempted at /,
+    like $@, qr/^Modification of a read-only value attempted /,
 	'... even with shared hash key scalars';
 }
 

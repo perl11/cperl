@@ -1227,7 +1227,7 @@ object type. Exposed to perl code via Internals::SvREADONLY().
         || (SV*)(_sv) == &PL_sv_no              \
         || (SV*)(_sv) == &PL_sv_placeholder     \
         || (SV*)(_sv) == (SV*)&PL_defstash)     \
-           croak_no_modify();                   \
+           croak_no_modify_sv(_sv);                   \
        else                                     \
            SvFLAGS(_sv) &= ~SVf_READONLY;       \
      })
@@ -1238,7 +1238,7 @@ object type. Exposed to perl code via Internals::SvREADONLY().
      || (SV*)(_sv) == &PL_sv_no                 \
      || (SV*)(_sv) == &PL_sv_placeholder        \
      || (SV*)(_sv) == (SV*)&PL_defstash)        \
-        croak_no_modify();                      \
+        croak_no_modify_sv(_sv);                      \
     else                                        \
         (SvFLAGS(_sv) &= ~SVf_READONLY)
 #  endif

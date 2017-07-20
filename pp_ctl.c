@@ -246,7 +246,7 @@ PP(pp_substcont)
 	    }
 	    else {
 		SV_CHECK_THINKFIRST_COW_DROP(targ);
-		if (isGV(targ)) Perl_croak_no_modify();
+		if (isGV(targ)) croak_no_modify_sv(targ);
 		SvPV_free(targ);
 		SvPV_set(targ, SvPVX(dstr));
 		SvCUR_set(targ, SvCUR(dstr));

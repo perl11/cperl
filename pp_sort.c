@@ -1569,7 +1569,7 @@ PP(pp_sort)
 	(void)POPMARK; /* remove mark associated with ex-OP_AASSIGN */
 	av = MUTABLE_AV((*SP));
         if (SvREADONLY(av))
-            Perl_croak_no_modify();
+            croak_no_modify_sv(av);
 	max = AvFILL(av) + 1;
         MEXTEND(SP, max);
 	if (SvMAGICAL(av)) {

@@ -4331,7 +4331,7 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
 
         /* minimal subset of SV_CHECK_THINKFIRST_COW_DROP(dstr) */
         if (SvREADONLY(dstr))
-            Perl_croak_no_modify();
+            croak_no_modify_sv(dstr);
         if (SvROK(dstr)) {
             if (SvWEAKREF(dstr))
                 sv_unref_flags(dstr, 0);
@@ -4871,7 +4871,7 @@ Perl_sv_set_undef(pTHX_ SV *sv)
              * variable? Some XS code does this */
             if (sv == UNDEF)
                 return;
-            Perl_croak_no_modify();
+            croak_no_modify_sv(sv);
         }
 
         if (SvROK(sv)) {
@@ -5385,7 +5385,7 @@ Perl_sv_force_normal_flags(pTHX_ SV *const sv, const U32 flags)
     PERL_ARGS_ASSERT_SV_FORCE_NORMAL_FLAGS;
 
     if (SvREADONLY(sv))
-	Perl_croak_no_modify();
+	croak_no_modify_sv(sv);
     else if (SvIsCOW(sv) && LIKELY(SvTYPE(sv) != SVt_PVHV))
 	sv_uncow(sv, flags);
     if (SvROK(sv))
@@ -5888,10 +5888,9 @@ Perl_sv_magic(pTHX_ SV *const sv, SV *const obj, const int how,
 
     PERL_ARGS_ASSERT_SV_MAGIC;
 
-    if (how < 0 || (unsigned)how >= C_ARRAY_LENGTH(PL_magic_data)
-	|| ((flags = PL_magic_data[how]),
-	    (vtable_index = flags & PERL_MAGIC_VTABLE_MASK)
-	    > magic_vtable_max))
+    if (how < 0 || (unsigned)how >= C_ARRAY_LENGTH(PL_magic_data) ||
+	((flags = PL_magic_data[how]),
+	  (vtable_index = flags & PERL_MAGIC_VTABLE_MASK) > magic_vtable_max))
 	Perl_croak(aTHX_ "Don't know how to handle magic of type \\%o", how);
 
     /* PERL_MAGIC_ext is reserved for use by extensions not perl internals.
@@ -6044,7 +6043,7 @@ Perl_sv_rvweaken(pTHX_ SV *const sv)
 	Perl_ck_warner(aTHX_ packWARN(WARN_MISC), "Reference is already weak");
 	return sv;
     }
-    else if (SvREADONLY(sv)) croak_no_modify();
+    else if (SvREADONLY(sv)) croak_no_modify_sv(sv);
     tsv = SvRV(sv);
     Perl_sv_add_backref(aTHX_ tsv, sv);
     SvWEAKREF_on(sv);
@@ -9053,7 +9052,7 @@ Perl_sv_inc_nomg(pTHX_ SV *const sv)
 	return;
     if (SvTHINKFIRST(sv)) {
 	if (SvREADONLY(sv)) {
-            Perl_croak_no_modify();
+            croak_no_modify_sv(sv);
 	}
 	if (SvROK(sv)) {
 	    IV i;
@@ -9098,7 +9097,6 @@ Perl_sv_inc_nomg(pTHX_ SV *const sv)
 	if (LIKELY(!Perl_isinfnan(was)) &&
             NV_OVERFLOWS_INTEGERS_AT &&
 	    was >= NV_OVERFLOWS_INTEGERS_AT) {
-	    /* diag_listed_as: Lost precision when %s %f by 1 */
 	    Perl_ck_warner(aTHX_ packWARN(WARN_IMPRECISION),
 			   "Lost precision when incrementing %" NVff " by 1",
 			   was);
@@ -9110,7 +9108,7 @@ Perl_sv_inc_nomg(pTHX_ SV *const sv)
 
     /* treat AV/HV/CV/FM/IO and non-fake GVs as immutable */
     if (SvTYPE(sv) >= SVt_PVAV || (isGV_with_GP(sv) && !SvFAKE(sv)))
-        Perl_croak_no_modify();
+        croak_no_modify_sv(sv);
 
     if (!(flags & SVp_POK) || !*SvPVX_const(sv)) {
 	if ((flags & SVTYPEMASK) < SVt_PVIV)
@@ -9233,7 +9231,7 @@ Perl_sv_dec_nomg(pTHX_ SV *const sv)
 	return;
     if (SvTHINKFIRST(sv)) {
 	if (SvREADONLY(sv)) {
-		Perl_croak_no_modify();
+            croak_no_modify_sv(sv);
 	}
 	if (SvROK(sv)) {
 	    IV i;
@@ -9281,7 +9279,7 @@ Perl_sv_dec_nomg(pTHX_ SV *const sv)
 	    if (LIKELY(!Perl_isinfnan(was)) &&
                 NV_OVERFLOWS_INTEGERS_AT &&
 		was <= -NV_OVERFLOWS_INTEGERS_AT) {
-		/* diag_listed_as: Lost precision when %s %f by 1 */
+                /* diag_listed_as: Lost precision when incrementing %f by 1 */
 		Perl_ck_warner(aTHX_ packWARN(WARN_IMPRECISION),
 			       "Lost precision when decrementing %" NVff " by 1",
 			       was);
@@ -9294,7 +9292,7 @@ Perl_sv_dec_nomg(pTHX_ SV *const sv)
 
     /* treat AV/HV/CV/FM/IO and non-fake GVs as immutable */
     if (SvTYPE(sv) >= SVt_PVAV || (isGV_with_GP(sv) && !SvFAKE(sv)))
-        Perl_croak_no_modify();
+        croak_no_modify_sv(sv);
 
     if (!(flags & SVp_POK)) {
 	if ((flags & SVTYPEMASK) < SVt_PVIV)
@@ -10664,7 +10662,7 @@ Perl_sv_bless(pTHX_ SV *const sv, HV *const stash)
     tmpRef = SvRV(sv);
     if (SvFLAGS(tmpRef) & (SVs_OBJECT|SVf_READONLY|SVf_PROTECT)) {
 	if (SvREADONLY(tmpRef))
-	    Perl_croak_no_modify();
+	    croak_no_modify_sv(sv);
 	if (SvOBJECT(tmpRef)) {
 	    if (SvTYPE(tmpRef) != SVt_PVIO)
 		--PL_sv_objcount;

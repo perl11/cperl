@@ -163,7 +163,7 @@ for(1+2) {
 # We hide the implementation detail that qq "foo" is implemented using
 # constant folding.
 eval { ${\"hello\n"}++ };
-print "not " unless $@ =~ "Modification of a read-only value attempted at";
+print "not " unless $@ =~ /Modification of a read-only value attempted/;
 print "ok ", ++$test, " - qq with no vars is a constant\n";
 
 # [perl #119501]

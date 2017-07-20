@@ -29,7 +29,7 @@ Internals::SvREADONLY $x, 1;
 ok Internals::SvREADONLY($x),
          'read-only glob copies are read-only acc. to Internals::';
 eval { $x = [] };
-like $@, qr/Modification of a read-only value attempted at/,
+like $@, qr/Modification of a read-only value attempted /,
     'read-only glob copies';
 Internals::SvREADONLY($x,0);
 $x = 42;
@@ -41,7 +41,7 @@ Internals::SvREADONLY $x, 1;
 ok Internals::SvREADONLY($x),
          'read-only regexps are read-only acc. to Internals::';
 eval { $x = [] };
-like $@, qr/Modification of a read-only value attempted at/,
+like $@, qr/Modification of a read-only value attempted /,
     'read-only regexps';
 Internals::SvREADONLY($x,0);
 $x = 42;
@@ -50,7 +50,7 @@ is $x, 42, 'Internals::SvREADONLY can turn off readonliness on regexps';
 $h{a} = __PACKAGE__;
 Internals::SvREADONLY $h{a}, 1;
 eval { $h{a} = 3 };
-like $@, qr/Modification of a read-only value attempted at/,
+like $@, qr/Modification of a read-only value attempted /,
     'making a COW scalar into a read-only one';
 
 $h{b} = __PACKAGE__;

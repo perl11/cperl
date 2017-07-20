@@ -51,10 +51,12 @@ foreach my $prog (@prgs) {
 
     $expected =~ s/\n+$//;
 
-    # expand temp filename to a regex
+    # expand temp filename and no_modify warning to a regex
     if ($expected =~ m/^(.*)tmpXXXXXX(.*)$/s) {
         $expected = qr/\Q$1\Etmp\w+\Q$2\E/;
         fresh_perl_like($prog, $expected, { switches => [$switch || ''] }, $name);
+    } elsif ($expected =~ m/Modification of a read-only value attempted/m) {
+        fresh_perl_like($prog, qr/$expected/, { switches => [$switch || ''] }, $name);
     } else {
         fresh_perl_is($prog, $expected, { switches => [$switch || ''] }, $name);
     }
@@ -126,7 +128,7 @@ print;}
 sub sub {local($_) = @_;
 $_ x 4;}
 EXPECT
-Modification of a read-only value attempted at - line 3.
+Modification of a read-only value attempted .*
 ########
 package FOO;sub new {bless {FOO => BAR}};
 package main;
@@ -199,7 +201,7 @@ BEGIN failed--compilation aborted at - line 1.
 ########
 BEGIN { undef = 0 }
 EXPECT
-Modification of a read-only value attempted at - line 1.
+Modification of a read-only value attempted .*
 BEGIN failed--compilation aborted at - line 1.
 ########
 {

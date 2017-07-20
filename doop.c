@@ -625,7 +625,7 @@ Perl_do_trans(pTHX_ SV *sv)
     PERL_ARGS_ASSERT_DO_TRANS;
 
     if (SvREADONLY(sv) && !(flags & OPpTRANS_IDENTICAL)) {
-        Perl_croak_no_modify();
+        croak_no_modify_sv(sv);
     }
     (void)SvPV_const(sv, len);
     if (!len)

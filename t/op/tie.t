@@ -1061,15 +1061,17 @@ Internals::SvREADONLY($y,1);
 tie $y, "";
 
 EXPECT
+OPTIONS regex
 ok
-Modification of a read-only value attempted at - line 16.
+Modification of a read-only value attempted
 ########
 #
 # And one should not be able to tie read-only COWs
 for(__PACKAGE__) { tie $_, "" }
 sub TIESCALAR {bless []}
 EXPECT
-Modification of a read-only value attempted at - line 3.
+OPTIONS regex
+Modification of a read-only value attempted
 ########
 
 # Similarly, read-only regexps cannot be tied.
@@ -1079,7 +1081,8 @@ Internals::SvREADONLY($y,1);
 tie $y, "";
 
 EXPECT
-Modification of a read-only value attempted at - line 6.
+OPTIONS regex
+Modification of a read-only value attempted
 ########
 
 # tied() should still work on tied scalars after glob assignment

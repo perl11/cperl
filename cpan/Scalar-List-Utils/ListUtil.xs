@@ -194,7 +194,7 @@ my_sv_copypv(pTHX_ SV *const dsv, SV *const ssv)
 #endif
 
 #if PERL_VERSION < 14
-#  define croak_no_modify() croak("%s", PL_no_modify)
+#  define croak_no_modify_sv() croak("%s", PL_no_modify)
 #endif
 
 #ifndef SvNV_nomg
@@ -1391,7 +1391,7 @@ CODE:
             warn("Reference is not weak");
         return;
     }
-    else if (SvREADONLY(sv)) croak_no_modify();
+    else if (SvREADONLY(sv)) croak_no_modify_sv(sv);
 
     tsv = SvRV(sv);
 #if PERL_VERSION >= 14

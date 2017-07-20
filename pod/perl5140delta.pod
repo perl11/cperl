@@ -3168,7 +3168,7 @@ or dynamic.
 
 =head3 C<Perl_croak_no_modify>
 
-Perl_croak_no_modify() is short-hand for
+Perl_croak_no_modify_sv() is short-hand for
 C<Perl_croak("%s", PL_no_modify)>.
 
 =head3 C<PERL_STATIC_INLINE> define

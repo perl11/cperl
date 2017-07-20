@@ -57,5 +57,5 @@ is($?, 0, '$? should be zero');
 }
 
 $pid = eval { open2('READ', '', $perl, '-e', cmd_line('print scalar <STDIN>')) };
-like($@, qr/^open2: Modification of a read-only value attempted at /,
+like($@, qr/^open2: Modification of a read-only value attempted /,
      'open2 faults read-only parameters correctly') or do {waitpid $pid, 0};

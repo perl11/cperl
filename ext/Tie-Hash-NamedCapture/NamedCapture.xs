@@ -76,7 +76,7 @@ FETCH(...)
 
 	if (!rx || !SvROK(ST(0))) {
 	    if (ix & UNDEF_FATAL)
-		Perl_croak_no_modify();
+		croak_no_modify_sv(ST(0));
 	    else
 		XSRETURN_UNDEF;
 	}

@@ -85,10 +85,10 @@ is not(${qr//}), "", 'dereferenced regexps are true';
 *yes = \not 0;
 *no  = \not 1;
 for (!0) { eval { $_ = 43 } }
-like $@, qr/^Modification of a read-only value attempted at /,
+like $@, qr/^Modification of a read-only value attempted /,
    'not 0 is read-only';
 for (!1) { eval { $_ = 43 } }
-like $@, qr/^Modification of a read-only value attempted at /,
+like $@, qr/^Modification of a read-only value attempted /,
    'not 1 is read-only';
 require Config;
 is \!0, \$yes, '!0 returns the same value each time [perl #114838]';

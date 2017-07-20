@@ -401,6 +401,15 @@ The new message is "Can't modify non-lvalue %s call of %s",
 with the variants "Can't modify non-lvalue subroutine call of &CLASS::sub"
 and "Can't modify non-lvalue method call of CLASS->sub".
 
+=item *
+
+Under DEBUGGING
+"Modification of a read-only value attempted at <location>"
+was changed to 
+"Modification of a read-only value attempted <value> at <c file:line> at <location>"
+
+Existing tests best cut off the " at" at the end.
+
 =back
 
 =head1 Configuration and Compilation
@@ -516,17 +525,13 @@ XXX
 
 =head1 Internal Changes
 
-XXX Changes which affect the interface available to C<XS> code go here.  Other
-significant internal changes for future core maintainers should be noted as
-well.
-
-[ List each change as a =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+C<Perl_croak_no_modify()> got 2 arguments, the macro is the same.  The
+new C<croak_no_modify_sv(sv)> has better diagnostics and is used
+throughout core.
 
 =back
 

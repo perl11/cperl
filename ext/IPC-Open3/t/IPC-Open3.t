@@ -162,7 +162,7 @@ $TB->current_test($test);
 }
 
 $pid = eval { open3 'WRITE', '', 'ERROR', '/non/existent/program'; };
-like($@, qr/^open3: Modification of a read-only value attempted at /,
+like($@, qr/^open3: Modification of a read-only value attempted /,
      'open3 faults read-only parameters correctly') or do {waitpid $pid, 0};
 
 package NoFetch;

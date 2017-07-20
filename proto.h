@@ -988,9 +988,20 @@ PERL_STATIC_NO_RET void	S_croak_memory_wrap(void)
 PERL_CALLCONV_NO_RET void	Perl_croak_no_mem(void)
 			__attribute__noreturn__;
 
-PERL_CALLCONV_NO_RET void	Perl_croak_no_modify(void)
+PERL_CALLCONV_NO_RET void	Perl_croak_no_modify(const char* file, int line)
 			__attribute__global__
-			__attribute__noreturn__;
+			__attribute__noreturn__
+			__attribute__nonnull__(1);
+#define PERL_ARGS_ASSERT_CROAK_NO_MODIFY	\
+	assert(file)
+
+PERL_CALLCONV_NO_RET void	Perl_croak_no_modify_sv(pTHX_ SV* sv, const char* file, int line)
+			__attribute__global__
+			__attribute__noreturn__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_CROAK_NO_MODIFY_SV	\
+	assert(sv); assert(file)
 
 PERL_CALLCONV_NO_RET void	Perl_croak_popstack(void)
 			__attribute__global__

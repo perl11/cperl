@@ -3483,7 +3483,7 @@ PP(pp_subst)
 		|| ( ((SvTYPE(TARG) == SVt_PVGV && isGV_with_GP(TARG))
 		      || SvTYPE(TARG) > SVt_PVLV)
 		     && !(SvTYPE(TARG) == SVt_PVGV && SvFAKE(TARG)))))
-	    Perl_croak_no_modify();
+	    croak_no_modify_sv(TARG);
     }
     PUTBACK;
 
@@ -5324,7 +5324,7 @@ Perl_vivify_ref(pTHX_ SV *sv, U32 to_what)
     SvGETMAGIC(sv);
     if (!SvOK(sv)) {
 	if (SvREADONLY(sv))
-	    Perl_croak_no_modify();
+	    croak_no_modify_sv(sv);
 	prepare_SV_for_RV(sv);
 	switch (to_what) {
 	case OPpDEREF_SV:

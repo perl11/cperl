@@ -357,7 +357,7 @@ ok !exists $::{immutable};
 eval q{
     use constant immutable => 23987423874;
     for (immutable) { eval { $_ = 22 } }
-    like $@, qr/^Modification of a read-only value attempted at /,
+    like $@, qr/^Modification of a read-only value attempted /,
 	'constant created in empty stash slot is immutable';
     eval { for (immutable) { ${\$_} = 432 } };
     SKIP: {
@@ -365,13 +365,13 @@ eval q{
 	if ($Config::Config{useithreads}) {
 	    skip "fails under threads", 1 if $] < 5.019003;
 	}
-	like $@, qr/^Modification of a read-only value attempted at /,
+	like $@, qr/^Modification of a read-only value attempted /,
 	    '... and immutable through refgen, too';
     }
 };
 () = \&{"immutable"}; # reify
 eval 'for (immutable) { $_ = 42 }';
-like $@, qr/^Modification of a read-only value attempted at /,
+like $@, qr/^Modification of a read-only value attempted /,
     '... and after reification';
 
 # Use an existing stash element this time.
@@ -380,14 +380,14 @@ like $@, qr/^Modification of a read-only value attempted at /,
 () = \%::existing_stash_entry;
 use constant existing_stash_entry => 23987423874;
 for (existing_stash_entry) { eval { $_ = 22 } }
-like $@, qr/^Modification of a read-only value attempted at /,
+like $@, qr/^Modification of a read-only value attempted /,
     'constant created in existing stash slot is immutable';
 eval { for (existing_stash_entry) { ${\$_} = 432 } };
 SKIP: {
     if ($Config::Config{useithreads}) {
 	skip "fails under threads", 1 if $] < 5.019003;
     }
-    like $@, qr/^Modification of a read-only value attempted at /,
+    like $@, qr/^Modification of a read-only value attempted /,
 	'... and immutable through refgen, too';
 }
 
@@ -400,7 +400,7 @@ SKIP: {
     for (constant_list) {
 	my $num = $_;
 	eval { $_++ };
-	like $@, qr/^Modification of a read-only value attempted at /,
+	like $@, qr/^Modification of a read-only value attempted /,
 	    "list constant has constant elements ($num)";
     }
     undef $TODO;

@@ -1759,19 +1759,45 @@ Perl_croak(pTHX_ const char *pat, ...)
 }
 
 /*
+=for apidoc Am|void	|croak_no_modify_sv
+
+Same as L</croak_no_modify>, just with better debugging code.
+
 =for apidoc Am|void	|croak_no_modify
 
-Exactly equivalent to C<Perl_croak(aTHX_ "%s", PL_no_modify)>, but generates
-terser object code than using L</croak>.  Less code used on exception code
-paths reduces CPU cache pressure.
+Almost equivalent to C<Perl_croak(aTHX_ "%s", PL_no_modify)>,
+but with better DEBUGGING diagnostics.
 
 =cut
 */
 
 void
-Perl_croak_no_modify(void)
+Perl_croak_no_modify(const char* file, int line)
 {
+    PERL_ARGS_ASSERT_CROAK_NO_MODIFY;
+#ifdef DEBUGGING
+    /* diag_listed_as: %s */
+    Perl_croak_nocontext( "%s at %s:%d", PL_no_modify, file, line);
+#else
+    PERL_UNUSED_ARG(file);
+    PERL_UNUSED_ARG(line);
     Perl_croak_nocontext( "%s", PL_no_modify);
+#endif
+}
+
+void
+Perl_croak_no_modify_sv(pTHX_ SV *sv, const char* file, int line)
+{
+    PERL_ARGS_ASSERT_CROAK_NO_MODIFY_SV;
+#ifdef DEBUGGING
+    /* diag_listed_as: %s */
+    Perl_croak_nocontext( "%s %s at %s:%d", PL_no_modify, SvPEEK(sv), file, line);
+#else
+    PERL_UNUSED_ARG(sv);
+    PERL_UNUSED_ARG(file);
+    PERL_UNUSED_ARG(line);
+    Perl_croak_nocontext( "%s", PL_no_modify);
+#endif
 }
 
 /* does not return, used in util.c perlio.c and win32.c

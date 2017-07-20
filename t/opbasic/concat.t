@@ -72,7 +72,7 @@ ok("$c$a$c" eq "foo",    "concatenate undef, fore and aft");
     "x" =~ /(.)/; # unset $2
 
     # Without the fix this 5.7.0 would croak:
-    # Modification of a read-only value attempted at ...
+    # Modification of a read-only value attempted ...
     eval {"$2\x{1234}"};
     ok(!$@, "bug id 20001020.006 (#4484), left");
 
@@ -83,7 +83,7 @@ ok("$c$a$c" eq "foo",    "concatenate undef, fore and aft");
     *pi = \undef;
     # This bug existed earlier than the $2 bug, but is fixed with the same
     # patch. Without the fix this 5.7.0 would also croak:
-    # Modification of a read-only value attempted at ...
+    # Modification of a read-only value attempted ...
     eval{"$pi\x{1234}"};
     ok(!$@, "bug id 20001020.006 (#4484), constant left");
 

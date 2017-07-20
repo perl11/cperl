@@ -637,7 +637,7 @@ SKIP: {
 use constant nullrocow => (keys%{{""=>undef}})[0];
 for ("", nullrocow) {
     eval { $_ =~ y/a/b/ };
-    like $@, qr/^Modification of a read-only value attempted at /,
+    like $@, qr/^Modification of a read-only value attempted /,
         'tr/a/b/ fails on zero-length ro string';
 }
 

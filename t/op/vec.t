@@ -111,7 +111,7 @@ is($destroyed, 1, 'Timely scalar destruction with lvalue vec');
 
 use constant roref => \1;
 eval { for (roref) { vec($_,0,1) = 1 } };
-like($@, qr/^Modification of a read-only value attempted at /,
+like($@, qr/^Modification of a read-only value attempted /,
         'err msg when modifying read-only refs');
 
 

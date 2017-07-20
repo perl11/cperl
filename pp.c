@@ -245,7 +245,7 @@ S_rv2gv(pTHX_ SV *sv, const bool vivify_sv, const bool strict,
 		if (vivify_sv && sv != UNDEF) {
 		    GV *gv;
 		    if (SvREADONLY(sv))
-			Perl_croak_no_modify();
+			croak_no_modify_sv(sv);
 		    if (cUNOP->op_targ) {
 			SV * const namesv = PAD_SV(cUNOP->op_targ);
 			HV *stash = CopSTASH(PL_curcop);
@@ -970,7 +970,7 @@ S_do_chomp(pTHX_ SV *retval, SV *sv, bool chomping)
 	return count;
     }
     else if (SvREADONLY(sv)) {
-        Perl_croak_no_modify();
+        croak_no_modify_sv(sv);
     }
 
     if (IN_ENCODING) {
@@ -6067,7 +6067,7 @@ PP(pp_push)
          * only need to save locally, not on the save stack */
         U16 old_delaymagic = PL_delaymagic;
 
-	if (SvREADONLY(ary) && MARK < SP) Perl_croak_no_modify();
+	if (SvREADONLY(ary) && MARK < SP) croak_no_modify_sv(ary);
         if (AvSHAPED(ary)) Perl_croak_shaped_array("push");
 	PL_delaymagic = DM_DELAY;
 	for (++MARK; MARK <= SP; MARK++) {

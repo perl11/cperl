@@ -740,7 +740,7 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
 
     hvname = HvNAME_get(stash);
     if (!hvname)
-      Perl_croak(aTHX_ "Can't use anonymous symbol table for method lookup");
+        Perl_croak(aTHX_ "Can't use anonymous symbol table for method lookup");
     assert(hvname);
     assert(name || meth);
 

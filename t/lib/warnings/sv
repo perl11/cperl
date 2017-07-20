@@ -174,7 +174,8 @@ $x = chop undef ; # g
 no warnings 'uninitialized' ;
 $x = chop undef ; # g
 EXPECT
-Modification of a read-only value attempted at - line 3.
+OPTIONS regex
+Modification of a read-only value attempted
 ########
 # sv.c
 use warnings 'uninitialized' ;

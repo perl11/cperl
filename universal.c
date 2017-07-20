@@ -580,7 +580,7 @@ XS(XS_Internals_SvREADONLY)	/* This is dangerous stuff. */
                 || sv == SV_NO
               /*|| sv == (SV*)S_main_stash*/
                 || sv == (SV*)&PL_defstash) /* only %main:: or also *main:: ? */
-                croak_no_modify();
+                croak_no_modify_sv(sv);
 #endif
 	    SvFLAGS(sv) &=~ SVf_READONLY;
 	    XSRETURN_NO;

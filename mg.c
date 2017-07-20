@@ -730,7 +730,7 @@ Perl_magic_regdatum_set(pTHX_ SV *sv, MAGIC *mg)
     PERL_UNUSED_CONTEXT;
     PERL_UNUSED_ARG(sv);
     PERL_UNUSED_ARG(mg);
-    Perl_croak_no_modify();
+    croak_no_modify_sv(sv);
     NORETURN_FUNCTION_END;
 }
 
@@ -2725,7 +2725,7 @@ Perl_magic_set(pTHX_ SV *sv, MAGIC *mg)
              */
           croakparen:
             if (!PL_localizing) {
-                Perl_croak_no_modify();
+                croak_no_modify_sv(sv);
             }
         }
         return 0;
@@ -2792,7 +2792,7 @@ Perl_magic_set(pTHX_ SV *sv, MAGIC *mg)
              * scope.  See comments at Perl__get_encoding in this file */
             if (*(mg->mg_ptr + 1) == '_') {
                 if (CopSTASH(PL_curcop) != get_hvs("encoding::",0))
-                    Perl_croak_no_modify();
+                    croak_no_modify_sv(sv);
                 lex = TRUE;
                 offset++;
             }

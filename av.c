@@ -402,7 +402,7 @@ Perl_av_store(pTHX_ AV *av, SSize_t key, SV *val)
     if (UNLIKELY(AvIsCOW(av)))
         av_uncow(av);
     if (UNLIKELY(SvREADONLY(av) && key >= AvFILL(av)))
-	Perl_croak_no_modify();
+	croak_no_modify_sv(av);
 
     if (!AvREAL(av) && AvREIFY(av))
 	av_reify(av);
@@ -626,7 +626,7 @@ Perl_av_clear(pTHX_ AV *av)
     if (UNLIKELY(AvIsCOW(av)))
         av_uncow(av);
     if (UNLIKELY(SvREADONLY(av)))
-	Perl_croak_no_modify();
+	croak_no_modify_sv(av);
 
     /* Give any tie a chance to cleanup first */
     if (UNLIKELY(SvRMAGICAL(av))) {
@@ -777,7 +777,7 @@ Perl_av_push(pTHX_ AV *av, SV *val)
     assert(SvTYPE(av) == SVt_PVAV);
 
     if (UNLIKELY(SvREADONLY(av)))
-	Perl_croak_no_modify();
+	croak_no_modify_sv(av);
     if (UNLIKELY(AvSHAPED(av)))
         Perl_croak_shaped_array("push");
 
@@ -811,7 +811,7 @@ Perl_av_pop(pTHX_ AV *av)
     assert(SvTYPE(av) == SVt_PVAV);
 
     if (UNLIKELY(SvREADONLY(av)))
-	Perl_croak_no_modify();
+	croak_no_modify_sv(av);
     if (UNLIKELY(AvSHAPED(av)))
         Perl_croak_shaped_array("pop");
     if (UNLIKELY((mg = SvTIED_mg((const SV *)av, PERL_MAGIC_tied)))) {
@@ -872,7 +872,7 @@ Perl_av_unshift(pTHX_ AV *av, SSize_t num)
     assert(SvTYPE(av) == SVt_PVAV);
 
     if (UNLIKELY(SvREADONLY(av)))
-	Perl_croak_no_modify();
+	croak_no_modify_sv(av);
     if (UNLIKELY(AvSHAPED(av)))
         Perl_croak_shaped_array("unshift");
 
@@ -938,7 +938,7 @@ Perl_av_shift(pTHX_ AV *av)
     assert(SvTYPE(av) == SVt_PVAV);
 
     if (UNLIKELY(SvREADONLY(av)))
-	Perl_croak_no_modify();
+	croak_no_modify_sv(av);
     if (UNLIKELY(AvSHAPED(av)))
         Perl_croak_shaped_array("shift");
     if (UNLIKELY((mg = SvTIED_mg((const SV *)av, PERL_MAGIC_tied)))) {
@@ -1064,7 +1064,7 @@ Perl_av_delete(pTHX_ AV *av, SSize_t key, I32 flags)
     assert(SvTYPE(av) == SVt_PVAV);
 
     if (UNLIKELY(SvREADONLY(av)))
-	Perl_croak_no_modify();
+	croak_no_modify_sv(av);
     if (UNLIKELY(AvSHAPED(av)))
         Perl_croak_shaped_array("delete");
 
