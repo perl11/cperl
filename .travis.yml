@@ -3,11 +3,13 @@ sudo: false
 dist: trusty
 addons:
   apt:
+    sources:
+    - ubuntu-toolchain-r-test
     packages:
     - build-essential
     - libtool
     - gperf
-    #- gcc-4.8
+    - gcc-6
     - gcc-multilib
     - libgdbm-dev:i386
     - libffi6:i386
@@ -24,8 +26,11 @@ addons:
     branch_pattern: coverity
 #cache:
 #  apt: true
-# needed for trusty gcc-multilib
 #before_install:
+#  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+#  - sudo apt-get update -q
+#  - sudo apt-get install gcc-6 -y
+# needed for trusty gcc-multilib
 #  - dpkg --add-architecture i386
 #  - apt-get update -qq
 
@@ -44,13 +49,14 @@ branches:
   - /coverity/
   - /^maint-/
   - /^cperl-/
+  - /travis/
 env:
   matrix:
-  - CONFIGURE_OPTION='' XCC='gcc' DEPLOY=1 HARNESS_TIMER=1
+  - CONFIGURE_OPTION='' XCC='gcc-6 -flto=4' XBITS=64 DEPLOY=1 HARNESS_TIMER=1
   - CONFIGURE_OPTION='-Duse64bitint' XCC="'gcc\ -m32'" XBITS=32
   - CONFIGURE_OPTION='-DDEBUGGING -Duseshrplib' XCC='clang'
   - CONFIGURE_OPTION='-DNO_MATHOMS -Duse64bitall -Dusethreads -Duselongdouble' XCC='clang'
-  - CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall -Dld=c++' XCC='c++'
+  - XCC='g++-6' CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall -Dld=$XCC'
   global:
     secure: t+N5w1yMOdTvDIu7g09ujEQ80Rz0p/hV+uYnoPBex0pSHJKAvEWqL/PltzTNaOwoh9BRjJiSCaO6Owbpib5skZw+kwx6G+jeMzI+m00VI2P2//xUasG2KaYH1CTu+o2BE16cmZFjDs1R2UKYuTg/2lzY0SoUuNYcAr7MDUnc6hdx/uC0B37vW//MlDb/I+3bi4Wjkg+zH2T2dWqcaKP9cL4O1Oa9ApEZgaQcSv26MmBrGJm0dKaorF5vVf1xkVe6lfKVPCepcI424wkEbmBfZs5I8FajYdWscEQ0KxYY9paWUA9/71uREhuu2tecN9sc2ym2PV5ycHn0igixwuWqMV69iTO+CW7bX+1mFdfMq/TsnhRhwGVTpt0aBTup9VOkjZAqtqcc4ziQ15R6sIrAorzz97v2oFXL+q5FPQuqtY4opw8QsrnjAmonoBjNIZau8mX1VAyBTOTJjfY2bZQXNqpxFoGAfQgDhDjA+EYiQ8dK8glBOPxlEWeCeOFgA/ddrTFSTMCbDd3f0dJIOs8aQHAGcIpKEI2/3DY2JNvotku5e1us16v3YSLJwaWV4pEh3UaGhVU74TrzfA4NiOaf54OXSjLJVuBrpEMyPwVHxF5NA3W7zj9vACxcexRQAu3ms0J6XOaGYZuk5jYkefVpUILdPuSqVhRIs7Y4LqzqAYA=
 matrix:
@@ -63,9 +69,13 @@ matrix:
     - os: osx
       env: CONFIGURE_OPTION='-DNO_MATHOMS -Duse64bitall -Dusethreads -Duselongdouble' XCC='clang'
   allow_failures:
-    - env: CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall -Dld=c++' XCC='c++'
+    - env: XCC='g++-6' CONFIGURE_OPTION="-Dusethreads -DDEBUGGING -Duse64bitall -Dld=$XCC"
 script:
 - function shell_session_update { true; } ; CFG=$CONFIGURE_OPTION ;
+  if [ "${TRAVIS_OS_NAME}" = "darwin" ]; then
+    if [ "$XCC" = "gcc-6 -flto=4" ]; then XCC=gcc; fi;
+    if [ "$XCC" = "g++-6" ]; then XCC=g++; fi;
+  fi;
   CONFIGURE_OPTION="$CFG -Dusedevel";
   test -z "$DEPLOY" && CONFIGURE_OPTION="$CONFIGURE_OPTION -Dprefix=$HOME/cperl/usr";
   ./Configure -des -Uversiononly -Dcc="$XCC" $CONFIGURE_OPTION &&
