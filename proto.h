@@ -7262,7 +7262,6 @@ PERL_CALLCONV void	Perl_av_dump(pTHX_ SV* av)
 PERL_CALLCONV void	Perl_deb_hechain(pTHX_ HE* entry)
 			__attribute__global__;
 
-PERL_CALLCONV void	Perl_deb_hechain(pTHX_ HE* entry);
 PERL_CALLCONV void	Perl_deb_hek(pTHX_ HEK* hek, SV* val)
 			__attribute__global__;
 
