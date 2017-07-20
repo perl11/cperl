@@ -6159,8 +6159,7 @@ static OP *
 S_pmtrans(pTHX_ OP *o, OP *expr, OP *repl)
 {
     SV * const tstr = ((SVOP*)expr)->op_sv;
-    SV * const rstr =
-			      ((SVOP*)repl)->op_sv;
+    SV * const rstr = ((SVOP*)repl)->op_sv;
     STRLEN tlen;
     STRLEN rlen;
     const U8 *t = (U8*)SvPV_const(tstr, tlen);
@@ -6613,7 +6612,7 @@ Perl_pmruntime(pTHX_ OP *o, OP *expr, OP *repl, UV flags, I32 floor)
 
     PERL_ARGS_ASSERT_PMRUNTIME;
 
-    if (is_trans) {
+    if (is_trans && repl) {
         return pmtrans(o, expr, repl);
     }
 
