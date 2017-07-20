@@ -767,8 +767,10 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
       have_gv:
         assert(topgv);
         if (SvTYPE(topgv) != SVt_PVGV) {
-            if (!name)
+            if (!name) {
+                assert(meth);
                 name = SvPV_nomg(meth, len);
+            }
             gv_init_pvn(topgv, stash, name, len, GV_ADDMULTI|is_utf8);
         }
         if ((cand_cv = GvCV(topgv))) {
