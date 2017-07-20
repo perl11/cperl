@@ -157,6 +157,13 @@ compile-time optimized from a dynamic method call to a static function
 call. A regression from 5.22.1c.
 See L<http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html>
 
+=item *
+
+Most checks for readonly packages are now avoided, needed to bypass
+the "Attempt to access disallowed key %s in the restricted hash
+%CLASS::" errors. Stash lookup now got a GV_CLASS flag and hv_fetch*_ifexists
+macro, which does the EXISTS and FETCH hash actions in the stash on one.
+
 =back
 
 =head1 Modules and Pragmata

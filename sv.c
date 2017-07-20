@@ -14891,15 +14891,7 @@ do_mark_cloneable_stash(pTHX_ SV *const sv)
 {
     const HEK * const hvname = HvNAME_HEK((const HV *)sv);
     if (hvname) {
-	GV* cloner;
-        if (SvREADONLY(sv)) { /* cannot autoload from protected stashes */
-            SV* name = newSVpvn_flags(HEK_KEY(hvname), HEK_LEN(hvname),
-                                      SVs_TEMP | (SVf_UTF8 * !!HEK_UTF8(hvname)));
-            sv_catpvs(name, "::CLONE_SKIP");
-            cloner = gv_fetchsv(name, GV_NOADD_NOINIT, SVt_PVCV);
-        } else {
-            cloner = gv_fetchmethod_pvs_flags(MUTABLE_HV(sv), "CLONE_SKIP", 0);
-        }
+	GV* cloner = gv_fetchmethod_pvs_flags(MUTABLE_HV(sv), "CLONE_SKIP", GV_CLASS);
 	SvFLAGS(sv) |= SVphv_CLONEABLE; /* clone objects by default */
 	if (cloner && GvCV(cloner)) {
 	    dSP;
@@ -15678,16 +15670,7 @@ perl_clone_using(PerlInterpreter *proto_perl, UV flags,
     */
     while (av_tindex(param->stashes) != -1) {
 	HV* const stash = MUTABLE_HV(av_shift(param->stashes));
-        GV* cloner;
-        if (SvREADONLY(MUTABLE_SV(stash))) { /* cannot autoload from protected stashes */
-            const HEK * const hvname = HvNAME_HEK(stash);
-            SV* name = newSVpvn_flags(HEK_KEY(hvname), HEK_LEN(hvname),
-                                      SVs_TEMP | (SVf_UTF8 * !!HEK_UTF8(hvname)));
-            sv_catpvs(name, "::CLONE");
-            cloner = gv_fetchsv(name, GV_NOADD_NOINIT, SVt_PVCV);
-        } else {
-            cloner = gv_fetchmethod_pvs_flags(stash, "CLONE", 0);
-        }
+        GV* cloner = gv_fetchmethod_pvs_flags(stash, "CLONE", 0);
 	if (cloner && GvCV(cloner)) {
 	    dSP;
 	    ENTER;
