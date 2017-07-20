@@ -15233,6 +15233,7 @@ our %delta :const = (
             'Cpanel::JSON::XS'      => '3.0237',
             'Cwd'                   => '4.68c',
             'deprecate'             => '0.03_01',
+            'constant'              => '1.35',
             'Devel::Peek'           => '1.26_02',
             'Devel::PPPort'         => '3.36_02',
             'Encode'                => '2.92',

@@ -3,7 +3,7 @@ use 5.008;
 use strict;
 use warnings::register;
 
-our $VERSION = '1.34';
+our $VERSION = '1.35';
 our %declared;
 
 #=======================================================================
@@ -185,7 +185,8 @@ sub import {
 		if (_CAN_PCS_FOR_ARRAY) {
 		    _make_const($list[$_]) for 0..$#list;
 		    _make_const(@list);
-		    if (!exists $symtab->{$name}) {
+		    Internals::SvREADONLY($list[$_], 1) for 0..$#list;
+		    if ($symtab && !exists $symtab->{$name}) {
 			$symtab->{$name} = \@list;
 			$flush_mro->{$pkg}++;
 		    }
@@ -394,8 +395,6 @@ used.
 =head1 CAVEATS
 
 List constants are not inlined unless you are using Perl v5.20 or higher.
-In v5.20 or higher, they are still not read-only, but that may change in
-future versions.
 
 It is not possible to have a subroutine or a keyword with the same
 name as a constant in the same package.  This is probably a Good Thing.
