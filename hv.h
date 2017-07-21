@@ -313,11 +313,11 @@ C<SV*>.
 #define HvENAME(hv)	HvENAME_get(hv)
 #define HvENAMELEN(hv)  HvENAMELEN_get(hv)
 
-#define HvPKGTYPE(hv) (stash && HvCLASS(stash) \
+#define HvPKGTYPE(hv) (hv && HvCLASS(hv) \
                         ? HvROLE(stash) ? "role" : "class" \
                        : "package")
-#define HvPKGTYPE_NN(hv) HvCLASS(stash) \
-                           ? HvROLE(stash) ? "role" : "class" \
+#define HvPKGTYPE_NN(hv) HvCLASS(hv) \
+                           ? HvROLE(hv) ? "role" : "class" \
                            : "package"
 
 /* Checking that hv is a valid package stash is the
