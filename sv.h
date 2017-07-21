@@ -2288,9 +2288,9 @@ See also C<L</PL_sv_yes>> and C<L</PL_sv_no>>.
 	(SvFLAGS(sv) &= ~SVpgv_GP);				       \
     } STMT_END
 #define isREGEXP(sv) \
-    (SvTYPE(sv) == SVt_REGEXP				      \
-     || (SvFLAGS(sv) & (SVTYPEMASK|SVpgv_GP|SVf_FAKE))        \
-	 == (SVt_PVLV|SVf_FAKE))
+    ((SvTYPE(sv) == SVt_REGEXP)				      \
+    || ((SvFLAGS(sv) & (SVTYPEMASK|SVpgv_GP|SVf_FAKE))        \
+        == (SVt_PVLV|SVf_FAKE)))
 
 
 #ifdef PERL_ANY_COW

@@ -2063,7 +2063,8 @@ PP(pp_qr)
     dSP;
     PMOP * const pm = cPMOP;
     REGEXP * rx = PM_GETRE(pm);
-    SV * const pkg = rx ? CALLREG_PACKAGE(rx) : NULL;
+    regexp *prog = ReANY(rx);
+    SV * const pkg = RXp_ENGINE(prog)->qr_package(aTHX_ (rx));
     SV * const rv = sv_newmortal();
     CV **cvp;
     CV *cv;
@@ -2090,7 +2091,7 @@ PP(pp_qr)
 	(void)sv_bless(rv, stash);
     }
 
-    if (UNLIKELY(RX_ISTAINTED(rx))) {
+    if (UNLIKELY(RXp_ISTAINTED(prog))) {
         SvTAINTED_on(rv);
         SvTAINTED_on(SvRV(rv));
     }
@@ -2107,6 +2108,7 @@ PP(pp_match)
     const char *strend;
     const char *truebase;			/* Start of string  */
     REGEXP *rx = PM_GETRE(pm);
+    regexp *prog = ReANY(rx);
     MAGIC *mg = NULL;
     SSize_t curpos = 0; /* initial pos() or current $+[0] */
     STRLEN len;
@@ -2131,13 +2133,13 @@ PP(pp_match)
     PUTBACK;				/* EVAL blocks need stack_sp. */
     /* Skip get-magic if this is a qr// clone, because regcomp has
        already done it. */
-    truebase = ReANY(rx)->mother_re
+    truebase = prog->mother_re
 	 ? SvPV_nomg_const(TARG, len)
 	 : SvPV_const(TARG, len);
     if (!truebase)
 	DIE(aTHX_ "panic: pp_match");
     strend = truebase + len;
-    rxtainted = cBOOL((RX_ISTAINTED(rx) ||
+    rxtainted = cBOOL((RXp_ISTAINTED(prog) ||
                        (TAINT_get && (pm->op_pmflags & PMf_RETAINT))));
     TAINT_NOT;
 
@@ -2157,7 +2159,7 @@ PP(pp_match)
     }
 
     /* handle the empty pattern */
-    if (!RX_PRELEN(rx) && PL_curpm && !ReANY(rx)->mother_re) {
+    if (!RX_PRELEN(rx) && PL_curpm && !prog->mother_re) {
         if (PL_curpm == PL_reg_curpm) {
             if (PL_curpm_under) {
                 if (PL_curpm_under == PL_reg_curpm) {
@@ -2170,13 +2172,14 @@ PP(pp_match)
             pm = PL_curpm;
         }
         rx = PM_GETRE(pm);
+        prog = ReANY(rx);
     }
 
-    if (RX_MINLEN(rx) >= 0 && (STRLEN)RX_MINLEN(rx) > len) {
+    if (RXp_MINLEN(prog) >= 0 && (STRLEN)RXp_MINLEN(prog) > len) {
         DEBUG_r(PerlIO_printf(Perl_debug_log,
             "String shorter than min possible regex match (%"
                               UVuf " < %" IVdf ")\n",
-                              (UV)len, (IV)RX_MINLEN(rx)));
+                              (UV)len, (IV)RXp_MINLEN(prog)));
 	goto nope;
     }
 
@@ -2192,9 +2195,9 @@ PP(pp_match)
     }
 
 #ifdef PERL_SAWAMPERSAND
-    if (       RX_NPARENS(rx)
+    if (       RXp_NPARENS(prog)
             || PL_sawampersand
-            || (RX_EXTFLAGS(rx) & (RXf_EVAL_SEEN|RXf_PMf_KEEPCOPY))
+            || (RXp_EXTFLAGS(prog) & (RXf_EVAL_SEEN|RXf_PMf_KEEPCOPY))
             || (dynpm->op_pmflags & PMf_KEEPCOPY)
     )
 #endif
@@ -2232,22 +2235,22 @@ PP(pp_match)
 #endif
 
     if (rxtainted)
-	RX_MATCH_TAINTED_on(rx);
-    TAINT_IF(RX_MATCH_TAINTED(rx));
+	RXp_MATCH_TAINTED_on(prog);
+    TAINT_IF(RXp_MATCH_TAINTED(prog));
 
     /* update pos */
 
     if (global && (gimme != G_ARRAY || (dynpm->op_pmflags & PMf_CONTINUE))) {
         if (!mg)
             mg = sv_magicext_mglob(TARG);
-        MgBYTEPOS_set(mg, TARG, truebase, RX_OFFS(rx)[0].end);
-        if (RX_ZERO_LEN(rx))
+        MgBYTEPOS_set(mg, TARG, truebase, RXp_OFFS(prog)[0].end);
+        if (RXp_ZERO_LEN(prog))
             mg->mg_flags |= MGf_MINMATCH;
         else
             mg->mg_flags &= ~MGf_MINMATCH;
     }
 
-    if ((!RX_NPARENS(rx) && !global) || gimme != G_ARRAY) {
+    if ((!RXp_NPARENS(prog) && !global) || gimme != G_ARRAY) {
 	LEAVE_SCOPE(oldsave);
 	RETPUSHYES;
     }
@@ -2255,7 +2258,7 @@ PP(pp_match)
     /* push captures on stack */
 
     {
-	const I32 nparens = RX_NPARENS(rx);
+	const I32 nparens = RXp_NPARENS(prog);
 	I32 i = (global && !nparens) ? 1 : 0;
 
 	SPAGAIN;			/* EVAL blocks could move the stack. */
@@ -2263,25 +2266,28 @@ PP(pp_match)
 	EXTEND_MORTAL(nparens + i);
 	for (i = !i; i <= nparens; i++) {
 	    PUSHs(sv_newmortal());
-	    if (LIKELY((RX_OFFS(rx)[i].start != -1)
-                     && RX_OFFS(rx)[i].end   != -1 ))
+	    if (LIKELY((RXp_OFFS(prog)[i].start != -1)
+                     && RXp_OFFS(prog)[i].end   != -1 ))
             {
-		const SSize_t len = RX_OFFS(rx)[i].end - RX_OFFS(rx)[i].start;
-		const char * const s = RX_OFFS(rx)[i].start + truebase;
-	        if (UNLIKELY(RX_OFFS(rx)[i].end < 0 || RX_OFFS(rx)[i].start < 0
-                        || len < 0 || len > strend - s))
+		const SSize_t len = RXp_OFFS(prog)[i].end - RXp_OFFS(prog)[i].start;
+		const char * const s = RXp_OFFS(prog)[i].start + truebase;
+	        if (UNLIKELY(  RXp_OFFS(prog)[i].end   < 0
+                            || RXp_OFFS(prog)[i].start < 0
+                            || len < 0
+                            || len > strend - s)
+                )
 		    DIE(aTHX_ "panic: pp_match start/end pointers, i=%ld, "
 			"start=%ld, end=%ld, s=%p, strend=%p, len=%" UVuf,
-			(long) i, (long) RX_OFFS(rx)[i].start,
-			(long)RX_OFFS(rx)[i].end, s, strend, (UV) len);
+			(long) i, (long) RXp_OFFS(prog)[i].start,
+			(long)RXp_OFFS(prog)[i].end, s, strend, (UV) len);
 		sv_setpvn(*SP, s, len);
 		if (DO_UTF8(TARG) && is_utf8_string((U8*)s, len))
 		    SvUTF8_on(*SP);
 	    }
 	}
 	if (global) {
-            curpos = (UV)RX_OFFS(rx)[0].end;
-	    had_zerolen = RX_ZERO_LEN(rx);
+            curpos = (UV)RXp_OFFS(prog)[0].end;
+	    had_zerolen = RXp_ZERO_LEN(prog);
 	    PUTBACK;			/* EVAL blocks may use stack */
 	    r_flags |= REXEC_IGNOREPOS | REXEC_NOT_FIRST;
 	    goto play_it_again;
@@ -3457,6 +3463,7 @@ PP(pp_subst)
     SSize_t maxiters;
     char *orig;
     REGEXP *rx = PM_GETRE(pm);
+    regexp *prog = ReANY(rx);
     STRLEN len;
     STRLEN slen;
     int force_on_match = 0;
@@ -3518,7 +3525,7 @@ PP(pp_subst)
     if (TAINTING_get) {
 	rxtainted  = (
 	    (SvTAINTED(TARG) ? SUBST_TAINT_STR : 0)
-	  | (RX_ISTAINTED(rx) ? SUBST_TAINT_PAT : 0)
+	  | (RXp_ISTAINTED(prog) ? SUBST_TAINT_PAT : 0)
 	  | ((pm->op_pmflags & PMf_RETAINT) ? SUBST_TAINT_RETAINT : 0)
 	  | ((once && !(rpm->op_pmflags & PMf_NONDESTRUCT))
 		? SUBST_TAINT_BOOLRET : 0));
@@ -3536,7 +3543,7 @@ PP(pp_subst)
 				   second time with non-zero. */
 
     /* handle the empty pattern */
-    if (!RX_PRELEN(rx) && PL_curpm && !ReANY(rx)->mother_re) {
+    if (!RX_PRELEN(rx) && PL_curpm && !prog->mother_re) {
         if (PL_curpm == PL_reg_curpm) {
             if (PL_curpm_under) {
                 if (PL_curpm_under == PL_reg_curpm) {
@@ -3549,12 +3556,13 @@ PP(pp_subst)
             pm = PL_curpm;
         }
         rx = PM_GETRE(pm);
+        prog = ReANY(rx);
     }
 
 #ifdef PERL_SAWAMPERSAND
-    r_flags = (    RX_NPARENS(rx)
+    r_flags = (    RXp_NPARENS(prog)
                 || PL_sawampersand
-                || (RX_EXTFLAGS(rx) & (RXf_EVAL_SEEN|RXf_PMf_KEEPCOPY))
+                || (RXp_EXTFLAGS(prog) & (RXf_EVAL_SEEN|RXf_PMf_KEEPCOPY))
                 || (rpm->op_pmflags & PMf_KEEPCOPY)
               )
           ? REXEC_COPY_STR
@@ -3603,12 +3611,12 @@ PP(pp_subst)
 #ifdef PERL_ANY_COW
 	&& !was_cow
 #endif
-        && (SSize_t)clen <= RX_MINLENRET(rx)
+        && (SSize_t)clen <= RXp_MINLENRET(prog)
         && (  once
            || !(r_flags & REXEC_COPY_STR)
-           || (!SvGMAGICAL(dstr) && !(RX_EXTFLAGS(rx) & RXf_EVAL_SEEN))
+           || (!SvGMAGICAL(dstr) && !(RXp_EXTFLAGS(prog) & RXf_EVAL_SEEN))
            )
-        && !(RX_EXTFLAGS(rx) & RXf_NO_INPLACE_SUBST)
+        && !(RXp_EXTFLAGS(prog) & RXf_NO_INPLACE_SUBST)
 	&& (!doutf8 || SvUTF8(TARG))
 	&& !(rpm->op_pmflags & PMf_NONDESTRUCT))
     {
@@ -3631,10 +3639,10 @@ PP(pp_subst)
 
 	if (once) {
             char *d, *m;
-	    if (RX_MATCH_TAINTED(rx)) /* run time pattern taint, eg locale */
+	    if (RXp_MATCH_TAINTED(prog)) /* run time pattern taint, eg locale */
 		rxtainted |= SUBST_TAINT_PAT;
-	    m = orig + RX_OFFS(rx)[0].start;
-	    d = orig + RX_OFFS(rx)[0].end;
+	    m = orig + RXp_OFFS(prog)[0].start;
+	    d = orig + RXp_OFFS(prog)[0].end;
 	    s = orig;
 	    if (m - s > strend - d) {  /* faster to shorten from end */
                 I32 i;
@@ -3664,14 +3672,15 @@ PP(pp_subst)
 	}
 	else {
             char *d, *m;
-            d = s = RX_OFFS(rx)[0].start + orig;
+            d = s = RXp_OFFS(prog)[0].start + orig;
 	    do {
                 I32 i;
 		if (UNLIKELY(iters++ > maxiters))
 		    DIE(aTHX_ "Substitution loop");
-		if (UNLIKELY(RX_MATCH_TAINTED(rx))) /* run time pattern taint, eg locale */
+                /* run time pattern taint, eg locale */
+		if (UNLIKELY(RXp_MATCH_TAINTED(prog)))
 		    rxtainted |= SUBST_TAINT_PAT;
-		m = RX_OFFS(rx)[0].start + orig;
+		m = RXp_OFFS(prog)[0].start + orig;
 		if ((i = m - s)) {
 		    if (s != d)
 			Move(s, d, i, char);
@@ -3681,7 +3690,7 @@ PP(pp_subst)
 		    Copy(c, d, clen, char);
 		    d += clen;
 		}
-		s = RX_OFFS(rx)[0].end + orig;
+		s = RXp_OFFS(prog)[0].end + orig;
 	    } while (CALLREGEXEC(rx, s, strend, orig,
 				 s == m, /* don't match same null twice */
 				 TARG, NULL,
@@ -3717,10 +3726,10 @@ PP(pp_subst)
 #ifdef PERL_ANY_COW
       have_a_cow:
 #endif
-	if (RX_MATCH_TAINTED(rx)) /* run time pattern taint, eg locale */
+	if (RXp_MATCH_TAINTED(prog)) /* run time pattern taint, eg locale */
 	    rxtainted |= SUBST_TAINT_PAT;
 	repl = dstr;
-        s = RX_OFFS(rx)[0].start + orig;
+        s = RXp_OFFS(prog)[0].start + orig;
 	dstr = newSVpvn_flags(orig, s-orig,
                     SVs_TEMP | (DO_UTF8(TARG) ? SVf_UTF8 : 0));
 	if (!c) {
@@ -3739,20 +3748,20 @@ PP(pp_subst)
 	do {
 	    if (UNLIKELY(iters++ > maxiters))
 		DIE(aTHX_ "Substitution loop");
-	    if (UNLIKELY(RX_MATCH_TAINTED(rx)))
+	    if (UNLIKELY(RXp_MATCH_TAINTED(prog)))
 		rxtainted |= SUBST_TAINT_PAT;
-	    if (RX_MATCH_COPIED(rx) && RX_SUBBEG(rx) != orig) {
+	    if (RXp_MATCH_COPIED(prog) && RXp_SUBBEG(prog) != orig) {
 		char *old_s    = s;
 		char *old_orig = orig;
-                assert(RX_SUBOFFSET(rx) == 0);
+                assert(RXp_SUBOFFSET(prog) == 0);
 
-		orig = RX_SUBBEG(rx);
+		orig = RXp_SUBBEG(prog);
 		s = orig + (old_s - old_orig);
 		strend = s + (strend - old_s);
 	    }
-	    m = RX_OFFS(rx)[0].start + orig;
+	    m = RXp_OFFS(prog)[0].start + orig;
 	    sv_catpvn_nomg_maybeutf8(dstr, s, m - s, DO_UTF8(TARG));
-	    s = RX_OFFS(rx)[0].end + orig;
+	    s = RXp_OFFS(prog)[0].end + orig;
 	    if (first) {
 		/* replacement already stringified */
 	      if (clen)
@@ -3820,7 +3829,7 @@ PP(pp_subst)
 	    ((rxtainted & (SUBST_TAINT_STR|SUBST_TAINT_RETAINT)) ==
 				(SUBST_TAINT_STR|SUBST_TAINT_RETAINT))
 	)
-	    (RX_MATCH_TAINTED_on(rx)); /* taint $1 et al */
+	    (RXp_MATCH_TAINTED_on(prog)); /* taint $1 et al */
 
 	if (!(rxtainted & SUBST_TAINT_BOOLRET)
 	    && (rxtainted & (SUBST_TAINT_STR|SUBST_TAINT_PAT))
