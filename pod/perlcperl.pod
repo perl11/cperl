@@ -289,18 +289,19 @@ not the other possible syntax variants C<< => type >> or C<< returns type >>.
 
 There are just a few semantic conflicts.
 Note that we can use the builtin attributes C<:lvalue>, C<:method>,
-C<:const> and C<:unsigned> also here.
+C<:const> also here.
 
 C<:const> does not mean constant result, it rather means constant
 subroutine.  Having this constant means that the compiler is able to
 inline it without run-time checks if it has changed.
 
-C<:unsigned> as coretype or not?  As sub attribute it could mean
+C<:unsigned> as coretype or C<:uint>?  As sub attribute it could mean
 strictly typed to a return result of C<UV>, like C<:int :unsigned>,
 where the C<:int> is optional. C<:-unsigned> would mean C<:int> then,
 return a signed int.  C<:unsigned> could also be no coretype, just a
 hint for C<:int>, and without C<:int> it will just be an attribute,
-not a strictly checked coretype. This decision is still open.
+not a strictly checked coretype. This decision is still open. For now we use
+C<:uint>.
 
 =item B<< Add call by-ref via \$arg >>
 
@@ -356,13 +357,17 @@ big and needs two checks and big strings with fixed arity subs.
 
 which violated the existing error message: "Not enough arguments for "
 
-=item B<< Support default $self invocant with methods (NY) >>
+=item B<< Support default $self invocant with methods >>
 
-If a method is declared as such (via C<method> or C<sub :method>) the C<$self>
-argument is used as default invocant argument name, which can be overridden
-via the C<($class: $args,...)> colon syntax.
+If a method is declared via C<method> the C<$self> argument is used as
+default invocant argument name, which can be overridden via the
+C<($class: $args,...)> colon syntax.
 
-    sub adder ($a) :method { $self->{add} + $a; }
+    method adder ($a) { $self->add + $a; }
+
+With the method attribute you have to provide it:
+
+    sub adder ($self, $a) :method { $self->add + $a; }
 
 =item B<< Add :pure attribute for subroutines >>
 
@@ -374,10 +379,6 @@ A pure function only reacts to its input arguments and will always
 return the same value with the same arguments, thus can be safely
 memoized or constant-folded or inlined without having to embed them
 into ENTER/LEAVE blocks.
-
-=item B<< Parse signatures with the parser, not undocumented functions (NY) >>
-
-I<We'll see later on this one. Maybe keep it as horrible as it is now.>
 
 =item B<< Improved error reporting >>
 
@@ -488,7 +489,8 @@ of the SASSIGN optimization via OA_TARGLEX and OPpTARGET_MY in 2002.
 
 cperl fixed this (it was using a wrong bit-testing, using AND as OR)
 and work is ongoing to harmonize further internal code exceptions and
-code-smell, e.g. SASSIGN, given/when and the match functions.
+code-smell, e.g. SASSIGN, given/when and the match functions, everything
+with nested blocks.
 
 =head2 Undo B bootstrap breakage
 
@@ -624,11 +626,11 @@ chain. This is how you usually implement a slow hash table with linked
 lists.
 
 Use fast hash functions, not secure slow ones. We get security by
-fixing the algorithmic problem in the collision handling, not by
-obscuring the users and fellow developers.  We properly analyzed many
-hash functions and hash tables, for security and speed. The fastest,
-FNV1a, was the one the fellow developer schmorp choose I<by his guts>
-in his stableperl fork.
+fixing the algorithmic problem in the collision handling, not by using
+extremely slow hash functions and obscuring the users and fellow
+developers.  We properly analyzed many hash functions and hash tables,
+for security and speed. The fastest, FNV1a, was the one the fellow
+developer schmorp choose I<by his guts> in his stableperl fork.
 
 Provide a Configure argument to define the hash function:
 C<-Dhash_func=FNV1A>
@@ -651,7 +653,7 @@ Provide a special C<:const> hash table type to enable optimizations to
 perfect hashes. With C<study %hash> you can do the similar costly
 optimizations on non-const hashes at run-time to allow faster key access.
 
-Added support for restricted hashes, esp. stashes which we need for our
+Added support for restricted hashes, esp. stashes which we needed for our
 class implementation, to detect wrong fields at compile-time already.
 restricted hashes are not properly supported in perl5.
 
@@ -847,6 +849,34 @@ When the method is defined directly in the package, it is not possible
 to inject another package at run-time into the method search, thus the
 method call is optimized from a dynamic method dispatch to a normal
 static function call.
+
+=head2 Proper object system
+
+No, not Moose, rather perl6 without the antics.  Closer to Mouse
+though, which is currently the recommended OO.  Mouse with a
+perl6-like syntax.  Rather an optimizable perl6-like object system in
+core, similar to an extended base/fields OO with pseudohashes, roles,
+mop and multi-dispatch. See  L<perlclass>.
+
+Provide a simple MOP for reflection purposes, but not yet for
+overrides, i.e. metaobjects for classes, proper class and method
+syntax, anonymous classes by pointer not name, proper multi dispatch
+with types, roles, class and method lookup by pointer, not by name.
+Create native optimized shapes via mixins as in perl6 or p2 (an
+enhanced bless). Lexical methods are private, optimize dispatch for
+single inheritance. i.e the convenient class syntax extends on a
+single class only, classes are finalizable by the calling application.
+
+Support multi-dispatch in perl6 syntax and optimize for early-bound
+method calls with typed arguments and closed classes.
+
+Class dispatch is via C3, not the old depth-first left-to-right mro
+implementation. Many old core modules have broken inheritance, so C3
+could not yet be enabled as default.
+
+For type inference the special Mu methods C<new> and C<CREATE> are
+detected and cause the left-hand side of a lexical assignment to
+progate its type into the lexical.
 
 =head2 Typed and shaped arrays
 
@@ -1092,6 +1122,28 @@ properties.
 
 This evals all attributes at compile-time. Discourage its usage.
 
+=head2 libffi in core
+
+Declare extern functions and libraries and call them. There's no need
+for XS and seperate compilation for most bindings. Not everybody has a
+compiler, the very same compiler perl was compiled with.
+libffi is the slowest ffi library, but has the best platform support, as it is
+integrated with gcc for java jni support.
+
+   extern sub atoi(str $s) :int;
+   extern sub itoa(int $s) :str;
+   extern sub printf(str $s, ...);
+
+Note that this deviates from perl6 synatx with C<is native>, but perl6
+uses the C<is> traits for all function attributes, which we do not.
+And we prefer the more natural C-like syntax over the more obscure perl6 syntax.
+
+The alternative syntax to C<extern sub> is via the C<:native> sub
+attribute, which does allow options, as in C<sub atoi(str $s) :int
+:native($libc);>.
+
+Later with a jit in core we would not need the external F<libffi> dependency.
+
 =head1 Longer term goals
 
 =head2 Faster functions and method calls
@@ -1107,33 +1159,6 @@ needs to be in core, not as external module. Without tailcall
 elimination handling longer lists leads to stack exhaustion. python
 did the same mistake as p5p by enforcing a new context for every goto.
 goto to signatures are now real fast tailcalls.
-
-=head2 Proper object system
-
-No, not Moose, but close.  Closer to Mouse though, which is currently
-the recommended OO.  Mouse with a perl6-like syntax.  Rather an
-optimizable perl6-like object system in core, similar to an extended
-base/fields OO with pseudohashes, roles and multi-dispatch.
-
-Provide a simple MOP for reflection purposes, bot not for overrides,
-i.e. metaobjects for classes, proper class and method syntax,
-anonymous classes by pointer not name, proper multi dispatch with
-types, roles, class and method lookup by pointer, not by name.  Create
-native optimized shapes via mixins as in perl6 or p2 (an enhanced
-bless). Lexical methods are private, optimize dispatch for single
-inheritance. i.e the convenient class syntax extends on a single class
-only, classes are finalizable by the calling application.
-
-Support multi-dispatch in perl6 syntax and optimize for early-bound
-method calls with typed arguments and closed classes.
-
-Dispatch is via C3, not the old depth-first left-to-right mro
-implementation. Many old core modules have broken inheritance, so C3
-could not yet be enabled as default.
-
-For type inference we will need to make C<new> a special keyword,
-which is a shortcut for C<bless> with a fixed classname. C<bless> can
-use computed classnames and thus enforces dynamic types.
 
 =head2 Macros
 
@@ -1161,28 +1186,6 @@ Don't support the quasi attributes C<:ast/:lang/:unquote>, other than C<:COMPILI
 Support the C<COMPILING::> pseudo-package.
 
 See the F<feature/gh261-macros> branch.
-
-=head2 libffi in core
-
-Declare extern functions and libraries and call them. There's no need
-for XS and seperate compilation for most bindings. Not everybody has a
-compiler, the very same compiler perl was compiled with.
-libffi is the slowest ffi library, but has the best platform support, as it is
-integrated with gcc for java jni support.
-
-   extern sub atoi(str $s) :int;
-   extern sub itoa(int $s) :str;
-   extern sub printf(str $s, ...);
-
-Note that this deviates from perl6 synatx with C<is native>, but perl6
-uses the C<is> traits for all function attributes, which we do not.
-And we prefer the more natural C-like syntax over the more obscure perl6 syntax.
-
-The alternative syntax to C<extern sub> is via the C<:native> sub
-attribute, which does allow options, as in C<sub atoi(str $s) :int
-:native($libc);>.
-
-Later with a jit in core we would not need the external F<libffi> dependency.
 
 =head2 Editor integration
 
@@ -1339,27 +1342,29 @@ merged, because we wait for other decisions to be made.
 
 =over
 
-=item B<< classes (not yet) >>
+=item B<< classes >>
 
-A true perl6-like and efficient object system is in work, but not yet
-enabled publicly, but internally a lot of support had been added
-already: Core and User-types, handling of restricted stashes and
-compile-time inheritance.  It supports the perl6-like syntax for
-class, method, has, roles (mixins, compile-time composable classes),
-method modifiers (:before, :after, :around), multiple type dispatch
-(multi, no need to overload methods), finalizable classes
-(compile-time optimizations) and easier perl6-like syntax, which
-closely resembles early perl6 designs, Damian Conway's perl5i and
-C<Moose> without its massive overhead.
+A true perl6-like and efficient object system is in work, and a lot of
+support had been added already: Core and User-types, handling of
+restricted stashes, parsing the new syntax, efficient fields and
+compile-time role composition.
 
-There's no B<MOP> (meta-object protocol), but reflection. There's no need
-to override the internal behavior of the object system, the dispatch,
-the class and role layout.
+One cannot just add classes and objects to core without a type system
+first.
 
-See L<perlclass> (NY)
+It supports the perl6-like syntax for class, method, has, roles
+(mixins, compile-time composable classes), is, does, finalized classes
+(compile-time optimizations). Later method modifiers (:before, :after,
+:around), multiple type dispatch (multi, no need to overload methods),
+and easier perl6-like syntax, which closely resembles early perl6
+designs, Damian Conway's perl5i and C<Moose>, without its massive
+overhead.
+
+See L<perlclass>
 
 =item B<< types >>
 
+Types are optional, and make code safer, faster and better documented.
 cperl includes builtin coretypes, native ffi types, user-defined types
 and type dispatch, checks, subtype relationships, inference and
 optimizations on user-defined functions and methods, for XS and PP.
@@ -1418,6 +1423,7 @@ Most dynamic languages are currently in the process to get type
 support.  This happened for perl5 at around 2002, but was never
 properly led (the developers had to leave p5p) and was then destroyed
 with 5.10, and then actively blocked for decades.
+You cannot do an object system without types.
 
 =over
 

@@ -148,7 +148,7 @@ For all versions see [bench-all/](bench-all/index.html)
 * support for long path names, > 4096
 * support for unicode BOMs, setting the unicode hints
 * Fast and proper object orientation. User facing classes. class, role, method,
-  multi, has keywords, Mu superclass. Multi dispatch coming soon.
+  multi, has, is, does keywords, Mu superclass.
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.

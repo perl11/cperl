@@ -19,11 +19,12 @@ XXX Any important notices here
 
 =head1 Core Enhancements
 
-XXX New core language features go here.  Summarize user-visible core language
-enhancements.  Particularly prominent performance optimisations could go
-here, but most should go in the L</Performance Enhancements> section.
+=head2 class, role, method, has
 
-[ List each enhancement as a =head2 entry ]
+cperl has now classes, roles, methods and fields.
+Old user-subroutines or parser-hacks with these names are still
+supported, but not recommended.
+See L<perlclass>.
 
 =head2 Check and normalize stringified names
 
@@ -161,8 +162,8 @@ See L<http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods
 
 Most checks for readonly packages are now avoided, needed to bypass
 the "Attempt to access disallowed key %s in the restricted hash
-%CLASS::" errors. Stash lookup now got a GV_CLASS flag and hv_fetch*_ifexists
-macro, which does the EXISTS and FETCH hash actions in the stash on one.
+%CLASS::" errors. Stash lookup now got a B<GV_CLASS> flag and C<hv_fetch*_ifexists>
+macros, which does the EXISTS and FETCH hash actions in the stash on one.
 
 =back
 
@@ -180,9 +181,13 @@ dual-life modules would have a F<Changes> file that could be cribbed.
 
 =over 4
 
-=item *
+=item L<Mu> 0.01
 
-XXX
+For now only C<new> and C<CREATE>, implemented as XS builtins.
+
+=item L<Metamodel>
+
+Just the documentation for the perl6 MOP.
 
 =back
 
@@ -321,16 +326,12 @@ XXX
 
 =head1 Documentation
 
-XXX Changes to files in F<pod/> go here.  Consider grouping entries by
-file and be sure to link to the appropriate page, e.g. L<perlfunc>.
-
 =head2 New Documentation
 
-XXX Changes which create B<new> files in F<pod/> go here.
+=head3 L<perlclass>
 
-=head3 L<XXX>
-
-XXX Description of the purpose of the new file here
+Modern cperl classes and roles.
+The new syntax and features.
 
 =head2 Changes to Existing Documentation
 
@@ -403,10 +404,9 @@ and "Can't modify non-lvalue method call of CLASS->sub".
 
 =item *
 
-Under DEBUGGING
-"Modification of a read-only value attempted at <location>"
-was changed to 
-"Modification of a read-only value attempted <value> at <c file:line> at <location>"
+Under DEBUGGING "Modification of a read-only value attempted at
+<location>" was changed to "Modification of a read-only value
+attempted <value> at <c file:line> at <location>"
 
 Existing tests best cut off the " at" at the end.
 
@@ -472,6 +472,10 @@ that they represent may be covered elsewhere.
 
 Fixed F<Porting/cmpVERSION.pl> resp. F<t/porting/cmp_version.t>
 
+=item *
+
+Some flapping tests on slow windows smokers (appveyor) are now skipped.
+
 =back
 
 =head1 Platform Support
@@ -530,8 +534,18 @@ XXX
 =item *
 
 C<Perl_croak_no_modify()> got 2 arguments, the macro is the same.  The
-new C<croak_no_modify_sv(sv)> has better diagnostics and is used
-throughout core.
+new C<croak_no_modify_sv(sv)> has better diagnostics with DEBUGGING
+and is used throughout core.
+
+=item *
+
+Many gv_fetch methods use now GV_CLASS, i.e. they try EXISTS and FETCH
+in the same stash lookup, not failing on restricted stashes.
+
+=item *
+
+The overload magic vtable (AMT) allows now readonly stashes. classes
+are not cached, readonly packages are.
 
 =back
 
@@ -605,6 +619,7 @@ E.g. this works now: C<<< class XX{method m{"ok $self"}} XX->new->m >>>
 The string concat looked in the class XX for an overload for the concat "." op,
 and failed with "Modification of a read-only value attempted" on the class,
 when trying to update the AMT cache.
+On windows it also tried the C<"(qr"> overload.
 See L<[cperl #308]|https://github.com/perl11/cperl/issues/308>.
 
 =back
