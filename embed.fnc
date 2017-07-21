@@ -3151,7 +3151,7 @@ Apod	|void	|hv_assert	|NN HV *hv
 #endif
 
 ApdR	|SV*	|hv_scalar	|NN HV *hv
-p	|void	|hv_pushkv	|NN HV *hv
+p	|void	|hv_pushkv	|NN HV *hv|U32 flags
 ApdRMD	|SV*	|hv_bucket_ratio|NN HV *hv
 ApoR	|U32*	|hv_riter_p	|NN HV *hv
 ApoR	|HE**	|hv_eiter_p	|NN HV *hv
