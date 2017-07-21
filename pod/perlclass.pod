@@ -74,13 +74,13 @@ and methods, subroutines and multi methods or subroutines,
 i.e. polymorphic dispatch with generics, dispatching on the method
 types.
 
-It is different from an old package by being declared via C<use
-L<base>> or via the class keyword, and detected by the HvCLASS flag in
-the stash. Anonymous classes can only be created via the API, either
-using L<perlapi/class_role> and L<perlapi/class_role_finalize>, or
-setting C<HvCLASS_on(STASH)> and C<HvROLE_on(STASH)>, or by adding a
-class and changing the name to a unique one. Dispatch and inheritance
-works on the classnames, not its pointers.
+It is different from an old package by being declared via the class
+keyword, and detected by the HvCLASS flag in the stash. Anonymous
+classes can only be created via the API, either using
+L<perlapi/class_role> and L<perlapi/class_role_finalize>, or setting
+C<HvCLASS_on(STASH)> and C<HvROLE_on(STASH)>, or by adding a class and
+changing the name to a unique one. Dispatch and inheritance works on
+the classnames, not its pointers.
 
 Classes can inherit from classes via a sequence of C<is CLASS> traits
 or compose from other roles via C<does ROLE>. Multiple such C<is> or
@@ -123,8 +123,7 @@ C<sub NAME (SIGNATURE) :method BLOCK> declaration, just that with
 C<sub :method> the C<$self> argument is not automatically added.
 
 Calling a method as subroutine is forbidden, and calling a subroutine
-with a signature as method is forbidden also.  This might bite you
-with C<use base>, which creates cperl classes.  The new C<method>
+with a signature as method is forbidden also. The new C<method>
 keyword is only parsed inside a role or class. Outside it will try to
 call a subroutine C<method>, which usually doesn't exist.
 
@@ -154,14 +153,17 @@ The default C<$self> argument is automatically added for multi methods,
 as with normal methods.
 
 Internally a multi adds the signature types to the name after a C<\0>.
+I<Multi dispatch is not yet implemented.>
 
 =head1 HAS
 
 A class or role field is declared via C<has TYPE NAME = value;>, with
 the type and the default value being optional, and the name having
-optional attributes, same as MY variable declarations. Internally
-inside the class each has field is declared as lexical C<my> variable,
-and then changed to efficient field accessors in all methods.
+optional attributes, same as MY variable declarations. Like with
+C<method> C<has> is only parsed inside classes, outside it refers to a
+usually not-existing subroutine.  Internally inside the class each
+C<has> field is declared as lexical C<my> variable, and then changed
+to efficient field accessors in all methods.
 
    has $NAME;
    has @ARRAY;
@@ -172,22 +174,24 @@ Each field generates an entry into an internal C<@FIELDS> array, used
 to create the field accessors at compile-time, plus currently a
 C<%FIELDS> hash entry for run-time access for computed field names, as
 in C<use L<fields>>.  Native classes requires mandatory types for each
-field, the layout will aligned the same as C structs.  Fields are
+field, the layout will be aligned the same as C structs.  Fields are
 always compile-time composed, even with C<is CLASS> inheritance.
+I<Note that @FIELDS and %FIELDS will be replaced by methods.>
 
 Additionally perl6-like default accessors are created, for non-const
 fields getters and lvalue setter methods, for const fields only
-getters.  You may define you own accessor methods, overriding the defaults.
+getters.  You may define you own accessor methods, overriding the
+defaults. There's no syntax for setter-only methods.
 
 Inside a class C<<< $self->field >>> is the same as C<$field>.
-Outside a class the first accessor, the method must be used.  If the
-name is computed or the field is inherited from a parent class the
-lookup will be dynamic via method inheritance, composed fields from
-C<does ROLE> compile to direct array accesses in C<$self>.
+Outside a class the first type of accessor, the method must be used.
+If the name is computed or the field is inherited from a parent class
+the lookup will be dynamic via method inheritance, composed fields
+from C<does ROLE> compile to direct array accesses in C<$self>.
 
 The compiler converts every typed C<$self> method call on a field to a
 static compile-time array access via C<oelemfast>, which is the same
-as C<aelemfast_lex_u>, or to a new dynamic run-time C<aelem> op, which
+as C<aelemfast_lex_u>, or to a new dynamic run-time C<oelem> op, which
 performs the field lookup of the field value.  It is not static when
 the class is open, or the object is not typed.
 
@@ -197,7 +201,7 @@ the class is open, or the object is not typed.
     my $field = 'field';   # computed field name -> dynamic
     $obj->$field;	   # -> oelem $obj, $field
 
-    my $obj = new CLASS; # type CLASS is inferred to $obj
+    my $obj = new CLASS; # type CLASS is inferred to my CLASS $obj
     $obj->field; 	 # -> $obj->[0] (via oelemfast $obj, index)
 
     class OPENCLASS :open {
