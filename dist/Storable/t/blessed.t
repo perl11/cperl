@@ -6,6 +6,19 @@
 #  in the README file that comes with the distribution.
 #
 
+BEGIN {
+    # Do this as the very first thing, in order to avoid problems with the
+    # PADTMP flag on pre-5.19.3 threaded Perls.  On those Perls, compiling
+    # code that contains a constant-folded canonical truth value breaks
+    # the ability to take a reference to that canonical truth value later.
+    $::false = 0;
+    %::immortals = (
+	'u' => \undef,
+	'y' => \!$::false,
+	'n' => \!!$::false,
+    );
+}
+
 sub BEGIN {
     if ($ENV{PERL_CORE}) {
         chdir 'dist/Storable' if -d 'dist/Storable';
@@ -25,18 +38,14 @@ use Test::More;
 
 use Storable qw(freeze thaw store retrieve);
 
-%::immortals =
-    ('u' => \undef,
-     'y' => \(!!1),  # yes
-     'n' => \(!!0)   # no
-);
-
-
-%::weird_refs = 
-  (REF            => \(my $aref    = []),
-   VSTRING        => \(my $vstring = v1.2.3),
-   'long VSTRING' => \(my $lvstring = eval "v" . 0 x 300),
-   LVALUE         => \(my $substr  = substr((my $str = "foo"), 0, 3)));
+{
+    %::weird_refs = (
+        REF     => \(my $aref    = []),
+        VSTRING => \(my $vstring = v1.2.3),
+       'long VSTRING' => \(my $vstring = eval "v" . 0 x 300),
+        LVALUE  => \(my $substr  = substr((my $str = "foo"), 0, 3)),
+    );
+}
 
 my $test = 12;
 my $tests = $test + 23 + (2 * 6 * keys %::immortals) + (3 * keys %::weird_refs);
