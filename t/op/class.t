@@ -5,7 +5,7 @@ BEGIN {
     #require './test.pl';
 }
 local($\, $", $,) = (undef, ' ', '');
-print "1..27\n";
+print "1..28\n";
 my $test = 1;
 
 # allow has hash fields (YAML::Mo)
@@ -93,3 +93,25 @@ print scalar $b3->a != 2 ? "not " : "", "ok ", $test++, " # array field\n";
 $b3->h = (has => "field");
 print $b3->h != 1 ? "not " : "", "ok ", $test++, " # hash field\n";
 #print scalar $b3->h, $b3->h;
+
+# compose role methods
+role Foo2 {
+  has $a = 0;
+  method foo2 {
+    print "ok $test # copied method\n"; $test++;
+    print $a != 1       ? "not " : "", "ok ", $test++, " # role lex field\n";
+    #TODO SEGV padfixup
+    #print $self->a != 1 ? "not " : "", "ok ", $test++, " # role meth field\n";
+  }
+}
+class Baz4 does Foo2 {
+  method test {
+    $self->foo2;
+    # no lex field here
+    print $self->a != 1 ? "not " : "", "ok ", $test++, " # class meth field\n";
+  }
+}
+print "ok $test # parsed role composition\n"; $test++;
+#my $b4 = new Baz4;
+#$b4->test;
+#$b4->foo2;

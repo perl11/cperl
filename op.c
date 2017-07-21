@@ -19686,7 +19686,7 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
             IS_TYPE(OpNEXT(arg), METHOD_NAMED))
         {
             SV* const meth = cMETHOPx_meth(OpNEXT(arg));
-            if (meth && SvPOK(meth) && PAD_COMPNAME_TYPE(self)) {
+            if (meth && SvPOK(meth) && PAD_COMPNAME(self) && PAD_COMPNAME_TYPE(self)) {
                 const I32 klen = SvUTF8(meth) ? -SvCUR(meth) : SvCUR(meth);
                 const PADOFFSET ix = field_index(klass, SvPVX(meth), klen, FALSE);
                 if (ix != NOT_IN_PAD) {
@@ -19864,21 +19864,16 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
             GV *sym;
 
             if (isGV(gv) && (cv = GvCV(gv))) {
-                /* check for duplicates */
-                if (field_index(klass, HeKEY(entry), HeKLEN(entry), FALSE) != NOT_IN_PAD) {
-                    Perl_croak(aTHX_
-                        "Field %s from %s already exists in %s during role composition",
-                        HeKEY(entry), HvNAME(curclass), SvPVX(name));
-                }
-
+                /* note that we already copied the fields */
                 sv_catpvn_flags(name, HeKEY(entry), HeKLEN(entry), HeUTF8(entry));
                 sym = gv_fetchsv(name, 0, SVt_PVCV);
                 SvCUR_set(name, len);
+                SvPVX(name)[len] = '\0';
                 if (sym && GvCV(sym)) {
                     CV *cv = GvCV(sym);
                     if (CvMETHOD(cv) && !CvMULTI(cv)) {
                         DEBUG_kv(Perl_deb(aTHX_ "add_does_methods: exists method %s::%s\n",
-                                          SvPVX(name), HeKEY(entry)));
+                                          klassname, HeKEY(entry)));
                         continue;
                     } else {
                         /* perl6: Method '%s' must be resolved by class %s because it
@@ -19888,11 +19883,13 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                             HeKEY(entry), GvNAME(gv), klassname);
                     }
                 }
-                /* but we also might have class methods without a GV! */
+                /* We also might have class methods without a GV, but
+                   I believe we already vivified them to fat GVs */
 
-                /* XXX copy method */
-                DEBUG_k(Perl_deb(aTHX_ "add_does_methods: add %s::%s to %*s\n",
-                    HvNAME(curclass), HeKEY(entry), (int)len, SvPVX(name)));
+                /* XXX copy method #311 */
+                DEBUG_k(Perl_deb(aTHX_ "add_does_methods: add %s::%s to %s %s\n",
+                                 HvNAME(curclass), HeKEY(entry), HvPKGTYPE_NN(klass),
+                                 klassname));
             }
         }
     }
