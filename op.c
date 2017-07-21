@@ -19797,10 +19797,11 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
             SV* padix = AvARRAY(f)[j];
             PADOFFSET po = (PADOFFSET)SvIVX(padix);
             const PADNAME *pn = PAD_COMPNAME(po);
-            char *key = PadnamePV(pn);
+            const char *key = PadnamePV(pn);
             I32 klen = PadnameLEN(pn);
+            klen = PadnameUTF8(pn) ? -(klen-1) : klen-1;
             /* check for duplicate */
-            if (field_index(klass, key+1, klen-1, FALSE) != NOT_IN_PAD) {
+            if (field_index(klass, key+1, klen, FALSE) != NOT_IN_PAD) {
                 /* fatal with roles, valid and ignored for classes */
                 if (HvROLE(curclass))
                     Perl_croak(aTHX_
@@ -19830,8 +19831,12 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
 
 /*
 =for apidoc add_does_methods
-Copy all not-existing methods from parent roles to the class of C<name>.
-Duplicates are fatal with roles.
+
+Copy all not-existing methods from the parent roles to the class/role.
+
+Duplicates are fatal:
+"Method %s from %s already exists in %s during role composition"
+
 =cut
 */
 static void
@@ -19861,36 +19866,102 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
         while ((entry = hv_iternext(curclass))) {
             GV *gv = MUTABLE_GV(HeVAL(entry));
             CV *cv;
-            GV *sym;
 
             if (isGV(gv) && (cv = GvCV(gv))) {
-                /* note that we already copied the fields */
+                GV *sym;
+                /*CV *ncv;*/
+                sv_catpvs(name, "::");
                 sv_catpvn_flags(name, HeKEY(entry), HeKLEN(entry), HeUTF8(entry));
                 sym = gv_fetchsv(name, 0, SVt_PVCV);
-                SvCUR_set(name, len);
-                SvPVX(name)[len] = '\0';
+                /* note that we already copied the fields */
                 if (sym && GvCV(sym)) {
-                    CV *cv = GvCV(sym);
+                    /*ncv = GvCV(sym);*/
                     if (CvMETHOD(cv) && !CvMULTI(cv)) {
                         DEBUG_kv(Perl_deb(aTHX_ "add_does_methods: exists method %s::%s\n",
                                           klassname, HeKEY(entry)));
+                        SvCUR_set(name, len);
                         continue;
                     } else {
                         /* perl6: Method '%s' must be resolved by class %s because it
                            exists in multiple roles (%s, %s) */
                         Perl_croak(aTHX_
-                            "Method %s from %s already exists in %s during role composition",
-                            HeKEY(entry), GvNAME(gv), klassname);
+                            "Method %s from role %s already exists in %s %s during role composition",
+                            HeKEY(entry), GvNAME(gv), HvPKGTYPE_NN(klass), klassname);
                     }
+                }
+                /* ignore default field accessors, they are created later */
+                if (CvISXSUB(cv) &&
+                    field_index(klass, HeKEY(entry), HeKLEN_UTF8(entry), FALSE) != NOT_IN_PAD) {
+                    DEBUG_kv(Perl_deb(aTHX_ "add_does_methods: ignore field accessor %s::%s\n",
+                                      klassname, HeKEY(entry)));
+                    SvCUR_set(name, len);
+                    continue;
                 }
                 /* We also might have class methods without a GV, but
                    I believe we already vivified them to fat GVs */
 
-                /* XXX copy method #311 */
-                DEBUG_k(Perl_deb(aTHX_ "add_does_methods: add %s::%s to %s %s\n",
+                if (UNLIKELY(CvISXSUB(cv))) {
+                    if (CvXSUB(cv) == S_Mu_sv_xsub ||
+                        CvXSUB(cv) == S_Mu_av_xsub)
+                        DEBUG_kv(Perl_deb(aTHX_
+                            "add_does_methods: ignore other field XS accessor\n"));
+                    /* fallthrough to GV alias */
+                }
+                /* fallthrough to GV alias for those also:
+                else if (CvCONST(cv)) {
+                    DEBUG_kv(Perl_deb(aTHX_
+                        "add_does_methods: CvCONST NYI\n"));
+                }
+                else if (CvMULTI(cv)) {
+                    DEBUG_kv(Perl_deb(aTHX_
+                        "add_does_methods: CvMULTI NYI\n"));
+                }*/
+                /* TODO: compare pad targs. might need to create a new method
+                   with adjusted pads. */
+                {
+                    /* GV alias */
+                    DEBUG_k(Perl_deb(aTHX_ "add_does_methods: alias %s::%s to %s %s\n",
                                  HvNAME(curclass), HeKEY(entry), HvPKGTYPE_NN(klass),
                                  klassname));
+                    sym = gv_fetchsv_nomg(name, GV_ADD, SVt_PVCV);
+                    SvSetMagicSV((SV*)sym, (SV*)gv); /* glob_assign_glob */
+#if 0
+                    /* CV copy */
+                    ncv = MUTABLE_CV(newSV_type(SvTYPE(cv)));
+                    CvGV_set(ncv, sym);
+                    CvSTASH_set(ncv, klass);
+                    OP_REFCNT_LOCK;
+                    CvROOT(ncv)	     = OpREFCNT_inc(CvROOT(cv));
+                    if (CvHASSIG(cv))
+                        CvSIGOP(ncv) = CvSIGOP(cv);
+                    OP_REFCNT_UNLOCK;
+                    CvSTART(ncv)     = CvSTART(cv);
+                    CvOUTSIDE(ncv)   = CvOUTSIDE(cv);
+                    CvOUTSIDE_SEQ(ncv) = CvOUTSIDE_SEQ(cv);
+                    CvFILE(ncv)   = CvFILE(cv); /* ? */
+                    if (SvPOK(cv)) {
+                        SV* const sv = MUTABLE_SV(ncv);
+                        sv_setpvn(sv, SvPVX_const(cv), SvCUR(cv));
+                        if (SvUTF8(cv) && !SvUTF8(sv)) {
+                            if (SvIsCOW(sv)) sv_uncow(sv, 0);
+                            SvUTF8_on(sv);
+                        }
+                    }
+                    SvFLAGS(ncv) = SvFLAGS(cv);
+                    CvFLAGS(ncv) = CvFLAGS(cv);
+                    if (SvMAGIC(cv))
+                        mg_copy((SV *)cv, (SV *)ncv, 0, 0);
+
+                    if (CvPADLIST(cv)) {
+                        CvPADLIST(ncv) = CvPADLIST(cv);
+                        /*ncv = S_cv_clone_pad(aTHX_ cv, ncv, CvOUTSIDE(cv), NULL, FALSE);*/
+                    }
+                    mro_method_changed_in(klass);
+                    DEBUG_kv(sv_dump((SV*)ncv));
+#endif
+                }
             }
+            SvCUR_set(name, len);
         }
     }
 }

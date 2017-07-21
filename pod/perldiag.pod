@@ -3744,7 +3744,7 @@ path.  (cperl only)
 (F) An attempt was made to specify an entry in an overloading table that
 doesn't resolve to a valid subroutine.  See L<overload>.
 
-=item Method %s from %s already exists in %s during role composition
+=item Method %s from role %s already exists in %s %s during role composition
 
 (F) Copying duplicate method names from inherited roles is
 forbidden. Maybe use a multi instead. The matching perl6 error message
