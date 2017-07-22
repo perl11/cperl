@@ -832,7 +832,8 @@ md5(...)
         XSRETURN(1);
 
 BOOT:
-#if defined(U32_ALIGNMENT_REQUIRED) && defined(__GNUC__) && (defined(__x86_64__) || defined(__i386))
+#if defined(U32_ALIGNMENT_REQUIRED) && defined(__GNUC__) && \
+    (defined(__x86_64__) || defined(__i386))
         /* Generate SIGBUS on unaligned access even on x86:
            Set AC in EFLAGS. See http://orchistro.tistory.com/206
            Also see https://sourceforge.net/p/predef/wiki/Architectures/
