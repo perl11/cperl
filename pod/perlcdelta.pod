@@ -62,6 +62,8 @@ clone. First observed at L<https://github.com/rurban/perl-compiler/issues/73>
 Support IO::Scalar handle as $parsefile argument to
 ExtUtils::MM_Unix::parse_version().
 
+mingw doesn't use the broken F<dlltool> anymore.
+
 =item L<File::Spec::Functions> 3.36_05
 
 Bumped version from unparsable 3.3.65, which prevented e.g.
