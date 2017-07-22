@@ -47,8 +47,8 @@ Devel::PPPort cpan/Devel-PPPort/PPPort_xs.PL 034cce281a0017fe0ba05d9060f34a8c657
 Devel::PPPort cpan/Devel-PPPort/t/testutil.pl 6d9502a22d0df23ba42f6b808c9c7d5fe65f5024
 Digest::MD5 cpan/Digest-MD5/Makefile.PL 3b5b9693e5a22f5189878d84833b10f98136e619
 Digest::MD5 cpan/Digest-MD5/MD5.pm 866a0ca11d63c257f3c90974704b88c9361e705c
-Digest::MD5 cpan/Digest-MD5/MD5.xs 9b47158166b1162f11169f9766eddb75046e7917
-Digest::MD5 cpan/Digest-MD5/t/files.t c38f1ab8150ad688de807d140fd410d7cd9410de
+Digest::MD5 cpan/Digest-MD5/MD5.xs 304837872d60ba16300f85771abaa7c40fabadf3
+Digest::MD5 cpan/Digest-MD5/t/files.t 39ff314a4eee7a7e2d66254ffecf8d05f2761213
 Encode cpan/Encode/encoding.pm 779656f3a83bf7c39625a9fc3a0b1d6723dc29b5
 Encode cpan/Encode/t/Aliases.t 95bf948f5dbdd4f775904baf2111413b66a5944d
 Encode cpan/Encode/t/enc_eucjp.t 1b4730669db441e9ae84cff445f4750ad5e82d97
