@@ -36,7 +36,7 @@ $ENV{LANGUAGE} = 'C';		# Ditto in GNU.
 my $Is_VMS   = $^O eq 'VMS';
 my $Is_Win32 = $^O eq 'MSWin32';
 
-plan(tests => 27);
+plan(tests => 31);
 
 my $Perl = which_perl();
 
@@ -173,6 +173,21 @@ SKIP: {
 	system 'echo', $$;
 	POSIX::_exit(0);
     }
+}
+
+{
+    local $! = 0;
+    ok !exec(), 'empty exec LIST fails';
+    ok $! == 2 || $! =~ qr/\bno\b.*\bfile\b/i, 'errno = ENOENT'
+        or printf "# \$! eq %d, '%s'\n", $!, $!;
+
+}
+{
+    local $! = 0;
+    my $err = $!;
+    ok !(exec {""} ()), 'empty exec PROGRAM LIST fails';
+    ok $! == 2 || $! =~ qr/\bno\b.*\bfile\b/, 'errno = ENOENT'
+        or printf "# \$! eq %d, '%s'\n", $!, $!;
 }
 
 my $test = curr_test();
