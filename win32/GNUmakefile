@@ -1604,9 +1604,9 @@ Extensions_realclean :
 # be running in parallel like UNIDATAFILES, this target a placeholder for the
 # future
 ifeq ($(BUILD_STATIC),define)
-rebasePE : Extensions $(PERLDLL) Extensions_normalize $(PERLEXE) $(PERLEXESTATIC)
+rebasePE : Extensions_normalize Extensions $(PERLDLL) $(PERLEXE) $(PERLEXESTATIC)
 else
-rebasePE : Extensions $(PERLDLL) Extensions_normalize $(PERLEXE)
+rebasePE : Extensions_normalize Extensions $(PERLDLL) $(PERLEXE)
 endif
 	$(NOOP)
 
@@ -1663,7 +1663,7 @@ utils: $(HAVEMINIPERL) ..\utils\Makefile
 	$(MINIPERL) -I..\lib ..\autodoc.pl ..
 	$(MINIPERL) -I..\lib ..\pod\perlmodlib.PL -q ..
 
-..\pod\perltoc.pod: $(PERLEXE) $(PERLDLL) Extensions Extensions_nonxs Extensions_normalize utils
+..\pod\perltoc.pod: $(PERLEXE) $(PERLDLL) Extensions_normalize Extensions Extensions_nonxs utils
 	$(PERLEXE) -f ..\pod\buildtoc -q
 
 # Note that the pod cleanup in this next section is parsed (and regenerated
