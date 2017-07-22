@@ -264,6 +264,13 @@ unlink "${script_name}$script_ext" if -f "${script_name}$script_ext";
         ok( ! $MM->is_make_type('nmake'), '->is_make_type(nmake) false' );
     }
 
+    # Check for literal gmake
+    SKIP: {
+        skip("Not using /gmake/", 2) unless $Config{make} =~ /gmake/;
+        ok(   $MM->is_make_type('gmake'), '->is_make_type(gmake) true'  );
+        ok( ! $MM->is_make_type('nmake'), '->is_make_type(nmake) false' );
+    }
+
 }
 
 # xs_o() should look into that
@@ -300,16 +307,6 @@ unlink "${script_name}$script_ext" if -f "${script_name}$script_ext";
     }
 
     my @tests = (
-        {
-            config => {},
-            key => 'DLLTOOL', expect => 'dlltool',
-            desc => 'empty dlltool defaults to "dlltool"',
-        },
-        {
-            config => { dlltool => 'test' },
-            key => 'DLLTOOL', expect => 'test',
-            desc => 'dlltool value is taken over verbatim from %Config, if set',
-        },
         {
             config => {},
             key => 'GCC', expect => 0,

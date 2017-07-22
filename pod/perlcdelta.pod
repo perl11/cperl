@@ -255,6 +255,8 @@ C++ compat fixes. -Wliteral-suffix
 Support IO::Scalar handle as $parsefile argument to
 ExtUtils::MM_Unix::parse_version().
 
+mingw doesn't use the broken F<dlltool> anymore.
+
 =item L<ExtUtils::MakeMaker::Locale> 8.04_04
 
 no strict 'names' for C<$ENCODING_UTF-8>.
