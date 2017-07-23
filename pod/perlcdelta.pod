@@ -314,6 +314,10 @@ L<[cperl #282]|https://github.com/perl11/cperl/issues/282>.
 
 Bump version
 
+=item L<Win32API::File> 0.1204
+
+Fix xsubpp warnings
+
 =back
 
 =head2 Removed Modules and Pragmata

@@ -15039,6 +15039,7 @@ our %delta = (
             'SelectSaver'           => '1.02_01',
             'strict'                => '1.13c',
             'VMS::Studio'           => '2.41_01',
+            'Win32API::File'        => '0.1204',
         },
         removed => {
         }
