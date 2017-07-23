@@ -314,7 +314,7 @@ C<SV*>.
 #define HvENAMELEN(hv)  HvENAMELEN_get(hv)
 
 #define HvPKGTYPE(hv) (hv && HvCLASS(hv) \
-                        ? HvROLE(stash) ? "role" : "class" \
+                        ? HvROLE(hv) ? "role" : "class" \
                        : "package")
 #define HvPKGTYPE_NN(hv) HvCLASS(hv) \
                            ? HvROLE(hv) ? "role" : "class" \
