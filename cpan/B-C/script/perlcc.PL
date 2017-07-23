@@ -64,6 +64,7 @@ print OUT <<'!NO!SUBS!';
 # Version 2.19, Reini Urban, 2014-07-09
 # Version 2.20, Reini Urban, 2014-07-23
 # Version 2.21, Reini Urban, 2016-06-12
+# Version 2.22, Reini Urban, 2017-07-23
 
 use strict;
 use warnings;
@@ -78,7 +79,7 @@ use Cwd ();
 use Pod::Usage;
 # Time::HiRes does not work with 5.6
 # use Time::HiRes qw(gettimeofday tv_interval);
-our $VERSION = 2.21;
+our $VERSION = 2.22;
 $| = 1;
 eval { require B::C::Config; };
 
@@ -690,10 +691,13 @@ sub cc_harness {
     my ($cfile, $stash, $extra_libs) = @_;
     use ExtUtils::Embed ();
     my $command = ExtUtils::Embed::ccopts." -o \"$Output\" \"$cfile\" ";
+    my $coredir;
     if ($ENV{PERL_CORE}) {
 !NO!SUBS!
 print OUT <<"!EXPANDED!";
-      \$command = "\$Config{ccflags} -I\\\"$srcdir\\\" -L\\\"$srcdir\\\" -o \\\"\$Output\\\" \\\"\$cfile\\\" ";
+      \$coredir = \"$srcdir\";
+      \$coredir .= \"\\\\lib\\\\CORE\" if \$^O eq 'MSWin32';
+      \$command = "\$Config{ccflags} -I\\\"\$coredir\\\" -L\\\"\$coredir\\\" -o \\\"\$Output\\\" \\\"\$cfile\\\" ";
 !EXPANDED!
 print OUT <<'!NO!SUBS!';
     }
@@ -716,7 +720,12 @@ print OUT <<'!NO!SUBS!';
         }
     }
     $command .= " -DSTATICXS" if opt('staticxs');
-    $command .= " ".opt('Wc') if opt('Wc');
+    my $optWc = opt('Wc');
+    if ($optWc) {
+        $command .= " $optWc";
+        # no override warning
+        $command =~ s/\b-O.\b/-O0/ if $optWc =~ /\b-O0\b/;
+    }
     my $ccflags = $command;
 
     my $useshrplib = $Config{useshrplib} =~ /^(true|yes)$/;
@@ -753,9 +762,12 @@ print OUT <<'!NO!SUBS!';
            }
         }
     }
-    my ($libperl, $libdir, $coredir) = ($Config{libperl});
+    my ($libperl, $libdir) = ($Config{libperl});
     if ($ENV{PERL_CORE}) {
-        $libdir = $coredir = "../.."; # not includedir, which is ../../lib/CORE on windows
+        # on mingw we still search for cperl52x.dll not the importlib
+        # coredir + includedir is ../../lib/CORE on windows
+        $libdir = "../..";
+        $ldopts .= " -L$coredir" if $^O eq 'MSWin32';
     } else {
         $libdir  = $Config{prefix} . "/lib";
         $coredir = $ENV{PERL_SRC} || $Config{archlib}."/CORE";
