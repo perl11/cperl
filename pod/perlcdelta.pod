@@ -100,6 +100,10 @@ Bump version
 
 Bump version
 
+=item L<Win32API::File> 0.1204
+
+Fix xsubpp warnings
+
 =back
 
 =head1 Utility Changes

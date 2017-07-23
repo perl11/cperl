@@ -137,7 +137,7 @@ CopyFileW( swOldFileName, swNewFileName, bFailIfExists )
 	RETVAL
 
 
-HANDLE
+void
 CreateFileA( sPath, uAccess, uShare, pSecAttr, uCreate, uFlags, hModel )
 	char *	sPath
 	DWORD	uAccess
@@ -146,20 +146,21 @@ CreateFileA( sPath, uAccess, uShare, pSecAttr, uCreate, uFlags, hModel )
 	DWORD	uCreate
 	DWORD	uFlags
 	HANDLE	hModel
-    CODE:
-	RETVAL= CreateFileA( sPath, uAccess, uShare,
+    PPCODE:
+      {
+        HANDLE retval = CreateFileA( sPath, uAccess, uShare,
 	  (LPSECURITY_ATTRIBUTES)pSecAttr, uCreate, uFlags, hModel );
-	if(  INVALID_HANDLE_VALUE == RETVAL  ) {
+	if ( INVALID_HANDLE_VALUE == retval ) {
 	    SaveErr( 1 );
 	    XSRETURN_NO;
-	} else if(  0 == RETVAL  ) {
+	} else if ( 0 == retval ) {
 	    XSRETURN_PV( "0 but true" );
 	} else {
-	    XSRETURN_UV( PTR2UV(RETVAL) );
+	    XSRETURN_UV( PTR2UV(retval) );
 	}
+      }
 
-
-HANDLE
+void
 CreateFileW( swPath, uAccess, uShare, pSecAttr, uCreate, uFlags, hModel )
 	WCHAR *	swPath
 	DWORD	uAccess
@@ -168,18 +169,19 @@ CreateFileW( swPath, uAccess, uShare, pSecAttr, uCreate, uFlags, hModel )
 	DWORD	uCreate
 	DWORD	uFlags
 	HANDLE	hModel
-    CODE:
-	RETVAL= CreateFileW( swPath, uAccess, uShare,
+    PPCODE:
+      {
+        HANDLE retval = CreateFileW( swPath, uAccess, uShare,
 	  (LPSECURITY_ATTRIBUTES)pSecAttr, uCreate, uFlags, hModel );
-	if(  INVALID_HANDLE_VALUE == RETVAL  ) {
+	if ( INVALID_HANDLE_VALUE == retval ) {
 	    SaveErr( 1 );
 	    XSRETURN_NO;
-	} else if(  0 == RETVAL  ) {
+	} else if ( 0 == retval ) {
 	    XSRETURN_PV( "0 but true" );
 	} else {
-	    XSRETURN_UV( PTR2UV(RETVAL) );
+	    XSRETURN_UV( PTR2UV(retval) );
 	}
-
+      }
 
 BOOL
 DefineDosDeviceA( uFlags, sDosDeviceName, sTargetPath )
@@ -495,21 +497,22 @@ MoveFileExW( swOldName, swNewName, uFlags )
 	RETVAL
 
 
-long
+void
 OsFHandleOpenFd( hOsFHandle, uMode )
 	long	hOsFHandle
 	DWORD	uMode
-    CODE:
-	RETVAL= win32_open_osfhandle( hOsFHandle, uMode );
-	if(  RETVAL < 0  ) {
+    PPCODE:
+      {
+	long retval = win32_open_osfhandle( hOsFHandle, uMode );
+	if ( retval < 0 ) {
 	    SaveErr( 1 );
 	    XSRETURN_NO;
-	} else if(  0 == RETVAL  ) {
+	} else if ( 0 == retval ) {
 	    XSRETURN_PV( "0 but true" );
 	} else {
-	    XSRETURN_IV( (IV) RETVAL );
+	    XSRETURN_IV( (IV) retval );
 	}
-
+      }
 
 DWORD
 QueryDosDeviceA( sDeviceName, osTargetPath, lTargetBuf )
