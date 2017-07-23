@@ -303,6 +303,45 @@ elsif ($opt{cc} =~ /\bicl/) {
 	$opt{i_stdbool} = 'define';
     }
     $opt{ar} ='xilib';
+# gcc version specific features
+} elsif ($opt{gccversion}) {
+    my $gccver = $opt{gccversion};
+    $gccver =~ s/\.//g; $gccver =~ s/ .*//;
+    $gccver .= "0" while length $gccver < 3;
+    $gccver = 0+$gccver;
+    # since at least 2.95.3
+    $opt{d_attribute_format} = 'define';
+    $opt{d_attribute_noreturn} = 'define';
+    # $opt{d_attribute_unused} = 'define'; # clashes with pTHX
+    if ($gccver >= 300) {
+        $opt{d_c99_variadic_macros} = 'define';
+    }
+    if ($gccver >= 304) {
+        $opt{d_attribute_malloc} = 'define';
+        $opt{d_attribute_pure} = 'define';
+    }
+    if ($gccver >= 311) {
+        $opt{d_builtin_choose_expr} = 'define';
+        $opt{d_attribute_deprecated} = 'define';
+    }
+    if ($gccver >= 336) {
+        $opt{d_attribute_nonnull} = 'define';
+    }
+    if ($gccver >= 346) {
+        $opt{d_builtin_clz} = 'define';
+        $opt{d_builtin_ctz} = 'define';
+        $opt{d_builtin_expect} = 'define';
+        $opt{d_builtin_prefetch} = 'define';
+        $opt{d_attribute_always_inline} = 'define';
+        $opt{d_attribute_format} = 'define';
+        $opt{d_attribute_warn_unused_result} = 'define';
+    }
+    if ($gccver >= 494) {
+        $opt{d_attribute_used} = 'define';
+    }
+    if ($gccver >= 500) {
+        $opt{d_builtin_arith_overflow} = 'define';
+    }
 }
 
 if ($opt{useithreads} eq 'define' && $opt{ccflags} =~ /-DPERL_IMPLICIT_SYS\b/) {
