@@ -370,7 +370,8 @@ endif
 
 ifeq ($(CCHOME),)
 ifeq ($(CCTYPE),GCC)
-CCHOME		:= C:\MinGW
+# C:\MinGW only for 32bit, strawberry has a better abstraction and is easier to setup
+CCHOME		:= C:\strawberry\c
 else
 CCHOME		:= $(MSVCDIR)
 endif
@@ -520,7 +521,6 @@ ifeq ($(CCTYPE),GCC)
 CC		= $(ARCHPREFIX)gcc
 LINK32		= $(ARCHPREFIX)g++
 LIB32		= $(ARCHPREFIX)ar rc
-IMPLIB		= $(ARCHPREFIX)dlltool
 RSC		= $(ARCHPREFIX)windres
 
 ifeq ($(USE_LONG_DOUBLE),define)
@@ -563,7 +563,7 @@ LIBFILES	= $(LIBC) -lmoldname -lkernel32 -luser32 -lgdi32 -lwinspool \
 	-luuid -lws2_32 -lmpr -lwinmm -lversion -lodbc32 -lodbccp32 -lcomctl32
 
 ifeq ($(CFG),Debug)
-OPTIMIZE	= -g -O1 -DDEBUGGING
+OPTIMIZE	= -g -O0 -DDEBUGGING
 LINK_DBG	= -g
 else
 OPTIMIZE	= -s -O2
@@ -633,6 +633,7 @@ LINK32		= xilink
 endif
 LIB32		= $(LINK32) -lib
 RSC		= rc
+IMPLIB          = dlltool
 
 #
 # Options
@@ -846,8 +847,12 @@ a ?= .lib
 	$(NOOP)
 
 %.dll: %$(o)
+ifeq ($(CCTYPE),GCC)
+	$(LINK32) -o $@ $(BLINK_FLAGS) $< $(*F).def -Wl,--out-implib=$(*F).a $(LIBFILES)
+else
 	$(LINK32) -o $@ $(BLINK_FLAGS) $< $(LIBFILES)
 	$(IMPLIB) --input-def $(*F).def --output-lib $(*F).a $@
+endif
 
 %.res: %.rc
 ifeq ($(CCTYPE),GCC)
@@ -901,7 +906,7 @@ PERLDLL_RES	=
 # This used to be $(PERLEXE), but at worst it is the .dll that they depend
 # on and really only the interface - i.e. the .def file used to export symbols
 # from the .dll
-PERLDEP = $(PERLIMPLIB)
+PERLDEP = $(PERLDLL)
 
 
 PL2BAT		= bin\pl2bat.pl
@@ -1478,16 +1483,17 @@ $(PERLEXPLIB) : $(PERLIMPLIB)
 
 $(PERLIMPLIB) : perldll.def
 ifeq ($(CCTYPE),GCC)
-	$(IMPLIB) -k -d perldll.def -l $(PERLIMPLIB) -e $(PERLEXPLIB)
+	$(NOOP)
 else
 	lib -def:perldll.def -machine:$(ARCHITECTURE) /OUT:$(PERLIMPLIB)
 endif
 
-$(PERLDLL): $(PERLEXPLIB) $(PERLDLL_OBJ) $(PERLDLL_RES) Extensions_static
+$(PERLDLL): $(PERLDLL_OBJ) $(PERLDLL_RES) Extensions_static perldll.def
 ifeq ($(CCTYPE),GCC)
-	$(LINK32) -mdll -o $@ $(BLINK_FLAGS) \
-	   $(PERLDLL_OBJ) $(shell type Extensions_static) $(LIBFILES) $(PERLEXPLIB)
+	$(LINK32) -mdll -o $@ $(BLINK_FLAGS) perldll.def -Wl,--out-implib=$(PERLIMPLIB) \
+	   $(PERLDLL_OBJ) $(shell type Extensions_static) $(LIBFILES)
 else
+	+$(MAKE) $(PERLEXPLIB)
 	$(LINK32) -dll -out:$@ $(BLINK_FLAGS) \
 	    @Extensions_static \
 	    -base:0x28000000 $(DELAYLOAD) $(LIBFILES) \
