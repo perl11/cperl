@@ -53,6 +53,9 @@ my $redir = $^O eq 'MSWin32' ? '' : '2>&1';
 my $devnull = $^O eq 'MSWin32' ? '' : '2>/dev/null';
 # VC takes a couple hours to compile each executable in -O1
 my $Wcflags = $^O eq 'MSWin32' && $Config{cc} =~ /cl/ ? ' --Wc=-Od' : '';
+if ($^O eq 'MSWin32' && $Config{cc} =~ /gcc/) { # mingw is not much better
+  $Wcflags = ' --Wc=-O0';
+}
 my $ITHREADS = $Config{useithreads};
 #my $o = '';
 #$o = "-Wb=-fno-warnings" if $] >= 5.013005;
