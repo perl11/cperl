@@ -5,7 +5,7 @@ BEGIN {
     #require './test.pl';
 }
 local($\, $", $,) = (undef, ' ', '');
-print "1..33\n";
+print "1..35\n";
 my $test = 1;
 
 # allow has hash fields (YAML::Mo)
@@ -100,8 +100,7 @@ role Foo2 {
   method foo2 {
     print "ok $test # copied method\n"; $test++;
     print $a != 1       ? "not " : "", "ok ", $test++, " # role lex field\n";
-    #TODO SEGV padfixup
-    #print $self->a != 1 ? "not " : "", "ok ", $test++, " # role meth field\n";
+    print $self->a != 1 ? "not " : "", "ok ", $test++, " # role meth field\n";
   }
 }
 class Baz4 does Foo2 {

@@ -19687,7 +19687,9 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
             IS_TYPE(OpNEXT(arg), METHOD_NAMED))
         {
             SV* const meth = cMETHOPx_meth(OpNEXT(arg));
-            if (meth && SvPOK(meth) && PAD_COMPNAME(self) && PAD_COMPNAME_TYPE(self)) {
+            if (meth && SvPOK(meth) &&
+                self <= PadnamelistMAXNAMED(PL_comppad_name) &&
+                PAD_COMPNAME(self) && PAD_COMPNAME_TYPE(self)) {
                 const I32 klen = SvUTF8(meth) ? -SvCUR(meth) : SvCUR(meth);
                 const PADOFFSET ix = field_index(klass, SvPVX(meth), klen, FALSE);
                 if (ix != NOT_IN_PAD) {
@@ -20201,7 +20203,10 @@ Perl_method_field_type(pTHX_ OP* o)
                 const I32 klen = SvUTF8(meth) ? -SvCUR(meth) : SvCUR(meth);
                 const PADOFFSET pad = field_pad(klass, SvPVX(meth), klen);
                 OpRETTYPE_set(arg, type_Object);
-                if (pad != NOT_IN_PAD) {
+                if (pad != NOT_IN_PAD &&
+                    pad <= PadnamelistMAXNAMED(PL_comppad_name) &&
+                    PAD_COMPNAME(pad))
+                {
                     const char c = *PAD_COMPNAME_PV(pad);
                     if (c == '$')
                         return METHOD_FIELD_SCALAR;
@@ -20209,10 +20214,6 @@ Perl_method_field_type(pTHX_ OP* o)
                         return METHOD_FIELD_ARRAY;
                     else if (c == '%')
                         return METHOD_FIELD_HASH;
-                    else /* cannot happen */
-                        Perl_croak(aTHX_
-                            "panic: Unknown method field type for %s",
-                             PAD_COMPNAME_PV(pad));
                 }
             }
         }
