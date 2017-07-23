@@ -288,6 +288,7 @@ Perl_mg_set(pTHX_ SV *sv)
         return 0;
 
     save_magic_flags(mgs_ix, sv, SVs_GMG|SVs_SMG); /* leave SVs_RMG on */
+    assert(sv);
 
     for (mg = SvMAGIC(sv); mg; mg = nextmg) {
         const MGVTBL* vtbl = mg->mg_virtual;
