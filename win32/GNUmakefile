@@ -947,8 +947,8 @@ ifeq ($(CCTYPE),GCC)
 
 CFGSH_TMPL	= config.gc
 CFGH_TMPL	= config_H.gc
-PERLIMPLIB	= $(COREDIR)\libcperl$(PV)$(a)
-PERLIMPLIBBASE	= libcperl$(PV)$(a)
+PERLIMPLIB	= $(COREDIR)\libcperl$(a)
+PERLIMPLIBBASE	= libcperl$(a)
 PERLSTATICLIB	= ..\libcperl$(PV)s$(a)
 INT64		= long long
 
@@ -962,8 +962,8 @@ endif
 
 # makedef.pl must be updated if this changes, and this should normally
 # only change when there is an incompatible revision of the public API.
-PERLIMPLIB	?= $(COREDIR)\cperl$(PV)$(a)
-PERLIMPLIBBASE	?= cperl$(PV)$(a)
+PERLIMPLIB	?= $(COREDIR)\cperl$(a)
+PERLIMPLIBBASE	?= cperl$(a)
 PERLEXPLIB	?= $(COREDIR)\cperl$(PV).exp
 PERLSTATICLIB	?= ..\cperl$(PV)s$(a)
 PERLDLL		= ..\cperl$(PV).dll

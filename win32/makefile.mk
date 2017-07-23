@@ -8,6 +8,7 @@
 # This is set up to build a perl.exe that runs off a shared library
 # (cperl527.dll).  Also makes individual DLLs for the XS extensions.
 #
+PV = 527
 
 ##
 ## Make sure you read README.win32 *before* you mess with anything here!
@@ -912,8 +913,8 @@ UTILS		=			\
 
 CFGSH_TMPL	= config.gc
 CFGH_TMPL	= config_H.gc
-PERLIMPLIB	= $(COREDIR)\libcperl527$(a)
-PERLSTATICLIB	= ..\libcperl527s$(a)
+PERLIMPLIB	= $(COREDIR)\libcperl$(a)
+PERLSTATICLIB	= ..\libcperl$(PV)s$(a)
 INT64		= long long
 
 .ELSE
@@ -926,10 +927,10 @@ INT64		= __int64
 
 # makedef.pl must be updated if this changes, and this should normally
 # only change when there is an incompatible revision of the public API.
-PERLIMPLIB	*= $(COREDIR)\cperl527$(a)
-PERLEXPLIB	*= $(COREDIR)\cperl527.exp
-PERLSTATICLIB	*= ..\cperl527s$(a)
-PERLDLL		= ..\cperl527.dll
+PERLIMPLIB	*= $(COREDIR)\cperl$(a)
+PERLEXPLIB	*= $(COREDIR)\cperl.exp
+PERLSTATICLIB	*= ..\cperl$(PV)s$(a)
+PERLDLL		= ..\cperl$(PV).dll
 
 #EUMM on Win32 isn't ready for parallel make, so only allow this file to be parallel
 #$(MAKE) will contain the -P that this makefile was called with, which is bad for
