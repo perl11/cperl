@@ -298,7 +298,11 @@ and classes.
 Add updates from 0.9918: Add LAX_DECIMAL_VERSION, LAX_DOTTED_DECIMAL_VERSION,
 STRICT_DECIMAL_VERSION, STRICT_DOTTED_DECIMAL_VERSION regexes.
 
-Add t/11_taint.t
+Add F<t/11_taint.t>
+
+=item L<utf8> 2.02c
+
+Improved function documentation
 
 =back
 
