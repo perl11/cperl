@@ -96,6 +96,11 @@ Bump version
 
 Bump version
 
+=item L<Storable> 3.05_13
+
+mingw fix: use safe defaults, not segfaulting defaults.
+mingw fails on the stacksize binary search, leaving it empty.
+
 =item L<VMS::Studio> 2.41_01
 
 Bump version
