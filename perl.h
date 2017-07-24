@@ -1777,7 +1777,7 @@ typedef UVTYPE UV;
 
 /* gcc-5.0, clang-3.6 intrinsics */
 #ifdef HAS_BUILTIN_ARITH_OVERFLOW
-# if IVSIZE > 8
+# if (IVSIZE > 8) || (IVSIZE == 8 && defined(WIN64))
 #  define BUILTIN_SADD_OVERFLOW(x, y, r) __builtin_saddll_overflow(x, y, r)
 #  define BUILTIN_UADD_OVERFLOW(x, y, r) __builtin_uaddll_overflow(x, y, r)
 #  define BUILTIN_SSUB_OVERFLOW(x, y, r) __builtin_ssubll_overflow(x, y, r)
