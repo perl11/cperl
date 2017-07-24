@@ -41,11 +41,14 @@ use Config;
 
 my $ccopts;
 BEGIN {
-  plan skip_all => "skipped: Overlong tests, timeout on Appveyor CI"
+  plan skip_all => "Overlong tests, timeout on Appveyor CI"
     if $^O eq 'MSWin32' and $ENV{APPVEYOR};
   if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
     # MSVC takes an hour to compile each binary unless -Od
     $ccopts = '"--Wc=-Od"';
+  } elsif ($^O eq 'MSWin32' and $Config{cc} eq 'gcc') {
+    # mingw is much better but still insane with <= 4GB RAM
+    $ccopts = '"--Wc=-O0"';
   } else {
     $ccopts = '';
   }
@@ -367,6 +370,10 @@ sub is_todo {
     #)) { return '>= 5.22 with threads SEGV' if $_ eq $module; }}
     #if ($] >= 5.022) { foreach(qw(
     #)) { return '>= 5.22 with threads, no ok' if $_ eq $module; }}
+    # but works with msvc
+    if ($^O eq 'MSWin32' and $Config{cc} eq 'gcc') { foreach(qw(
+      Pod::Usage
+    )) { return 'mingw' if $_ eq $module; }}
   } else { #no threads --------------------------------
     #if ($] > 5.008008 and $] <= 5.009) { foreach(qw(
     #  ExtUtils::CBuilder
