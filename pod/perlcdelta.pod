@@ -304,6 +304,11 @@ Bump version
 
 Bump version
 
+=item L<Storable> 3.05_13
+
+mingw fix: use safe defaults, not segfaulting defaults.
+mingw fails on the stacksize binary search, leaving it empty.
+
 =item L<strict> 1.13c
 
 Implemented C<strict 'names'> to reject illegal identifiers created via
