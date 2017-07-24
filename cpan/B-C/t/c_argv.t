@@ -7,7 +7,9 @@ BEGIN {
 }
 use Test::More;
 
-#plan skip_all => "MSVC" if $^O eq 'MSWin32' and $Config{cc} eq 'cl';
+# but works locally
+plan skip_all => "mingw on appveyor"
+  if $^O eq 'MSWin32' and $Config{cc} eq 'gcc' and $ENV{APPVEYOR};
 plan tests => 4;
 
 my $runperl = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
