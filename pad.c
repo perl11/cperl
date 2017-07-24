@@ -2443,17 +2443,17 @@ Perl_pad_fixup_inner_anons(pTHX_ PADLIST *padlist, CV *old_cv, CV *new_cv)
 	{
 	  CV *innercv = MUTABLE_CV(curpad[ix]);
 	  if (UNLIKELY(PadnameOUTER(name))) {
-	    CV *cv = new_cv;
-	    PADNAME **names = namepad;
-	    PADOFFSET i = ix;
-	    while (PadnameOUTER(name)) {
-		assert(SvTYPE(cv) == SVt_PVCV);
-		cv = CvOUTSIDE(cv);
-		names = PadlistNAMESARRAY(CvPADLIST(cv));
-		i = PARENT_PAD_INDEX(name);
-		name = names[i];
-	    }
-	    innercv = (CV *)PadARRAY(PadlistARRAY(CvPADLIST(cv))[1])[i];
+              CV *cv = new_cv;
+              PADNAME **names = namepad;
+              PADOFFSET i = ix;
+              while (PadnameOUTER(name)) {
+                  assert(SvTYPE(cv) == SVt_PVCV);
+                  cv = CvOUTSIDE(cv);
+                  names = PadlistNAMESARRAY(CvPADLIST(cv));
+                  i = PARENT_PAD_INDEX(name);
+                  name = names[i];
+              }
+              innercv = (CV *)PadARRAY(PadlistARRAY(CvPADLIST(cv))[1])[i];
 	  }
 	  if (SvTYPE(innercv) == SVt_PVCV) {
 	    /* XXX 0afba48f added code here to check for a proto CV
@@ -2471,16 +2471,16 @@ Perl_pad_fixup_inner_anons(pTHX_ PADLIST *padlist, CV *old_cv, CV *new_cv)
 	    }
 	  }
 	  else { /* format reference */
-	    SV * const rv = curpad[ix];
-	    CV *innercv;
-	    if (!SvOK(rv)) continue;
-	    assert(SvROK(rv));
-	    assert(SvWEAKREF(rv));
-	    innercv = (CV *)SvRV(rv);
-	    assert(!CvWEAKOUTSIDE(innercv));
-	    assert(CvOUTSIDE(innercv) == old_cv);
-	    SvREFCNT_dec(CvOUTSIDE(innercv));
-	    CvOUTSIDE(innercv) = (CV *)SvREFCNT_inc_simple_NN(new_cv);
+              SV * const rv = curpad[ix];
+              CV *innercv;
+              if (!SvOK(rv)) continue;
+              assert(SvROK(rv));
+              assert(SvWEAKREF(rv));
+              innercv = (CV *)SvRV(rv);
+              assert(!CvWEAKOUTSIDE(innercv));
+              assert(CvOUTSIDE(innercv) == old_cv);
+              SvREFCNT_dec(CvOUTSIDE(innercv));
+              CvOUTSIDE(innercv) = (CV *)SvREFCNT_inc_simple_NN(new_cv);
 	  }
 	}
     }

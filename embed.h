@@ -1551,6 +1551,7 @@
 #define av_dump(a)		Perl_av_dump(aTHX_ a)
 #define get_debug_opts(a,b)	Perl_get_debug_opts(aTHX_ a,b)
 #define hv_dump(a,b)		Perl_hv_dump(aTHX_ a,b)
+#define padlist_dump(a)		Perl_padlist_dump(aTHX_ a)
 #define pn_peek(a)		Perl_pn_peek(aTHX_ a)
 #define pnl_dump(a)		Perl_pnl_dump(aTHX_ a)
 #define set_padlist		Perl_set_padlist

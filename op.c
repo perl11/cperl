@@ -10240,6 +10240,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	    pad_fixup_inner_anons(CvPADLIST(cv), PL_compcv, cv);
 	    if (PERLDB_INTER)/* Advice debugger on the new sub. */
                 ++PL_sub_generation;
+            DEBUG_Xv(padlist_dump(CvPADLIST(cv)));
 	}
 	else {
 	    /* Might have had built-in attributes applied -- propagate them. */
@@ -20041,6 +20042,7 @@ Perl_class_role_finalize(pTHX_ OP* o)
     /* create the field accessor methods */
     /*ENTER;*/
     savecv = PL_compcv;
+    DEBUG_Xv(padlist_dump(CvPADLIST(PL_compcv)));
     /*assert(AvFILLp(fields) < 128);*/
     assert(AvFILLp(fields) < U32_MAX);
     for (i=0; i<=(U32)AvFILLp(fields); i++) {
@@ -20133,6 +20135,7 @@ Perl_class_role_finalize(pTHX_ OP* o)
             CvTYPED_on(cv);
             CvTYPE_set(cv, PadnameTYPE(pn));
         }
+        DEBUG_Xv(padlist_dump(CvPADLIST(cv)));
 #endif
     }
     PL_compcv = savecv;
@@ -20159,6 +20162,7 @@ Perl_class_role_finalize(pTHX_ OP* o)
             */
         }
     }
+    DEBUG_Xv(pnl_dump(PL_comppad_name));
     SvREADONLY_on(stash);
     PL_parser->in_class = FALSE;
 }

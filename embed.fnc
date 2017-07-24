@@ -2068,6 +2068,7 @@ xp	|void	|hv_dump	|NN SV* sv|bool with_values
 xp	|void	|av_dump	|NN SV* av
 xp	|char*	|pn_peek	|NULLOK PADNAME* pn
 xp	|void	|pnl_dump	|NULLOK PADNAMELIST* pnl
+xp	|void	|padlist_dump	|NULLOK PADLIST* padl
 #endif
 Ap	|void	|reginitcolors
 ApdRmb	|char*	|sv_2pv_nolen	|NN SV* sv
