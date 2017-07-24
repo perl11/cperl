@@ -7384,6 +7384,8 @@ PERL_CALLCONV void	Perl_pad_setsv(pTHX_ PADOFFSET po, SV* sv)
 PERL_CALLCONV SV*	Perl_pad_sv(pTHX_ PADOFFSET po)
 			__attribute__global__;
 
+PERL_CALLCONV char*	Perl_pn_peek(pTHX_ PADNAME* pn);
+PERL_CALLCONV void	Perl_pnl_dump(pTHX_ PADNAMELIST* pnl);
 PERL_CALLCONV void	Perl_set_padlist(CV * cv, PADLIST * padlist)
 			__attribute__global__
 			__attribute__nonnull__(1);
