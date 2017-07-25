@@ -3648,6 +3648,31 @@ Perl_pn_peek(pTHX_ PADNAME * pn)
     SvTEMP_on(s);
     return SvPVX(s);
 }
+char *
+Perl_pn_peek_short(pTHX_ PADNAME * pn)
+{
+    SV *s;
+    if (!pn) return "";
+    s = newSVpvn_flags("",0,SVs_TEMP);
+    if (PadnameOURSTASH(pn)) {
+        sv_catpvs(s, "our ");
+        sv_catpv(s, HvNAME(PadnameOURSTASH(pn)));
+        sv_catpvs(s, " ");
+    }
+    if (PadnameTYPE(pn)) {
+        sv_catpvs(s, "my ");
+        sv_catpv(s, HvNAME(PadnameTYPE(pn)));
+        sv_catpvs(s, " ");
+    }
+    sv_catpv(s, pn->xpadn_pv);
+    if (PadnameREFCNT(pn) != 1) {
+        Perl_sv_catpvf(aTHX_ s, " [%d]", PadnameREFCNT(pn));
+    }
+    if (pn->xpadn_gen != 0) {
+        Perl_sv_catpvf(aTHX_ s, "%d", pn->xpadn_gen);
+    }
+    return SvPVX(s);
+}
 void
 Perl_pnl_dump(pTHX_ PADNAMELIST * pnl)
 {
@@ -3681,23 +3706,44 @@ Perl_padlist_dump(pTHX_ PADLIST * padl)
     if (!padl)
         return;
     pnl = PadlistNAMES(padl);
-    pl = PadlistARRAY(padl)[1];
-    Perl_dump_indent(aTHX_ 0, file, "PADLIST 0x%" UVxf "%s\n", PTR2UV(padl));
-    Perl_dump_indent(aTHX_ 1, file, "MAX   = %" IVdf "\n", (IV)PadlistMAX(padl));
+    pl  = PadlistARRAY(padl)[1];
+    max = PadlistMAX(padl);
+    Perl_dump_indent(aTHX_ 0, file, "PADLIST 0x%" UVxf "\n", PTR2UV(padl));
+    Perl_dump_indent(aTHX_ 1, file, "MAX   = %" IVdf "\n", (IV)max);
     Perl_dump_indent(aTHX_ 1, file, "ID    = %u\n", (unsigned)padl->xpadl_id);
     Perl_dump_indent(aTHX_ 1, file, "OUTID = %u\n", (unsigned)padl->xpadl_outid);
     Perl_dump_indent(aTHX_ 1, file, "ARRAY = 0x%" UVxf "\n", PTR2UV(PadlistARRAY(padl)));
-    Perl_pnl_dump(aTHX_ pnl);
-    if (!pl) return;
-    max = PadlistMAX(padl);
-    for (i = 1; i <= max; i++) {
-        pl = PadlistARRAY(padl)[i];
-        SV** svp = AvARRAY(pl);
-        Perl_dump_indent(aTHX_ 0, file, "PAD[%d] = 0x%p %s\n", (int)i, pl,
-                         (pl == PL_comppad)?" (comppad)":"");
-        for (j = 0; j < AvFILLp(pl); j++) {
-            Perl_dump_indent(aTHX_ 1, file, "[%u]: %s\n",
-                             (unsigned)j, sv_peek(svp[j]));
+    if (max == 1) {
+        /* list the pads on the right side, col 40 if max == 1 (no cv recursion) */
+        PADNAME **pnp = PadnamelistARRAY(pnl);
+        Perl_dump_indent(aTHX_ 0, file, "PADNAMELIST 0x%" UVxf "%s\n",
+                         PTR2UV(pnl), (pnl == PL_comppad_name)?" (comppad_name)":"");
+        Perl_dump_indent(aTHX_ 1, file, "FILL = %" IVdf ", ", (IV)PadnamelistMAX(pnl));
+        Perl_dump_indent(aTHX_ 0, file, "MAXNAMED = %" IVdf "\n", (IV)PadnamelistMAXNAMED(pnl));
+        Perl_dump_indent(aTHX_ 1, file, "REFCNT = %" IVdf ", ", (IV)PadnamelistREFCNT(pnl));
+        Perl_dump_indent(aTHX_ 0, file, "ARRAY = 0x%" UVxf "\n", PTR2UV(*pnp));
+        if (pnp) {
+            SV** padp = AvARRAY(pl);
+            max = PadnamelistMAX(pnl) > AvFILLp(pl) ? PadnamelistMAX(pnl) : AvFILLp(pl);
+            for (i = 0; i <= max; i++) {
+                Perl_dump_indent(aTHX_ 1, file, "[%2u]: %-38s | %s\n",
+                                 (unsigned)i, Perl_pn_peek_short(aTHX_ pnp[i]),
+                                 sv_peek(padp[i]));
+            }
+        }
+    } else {
+        Perl_pnl_dump(aTHX_ pnl);
+        if (!pl) return;
+        for (i = 1; i <= max; i++) {
+            SV** padp;
+            pl = PadlistARRAY(padl)[i];
+            padp = AvARRAY(pl);
+            Perl_dump_indent(aTHX_ 0, file, "PAD[%d] = 0x%p %s\n", (int)i, pl,
+                             (pl == PL_comppad)?" (comppad)":"");
+            for (j = 0; j < AvFILLp(pl); j++) {
+                Perl_dump_indent(aTHX_ 1, file, "[%u]: %s\n",
+                                 (unsigned)j, sv_peek(padp[j]));
+            }
         }
     }
 }
