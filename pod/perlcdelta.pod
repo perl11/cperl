@@ -310,9 +310,10 @@ Improved function documentation
 
 =over 4
 
-=item *
+=item B::Debug 1.25
 
-XXX
+Moved to CPAN.
+cperl only. perl5 will remove it with 5.30.
 
 =back
 

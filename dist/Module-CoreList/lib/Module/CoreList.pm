@@ -15319,6 +15319,7 @@ our %delta = (
             'version'               => '0.9918_02c',
         },
         removed => {
+            'B::Debug'              => '1.25',
         }
     },
 );

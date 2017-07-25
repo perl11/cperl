@@ -193,8 +193,6 @@ cpan/B-C/t/test10
 cpan/B-C/t/TestBC.pm
 cpan/B-C/t/TESTS
 cpan/B-C/typemap
-cpan/B-Debug/Debug.pm	Compiler Debug backend
-cpan/B-Debug/t/debug.t	See if B::Debug works
 cpan/Compress-Raw-Bzip2/Bzip2.xs
 cpan/Compress-Raw-Bzip2/bzip2-src/blocksort.c
 cpan/Compress-Raw-Bzip2/bzip2-src/bzlib.c
