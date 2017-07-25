@@ -43,6 +43,7 @@ runtests.SH
 t/TEST
 Porting/Maintainers.pl
 Porting/add-package.pl
+Porting/appveyor-deploy.sh
 Porting/bench.pl
 Porting/bisect.pl
 Porting/bisect-example.sh

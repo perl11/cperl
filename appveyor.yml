@@ -82,28 +82,40 @@ test_script:
   - if "%MSVC%"=="1"   t\appveyor-smoke.bat
   - if "%CYGWIN%"=="1" make -s test
   - if "%MINGW%"=="1"  gmake -s -C win32 %MKOPT% test
-
-before_deploy:
   - if "%CFG%"=="Debug" exit
-  # todo: reproducible builds
-  - if "%CYGWIN%"=="1" %CYGR%\bin\sh -lc "cd $APPVEYOR_BUILD_FOLDER; make install DESTDIR=/cygdrive/c/projects/cperl/inst && cd /cygdrive/c/projects/cperl/inst && tar Jcvf ../${APPVEYOR_REPO_TAG_NAME}-cygwin-${platform}.tar.xz *"
+  #- if "%CYGWIN%"=="1" ./cperl -pi -e 's/\r\n/\n/g' Porting/appveyor-deploy.sh
+  - if "%CYGWIN%"=="1" sh -c Porting/appveyor-deploy.sh
   - if "%MINGW%"=="1" rename c:\MinGW.old MinGW
-  - if "%MINGW%"=="1" set PATH=c:\Windows\system32;c:\Windows;C:\strawberry\c\bin;C:\strawberry\perl\bin;c:\Windows\system32\Wbem;C:\MinGW\bin;C:\MinGW\msys\1.0\bin
-  - if "%MINGW%"=="1" C:\MinGW\msys\1.0\bin\sh -lc "cd $APPVEYOR_BUILD_FOLDER; gmake install DESTDIR=/c/projects/cperl/inst && cd /c/projects/cperl/inst && tar Jcvf ${$APPVEYOR_BUILD_FOLDER}/${APPVEYOR_REPO_TAG_NAME}-mingw-${platform}.tar.xz *"
+  - if "%MINGW%"=="1" set PATH=c:\Windows\system32;c:\Windows;C:\strawberry\c\bin;C:\strawberry\perl\bin;c:\Windows\system32\Wbem;C:\MinGW\bin;C:\MinGW\msys\1.0\bin;
+  - if "%MINGW%"=="1" sh -c Porting/appveyor-deploy.sh
 
 # appveyor cannot glob * in names
 artifacts:
+  # nightlies
   - path: cperl-$(appveyor_build_version)-win32.exe
-    name: nightly-32
+    name: nightly-vc32
     type: exe
   - path: cperl-$(appveyor_build_version)-win64.exe
-    name: nightly-64
+    name: nightly-vc64
     type: exe
+  - path: cperl-$(appveyor_build_version)-mingw-x86.tar.xz
+    name: nightly-mw32
+    type: tar
+  - path: cperl-$(appveyor_build_version)-mingw-x64.tar.xz
+    name: nightly-mw64
+    type: tar
+  - path: cperl-$(appveyor_build_version)-cygwin-x86.tar.xz
+    name: nightly-cyg32
+    type: tar
+  - path: cperl-$(appveyor_build_version)-cygwin-x64.tar.xz
+    name: nightly-cyg64
+    type: tar
+  # tagged
   - path: $(APPVEYOR_REPO_TAG_NAME)-win32.exe
-    name: tagged-32
+    name: tagged-vc32
     type: exe
   - path: $(APPVEYOR_REPO_TAG_NAME)-win64.exe
-    name: tagged-64
+    name: tagged-vc64
     type: exe
   - path: $(APPVEYOR_REPO_TAG_NAME)-cygwin-x86.tar.xz
     name: cygwin-32
@@ -121,11 +133,10 @@ artifacts:
 deploy:
 - provider: GitHub
   tag: cperl-win-$(appveyor_build_version)
-  description: 'cperl windows nightly (mingw)'
+  description: 'cperl windows nightly'
   auth_token:
     secure: AsIAOIgCJX0QhrUKal2V00aaB5nRWtmtFTFeDVsGnbJLeEQpv9avUp0HT1cA8bNs
-  artifact: mingw-32,mingw-64
-  #artifact: nightly-32,nightly-64
+  artifact: nightly-mw32,nightly-mw64,nightly-vc32,nightly-vc64,nightly-cyg32,nightly-cyg64
   draft: true
   prerelease: true
   force_update: true
@@ -133,11 +144,10 @@ deploy:
     branch: /(master|relprep|cperl-tag-deploy-test|maint-5)/
 - provider: GitHub
   tag: $(APPVEYOR_REPO_TAG_NAME)-win
-  description: 'cperl windows tagged (mingw)'
+  description: 'cperl windows tagged'
   auth_token:
     secure: AsIAOIgCJX0QhrUKal2V00aaB5nRWtmtFTFeDVsGnbJLeEQpv9avUp0HT1cA8bNs
-  artifact: mingw-32,mingw-64,cygwin-32,cygwin-64
-  #artifact: tagged-32,tagged-64,cygwin-32,cygwin-64
+  artifact: mingw-32,mingw-64,cygwin-32,cygwin-64,tagged-vc32,tagged-vc64
   draft: true
   force_update: true
   on:
