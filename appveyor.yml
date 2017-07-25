@@ -87,7 +87,9 @@ before_deploy:
   - if "%CFG%"=="Debug" exit
   # todo: reproducible builds
   - if "%CYGWIN%"=="1" %CYGR%\bin\sh -lc "cd $APPVEYOR_BUILD_FOLDER; make install DESTDIR=/cygdrive/c/projects/cperl/inst && cd /cygdrive/c/projects/cperl/inst && tar Jcvf ../${APPVEYOR_REPO_TAG_NAME}-cygwin-${platform}.tar.xz *"
-  - if "%MINGW%"=="1" sh -lc "cd $APPVEYOR_BUILD_FOLDER; gmake install DESTDIR=/c/projects/cperl/inst && cd /c/projects/cperl/inst && tar Jcvf ${$APPVEYOR_BUILD_FOLDER}/${APPVEYOR_REPO_TAG_NAME}-mingw-${platform}.tar.xz *"
+  - if "%MINGW%"=="1" rename c:\MinGW.old MinGW
+  - if "%MINGW%"=="1" set PATH=c:\Windows\system32;c:\Windows;C:\strawberry\c\bin;C:\strawberry\perl\bin;c:\Windows\system32\Wbem;C:\MinGW\bin;C:\MinGW\msys\1.0\bin
+  - if "%MINGW%"=="1" C:\MinGW\msys\1.0\bin\sh -lc "cd $APPVEYOR_BUILD_FOLDER; gmake install DESTDIR=/c/projects/cperl/inst && cd /c/projects/cperl/inst && tar Jcvf ${$APPVEYOR_BUILD_FOLDER}/${APPVEYOR_REPO_TAG_NAME}-mingw-${platform}.tar.xz *"
 
 # appveyor cannot glob * in names
 artifacts:
