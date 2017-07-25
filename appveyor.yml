@@ -119,11 +119,11 @@ artifacts:
 deploy:
 - provider: GitHub
   tag: cperl-win-$(appveyor_build_version)
-  description: 'cperl windows nightly (msvcr140.dll)'
+  description: 'cperl windows nightly (mingw)'
   auth_token:
     secure: AsIAOIgCJX0QhrUKal2V00aaB5nRWtmtFTFeDVsGnbJLeEQpv9avUp0HT1cA8bNs
-  #artifact: mingw-32,mingw-64
-  artifact: nightly-32,nightly-64
+  artifact: mingw-32,mingw-64
+  #artifact: nightly-32,nightly-64
   draft: true
   prerelease: true
   force_update: true
@@ -131,11 +131,11 @@ deploy:
     branch: /(master|relprep|cperl-tag-deploy-test|maint-5)/
 - provider: GitHub
   tag: $(APPVEYOR_REPO_TAG_NAME)-win
-  description: 'cperl windows tagged (msvcr140.dll)'
+  description: 'cperl windows tagged (mingw)'
   auth_token:
     secure: AsIAOIgCJX0QhrUKal2V00aaB5nRWtmtFTFeDVsGnbJLeEQpv9avUp0HT1cA8bNs
-  #artifact: mingw-32,mingw-64,cygwin-32,cygwin-64
-  artifact: tagged-32,tagged-64,cygwin-32,cygwin-64
+  artifact: mingw-32,mingw-64,cygwin-32,cygwin-64
+  #artifact: tagged-32,tagged-64,cygwin-32,cygwin-64
   draft: true
   force_update: true
   on:
