@@ -1,6 +1,7 @@
 package B::Debug;
 
-our $VERSION = '1.24';
+our $VERSION = '1.25';
+BEGIN { if ($] >= 5.027001) { require deprecate; import deprecate; } }
 
 use strict;
 require 5.006;
@@ -64,13 +65,18 @@ EOT
     }
     if ($have_B_Flags) {
         printf <<'EOT', $op->flags, $op->flagspv, $op->private, $op->privatepv;
-	op_flags	%d	%s
-	op_private	%d	%s
+	op_flags	%u	%s
+	op_private	%u	%s
 EOT
     } else {
         printf <<'EOT', $op->flags, $op->private;
-	op_flags	%d
-	op_private	%d
+	op_flags	%u
+	op_private	%u
+EOT
+    }
+    if ($op->can('rettype')) {
+        printf <<'EOT', $op->rettype;
+	op_rettype	%u
 EOT
     }
 }
@@ -164,6 +170,16 @@ sub B::METHOP::debug {
     } else {
       printf "\top_meth_sv\t0x%x\n", ${$op->meth_sv};
       $op->meth_sv->debug;
+    }
+}
+
+sub B::UNOP_AUX::debug {
+    my ($op) = @_;
+    $op->B::OP::debug();
+    # string and perl5 aux_list needs the cv
+    # cperl has aux, Concise,-debug leaves it empty
+    if ($op->can('aux')) {
+        printf "\top_aux\t%s\n", cstring($op->aux);
     }
 }
 
@@ -266,38 +282,43 @@ sub B::BM::debug {
 }
 
 sub B::CV::debug {
-    my ($sv) = @_;
-    $sv->B::PVNV::debug();
-    my ($stash) = $sv->STASH;
-    my ($start) = $sv->START;
-    my ($root)  = $sv->ROOT;
-    my ($padlist) = $sv->PADLIST;
-    my ($file) = $sv->FILE;
-    my ($gv) = $sv->GV;
+    my ($cv) = @_;
+    $cv->B::PVNV::debug();
+    my $stash = $cv->STASH;
+    my $start = $cv->START;
+    my $root  = $cv->ROOT;
+    my $padlist = $cv->PADLIST;
+    my $file = $cv->FILE;
+    my $gv;
     printf <<'EOT', $$stash, $$start, $$root;
 	STASH		0x%x
 	START		0x%x
 	ROOT		0x%x
 EOT
-    if ( $]>5.017 && ($sv->FLAGS & 0x40000)) { #lexsub
-      printf("\tNAME\t%%s\n", $sv->NAME);
-    } else {
-      printf("\tGV\t%0x%x\t%s\n", $$gv, $gv->SAFENAME);
+    if ($cv->can('NAME_HEK') && $cv->NAME_HEK) {
+        printf("\tNAME\t%%s\n", $cv->NAME_HEK);
     }
-    printf <<'EOT', $file, $sv->DEPTH, $padlist, ${$sv->OUTSIDE};
+    elsif ( $]>5.017 && ($cv->FLAGS & 0x40000)) { #lexsub
+        printf("\tNAME\t%%s\n", $cv->NAME_HEK);
+    } else {
+        $gv = $cv->GV;
+        printf("\tGV\t%0x%x\t%s\n", $$gv, $gv->SAFENAME);
+    }
+    printf <<'EOT', $file, $cv->DEPTH, $padlist, ${$cv->OUTSIDE};
 	FILE		%s
 	DEPTH		%d
 	PADLIST		0x%x
 	OUTSIDE		0x%x
 EOT
-    printf("\tOUTSIDE_SEQ\t%d\n", $sv->OUTSIDE_SEQ) if $] > 5.007;
+    printf("\tOUTSIDE_SEQ\t%d\n", $cv->OUTSIDE_SEQ) if $] > 5.007;
     if ($have_B_Flags) {
-      my $SVt_PVCV = $] < 5.010 ? 12 : 13;
-      printf("\tCvFLAGS\t0x%x\t%s\n", $sv->CvFLAGS,
-	     $have_B_Flags_extra ? $sv->flagspv($SVt_PVCV) : $sv->flagspv);
+        my $SVt_PVCV = $] < 5.010 ? 12 : 13;
+        printf("\tCvFLAGS\t0x%x\t%s\n", $cv->CvFLAGS,
+               $have_B_Flags_extra ? $cv->flagspv($SVt_PVCV) : $cv->flagspv);
     } else {
-      printf("\tCvFLAGS\t0x%x\n", $sv->CvFLAGS);
+        printf("\tCvFLAGS\t0x%x\n", $cv->CvFLAGS);
     }
+    printf("\tSIGOP\t0x%x\n", $cv->SIGOP) if $cv->can('SIGOP');
     $start->debug if $start;
     $root->debug if $root;
     $gv->debug if $gv;
@@ -415,7 +436,7 @@ B::Debug - Walk Perl syntax tree, printing debug info about ops
 
 =head1 DESCRIPTION
 
-See F<ext/B/README> and the newer L<B::Concise>, L<B::Terse>.
+See F<ext/B/README> and the newer L<B::Concise>.
 
 =head1 OPTIONS
 
@@ -424,7 +445,7 @@ otherwise in basic order.
 
 =head1 AUTHOR
 
-Malcolm Beattie, C<mbeattie@sable.ox.ac.uk>
+Malcolm Beattie, C<retired>
 Reini Urban C<rurban@cpan.org>
 
 =head1 LICENSE
