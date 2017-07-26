@@ -504,6 +504,7 @@ our %optimization_map = (
     4 => [qw(-fcop -fno-dyn-padlist)],
 );
 push @{$optimization_map{2}}, '-fcow' if $] >= 5.020;
+# skipping here: oFr which need extra logic
 our %debug_map = (
     'O' => 'op',
     'A' => 'av',
@@ -4309,7 +4310,7 @@ sub B::CV::save {
     # TODO Attribute::Handlers #171, test 176
     if ($sv and ref($sv) and ref($sv) =~ /^(SCALAR|ARRAY|HASH|CODE|REF)$/) {
       # Save XSUBANY, maybe ARRAY or HASH also?
-      warn "SCALAR const sub $cvstashname::$cvname -> $sv\n" if $debug{cv};
+      warn "SCALAR const sub $cvstashname\::$cvname -> $sv\n" if $debug{cv};
       my $vsym = svref_2object( \$sv )->save;
       my $cvi = "cv".$cv_index++;
       $decl->add("Static CV* $cvi;");
@@ -4323,7 +4324,7 @@ sub B::CV::save {
       $init->add("$cvi = newCONSTSUB( $stsym, $name, (SV*)$vsym );");
       return savesym( $cv, $cvi );
     } else {
-      warn "Warning: Undefined const sub $cvstashname::$cvname -> $sv\n" if $verbose;
+      warn "Warning: Undefined const sub $cvstashname\::$cvname -> $sv\n" if $verbose;
     }
   }
 
@@ -4366,7 +4367,7 @@ sub B::CV::save {
     my $reloaded;
     if ($cvstashname =~ /^(bytes|utf8)$/) { # no autoload, force compile-time
       force_heavy($cvstashname);
-      $cv = svref_2object( \&{"$cvstashname\::$cvname"} );
+      $cv = svref_2object( \&{$cvstashname."::".$cvname} );
       $reloaded = 1;
     } elsif ($fullname eq 'Coro::State::_jit') { # 293
       # need to force reload the jit src
@@ -4379,9 +4380,20 @@ sub B::CV::save {
       }
     }
     if ($reloaded) {
-      $gv = $cv->GV;
-      warn sprintf( "Redefined CV 0x%x as PVGV 0x%x %s CvFLAGS=0x%x\n",
-                    $$cv, $$gv, $fullname, $CvFLAGS ) if $debug{cv};
+      if (!$cv->is_named) {
+        $gv = $cv->GV;
+        warn sprintf( "Redefined CV 0x%x as PVGV 0x%x %s CvFLAGS=0x%x\n",
+                      $$cv, $$gv, $fullname, $CvFLAGS ) if $debug{cv};
+      } else {
+        $fullname = $cv->NAME_HEK;
+        $fullname = '' unless defined $fullname;
+        if ($fullname =~ /^(.*)::(.*?)$/) {
+          $cvstashname = $1;
+          $cvname      = $2;
+        }
+        warn sprintf( "Redefined CV 0x%x as NAMED %s CvFLAGS=0x%x\n",
+                      $$cv, $fullname, $CvFLAGS ) if $debug{cv};
+      }
       $sym = savesym( $cv, $sym );
       $root    = $cv->ROOT;
       $cvxsub  = $cv->XSUB;
@@ -4448,7 +4460,7 @@ sub B::CV::save {
   if (!$$root) {
     if ($fullname ne 'threads::tid'
         and $fullname ne 'main::main::'
-        and ($PERL510 and !defined(&{"$cvstashname\::AUTOLOAD"})))
+        and ($PERL510 and !defined(&{$cvstashname."::AUTOLOAD"})))
     {
       # XXX What was here?
     }
@@ -8693,7 +8705,7 @@ sub save_main {
   set_curcv B::main_cv;
   seek( STDOUT, 0, 0 );    #exclude print statements in BEGIN{} into output
   binmode( STDOUT, ':utf8' ) unless $PERL56;
-  
+
   $verbose
     ? walkoptree_slow( main_root, "save" )
     : walkoptree( main_root, "save" );
