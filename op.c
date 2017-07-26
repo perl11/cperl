@@ -19903,9 +19903,10 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
 
                 if (UNLIKELY(CvISXSUB(cv))) {
                     if (CvXSUB(cv) == S_Mu_sv_xsub ||
-                        CvXSUB(cv) == S_Mu_av_xsub)
+                        CvXSUB(cv) == S_Mu_av_xsub) {
                         DEBUG_kv(Perl_deb(aTHX_
                             "add_does_methods: ignore other field XS accessor\n"));
+                    }
                     /* fallthrough to GV alias */
                 }
                 /* fallthrough to GV alias for those also:
