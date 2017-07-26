@@ -100,7 +100,7 @@ Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e15
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 06610e9883ce805bcd6543ab959a9826f598eb40
 Math::BigInt cpan/Math-BigInt/t/with_sub.t c040328e223df6f56250f5d67dcb2c9a2f23c110
 Memoize cpan/Memoize/t/expmod_t.t 9386100cd9c95a0e8a4e001bba3aa52eec114d21
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 8e3469dd2de2bb7ace3ba6187cbc980e5bdf3329
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 2391a006e2dace86ab20697041dbdbd8fbdfeb8d
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm d013ed514d49e14ac007743cb5b05fc2a624a321
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
