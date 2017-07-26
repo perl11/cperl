@@ -208,11 +208,15 @@ with deferring the attributes::import call after an assignment.
 
 See L<[cperl #294]|https://github.com/perl11/cperl/issues/294>.
 
-=item L<B> 1.68_07
+=item L<B> 1.68_08
 
 Add non-destructive $cv->PUREGV method, which does not create a GV
 from a CvNAMED $cv.
 Warning: $cv->GV does create a GV from a CvNAMED $cv.
+
+Internal Refactor: thread API
+
+Add many missing methods and docs. Some from B::C.
 
 =item L<B::C> 1.55_04
 

@@ -7,14 +7,14 @@
 #
 package B;
 
-$B::VERSION = '1.68_07';
+$B::VERSION = '1.68_08';
 
 require XSLoader;
 require Exporter;
 @B::ISA = qw(Exporter);
 
 # cperl:
-# Note that we need to fix "RT#81332 744aaba059 bloats the B
+# Note that we needed to fix "RT#81332 744aaba059 bloats the B
 # compilers" here, by moving the XSLoader::load to the end, which
 # would otherwise pollute all Bytecode compiled .pmc files with all B
 # constants (13K), which renders Bytecode unusable.  p5p refuses to
@@ -995,6 +995,8 @@ earlier versions.
 
 =item OUTSIDE_SEQ
 
+=item HSCXT
+
 =item XSUB
 
 =item XSUBANY
@@ -1012,6 +1014,7 @@ Returns the name of a lexical sub, otherwise C<undef>.
 =item SIGOP
 
 Returns the signature op, otherwise C<B::NULL>.
+cperl only.
 
 =back
 
@@ -1036,13 +1039,84 @@ Returns the signature op, otherwise C<B::NULL>.
 This method is not present if running under Perl 5.9, as the PMROOT
 information is no longer stored directly in the hash.
 
+=item STATIC
+
+cperl only
+
+=item CLASS
+
+cperl only
+
+=item ROLE
+
+cperl only
+
+=item Gv_AMG
+
+cperl only
+
+=item ENAMES
+
+cperl only
+
+=item name_count
+
+cperl only
+
+=back
+
+=head2 B::HE Methods
+
+Hash Entry.
+All but VAL, SVKEY_force, HASH are cperl only.
+
+=over 4
+
+=item VAL
+
+=item SVKEY_force
+
+=item SVKEY
+
+=item KEY
+
+=item HASH
+
+=item KLEN
+
+=item FLAGS
+
+=item UTF8
+
+=item KWASUTF8
+
+=item STATIC
+
+=back
+
+=head2 B::RHE Methods
+
+Refcounted Hash Entry, representing a B::COP::hints_hash.
+
+=over 4
+
+=item HASH
+
+Return a reference to the cop hints hash. The HV key-value pairs,
+not the hash value.
+
+=item fetch key
+
+Look up the entry in the B::COP::hints_hash.
+cperl only.
+
 =back
 
 =head2 OP-RELATED CLASSES
 
 C<B::OP>, C<B::UNOP>, C<B::UNOP_AUX>, C<B::BINOP>, C<B::LOGOP>,
 C<B::LISTOP>, C<B::PMOP>, C<B::SVOP>, C<B::PADOP>, C<B::PVOP>, C<B::LOOP>,
-C<B::COP>, C<B::METHOP>.
+C<B::COP>, C<B::METHOP>, C<B::UNOP_AUX>
 
 These classes correspond in the obvious way to the underlying C
 structures of similar names.  The inheritance hierarchy mimics the
@@ -1137,12 +1211,22 @@ object's type, but will typically be a collection of C<B::IV>, C<B::GV>,
 etc. objects. C<cv> is the C<B::CV> object representing the sub that the
 op is contained within.
 
+The perl5 variant returns PADOFFSETs as SV/GV objects.
+
+The cperl variant behaves like L<B::C> C<aux_list_thr>, returning the
+PADOFFSET as number, and the cv argument is optional and ignored.
+
 =item string(cv)
 
 This returns a textual representation of the object (likely to b useful
 for deparsing and debugging), or an empty string if the op type doesn't
 support this. C<cv> is the C<B::CV> object representing the sub that the
 op is contained within.
+
+=item aux
+
+Returns the contents of the aux buffer as string, including the size at index -1.
+cperl-only.
 
 =back
 
@@ -1347,6 +1431,10 @@ pointers and B::PADNAME objects otherwise.
 
 =item REFCNT
 
+=item MAXNAMED
+
+cperl only
+
 =back
 
 =head2 B::PADNAME Methods
@@ -1396,6 +1484,10 @@ Only meaningful if PADNAMEt_OUTER is set.
 =item PARENT_FAKELEX_FLAGS
 
 Only meaningful if PADNAMEt_OUTER is set.
+
+=item GEN
+
+cperl only.
 
 =back
 
