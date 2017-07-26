@@ -5532,7 +5532,7 @@ sub B::AV::save {
   }
   elsif ($ispadlist and $] >= 5.021008) { # id+outid as U32 (PL_padlist_generation++)
     $padlistsect->comment("xpadl_max, xpadl_alloc, xpadl_id, xpadl_outid");
-    my ($id, $outid) = ($av->ID, $av->OUTID);
+    my ($id, $outid) = ($av->id, $av->outid);
     $padlistsect->add("$fill, NULL, $id, $outid");
     $padlist_index = $padlistsect->index;
     $sym = savesym( $av, "&padlist_list[$padlist_index]" );
