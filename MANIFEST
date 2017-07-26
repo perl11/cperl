@@ -1,6 +1,7 @@
 .whitesource			WhiteSource configuration on github
 .cirrus.yml			Cirrus CI (continuous integration) for FreeBSD
 .dir-locals.el			Emacs control file
+.drone.yml			Windows CI configuration: tea-ci.org
 .github/FUNDING.yml		github sponsor and patreon cfg
 .gitlab-ci.yml			Gitlab CI (continuous integration) on gitlab (where enabled)
 .lgtm.yml			LGTM.com configuration file

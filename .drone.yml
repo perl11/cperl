@@ -1,0 +1,40 @@
+# Build configuration for https://www.tea-ci.org/perl11/cperl
+# 12 builds per day
+
+matrix:
+  sys:
+    - msys
+  arch:
+    - 64
+    - 32
+
+build:
+  image: teaci/msys$${arch}
+  shell: msys$$arch
+  pull: true
+  commands:
+    #- if [ $$arch = 32 ]; then target=i686;   fi
+    #- if [ $$arch = 64 ]; then target=x86_64; fi
+    #- pacman -S --needed --noconfirm --noprogressbar findutils gdbm perl make
+    - cd win32; make CCHOME=c:\\msys$$arch test > test.log &&
+    cat test.log &&
+    make CCHOME=c:\\msys$$arch install >install.log &&
+    cat install.log &&
+    cd /c/cperl && ls && tar cfJ cperl-$${sys}$${arch}.tar.xz * && cd - &&
+    cp /c/cperl/cperl-$${sys}$${arch}.tar.xz ../
+
+branches:
+  - master
+  - smoke/master
+  - smoke/relprep
+  - smoke/drone
+  - feature/drone
+
+publish:
+  github_release:
+    api_key: AsIAOIgCJX0QhrUKal2V00aaB5nRWtmtFTFeDVsGnbJLeEQpv9avUp0HT1cA8bNs
+    files: cperl-$${sys}$${arch}.tar.xz
+    checksum: sha1
+    when:
+      event: tag
+
