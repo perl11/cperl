@@ -106,8 +106,8 @@ notifications:
   irc:
     channels:
     - irc.perl.org#perl11
-    on_success: always
-    on_failure: always
+    on_success: never
+    on_failure: never
     # to enable skip_join, in IRC channel first execute `/mode -n`
     skip_join: true
     template:
