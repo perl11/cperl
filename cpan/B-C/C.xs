@@ -544,17 +544,6 @@ PadnameGEN(padn)
     OUTPUT:
 	RETVAL
 
-MODULE = B	PACKAGE = B::PADLIST	PREFIX = Padlist
-
-U32
-PadlistID(padlist)
-	B::PADLIST	padlist
-    ALIAS: B::PADLIST::OUTID = 1
-    CODE:
-        RETVAL = ix ? padlist->xpadl_outid : padlist->xpadl_id;
-    OUTPUT:
-	RETVAL
-
 MODULE = B	PACKAGE = B::PADNAMELIST	PREFIX = Padnamelist
 
 size_t
