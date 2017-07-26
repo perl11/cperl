@@ -479,7 +479,7 @@ sub subdirs {
         return $s . "
 
 subdirs ::
-	\$(PERL) $bytehintspatched
+	\$(PERL) \"-I\$(PERL_ARCHLIB)\" $bytehintspatched
 ";
     } else {
         $s
