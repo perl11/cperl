@@ -338,6 +338,7 @@ C<SV*>.
 #define HvNAME_get(hv) \
 	((SvOOK(hv) && HvAUX(hv)->xhv_name_u.xhvnameu_name && HvNAME_HEK_NN(hv)) \
 			 ? HEK_KEY(HvNAME_HEK_NN(hv)) : NULL)
+#define HvNAME_NN(hv) HEK_KEY(HvNAME_HEK_NN(hv))
 #define HvNAMELEN_get(hv) \
 	((SvOOK(hv) && HvAUX(hv)->xhv_name_u.xhvnameu_name && HvNAME_HEK_NN(hv)) \
 				 ? HEK_LEN(HvNAME_HEK_NN(hv)) : 0)

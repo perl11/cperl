@@ -115,9 +115,14 @@ XXX
 
 =over 4
 
-=item *
+=item L<fields> 2.26c
 
-L<XXX> has been upgraded from version A.xx to B.yy.
+Implemented L<Mu/fields> returning fields objects, as in perl6
+(there called I<Attributes>).
+
+=item L<Mu> 0.02c
+
+Implemented L<Mu/fields> returning fields objects.
 
 =back
 

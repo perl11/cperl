@@ -1542,7 +1542,7 @@ PERL_CALLCONV bool	Perl_feature_is_enabled(pTHX_ const char *const name, STRLEN 
 #define PERL_ARGS_ASSERT_FEATURE_IS_ENABLED	\
 	assert(name)
 
-PERL_CALLCONV PADOFFSET	Perl_field_index(pTHX_ const HV* klass, U32 i)
+PERL_CALLCONV PADOFFSET	Perl_field_index(pTHX_ const HV* klass, U16 i)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_FIELD_INDEX	\
@@ -4152,7 +4152,7 @@ PERL_CALLCONV int	Perl_nothreadhook(pTHX)
 			__attribute__global__;
 
 PERL_CALLCONV void	Perl_notify_parser_that_changed_to_utf8(pTHX);
-PERL_CALLCONV U32	Perl_numfields(pTHX_ const HV* klass)
+PERL_CALLCONV U16	Perl_numfields(pTHX_ const HV* klass)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_NUMFIELDS	\

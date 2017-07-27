@@ -1,5 +1,5 @@
 package Mu;
-our $VERSION = 0.01;
+our $VERSION = 0.02;
 #method new ();    # see XS universal.c
 #method CREATE (); # see XS
 1;
@@ -69,6 +69,14 @@ L<https://docs.perl6.org/type/Mu>
 =head1 SUBROUTINES
 
 =over 4
+
+=item fields
+
+    method fields (Mu) :Array(fields)
+
+The fields method on a class or object of a class returns the ordered
+list of all declared C<has> L<fields> of the class. See L<fields/CPERL
+METHODS> on the available methods.
 
 =item defined ARGUMENT
 

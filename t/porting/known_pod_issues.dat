@@ -440,7 +440,7 @@ pod/perl5270cdelta.pod	alternative text. contains non-escaped | or /	1
 pod/perl5271cdelta.pod	Apparent broken link	5
 pod/perl5271cdelta.pod	Verbatim line length including indents exceeds 79 by	2
 pod/perl5272cdelta.pod	Apparent broken link	3
-pod/perl5272cdelta.pod	Apparent internal link is missing its forward slash	5
+pod/perl5272cdelta.pod	Apparent internal link is missing its forward slash	4
 pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlapi.pod	Verbatim line length including indents exceeds 79 by	9
 pod/perlbook.pod	Verbatim line length including indents exceeds 79 by	1

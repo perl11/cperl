@@ -4702,6 +4702,7 @@ lib/fake_signatures.t		See if no fake_signatures works
 lib/feature.pm			Pragma to enable new syntax
 lib/feature.t			See if features work
 lib/feature/unicode_strings.t	See if feature "unicode_strings" work
+lib/fields.t			Test the class fields API
 lib/File/Basename.pm		Emulate the basename program
 lib/File/Basename.t		See if File::Basename works
 lib/File/Compare.pm		Emulation of cmp command

@@ -104,7 +104,7 @@ Math::BigRat cpan/Math-BigRat/t/bigfltpm.inc 8000c7057453138ff48cf4cba61f0f4a1db
 Math::BigRat cpan/Math-BigRat/t/bigfltrt.t 5508d55216c52caf26aa2e6478691c50b7856e7d
 Math::BigRat cpan/Math-BigRat/t/bigratpm.t cfd770aabeaf6b742fd942143e816db42db04fba
 Memoize cpan/Memoize/t/expmod_t.t 9386100cd9c95a0e8a4e001bba3aa52eec114d21
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm e4f598c7a25bb8148dfd4815223fccc17a7529f8
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 565cc3b2b84f1f54642b7024ee85d9de83551ca1
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 7f54b2acbfae240722634c5623b3986372768e6f
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
@@ -139,7 +139,7 @@ YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm 527302db61c55bf695da94adfa66e7c2f3
 YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm 9716931aaf2305fab4a41f35560362947ba3a805
 autodie cpan/autodie/t/mkdir.t 9e70d2282a3cc7d76a78bf8144fccba20fb37dac
 base dist/base/lib/base.pm 03b27b38c40206834bde6e3a891e85de85673fff
-base dist/base/lib/fields.pm ba319f2c116ce6992b1bcef1eb1874bd00ea1f4f
+base dist/base/lib/fields.pm 4bc97057c1389275fcf7ff9c6fb1f625a6e87523
 base dist/base/t/fields-5_6_0.t 175dea16b9325762cea401d156e8f440f916fa90
 base dist/base/t/fields-5_8_0.t ace0272fe98ed4be52b7359654ae328ce537372a
 bignum dist/bignum/lib/bigint.pm d5247087c55f3865e080e198f2b63764a3fa16e5

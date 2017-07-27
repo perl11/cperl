@@ -1072,11 +1072,13 @@ XS(XS_Mu_new)
             SSize_t i, fill;
             if (SvREADONLY(name))
                 name = newSVpvn_flags(SvPVX(name), SvCUR(name), SvUTF8(name)|SVs_TEMP);
+#if OLD_FIELDS_GV
             sv_catpvs(name, "::FIELDS");
             fields = GvAVn(gv_fetchsv(name, 0, SVt_PVAV));
             fill = AvFILLp(fields);
             av_extend(av, fill);
             AvFILLp(av) = fill;
+#endif
             items--; /* skip $self */
             for (i=0; i<=fill; i++) {
                 const SV *padix = AvARRAY(fields)[i];
@@ -1120,6 +1122,7 @@ XS(XS_Mu_CREATE)
 	croak_xs_usage(cv, "classname");
     else {
         SV *name = ST(0);
+#if OLD_FIELDS_GV
         HV *stash = gv_stashsv(name, SvUTF8(name));
         AV *av = newAV();
         if (hv_existss(stash, "FIELDS")) { /* has fields? */
@@ -1131,8 +1134,201 @@ XS(XS_Mu_CREATE)
             if (fields)
                 av_extend(av, AvFILLp(fields));
         }
+#endif
         AvSHAPED_on(av);
         ST(0) = sv_bless(newRV((SV*)av), stash);
+        XSRETURN(1);
+    }
+}
+
+/* Returns a list of all fields, as fields objects.
+   Of a class or an object. */
+
+#define FIELDS_INDEX_PO    0
+#define FIELDS_INDEX_IX    1
+#define FIELDS_INDEX_CLASS 2
+#define FIELDS_INDEX_OBJ   3
+
+XS(XS_Mu_fields); /* prototype to pass -Wmissing-prototypes */
+XS(XS_Mu_fields)
+{
+    dXSARGS;
+    SV *name = NULL;
+    SV *obj  = NULL;
+    HV *klass;
+    if (items != 1)
+	croak_xs_usage(cv, "classname or classobject");
+    if (SvPOK(ST(0))) {
+        name = ST(0);
+        if (!(klass = gv_stashsv(name,0)) || !HvCLASS(klass))
+            croak_xs_usage(cv, "not a class");
+    } else {
+        obj = ST(0);
+        if ( !SvROK(obj) ||
+             !(SvFLAGS(SvRV(obj)) & SVs_OBJECT) ||
+             !HvCLASS(SvSTASH(SvRV(obj))) )
+            croak_xs_usage(cv, "not an object");
+        klass = SvSTASH(SvRV(obj));
+    }
+    assert(klass);
+    SP--;
+    {
+        U16 i;
+        U16 num = numfields(klass);
+        HV* fields = gv_stashpvs("fields", GV_ADD);
+        if (UNLIKELY(PL_stack_max - SP < num))
+            (void)stack_grow(sp,SP,num);
+        /*EXTEND(SP, num);*/
+        for (i=0; i<num; i++) {
+            PADOFFSET po = field_index(klass, i);
+            AV* field;
+            assert(po != NOT_IN_PAD);
+            field = newAV();
+            AvFILLp(field) = obj ? FIELDS_INDEX_OBJ : FIELDS_INDEX_CLASS;
+            av_extend(field, AvFILLp(field));
+            AvARRAY(field)[FIELDS_INDEX_PO] = newSVuv(po); /* [0] */
+            AvARRAY(field)[FIELDS_INDEX_IX] = newSVuv(i);  /* [1] */
+            AvARRAY(field)[FIELDS_INDEX_CLASS] = SvREFCNT_inc_NN(klass); /* [2] */
+            if (obj)
+                AvARRAY(field)[FIELDS_INDEX_OBJ] = SvREFCNT_inc_NN(obj); /* [3] */
+            PUSHs(sv_bless(newRV((SV*)field), fields));
+        }
+        XSRETURN(num);
+    }
+}
+#define FIELDS_OBJ_ASSERT \
+    assert(SvTYPE(obj) == SVt_PVAV); \
+    assert(AvFILLp((AV*)obj) >= FIELDS_INDEX_CLASS)
+
+PERL_STATIC_INLINE PADOFFSET
+S_fields_po(SV* obj) {
+    FIELDS_OBJ_ASSERT;
+    return SvUVX(AvARRAY(obj)[FIELDS_INDEX_PO]);
+}
+PERL_STATIC_INLINE U16
+S_fields_ix(SV* obj) {
+    FIELDS_OBJ_ASSERT;
+    return (U16)SvUVX(AvARRAY(obj)[FIELDS_INDEX_IX]);
+}
+PERL_STATIC_INLINE HV*
+S_fields_class(SV* obj) {
+    FIELDS_OBJ_ASSERT;
+    return (HV*)(AvARRAY(obj)[FIELDS_INDEX_CLASS]);
+}
+PERL_STATIC_INLINE SV*
+S_fields_obj(SV* obj) {
+    FIELDS_OBJ_ASSERT;
+    return AvARRAY(obj)[FIELDS_INDEX_OBJ];
+}
+/* Methods for a fields object, representing a class fields
+   definition via has, and a runtime object SV value. */
+PERL_STATIC_INLINE
+SV * S_fields_objcheck(SV* obj) {
+    SV *rv;
+    if (UNLIKELY(!obj || !SvROK(obj) ||
+                 !(SvFLAGS((rv = SvRV(obj))) & SVs_OBJECT) ||
+                 !HvNAME(SvSTASH(rv)) ||
+                 strNEs(HvNAME_NN(SvSTASH(rv)), "fields")))
+	return NULL;
+    else
+        return rv;
+}
+XS(XS_fields_name);
+XS(XS_fields_name)
+{
+    dXSARGS;
+    SV *obj;
+    if ( items != 1 || !(obj = S_fields_objcheck(ST(0))) ) {
+	croak_xs_usage(cv, "fields object");
+    }
+    {
+        PADOFFSET po = S_fields_po(obj);
+        PADNAME *pn  = PAD_COMPNAME(po);
+        ST(0) = sv_2mortal(newSVpvn_flags(PadnamePV(pn), PadnameLEN(pn),
+                                          PadnameUTF8(pn) ? SVf_UTF8 : 0));
+        XSRETURN(1);
+    }
+}
+XS(XS_fields_package);
+XS(XS_fields_package)
+{
+    dXSARGS;
+    SV *obj;
+    if ( items != 1 || !(obj = S_fields_objcheck(ST(0))) ) {
+	croak_xs_usage(cv, "fields object");
+    }
+    {
+        HV *klass = S_fields_class(obj);
+        ST(0) = sv_2mortal(newSVhek(HvNAME_HEK(klass)));
+        XSRETURN(1);
+    }
+}
+XS(XS_fields_const);
+XS(XS_fields_const)
+{
+    dXSARGS;
+    SV *obj;
+    if ( items != 1 || !(obj = S_fields_objcheck(ST(0))) ) {
+	croak_xs_usage(cv, "fields object");
+    }
+    if (AvFILLp(obj) < FIELDS_INDEX_OBJ) {
+        PADOFFSET po = S_fields_po(obj);
+        PADNAME *pn  = PAD_COMPNAME(po);
+        ST(0) = PadnameCONST(pn) ? &PL_sv_yes : &PL_sv_no;
+    } else {
+        U16 ix    = S_fields_ix(obj);
+        SV *avref = S_fields_obj(obj);
+        SV *sv    = AvARRAY(SvRV(avref))[ix];
+        ST(0)     = SvREADONLY(sv) ? &PL_sv_yes : &PL_sv_no;
+    }
+}
+XS(XS_fields_type);
+XS(XS_fields_type)
+{
+    dXSARGS;
+    SV *obj;
+    if ( items != 1 || !(obj = S_fields_objcheck(ST(0))) ) {
+	croak_xs_usage(cv, "fields object");
+    }
+    {
+        PADOFFSET po = S_fields_po(obj);
+        HV *klass = PAD_COMPNAME_TYPE(po);
+        ST(0) = klass ? sv_2mortal(newSVhek(HvNAME_HEK(klass))) : &PL_sv_undef;
+        XSRETURN(1);
+    }
+}
+/* Those only from $obj->fields, not class->fields */
+XS(XS_fields_get_value);
+XS(XS_fields_get_value)
+{
+    dXSARGS;
+    SV *obj;
+    if ( items != 1 || !(obj = S_fields_objcheck(ST(0))) )
+	croak_xs_usage(cv, "fields object");
+    if (AvFILLp(obj) < FIELDS_INDEX_OBJ) {
+	croak_xs_usage(cv, "fields object of object");
+    }
+    {
+        U16 ix     = S_fields_ix(obj);
+        SV *avref  = S_fields_obj(obj);
+        ST(0) = AvARRAY(SvRV(avref))[ix];
+        XSRETURN(1);
+    }
+}
+XS(XS_fields_set_value);
+XS(XS_fields_set_value)
+{
+    dXSARGS;
+    SV *obj;
+    if ( items != 2 || !(obj = S_fields_objcheck(ST(0))) )
+	croak_xs_usage(cv, "fields object");
+    if (AvFILLp(obj) < FIELDS_INDEX_OBJ) {
+	croak_xs_usage(cv, "fields object of object");
+    }
+    {
+        U16 ix     = S_fields_ix(obj);
+        SV *avref  = S_fields_obj(obj);
+        AvARRAY(SvRV(avref))[ix] = ST(1);
         XSRETURN(1);
     }
 }
@@ -1174,6 +1370,13 @@ static const struct xsub_details details[] = {
     {"re::regexp_pattern", XS_re_regexp_pattern, "$"},
     {"Mu::new", XS_Mu_new, "$;@"},
     {"Mu::CREATE", XS_Mu_CREATE, "$"},
+    {"Mu::fields", XS_Mu_fields, "$"},
+    {"fields::name", XS_fields_name, "$"},
+    {"fields::package", XS_fields_package, "$"},
+    {"fields::const", XS_fields_const, "$"},
+    {"fields::type", XS_fields_type, "$"},
+    {"fields::get_value", XS_fields_get_value, "$"},
+    {"fields::set_value", XS_fields_set_value, "$$"},
 };
 
 STATIC OP*

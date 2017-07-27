@@ -1782,6 +1782,7 @@ use File::Glob qw(:case);
                 lib/dumpvar.{pl,t}
                 lib/feature.{pm,t}
                 lib/feature/
+                lib/fields.t
                 lib/filetest.{pm,t}
                 lib/h2ph.t
                 lib/h2xs.t

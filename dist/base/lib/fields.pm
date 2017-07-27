@@ -12,7 +12,7 @@ unless( eval q{require warnings::register; warnings::register->import; 1} ) {
 }
 use vars qw(%attr $VERSION);
 
-$VERSION = '2.25c';
+$VERSION = '2.26c';
 $VERSION =~ tr/_//d;
 
 # constant.pm is slow
@@ -226,10 +226,25 @@ fields - compile-time class fields
         }
     }
 
+    # return-value of Mu::fields or classobj->fields
+    class Foo {
+        has $foo;
+        has @bar;
+        has %baz :const;
+    }
+    my @fields = Foo->fields;
+    print $fields[0]->name; # foo
+
 =head1 DESCRIPTION
 
 The C<fields> pragma enables compile-time and run-time verified class
 fields.
+
+With cperl classes the fields methods returns a list of fields
+objects, representing the has declarations of the class with all
+imported roles - similar to the perl6
+L<https://docs.perl6.org/type/Metamodel::ClassHOW#(Metamodel::AttributeContainer)_method_attributes|Metamodel::AttributeContainer>
+returning L<https://docs.perl6.org/type/Attribute|Attribute> objects.
 
 NOTE: The current implementation keeps the declared fields in the %FIELDS
 hash of the calling package, but this may change in future versions.
@@ -322,10 +337,47 @@ be used to construct the pseudo hash.  Examples:
 
 =back
 
+=head1 CPERL METHODS
+
+In cperl the fields method returns an array of all fields for each
+class or object.
+See also the perl6 L<Attribute|http://docs.perl6.org/type/Attribute> class.
+Each field object has the following methods:
+
+=over 4
+
+=item name
+
+Returns the name of the field, including the sigil.
+
+=item package
+
+Returns the name of the class.
+
+=item const
+
+Returns YES if the field is :const, or NO if not.
+
+=item type
+
+Returns the declared type of the field, as string.
+
+=item get_value
+
+Returns the current value of the object field. Not valid for class
+fields.
+
+=item set_value
+
+Sets the value of the object field. Not valid for class fields.
+
+=back
+
 =head1 CAVEATS
 
-fields are superceded in cperl by C<has> field declarations inside a
-class or role.
+Declaration of fields are superceded in cperl by C<has> field
+declarations inside a class or role. Each C<has> field corresponds to
+a cperl fields object. See L<Mu/fields>.
 
 Due to the limitations of the implementation, you must use
 base I<before> you declare any of your own fields.

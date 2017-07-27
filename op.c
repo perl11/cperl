@@ -5483,8 +5483,6 @@ Perl_localize(pTHX_ OP *o, I32 lex)
     return o;
 }
 
-#define OLD_FIELDS_GV 1
-
 /* name: "CLASS"
    XXX replace by field_pad_add()
 */
@@ -5672,7 +5670,7 @@ Perl_field_pad(pTHX_ const HV* klass, const char* key, I32 klen)
 Number of fields in the klass
 =cut
 */
-U32
+U16
 Perl_numfields(pTHX_ const HV* klass)
 {
     SV* name;
@@ -5695,7 +5693,7 @@ Return i'th field padoffset or NOT_IN_PAD
 =cut
 */
 PADOFFSET
-Perl_field_index(pTHX_ const HV* klass, U32 i)
+Perl_field_index(pTHX_ const HV* klass, U16 i)
 {
     SV* name;
     GV* fields;
