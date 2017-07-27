@@ -5483,7 +5483,12 @@ Perl_localize(pTHX_ OP *o, I32 lex)
     return o;
 }
 
-/* name: "CLASS" */
+#define OLD_FIELDS_GV 1
+
+/* name: "CLASS"
+   XXX replace by field_pad_add()
+*/
+#if 0 && OLD_FIELDS_GV
 static void
 S_addfield(pTHX_ SV* name, GV *fsym, PADOFFSET targ)
 {
@@ -5518,7 +5523,7 @@ S_addfield(pTHX_ SV* name, GV *fsym, PADOFFSET targ)
         if (is_const) SvREADONLY_on(type);
     }
 }
-
+#endif
 
 /*
 =for apidoc hasterm
@@ -5531,43 +5536,101 @@ and the field index into %class::FIELDS.
 OP *
 Perl_hasterm(pTHX_ OP *o)
 {
+#if 0 && OLD_FIELDS_GV
     SV *name;
     GV *gv;
+#else
+    PADNAME *pn;
+    char *key;
+    I32 klen;
+#endif
     PERL_ARGS_ASSERT_HASTERM;
     assert(PL_curstname);
 
     if (!PL_parser->in_class)
         return o;
+#if 0 && OLD_FIELDS_GV
     name = newSVpvn_flags(SvPVX(PL_curstname), SvCUR(PL_curstname),
                           SvUTF8(PL_curstname)|SVs_TEMP);
     sv_catpvs(name, "::FIELDS");
     gv = gv_fetchsv(name, GV_ADD, SVt_PVAV);
     S_addfield(aTHX_ PL_curstname, gv, o->op_targ);
+#else
+    pn = PAD_COMPNAME(o->op_targ);
+    key = PadnamePV(pn);
+    klen = PadnameLEN(pn) - 1;
+    if (UNLIKELY(PadnameUTF8(pn)))
+        klen = -klen;
+    field_pad_add(PL_curstash, key+1, klen, o->op_targ);
+#endif
     OpPRIVATE(o) |= OPpPAD_STATE; /* keep it, protect from clearsv */
     return o;
 }
 
 /*
-=for apidoc field_index
+=for apidoc field_pad_add
 
-Searches for the fieldname without the '$' in %klass::FIELDS
-(or maybe some other internal class structure,
-like linear search in additional @FIELDS)
+Adds the fieldname (without the '$') with its compiletime padoffset to
+the %klass.
 
 If klen is negative, the hash key is UTF8.
 
-Returns the field index in the object/class @FIELDS av
+Currently the pad is added to the @class::FIELDS array,
+and the name with the index of the field to the %class::FIELDS hash.
+
+The new scheme will be a list of name:pad, the search will be linear in a string buffer.
+The typical numbers are 1-3 - 20 fields per class.
+=cut
+*/
+void
+Perl_field_pad_add(pTHX_ const HV* klass, const char* key, I32 klen, PADOFFSET targ)
+{
+#if OLD_FIELDS_GV
+    SV* name = newSVpvn_flags(HvNAME(klass), HvNAMELEN(klass), HvNAMEUTF8(klass)|SVs_TEMP);
+    GV *fields;
+    const PADNAME *pn = PAD_COMPNAME(targ);
+    PERL_ARGS_ASSERT_FIELD_PAD_ADD;
+
+    sv_catpvs(name, "::FIELDS");
+    fields = gv_fetchsv(name, GV_ADD, SVt_PVAV);
+
+    av_push(GvAVn(fields), newSViv(targ));
+    (void)hv_store(GvHVn(fields), key, klen, newSViv(AvFILLp(GvAVn(fields))), 0);
+
+    if (SvPAD_TYPED(pn)) { /* see check_hash_fields_and_hekify() */
+        HV *type = PadnameTYPE(pn);
+        bool is_const = SvREADONLY(type);
+        SvCUR_set(name, HvNAMELEN(klass)+2); /* with the :: */
+        /* store in the type the GvHV to curstash */
+        if (is_const) SvREADONLY_off(type);
+        (void)hv_store(type, "FIELDS", 6,
+                       SvREFCNT_inc_NN(gv_fetchsv(name, GV_ADD, SVt_PVHV)), 0);
+        if (is_const) SvREADONLY_on(type);
+    }
+#endif
+}
+
+/*
+=for apidoc field_search
+
+Searches for the fieldname without the '$' in %class::
+
+If klen is negative, the hash key is UTF8.
+
+Returns the field index in the object/class fields list
 or with want_pad set, the padoffset into comppad.
+Returns NOT_IN_PAD if not found.
 =cut
 */
 PADOFFSET
-Perl_field_index(pTHX_ const HV* klass, const char* key, I32 klen, bool want_pad)
+Perl_field_search(pTHX_ const HV* klass, const char* key, I32 klen, bool want_pad)
 {
     SV* gv;
     GV* fields;
     SV** svp;
-    PERL_ARGS_ASSERT_FIELD_INDEX;
+    PERL_ARGS_ASSERT_FIELD_SEARCH;
     if (!HvNAME(klass)) return NOT_IN_PAD;
+#if OLD_FIELDS_GV
     gv = newSVpvn_flags(HvNAME(klass), HvNAMELEN(klass), HvNAMEUTF8(klass)|SVs_TEMP);
     sv_catpvs(gv, "::FIELDS");
     fields = gv_fetchsv(gv, 0, SVt_PVHV);
@@ -5585,25 +5648,74 @@ Perl_field_index(pTHX_ const HV* klass, const char* key, I32 klen, bool want_pad
     }
     else
         return NOT_IN_PAD;
+#endif
 }
 
 /*
 =for apidoc field_pad
+Returns the pad offset in comppad_name for the field in the klass,
+or NOT_IN_PAD if not found.
 
-Searches for the fieldname without the '$' in %klass::FIELDS
-(or maybe some other internal class structure,
-like linear search in additional @FIELDS)
-
-If klen is negative, the hash key is UTF8.
-
-Returns the pad offset in comppad_name.
+If klen is negative, the key is UTF8.
 =cut
 */
 PADOFFSET
 Perl_field_pad(pTHX_ const HV* klass, const char* key, I32 klen)
 {
     PERL_ARGS_ASSERT_FIELD_PAD;
-    return field_index(klass, key, klen, TRUE);
+    return field_search(klass, key, klen, TRUE);
+}
+
+/*
+=for apidoc numfields
+
+Number of fields in the klass
+=cut
+*/
+U32
+Perl_numfields(pTHX_ const HV* klass)
+{
+    SV* name;
+    GV* fields;
+    PERL_ARGS_ASSERT_NUMFIELDS;
+    if (!HvNAME(klass)) return 0;
+#if OLD_FIELDS_GV
+    name = newSVpvn_flags(HvNAME(klass), HvNAMELEN(klass), HvNAMEUTF8(klass)|SVs_TEMP);
+    sv_catpvs(name, "::FIELDS");
+    fields = gv_fetchsv(name, 0, SVt_PVAV);
+    if (!fields) return 0;
+    return 1+AvFILLp(GvAV(fields));
+#endif
+}
+
+/*
+=for apidoc field_index
+
+Return i'th field padoffset or NOT_IN_PAD
+=cut
+*/
+PADOFFSET
+Perl_field_index(pTHX_ const HV* klass, U32 i)
+{
+    SV* name;
+    GV* fields;
+    SV* po;
+    PERL_ARGS_ASSERT_FIELD_INDEX;
+    if (!HvNAME(klass)) return NOT_IN_PAD;
+#if OLD_FIELDS_GV
+    /*name = newSVhek(HvNAME_HEK_NN(klass));*/
+    name = newSVpvn_flags(HvNAME(klass), HvNAMELEN(klass), HvNAMEUTF8(klass)|SVs_TEMP);
+    sv_catpvs(name, "::FIELDS");
+    fields = gv_fetchsv(name, 0, SVt_PVAV);
+    if (!fields || !GvAV(fields)) return NOT_IN_PAD;
+    if (i > AvFILLp(GvAV(fields)))
+        Perl_croak(aTHX_ "Invalid field index %d of %s %s", i, HvPKGTYPE_NN(klass),
+                   HvNAME(klass));
+    po = AvARRAY(GvAV(fields))[i];
+    return po && SvIOK(po)
+        ? (PADOFFSET)SvIVX(po)
+        : NOT_IN_PAD;
+#endif
 }
 
 /*
@@ -19563,12 +19675,19 @@ Perl_class_role(pTHX_ OP* o)
     is_role = OpSPECIAL(o);
     name = cSVOPo->op_sv;
 
+    if ((stash = gv_stashsv(name, 0)))
+        /* diag_listed_as: package %s redefined as class */
+        Perl_ck_warner(aTHX_ packWARN(WARN_REDEFINE),
+                       "%s %" SVf " redefined as %s",
+                       HvCLASS(stash) ? HvROLE(stash) ? "role"
+                                                      : "class"
+                                      : "package",
+                       SVfARG(name), is_role ? "role" : "class");
     /* get the isa and does AV from the op, not some parser SVs, as
        the full class block was parsed with this, and there might be some
        s/// in some method.
        toke sets the CONST name to SPECIAL on a native repr.
        LIST-PUSHMARK - NAME - RV2AV-ISA_AV - RV2AV-DOES_AV */
-
     if (OpSIBLING(o)) {
         o = OpSIBLING(o);
         if (IS_TYPE(o, RV2AV)) {
@@ -19578,17 +19697,10 @@ Perl_class_role(pTHX_ OP* o)
             class_isamagic(o, name, "::ISA", 5);
         }
         o = OpSIBLING(o);
-        if (IS_TYPE(o, RV2AV))
+        if (IS_TYPE(o, RV2AV)) {
             class_isamagic(o, name, "::DOES", 6);
+        }
     }
-    if ((stash = gv_stashsv(name, 0)))
-        /* diag_listed_as: package %s redefined as class */
-        Perl_ck_warner(aTHX_ packWARN(WARN_REDEFINE),
-                       "%s %" SVf " redefined as %s",
-                       HvCLASS(stash) ? HvROLE(stash) ? "role"
-                                                      : "class"
-                                      : "package",
-                       SVfARG(name), is_role ? "role" : "class");
     /*package(pop);*/ /* free's o */
     SAVEGENERICSV(PL_curstash);
     save_item(PL_curstname);
@@ -19666,7 +19778,7 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
         {
             SV* key = ITEM_SV(++items);
             I32 klen = SvUTF8(key) ? -SvCUR(key) : SvCUR(key);
-            PADOFFSET ix = field_index(klass, SvPVX(key), klen, FALSE);
+            PADOFFSET ix = field_search(klass, SvPVX(key), klen, FALSE);
             if (ix != NOT_IN_PAD && ix < (self + floor)) {
                 assert(ix < 128);   /* TODO aelem_u or oelem */
                 o->op_private = ix; /* field offset */
@@ -19691,7 +19803,7 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
                 self <= PadnamelistMAXNAMED(PL_comppad_name) &&
                 PAD_COMPNAME(self) && PAD_COMPNAME_TYPE(self)) {
                 const I32 klen = SvUTF8(meth) ? -SvCUR(meth) : SvCUR(meth);
-                const PADOFFSET ix = field_index(klass, SvPVX(meth), klen, FALSE);
+                const PADOFFSET ix = field_search(klass, SvPVX(meth), klen, FALSE);
                 if (ix != NOT_IN_PAD) {
                     assert(ix < 128);   /* TODO aelem_u or oelem */
                     o->op_private = ix; /* field offset */
@@ -19804,7 +19916,7 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
             I32 klen = PadnameLEN(pn);
             klen = PadnameUTF8(pn) ? -(klen-1) : klen-1;
             /* check for duplicate */
-            if (field_index(klass, key+1, klen, FALSE) != NOT_IN_PAD) {
+            if (field_search(klass, key+1, klen, FALSE) != NOT_IN_PAD) {
                 /* fatal with roles, valid and ignored for classes */
                 if (HvROLE(curclass))
                     Perl_croak(aTHX_
@@ -19826,7 +19938,11 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
             }
             DEBUG_k(Perl_deb(aTHX_ "add_isa_fields: add %s from %s to %s [%d]\n",
                              key, SvPVX(tmpnam), klassname, (int)po));
+#if 0 && OLD_FIELDS_GV
             S_addfield(aTHX_ name, fsym, po);
+#else
+            field_pad_add(klass, key+1, klen, po);
+#endif
         }
         SvREFCNT_dec(tmpnam);
     }
@@ -19894,7 +20010,7 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                 }
                 /* ignore default field accessors, they are created later */
                 if (CvISXSUB(cv) &&
-                    field_index(klass, HeKEY(entry), HeKLEN_UTF8(entry), FALSE) != NOT_IN_PAD) {
+                    field_search(klass, HeKEY(entry), HeKLEN_UTF8(entry), FALSE) != NOT_IN_PAD) {
                     DEBUG_kv(Perl_deb(aTHX_ "add_does_methods: ignore field accessor %s::%s\n",
                                       klassname, HeKEY(entry)));
                     SvCUR_set(name, len);
@@ -20009,7 +20125,7 @@ Perl_class_role_finalize(pTHX_ OP* o)
     SvREADONLY_off(name);
 
     sv_catpvs(name, "::DOES");
-    sym = gv_fetchsv(name, GV_ADD, SVt_PVAV);
+    sym = gv_fetchsv(name, 0, SVt_PVAV);
     if (sym && GvAV(sym)) {
         does = GvAV(sym);
         if (AvARRAY(does) && AvFILL(does) >= 0) {
@@ -20021,7 +20137,7 @@ Perl_class_role_finalize(pTHX_ OP* o)
     SvCUR_set(name, len);
 
     sv_catpvs(name, "::ISA");
-    sym = gv_fetchsv(name, GV_ADD, SVt_PVAV);
+    sym = gv_fetchsv(name, 0, SVt_PVAV);
     if (sym && GvAV(sym)) {
         isa = GvAV(sym);
         if (AvARRAY(isa) && AvFILL(isa) > 0) { /* skip Mu only */
@@ -20031,25 +20147,30 @@ Perl_class_role_finalize(pTHX_ OP* o)
     }
     SvCUR_set(name, len);
 
+#if OLD_FIELDS_GV
     sv_catpvs(name, "::FIELDS");
     sym = gv_fetchsv(name, 0, SVt_PVAV);
     SvCUR_set(name, len);
     SvPVX(name)[len] = '\0';
-    if (!sym || !GvAV(sym)) { /* no fields */
+    if (!sym || !GvAV(sym) || AvFILLp(GvAV(sym)) < 0) { /* no fields */
         SvREADONLY_on(stash);
         PL_parser->in_class = FALSE;
         return;
     }
     fields = GvAV(sym);
+#endif
 
     /* create the field accessor methods */
     /*ENTER;*/
     savecv = PL_compcv;
     DEBUG_Xv(padlist_dump(CvPADLIST(PL_compcv)));
     /*assert(AvFILLp(fields) < 128);*/
+#if OLD_FIELDS_GV
     assert(AvFILLp(fields) < U32_MAX);
     for (i=0; i<=(U32)AvFILLp(fields); i++) {
         SV* ix = AvARRAY(fields)[i];
+#else
+#endif
         PADOFFSET po = (PADOFFSET)SvIVX(ix);
         PADNAME *pn = PAD_COMPNAME(po);
         char *reftype = PadnamePV(pn);

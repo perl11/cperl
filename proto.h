@@ -1542,18 +1542,31 @@ PERL_CALLCONV bool	Perl_feature_is_enabled(pTHX_ const char *const name, STRLEN 
 #define PERL_ARGS_ASSERT_FEATURE_IS_ENABLED	\
 	assert(name)
 
-PERL_CALLCONV PADOFFSET	Perl_field_index(pTHX_ const HV* klass, const char* key, I32 klen, bool want_pad)
+PERL_CALLCONV PADOFFSET	Perl_field_index(pTHX_ const HV* klass, U32 i)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2);
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_FIELD_INDEX	\
-	assert(klass); assert(key)
+	assert(klass)
 
 PERL_CALLCONV PADOFFSET	Perl_field_pad(pTHX_ const HV* klass, const char* key, I32 klen)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_FIELD_PAD	\
+	assert(klass); assert(key)
+
+PERL_CALLCONV void	Perl_field_pad_add(pTHX_ const HV* klass, const char* key, I32 klen, PADOFFSET targ)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_FIELD_PAD_ADD	\
+	assert(klass); assert(key)
+
+PERL_CALLCONV PADOFFSET	Perl_field_search(pTHX_ const HV* klass, const char* key, I32 klen, bool want_pad)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_FIELD_SEARCH	\
 	assert(klass); assert(key)
 
 PERL_CALLCONV SV*	Perl_filter_add(pTHX_ filter_t funcp, SV* datasv)
@@ -4139,6 +4152,12 @@ PERL_CALLCONV int	Perl_nothreadhook(pTHX)
 			__attribute__global__;
 
 PERL_CALLCONV void	Perl_notify_parser_that_changed_to_utf8(pTHX);
+PERL_CALLCONV U32	Perl_numfields(pTHX_ const HV* klass)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_NUMFIELDS	\
+	assert(klass)
+
 PERL_CALLCONV OP*	Perl_oopsAV(pTHX_ OP* o)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
