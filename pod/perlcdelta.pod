@@ -150,6 +150,28 @@ L<[cperl #352]|https://github.com/perl11/cperl/issues/352>.
 
 =back
 
+=head1 Platform Support
+
+=head2 Platform-Specific Notes
+
+=over 4
+
+=item Windows
+
+=over 4
+
+=item *
+
+Building XS modules with GCC 6 in a 64-bit build of Perl failed due to
+incorrect mapping of C<strtoll> and C<strtoull>.  This has now been fixed.
+L<[perl #131726]|https://rt.perl.org/Public/Bug/Display.html?id=131726>
+L<[cpan #121683]|https://rt.cpan.org/Public/Bug/Display.html?id=121683>
+L<[cpan #122353]|https://rt.cpan.org/Public/Bug/Display.html?id=122353>
+
+=back
+
+=back
+
 =head1 Acknowledgements
 
 cperl 5.26.2c represents approximately 3 months of development since
@@ -169,13 +191,6 @@ The list above is almost certainly incomplete as it is automatically generated
 from version control history. In particular, it does not include the names of
 the (very much appreciated) contributors who reported issues to the Perl bug
 tracker.
-
-Many of the changes included in this version originated in the CPAN modules
-included in Perl's core. We're grateful to the entire CPAN community for
-helping Perl to flourish.
-
-For a more complete list of all of Perl's historical contributors, please see
-the F<AUTHORS> file in the Perl source distribution.
 
 Generated with:
 
