@@ -361,7 +361,7 @@ EOF
 
     # see if we have this already
     if ($force or ($old_version lt $new_version)) {
-      my $url = "http://search.cpan.org/CPAN/authors/id/$new_path";
+      my $url = "https://cpan.metacpan.org/authors/id/$new_path";
       say "Update $url over $old_version";
       #
       # Fetch the new distro
