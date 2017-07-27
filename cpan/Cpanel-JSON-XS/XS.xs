@@ -37,9 +37,11 @@
 #define UTF32BOM_BE "\000\000\376\377"  /* 00 00 FE FF */
 
 /* strawberry 5.22 with USE_MINGW_ANSI_STDIO and USE_LONG_DOUBLE has now 
-   a proper inf/nan */
+   a proper inf/nan. */
 #if defined(WIN32) && !defined(__USE_MINGW_ANSI_STDIO) && !defined(USE_LONG_DOUBLE)
-# if _MSC_VER > 1800
+/* TODO: we really need the msvcrt version, not the MSVC version.
+   strawberry 5.26 uses it also now. */
+# if (_MSC_VER > 1800) || (!defined(_MSC_VER) && PERL_VERSION >= 26)
 #  define STR_INF "inf"
 #  define STR_INF2 "inf.0"
 #  define STR_NAN "nan"
@@ -235,11 +237,7 @@ mingw_modfl(long double x, long double *ip)
 
 #define SHORT_STRING_LEN 16384 // special-case strings of up to this size
 
-#if PERL_VERSION >= 8
 #define DECODE_WANTS_OCTETS(json) ((json)->flags & F_UTF8)
-#else
-#define DECODE_WANTS_OCTETS(json) (0)
-#endif
 
 #define SB do {
 #define SE } while (0)
@@ -2705,6 +2703,7 @@ decode_hv (pTHX_ dec_t *dec)
   HV *hv = newHV ();
   int allow_squote = dec->json.flags & F_ALLOW_SQUOTE;
   int allow_barekey = dec->json.flags & F_ALLOW_BAREKEY;
+  int relaxed = dec->json.flags & F_RELAXED;
   char endstr = '"';
 
   DEC_INC_DEPTH;
@@ -2786,6 +2785,10 @@ decode_hv (pTHX_ dec_t *dec)
                   if (UNLIKELY(p - key > I32_MAX))
                     ERR ("Hash key too large");
 #endif
+                  if (!relaxed && UNLIKELY(hv_exists (hv, key, len))) {
+                    ERR ("Duplicate keys not allowed");
+                  }
+
                   dec->cur = p + 1;
 
                   decode_ws (dec); if (*p != ':') EXPECT_CH (':');
@@ -2847,7 +2850,7 @@ decode_hv (pTHX_ dec_t *dec)
 
           /* the next line creates a mortal sv each time it's called. */
           /* might want to optimise this for common cases. */
-          if (LIKELY(he))
+          if (LIKELY((long)he))
             cb = hv_fetch_ent (dec->json.cb_sk_object, hv_iterkeysv (he), 0, 0);
 
           if (cb)
@@ -3185,14 +3188,12 @@ decode_json (pTHX_ SV *string, JSON *json, STRLEN *offset_return)
     }
   }
 
-#if PERL_VERSION >= 8
   if (LIKELY(!converted)) {
     if (DECODE_WANTS_OCTETS (json))
       sv_utf8_downgrade (string, 0);
     else
       sv_utf8_upgrade (string);
   }
-#endif
 
   /* should basically be a NOP but needed for 5.6 with undef */
   if (!SvPOK(string))

@@ -37,6 +37,13 @@ if ($^O eq 'MSWin32'
   $have_qnan = 0;
   ($inf, $neg_inf, $nan, $neg_nan) = ('inf','-inf','nan','-nan');
 }
+if ($^O eq 'MSWin32'
+    and $Config{cc} eq 'gcc'
+    and $] >= 5.026) # updated strawberry
+{
+  $have_qnan = 0;
+  ($inf, $neg_inf, $nan, $neg_nan) = ('inf','-inf','nan','-nan');
+}
 # Windows changed it with MSVC 14.0 and the ucrtd.dll runtime
 diag "ccversion = $Config{ccversion}" if $^O eq 'MSWin32' and $Config{ccversion};
 if ($^O eq 'MSWin32' and $Config{ccversion}) {

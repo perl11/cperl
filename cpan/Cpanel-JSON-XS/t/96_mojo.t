@@ -38,10 +38,15 @@ $js = $cjson->decode( $mj );
 # fragile
 ok( $js->[0] eq '' or $js->[0] == 0 or !$js->[0], 'can decode Mojo false' );
 is( $js->[1], 1,  'can decode Mojo true' );
-TODO: {
-  # Note this is fragile. it depends on the internal representation of booleans.
-  # It can also be ['0', '1']
-  local $TODO = 'fragile';
+# Note this is fragile. it depends on the internal representation of booleans.
+# It can also be ['0', '1']
+if ($js->[0] eq '') {
   is_deeply( $js, ['', 1], 'can decode Mojo booleans' )
     or diag( $mj, $js );
+} else {
+ TODO: {
+    local $TODO = 'fragile false => "0"';
+    is_deeply( $js, ['', 1], 'can decode Mojo booleans' )
+      or diag( $mj, $js );
+  }
 }

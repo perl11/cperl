@@ -15020,6 +15020,7 @@ our %delta = (
             'B::C'                  => '1.55_04',
             'B::Debug'              => '1.25',
             'base'                  => '2.26c',
+            'Cpanel::JSON::XS'      => '3.0236',  
             'Devel::Peek'           => '1.26_02',
             'Devel::PPPort'         => '3.36_02',
             'ExtUtils::Constant'    => '0.23_09',
