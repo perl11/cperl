@@ -236,7 +236,7 @@ The problem is the new sub as :method warning with classes, which
 would cause all Test::Simple methods to be declared as :method, as they
 derive from base.
 
-=item L<Cpanel::JSON::XS> 3.0236
+=item L<Cpanel::JSON::XS> 3.0237
 
 Stringify true again as "1".
 Disallow duplicate keys by default, only allow them in relaxed mode.
@@ -244,7 +244,8 @@ De-fragilize t/96_mojo.t false test to "". It mostly is.
 Fix and unify utf8 handling with 5.6.2 and improve many utf8 tests.
 Add tests for boolean sv_yes and sv_no.
 Check for correct module in %INC.
-Fix inf/nan for strawberry 5.26.
+Relax inf/nan detection for newer msvcrt.dll runtime versions
+(it's now almost ANSI).
 
 =item L<Devel::Peek> 1.26_02
 

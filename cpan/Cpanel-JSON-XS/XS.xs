@@ -36,24 +36,20 @@
 #define UTF32BOM    "\377\376\000\000"  /* FF FE 00 00 or +UFEFF */
 #define UTF32BOM_BE "\000\000\376\377"  /* 00 00 FE FF */
 
-/* strawberry 5.22 with USE_MINGW_ANSI_STDIO and USE_LONG_DOUBLE has now 
-   a proper inf/nan. */
+/* mingw with USE_LONG_DOUBLE (and implied USE_MINGW_ANSI_STDIO) do use the
+   non-msvcrt inf/nan stringification in sprintf(). */
 #if defined(WIN32) && !defined(__USE_MINGW_ANSI_STDIO) && !defined(USE_LONG_DOUBLE)
-/* TODO: we really need the msvcrt version, not the MSVC version.
-   strawberry 5.26 uses it also now. */
-# if (_MSC_VER > 1800) || (!defined(_MSC_VER) && PERL_VERSION >= 26)
-#  define STR_INF "inf"
-#  define STR_INF2 "inf.0"
-#  define STR_NAN "nan"
-#  define STR_QNAN "nan(ind)"
-#  define HAVE_QNAN
-# else
-#  define STR_INF "1.#INF"
-#  define STR_INF2 "1.#INF.0"
-#  define STR_NAN "1.#IND"
-#  define STR_QNAN "1.#QNAN"
-#  define HAVE_QNAN
-# endif
+/* new ucrtd.dll runtime? We do not probe the runtime or variants in the Makefile.PL yet. */
+#define STR_INF "inf"
+#define STR_INF2 "inf.0"
+#define STR_NAN "nan"
+#define STR_QNAN "nan(ind)"
+/* old standard msvcrt.dll */
+#define STR_INF3 "1.#INF"
+#define STR_INF4 "1.#INF.0"
+#define STR_NAN2 "1.#IND"
+#define STR_QNAN2 "1.#QNAN"
+#define HAVE_QNAN
 #elif defined(sun) || defined(__sun)
 #define STR_INF "Infinity"
 #define STR_NAN "NaN"
@@ -1405,9 +1401,9 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
 # else
         if (UNLIKELY(isinf(nv) || isnan(nv)))
 # endif
-          {
-            goto is_inf_or_nan;
-          }
+        {
+          goto is_inf_or_nan;
+        }
       }
 #endif
 #ifdef USE_QUADMATH
@@ -1416,12 +1412,18 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
       (void)Gconvert (nv, NV_DIG, 0, enc->cur);
 #endif
 
+#ifdef STR_INF4
+      if (UNLIKELY(strEQc(enc->cur, STR_INF)
+                   || strEQc(enc->cur, STR_INF2)
+                   || strEQc(enc->cur, STR_INF3)
+                   || strEQc(enc->cur, STR_INF4)))
+#elif STR_INF2
+      if (UNLIKELY(strEQc(enc->cur, STR_INF)
+                   || strEQc(enc->cur, STR_INF2)))
+#else
       if (UNLIKELY(strEQc(enc->cur, STR_INF)))
-        inf_or_nan = 1;
-#ifdef STR_INF2
-      else if (UNLIKELY(strEQc(enc->cur, STR_INF2)))
-        inf_or_nan = 1;
 #endif
+        inf_or_nan = 1;
 #if defined(__hpux)
       else if (UNLIKELY(strEQc(enc->cur, STR_NEG_INF)))
         inf_or_nan = 2;
@@ -1430,23 +1432,43 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
 #endif
       else if
 #ifdef HAVE_QNAN
+# ifdef STR_QNAN2
+        (UNLIKELY(strEQc(enc->cur, STR_NAN)
+                  || strEQc(enc->cur, STR_QNAN)
+                  || strEQc(enc->cur, STR_NAN2)
+                  || strEQc(enc->cur, STR_QNAN2)))
+# else
         (UNLIKELY(strEQc(enc->cur, STR_NAN)
                   || strEQc(enc->cur, STR_QNAN)))
+# endif
 #else
         (UNLIKELY(strEQc(enc->cur, STR_NAN)))
 #endif
         inf_or_nan = 3;
       else if (*enc->cur == '-') {
+#ifdef STR_INF4
+        if (UNLIKELY(strEQc(enc->cur+1, STR_INF)
+                     || strEQc(enc->cur+1, STR_INF2)
+                     || strEQc(enc->cur+1, STR_INF3)
+                     || strEQc(enc->cur+1, STR_INF4)))
+#elif STR_INF2
+        if (UNLIKELY(strEQc(enc->cur+1, STR_INF)
+                   || strEQc(enc->cur+1, STR_INF2)))
+#else
         if (UNLIKELY(strEQc(enc->cur+1, STR_INF)))
-          inf_or_nan = 2;
-#ifdef STR_INF2
-        else if (UNLIKELY(strEQc(enc->cur+1, STR_INF2)))
-          inf_or_nan = 2;
 #endif
+          inf_or_nan = 2;
         else if
 #ifdef HAVE_QNAN
+# ifdef STR_QNAN2
+          (UNLIKELY(strEQc(enc->cur+1, STR_NAN)
+                    || strEQc(enc->cur+1, STR_QNAN)
+                    || strEQc(enc->cur+1, STR_NAN2)
+                    || strEQc(enc->cur+1, STR_QNAN2)))
+# else
           (UNLIKELY(strEQc(enc->cur+1, STR_NAN)
                     || strEQc(enc->cur+1, STR_QNAN)))
+# endif
 #else
           (UNLIKELY(strEQc(enc->cur+1, STR_NAN)))
 #endif
@@ -1475,7 +1497,8 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
             strncpy(enc->cur, "\"nan\"\0", 6);
         }
         else if (enc->json.infnan_mode != 2) {
-          croak ("invalid stringify_infnan mode %c. Must be 0, 1, 2 or 3", enc->json.infnan_mode);
+          croak ("invalid stringify_infnan mode %c. Must be 0, 1, 2 or 3",
+                 enc->json.infnan_mode);
         }
       }
       if (SvPOKp (sv) && !strEQ(enc->cur, SvPVX (sv))) {
