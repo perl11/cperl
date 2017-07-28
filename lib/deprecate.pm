@@ -1,7 +1,7 @@
 package deprecate;
 use strict;
 use warnings;
-our $VERSION = 0.03;
+our $VERSION = 0.03_01;
 
 # our %Config can ignore %Config::Config, e.g. for testing
 our %Config;
@@ -78,6 +78,10 @@ deprecate - Perl pragma for deprecating the core version of a module
     use deprecate;  # always deprecate the module in which this occurs
 
     use if $] > 5.010, 'deprecate'; # conditionally deprecate the module
+
+or for modules supported earlier than v5.6.2:
+
+    BEGIN { if ($] >= 5.027001) { require deprecate; import deprecate; } }
 
 
 =head1 DESCRIPTION

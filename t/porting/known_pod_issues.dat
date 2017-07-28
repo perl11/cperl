@@ -429,7 +429,7 @@ pod/perl5270cdelta.pod	Apparent broken link	3
 pod/perl5270cdelta.pod	Apparent internal link is missing its forward slash	1
 pod/perl5270cdelta.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perl5270cdelta.pod	alternative text. contains non-escaped | or /	1
-pod/perl5271cdelta.pod	Apparent broken link	4
+pod/perl5271cdelta.pod	Apparent broken link	5
 pod/perl5271cdelta.pod	Apparent internal link is missing its forward slash	1
 pod/perl5271cdelta.pod	Verbatim line length including indents exceeds 79 by	2
 pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	3
@@ -481,6 +481,7 @@ porting/todo.pod	? Should you be using F<...> or maybe L<...> instead of	1
 lib/benchmark.pm	Verbatim line length including indents exceeds 79 by	2
 lib/config.pod	? Should you be using L<...> instead of	-1
 lib/cperl.pm	Pod NAME already used	1
+lib/deprecate.pm	Verbatim line length including indents exceeds 79 by	1
 lib/extutils/embed.pm	Verbatim line length including indents exceeds 79 by	2
 lib/fake_signatures.pm	Apparent broken link	2
 lib/perl5db.pl	? Should you be using L<...> instead of	1

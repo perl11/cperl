@@ -82,8 +82,6 @@ XXX Any deprecated features, syntax, modules etc. should be listed here.
 
 =head2 Module removals
 
-XXX Remove this section if inapplicable.
-
 The following modules will be removed from the core distribution in a
 future release, and will at that time need to be installed from CPAN.
 Distributions on CPAN which require these modules will need to list them as
@@ -100,10 +98,10 @@ not usually on concerns over their design.
 
 =over
 
-=item XXX
+=item L<B::Debug>
 
-XXX Note that deprecated modules should be listed here even if they are listed
-as an updated module in the L</Modules and Pragmata> section.
+will be removed from core with 5.30, and needs to be installed from
+CPAN then.  Best together with L<B::Flags>.
 
 =back
 
@@ -258,6 +256,10 @@ Restore silence under C<make -s>. I broke it in cperl 5.27.0
 
 Add C<#if { CPERL && VERSION > 5.26.0 }> support,
 support parser enum expectation.
+
+=item L<deprecate>  0.03_01
+
+Add pod synopsis for modules for older perls.
 
 =item L<Encode>
 

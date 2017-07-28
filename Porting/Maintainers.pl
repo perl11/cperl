@@ -229,8 +229,8 @@ use File::Glob qw(:case);
         'CUSTOMIZED'   => [ qw[ t/test10 ] ],
     },
 
-    'B::Debug' => {
-        'DISTRIBUTION' => 'RURBAN/B-Debug-1.24.tar.gz',
+    'B::Debug' => { # deprecated, remove with 5.30
+        'DISTRIBUTION' => 'RURBAN/B-Debug-1.25.tar.gz',
         'FILES'        => q[cpan/B-Debug],
         'EXCLUDED'     => ['t/pod.t'],
     },
