@@ -188,6 +188,12 @@ L<[perl #128893]|https://rt.perl.org/Public/Bug/Display.html?id=128893>
 L<[perl #128909]|https://rt.perl.org/Public/Bug/Display.html?id=128909>
 L<[perl #128919]|https://rt.perl.org/Public/Bug/Display.html?id=128919>
 
+=item *
+
+Fixed a place where the regex parser was not setting the syntax error correctly
+on a syntactically incorrect pattern.
+L<[perl #129122]|https://rt.perl.org/Public/Bug/Display.html?id=129122>
+
 =back
 
 =head1 Platform Support
