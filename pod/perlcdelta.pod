@@ -10,8 +10,8 @@ This document describes the differences between the cperl 5.26.0
 and the cperl 5.26.1 releases.
 
 If you are upgrading from an earlier release such as v5.24.2c, first
-read the L<perl525*cdelta> documentation, which describes differences
-between v5.25.1c and v5.26.0c
+read the L<perl5260cdelta> documentation, which describes differences
+between v5.24.2c and v5.26.0c
 
 =head1 Performance Enhancements
 
@@ -130,12 +130,6 @@ L<[cperl #279]|https://github.com/perl11/cperl/issues/279>.
 
 =item *
 
-C<-Dusedevel> is not needed to be added to all development versions
-anymore, it is now the default on such. A big warning is still being
-displayed, even in the usual silent auto mode C<-des>.
-
-=item *
-
 C<inc_version_list> skips now older development versions. It only
 includes older non-devel versions with even numbers.
 See L<[cperl #284]|https://github.com/perl11/cperl/issues/284>
@@ -175,6 +169,10 @@ See L<[cperl #305]|https://github.com/perl11/cperl/issues/305>
 
 Fixed F<Porting/cmpVERSION.pl> resp. F<t/porting/cmp_version.t>
 
+=item *
+
+cygwin: loose file stat tests for AdminUsers
+
 =back
 
 =head2 Platform-Specific Notes
@@ -188,12 +186,18 @@ cperl on mingw was previously unsupported and didn't compile nor work.
 The plan is to use mingw 32bit and 64bit packages instead of MSVC
 compiled packages, which do require a special MS runtime DLL.
 
+Fixed invalid check_type_and_open macro on mingw miniperl.
+
+Fixed upstream mkstemp API changes.
+
+getcwd is deprecated on Windows. use _getcwd() instead.
+
 =over
 
 =item *
 
 Removed the broken F<dlltool>, which corrupted 64bit DLL's for years.
-In our case Cpanel::JSON::XS and Unicode::Normalize.
+In our case L<Cpanel::JSON::XS> and L<Unicode::Normalize>.
 Just use C<gcc> to create dll's and import libs, as in cygwin.
 
 =item *
@@ -204,7 +208,7 @@ The default mingw configs were extremely defensive and slow.  Even
 gcc-2.95.3 settings were disabled. Now several modern builtins and
 attributes are used.
 
-Fixed the wrong C<d_u32align> default, which caused Digest::MD5 to
+Fixed the wrong C<d_u32align> default, which caused L<Digest::MD5> to
 crash.
 
 =item *
@@ -225,7 +229,7 @@ Improved F<t/run/switchDBG.t> for C<-D''> and C<-T> tests.
 
 =item *
 
-Fixed building of the extensions with the Extensions_normalize target.
+Fixed building of the extensions with the F<Extensions_normalize> target.
 
 =item *
 
@@ -248,10 +252,6 @@ With dynaloaded XS modules it usually fails.
 =item *
 
 Support method lookup from classes, i.e. restricted stashes.
-Backported from 5.27.1c.
-
-=item *
-
 Fix "Attempt to access disallowed key" error message with named
 hashes, i.e. stashes.
 Backported from 5.27.1c.
@@ -278,7 +278,7 @@ Backported from 5.27.1c.
 
 =item *
 
-Fixed one place in ck_sort for utf8 lexical variable names, which
+Fixed one place in C<ck_sort> for utf8 lexical variable names, which
 passed the unneeded UTF8 flag to C<pad_findmy_pvn()>. In cperl all pads
 are normalized UTF8 for faster searches, the flag argument must be 0.
 See L<[cperl #293]|https://github.com/perl11/cperl/issues/293>.
@@ -303,7 +303,7 @@ Backported from 5.27.1c.
 =item *
 
 Fix NULL sv dereference in formline (for ^*) chop fallthrough to
-FF_DECIMAL. Coverity CID 165362
+C<FF_DECIMAL>. Coverity CID 165362
 
 Backported from 5.27.2.
 
@@ -338,7 +338,32 @@ Backported from 5.27.1c.
 
 =head1 Acknowledgements
 
-XXX Generate this with:
+cperl 5.26.1c represents approximately 3 months of development since
+cperl 5.26.0c and contains approximately 20,000 lines of changes
+across 170 files from 6 authors.
+
+Excluding auto-generated files, documentation and release tools, there
+were approximately 1,400 lines of changes to 76 .pm, .t, .c and .h
+files.
+
+The following people are known to have contributed the improvements
+that became cperl 5.26.1c:
+
+Reini Urban, Tony Cook, William N. Braswell, Jr, vendethiel, Aaron Crane.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history. In particular, it does not include the names of
+the (very much appreciated) contributors who reported issues to the Perl bug
+tracker.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+Generated with:
 
     cperl Porting/acknowledgements.pl cperl-5.26.0..HEAD
 
