@@ -334,8 +334,8 @@ our %released = (
     5.022003 => '2017-01-14',
     5.024001 => '2017-01-14',
     5.025009 => '2017-01-20',
-    '5.025003c' => '2017-02-23',
     5.025010 => '2017-02-20',
+    '5.025003c' => '2017-02-23',
     5.025011 => '2017-03-20',
     5.025012 => '2017-04-20',
     '5.026000c' => '2017-04-25',
@@ -14739,10 +14739,11 @@ our %delta = (
     5.026000 => {
         delta_from => 5.025012,
         changed => {
+            'B::Op_private'         => '5.026000',
             'Config'                => '5.026',
-            'Module::CoreList'      => '5.20170420',
-            'Module::CoreList::TieHashDelta'=> '5.20170420',
-            'Module::CoreList::Utils'=> '5.20170420',
+            'Module::CoreList'      => '5.20170530',
+            'Module::CoreList::TieHashDelta'=> '5.20170530',
+            'Module::CoreList::Utils'=> '5.20170530',
         },
         removed => {
         }
@@ -14914,8 +14915,18 @@ our %delta = (
             'Config'                => '5.026',
             'Module::CoreList'      => '5.20170428c',
             'Module::CoreList::Utils'=> '5.20170428c',
+            'B'                     => '1.68_07',
             'Cpanel::JSON::XS'      => '3.0233',
+            'ExtUtils::MakeMaker'   => '8.04_05',
+            'ExtUtils::MM_Unix'     => '8.04_05',
+            'File::Spec::Functions' => '3.36_05',
+            'IO::Socket'            => '1.38_01',
+            'IO::Socket::INET'      => '1.35_01',
+            'IO::Socket::UNIX'      => '1.26_01',
             'Net::Ping'             => '2.61',
+            'Search::Dict'          => '1.07_01',
+            'SelectSaver'           => '1.02_01',
+            'VMS::Studio'           => '2.41_01',
         },
         removed => {
         }
@@ -14980,9 +14991,9 @@ our %delta = (
             'threads::shared'       => '1.57',
             'version'               => '0.9918',
             'version::regex'        => '0.9918',
-         },
-         removed => {
-         },
+        },
+        removed => {
+        }
     },
     '5.027000c' => {
         delta_from => '5.026000c',
@@ -15817,6 +15828,20 @@ our %deprecated = (
         removed => {
         }
     },
+    5.025011 => {
+        delta_from => 5.025010,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.025012 => {
+        delta_from => 5.025011,
+        changed => {
+        },
+        removed => {
+        }
+    },
     '5.025000c' => {
         delta_from => '5.024000c',
         changed => {},
@@ -15837,6 +15862,13 @@ our %deprecated = (
         changed => {},
         removed => {}
     },
+    5.026000 => {
+        delta_from => 5.025012,
+        changed => {
+        },
+        removed => {
+        }
+    },
     '5.026000c' => {
         delta_from => '5.025003c',
         changed => {},
@@ -15847,8 +15879,27 @@ our %deprecated = (
         changed => {},
         removed => {}
     },
+    5.027000 => {
+        delta_from => 5.026,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.027001 => {
+        delta_from => 5.027,
+        changed => {
+        },
+        removed => {
+        }
+    },
     '5.027000c' => {
         delta_from => '5.026000c',
+        changed => {},
+        removed => {}
+    },
+    '5.027001c' => {
+        delta_from => '5.027000c',
         changed => {},
         removed => {}
     },
