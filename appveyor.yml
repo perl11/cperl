@@ -5,14 +5,25 @@ version: 5.26.1.{build}
 #os: Default Azure
 #build:
 #  verbosity: minimal
+max_jobs: 4
 platform:
   - x64
   - x86
 environment:
   matrix:
+    - MINGW: 1
+    - CYGWIN: 1
     - MSVC_VERSION: 12
     - MSVC_VERSION: 10
     - MSVC_VERSION: 14
+matrix:
+  exclude:
+    - platform: x86
+      MSVC_VERSION: 10
+    - platform: x86
+      MSVC_VERSION: 14
+  allow_failures:
+    - MINGW: 1
 clone_depth: 1
 branches:
   only:
@@ -20,6 +31,8 @@ branches:
     - /^smoke/
     - /^maint-/
     - /^cperl-/
+    - /^win/
+
 init:
   - git config --global core.autocrlf input
   # Disable popups as they hang the build as there is nobody to click on the OK button...
@@ -36,26 +49,78 @@ init:
   # See: https://msdn.microsoft.com/en-us/library/bb513638%28VS.85%29.aspx
   - reg add "HKLM\Software\Microsoft\Windows\Windows Error Reporting" /f /v DontShowUI /d 1  
   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  - if "%MINGW%"=="1" set PROCESSOR_ARCHITECTURE=%PLATFORM%
+  - if "%PLATFORM%"=="x64" set PROCESSOR_ARCHITECTURE=AMD64
+  #- if "%MINGW%"=="1" set PATH=%MSYS64%\bin;c:\Windows\system32;c:\Windows;C:\MinGW\msys\1.0\bin;c:\Windows\system32\Wbem;C:\MinGW\bin;C:\Program Files\Git\cmd
+  - if "%MINGW%"=="1" cinst strawberryperl -i
+  - if "%MINGW%"=="1" set PATH=c:\Windows\system32;c:\Windows;C:\strawberry\c\bin;C:\strawberry\perl\bin;c:\Windows\system32\Wbem;C:\Program Files\Git\cmd
+  #- if "%MINGW%"=="1" rename c:\MinGW\lib lib.old
+  #- if "%MINGW%"=="1" rename c:\MinGW\include include.old
+  - if "%MINGW%"=="1" rename c:\MinGW MinGW.old
+  - if "%MINGW%"=="1" set CCHOME=c:\strawberry\c & set MKOPT="CCHOME=c:\strawberry\c"
+  - if "%CFG%"=="Debug" set
+  - if "%PLATFORM%"=="x86" set WIN64=undef
+  - if "%CYGWIN%"=="1" set CYGR=c:\cygwin
+  - if "%PLATFORM%"=="x64" set CYGR=c:\cygwin64
+  - if "%CYGWIN%"=="1" set PATH=%CYGR%\bin;c:\Windows\system32;c:\Windows;c:\Windows\system32\Wbem
 
-build: off
+build_script:
+  - if "%MINGW%"=="1"  gmake -s -C win32 %MKOPT%
+  - if "%CFG%"=="Debug" type config.sh
+  - if "%CYGWIN%"=="1" sh ./Configure -des -Dusedevel & make
 
 test_script:
-  - 't\appveyor-smoke.bat'
+  - ps: if ($env:MSVC_VERSION -gt 0) { $env:MSVC = 1 }
+  - if "%MSVC%"=="1"   t\appveyor-smoke.bat
+  - if "%CYGWIN%"=="1" make -s test
+  - if "%MINGW%"=="1"  gmake -s -C win32 %MKOPT% test
+  - if "%CFG%"=="Debug" exit
+  #- if "%CYGWIN%"=="1" ./cperl -pi -e 's/\r\n/\n/g' Porting/appveyor-deploy.sh
+  - if "%CYGWIN%"=="1" sh -c Porting/appveyor-deploy.sh
+  - if "%MINGW%"=="1" rename c:\MinGW.old MinGW
+  - if "%MINGW%"=="1" set PATH=c:\Windows\system32;c:\Windows;C:\strawberry\c\bin;C:\strawberry\perl\bin;c:\Windows\system32\Wbem;C:\MinGW\bin;C:\MinGW\msys\1.0\bin;
+  - if "%MINGW%"=="1" sh -c Porting/appveyor-deploy.sh
 
 # appveyor cannot glob * in names
 artifacts:
+  # nightlies
   - path: cperl-$(appveyor_build_version)-win32.exe
-    name: nightly-32
+    name: nightly-vc32
     type: exe
   - path: cperl-$(appveyor_build_version)-win64.exe
-    name: nightly-64
+    name: nightly-vc64
     type: exe
+  - path: cperl-$(appveyor_build_version)-mingw-x86.tar.xz
+    name: nightly-mw32
+    type: tar
+  - path: cperl-$(appveyor_build_version)-mingw-x64.tar.xz
+    name: nightly-mw64
+    type: tar
+  - path: cperl-$(appveyor_build_version)-cygwin-x86.tar.xz
+    name: nightly-cyg32
+    type: tar
+  - path: cperl-$(appveyor_build_version)-cygwin-x64.tar.xz
+    name: nightly-cyg64
+    type: tar
+  # tagged
   - path: $(APPVEYOR_REPO_TAG_NAME)-win32.exe
-    name: tagged-32
+    name: tagged-vc32
     type: exe
   - path: $(APPVEYOR_REPO_TAG_NAME)-win64.exe
-    name: tagged-64
+    name: tagged-vc64
     type: exe
+  - path: $(APPVEYOR_REPO_TAG_NAME)-cygwin-x86.tar.xz
+    name: cygwin-32
+    type: tar
+  - path: $(APPVEYOR_REPO_TAG_NAME)-cygwin-x64.tar.xz
+    name: cygwin-64
+    type: tar
+  - path: $(APPVEYOR_REPO_TAG_NAME)-mingw-x86.tar.xz
+    name: mingw-32
+    type: tar
+  - path: $(APPVEYOR_REPO_TAG_NAME)-mingw-x64.tar.xz
+    name: mingw-64
+    type: tar
 
 deploy:
 - provider: GitHub
@@ -63,7 +128,7 @@ deploy:
   description: 'cperl windows sfx nightly (msvcr120.dll)'
   auth_token:
     secure: AsIAOIgCJX0QhrUKal2V00aaB5nRWtmtFTFeDVsGnbJLeEQpv9avUp0HT1cA8bNs
-  artifact: nightly-32,nightly-64
+  artifact: nightly-mw32,nightly-mw64,nightly-vc32,nightly-vc64,nightly-cyg32,nightly-cyg64
   draft: true
   prerelease: true
   force_update: true
@@ -75,7 +140,7 @@ deploy:
   description: 'cperl windows sfx tagged (msvcr120.dll)'
   auth_token:
     secure: AsIAOIgCJX0QhrUKal2V00aaB5nRWtmtFTFeDVsGnbJLeEQpv9avUp0HT1cA8bNs
-  artifact: tagged-32,tagged-64
+  artifact: mingw-32,mingw-64,cygwin-32,cygwin-64,tagged-vc32,tagged-vc64
   draft: true
   force_update: true
   on:
