@@ -1920,7 +1920,7 @@ Like C<sv_utf8_upgrade>, but doesn't do magic on C<sv>.
     : SvPOK(sv)						\
 	? SvPVXtrue(sv)					\
     : SvIOK(sv)                			        \
-        ? SvIVX(sv)                                     \
+        ? (SvIVX(sv) != 0)                              \
     : (SvROK(sv) && !(   SvOBJECT(SvRV(sv))             \
                       && HvAMAGIC(SvSTASH(SvRV(sv)))))  \
         ? TRUE                                          \
