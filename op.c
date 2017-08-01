@@ -11808,7 +11808,10 @@ Perl_ck_eq(pTHX_ OP *o)
     if (!(sv && SvIOK_notUV(sv) && SvIVX(sv) == -1))
         return ck_type(o);
 
-    assert(!(indexop->op_private & OPpTARGET_MY));
+    /* ($lex = index(....)) == -1 */
+    if (indexop->op_private & OPpTARGET_MY)
+        return o;
+
     indexop->op_flags &= ~OPf_PARENS;
     indexop->op_flags |= (o->op_flags & OPf_PARENS);
     indexop->op_private |= OPpTRUEBOOL;
