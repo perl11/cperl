@@ -508,9 +508,9 @@ static int bget_swab = 0;
 #define BSET_data(dummy,arg)						\
     STMT_START {							\
 	GV *gv;								\
-	char *pname = "main";						\
-	if (arg == 'D')							\
-	    pname = HvNAME(PL_curstash ? PL_curstash : PL_defstash);	\
+	const char *pname = (arg == 'D') ?                              \
+          HvNAME(PL_curstash ? PL_curstash : PL_defstash)               \
+          : "main";                                                     \
 	gv = gv_fetchpv(Perl_form(aTHX_ "%s::DATA", pname), GV_ADD, SVt_PVIO);\
 	GvMULTI_on(gv);							\
 	if (!GvIO(gv))							\

@@ -741,11 +741,11 @@ print OUT <<'!NO!SUBS!';
 
     # gcc crashes with this duplicate -fstack-protector arg
     my $ldflags = $Config{ldflags};
-    if ($^O eq 'cygwin' and $ccflags =~ /-fstack-protector\b/
-                        and $ldopts =~ /-fstack-protector\b/)
+    if ($^O eq 'cygwin' and $ccflags =~ /-fstack-protector /
+                        and $ldopts =~ /-fstack-protector /)
     {
-        $ldopts =~ s/-fstack-protector\b//;
-        $ldflags =~ s/-fstack-protector\b// if $extra_libs;
+        $ldopts =~ s/-fstack-protector //;
+        $ldflags =~ s/-fstack-protector // if $extra_libs;
     }
     # another ldopts bug: ensure Win32CORE gets added, before -lperl
     if (is_winlike()) {

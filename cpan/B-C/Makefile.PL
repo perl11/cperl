@@ -433,7 +433,7 @@ sub ccflags {
     # Recommended by http://www.network-theory.co.uk/docs/gccintro/gccintro_32.html
     # -ansi -pedantic -Wall -W -Wconversion -Wshadow -Wcast-qual -Wwrite-strings (-W => -WExtra)
     $ccflags .= " -ansi -pedantic -Wall -Wextra -Wconversion -Wshadow -Wcast-qual -Wwrite-strings"
-      if $Config{cc} =~ /gcc/;
+      if $Config{cc} =~ /\bgcc/ and $Config{gccversion};
 }
 
 sub depend {
