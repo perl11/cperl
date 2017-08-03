@@ -394,7 +394,7 @@ Fixed several minor coverity issues.
 
 =head1 Acknowledgements
 
-Perl 5.27.0 represents approximately 3 weeks of development since Perl 5.26.0c
+cperl 5.27.0c represents approximately 3 weeks of development since cperl 5.26.0c
 and contains approximately 21,000 lines of changes across 180 files from 4
 authors.
 
@@ -402,7 +402,7 @@ Excluding auto-generated files, documentation and release tools, there were
 approximately 2,300 lines of changes to 81 .pm, .t, .c and .h files.
 
 The following people are known to have contributed the improvements
-that became Perl 5.26.1:
+that became cperl 5.27.0c:
 
 Reini Urban, François Perrad, Yves Orton, vendethiel.
 

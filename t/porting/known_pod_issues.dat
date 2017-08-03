@@ -14,6 +14,7 @@
 <<<<<<< HEAD
 =======
 >>>>>>> 101b5a5... PathTools: Update to 4.68c
+>>>>>>> 6efbe06... Release cperl-5.26.1
 _control87(3)
 accept(2)
 access(2)
@@ -324,6 +325,7 @@ YAML
 YAML::Syck
 YAML::Tiny
 ||||||| parent of 101b5a5... PathTools: Update to 4.68c
+||||||| parent of 6efbe06... Release cperl-5.26.1
 dist/cpan-meta-requirements/lib/cpan/meta/requirements.pm	Verbatim line length including indents exceeds 79 by	2
 dist/cpan-meta/lib/cpan/meta.pm	Apparent broken link	5
 dist/cpan-meta/lib/cpan/meta/converter.pm	Verbatim line length including indents exceeds 79 by	1
@@ -428,15 +430,14 @@ pod/perl.pod	Verbatim line length including indents exceeds 79 by	8
 pod/perl5222cdelta.pod	? Should you be using F<...> or maybe L<...> instead of	1
 pod/perl5240cdelta.pod	Apparent broken link	1
 pod/perl5242cdelta.pod	Apparent broken link	2
-pod/perl5260cdelta.pod	Apparent broken link	3
+pod/perl5260cdelta.pod	Apparent broken link	4
 pod/perl5260cdelta.pod	unresolved internal link	2
 pod/perl5261cdelta.pod	Apparent broken link	2
 pod/perl5270cdelta.pod	Apparent broken link	3
 pod/perl5270cdelta.pod	Apparent internal link is missing its forward slash	1
 pod/perl5270cdelta.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perl5270cdelta.pod	alternative text. contains non-escaped | or /	1
-pod/perl5271cdelta.pod	Apparent broken link	6
-pod/perl5271cdelta.pod	Apparent internal link is missing its forward slash	1
+pod/perl5271cdelta.pod	Apparent broken link	5
 pod/perl5271cdelta.pod	Verbatim line length including indents exceeds 79 by	2
 pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlapi.pod	Verbatim line length including indents exceeds 79 by	9
@@ -449,8 +450,7 @@ pod/perlcperl.pod	Apparent broken link	1
 pod/perlcperl.pod	Verbatim line length including indents exceeds 79 by	11
 pod/perldebguts.pod	Verbatim line length including indents exceeds 79 by	27
 pod/perldebtut.pod	Verbatim line length including indents exceeds 79 by	3
-pod/perldelta.pod	Apparent broken link	4
-pod/perldelta.pod	Apparent internal link is missing its forward slash	6
+pod/perldelta.pod	Apparent broken link	1
 pod/perldtrace.pod	Verbatim line length including indents exceeds 79 by	12
 pod/perlgit.pod	? Should you be using F<...> or maybe L<...> instead of	1
 pod/perlgit.pod	Verbatim line length including indents exceeds 79 by	1

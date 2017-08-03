@@ -49,29 +49,22 @@ POD = cperl.pod	\
 	perl5223cdelta.pod	\
 	perl5223delta.pod	\
 	perl5224cdelta.pod	\
+	perl5224delta.pod	\
 	perl5240cdelta.pod	\
 	perl5240delta.pod	\
 	perl5241cdelta.pod	\
 	perl5241delta.pod	\
 	perl5242cdelta.pod	\
-	perl5250delta.pod	\
-	perl52510delta.pod	\
-	perl52511delta.pod	\
-	perl52512delta.pod	\
-	perl5251delta.pod	\
-	perl5252delta.pod	\
-	perl5253delta.pod	\
-	perl5254delta.pod	\
-	perl5255delta.pod	\
-	perl5256delta.pod	\
-	perl5257delta.pod	\
-	perl5258delta.pod	\
-	perl5259delta.pod	\
+	perl5242delta.pod	\
 	perl5260cdelta.pod	\
 	perl5260delta.pod	\
 	perl5261cdelta.pod	\
 	perl5270cdelta.pod	\
+	perl5270delta.pod	\
 	perl5271cdelta.pod	\
+	perl5271delta.pod	\
+	perl5272delta.pod	\
+	perl5273delta.pod	\
 	perl561delta.pod	\
 	perl56delta.pod	\
 	perl581delta.pod	\
@@ -331,29 +324,22 @@ MAN = cperl.man	\
 	perl5223cdelta.man	\
 	perl5223delta.man	\
 	perl5224cdelta.man	\
+	perl5224delta.man	\
 	perl5240cdelta.man	\
 	perl5240delta.man	\
 	perl5241cdelta.man	\
 	perl5241delta.man	\
 	perl5242cdelta.man	\
-	perl5250delta.man	\
-	perl52510delta.man	\
-	perl52511delta.man	\
-	perl52512delta.man	\
-	perl5251delta.man	\
-	perl5252delta.man	\
-	perl5253delta.man	\
-	perl5254delta.man	\
-	perl5255delta.man	\
-	perl5256delta.man	\
-	perl5257delta.man	\
-	perl5258delta.man	\
-	perl5259delta.man	\
+	perl5242delta.man	\
 	perl5260cdelta.man	\
 	perl5260delta.man	\
 	perl5261cdelta.man	\
 	perl5270cdelta.man	\
+	perl5270delta.man	\
 	perl5271cdelta.man	\
+	perl5271delta.man	\
+	perl5272delta.man	\
+	perl5273delta.man	\
 	perl561delta.man	\
 	perl56delta.man	\
 	perl581delta.man	\
@@ -614,29 +600,22 @@ HTML = cperl.html	\
 	perl5223cdelta.html	\
 	perl5223delta.html	\
 	perl5224cdelta.html	\
+	perl5224delta.html	\
 	perl5240cdelta.html	\
 	perl5240delta.html	\
 	perl5241cdelta.html	\
 	perl5241delta.html	\
 	perl5242cdelta.html	\
-	perl5250delta.html	\
-	perl52510delta.html	\
-	perl52511delta.html	\
-	perl52512delta.html	\
-	perl5251delta.html	\
-	perl5252delta.html	\
-	perl5253delta.html	\
-	perl5254delta.html	\
-	perl5255delta.html	\
-	perl5256delta.html	\
-	perl5257delta.html	\
-	perl5258delta.html	\
-	perl5259delta.html	\
+	perl5242delta.html	\
 	perl5260cdelta.html	\
 	perl5260delta.html	\
 	perl5261cdelta.html	\
 	perl5270cdelta.html	\
+	perl5270delta.html	\
 	perl5271cdelta.html	\
+	perl5271delta.html	\
+	perl5272delta.html	\
+	perl5273delta.html	\
 	perl561delta.html	\
 	perl56delta.html	\
 	perl581delta.html	\
@@ -895,29 +874,22 @@ TEX = cperl.tex	\
 	perl5223cdelta.tex	\
 	perl5223delta.tex	\
 	perl5224cdelta.tex	\
+	perl5224delta.tex	\
 	perl5240cdelta.tex	\
 	perl5240delta.tex	\
 	perl5241cdelta.tex	\
 	perl5241delta.tex	\
 	perl5242cdelta.tex	\
-	perl5250delta.tex	\
-	perl52510delta.tex	\
-	perl52511delta.tex	\
-	perl52512delta.tex	\
-	perl5251delta.tex	\
-	perl5252delta.tex	\
-	perl5253delta.tex	\
-	perl5254delta.tex	\
-	perl5255delta.tex	\
-	perl5256delta.tex	\
-	perl5257delta.tex	\
-	perl5258delta.tex	\
-	perl5259delta.tex	\
+	perl5242delta.tex	\
 	perl5260cdelta.tex	\
 	perl5260delta.tex	\
 	perl5261cdelta.tex	\
 	perl5270cdelta.tex	\
+	perl5270delta.tex	\
 	perl5271cdelta.tex	\
+	perl5271delta.tex	\
+	perl5272delta.tex	\
+	perl5273delta.tex	\
 	perl561delta.tex	\
 	perl56delta.tex	\
 	perl581delta.tex	\
