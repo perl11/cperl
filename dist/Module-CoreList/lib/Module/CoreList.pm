@@ -14933,6 +14933,7 @@ our %delta = (
             'B::C'                  => '1.55_04',
             'Cpanel::JSON::XS'      => '3.0233',
             'Devel::PPPort'         => '3.36_02',
+            'Encode'                => '2.92',
             'ExtUtils::MakeMaker'   => '8.04_05',
             'ExtUtils::MM_Unix'     => '8.04_05',
             'File::Spec::Functions' => '3.36_05',
