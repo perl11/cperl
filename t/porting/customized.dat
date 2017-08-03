@@ -49,8 +49,6 @@ Digest::MD5 cpan/Digest-MD5/MD5.xs 304837872d60ba16300f85771abaa7c40fabadf3
 Digest::MD5 cpan/Digest-MD5/t/files.t 39ff314a4eee7a7e2d66254ffecf8d05f2761213
 Encode cpan/Encode/encoding.pm 98eaebc93c1d8d126b5ee63019aa781387b68243
 Encode cpan/Encode/t/Aliases.t 95bf948f5dbdd4f775904baf2111413b66a5944d
-Encode cpan/Encode/t/enc_eucjp.t 790d04c1bb9a8ab705efccb74e4ca585285f0e4e
-Encode cpan/Encode/t/enc_utf8.t 909eb2df48f0945ab28fc9b0702e47e16f5589b3
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t 9061ebec404019e812d03fa7227dd435d7a71046
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t 71a03fe898634486a5181ac32b6a98f03bb9a914
 ExtUtils::Install cpan/ExtUtils-Install/lib/ExtUtils/Install.pm 802cae6f7ad3579dbcb26a34b293dc96161b1f73
@@ -96,7 +94,7 @@ Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e15
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 06610e9883ce805bcd6543ab959a9826f598eb40
 Math::BigInt cpan/Math-BigInt/t/with_sub.t c040328e223df6f56250f5d67dcb2c9a2f23c110
 Memoize cpan/Memoize/t/expmod_t.t 9386100cd9c95a0e8a4e001bba3aa52eec114d21
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm b004bb514930ab96ebaa4e1af46f3acf4090cf20
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm da16adc384f42cc426cb32526c34350bf06cd4b5
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 144384c5d1612d554b3f5d3460b5070a24b8dd33
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c

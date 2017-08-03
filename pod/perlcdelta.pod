@@ -68,12 +68,35 @@ Support strict hashpairs, fix for . in @INC.
 Add C<#if { CPERL && VERSION > 5.26.0 }> support,
 support parser enum expectation.
 
-=item L<Encode>
+=item L<Encode> 2.92
 
 Skip the flapping test F<t/Aliases.t> on threaded smokers, with random
 segfaults.  This is a long standing core bug, with PMOP aliases or
 clone. First observed at L<https://github.com/rurban/perl-compiler/issues/73>
 (since 5.6)
+
+Stop directory tweaking $Encode::Encoding{utf8}
+
+Fix gcc warnings for older gcc < 4.0
+
+Where possible do not depend on value of $@, instead use return value
+of eval
+
+Fix more XS problems in Encode.xs file
+
+Load modules Encode::MIME::Name and Storable normally
+
+Remove no warnings 'redefine'; and correctly loaddependences
+
+Remove PP stubs and reformat predefine_encodings()
+
+Run Encode XS BOOT code at compile time
+
+Use Encode::define_encoding and propagate carp/croak message
+
+cperl fixes: encoding undeprecated, no strict hashpairs
+
+Cleanup code for handling fallback/replacement characters
 
 =item L<ExtUtils::MakeMaker> 8.04_05
 
