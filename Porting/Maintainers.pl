@@ -640,7 +640,7 @@ use File::Glob qw(:case);
     },
 
     'ExtUtils::Install' => {
-        'DISTRIBUTION' => 'BINGOS/ExtUtils-Install-2.04.tar.gz',
+        'DISTRIBUTION' => 'BINGOS/ExtUtils-Install-2.14.tar.gz',
         'FILES'        => q[cpan/ExtUtils-Install],
         'EXCLUDED'     => [
             qw( t/lib/Test/Builder.pm
@@ -651,8 +651,6 @@ use File::Glob qw(:case);
                 t/pod.t
                 ),
         ],
-        # support make -s => PERL_INSTALL_QUIET
-        'CUSTOMIZED'   => [ qw( lib/ExtUtils/Install.pm ) ],
     },
 
     'ExtUtils::MakeMaker' => {

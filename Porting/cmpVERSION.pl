@@ -86,6 +86,7 @@ my %skip;
 @skip{
     'dist/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/BFD.pm', # just a test module
     'dist/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/XS.pm',  # just a test module
+    'cpan/ExtUtils-Install/t/lib/MakeMaker/Test/Setup/BFD.pm', # just a test module
     'cpan/Math-BigInt/t/Math/BigFloat/Subclass.pm', # just a test module
     'cpan/Math-BigInt/t/Math/BigInt/BareCalc.pm',   # just a test module
     'cpan/Math-BigInt/t/Math/BigInt/Scalar.pm',     # just a test module
