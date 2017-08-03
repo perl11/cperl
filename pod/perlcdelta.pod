@@ -292,6 +292,10 @@ cperl fixes: encoding undeprecated, no strict hashpairs
 
 Cleanup code for handling fallback/replacement characters
 
+=item L<ExtUtils::CBuilder> 0.280226
+
+Fix C++ compiler detection (RT #131749)
+
 =item L<ExtUtils::MakeMaker> 8.04_05
 
 Support IO::Scalar handle as $parsefile argument to
