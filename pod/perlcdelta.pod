@@ -102,6 +102,27 @@ Cleanup code for handling fallback/replacement characters
 
 Fix C++ compiler detection (RT #131749)
 
+=item L<ExtUtils::Install> 2.14
+
+- Fix tests for when perl path contains a space
+
+- Fix win32 check
+
+- 'make -s' support: set $INSTALL_QUIET automatically
+
+- Optimisations:
+
+  * use our instead of vars
+  * lazy load modules
+  * make OS variables into constants
+  * move some calculations out of a loop
+
+- Removed instructions using Build.PL from README
+
+- Load Win32API::File for _move_file_at_boot only when needed
+
+- Allow disabling autosplit by omitting autosplit dir
+
 =item L<ExtUtils::MakeMaker> 8.04_05
 
 Support IO::Scalar handle as $parsefile argument to
