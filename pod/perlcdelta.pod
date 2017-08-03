@@ -6,8 +6,8 @@ perlcdelta - what is new for cperl v5.26.1
 
 =head1 DESCRIPTION
 
-This document describes the differences between the cperl 5.26.0
-and the cperl 5.26.1 releases.
+This document describes the differences between the cperl 5.26.0c
+and the cperl 5.26.1c releases.
 
 If you are upgrading from an earlier release such as v5.24.2c, first
 read the L<perl5260cdelta> documentation, which describes differences
@@ -272,6 +272,21 @@ Bump version
 =item L<Win32API::File> 0.1204
 
 Fix xsubpp warnings
+
+=back
+
+=head1 Documentation
+
+=head2 Changes to Existing Documentation
+
+=head3 L<perlxs>, L<perlxstut>, L<perlxstypemap>
+
+=over 4
+
+=item *
+
+Moved from F<dist/ExtUtils-ParseXS> to core F<pod/>, as the upstream CPAN
+releases do not contain them anymore.
 
 =back
 

@@ -208,7 +208,7 @@ CCTYPE		= MSVC90FREE
 # set this to additionally provide a statically linked perl-static.exe.
 # Note that dynamic loading will not work with this perl, so you must
 # include required modules statically using the STATIC_EXT or ALL_STATIC
-# variables below. A static library cperl527s.lib will also be created.
+# variables below. A static library cperl526s.lib will also be created.
 # Ordinary perl.exe is not affected by this option.
 #
 #BUILD_STATIC	= define

@@ -230,7 +230,7 @@ use File::Glob qw(:case);
     },
 
     'B::Debug' => {
-        'DISTRIBUTION' => 'RURBAN/B-Debug-1.24.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/B-Debug-1.25.tar.gz',
         'FILES'        => q[cpan/B-Debug],
         'EXCLUDED'     => ['t/pod.t'],
     },
@@ -452,7 +452,7 @@ use File::Glob qw(:case);
     },
 
     'Data::Dumper' => {
-        'DISTRIBUTION' => 'SMUELLER/Data-Dumper-2.162.tar.gz',
+        'DISTRIBUTION' => 'SMUELLER/Data-Dumper-2.167.tar.gz',
         'FILES'        => q[dist/Data-Dumper],
     },
 
