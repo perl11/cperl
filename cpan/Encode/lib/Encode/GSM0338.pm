@@ -1,5 +1,5 @@
 #
-# $Id: GSM0338.pm,v 2.6 2017/04/21 05:20:14 dankogai Exp dankogai $
+# $Id: GSM0338.pm,v 2.7 2017/06/10 17:23:50 dankogai Exp $
 #
 package Encode::GSM0338;
 
@@ -8,7 +8,7 @@ use warnings;
 use Carp;
 
 use vars qw($VERSION);
-$VERSION = do { my @r = ( q$Revision: 2.6 $ =~ /\d+/g ); sprintf "%d." . "%02d" x $#r, @r };
+$VERSION = do { my @r = ( q$Revision: 2.7 $ =~ /\d+/g ); sprintf "%d." . "%02d" x $#r, @r };
 
 use Encode qw(:fallbacks);
 
@@ -272,10 +272,9 @@ expression with C<eval {}> block as follows;
 
   eval {
     $utf8    = decode("gsm0338", $gsm0338,  $chk);
-  };
-  if ($@){
+  } or do {
     # handle exception here
-  }
+  };
 
 =head1 BUGS
 

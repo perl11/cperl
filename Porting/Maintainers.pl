@@ -572,13 +572,11 @@ use File::Glob qw(:case);
     },
 
     'Encode' => {
-        'DISTRIBUTION' => 'DANKOGAI/Encode-2.89.tar.gz',
+        'DISTRIBUTION' => 'DANKOGAI/Encode-2.92.tar.gz',
         'FILES'        => q[cpan/Encode],
         # undeprecate encoding
         'CUSTOMIZED'   => [ qw(
                             encoding.pm
-                            t/enc_eucjp.t
-                            t/enc_utf8.t
                             t/Aliases.t
                             )],
     },

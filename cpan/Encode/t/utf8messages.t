@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+BEGIN { 'warnings'->unimport('utf8') if $] < 5.014 }; # turn off 'UTF-16 surrogate 0xd800' warnings
 
 use Test::More;
 use Encode qw(encode decode FB_CROAK LEAVE_SRC);

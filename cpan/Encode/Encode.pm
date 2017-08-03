@@ -1,15 +1,20 @@
 #
-# $Id: Encode.pm,v 2.89 2017/04/21 05:20:14 dankogai Exp dankogai $
+# $Id: Encode.pm,v 2.92 2017/07/18 07:15:29 dankogai Exp dankogai $
 #
 package Encode;
 use strict;
 use warnings;
-our $VERSION = sprintf "%d.%02d", q$Revision: 2.89 $ =~ /(\d+)/g;
 use constant DEBUG => !!$ENV{PERL_ENCODE_DEBUG};
-use XSLoader ();
-XSLoader::load( __PACKAGE__, $VERSION );
+our $VERSION;
+BEGIN {
+    $VERSION = sprintf "%d.%02d", q$Revision: 2.92 $ =~ /(\d+)/g;
+    require XSLoader;
+    XSLoader::load( __PACKAGE__, $VERSION );
+}
 
 use Exporter 5.57 'import';
+
+our @CARP_NOT = qw(Encode::Encoder);
 
 # Public, encouraged API is exported by default
 
@@ -44,7 +49,10 @@ our %EXPORT_TAGS = (
 
 our $ON_EBCDIC = ( ord("A") == 193 );
 
-use Encode::Alias;
+use Encode::Alias ();
+use Encode::MIME::Name;
+
+use Storable;
 
 # Make a %Encoding package variable to allow a certain amount of cheating
 our %Encoding;
@@ -96,6 +104,9 @@ sub define_encoding {
         my $alias = shift;
         define_alias( $alias, $obj );
     }
+    my $class = ref($obj);
+    push @Encode::CARP_NOT, $class unless grep { $_ eq $class } @Encode::CARP_NOT;
+    push @Encode::Encoding::CARP_NOT, $class unless grep { $_ eq $class } @Encode::Encoding::CARP_NOT;
     return $obj;
 }
 
@@ -127,6 +138,15 @@ sub getEncoding {
     return;
 }
 
+# HACK: These two functions must be defined in Encode and because of
+# cyclic dependency between Encode and Encode::Alias, Exporter does not work
+sub find_alias {
+    goto &Encode::Alias::find_alias;
+}
+sub define_alias {
+    goto &Encode::Alias::define_alias;
+}
+
 sub find_encoding($;$) {
     my ( $name, $skip_external ) = @_;
     return __PACKAGE__->getEncoding( $name, $skip_external );
@@ -134,8 +154,6 @@ sub find_encoding($;$) {
 
 sub find_mime_encoding($;$) {
     my ( $mime_name, $skip_external ) = @_;
-    eval { require Encode::MIME::Name; };
-    $@ and return;
     my $name = Encode::MIME::Name::get_encode_name( $mime_name );
     return find_encoding( $name, $skip_external );
 }
@@ -149,8 +167,6 @@ sub resolve_alias($) {
 sub clone_encoding($) {
     my $obj = find_encoding(shift);
     ref $obj or return;
-    eval { require Storable };
-    $@ and return;
     return Storable::dclone($obj);
 }
 
@@ -182,7 +198,7 @@ sub encode($$;$) {
     else {
         $octets = $enc->encode( $string, $check );
     }
-    $_[1] = $string if $check and !ref $check and !( $check & LEAVE_SRC() );
+    $_[1] = $string if $check and !ref $check and !( $check & LEAVE_SRC );
     return $octets;
 }
 *str2bytes = \&encode;
@@ -211,7 +227,7 @@ sub decode($$;$) {
     else {
         $string = $enc->decode( $octets, $check );
     }
-    $_[1] = $octets if $check and !ref $check and !( $check & LEAVE_SRC() );
+    $_[1] = $octets if $check and !ref $check and !( $check & LEAVE_SRC );
     return $string;
 }
 *bytes2str = \&decode;
@@ -278,133 +294,87 @@ sub decode_utf8($;$) {
     $check   ||= 0;
     $utf8enc ||= find_encoding('utf8');
     my $string = $utf8enc->decode( $octets, $check );
-    $_[0] = $octets if $check and !ref $check and !( $check & LEAVE_SRC() );
+    $_[0] = $octets if $check and !ref $check and !( $check & LEAVE_SRC );
     return $string;
 }
 
-# sub decode_utf8($;$) {
-#     my ( $str, $check ) = @_;
-#     return $str if is_utf8($str);
-#     if ($check) {
-#         return decode( "utf8", $str, $check );
-#     }
-#     else {
-#         return decode( "utf8", $str );
-#         return $str;
-#     }
-# }
+onBOOT;
 
-predefine_encodings(1);
-
-#
-# This is to restore %Encoding if really needed;
-#
-
-sub predefine_encodings {
-    require Encode::Encoding;
-    no warnings 'redefine';
-    my $use_xs = shift;
-    if ($ON_EBCDIC) {
-
-        # was in Encode::UTF_EBCDIC
-        package Encode::UTF_EBCDIC;
-        push @Encode::UTF_EBCDIC::ISA, 'Encode::Encoding';
-        *decode = sub {
-            my ( undef, $str, $chk ) = @_;
-            my $res = '';
-            for ( my $i = 0 ; $i < length($str) ; $i++ ) {
-                $res .=
-                  chr(
-                    utf8::unicode_to_native( ord( substr( $str, $i, 1 ) ) )
-                  );
-            }
-            $_[1] = '' if $chk;
-            return $res;
-        };
-        *encode = sub {
-            my ( undef, $str, $chk ) = @_;
-            my $res = '';
-            for ( my $i = 0 ; $i < length($str) ; $i++ ) {
-                $res .=
-                  chr(
-                    utf8::native_to_unicode( ord( substr( $str, $i, 1 ) ) )
-                  );
-            }
-            $_[1] = '' if $chk;
-            return $res;
-        };
-        $Encode::Encoding{Unicode} =
-          bless { Name => "UTF_EBCDIC" } => "Encode::UTF_EBCDIC";
-    }
-    else {
-
-        package Encode::Internal;
-        push @Encode::Internal::ISA, 'Encode::Encoding';
-        *decode = sub {
-            my ( undef, $str, $chk ) = @_;
-            utf8::upgrade($str);
-            $_[1] = '' if $chk;
-            return $str;
-        };
-        *encode = \&decode;
-        $Encode::Encoding{Unicode} =
-          bless { Name => "Internal" } => "Encode::Internal";
-    }
-    {
-        # https://rt.cpan.org/Public/Bug/Display.html?id=103253
-        package Encode::XS;
-        push @Encode::XS::ISA, 'Encode::Encoding';
-    }
-    {
-
-        # was in Encode::utf8
-        package Encode::utf8;
-        push @Encode::utf8::ISA, 'Encode::Encoding';
-
-        #
-        if ($use_xs) {
-            Encode::DEBUG and warn __PACKAGE__, " XS on";
-            *decode = \&decode_xs;
-            *encode = \&encode_xs;
+if ($ON_EBCDIC) {
+    package Encode::UTF_EBCDIC;
+    use parent 'Encode::Encoding';
+    my $obj = bless { Name => "UTF_EBCDIC" } => "Encode::UTF_EBCDIC";
+    Encode::define_encoding($obj, 'Unicode');
+    sub decode {
+        my ( undef, $str, $chk ) = @_;
+        my $res = '';
+        for ( my $i = 0 ; $i < length($str) ; $i++ ) {
+            $res .=
+              chr(
+                utf8::unicode_to_native( ord( substr( $str, $i, 1 ) ) )
+              );
         }
-        else {
-            Encode::DEBUG and warn __PACKAGE__, " XS off";
-            *decode = sub {
-                my ( undef, $octets, $chk ) = @_;
-                my $str = Encode::decode_utf8($octets);
-                if ( defined $str ) {
-                    $_[1] = '' if $chk;
-                    return $str;
-                }
-                return undef;
-            };
-            *encode = sub {
-                my ( undef, $string, $chk ) = @_;
-                my $octets = Encode::encode_utf8($string);
-                $_[1] = '' if $chk;
-                return $octets;
-            };
+        $_[1] = '' if $chk;
+        return $res;
+    }
+    sub encode {
+        my ( undef, $str, $chk ) = @_;
+        my $res = '';
+        for ( my $i = 0 ; $i < length($str) ; $i++ ) {
+            $res .=
+              chr(
+                utf8::native_to_unicode( ord( substr( $str, $i, 1 ) ) )
+              );
         }
-        *cat_decode = sub {    # ($obj, $dst, $src, $pos, $trm, $chk)
-                               # currently ignores $chk
-            my ( undef, undef, undef, $pos, $trm ) = @_;
-            my ( $rdst, $rsrc, $rpos ) = \@_[ 1, 2, 3 ];
-            use bytes;
-            if ( ( my $npos = index( $$rsrc, $trm, $pos ) ) >= 0 ) {
-                $$rdst .=
-                  substr( $$rsrc, $pos, $npos - $pos + length($trm) );
-                $$rpos = $npos + length($trm);
-                return 1;
-            }
-            $$rdst .= substr( $$rsrc, $pos );
-            $$rpos = length($$rsrc);
-            return '';
-        };
-        $Encode::Encoding{utf8} =
-          bless { Name => "utf8" } => "Encode::utf8";
-        $Encode::Encoding{"utf-8-strict"} =
-          bless { Name => "utf-8-strict", strict_utf8 => 1 } 
-            => "Encode::utf8";
+        $_[1] = '' if $chk;
+        return $res;
+    }
+} else {
+    package Encode::Internal;
+    use parent 'Encode::Encoding';
+    my $obj = bless { Name => "Internal" } => "Encode::Internal";
+    Encode::define_encoding($obj, 'Unicode');
+    sub decode {
+        my ( undef, $str, $chk ) = @_;
+        utf8::upgrade($str);
+        $_[1] = '' if $chk;
+        return $str;
+    }
+    *encode = \&decode;
+}
+
+{
+    # https://rt.cpan.org/Public/Bug/Display.html?id=103253
+    package Encode::XS;
+    use parent 'Encode::Encoding';
+}
+
+{
+    package Encode::utf8;
+    use parent 'Encode::Encoding';
+    my %obj = (
+        'utf8'         => { Name => 'utf8' },
+        'utf-8-strict' => { Name => 'utf-8-strict', strict_utf8 => 1 }
+    );
+    for ( keys %obj ) {
+        bless $obj{$_} => __PACKAGE__;
+        Encode::define_encoding( $obj{$_} => $_ );
+    }
+    sub cat_decode {
+        # ($obj, $dst, $src, $pos, $trm, $chk)
+        # currently ignores $chk
+        my ( undef, undef, undef, $pos, $trm ) = @_;
+        my ( $rdst, $rsrc, $rpos ) = \@_[ 1, 2, 3 ];
+        use bytes;
+        if ( ( my $npos = index( $$rsrc, $trm, $pos ) ) >= 0 ) {
+            $$rdst .=
+              substr( $$rsrc, $pos, $npos - $pos + length($trm) );
+            $$rpos = $npos + length($trm);
+            return 1;
+        }
+        $$rdst .= substr( $$rsrc, $pos );
+        $$rpos = length($$rsrc);
+        return '';
     }
 }
 
