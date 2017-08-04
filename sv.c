@@ -16116,7 +16116,8 @@ Perl_init_constants(pTHX)
     SvREFCNT(SV_ZERO)	= SvREFCNT_IMMORTAL;
     SvFLAGS(SV_ZERO)	= SVt_PVNV|SVf_READONLY|SVf_PROTECT
 				  |SVp_IOK|SVf_IOK|SVp_NOK|SVf_NOK
-				  |SVp_POK|SVf_POK;
+				  |SVp_POK|SVf_POK
+                                  |SVs_PADTMP;
 
     SvPV_set(SV_NO, (char*)PL_No);
     SvCUR_set(SV_NO, 0);
