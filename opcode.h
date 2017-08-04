@@ -2786,10 +2786,10 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_cmp,		/* i_le */
 	Perl_ck_cmp,		/* ge */
 	Perl_ck_cmp,		/* i_ge */
-	Perl_ck_eq,		/* eq */
-	Perl_ck_eq,		/* i_eq */
-	Perl_ck_eq,		/* ne */
-	Perl_ck_eq,		/* i_ne */
+	Perl_ck_cmp,		/* eq */
+	Perl_ck_cmp,		/* i_eq */
+	Perl_ck_cmp,		/* ne */
+	Perl_ck_cmp,		/* i_ne */
 	Perl_ck_type,		/* cmp */
 	Perl_ck_null,		/* i_cmp */
 	Perl_ck_null,		/* s_lt */

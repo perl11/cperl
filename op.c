@@ -11594,17 +11594,28 @@ is_dollar_bracket(pTHX_ const OP * const o)
 
 /*
 =for apidoc ck_cmp
-CHECK callback for numeric comparisons.
+CHECK callback for numeric comparisons (all but *cmp)
+Optimize index() == -1 into OPpINDEX_BOOLNEG
 
-Warn on $[
+Warn on $[  (did you mean $] ?)
 
 =cut
 */
 OP *
 Perl_ck_cmp(pTHX_ OP *o)
 {
+    bool is_eq;
+    OP *indexop, *constop, *start;
+    SV *sv;
+
     PERL_ARGS_ASSERT_CK_CMP;
-    if (ckWARN(WARN_SYNTAX)) {
+
+    is_eq = (   o->op_type == OP_EQ
+             || o->op_type == OP_NE
+             || o->op_type == OP_I_EQ
+             || o->op_type == OP_I_NE);
+
+    if (!is_eq && ckWARN(WARN_SYNTAX)) {
 	const OP *kid = OpFIRST(o);
 	if (kid &&
             (
@@ -11619,7 +11630,46 @@ Perl_ck_cmp(pTHX_ OP *o)
 	    Perl_warner(aTHX_ packWARN(WARN_SYNTAX),
 			"$[ used in %s (did you mean $] ?)", OP_DESC(o));
     }
-    return ck_type(o);
+    if (!is_eq)
+        return ck_type(o);
+
+    /* convert (index(...) == -1) and variations into
+     *   (r)index/BOOL(,NEG)
+     */
+
+    indexop = OpFIRST(o);
+    constop = OpSIBLING(indexop);
+    start = NULL;
+    if (IS_CONST_OP(indexop)) {
+        constop = indexop;
+        indexop = OpSIBLING(constop);
+        start = constop;
+    }
+
+    if (indexop->op_type != OP_INDEX && indexop->op_type != OP_RINDEX)
+        return ck_type(o);
+
+    if (!IS_CONST_OP(constop))
+        return ck_type(o);
+
+    sv = cSVOPx_sv(constop);
+    if (!(sv && SvIOK_notUV(sv) && SvIVX(sv) == -1))
+        return ck_type(o);
+
+    /* ($lex = index(....)) == -1 */
+    if (indexop->op_private & OPpTARGET_MY)
+        return o;
+
+    indexop->op_flags &= ~OPf_PARENS;
+    indexop->op_flags |= (o->op_flags & OPf_PARENS);
+    indexop->op_private |= OPpTRUEBOOL;
+    if (o->op_type == OP_EQ || o->op_type == OP_I_EQ)
+        indexop->op_private |= OPpINDEX_BOOLNEG;
+    /* cut out the index op and free the eq,const ops */
+    (void)op_sibling_splice(o, start, 1, NULL);
+    op_free(o);
+
+    return ck_type(indexop);
 }
 
 /*
@@ -11768,60 +11818,6 @@ Perl_ck_eof(pTHX_ OP *o)
 	    kid->op_private |= OPpALLOW_FAKE;
     }
     return o;
-}
-
-/*
-=for apidoc ck_eq
-CHECK callback for OP_EQ, OP_NE, OP_I_EQ, OP_I_NE
-
-...
-=cut
-*/
-
-OP *
-Perl_ck_eq(pTHX_ OP *o)
-{
-    OP *indexop, *constop, *start;
-    SV *sv;
-    PERL_ARGS_ASSERT_CK_EQ;
-
-    /* convert (index(...) == -1) and variations into
-     *   (r)index/BOOL(,NEG)
-     */
-
-    indexop = cUNOPo->op_first;
-    constop = OpSIBLING(indexop);
-    start = NULL;
-    if (indexop->op_type == OP_CONST) {
-        constop = indexop;
-        indexop = OpSIBLING(constop);
-        start = constop;
-    }
-
-    if (indexop->op_type != OP_INDEX && indexop->op_type != OP_RINDEX)
-        return ck_type(o);
-
-    if (constop->op_type != OP_CONST)
-        return ck_type(o);
-
-    sv = cSVOPx_sv(constop);
-    if (!(sv && SvIOK_notUV(sv) && SvIVX(sv) == -1))
-        return ck_type(o);
-
-    /* ($lex = index(....)) == -1 */
-    if (indexop->op_private & OPpTARGET_MY)
-        return o;
-
-    indexop->op_flags &= ~OPf_PARENS;
-    indexop->op_flags |= (o->op_flags & OPf_PARENS);
-    indexop->op_private |= OPpTRUEBOOL;
-    if (o->op_type == OP_EQ || o->op_type == OP_I_EQ)
-        indexop->op_private |= OPpINDEX_BOOLNEG;
-    /* cut out the index op and free the eq,const ops */
-    (void)op_sibling_splice(o, start, 1, NULL);
-    op_free(o);
-
-    return ck_type(indexop);
 }
 
 /*
