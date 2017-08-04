@@ -2281,7 +2281,12 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
                 PerlIO_printf(file, "\n");
             }
 	    Perl_dump_indent(aTHX_ level, file, "  CUR = %" IVdf "\n", (IV)SvCUR(sv));
-	    if (!is_re)
+	    if (is_re && type == SVt_PVLV)
+                /* LV-as-REGEXP usurps len field to store pointer to
+                 * regexp struct */
+		Perl_dump_indent(aTHX_ level, file, "  REGEXP = 0x%" UVxf "\n",
+                   PTR2UV(((XPV*)SvANY(sv))->xpv_len_u.xpvlenu_rx));
+            else
 		Perl_dump_indent(aTHX_ level, file, "  LEN = %" IVdf "\n",
 				       (IV)SvLEN(sv));
 #ifdef PERL_COPY_ON_WRITE
