@@ -82,6 +82,7 @@ IO::Compress::Base cpan/IO-Compress/lib/File/GlobMapper.pm 81f265ee36efb2b9373a8
 IO::Compress::Base cpan/IO-Compress/t/compress/encode.pl 776c114af5146d3c328c247c9550e021bb8bac62
 IO::Compress::Base cpan/IO-Compress/t/cz-14gzopen.t dee09dbad5cb1cad6027fd61d14552a192b68060
 IO::Socket::IP cpan/IO-Socket-IP/lib/IO/Socket/IP.pm d5d2ac7a181c3fd89a924297f032e7ae2e003965
+IPC::Cmd cpan/IPC-Cmd/t/01_IPC-Cmd.t 3626c405359d5e78c7bbc8245013251920527366
 JSON::PP cpan/JSON-PP/lib/JSON/PP.pm da7db2b7b06467019466d3d82f29bfdb6c5b0b49
 Math::BigInt cpan/Math-BigInt/t/bare_mbf.t b56ab2976395fa0621b9433e371c65a796936560
 Math::BigInt cpan/Math-BigInt/t/bare_mbi.t dc377711843db2b26f327a20142f1978c5e03d4b
@@ -100,7 +101,7 @@ Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e15
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 06610e9883ce805bcd6543ab959a9826f598eb40
 Math::BigInt cpan/Math-BigInt/t/with_sub.t c040328e223df6f56250f5d67dcb2c9a2f23c110
 Memoize cpan/Memoize/t/expmod_t.t 9386100cd9c95a0e8a4e001bba3aa52eec114d21
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 0d60afeb81ba2638974da150e1980071089c9c6e
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm b01b68e88d66ffad2abd138aa16b15c823386ff4
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 7ff05ce5f0b967d229b90870de806ce3fea82b22
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
