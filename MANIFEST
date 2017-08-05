@@ -3215,7 +3215,6 @@ dist/Filter-Simple/t/lib/Filter/Simple/ExportTest.pm		Helper file for Filter::Si
 dist/Filter-Simple/t/lib/Filter/Simple/FilterOnlyTest.pm	Helper file for Filter::Simple tests
 dist/Filter-Simple/t/lib/Filter/Simple/FilterTest.pm		Helper file for Filter::Simple tests
 dist/Filter-Simple/t/lib/Filter/Simple/ImportTest.pm		Helper file for Filter::Simple tests
-dist/Filter-Simple/t/no.t					See if Filter::Simple works
 dist/I18N-LangTags/ChangeLog			I18N::LangTags
 dist/I18N-LangTags/lib/I18N/LangTags.pm		I18N::LangTags
 dist/I18N-LangTags/lib/I18N/LangTags/Detect.pm	Detect language preferences
