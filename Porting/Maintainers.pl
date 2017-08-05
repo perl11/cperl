@@ -1481,7 +1481,7 @@ use File::Glob qw(:case);
     },
 
     'threads::shared' => {
-        'DISTRIBUTION' => 'JDHEDDEN/threads-shared-1.55.tar.gz',
+        'DISTRIBUTION' => 'JDHEDDEN/threads-shared-1.57.tar.gz',
         'FILES'        => q[dist/threads-shared],
         'EXCLUDED'     => [
             qw( examples/class.pl
@@ -1489,7 +1489,9 @@ use File::Glob qw(:case);
                 t/pod.t
                 t/test.pl
                 ),
-        ],
+          ],
+        # appveyor smoking
+        'CUSTOMIZED'   => [ 't/waithires.t' ],
     },
 
     'Tie::File' => {

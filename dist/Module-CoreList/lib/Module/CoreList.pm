@@ -14979,6 +14979,7 @@ our %delta = (
             'Search::Dict'          => '1.07_01',
             'SelectSaver'           => '1.02_01',
             'threads'               => '2.16_01',
+            'threads::shared'       => '1.57',
             'VMS::Studio'           => '2.41_01',
         },
         removed => {
@@ -15156,6 +15157,7 @@ our %delta = (
             'Storable'              => '3.05_13',
             'strict'                => '1.13c',
             'threads'               => '2.16_01',
+            'threads::shared'       => '1.57',
             'VMS::Studio'           => '2.41_01',
             'Win32API::File'        => '0.1204',
         },
