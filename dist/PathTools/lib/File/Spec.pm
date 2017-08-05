@@ -4,7 +4,6 @@ use strict;
 use vars qw(@ISA);
 
 our $VERSION = '4.68c'; # modernized
-$VERSION =~ tr/_//;
 $VERSION =~ s/c$//;
 
 my %module = (MacOS   => 'Mac',

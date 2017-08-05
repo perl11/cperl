@@ -382,6 +382,12 @@ Improve some tests on missing network connections
 
 Added new 'oelem' and 'oelemfast' to :base_core
 
+=item L<PathTools> 4.68c
+
+Add security usage note to File::Spec::no_upwards
+white space change so can compile under C++11
+Protect modules also from . in @INC [perl #127384] (CVE-2016-1238)
+
 =item L<Search::Dict> 1.07_01
 
 Bump version

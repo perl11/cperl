@@ -180,7 +180,8 @@ sub _tmpdir ($self, @dirlist) {
 	@dirlist = grep { ! Scalar::Util::tainted($_) } @dirlist;
     }
     elsif ($] < 5.007) { # No ${^TAINT} before 5.8
-	@dirlist = grep { eval { eval('1'.substr $_,0,0) } } @dirlist;
+	@dirlist = grep { !defined($_) || eval { eval('1'.substr $_,0,0) } }
+			@dirlist;
     }
     
     foreach (@dirlist) {
