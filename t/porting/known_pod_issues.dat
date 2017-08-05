@@ -348,10 +348,10 @@ dist/extutils-makemaker/lib/extutils/command/mm.pm	Verbatim line length includin
 dist/extutils-makemaker/lib/extutils/makemaker.pm	=head3 without preceding higher level	1
 dist/extutils-makemaker/lib/extutils/makemaker.pm	? Should you be using F<...> or maybe L<...> instead of	1
 dist/extutils-makemaker/lib/extutils/makemaker.pm	? Should you be using L<...> instead of	1
-dist/extutils-makemaker/lib/extutils/makemaker.pm	Apparent broken link	5
-dist/extutils-makemaker/lib/extutils/makemaker.pm	Verbatim line length including indents exceeds 79 by	6
-dist/extutils-makemaker/lib/extutils/makemaker/faq.pod	Apparent broken link	1
-dist/extutils-makemaker/lib/extutils/makemaker/faq.pod	Verbatim line length including indents exceeds 79 by	1
+dist/extutils-makemaker/lib/extutils/makemaker.pm	Apparent broken link	6
+dist/extutils-makemaker/lib/extutils/makemaker.pm	Verbatim line length including indents exceeds 79 by	8
+dist/extutils-makemaker/lib/extutils/makemaker/faq.pod	Apparent broken link	5
+dist/extutils-makemaker/lib/extutils/makemaker/faq.pod	Verbatim line length including indents exceeds 79 by	3
 dist/extutils-makemaker/lib/extutils/makemaker/locale.pm	Apparent broken link	2
 dist/extutils-makemaker/lib/extutils/makemaker/locale.pm	Verbatim line length including indents exceeds 79 by	1
 dist/extutils-makemaker/lib/extutils/makemaker/tutorial.pod	Apparent broken link	3
@@ -359,8 +359,9 @@ dist/extutils-makemaker/lib/extutils/mm_beos.pm	Verbatim line length including i
 dist/extutils-makemaker/lib/extutils/mm_cygwin.pm	Verbatim line length including indents exceeds 79 by	1
 dist/extutils-makemaker/lib/extutils/mm_nw5.pm	Verbatim line length including indents exceeds 79 by	1
 dist/extutils-makemaker/lib/extutils/mm_os2.pm	Verbatim line length including indents exceeds 79 by	1
-dist/extutils-makemaker/lib/extutils/mm_unix.pm	Verbatim line length including indents exceeds 79 by	3
+dist/extutils-makemaker/lib/extutils/mm_unix.pm	Verbatim line length including indents exceeds 79 by	6
 dist/extutils-makemaker/lib/extutils/mm_vms.pm	Verbatim line length including indents exceeds 79 by	1
+dist/extutils-makemaker/lib/extutils/mm_win32.pm	Verbatim line length including indents exceeds 79 by	1
 dist/net-ping/lib/net/ping.pm	Apparent broken link	1
 dist/pod-simple/lib/pod/simple.pod	Apparent broken link	8
 dist/pod-simple/lib/pod/simple.pod	Verbatim line length including indents exceeds 79 by	1

@@ -123,12 +123,22 @@ Fix C++ compiler detection (RT #131749)
 
 - Allow disabling autosplit by omitting autosplit dir
 
-=item L<ExtUtils::MakeMaker> 8.04_05
+=item L<ExtUtils::MakeMaker> 8.30_04
+
+Merge our fixes to upstream 7.30 (which has e.g. the dlltool mingw
+fixes). Many fixes were already in, but some new upstream bugs crept
+in.
 
 Support IO::Scalar handle as $parsefile argument to
 ExtUtils::MM_Unix::parse_version().
 
-mingw doesn't use the broken F<dlltool> anymore.
+fix Invalid Locale symbol name. Invalid identifier "ENCODING_UTF-8"
+while "strict names"
+
+fix XSMULTI static with strict linkers, avoid duplicate symbol
+_boot_XS__Test in: Test.o blib/arch/auto/XS/Test/Test.a(Test.o)
+
+xsstatic: fixup MAKE_APERL_FILE, which was Makefile.aperl.aperl
 
 =item L<File::Spec::Functions> 3.36_05
 
