@@ -40,7 +40,7 @@ my $make     = make_run();
 
     ok( setup_recurs(), 'setup' );
     END {
-        ok( chdir File::Spec->updir, "chdir .." );
+        ok( chdir File::Spec->updir );
         ok( teardown_recurs(), 'teardown' );
     }
 
