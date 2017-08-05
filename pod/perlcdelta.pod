@@ -393,6 +393,10 @@ Added wait_loop_callback for run_forked()
 
 Only search in curdir in can_run() when on Win32 RT#105601
 
+=item L<JSON::PP> 2.94_01
+
+Various, see L<https://metacpan.org/changes/distribution/JSON-PP>
+
 =item L<Memoize> 1.03
 
 Skip flapping, timer-sensitive t/expmod_t.t tests
