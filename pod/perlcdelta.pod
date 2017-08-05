@@ -186,6 +186,12 @@ Thanks to Andrew Gregory.
 
 Bump versions of 3 Socket modules.
 
+=item L<IPC::Cmd> 0.98
+
+Added wait_loop_callback for run_forked()
+
+Only search in curdir in can_run() when on Win32 RT#105601
+
 =item L<Memoize> 1.03
 
 Skip flapping, timer-sensitive F<t/expmod_t.t> tests

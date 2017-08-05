@@ -14983,6 +14983,7 @@ our %delta = (
             'File::Spec::Win32'     => '4.68c',
             'Filter::Simple'        => '0.94',
             'Getopt::Long'          => '2.50',
+            'IPC::Cmd'              => '0.98',
             'IO::Socket'            => '1.38_01',
             'IO::Socket::INET'      => '1.35_01',
             'IO::Socket::UNIX'      => '1.26_01',
