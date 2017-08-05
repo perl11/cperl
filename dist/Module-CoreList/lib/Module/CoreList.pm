@@ -14989,6 +14989,7 @@ our %delta = (
             'IO::Socket::UNIX'      => '1.26_01',
             'JSON::PP'              => '2.94_01',
             'JSON::PP::Boolean'     => '2.94_01',
+            'Locale::Codes'         => '3.53',
             'Net::Ping'             => '2.61',
             'Search::Dict'          => '1.07_01',
             'SelectSaver'           => '1.02_01',
