@@ -3,7 +3,7 @@ use strict;
 use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use version;
-$VERSION = '5.20170803c';
+$VERSION = '5.20170807c';
 $VERSION =~ s/c$//;
 
 sub _undelta {
@@ -343,8 +343,8 @@ our %released = (
     5.026000 => '2017-05-30',
     5.027000 => '2017-05-31',
     5.027001 => '2017-06-03',
+    '5.026001c' => '2017-08-07',
     '5.024003c' => '????-??-??',
-    '5.026001c' => '????-??-??',
     '5.027001c' => '????-??-??',
  );
 
@@ -14959,6 +14959,16 @@ our %delta = (
             'ExtUtils::MM_Any'      => '8.30_04',
             'ExtUtils::MM_Unix'     => '8.30_04',
             'ExtUtils::Packlist'    => '2.14',
+            'ExtUtils::ParseXS'             => '3.35_02',
+            'ExtUtils::ParseXS::Constants'  => '3.35_02',
+            'ExtUtils::ParseXS::CountLines' => '3.35_02',
+            'ExtUtils::ParseXS::Eval'       => '3.35_02',
+            'ExtUtils::ParseXS::Utilities'  => '3.35_02',
+            'ExtUtils::Typemaps'            => '3.35',
+            'ExtUtils::Typemaps::Cmd'       => '3.35',
+            'ExtUtils::Typemaps::InputMap'  => '3.35',
+            'ExtUtils::Typemaps::OutputMap' => '3.35',
+            'ExtUtils::Typemaps::Type'      => '3.35',
             'File::Spec::Functions' => '3.36_05',
             'IO::Socket'            => '1.38_01',
             'IO::Socket::INET'      => '1.35_01',
