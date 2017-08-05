@@ -9,7 +9,7 @@ BEGIN {
 
 use strict;
 use Config;
-use Test::More tests => 16;
+use Test::More tests => 21;
 use File::Temp qw[tempdir];
 
 use TieOut;
@@ -18,14 +18,16 @@ use MakeMaker::Test::Setup::BFD;
 
 use ExtUtils::MakeMaker;
 
-my $tmpdir = tempdir( DIR => 't', CLEANUP => 1 );
-chdir $tmpdir;
+chdir 't';
+perl_lib; # sets $ENV{PERL5LIB} relative to t/
 
-perl_lib();
+my $tmpdir = tempdir( DIR => '../t', CLEANUP => 1 );
+use Cwd; my $cwd = getcwd; END { chdir $cwd } # so File::Temp can cleanup
+chdir $tmpdir;
 
 ok( setup_recurs(), 'setup' );
 END {
-    ok( chdir File::Spec->updir );
+    ok( chdir File::Spec->updir, 'chdir updir' );
     ok( teardown_recurs(), 'teardown' );
 }
 
@@ -33,7 +35,7 @@ ok( chdir 'Big-Dummy', "chdir'd to Big-Dummy" ) ||
   diag("chdir failed: $!");
 
 {
-    ok( my $stdout = tie *STDOUT, 'TieOut' );
+    ok my $stdout = tie(*STDOUT, 'TieOut'), 'tie STDOUT';
     my $warnings = '';
     local $SIG{__WARN__} = sub {
         if ( $Config{usecrosscompile} ) {
@@ -44,7 +46,7 @@ ok( chdir 'Big-Dummy', "chdir'd to Big-Dummy" ) ||
         $warnings .= join '', @_;
     };
     # prerequisite warnings are disabled while building the perl core:
-    local $ENV{PERL_CORE} = 0;
+    local $ExtUtils::MakeMaker::UNDER_CORE = 0;
 
     WriteMakefile(
         NAME            => 'Big::Dummy',
@@ -52,7 +54,20 @@ ok( chdir 'Big-Dummy', "chdir'd to Big-Dummy" ) ||
             vars  => 0
         }
     );
-    is $warnings, '';
+    is $warnings, '', 'basic prereq';
+
+    SKIP: {
+	skip 'No CMR, no version ranges', 1
+	    unless ExtUtils::MakeMaker::_has_cpan_meta_requirements;
+	$warnings = '';
+	WriteMakefile(
+	    NAME            => 'Big::Dummy',
+	    PREREQ_PM       => {
+		vars  =>  '>= 0, <= 99999',
+	    }
+	);
+	is $warnings, '', 'version range';
+    }
 
     $warnings = '';
     WriteMakefile(
@@ -61,11 +76,10 @@ ok( chdir 'Big-Dummy', "chdir'd to Big-Dummy" ) ||
             vars  => 99999
         }
       );
-    my $ver = $vars::VERSION;
-    $ver =~ s/(\d+)\.(\d+)_(\d+)c?/$1.$2$3/;
+    my $ver = eval $vars::VERSION;
     is $warnings,
     sprintf("Warning: prerequisite vars 99999 not found. We have %s.\n",
-            $ver);
+            $ver), 'vars 99999';
 
     $warnings = '';
     WriteMakefile(
@@ -75,7 +89,27 @@ ok( chdir 'Big-Dummy', "chdir'd to Big-Dummy" ) ||
         }
     );
     is $warnings,
-    "Warning: prerequisite I::Do::Not::Exist 0 not found.\n";
+    "Warning: prerequisite I::Do::Not::Exist 0 not found.\n", 'non-exist prereq';
+
+    $warnings = '';
+    WriteMakefile(
+        NAME            => 'Big::Dummy',
+        CONFIGURE_REQUIRES => {
+            "I::Do::Not::Configure" => 0,
+        }
+    );
+    is $warnings,
+    "Warning: prerequisite I::Do::Not::Configure 0 not found.\n", 'non-exist prereq';
+
+    $warnings = '';
+    WriteMakefile(
+        NAME            => 'Big::Dummy',
+        TEST_REQUIRES => {
+            "I::Do::Not::Test" => 0,
+        }
+    );
+    is $warnings,
+    "Warning: prerequisite I::Do::Not::Test 0 not found.\n", 'non-exist prereq';
 
 
     $warnings = '';
@@ -86,9 +120,9 @@ ok( chdir 'Big-Dummy', "chdir'd to Big-Dummy" ) ||
         }
     );
     my @warnings = split /\n/, $warnings;
-    is @warnings, 2;
-    like $warnings[0], qr{^Unparsable version '' for prerequisite I::Do::Not::Exist\b};
-    is $warnings[1], "Warning: prerequisite I::Do::Not::Exist 0 not found.";
+    is @warnings, 2, '2 warnings';
+    like $warnings[0], qr{^Undefined requirement for I::Do::Not::Exist\b}, 'undef version warning';
+    is $warnings[1], "Warning: prerequisite I::Do::Not::Exist 0 not found.", 'not found warning';
 
 
     $warnings = '';
@@ -96,11 +130,13 @@ ok( chdir 'Big-Dummy', "chdir'd to Big-Dummy" ) ||
         NAME            => 'Big::Dummy',
         PREREQ_PM       => {
             "I::Do::Not::Exist" => 0,
-            "strict"            => 1,
+            "vars"            => 99999,
         }
     );
     is $warnings,
-    "Warning: prerequisite I::Do::Not::Exist 0 not found.\n";
+    "Warning: prerequisite I::Do::Not::Exist 0 not found.\n".
+    sprintf("Warning: prerequisite vars 99999 not found. We have %s.\n",
+            $ver), '2 bad prereq warnings';
 
     $warnings = '';
     eval {
@@ -109,17 +145,18 @@ ok( chdir 'Big-Dummy', "chdir'd to Big-Dummy" ) ||
             PREREQ_PM       => {
                 "I::Do::Not::Exist" => 0,
                 "Nor::Do::I"        => 0,
-                "strict"            => 1,
+                "vars"            => 99999,
             },
             PREREQ_FATAL    => 1,
         );
     };
 
-    is $warnings, '';
+    is $warnings, '', 'no warnings on PREREQ_FATAL';
     is $@, <<'END', "PREREQ_FATAL";
 MakeMaker FATAL: prerequisites not found.
     I::Do::Not::Exist not installed
     Nor::Do::I not installed
+    vars 99999
 
 Please install these modules first and rerun 'perl Makefile.PL'.
 END
@@ -139,12 +176,25 @@ END
         );
     };
 
-    is $warnings, '';
+    is $warnings, '', 'CONFIGURE sub non-exist req no warn';
     is $@, <<'END', "PREREQ_FATAL happens before CONFIGURE";
 MakeMaker FATAL: prerequisites not found.
     I::Do::Not::Exist not installed
 
 Please install these modules first and rerun 'perl Makefile.PL'.
 END
+
+
+    $warnings = '';
+    @ARGV = 'PREREQ_FATAL=1';
+    eval {
+        WriteMakefile(
+            NAME => 'Big::Dummy',
+            PREREQ_PM => { "I::Do::Not::Exist" => 0, },
+        );
+    };
+    is $warnings, "Warning: prerequisite I::Do::Not::Exist 0 not found.\n",
+      'CLI PREREQ_FATAL warns';
+    isnt $@, '', "CLI PREREQ_FATAL works";
 
 }

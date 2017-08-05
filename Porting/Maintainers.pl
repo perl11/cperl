@@ -660,7 +660,7 @@ use File::Glob qw(:case);
     },
 
     'ExtUtils::MakeMaker' => {
-        'DISTRIBUTION' => 'BINGOS/ExtUtils-MakeMaker-7.04.tar.gz',
+        'DISTRIBUTION' => 'BINGOS/ExtUtils-MakeMaker-7.30.tar.gz',
         'FILES'        => q[dist/ExtUtils-MakeMaker],
         'EXCLUDED'     => [
             qr{^t/lib/Test/},
@@ -679,7 +679,7 @@ use File::Glob qw(:case);
         'CUSTOMIZED'   => 
           [ qw[ lib/ExtUtils/MM_Any.pm
                 lib/ExtUtils/MM_Unix.pm
-                lib/ExtUtils/Command/MM.pm
+                lib/ExtUtils/MM.pm
                 lib/ExtUtils/MakeMaker.pm
                 lib/ExtUtils/MakeMaker/Locale.pm
                 lib/ExtUtils/Mkbootstrap.pm
@@ -688,6 +688,7 @@ use File::Glob qw(:case);
                 t/Liblist.t
                 t/Mkbootstrap.t
                 t/pm_to_blib.t
+                t/pod2man.t
                 t/prereq.t
                 t/vstrings.t ],
             # Not yet submitted
