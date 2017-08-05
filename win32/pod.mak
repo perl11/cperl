@@ -180,7 +180,10 @@ POD = cperl.pod	\
 	perlunitut.pod	\
 	perlutil.pod	\
 	perlvar.pod	\
-	perlvms.pod
+	perlvms.pod	\
+	perlxs.pod	\
+	perlxstut.pod	\
+	perlxstypemap.pod
 	perl561delta.pod	\
 	perl56delta.pod	\
 	perl581delta.pod	\
@@ -458,7 +461,10 @@ MAN = cperl.man	\
 	perlunitut.man	\
 	perlutil.man	\
 	perlvar.man	\
-	perlvms.man
+	perlvms.man	\
+	perlxs.man	\
+	perlxstut.man	\
+	perlxstypemap.man
 	perl561delta.man	\
 	perl56delta.man	\
 	perl581delta.man	\
@@ -736,7 +742,10 @@ HTML = cperl.html	\
 	perlunitut.html	\
 	perlutil.html	\
 	perlvar.html	\
-	perlvms.html
+	perlvms.html	\
+	perlxs.html	\
+	perlxstut.html	\
+	perlxstypemap.html
 	perl561delta.html	\
 	perl56delta.html	\
 	perl581delta.html	\
@@ -1014,7 +1023,10 @@ TEX = cperl.tex	\
 	perlunitut.tex	\
 	perlutil.tex	\
 	perlvar.tex	\
-	perlvms.tex
+	perlvms.tex	\
+	perlxs.tex	\
+	perlxstut.tex	\
+	perlxstypemap.tex
 	perl561delta.tex	\
 	perl56delta.tex	\
 	perl581delta.tex	\
