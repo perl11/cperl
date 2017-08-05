@@ -234,6 +234,12 @@ Bump version
 mingw fix: use safe defaults, not segfaulting defaults.
 mingw fails on the stacksize binary search, leaving it empty.
 
+=item L<threads> 2.16_01
+
+Fix Clang macro backward compatibility per patch by Andy Grundman.
+Keep the old better doc.
+Keep our modglobal fix in global destruction from 2.12_01.
+
 =item L<VMS::Studio> 2.41_01
 
 Bump version

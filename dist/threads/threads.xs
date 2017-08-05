@@ -20,7 +20,6 @@
 #endif
 #ifdef HAS_PPPORT_H
 #  define NEED_PL_signals
-#  define NEED_newRV_noinc
 #  define NEED_sv_2pv_flags
 #  include "ppport.h"
 #  include "threads.h"
@@ -133,9 +132,9 @@ typedef struct {
     IV page_size;
 } my_pool_t;
 
-#define dMY_POOL                                                    \
-    SV *my_pool_sv = *hv_fetch(PL_modglobal, MY_POOL_KEY,           \
-                               sizeof(MY_POOL_KEY)-1, TRUE);        \
+#define dMY_POOL \
+    SV *my_pool_sv = *hv_fetch(PL_modglobal, MY_POOL_KEY,               \
+                               sizeof(MY_POOL_KEY)-1, TRUE);            \
     my_pool_t *my_poolp = INT2PTR(my_pool_t*, SvUV(my_pool_sv))
 
 #define MY_POOL_set                                                 \
@@ -1031,10 +1030,13 @@ S_ithread_create(
     MUTEX_UNLOCK(&my_pool->create_destruct_mutex);
     return (thread);
 
+#if defined(CLANG_DIAG_IGNORE)
     CLANG_DIAG_IGNORE(-Wthread-safety);
     /* warning: mutex 'thread->mutex' is not held on every path through here [-Wthread-safety-analysis] */
+#endif
 }
-#if defined(__clang__) || defined(__clang)
+/* perl.h defines CLANG_DIAG_* but only in 5.24+ */
+#if defined(CLANG_DIAG_RESTORE)
 CLANG_DIAG_RESTORE
 #endif
 
@@ -1506,7 +1508,9 @@ ithread_kill(...)
         MUTEX_UNLOCK(&thread->mutex);
 
         if (no_handler) {
-            Perl_croak(aTHX_ "Signal %s received in thread %" UVuf ", but no signal handler set.", sig_name, thread->tid);
+            Perl_croak(aTHX_ "Signal %s received in thread %" UVuf
+                             ", but no signal handler set.",
+                             sig_name, thread->tid);
         }
 
         /* Return the thread to allow for method chaining */
@@ -1830,6 +1834,7 @@ BOOT:
     SV *my_pool_sv = *hv_fetch(PL_modglobal, MY_POOL_KEY,
                                sizeof(MY_POOL_KEY)-1, TRUE);
     my_pool_t *my_poolp = (my_pool_t*)SvPVX(newSV(sizeof(my_pool_t)-1));
+
     MY_CXT_INIT;
 
     Zero(my_poolp, 1, my_pool_t);
