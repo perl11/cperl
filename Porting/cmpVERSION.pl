@@ -202,10 +202,10 @@ my (@diff);
 foreach my $pm_file (sort keys %module_diffs) {
     # git has already told us that the files differ, so no need to grab each as
     # a blob from git, and do the comparison ourselves.
-    my $pm_version = eval { MM->parse_version($pm_file) };
+    my $pm_version = MM->parse_version($pm_file);
     my $orig_pm_content = get_file_from_git($pm_file, $tag_to_compare);
     my $pm_handle = new Test::Builder::IO::Scalar \$orig_pm_content;
-    my $orig_pm_version = eval { MM->parse_version($pm_handle) };
+    my $orig_pm_version = MM->parse_version($pm_handle);
     ++$count;
 
     if (!defined $orig_pm_version || $orig_pm_version eq 'undef') { # sigh
