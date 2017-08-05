@@ -3,7 +3,7 @@ package File::Spec::Unix;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '4.67c'; # modernized
+$VERSION = '4.68c'; # modernized
 our $XS_VERSION = $VERSION;
 $VERSION =~ tr/_//;
 $VERSION =~ s/c$//;
@@ -174,13 +174,14 @@ sub _cached_tmpdir {
     return $tmpdir;
 }
 sub _tmpdir ($self, @dirlist) {
-    my $taint = do { no strict 'refs'; ${"\cTAINT"} };
+    my $taint = do { no strict; ${"\cTAINT"} };
     if ($taint) { # Check for taint mode on perl >= 5.8.0
 	require Scalar::Util;
 	@dirlist = grep { ! Scalar::Util::tainted($_) } @dirlist;
     }
     elsif ($] < 5.007) { # No ${^TAINT} before 5.8
-	@dirlist = grep { eval { eval('1'.substr $_,0,0) } } @dirlist;
+	@dirlist = grep { !defined($_) || eval { eval('1'.substr $_,0,0) } }
+			@dirlist;
     }
     
     foreach (@dirlist) {
