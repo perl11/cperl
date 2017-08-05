@@ -169,6 +169,19 @@ Filter::Simple was erroneously signalling eof if it encountered a
       no MyFilter;
 In this case it should simply not filter anything.
 
+=item L<Getopt::Long> 2.50
+
+Fix bug L<https://rt.cpan.org/Ticket/Display.html?id=120231>.
+
+Fix bug L<https://rt.cpan.org/Ticket/Display.html?id=120300>.
+Unfortunately, this withdraws a small part of fix 114999.  GNU
+C<getopt_long()> does not accept the (optional) argument to be passed
+to the option without C<=> sign.  We do, since not doing so breaks
+existing scripts.
+
+Provide a default value for options (B<gnu_compat> mode).
+Thanks to Andrew Gregory.
+
 =item L<IO>
 
 Bump versions of 3 Socket modules.
