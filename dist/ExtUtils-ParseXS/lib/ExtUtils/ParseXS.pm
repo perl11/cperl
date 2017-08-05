@@ -11,7 +11,7 @@ use Symbol;
 
 our $VERSION;
 BEGIN {
-  $VERSION = '3.34_02';
+  $VERSION = '3.35_02';
 }
 use ExtUtils::ParseXS::Constants $VERSION;
 use ExtUtils::ParseXS::CountLines $VERSION;
@@ -885,6 +885,7 @@ MAKE_FETCHMETHOD_WORK
 
   # print initialization routine
   # Windows already has __declspec(dllexport) in XS_EXTERNAL
+
   print Q(<<"EOF");
 #XS_EXTERNAL(boot_$self->{Module_cname}) __attribute__global__ ;
 #

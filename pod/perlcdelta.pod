@@ -140,6 +140,12 @@ _boot_XS__Test in: Test.o blib/arch/auto/XS/Test/Test.a(Test.o)
 
 xsstatic: fixup MAKE_APERL_FILE, which was Makefile.aperl.aperl
 
+=item L<ExtUtils::ParseXS> 3.35_02
+
+Moved xs pods still missing from the CPAN release completely to core.
+
+Bump versions.
+
 =item L<File::Spec::Functions> 3.36_05
 
 Bumped version from unparsable 3.3.65, which prevented e.g.
