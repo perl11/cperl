@@ -14969,6 +14969,7 @@ our %delta = (
             'ExtUtils::Typemaps::InputMap'  => '3.35',
             'ExtUtils::Typemaps::OutputMap' => '3.35',
             'ExtUtils::Typemaps::Type'      => '3.35',
+            'File::Path'            => '3.15_01c',
             'File::Spec::Functions' => '3.36_05',
             'IO::Socket'            => '1.38_01',
             'IO::Socket::INET'      => '1.35_01',

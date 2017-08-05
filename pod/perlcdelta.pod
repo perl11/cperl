@@ -146,6 +146,13 @@ Moved xs pods still missing from the CPAN release completely to core.
 
 Bump versions.
 
+=item L<File::Path> 3.15_01c
+
+Remove erroneous documentation.
+Correct skip count for Windows.
+Comment out two TODO tests.
+Make subdirectory names used in tests more random.
+
 =item L<File::Spec::Functions> 3.36_05
 
 Bumped version from unparsable 3.3.65, which prevented e.g.
