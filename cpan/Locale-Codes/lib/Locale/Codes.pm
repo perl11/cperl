@@ -15,7 +15,7 @@ use Carp;
 use Locale::Codes::Constants;
 
 our($VERSION);
-$VERSION='3.51';
+$VERSION='3.53';
 
 use Exporter qw(import);
 our(@EXPORT_OK,%EXPORT_TAGS);

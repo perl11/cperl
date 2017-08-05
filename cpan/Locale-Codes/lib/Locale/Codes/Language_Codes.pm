@@ -3,7 +3,7 @@ Locale::Codes::Language_Codes;
 
 # This file was automatically generated.  Any changes to this file will
 # be lost the next time 'harvest_data' is run.
-#    Generated on: Mon Apr 10 10:37:29 EDT 2017
+#    Generated on: Tue Jul 25 13:41:09 EDT 2017
 
 use strict;
 require 5.006;
@@ -11,7 +11,7 @@ use warnings;
 use utf8;
 
 our($VERSION);
-$VERSION='3.51';
+$VERSION='3.53';
 
 $Locale::Codes::Data{'language'}{'id'} = '7960';
 
@@ -7742,8 +7742,8 @@ $Locale::Codes::Data{'language'}{'id2names'} = {
       q(Gidar),
       ],
    q(2513) => [
-      q(GaÉogbo),
-      q(GuÃ©bie),
+      q(Gabogbo),
+      q(Guebie),
       ],
    q(2514) => [
       q(Goaria),
@@ -11171,7 +11171,7 @@ $Locale::Codes::Data{'language'}{'id2names'} = {
    q(3638) => [
       q(Ju/'hoan),
       q(Juhoan),
-      q(JuÇÊ¼hoansi),
+      q(Ju|'hoansi),
       ],
    q(3639) => [
       q(Kutep),
@@ -32759,6 +32759,10 @@ $Locale::Codes::Data{'language'}{'alias2id'} = {
       q(2437),
       q(0),
       ],
+   q(gabogbo) => [
+      q(2513),
+      q(0),
+      ],
    q(gabri) => [
       q(2395),
       q(0),
@@ -33049,10 +33053,6 @@ $Locale::Codes::Data{'language'}{'alias2id'} = {
       ],
    q(gazi) => [
       q(2704),
-      q(0),
-      ],
-   q(gaÉogbo) => [
-      q(2513),
       q(0),
       ],
    q(gbagyi) => [
@@ -33683,6 +33683,10 @@ $Locale::Codes::Data{'language'}{'alias2id'} = {
       q(2454),
       q(0),
       ],
+   q(guebie) => [
+      q(2513),
+      q(1),
+      ],
    q(guernesiais) => [
       q(5047),
       q(1),
@@ -33942,10 +33946,6 @@ $Locale::Codes::Data{'language'}{'alias2id'} = {
    q(guyani) => [
       q(2674),
       q(0),
-      ],
-   q(guÃ©bie) => [
-      q(2513),
-      q(1),
       ],
    q(gvoko) => [
       q(4844),
@@ -35991,7 +35991,7 @@ $Locale::Codes::Data{'language'}{'alias2id'} = {
       q(7004),
       q(0),
       ],
-   q(juÇÊ¼hoansi) => [
+   q(ju|'hoansi) => [
       q(3638),
       q(2),
       ],
