@@ -1,5 +1,11 @@
 Revision history for Perl extension threads::shared.
 
+1.57 Sun May  7 22:48:33 2017
+	- Fix Clang macro backward compatibility per patch by Andy Grundman
+
+1.56 Fri Apr 14 10:51:56 2017 +0100
+	- RT #131124 Memory allocation fix (not released to CPAN)
+
 1.55 Sun Feb 26 18:23:45 2017
 	- Document issue with destructor not called on embedded shared objects
 

@@ -96,7 +96,7 @@ Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e15
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 06610e9883ce805bcd6543ab959a9826f598eb40
 Math::BigInt cpan/Math-BigInt/t/with_sub.t c040328e223df6f56250f5d67dcb2c9a2f23c110
 Memoize cpan/Memoize/t/expmod_t.t 9386100cd9c95a0e8a4e001bba3aa52eec114d21
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 0a5cf415e36e1c1afaf73be0cc0a1825f4e14389
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 457686c26c7bb64d710e08ab69815a9db39e45bf
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm aaf6dc4c3bf487271e7104e5ce5e0bc66f711e00
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
@@ -143,6 +143,7 @@ lib dist/lib/lib_pm.PL 04a3dedbc657cac6c8db1faf2f0c6a7af328a23f
 threads dist/threads/lib/threads.pm fa549502b14272e4543276f3601bae5e3b0dd5fa
 threads dist/threads/t/locale.t 9a2a5b43a39867590eb288d4a1759abac2052aa8
 threads dist/threads/threads.xs 68d0d92c37b75b510bd4d34e765d0cb97bc7296a
+threads::shared dist/threads-shared/t/waithires.t dc867159fd2fa8c09326cd7627f5a0635ca5e3b5
 version cpan/version/lib/version.pm 46e7b7eed74b5080b23f852acd84e6ca5aab6d74
 version cpan/version/lib/version/regex.pm a2e6098571d8085340d4378ec21ad54bbcce1ceb
 version vutil.c 0743d196360e6b35726049fdff765c61de5d4847

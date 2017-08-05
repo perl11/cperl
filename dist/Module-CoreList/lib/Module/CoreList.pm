@@ -14994,6 +14994,7 @@ our %delta = (
             'Search::Dict'          => '1.07_01',
             'SelectSaver'           => '1.02_01',
             'threads'               => '2.16_01',
+            'threads::shared'       => '1.57',
             'VMS::Studio'           => '2.41_01',
         },
         removed => {
