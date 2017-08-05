@@ -1460,7 +1460,7 @@ use File::Glob qw(:case);
     },
 
     'threads' => {
-        'DISTRIBUTION' => 'JDHEDDEN/threads-2.15.tar.gz',
+        'DISTRIBUTION' => 'JDHEDDEN/threads-2.16.tar.gz',
         'FILES'        => q[dist/threads],
         'EXCLUDED'     => [
             qr{^examples/},
@@ -1469,12 +1469,15 @@ use File::Glob qw(:case);
                 threads.h
                 ),
           ],
-        # protect ithread_free from deleted PL_modglobal
-        #'CUSTOMIZED'   => [
-        #    qw( threads.xs
-        #        lib/threads.pm
-        #      ),
-        #],
+          # test locale race #127708
+          # use old pod, tech. explanation: slow, rather use fork
+          # fix my_pool init in global destruction
+        'CUSTOMIZED'   => [
+            qw( t/locale.t
+                lib/threads.pm
+                threads.xs
+              ),
+          ],
     },
 
     'threads::shared' => {

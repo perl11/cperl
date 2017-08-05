@@ -5,7 +5,7 @@ use 5.008;
 use strict;
 use warnings;
 
-our $VERSION = '2.15';
+our $VERSION = '2.16_01';
 my $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -29,7 +29,8 @@ $threads::threads = 1;
 
 # Load the XS code
 require XSLoader;
-XSLoader::load("threads", $XS_VERSION);
+XSLoader::load('threads', $XS_VERSION);
+
 
 ### Export ###
 
@@ -133,7 +134,7 @@ threads - Perl interpreter-based threads
 
 =head1 VERSION
 
-This document describes threads version 2.15
+This document describes threads version 2.16
 
 =head1 WARNING
 

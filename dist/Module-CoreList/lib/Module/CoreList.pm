@@ -14978,6 +14978,7 @@ our %delta = (
             'Net::Ping'             => '2.61',
             'Search::Dict'          => '1.07_01',
             'SelectSaver'           => '1.02_01',
+            'threads'               => '2.16_01',
             'VMS::Studio'           => '2.41_01',
         },
         removed => {
@@ -15154,6 +15155,7 @@ our %delta = (
             'SelectSaver'           => '1.02_01',
             'Storable'              => '3.05_13',
             'strict'                => '1.13c',
+            'threads'               => '2.16_01',
             'VMS::Studio'           => '2.41_01',
             'Win32API::File'        => '0.1204',
         },

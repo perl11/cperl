@@ -445,6 +445,12 @@ Implemented C<strict 'names'> to reject illegal identifiers created via
 C<no strict 'refs'> also at run-time, not only at compile-time.  See
 L<[cperl #282]|https://github.com/perl11/cperl/issues/282>.
 
+=item L<threads> 2.16_01
+
+Fix Clang macro backward compatibility per patch by Andy Grundman.
+Keep the old better doc.
+Keep our modglobal fix in global destruction from 2.12_01.
+
 =item L<VMS::Studio> 2.41_01
 
 Bump version
