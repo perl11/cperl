@@ -158,6 +158,17 @@ Make subdirectory names used in tests more random.
 Bumped version from unparsable 3.3.65, which prevented e.g.
 File::chdir to install.
 
+=item L<Filter::Simple> 0.94
+
+Various small documentation fixes.
+Swap out base.pm use for parent.pm.
+Remove use of deprecated \C regex feature.
+Filter::Simple was erroneously signalling eof if it encountered a
+‘no MyFilter’ right after ‘use’:
+      use MyFilter;
+      no MyFilter;
+In this case it should simply not filter anything.
+
 =item L<IO>
 
 Bump versions of 3 Socket modules.

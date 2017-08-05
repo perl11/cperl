@@ -738,7 +738,7 @@ use File::Glob qw(:case);
     },
 
     'Filter::Simple' => {
-        'DISTRIBUTION' => 'SMUELLER/Filter-Simple-0.92.tar.gz',
+        'DISTRIBUTION' => 'SMUELLER/Filter-Simple-0.94.tar.gz',
         'FILES'        => q[dist/Filter-Simple],
         'EXCLUDED'     => [
             qr{^demo/}
@@ -858,7 +858,7 @@ use File::Glob qw(:case);
     },
 
     'IO::Socket::IP' => {
-        'DISTRIBUTION' => 'ATOOMIC/IO-Socket-IP-0.39.tar.gz',
+        'DISTRIBUTION' => 'PEVANS/IO-Socket-IP-0.39.tar.gz',
         'FILES'        => q[cpan/IO-Socket-IP],
         'EXCLUDED'     => [
             qr{^examples/},
