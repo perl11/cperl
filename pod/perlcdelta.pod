@@ -250,6 +250,21 @@ Keep our modglobal fix in global destruction from 2.12_01.
 Fix Clang macro backward compatibility per patch by Andy Grundman.
 RT #131124 Memory allocation fix.
 
+=item L<Time::HiRes> 1.9744_01
+
+upstream:
+
+add more potential clock constants, like CLOCK_MONOTONIC_FAST
+(available in FreeBSD), and not all potentially found clock constants
+were properly exported to be available from Perl, see your system's
+clock_gettime() documentation for the available ones
+
+correct declared minimum Perl version (should be 5.6, was declared as
+5.8 since 1.9727_03): blead af94b3ac
+
+merged with our cperl test fixes.
+See L<https://github.com/rurban/Time-HiRes/tree/cperl>
+
 =item L<VMS::Studio> 2.41_01
 
 Bump version

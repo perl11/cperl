@@ -417,11 +417,11 @@ sub DEFINE {
 }
 
 sub init {
-    my $hints = File::Spec->catfile(".", "hints", "$^O.pl");
+    my $hints = File::Spec->catfile("hints", "$^O.pl");
     if (-f $hints) {
 	print "Using hints $hints...\n";
 	local $self;
-	do $hints;
+	do "./$hints";
 	if (exists $self->{LIBS}) {
 	    $LIBS = $self->{LIBS};
 	    print "Extra libraries: @$LIBS...\n";
@@ -609,7 +609,7 @@ EOD
     } elsif (defined $SYSCALL_H && has_clock_xxx_syscall('gettime')) {
         $has_clock_gettime++;
 	$DEFINE .= ' -DTIME_HIRES_CLOCK_GETTIME -DTIME_HIRES_CLOCK_GETTIME_SYSCALL';
-    } elsif ($^O eq 'darwin') { # no CLOCK_REALTIME
+    } elsif ($^O eq 'darwin') {
        $has_clock_gettime_emulation++;
        $has_clock_gettime++;
        $DEFINE .= ' -DTIME_HIRES_CLOCK_GETTIME -DTIME_HIRES_CLOCK_GETTIME_EMULATION';
@@ -936,7 +936,7 @@ sub doMakefile {
     }
 
     if ($ExtUtils::MakeMaker::VERSION >= 6.48) {
-	push @makefileopts, (MIN_PERL_VERSION => '5.008',);
+	push @makefileopts, (MIN_PERL_VERSION => '5.006',);
     }
 
     if ($ExtUtils::MakeMaker::VERSION >= 6.31) {
@@ -948,31 +948,38 @@ sub doMakefile {
 
 sub doConstants {
     if (eval {require ExtUtils::Constant; 1}) {
+        # More or less this same list is in HiRes.pm.  Should unify.
 	my @names = qw(
-                       CLOCKS_PER_SEC
-                       CLOCK_BOOTTIME
-                       CLOCK_HIGHRES
-                       CLOCK_MONOTONIC
-                       CLOCK_MONOTONIC_COARSE
-                       CLOCK_MONOTONIC_PRECISE
-                       CLOCK_MONOTONIC_RAW
-                       CLOCK_PROCESS_CPUTIME_ID
-                       CLOCK_REALTIME
-                       CLOCK_REALTIME_COARSE
-                       CLOCK_REALTIME_FAST
-                       CLOCK_REALTIME_PRECISE
-                       CLOCK_SECOND
-                       CLOCK_SOFTTIME
-                       CLOCK_THREAD_CPUTIME_ID
-                       CLOCK_TIMEOFDAY
-                       CLOCK_UPTIME
-                       CLOCK_UPTIME_FAST
-                       CLOCK_UPTIME_PRECISE
-                       ITIMER_PROF
-                       ITIMER_REAL
-                       ITIMER_REALPROF
-                       ITIMER_VIRTUAL
-                       TIMER_ABSTIME
+		       CLOCKS_PER_SEC
+		       CLOCK_BOOTTIME
+		       CLOCK_HIGHRES
+		       CLOCK_MONOTONIC
+		       CLOCK_MONOTONIC_COARSE
+		       CLOCK_MONOTONIC_FAST
+		       CLOCK_MONOTONIC_PRECISE
+		       CLOCK_MONOTONIC_RAW
+		       CLOCK_PROF
+		       CLOCK_PROCESS_CPUTIME_ID
+		       CLOCK_REALTIME
+		       CLOCK_REALTIME_COARSE
+		       CLOCK_REALTIME_FAST
+		       CLOCK_REALTIME_PRECISE
+		       CLOCK_REALTIME_RAW
+		       CLOCK_SECOND
+		       CLOCK_SOFTTIME
+		       CLOCK_THREAD_CPUTIME_ID
+		       CLOCK_TIMEOFDAY
+		       CLOCK_UPTIME
+		       CLOCK_UPTIME_COARSE
+		       CLOCK_UPTIME_FAST
+		       CLOCK_UPTIME_PRECISE
+		       CLOCK_UPTIME_RAW
+		       CLOCK_VIRTUAL
+		       ITIMER_PROF
+		       ITIMER_REAL
+		       ITIMER_REALPROF
+		       ITIMER_VIRTUAL
+		       TIMER_ABSTIME
                       );
 	foreach (qw (d_usleep d_ualarm d_gettimeofday d_getitimer d_setitimer
 		     d_nanosleep d_clock_gettime d_clock_getres

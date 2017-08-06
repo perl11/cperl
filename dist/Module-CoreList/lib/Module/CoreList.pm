@@ -14997,6 +14997,7 @@ our %delta = (
             'SelectSaver'           => '1.02_01',
             'threads'               => '2.16_01',
             'threads::shared'       => '1.57',
+            'Time::HiRes'           => '1.9744_01',
             'VMS::Studio'           => '2.41_01',
         },
         removed => {

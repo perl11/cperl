@@ -99,7 +99,7 @@ Math::BigRat cpan/Math-BigRat/t/bigfltpm.inc 8000c7057453138ff48cf4cba61f0f4a1db
 Math::BigRat cpan/Math-BigRat/t/bigfltrt.t 5508d55216c52caf26aa2e6478691c50b7856e7d
 Math::BigRat cpan/Math-BigRat/t/bigratpm.t cfd770aabeaf6b742fd942143e816db42db04fba
 Memoize cpan/Memoize/t/expmod_t.t 9386100cd9c95a0e8a4e001bba3aa52eec114d21
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm a71be7059bc3e4359f0ec70443d1881542b96271
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm cae7832d4b965963cf157e575aaf5f69907bbfc3
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm aaf6dc4c3bf487271e7104e5ce5e0bc66f711e00
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
@@ -124,7 +124,7 @@ Time::HiRes dist/Time-HiRes/HiRes.xs 0fda2e23eade1f3de981a9264596fcf11ebbaca4
 Time::HiRes dist/Time-HiRes/t/alarm.t 1f19ec4a487abfc4725a6abfa44f1cf1d8cd8086
 Time::HiRes dist/Time-HiRes/t/clock.t acb2497e55facb882c41154805e917d1dbe5377c
 Time::HiRes dist/Time-HiRes/t/itimer.t 659db22bc635177b130e0478aef1fd5e1edf0b6d
-Time::HiRes dist/Time-HiRes/t/nanosleep.t d7b7a510d0f7c99fb8e647a961f1efb09cc033ca
+Time::HiRes dist/Time-HiRes/t/nanosleep.t 91ff108217547361a527f5438a36c9e09faf7400
 Time::HiRes dist/Time-HiRes/t/usleep.t 573121cfdb26195ed22071e38d50dcdde3c49a66
 Time::HiRes dist/Time-HiRes/t/utime.t fc7bd0876a9d18c8a0fb104fc63c46489bd5ea7c
 Time::HiRes dist/Time-HiRes/typemap 4c0a40c7cd8dbde34c3122e8cf71b8a420bc64a4
