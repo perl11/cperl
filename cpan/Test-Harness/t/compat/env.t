@@ -12,6 +12,8 @@ use Test::More (
     : ( tests => 1 )
 );
 
+local $ENV{HARNESS_VERBOSE};
+BEGIN { undef $ENV{HARNESS_VERBOSE}; }
 use Test::Harness;
 
 # HARNESS_PERL_SWITCHES
@@ -32,6 +34,7 @@ END { unlink 'env_check_t.tmp'; }
 
 {
     local $ENV{HARNESS_PERL_SWITCHES} = '-w';
+    local $ENV{HARNESS_VERBOSE};
     my ( $tot, $failed )
       = Test::Harness::execute_tests( tests => ['env_check_t.tmp'] );
     is $tot->{bad}, 0;
