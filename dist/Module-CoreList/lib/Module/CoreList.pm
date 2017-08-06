@@ -14982,6 +14982,7 @@ our %delta = (
             'SelectSaver'           => '1.02_01',
             'threads'               => '2.16_01',
             'threads::shared'       => '1.57',
+            'Time::HiRes'           => '1.9744_01',
             'VMS::Studio'           => '2.41_01',
         },
         removed => {
@@ -15161,6 +15162,7 @@ our %delta = (
             'strict'                => '1.13c',
             'threads'               => '2.16_01',
             'threads::shared'       => '1.57',
+            'Time::HiRes'           => '1.9744_01',
             'VMS::Studio'           => '2.41_01',
             'Win32API::File'        => '0.1204',
         },
