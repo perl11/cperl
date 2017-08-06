@@ -10,6 +10,8 @@ use Config;
 
 local
   $ENV{PERL5OPT};   # avoid any user-provided PERL5OPT from contaminating @INC
+local $ENV{HARNESS_VERBOSE};
+BEGIN { undef $ENV{HARNESS_VERBOSE}; }
 
 sub has_crazy_patch {
     my $sentinel = 'blirpzoffle';

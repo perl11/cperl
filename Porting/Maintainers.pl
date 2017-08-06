@@ -1360,6 +1360,7 @@ use File::Glob qw(:case);
                 ),
         ],
         # with compiled Config
+        # insensitive to HARNESS_VERBOSE
         'CUSTOMIZED'   => [
             qw( t/multiplexer.t
                 t/nofork.t
@@ -1367,6 +1368,9 @@ use File::Glob qw(:case);
                 t/sample-tests/switches
 		t/source_handler.t
 		t/lib/NoFork.pm
+                
+                t/compat/env.t
+                t/compat/inc-propagation.t
               )],
     },
 
