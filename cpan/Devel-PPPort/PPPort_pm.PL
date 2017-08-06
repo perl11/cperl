@@ -133,8 +133,7 @@ sub include
 {
   my($file, $opt) = @_;
 
-  print "including $file\n" unless (defined $ENV{MAKEFLAGS}
-        and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/);
+  print "including $file\n" unless $ENV{PERL_CORE};
 
   my $data = parse_partspec("$INCLUDE/$file");
 
