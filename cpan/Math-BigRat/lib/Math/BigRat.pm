@@ -20,7 +20,7 @@ use Carp ();
 
 use Math::BigFloat 1.999718;
 
-our $VERSION = '0.2612';
+our $VERSION = '0.2613';
 
 our @ISA = qw(Math::BigFloat);
 
@@ -887,9 +887,11 @@ sub bmul {
     my $gcd_sq = $LIB -> _gcd($LIB -> _copy($y->{_n}), $x->{_d});
 
     $x->{_n} = $LIB -> _mul(scalar $LIB -> _div($x->{_n}, $gcd_pr),
-                            scalar $LIB -> _div($y->{_n}, $gcd_sq));
+                            scalar $LIB -> _div($LIB -> _copy($y->{_n}),
+                                                $gcd_sq));
     $x->{_d} = $LIB -> _mul(scalar $LIB -> _div($x->{_d}, $gcd_sq),
-                            scalar $LIB -> _div($y->{_d}, $gcd_pr));
+                            scalar $LIB -> _div($LIB -> _copy($y->{_d}),
+                                                $gcd_pr));
 
     # compute new sign
     $x->{sign} = $x->{sign} eq $y->{sign} ? '+' : '-';

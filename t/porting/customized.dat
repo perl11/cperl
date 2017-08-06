@@ -100,8 +100,11 @@ Math::BigInt cpan/Math-BigInt/t/sub_mif.t e87738bd15116665c38d9f41b310cfe7fbf6da
 Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e1546
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 06610e9883ce805bcd6543ab959a9826f598eb40
 Math::BigInt cpan/Math-BigInt/t/with_sub.t c040328e223df6f56250f5d67dcb2c9a2f23c110
+Math::BigRat cpan/Math-BigRat/t/bigfltpm.inc 8000c7057453138ff48cf4cba61f0f4a1db2b59a
+Math::BigRat cpan/Math-BigRat/t/bigfltrt.t 5508d55216c52caf26aa2e6478691c50b7856e7d
+Math::BigRat cpan/Math-BigRat/t/bigratpm.t cfd770aabeaf6b742fd942143e816db42db04fba
 Memoize cpan/Memoize/t/expmod_t.t 9386100cd9c95a0e8a4e001bba3aa52eec114d21
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 1b7766aaebc990aad7ade7d4cd33dff1fd0749ee
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm fc70f5045950d5b51cc5426d5e9e4f79c794e437
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 7ff05ce5f0b967d229b90870de806ce3fea82b22
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c

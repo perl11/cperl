@@ -401,6 +401,11 @@ Various, see L<https://metacpan.org/changes/distribution/JSON-PP>
 
 Fixed the default error condition in legacy modules.
 
+=item L<Math::BigRat> 0.2613
+
+Fix problem with second operand being changed in multiplication (CPAN
+RT #121139).
+
 =item L<Memoize> 1.03
 
 Skip flapping, timer-sensitive t/expmod_t.t tests
