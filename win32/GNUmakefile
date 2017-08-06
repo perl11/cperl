@@ -1825,6 +1825,7 @@ test-prep : all utils ..\pod\perltoc.pod $(TESTPREPGCC)
 	$(XCOPY) $(PERLEXE) ..\t\$(NULL)
 	copy     $(PERLEXE) ..\t\perl.exe
 	$(XCOPY) $(PERLDLL) ..\t\$(NULL)
+	$(XCOPY) $(PERLDLL) ..\cpan\B-C\$(NULL)
 	$(XCOPY) $(GLOBEXE) ..\t\$(NULL)
 # If building with gcc versions 4.x.x or greater, then
 # the GCC helper DLL will also need copied to the test directory.
