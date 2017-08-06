@@ -696,7 +696,7 @@ sub cc_harness {
 !NO!SUBS!
 print OUT <<"!EXPANDED!";
       \$coredir = \"$srcdir\";
-      \$coredir .= \"\\\\lib\\\\CORE\" if \$^O eq 'MSWin32';
+      \$coredir .= \"/lib/CORE\" if \$^O eq 'MSWin32'; # forward slashes yes
       \$command = "\$Config{ccflags} -I\\\"\$coredir\\\" -L\\\"\$coredir\\\" -o \\\"\$Output\\\" \\\"\$cfile\\\" ";
 !EXPANDED!
 print OUT <<'!NO!SUBS!';
@@ -735,7 +735,11 @@ print OUT <<'!NO!SUBS!';
         my @mods = split /,?-?u/, $stash; # XXX -U stashes
         $ldopts = ExtUtils::Embed::ldopts("-std", \@mods);
     } else {
-        $ldopts = ExtUtils::Embed::ldopts("-std");
+        if ($ENV{PERL_CORE} and $^O eq 'MSWin32') {
+            $ldopts = $Config{libs};
+        } else {
+            $ldopts = ExtUtils::Embed::ldopts("-std"); # critical on mingw
+        }
     }
     $ldopts .= " ".opt('Wl') if opt('Wl');
 
@@ -767,7 +771,7 @@ print OUT <<'!NO!SUBS!';
         # on mingw we still search for cperl52x.dll not the importlib
         # coredir + includedir is ../../lib/CORE on windows
         $libdir = "../..";
-        $ldopts .= " -L$coredir" if $^O eq 'MSWin32';
+        # $ldopts .= " -L$coredir" if $^O eq 'MSWin32';
     } else {
         $libdir  = $Config{prefix} . "/lib";
         $coredir = $ENV{PERL_SRC} || $Config{archlib}."/CORE";
