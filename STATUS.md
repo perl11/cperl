@@ -66,7 +66,7 @@ increase over time.
 
 ![Memory usage with unicode s///i](cperl-p1.png)
 
-![Benchmarks](cperl-bench26.png)
+![Benchmarks](cperl-bench27.png)
 For all versions see [bench-all/](bench-all/index.html)
 
 # In the latest stable releases are the following major features:
@@ -205,7 +205,10 @@ download the pkg installer from [http://perl11.org/osx/](http://perl11.org/osx/)
 ## windows
 
 download the self-extracting zip from [http://perl11.org/win/](http://perl11.org/win/)
-and install it into `C:\cperl` via the `cperl-5.26.0-win64.exe -InstallPath="C:\\cperl"` cmdline option.
+and install it into `C:\cperl` via the `cperl-5.26.1.3407-win32.exe -InstallPath="C:\\cperl"`
+cmdline option, or install the latest msvc `.zip` or mingw `.tar.xz` files.
+Preferred is now mingw, which works fine parallel to the current strawberry perl
+installation.
 
 # Known bugs
 
@@ -213,7 +216,7 @@ The -d debugger fails on most signatures.
 
 See the github issues: [github.com/perl11/cperl/issues](https://github.com/perl11/cperl/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
 
-The following CPAN modules have no patches for 5.26.0c yet:
+The following CPAN modules have no patches for 5.26.1c yet:
 
 * autovivification (mderef rpeep changes)
 * TryCatch
@@ -407,7 +410,7 @@ are limited. So they are based on master.
   
   optimize space for small strings.
 
-and various [hash tables refactorings]((https://github.com/perl11/cperl/issues/24):
+and various [hash tables refactorings](https://github.com/perl11/cperl/issues/24):
 
 feature/gh24-base-hash feature/gh24-he-array feature/gh24-oldnew-hash-table
 featurex/gh24-array_he featurex/gh24-hash-loop featurex/gh24-hash-loop+utf8

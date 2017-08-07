@@ -344,8 +344,8 @@ our %released = (
     5.027000 => '2017-05-31',
     5.027001 => '2017-06-03',
     '5.026001c' => '2017-08-07',
+    '5.027001c' => '2017-08-15',
     '5.024003c' => '????-??-??',
-    '5.027001c' => '????-??-??',
  );
 
 sub version_sort {
@@ -14915,7 +14915,11 @@ our %delta = (
             'Config'                => '5.026',
             'Module::CoreList'      => '5.20170428c',
             'Module::CoreList::Utils'=> '5.20170428c',
+            'Archive::Tar'          => '0.26',
+            'Archive::Tar::File'    => '0.26',
+            'Archive::Tar::Constant'=> '0.26',
             'B'                     => '1.68_07',
+            'B::C'                  => '1.55_04',
             'Cpanel::JSON::XS'      => '3.0233',
             'Cwd'                   => '4.68c',
             'Devel::PPPort'         => '3.36_02',
@@ -15081,8 +15085,9 @@ our %delta = (
         delta_from => '5.027000c',
         changed => {
             'Config'                => '5.027001',
-            'Module::CoreList'      => '5.20170714c',
-            'Module::CoreList::Utils'=> '5.20170714c',
+            'B::Op_private'         => '5.027001',
+            'Module::CoreList'      => '20170807c',
+            'Module::CoreList::Utils'=> '20170807c',
             'attributes'            => '1.12c',
             'B'                     => '1.68_08',
             'B::C'                  => '1.55_04',
