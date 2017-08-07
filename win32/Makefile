@@ -132,7 +132,7 @@ USE_NO_REGISTRY = define
 # Visual C++ 2008 (aka Visual C++ 9.0) (full version)
 #CCTYPE		= MSVC90
 # Visual C++ 2008 Express Edition (aka Visual C++ 9.x) (free version)
-CCTYPE		= MSVC90FREE
+#CCTYPE		= MSVC90FREE
 # Visual C++ 2010 (aka Visual C++ 10.0) (full version)
 #CCTYPE		= MSVC100
 # Visual C++ 2010 Express Edition (aka Visual C++ 10.0) (free version)
@@ -140,7 +140,7 @@ CCTYPE		= MSVC90FREE
 # Visual C++ 2012 (aka Visual C++ 11.0) (full version)
 #CCTYPE		= MSVC110
 # Visual C++ 2012 Express Edition (aka Visual C++ 11.0) (free version)
-#CCTYPE		= MSVC110FREE
+CCTYPE		= MSVC110FREE
 # Visual C++ 2013 (aka Visual C++ 12.0) (full version)
 #CCTYPE		= MSVC120
 # Visual C++ 2013 Express Edition (aka Visual C++ 12.0) (free version)
