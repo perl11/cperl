@@ -20,7 +20,7 @@ calls with signatures are 2x faster, normal functions with a `my(..) =
 @_;` prolog are automatically promoted to signatures.
 
 But only a small number of needed features are yet merged.  The plan
-is to support most perl5-compatible perl6 features (*"do not break
+was to support most perl5-compatible perl6 features (*"do not break
 CPAN"*), improve performance and memory usage, re-establish compiler
 (`B::C`) support, re-establish perl5 core development which
 essentially stopped 2002, use perl6-like development policies, better
@@ -35,13 +35,21 @@ improved to behave almost like classes.
 
 Tested and developed on linux and darwin 64bit. darwin 32bit fails
 on two unrelated core tests (issignaling setpayloadsig + chmod linked in).
-Windows is smoked with MSVC 10 and 12 for 32 and 64bit.
+Windows is smoked with mingw, cygwin and MSVC 10 and 12 for 32 and 64bit.
 The BSD's and Solaris are only tested before a release.
 
 The current stable release is
-  [5.24.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.2) - [perl5242cdelta](perl5242cdelta.html),
-the latest development release [5.26.0c](https://github.com/perl11/cperl/releases/tag/cperl-5.26.0-RC1) - [perl5260cdelta](perl5260cdelta.html).
-We also have [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4), [perl5224cdelta](perl5224cdelta.html).
+
+* [5.26.1c](https://github.com/perl11/cperl/releases/tag/cperl-5.26.1) - [perl5261cdelta](perl5261cdelta.html).
+  
+the latest development release:
+
+* [5.27.0c](https://github.com/perl11/cperl/releases/tag/cperl-5.27.0) - [perl5270cdelta](perl5270cdelta.html).
+
+We also have:
+
+* [5.24.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.2) - [perl5242cdelta](perl5242cdelta.html),
+* [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4), [perl5224cdelta](perl5224cdelta.html).
 
 All tests pass. CPAN works.
 Some fixes in my `rurban/distroprefs` repo for certain CPAN modules are needed.
@@ -140,7 +148,8 @@ For all versions see [bench-all/](bench-all/index.html)
 * enhanced dtrace probes
 * support for long path names, > 4096
 * support for unicode BOMs, setting the unicode hints
-* class/role/method/has
+* Fast and proper object orientation. User facing classes. class, role, method,
+  multi, has, is, does keywords, proper fields, Mu superclass.
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.
@@ -197,7 +206,9 @@ download the pkg installer from [http://perl11.org/osx/](http://perl11.org/osx/)
 ## windows
 
 download the self-extracting zip from [http://perl11.org/win/](http://perl11.org/win/)
-and install it into drive and directory `C:\cperl`.
+and install it into `C:\cperl` via the `cperl-win-5.26.1.3393-win32.exe -InstallPath="C:\\cperl"` cmdline option, or install the latest msvc `.zip` or mingw `.tar.xz` files.
+Preferred is now mingw, which works fine parallel to the current strawberry perl
+installation.
 
 
 # Known bugs
@@ -228,6 +239,7 @@ pretty strictly typed to catch wrong usages and enforce better code.
 See the `Test::More::skip()` [FAQ](https://github.com/perl11/cperl/issues/153#issuecomment-224515895) or below.
 Patches are needed for `Module::Build`, `IO::Socket::SSL` and `Net::SSLeay`.
 
+* -d debugging with signatures is mostly broken.
 * Stricter Test::More::skip
 * Stricter Test::More types and API
 * Readonly Config (XSConfig), use Mock::Config instead.
@@ -449,4 +461,4 @@ They also revert some wrong decisions p5p already made.
 
 --
 
-2017-07-13 rurban
+2017-08-07 rurban
