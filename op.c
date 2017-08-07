@@ -11605,10 +11605,13 @@ Warn on $[  (did you mean $] ?)
 OP *
 Perl_ck_cmp(pTHX_ OP *o)
 {
-    bool is_eq;
-    bool neg;
     OP *indexop, *constop, *start;
     SV *sv;
+    IV iv;
+    bool is_eq;
+    bool neg;
+    bool reverse;
+    bool iv0;
 
     PERL_ARGS_ASSERT_CK_CMP;
 
@@ -11637,6 +11640,8 @@ Perl_ck_cmp(pTHX_ OP *o)
      *   (r)index/BOOL(,NEG)
      */
 
+    reverse = FALSE;
+
     indexop = OpFIRST(o);
     constop = OpSIBLING(indexop);
     start = NULL;
@@ -11644,6 +11649,7 @@ Perl_ck_cmp(pTHX_ OP *o)
         constop = indexop;
         indexop = OpSIBLING(constop);
         start = constop;
+        reverse = TRUE;
     }
 
     if (indexop->op_type != OP_INDEX && indexop->op_type != OP_RINDEX)
@@ -11660,32 +11666,42 @@ Perl_ck_cmp(pTHX_ OP *o)
     if (!(sv && SvIOK_notUV(sv)))
         return ck_type(o);
 
-    neg = FALSE;
-
-    if (SvIVX(sv) == -1) {
-        /* index == -1, <= -1 */
-        if (  o->op_type == OP_EQ || o->op_type == OP_I_EQ
-           || o->op_type == OP_LE || o->op_type == OP_I_LE
-        )
-            neg = TRUE;
-        else 
-        /* index != -1, > -1 */
-        if (!(   o->op_type == OP_NE || o->op_type == OP_I_NE
-              || o->op_type == OP_GT || o->op_type == OP_I_GT)
-        )
-            return ck_type(o);
-    }
-    else if (SvIVX(sv) == 0) {
-        /* index < 0 */
-        if (o->op_type == OP_LT || o->op_type == OP_I_LT)
-            neg = TRUE;
-        else 
-        /* index >= 0 */
-        if (!(o->op_type == OP_GE || o->op_type == OP_I_GE))
-            return ck_type(o);
-    }
-    else
+    iv = SvIVX(sv);
+    if (iv != -1 && iv != 0)
         return ck_type(o);
+    iv0 = (iv == 0);
+
+    if (o->op_type == OP_LT || o->op_type == OP_I_LT) {
+        if (!(iv0 ^ reverse))
+            return ck_type(o);
+        neg = iv0;
+    }
+    else if (o->op_type == OP_LE || o->op_type == OP_I_LE) {
+        if (iv0 ^ reverse)
+            return ck_type(o);
+        neg = !iv0;
+    }
+    else if (o->op_type == OP_GE || o->op_type == OP_I_GE) {
+        if (!(iv0 ^ reverse))
+            return ck_type(o);
+        neg = !iv0;
+    }
+    else if (o->op_type == OP_GT || o->op_type == OP_I_GT) {
+        if (iv0 ^ reverse)
+            return ck_type(o);
+        neg = iv0;
+    }
+    else if (o->op_type == OP_EQ || o->op_type == OP_I_EQ) {
+        if (iv0)
+            return o;
+        neg = TRUE;
+    }
+    else {
+        assert(o->op_type == OP_NE || o->op_type == OP_I_NE);
+        if (iv0)
+            return o;
+        neg = FALSE;
+    }
 
     indexop->op_flags &= ~OPf_PARENS;
     indexop->op_flags |= (o->op_flags & OPf_PARENS);
