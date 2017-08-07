@@ -462,10 +462,10 @@ MAN1PODS = ".$self->wraplist(sort keys %{$self->{MAN1PODS}})."
 MAN3PODS = ".$self->wraplist(sort keys %{$self->{MAN3PODS}})."
 ";
 
-
+    my $configdep = $Config{usecperl} ? 'Config_heavy.pl' : 'Config.pm';
     push @m, q{
 # Where is the Config information that we are using/depend on
-CONFIGDEP = $(PERL_ARCHLIBDEP)$(DFSEP)Config.pm $(PERL_INCDEP)$(DFSEP)config.h
+CONFIGDEP = $(PERL_ARCHLIBDEP)$(DFSEP)}.$configdep.q{ $(PERL_INCDEP)$(DFSEP)config.h
 } if -e $self->catfile( $self->{PERL_INC}, 'config.h' );
 
 
@@ -3028,17 +3028,18 @@ sub perldepend {
     my($self) = shift;
     my(@m);
 
-    my $make_config = $self->cd('$(PERL_SRC)', '$(MAKE) lib/Config.pm');
+    my $configdep = $Config{usecperl} ? 'Config_heavy.pl' : 'Config.pm';
+    my $make_config = $self->cd('$(PERL_SRC)', '$(MAKE) lib$(DFSEP)' . $configdep);
 
-    push @m, sprintf <<'MAKE_FRAG', $make_config if $self->{PERL_SRC};
+    push @m, sprintf <<'MAKE_FRAG', $configdep, $configdep, $make_config if $self->{PERL_SRC};
 # Check for unpropogated config.sh changes. Should never happen.
 # We do NOT just update config.h because that is not sufficient.
 # An out of date config.h is not fatal but complains loudly!
 $(PERL_INCDEP)/config.h: $(PERL_SRC)/config.sh
 	-$(NOECHO) $(ECHO) "Warning: $(PERL_INC)/config.h out of date with $(PERL_SRC)/config.sh"; $(FALSE)
 
-$(PERL_ARCHLIB)/Config.pm: $(PERL_SRC)/config.sh
-	$(NOECHO) $(ECHO) "Warning: $(PERL_ARCHLIB)/Config.pm may be out of date with $(PERL_SRC)/config.sh"
+$(PERL_ARCHLIB)/%s: $(PERL_SRC)/config.sh
+	$(NOECHO) $(ECHO) "Warning: $(PERL_ARCHLIB)/%s may be out of date with $(PERL_SRC)/config.sh"
 	%s
 MAKE_FRAG
 
