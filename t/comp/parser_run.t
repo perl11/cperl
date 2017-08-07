@@ -10,7 +10,7 @@ BEGIN {
 }
 
 require './test.pl';
-plan(2);
+plan(3);
 
 # [perl #130814] can reallocate lineptr while looking ahead for
 # "Missing $ on loop variable" diagnostic.
@@ -28,6 +28,12 @@ fresh_perl_is(<<EOS, <<'EXPECT', {}, "linestart before bufptr");
 EOS
 Unrecognized character \xD5; marked by <-- HERE after ${ <-- HERE near column 4 at - line 1.
 EXPECT
+
+fresh_perl_is(<<'EOS', <<'EXPECTED', {}, "use after free (#131836)");
+${sub#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+EOS
+Illegal declaration of anonymous subroutine at - line 1.
+EXPECTED
 
 __END__
 # ex: set ts=8 sts=4 sw=4 et:
