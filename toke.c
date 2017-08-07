@@ -6552,8 +6552,10 @@ Perl_yylex(pTHX)
 			break;
 		    }
 		    if (memEQc(s, "sub")) {
+                        PL_bufptr = s;
 			d = s + 3;
 			d = skipspace(d);
+                        s = PL_bufptr;
 			if (*d == ':') {
 			    PL_expect = XTERM;
 			    break;
