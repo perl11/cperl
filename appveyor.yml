@@ -125,7 +125,7 @@ artifacts:
 deploy:
 - provider: GitHub
   tag: cperl-win-$(appveyor_build_version)
-  description: 'cperl windows sfx nightly'
+  description: 'cperl windows nightly'
   auth_token:
     secure: AsIAOIgCJX0QhrUKal2V00aaB5nRWtmtFTFeDVsGnbJLeEQpv9avUp0HT1cA8bNs
   artifact: nightly-mw32,nightly-mw64,nightly-vc32,nightly-vc64,nightly-cyg32,nightly-cyg64
@@ -136,7 +136,7 @@ deploy:
     branch: /(master|relprep|cperl-tag-deploy-test|maint-5)/
 - provider: GitHub
   tag: $(APPVEYOR_REPO_TAG_NAME)-win
-  description: 'cperl windows sfx tagged'
+  description: 'cperl windows tagged'
   auth_token:
     secure: AsIAOIgCJX0QhrUKal2V00aaB5nRWtmtFTFeDVsGnbJLeEQpv9avUp0HT1cA8bNs
   artifact: mingw-32,mingw-64,cygwin-32,cygwin-64,tagged-vc32,tagged-vc64
