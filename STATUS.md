@@ -20,7 +20,7 @@ calls with signatures are 2x faster, normal functions with a `my(..) =
 @_;` prolog are automatically promoted to signatures.
 
 But only a small number of needed features are yet merged.  The plan
-is to support most perl5-compatible perl6 features (*"do not break
+was to support most perl5-compatible perl6 features (*"do not break
 CPAN"*), improve performance and memory usage, re-establish compiler
 (`B::C`) support, re-establish perl5 core development which
 essentially stopped 2002, use perl6-like development policies, better
@@ -33,12 +33,12 @@ fields is builtin.
 
 Tested and developed on linux and darwin 64bit. darwin 32bit fails
 on two unrelated core tests (issignaling setpayloadsig + chmod linked in).
-Windows is smoked with MSVC 10 and 12 for 32 and 64bit.
+Windows is smoked with mingw, cygwin and MSVC 10 and 12 for 32 and 64bit.
 The BSD's and Solaris are only tested before a release.
 
 The current stable release is
 
-* [5.26.0c](https://github.com/perl11/cperl/releases/tag/cperl-5.26.0) - [perl5260cdelta](perl5260cdelta.html).
+* [5.26.1c](https://github.com/perl11/cperl/releases/tag/cperl-5.26.1) - [perl5261cdelta](perl5261cdelta.html).
   
 the latest development release:
 
@@ -148,7 +148,7 @@ For all versions see [bench-all/](bench-all/index.html)
 * support for long path names, > 4096
 * support for unicode BOMs, setting the unicode hints
 * Fast and proper object orientation. User facing classes. class, role, method,
-  multi, has, is, does keywords, Mu superclass.
+  multi, has, is, does keywords, proper fields, Mu superclass.
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.
@@ -235,6 +235,7 @@ pretty strictly typed to catch wrong usages and enforce better code.
 See the `Test::More::skip()` [FAQ](https://github.com/perl11/cperl/issues/153#issuecomment-224515895) or below.
 Patches are needed for `Module::Build`, `IO::Socket::SSL` and `Net::SSLeay`.
 
+* -d debugging with signatures is mostly broken.
 * Stricter Test::More::skip
 * Stricter Test::More types and API
 * Readonly Config (XSConfig), use Mock::Config instead.
@@ -458,4 +459,4 @@ They also revert some wrong decisions p5p already made.
 
 --
 
-2017-07-20 rurban
+2017-08-07 rurban
