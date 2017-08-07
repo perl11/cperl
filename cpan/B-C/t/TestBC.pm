@@ -851,7 +851,8 @@ sub run_cc_test {
             if ($Config{ccversion} eq '12.0.8804') {
                 $command =~ s/ -opt:ref,icf//;
             }
-            $command .= " -Od" if $ENV{APPVEYOR} and $^O eq 'MSWin32';
+            $command .= " -Od"; # not only appveyor.
+            $command =~ s{ [/-]O[123]}{ };
             my $obj = $obj[0];
             $command =~ s/ \Q-o $exe\E / -c -Fo$obj /;
             my $cmdline = "$Config{cc} $command >NUL"; # need to silence it
