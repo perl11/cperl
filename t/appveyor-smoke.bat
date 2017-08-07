@@ -47,11 +47,16 @@ if "%APPVEYOR_REPO_BRANCH%" == "maint-5.22c" goto nightly
 if "%APPVEYOR_REPO_BRANCH%" == "maint-5.24c" goto nightly
 if "%APPVEYOR_REPO_BRANCH%" == "maint-5.26c" goto nightly
 if "%APPVEYOR_REPO_BRANCH%" == "master" goto nightly
+if "%APPVEYOR_REPO_BRANCH%" == "smoke/master" goto nightly
 if "%APPVEYOR_REPO_BRANCH%" == "smoke/relprep" goto nightly
 if "%APPVEYOR_REPO_BRANCH%" == "smoke/maint-5.22c" goto nightly
 if "%APPVEYOR_REPO_BRANCH%" == "smoke/maint-5.24c" goto nightly
 if "%APPVEYOR_REPO_BRANCH%" == "smoke/maint-5.26c" goto nightly
 if "%APPVEYOR_REPO_BRANCH%" == "cperl-tag-deploy-test" goto nightly
+if "%APPVEYOR_REPO_BRANCH%" == "smoke/maint-5.26c" goto nightly
+if "%APPVEYOR_REPO_BRANCH%" == "maint-5.26c" goto nightly
+if "%APPVEYOR_REPO_BRANCH%" == "smoke/maint-5.24c" goto nightly
+if "%APPVEYOR_REPO_BRANCH%" == "maint-5.24c" goto nightly
 exit /b
 
 :nightly
