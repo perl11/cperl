@@ -6,7 +6,7 @@ use strict;
 
 our($VERSION, $XS_VERSION, @ISA, @EXPORT_OK);
 
-$VERSION = "1.39_02c";
+$VERSION = "1.40_02c";
 $XS_VERSION = $VERSION;
 $VERSION =~ s/_//g; $VERSION =~ s/c$//;
 
@@ -358,7 +358,7 @@ These memory related ops are not included in :base_core because they
 can easily be used to implement a resource attack (e.g., consume all
 available memory).
 
-    concat repeat join range
+    concat multiconcat repeat join range
 
     anonlist anonhash
 

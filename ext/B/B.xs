@@ -1248,6 +1248,10 @@ string(o, cv)
 	SV *ret;
     PPCODE:
         switch (o->op_type) {
+        case OP_MULTICONCAT:
+            ret = multiconcat_stringify(o);
+            break;
+
         case OP_MULTIDEREF:
             ret = multideref_stringify(o, cv);
             break;
@@ -1281,11 +1285,69 @@ void
 aux_list(o, cv=NULL)
 	B::OP  o
 	B::CV  cv
+    PREINIT:
+        UNOP_AUX_item *aux;
     PPCODE:
         PERL_UNUSED_VAR(cv); /* not needed on unthreaded builds */
+        aux = cUNOP_AUXo->op_aux;
         switch (o->op_type) {
         default:
             XSRETURN(0); /* by default, an empty list */
+
+        case OP_MULTICONCAT:
+            {
+                char *p;
+                SV *sv;
+                UNOP_AUX_item *lens;
+                STRLEN len;
+                UV nargs = aux[0].uv;
+                U32 utf8 = 0;
+
+                /* return (nargs, const string, segment len 0, 1, 2, ...) */
+
+                /* if this changes, this block of code probably needs fixing */
+                assert(PERL_MULTICONCAT_HEADER_SIZE == 5);
+                nargs = aux[PERL_MULTICONCAT_IX_NARGS].uv;
+                EXTEND(SP, ((SSize_t)(2 + (nargs+1))));
+                PUSHs(sv_2mortal(newSViv(nargs)));
+
+                p   = aux[PERL_MULTICONCAT_IX_PLAIN_PV].pv;
+                len = aux[PERL_MULTICONCAT_IX_PLAIN_LEN].size;
+                if (!p) {
+                    p   = aux[PERL_MULTICONCAT_IX_UTF8_PV].pv;
+                    len = aux[PERL_MULTICONCAT_IX_UTF8_LEN].size;
+                    utf8 = SVf_UTF8;
+                }
+                sv = newSVpvn(p, len);
+                SvFLAGS(sv) |= utf8;
+                PUSHs(sv_2mortal(sv));
+
+                lens = aux + PERL_MULTICONCAT_IX_LENGTHS;
+                nargs++; /* loop (nargs+1) times */
+                if (utf8) {
+                    U8 *p = (U8*)SvPVX(sv);
+                    while (nargs--) {
+                        SSize_t bytes = lens->size;
+                        SSize_t chars;
+                        if (bytes <= 0)
+                            chars = bytes;
+                        else {
+                            /* return char lengths rather than byte lengths */
+                            chars = utf8_length(p, p + bytes);
+                            p += bytes;
+                        }
+                        lens++;
+                        PUSHs(sv_2mortal(newSViv(chars)));
+                    }
+                }
+                else {
+                    while (nargs--) {
+                        PUSHs(sv_2mortal(newSViv(lens->size)));
+                        lens++;
+                    }
+                }
+                break;
+            }
 
         case OP_MULTIDEREF:
 #ifdef USE_ITHREADS
@@ -1294,9 +1356,8 @@ aux_list(o, cv=NULL)
 #  define PUSH_SV(item) PUSHs(make_sv_object((item)->sv))
 #endif
             {
-                UNOP_AUX_item *items = cUNOP_AUXo->op_aux;
-                UV actions = items->uv;
-                UV len = items[-1].uv;
+                UV actions = aux->uv;
+                UV len = aux[-1].uv;
                 bool last = 0;
                 bool is_hash = FALSE;
 
@@ -1309,7 +1370,7 @@ aux_list(o, cv=NULL)
                     switch (actions & MDEREF_ACTION_MASK) {
 
                     case MDEREF_reload:
-                        actions = (++items)->uv;
+                        actions = (++aux)->uv;
                         mPUSHu(actions);
                         continue;
                         NOT_REACHED; /* NOTREACHED */
@@ -1318,7 +1379,7 @@ aux_list(o, cv=NULL)
                         is_hash = TRUE;
                         /* FALLTHROUGH */
                     case MDEREF_AV_padav_aelem:
-                        mPUSHu((++items)->pad_offset);
+                        mPUSHu((++aux)->pad_offset);
                         goto do_elem;
                         NOT_REACHED; /* NOTREACHED */
 
@@ -1326,7 +1387,7 @@ aux_list(o, cv=NULL)
                         is_hash = TRUE;
                         /* FALLTHROUGH */
                     case MDEREF_AV_gvav_aelem:
-                        PUSH_SV(++items);
+                        PUSH_SV(++aux);
                         goto do_elem;
                         NOT_REACHED; /* NOTREACHED */
 
@@ -1334,7 +1395,7 @@ aux_list(o, cv=NULL)
                         is_hash = TRUE;
                         /* FALLTHROUGH */
                     case MDEREF_AV_gvsv_vivify_rv2av_aelem:
-                        PUSH_SV(++items);
+                        PUSH_SV(++aux);
                         goto do_vivify_rv2xv_elem;
                         NOT_REACHED; /* NOTREACHED */
 
@@ -1342,7 +1403,7 @@ aux_list(o, cv=NULL)
                         is_hash = TRUE;
                         /* FALLTHROUGH */
                     case MDEREF_AV_padsv_vivify_rv2av_aelem:
-                        mPUSHu((++items)->pad_offset);
+                        mPUSHu((++aux)->pad_offset);
                         goto do_vivify_rv2xv_elem;
                         NOT_REACHED; /* NOTREACHED */
 
@@ -1360,15 +1421,15 @@ aux_list(o, cv=NULL)
                             break;
                         case MDEREF_INDEX_const:
                             if (is_hash)
-                              PUSH_SV(++items);
+                              PUSH_SV(++aux);
                             else
-                              mPUSHi((++items)->iv);
+                              mPUSHi((++aux)->iv);
                             break;
                         case MDEREF_INDEX_padsv:
-                            mPUSHu((++items)->pad_offset);
+                            mPUSHu((++aux)->pad_offset);
                             break;
                         case MDEREF_INDEX_gvsv:
-                            PUSH_SV(++items);
+                            PUSH_SV(++aux);
                             break;
                         }
                         if (actions & MDEREF_FLAG_last)
@@ -1387,21 +1448,20 @@ aux_list(o, cv=NULL)
 
         case OP_SIGNATURE:
             {
-                UNOP_AUX_item *items = cUNOP_AUXo->op_aux;
-                UV len = items[-1].uv;
-                UV actions = items[1].uv;
+                UV len = aux[-1].uv;
+                UV actions = aux[1].uv;
 
                 assert(len <= SSize_t_MAX);
                 EXTEND(SP, (SSize_t)len);
-                mPUSHu(items[0].uv);
+                mPUSHu(aux[0].uv);
                 mPUSHu(actions);
-                items++;
+                aux++;
 
                 while (1) {
                     switch (actions & SIGNATURE_ACTION_MASK) {
 
                     case SIGNATURE_reload:
-                        actions = (++items)->uv;
+                        actions = (++aux)->uv;
                         mPUSHu(actions);
                         continue;
 
@@ -1409,7 +1469,7 @@ aux_list(o, cv=NULL)
                         goto finish;
 
                     case SIGNATURE_padintro:
-                        mPUSHu((++items)->uv);
+                        mPUSHu((++aux)->uv);
                         break;
 
                     case SIGNATURE_arg:
@@ -1423,19 +1483,19 @@ aux_list(o, cv=NULL)
                         break;
 
                     case SIGNATURE_arg_default_iv:
-                        mPUSHu((++items)->iv);
+                        mPUSHu((++aux)->iv);
                         break;
 
                     case SIGNATURE_arg_default_const:
-                        PUSH_SV(++items);
+                        PUSH_SV(++aux);
                         break;
 
                     case SIGNATURE_arg_default_padsv:
-                        mPUSHu((++items)->pad_offset);
+                        mPUSHu((++aux)->pad_offset);
                         break;
 
                     case SIGNATURE_arg_default_gvsv:
-                        PUSH_SV(++items);
+                        PUSH_SV(++aux);
                         break;
 
                     } /* switch */

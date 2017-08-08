@@ -3660,6 +3660,12 @@ PERL_CALLCONV SV*	Perl_mro_set_private_data(pTHX_ struct mro_meta *const smeta, 
 #define PERL_ARGS_ASSERT_MRO_SET_PRIVATE_DATA	\
 	assert(smeta); assert(which); assert(data)
 
+PERL_CALLCONV SV*	Perl_multiconcat_stringify(pTHX_ const OP* o)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_MULTICONCAT_STRINGIFY	\
+	assert(o)
+
 PERL_CALLCONV SV*	Perl_multideref_stringify(pTHX_ const OP* o, CV *cv)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);

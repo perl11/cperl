@@ -405,6 +405,7 @@ Ap	|void	|vdeb		|NN const char* pat|NULLOK va_list* args
 Ap	|void	|debprofdump
 EXp	|SV*	|multideref_stringify	|NN const OP* o|NULLOK CV *cv
 EXp	|SV*	|signature_stringify	|NN const OP* o|NN CV *cv
+EXp	|SV*	|multiconcat_stringify	|NN const OP* o
 Ap	|I32	|debop		|NN const OP* o
 Ap	|I32	|debstack
 Ap	|I32	|debstackptrs

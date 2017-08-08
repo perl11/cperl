@@ -81,7 +81,7 @@ while (<OPS>) {
     $type = '' unless defined $type;
 
     warn qq[Description "$desc" duplicates $seen{$desc}\n]
-     if $seen{$desc} and $key !~ "transr|(?:intro|clone)cv|lvref";
+     if $seen{$desc} and $key !~ "concat|transr|(?:intro|clone)cv|lvref";
     die qq[Opcode "$key" duplicates $seen{$key}\n] if $seen{$key};
     die qq[Opcode "freed" is reserved for the slab allocator\n]
 	if $key eq 'freed';

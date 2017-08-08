@@ -305,6 +305,7 @@ rv2hv		%h
 helem		$h{kEy}
 hslice		@h{kEy}
 kvhslice	SKIP (not yet)
+multiconcat	SKIP (set by optimizer)
 multideref	SKIP (set by optimizer)
 unpack		unpack
 pack		pack

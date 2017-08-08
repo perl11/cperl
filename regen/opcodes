@@ -104,6 +104,7 @@ subtract	subtraction (-)		ck_type		pIfsT2	S S	"(:Numeric,:Numeric):Numeric"
 i_subtract	integer subtraction (-)	ck_type		pifsT2	S S	"(:Int,:Int):Int"
 u_subtract	iv+uv subtraction (-)	ck_type		pifsT2	S S	"(:Int,:Int):Numeric"
 concat		concatenation (.) or string ck_concat	pfsT2	S S	"(:Any,:Any):Str"
+multiconcat	concatenation (.) or string	ck_null	sT+		"(:Any):Str"
 stringify	string			ck_stringify	fsT@	S	"(:Scalar):Str"
 
 pow		exponentiation (**)	ck_type		pIfsT2	S S	"(:Numeric,:Numeric):Numeric"
