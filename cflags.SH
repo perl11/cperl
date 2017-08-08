@@ -195,6 +195,7 @@ Intel*) ;; # # Is that you, Intel C++?
 #
 *)  for opt in -std=c89 -ansi $pedantic \
 	       -Werror=declaration-after-statement \
+	       -Werror=pointer-arith \
 	       -Wextra -W \
 	       -Wc++-compat -Wwrite-strings \
                -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers \
@@ -251,6 +252,16 @@ Intel*) ;; # # Is that you, Intel C++?
                   # -pedantic* (with -std=c89) covers -Werror=d-a-s.
                   case "$stdflags$warn" in
                   *-std=c89*-pedantic*|*-pedantic*-std=c89*) ;;
+                  *)
+                     echo "cflags.SH: Adding $opt."
+                     warn="$warn $opt"
+                     ;;
+                  esac
+                  ;;
+               -Werror=pointer-arith)
+                  # -pedantic* covers -Werror=p-a
+                  case "$warn" in
+                  *-pedantic*) ;;
                   *)
                      echo "cflags.SH: Adding $opt."
                      warn="$warn $opt"
@@ -384,7 +395,8 @@ case "$cc" in
   ;;
 esac
 
-for f in -Wdeclaration-after-statement -Werror=declaration-after-statement
+for f in -Wdeclaration-after-statement -Werror=declaration-after-statement \
+         -Wpointer-arith -Werror=pointer-arith
 do
   case "$cppflags" in
   *"$f"*)
