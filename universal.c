@@ -1484,12 +1484,12 @@ Perl_boot_core_UNIVERSAL(pTHX)
         CV* to_unicode_cv = get_cvs("utf8::native_to_unicode", 0);
 
         assert(to_native_cv); assert(to_unicode_cv);
-        cv_set_call_checker(to_native_cv,
+        cv_set_call_checker_flags(to_native_cv,
                             optimize_out_native_convert_function,
-                            (SV*) to_native_cv);
-        cv_set_call_checker(to_unicode_cv,
+                            (SV*) to_native_cv, 0);
+        cv_set_call_checker_flags(to_unicode_cv,
                             optimize_out_native_convert_function,
-                            (SV*) to_unicode_cv);
+                            (SV*) to_unicode_cv, 0);
     }
 #endif
 
