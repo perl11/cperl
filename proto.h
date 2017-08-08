@@ -1107,6 +1107,15 @@ PERL_CALLCONV void	Perl_cv_get_call_checker(pTHX_ CV *cv, Perl_call_checker *ckf
 #define PERL_ARGS_ASSERT_CV_GET_CALL_CHECKER	\
 	assert(cv); assert(ckfun_p); assert(ckobj_p)
 
+PERL_CALLCONV void	Perl_cv_get_call_checker_flags(pTHX_ CV *cv, U32 gflags, Perl_call_checker *ckfun_p, SV **ckobj_p, U32 *ckflags_p)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_3)
+			__attribute__nonnull__(pTHX_4)
+			__attribute__nonnull__(pTHX_5);
+#define PERL_ARGS_ASSERT_CV_GET_CALL_CHECKER_FLAGS	\
+	assert(cv); assert(ckfun_p); assert(ckobj_p); assert(ckflags_p)
+
 PERL_CALLCONV SV *	Perl_cv_name(pTHX_ CV *cv, SV *sv, U32 flags)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
@@ -1121,7 +1130,7 @@ PERL_CALLCONV void	Perl_cv_set_call_checker(pTHX_ CV *cv, Perl_call_checker ckfu
 #define PERL_ARGS_ASSERT_CV_SET_CALL_CHECKER	\
 	assert(cv); assert(ckfun); assert(ckobj)
 
-PERL_CALLCONV void	Perl_cv_set_call_checker_flags(pTHX_ CV *cv, Perl_call_checker ckfun, SV *ckobj, U32 flags)
+PERL_CALLCONV void	Perl_cv_set_call_checker_flags(pTHX_ CV *cv, Perl_call_checker ckfun, SV *ckobj, U32 ckflags)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)
