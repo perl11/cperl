@@ -411,7 +411,9 @@ static struct debug_tokens {
     { LOOPEX,           TOKENTYPE_OPNUM,        "LOOPEX" },
     { LSTOP,            TOKENTYPE_OPNUM,        "LSTOP" },
     { LSTOPSUB,         TOKENTYPE_OPVAL,        "LSTOPSUB" },
-    { MATCHOP,          TOKENTYPE_OPNUM,        "MATCHOP" },
+    { MACRO,		TOKENTYPE_PVAL,		"MACRO" },
+    { MACRODEF,		TOKENTYPE_OPVAL,	"MACRODEF" },
+    { MATCHOP,		TOKENTYPE_OPNUM,	"MATCHOP" },
     { METHDECL,         TOKENTYPE_IVAL,         "METHDECL" },
     { METHOD,           TOKENTYPE_OPVAL,        "METHOD" },
     { MULOP,            TOKENTYPE_OPNUM,        "MULOP" },
@@ -8859,8 +8861,59 @@ Perl_yylex(pTHX)
             s = scan_pat(s,OP_MATCH);
             TERM(sublex_start());
 
-        case KEY_map:
-            LOP(OP_MAPSTART, XREF);
+	case KEY_macro:
+	    /* scan string(s) and grammars,
+               the first string is the macro name.
+               <name:token> or <token> or "string" */
+            {
+                OP *def = NULL;
+                d = NULL;
+                s = skipspace(s);
+                while (s && *s != '{') {
+                    if (*s == '"' || *s == '\'') {
+                        d = s = scan_str(s,FALSE,FALSE,FALSE,NULL);
+                        def = op_append_elem(OP_LIST, def,
+                                  newSVOP(OP_CONST, 0, PL_lex_stuff));
+                        DEBUG_T(printbuf("### macro %s\n", SvPVX(PL_lex_stuff)));
+                        s = skipspace(s);
+                    } else if (*s == '<') {
+                        char *name, *token;
+                        int tti;
+                        DEBUG_T(printbuf("### grammar %s\n", s));
+                        s = scan_str(s,FALSE,FALSE,FALSE,NULL);
+                        if (!s || !PL_parser->lex_sub_repl ||
+                            !SvCUR(PL_parser->lex_sub_repl))
+                            yyerror("macro with invalid grammar");
+                        token = SvPVX(PL_parser->lex_sub_repl);
+                        if ((name = strchr(token, ':'))) {
+                            token = name+1;
+                            name = SvPVX(PL_lex_stuff);
+                            *(token - 1) = '\0';
+                        }
+                        tti = Perl_valid_token(token);
+                        if (!tti)
+                            yyerror_pv(Perl_form(aTHX_
+                                "macro with invalid grammar <%.*s>",
+                                (int)strlen(token), token),
+                                       UTF ? SVf_UTF8 : 0);
+                        /*
+                        def = op_append_elem(OP_LIST, def,
+                                  newSVOP(tti < YYNTOKENS ? OP_TOKEN : OP_NTERM,
+                                  0, PL_lex_stuff)));
+                        */
+                        s = skipspace(s);
+                    } else {
+                        yyerror("macro expecting string or grammar");
+                    }
+                }
+                if (!d)
+                    yyerror("macro requiring at least a string");
+                pl_yylval.opval = def;
+            }
+	    LOP(OP_LIST,XTERM);
+
+	case KEY_map:
+	    LOP(OP_MAPSTART,XREF);
 
         case KEY_mkdir:
             LOP(OP_MKDIR,XTERM);
@@ -14503,6 +14556,12 @@ Perl_munge_qwlist_to_paren_list(pTHX_ OP *qwlist)
         force_next(THING);
     }
     force_next((2<<24)|'(');
+}
+
+OP*
+Perl_macrodef(OP* def, OP* block) {
+    DEBUG_T(Perl_deb(aTHX_ "macrodef"));
+    return NULL;
 }
 
 /*

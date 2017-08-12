@@ -2282,6 +2282,8 @@ EXp	|int	|yylex
 p	|void	|yyunlex
 : Used in perl.c, pp_ctl.c
 p	|int	|yyparse	|int gramtype
+: Used in toke.c
+EXpn	|int	|valid_token	|NN const char *token
 : Only used in scope.c
 p	|void	|parser_free	|NN const yy_parser *parser
 #ifdef PERL_CORE
@@ -3808,6 +3810,7 @@ xpo	|int	|keyword_plugin_standard|NN char* keyword_ptr|STRLEN keyword_len \
 #if defined(USE_CPERL)
 : Used in perly.y
 xp	|void	|munge_qwlist_to_paren_list|NN OP* qwlist
+xp	|OP*	|macrodef	|NN OP* def|NN OP* block
 #endif
 
 #if defined(USE_ITHREADS)

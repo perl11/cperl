@@ -6653,6 +6653,12 @@ PERL_CALLCONV U8*	Perl_uvuni_to_utf8_flags(pTHX_ U8 *d, UV uv, UV flags)
 #define PERL_ARGS_ASSERT_UVUNI_TO_UTF8_FLAGS	\
 	assert(d)
 
+PERL_CALLCONV int	Perl_valid_token(const char *token)
+			__attribute__global__
+			__attribute__nonnull__(1);
+#define PERL_ARGS_ASSERT_VALID_TOKEN	\
+	assert(token)
+
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE UV	Perl_valid_utf8_to_uvchr(const U8 *s, STRLEN *retlen)
 			__attribute__warn_unused_result__
@@ -11228,6 +11234,12 @@ PERL_CALLCONV void	Perl_hv_study(pTHX_ HV *hv)
 
 PERL_CALLCONV void	Perl_hv_undef_flags(pTHX_ HV *hv, U32 flags)
 			__attribute__global__;
+
+PERL_CALLCONV OP*	Perl_macrodef(pTHX_ OP* def, OP* block)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_MACRODEF	\
+	assert(def); assert(block)
 
 PERL_CALLCONV SV*	Perl_magic_scalarpack(pTHX_ HV *hv, MAGIC *mg)
 			__attribute__global__

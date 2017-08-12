@@ -258,8 +258,12 @@ sub extract {
     # C<#line 188 "perlytmp.c"> gets picked up by make depend, so remove them.
     $actlines =~ s/^#line \d+ "\Q$tmpc_file\E".*$//gm;
 
-    # convert yyvsp[nnn] into ps[nnn].val
+    # enable yytname for macros and reflection
+    $tablines =~ s{^#if (YYDEBUG \|\| YYERROR_VERBOSE[^\n]+)\n\/\* YYTNAME\[SYMBOL-NUM\]}
+                  {#if 1 /* $1 */\n/* YYTNAME[SYMBOL-NUM]}m
+        or die "Can't enable yytname[] from table string\n";
 
+    # convert yyvsp[nnn] into ps[nnn].val
     $actlines =~ s/yyvsp\[(.*?)\]/ps[$1].val/g
 	or die "Can't convert value stack name\n";
 
@@ -339,7 +343,7 @@ sub make_type_tab {
 	    (.*?)
 	    ^};
 	    /xsm
-	or die "Can't extract yytname[] from table string\n";
+              or die "Can't extract yytname[] from table string\n";
     my $fields = $1;
     $fields =~ s{"([^"]+)"}
 		{ "toketype_" .

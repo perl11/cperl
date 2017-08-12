@@ -590,6 +590,19 @@ Perl_yyparse (pTHX_ int gramtype)
     return yyresult;
 }
 
+/* names of terminals and nonterminals */
+int
+Perl_valid_token(const char* token) {
+    int i;
+    if (*token == '$')
+        return 0;
+    for (i=2; i<YYNTOKENS+YYNNTS; i++) {
+        if (!strcmp(token, yytname[i]))
+            return i;
+    }
+    return 0;
+}
+
 /*
  * ex: set ts=8 sts=4 sw=4 et:
  */

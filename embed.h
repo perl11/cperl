@@ -1184,6 +1184,7 @@
 #define sv_only_taint_gmagic	S_sv_only_taint_gmagic
 #define swash_fetch(a,b,c)	Perl_swash_fetch(aTHX_ a,b,c)
 #define swash_init(a,b,c,d,e)	Perl_swash_init(aTHX_ a,b,c,d,e)
+#define valid_token		Perl_valid_token
 #define vivify_defelem(a)	Perl_vivify_defelem(aTHX_ a)
 #define yylex()			Perl_yylex(aTHX)
 #  if ! defined(HAS_MEMRCHR) && (defined(PERL_CORE) || defined(PERL_EXT))
@@ -2372,6 +2373,7 @@
 #define find_rundefsv2(a,b)	Perl_find_rundefsv2(aTHX_ a,b)
 #define get_db_sub(a,b)		Perl_get_db_sub(aTHX_ a,b)
 #define hasterm(a)		Perl_hasterm(aTHX_ a)
+#define macrodef(a,b)		Perl_macrodef(aTHX_ a,b)
 #define munge_qwlist_to_paren_list(a)	Perl_munge_qwlist_to_paren_list(aTHX_ a)
 #define newASSIGNOP_maybe_const(a,b,c)	Perl_newASSIGNOP_maybe_const(aTHX_ a,b,c)
 #define num_constlistexpr(a,b)	Perl_num_constlistexpr(aTHX_ a,b)
