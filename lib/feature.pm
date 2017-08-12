@@ -5,12 +5,13 @@
 
 package feature;
 
-our $VERSION = '1.54_01';
+our $VERSION = '1.54_02';
 
 our %feature = (
     fc              => 'feature_fc',
     say             => 'feature_say',
     state           => 'feature_state',
+    macros          => 'feature_macros',
     switch          => 'feature_switch',
     bitwise         => 'feature_bitwise',
     evalbytes       => 'feature_evalbytes',
@@ -29,8 +30,7 @@ our %feature_bundle = (
     "5.11"    => [qw(say state switch unicode_strings)],
     "5.15"    => [qw(current_sub evalbytes fc say state switch unicode_eval unicode_strings)],
     "5.23"    => [qw(current_sub evalbytes fc postderef_qq say state switch unicode_eval unicode_strings)],
-    "5.27"    => [qw(bitwise evalbytes postderef_qq say state switch unicode_eval unicode_strings)],
-    "all"     => [qw(bitwise current_sub declared_refs evalbytes fc postderef_qq refaliasing say shaped_arrays signatures state switch unicode_eval unicode_strings)],
+    "all"     => [qw(bitwise current_sub declared_refs evalbytes fc macros postderef_qq refaliasing say shaped_arrays signatures state switch unicode_eval unicode_strings)],
     "default" => [qw()],
 );
 
@@ -47,9 +47,10 @@ $feature_bundle{"5.22"} = $feature_bundle{"5.15"};
 $feature_bundle{"5.24"} = $feature_bundle{"5.23"};
 $feature_bundle{"5.25"} = $feature_bundle{"5.23"};
 $feature_bundle{"5.26"} = $feature_bundle{"5.23"};
-$feature_bundle{"5.28"} = $feature_bundle{"5.27"};
-$feature_bundle{"5.29"} = $feature_bundle{"5.27"};
-$feature_bundle{"5.30"} = $feature_bundle{"5.27"};
+$feature_bundle{"5.27"} = $feature_bundle{"5.23"};
+$feature_bundle{"5.28"} = $feature_bundle{"5.23"};
+$feature_bundle{"5.29"} = $feature_bundle{"5.23"};
+$feature_bundle{"5.30"} = $feature_bundle{"5.23"};
 $feature_bundle{"5.9.5"} = $feature_bundle{"5.10"};
 my %noops = (
     postderef => 1,
@@ -61,7 +62,7 @@ my %removed = (
 
 our $hint_shift   = 26;
 our $hint_mask    = 0x1c000000;
-our @hint_bundles = qw( default 5.10 5.11 5.15 5.23 5.27 );
+our @hint_bundles = qw( default 5.10 5.11 5.15 5.23 );
 
 # This gets set (for now) in $^H as well as in %^H,
 # for runtime speed of the uc/lc/ucfirst/lcfirst functions.
@@ -373,7 +374,7 @@ corresponding C<0> values. You can also use native types.
 Note that multidimensional arrays will be supported soon, using the
 same feature name. Similar to perl6.
 
-This feature is available from cperl 5.22 onwards, and enabled by default.
+This feature is available from cperl 5.22 onwards, and always enabled in cperl.
 
 =head2 The 'declared_refs' feature
 
@@ -390,6 +391,20 @@ conjunction with the "refaliasing" feature.  See L<perlref/Declaring a
 Reference to a Variable> for examples.
 
 This feature is available from Perl 5.26 onwards.
+
+=head2 The 'macros' feature
+
+B<cperl>: This feature is only available in cperl since 5.28c.
+
+This allows adding macro definitions to add grammar rules to the parser,
+A new grammar consists of a series of existing grammars, i.e. terminal or
+non-terminal tokens or strings, and a replacement block.
+A grammar can be optionally named to seperate two identical grammars.
+The macro name is usually the first non-grammar string.
+
+    macro <a:expr> "?=" <b:expr> {
+        a = b if defined a;
+    }
 
 =head1 FEATURE BUNDLES
 
@@ -432,10 +447,12 @@ The following feature bundles are available:
             postderef_qq
 
   :5.28     say state switch unicode_strings
-            unicode_eval evalbytes postderef_qq bitwise
+            unicode_eval evalbytes current_sub fc
+            postderef_qq
 
   :5.30     say state switch unicode_strings
-            unicode_eval evalbytes postderef_qq bitwise
+            unicode_eval evalbytes current_sub fc
+            postderef_qq
 
 The C<:default> bundle represents the feature set that is enabled before
 any C<use feature> or C<no feature> declaration.
