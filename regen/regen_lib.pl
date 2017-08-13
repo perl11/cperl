@@ -128,11 +128,10 @@ sub read_only_top {
         unless exists $lang_opener{$lang};
     my $style = $args{style} ? " $args{style} " : '   ';
 
-    my $raw = "ex: set ro ft=c: -*- buffer-read-only: t -*-\n";
+    my $lc = lc $lang; # C, Pod or Perl
+    my $raw = "ex: set ro ft=$lc: -*- mode: $lc; buffer-read-only: t -*-\n";
+    $raw .= "\n   $args{file}\n" if $args{file};
 
-    if ($args{file}) {
-	$raw .= "\n   $args{file}\n";
-    }
     if ($args{copyright}) {
 	local $" = ', ';
          $raw .= wrap(75, '   ', '   ', <<"EOM") . "\n";

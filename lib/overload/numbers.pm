@@ -1,4 +1,4 @@
-# ex: set ro ft=c: -*- buffer-read-only: t -*-
+# ex: set ro ft=perl: -*- mode: perl; buffer-read-only: t -*-
 #
 #    lib/overload/numbers.pm
 #
