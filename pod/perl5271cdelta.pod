@@ -1,0 +1,815 @@
+=encoding utf8
+
+=head1 NAME
+
+perl5271cdelta - what is new for cperl v5.27.1
+
+=head1 DESCRIPTION
+
+This document describes the differences between the cperl 5.27.0
+and the cperl 5.27.1 releases.
+
+If you are upgrading from an earlier release such as v5.24.2c, first
+read the L<perl525*cdelta> documentation, which describes differences
+between v5.25.1c and v5.26.0c
+
+=head1 Core Enhancements
+
+=head2 class, role, method, has
+
+cperl has now classes, roles, methods and fields.
+Old user-subroutines or parser-hacks with these names are still
+supported, but not recommended.
+See L<perlclass>.
+
+=head2 Check and normalize stringified names
+
+Before symbols and identifiers created from strings at run-time were
+added asis. Now those names are treated almost as in the parser at
+compile-time, i.e. unicode is normalized, mixed Unicode scripts are
+checked at run-time also. cperl-only.
+
+Behaviour of L<perlapi/valid_ident>:
+
+    ${"\xc3\x28"}       => FALSE.  Illegal unicode, but no warning or error,
+                           unless under strict names.
+    ${"E\x{45}\x{301}"} => TRUE.   Normalized to $E\x{c9}
+    ${"एxṰர::ʦፖㄡsȨ"}   => FALSE. Error: Invalid script Tamil in identifier
+                            ர::ʦፖㄡsȨ for U+0BB0. Have Devanagari
+
+See below L</strict names>. C<use strict> fatalizes now any run-time
+identifier parsing problem.
+
+=head2 strict names
+
+strict names is the default when using C<use strict>.  Reject illegal
+identifiers at run-time when created dynamically from strings, which
+would be rejected at compile-time. cperl-only.
+
+    use strict "names";
+    ${"\$var"}    => Invalid identifier "$var" while "strict names"
+    ${"\xff"}     => Invalid identifier "\377" while "strict names"
+    ${"\xc3\x28"} => Invalid identifier "\303(" while "strict names"
+
+See L<perldata/"Identifier parsing"> and
+L<http://perl11.org/blog/strict-names.html>
+
+=head1 Deprecations
+
+=head2 Module removals
+
+The following modules will be removed from the core distribution in a
+future release, and will at that time need to be installed from CPAN.
+Distributions on CPAN which require these modules will need to list them as
+prerequisites.
+
+The core versions of these modules will now issue C<"deprecated">-category
+warnings to alert you to this fact.  To silence these deprecation warnings,
+install the modules in question from CPAN.
+
+Note that these are (with rare exceptions) fine modules that you are encouraged
+to continue to use.  Their disinclusion from core primarily hinges on their
+necessity to bootstrapping a fully functional, CPAN-capable Perl installation,
+not usually on concerns over their design.
+
+=over
+
+=item L<B::Debug>
+
+will be removed from core with 5.30, and needs to be installed from
+CPAN then.  Best together with L<B::Flags>.
+
+=back
+
+=head1 Performance Enhancements
+
+=over 4
+
+=item *
+
+XS calls were made faster again. Previously cperl (with 5.22.1c) fell
+from pure perl calls to XS calls and changed the call type to
+ENTERXSSUB for faster subsequent invocations. This made bigger
+examples ~10% faster.  Now the compiler detects calls to XS code and
+changes the type to ENTERXSSUB.  Also the method cache code checks now
+for an XS call and changes the type of the next OP. Overall the
+improvement is ~3.5%, but it depends on the frequency of XS
+calls. It's 0.5-1% slower without any XS call.  Note that p5p decided
+to delete this feature request from it's TODO list.
+
+The optree is a bit slimmer.
+Before:
+
+    $ cperl5.27.0d-nt -Dt -e'use strict'
+    (-e:1)	nextstate
+    (-e:1)	const(PV("strict.pm"))
+    (-e:1)	require
+    (-e:1)	nextstate
+    (-e:1)	pushmark
+    (-e:1)	const(PV("strict"))
+    (-e:1)	method_named(->import)
+    (-e:1)	entersub(strict::import)
+    (-e:1)	enterxssub(strict::import)
+    (-e:1)	leavesub
+
+Now:
+
+    $ cperl5.27.1d-nt -Dt -e'use strict'
+    (-e:1)	nextstate
+    (-e:1)	const(PV("strict.pm"))
+    (-e:1)	require
+    (-e:1)	nextstate
+    (-e:1)	pushmark
+    (-e:1)	const(PV("strict"))
+    (-e:1)	method_named(->import)
+    (-e:1)	enterxssub(strict::import)
+    (-e:1)	leavesub
+
+Note that this is still not optimal, as strict::import can be
+compile-time optimized from a dynamic method call to a static function
+call. A regression from 5.22.1c.
+See L<http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html>
+
+=item *
+
+Most checks for readonly packages are now avoided, needed to bypass
+the "Attempt to access disallowed key %s in the restricted hash
+%CLASS::" errors. Stash lookup now got a B<GV_CLASS> flag and C<hv_fetch*_ifexists>
+macros, which does the EXISTS and FETCH hash actions in the stash on one.
+
+=item *
+
+Optimized the loop op ITER to jump directly to the subsequent AND op.
+For an empty body, this cuts about 20% off the time of an iteration.
+Backported from perl-5.27.3. This is a simplier implementation of
+the cperl F<feature/gh138-iter-and> branch from L<[cperl
+#138]|https://github.com/perl11/cperl/issues/138>.
+
+=back
+
+=head1 Modules and Pragmata
+
+=head2 New Modules and Pragmata
+
+=over 4
+
+=item L<Mu> 0.01
+
+For now only C<new> and C<CREATE>, implemented as XS builtins.
+
+=item L<Metamodel>
+
+Just the documentation for the perl6 MOP.
+
+=back
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item L<attributes> 1.12c
+
+Fixed :const parsing with SVs (cperl-only). Previously :const would set
+the containing sub to :const, now it sets the lexical to readonly,
+with deferring the attributes::import call after an assignment.
+
+    my %h :const = (a => 1);
+=>
+    assign %h = (...);
+    attributes->import(PACKAGE, \%h, const);
+
+See L<[cperl #294]|https://github.com/perl11/cperl/issues/294>.
+
+=item L<B> 1.68_08
+
+Add non-destructive $cv->PUREGV method, which does not create a GV
+from a CvNAMED $cv.
+Warning: $cv->GV does create a GV from a CvNAMED $cv.
+
+Internal Refactor: thread API
+
+Add many missing methods and docs. Some from B::C.
+
+=item L<B::C> 1.55_04
+
+Protect from destructive $cv->GV, renamed is_lexsub to is_named,
+allow @0, &0, ... types.
+
+=item L<B::Debug> 1.25
+
+Deprecated from CORE, will not be in 5.30 anymore.
+Avoid destructive CvNAMED vivification to GVs.
+Add cperl features.
+
+=item L<base> 2.26c
+
+Turn off HvCLASS again, just turn on SvREADONLY C<@ISA>.
+With all the new class features, we cannot and should not compete.
+
+The problem is the new sub as :method warning with classes, which
+would cause all Test::Simple methods to be declared as :method, as they
+derive from base.
+
+=item L<Cpanel::JSON::XS> 3.0237
+
+Stringify true again as "1".
+Disallow duplicate keys by default, only allow them in relaxed mode.
+De-fragilize t/96_mojo.t false test to "". It mostly is.
+Fix and unify utf8 handling with 5.6.2 and improve many utf8 tests.
+Add tests for boolean sv_yes and sv_no.
+Check for correct module in %INC.
+Relax inf/nan detection for newer msvcrt.dll runtime versions
+(it's now almost ANSI).
+
+=item L<Devel::Peek> 1.26_02
+
+Add TYPECHECKED, RETTYPE and pad var names and types.
+
+=item L<Devel::PPPort> 3.36_02
+
+Restore silence under C<make -s>. I broke it in cperl 5.27.0
+
+Add C<#if { CPERL && VERSION > 5.26.0 }> support,
+support parser enum expectation.
+
+=item L<deprecate>  0.03_01
+
+Add pod synopsis for modules for older perls.
+
+=item L<Encode> 2.92
+
+Skip the flapping test F<t/Aliases.t> on threaded smokers, with random
+segfaults.  This is a long standing core bug, with PMOP aliases or
+clone. First observed at L<https://github.com/rurban/perl-compiler/issues/73>
+(since 5.6)
+
+Stop directory tweaking $Encode::Encoding{utf8}
+
+Fix gcc warnings for older gcc < 4.0
+
+Where possible do not depend on value of $@, instead use return value
+of eval
+
+Fix more XS problems in Encode.xs file
+
+Load modules Encode::MIME::Name and Storable normally
+
+Remove no warnings 'redefine'; and correctly loaddependences
+
+Remove PP stubs and reformat predefine_encodings()
+
+Run Encode XS BOOT code at compile time
+
+Use Encode::define_encoding and propagate carp/croak message
+
+cperl fixes: encoding undeprecated, no strict hashpairs
+
+Cleanup code for handling fallback/replacement characters
+
+=item L<ExtUtils::CBuilder> 0.280226
+
+Fix C++ compiler detection (RT #131749)
+
+=item L<ExtUtils::Install> 2.14
+
+- Fix tests for when perl path contains a space
+
+- Fix win32 check
+
+- 'make -s' support: set $INSTALL_QUIET automatically
+
+- Optimisations:
+
+  * use our instead of vars
+  * lazy load modules
+  * make OS variables into constants
+  * move some calculations out of a loop
+
+- Removed instructions using Build.PL from README
+
+- Load Win32API::File for _move_file_at_boot only when needed
+
+- Allow disabling autosplit by omitting autosplit dir
+
+=item L<ExtUtils::MakeMaker> 8.30_04
+
+Merge our fixes to upstream 7.30 (which has e.g. the dlltool mingw
+fixes). Many fixes were already in, but some new upstream bugs crept
+in.
+
+Support IO::Scalar handle as $parsefile argument to
+ExtUtils::MM_Unix::parse_version().
+
+fix Invalid Locale symbol name. Invalid identifier "ENCODING_UTF-8"
+while "strict names"
+
+fix XSMULTI static with strict linkers, avoid duplicate symbol
+_boot_XS__Test in: Test.o blib/arch/auto/XS/Test/Test.a(Test.o)
+
+xsstatic: fixup MAKE_APERL_FILE, which was Makefile.aperl.aperl
+
+=item L<ExtUtils::ParseXS> 3.35_02
+
+Moved xs pods still missing from the CPAN release completely to core.
+
+Bump versions.
+
+=item L<fields> 2.25c
+
+A cperl class has now fields with C<@class::FIELDS> targ offsets to
+the lexical fields, and the old C<%type::FIELDS> hash pointing to the
+C<*class> GV, allowing again compile-time type checks on typed object
+hash accesses.
+
+=item L<File::Path> 3.15_01c
+
+Remove erroneous documentation.
+Correct skip count for Windows.
+Comment out two TODO tests.
+Make subdirectory names used in tests more random.
+
+=item L<File::Spec::Functions> 3.36_05
+
+Bumped version from unparsable 3.3.65, which prevented e.g.
+File::chdir to install.
+
+=item L<Filter::Simple> 0.94
+
+Various small documentation fixes.
+Swap out base.pm use for parent.pm.
+Remove use of deprecated \C regex feature.
+Filter::Simple was erroneously signalling eof if it encountered a
+‘no MyFilter’ right after ‘use’:
+      use MyFilter;
+      no MyFilter;
+In this case it should simply not filter anything.
+
+=item L<Getopt::Long> 2.50
+
+Fix bug L<https://rt.cpan.org/Ticket/Display.html?id=120231>.
+
+Fix bug L<https://rt.cpan.org/Ticket/Display.html?id=120300>.
+Unfortunately, this withdraws a small part of fix 114999.  GNU
+C<getopt_long()> does not accept the (optional) argument to be passed
+to the option without C<=> sign.  We do, since not doing so breaks
+existing scripts.
+
+Provide a default value for options (B<gnu_compat> mode).
+Thanks to Andrew Gregory.
+
+=item L<IO>
+
+Bump versions of 3 Socket modules.
+
+=item L<IPC::Cmd> 0.98
+
+Added wait_loop_callback for run_forked()
+
+Only search in curdir in can_run() when on Win32 RT#105601
+
+=item L<JSON::PP> 2.94_01
+
+Various, see L<https://metacpan.org/changes/distribution/JSON-PP>
+
+=item L<Locale::Codes> 3.53
+
+Fixed the default error condition in legacy modules.
+
+=item L<Math::BigRat> 0.2613
+
+Fix problem with second operand being changed in multiplication (CPAN
+RT #121139).
+
+=item L<Memoize> 1.03
+
+Skip flapping, timer-sensitive t/expmod_t.t tests
+on Travis CI.
+
+=item L<Net::Ping> 2.61
+
+Fix ping_udp for a started udp echo server (PR#5 by Stephan Loyd)
+
+Fix t/400_ping_syn.t phases
+
+Try to handle Windows Socket::getnameinfo errors
+
+Improve some tests on missing network connections
+
+=item L<Opcode> 1.39_02c
+
+Added new 'oelem' and 'oelemfast' to :base_core
+
+=item L<PathTools> 4.68c
+
+Add security usage note to File::Spec::no_upwards
+white space change so can compile under C++11
+Protect modules also from . in @INC [perl #127384] (CVE-2016-1238)
+
+=item L<Search::Dict> 1.07_01
+
+Bump version
+
+=item L<SelectSaver> 1.02_01
+
+Bump version
+
+=item L<Storable> 3.05_13
+
+mingw fix: use safe defaults, not segfaulting defaults.
+mingw fails on the stacksize binary search, leaving it empty.
+
+=item L<strict> 1.13c
+
+Implemented C<strict 'names'> to reject illegal identifiers created via
+C<no strict 'refs'> also at run-time, not only at compile-time.  See
+L<[cperl #282]|https://github.com/perl11/cperl/issues/282>.
+
+=item L<threads> 2.16_01
+
+Fix Clang macro backward compatibility per patch by Andy Grundman.
+Keep the old better doc.
+Keep our modglobal fix in global destruction from 2.12_01.
+
+=item L<threads::shared> 1.57
+
+Fix Clang macro backward compatibility per patch by Andy Grundman.
+RT #131124 Memory allocation fix.
+
+=item L<Time::HiRes> 1.9744_01
+
+upstream:
+
+add more potential clock constants, like CLOCK_MONOTONIC_FAST
+(available in FreeBSD), and not all potentially found clock constants
+were properly exported to be available from Perl, see your system's
+clock_gettime() documentation for the available ones
+
+correct declared minimum Perl version (should be 5.6, was declared as
+5.8 since 1.9727_03): blead af94b3ac
+
+merged with our cperl test fixes.
+See L<https://github.com/rurban/Time-HiRes/tree/cperl>
+
+=item L<VMS::Studio> 2.41_01
+
+Bump version
+
+=item L<Win32API::File> 0.1204
+
+Fix xsubpp warnings
+
+=back
+
+=head1 Documentation
+
+=head2 New Documentation
+
+=head3 L<perlclass>
+
+Modern cperl classes and roles.
+The new syntax and features.
+
+=head2 Changes to Existing Documentation
+
+=head3 L<perlxs>, L<perlxstut>, L<perlxstypemap>
+
+=over 4
+
+=item *
+
+Moved from F<dist/ExtUtils-ParseXS> to core F<pod/>, as the upstream CPAN
+releases do not contain them anymore.
+
+=back
+
+=head1 Diagnostics
+
+The following additions or changes have been made to diagnostic output,
+including warnings and fatal error messages.  For the complete list of
+diagnostic messages, see L<perldiag>.
+
+=head2 New Diagnostics
+
+=head3 New Warnings
+
+=over 4
+
+=item *
+
+With loopex ops calling a list, all arguments but the last are ignored.
+This might be valid for side-effects, but useless on constants.
+Warn with L<Useless use of constant in list at %s()
+|perldiag/"Useless use of constant in list at %()">
+This affects next, goto, redo, last, dump.
+
+E.g. with C<label:{next(1,label)}> 1 is ignored.
+
+=back
+
+=head2 Changes to Existing Diagnostics
+
+=over 4
+
+=item *
+
+"Can't modify non-lvalue subroutine call of &%s"
+was extended to support methods.
+
+The new message is "Can't modify non-lvalue %s call of %s",
+with the variants "Can't modify non-lvalue subroutine call of &CLASS::sub"
+and "Can't modify non-lvalue method call of CLASS->sub".
+
+=item *
+
+Under DEBUGGING "Modification of a read-only value attempted at
+<location>" was changed to "Modification of a read-only value
+attempted <value> at <c file:line> at <location>"
+
+Existing tests best cut off the " at" at the end.
+
+=back
+
+=head1 Configuration and Compilation
+
+=over 4
+
+=item *
+
+C<inc_version_list> skips now older development versions. It only
+includes older non-devel versions with even numbers.
+See L<[cperl #284]|https://github.com/perl11/cperl/issues/284>
+
+=item *
+
+C<-Dusedevel> is needed to be added to all development versions anymore,
+it is now the default on such. A big warning is still being displayed,
+even in the usual silent auto mode C<-des>.
+See L<[cperl #283]|https://github.com/perl11/cperl/issues/283>
+
+=back
+
+=head1 Utility Changes
+
+=head2 L<cperlivp>
+
+=over 4
+
+=item *
+
+Add support for C<-d DESTDIR>, e.g. after
+
+    make -s -j4 install DESTDIR=$HOME/cperl-inst
+    cd $HOME/cperl-inst/usr/local/bin &&
+    ./cperl cperlivp -p -d $HOME/cperl-inst
+
+See L<[cperl #305]|https://github.com/perl11/cperl/issues/305>
+
+=back
+
+=head1 Testing
+
+=over 4
+
+=item *
+
+Fixed F<Porting/cmpVERSION.pl> resp. F<t/porting/cmp_version.t>
+
+=item *
+
+Some flapping tests on slow windows smokers (appveyor) are now skipped.
+
+=back
+
+=head1 Platform Support
+
+=head2 Platform-Specific Notes
+
+=over 4
+
+=item mingw
+
+cperl on mingw was previously unsupported and didn't compile nor work.
+
+The plan is to use mingw 32bit and 64bit packages instead of MSVC
+compiled packages, which do require a special MS runtime DLL.
+
+=over
+
+=item *
+
+Removed the broken F<dlltool>, which corrupted 64bit DLL's for years.
+In our case Cpanel::JSON::XS and Unicode::Normalize.
+Just use C<gcc> to create dll's and import libs, as in cygwin.
+
+=item *
+
+Added version specific gcc config values.
+
+The default mingw configs were extremely defensive and slow.  Even
+gcc-2.95.3 settings were disabled. Now several modern builtins and
+attributes are used.
+
+Fixed the wrong C<d_u32align> default, which caused Digest::MD5 to
+crash.
+
+=item *
+
+Fixed BUILTIN_*_OVERFLOW macros for mingw64, which uses long long for
+normal IV/UV on win64.
+
+=item *
+
+Removed the version suffix from the importlib which is the entry for
+C<$Config{libperl}>. C<-lcperl> works now for the compiler and embedders.
+Just keep the version on MSVC, e.g. F<cperl527.lib>, as this had special
+logic in perlcc already.
+
+=item *
+
+Improved F<t/run/switchDBG.t> for C<-D''> and C<-T> tests.
+
+=item *
+
+Fixed building of the extensions with the Extensions_normalize target.
+
+=item *
+
+Switched from F<C:\MinGW> to F<C:\Strawberry\c> as default B<CCHOME> prefix.
+This is much more stable on 64bit, and easier to setup.
+
+=item *
+
+The compiler F<perlcc> only works with very simple programs under mingw yet.
+With dynaloaded XS modules it usually fails.
+
+=back
+
+=back
+
+=head1 Internal Changes
+
+=over 4
+
+=item *
+
+C<Perl_croak_no_modify()> got 2 arguments, the macro is the same.  The
+new C<croak_no_modify_sv(sv)> has better diagnostics with DEBUGGING
+and is used throughout core.
+
+=item *
+
+Many gv_fetch methods use now GV_CLASS, i.e. they try EXISTS and FETCH
+in the same stash lookup, not failing on restricted stashes.
+
+=item *
+
+The overload magic vtable (AMT) allows now readonly stashes. classes
+are not cached, readonly packages are.
+
+=back
+
+=head1 Selected Bug Fixes
+
+=over 4
+
+=item *
+
+Fixed signature corruption with skip'ed arguments without default and
+with 0, 1, undef or op defaults, such as in C<sub func ($, $=0, $=1,
+$=2, $=do{$i++} $="foo", $a="bar", $b="zoot")>, with the first C<$>,
+the 2nd C<$=0>, the 3rd C<$=1> and the 5th C<$=do{}> argument.
+cperl-only.
+
+=item *
+
+Harmonized TOKENBUF_SIZE and stack buf sizes
+
+The max identifier length depends on the max tokenbuf size, which went
+from 256 in perl5 to 1024 in cperl, mostly to speed up parsing with a
+larger parser buffer. A few places still had hardcoded 256 tmpbuf sizes, which
+led to wrong error messages.
+See L<[cperl #293]|https://github.com/perl11/cperl/issues/293>.
+
+=item *
+
+Fixed one place in ck_sort for utf8 lexical variable names, which
+passed the unneeded UTF8 flag to C<pad_findmy_pvn()>. In cperl all pads
+are normalized UTF8 for faster searches, the flag argument must be 0.
+See L<[cperl #293]|https://github.com/perl11/cperl/issues/293>.
+
+=item *
+
+Fix regex stack recursion overflow with DEBUGGING
+
+This is a regression since 5.26 (also in upstream perl5). Without
+DEBUGGING it failed with the error message "Unmatched ( in regex", now
+with more than 5000 open parens it will fail with the same error message.
+This would be security relevant if one would use a DEBUGGING perl in
+production as one can construct a pattern which writes arbitrary
+values to the stack, similar to the Storable (L<[cperl
+#257]|https://github.com/perl11/cperl/issues/257>, L<[cpan
+#97526]|https://rt.cpan.org/Public/Bug/Display.html?id=97526>) stack
+overflow and the old 5.10 regex stack overflow attack.  See L<[cperl
+#293]|https://github.com/perl11/cperl/issues/293>.
+
+=item *
+
+Fixed wrong "Don’t stringify GV in numeric cx outside warnings scope"
+optimization from 5.18, which fails with code like C<$* += (** = 0)>.
+See L<[cperl #299]|https://github.com/perl11/cperl/issues/299>.
+
+=item *
+
+Added missing arity checks to C<readline> and C<readpipe>.
+E.g. C<readline(1,2)> and C<readpipe(1,2)> errors now.  Those
+excessive args were previously called for side-effects, in case of
+constants or variables effectively ignored.
+
+All internal ops are now properly arity checked.
+See L<[cperl #301]|https://github.com/perl11/cperl/issues/301>.
+
+=item *
+
+More fixes for handling readonly packages, aka classes.
+Allow AMT (overload) cache updates, C<@ISA> searches and general class dispatch,
+falling back to AUTOLOAD in classes.
+
+E.g. this works now: C<<< class XX{method m{"ok $self"}} XX->new->m >>>
+The string concat looked in the class XX for an overload for the concat "." op,
+and failed with "Modification of a read-only value attempted" on the class,
+when trying to update the AMT cache.
+On windows it also tried the C<"(qr"> overload.
+See L<[cperl #308]|https://github.com/perl11/cperl/issues/308>.
+
+=item *
+
+Attempting to apply an attribute to an C<our> variable where a
+function of that name already exists could result in a NULL pointer
+being supplied where an SV was expected, crashing perl.
+See L<[perl #131597]|https://rt.perl.org/Public/Bug/Display.html?id=131597>.
+
+=back
+
+=head1 Acknowledgements
+
+cperl 5.27.1c represents approximately 3 months of development since cperl 5.27.0c
+and contains approximately 56,000 lines of changes across 570 files from 9
+authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 26,000 lines of changes to 390 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements
+that became cperl 5.27.1c:
+
+Reini Urban, Tony Cook, vendethiel, François Perrad, Aaron Crane, David
+Mitchell, H.Merijn Brand, William N. Braswell, Jr.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history. In particular, it does not include the names of
+the (very much appreciated) contributors who reported issues to the Perl bug
+tracker.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+Generated with:
+
+    cperl Porting/acknowledgements.pl cperl-5.27.0..HEAD
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the articles recently
+posted to the comp.lang.perl.misc newsgroup and the perl bug database at
+L<https://rt.perl.org/> .  There may also be information at
+L<http://www.perl.org/> , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the L<cperlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
+
+If you think it's a cperl specific bug or trust the cperl developers more 
+please file an issue at L<https://github.com/perl11/cperl/issues>.
+
+If the bug you are reporting has security implications which make it
+inappropriate to send to a publicly archived mailing list, then see
+L<perlsec/SECURITY VULNERABILITY CONTACT INFORMATION>
+For details of how to report the issue.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut

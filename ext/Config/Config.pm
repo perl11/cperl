@@ -10,7 +10,7 @@ use strict;
 use warnings;
 our (%Config, $VERSION);
 
-$VERSION = '6.22';
+$VERSION = '6.23';
 
 # Skip @Config::EXPORT because it only contains %Config, which we special
 # case below as it's not a function. @Config::EXPORT won't change in the

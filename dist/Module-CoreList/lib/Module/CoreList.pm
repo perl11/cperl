@@ -3,7 +3,7 @@ use strict;
 use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use version;
-$VERSION = '5.20170807c';
+$VERSION = '5.20170815c';
 $VERSION =~ s/c$//;
 
 sub _undelta {
@@ -345,6 +345,7 @@ our %released = (
     5.027001 => '2017-06-03',
     '5.026001c' => '2017-08-07',
     '5.027001c' => '2017-08-15',
+    '5.027002c' => '????-??-??',
     '5.024003c' => '????-??-??',
  );
 
@@ -15059,7 +15060,7 @@ our %delta = (
     '5.027000c' => {
         delta_from => '5.026000c',
         changed => {
-            'Config'                => '5.027',
+            'Config'                => '6.22',
             'Module::CoreList'      => '5.20170514c',
             'Module::CoreList::Utils'=> '5.20170428c',
             'Archive::Tar'          => '0.26',
@@ -15084,7 +15085,7 @@ our %delta = (
     '5.027001c' => {
         delta_from => '5.027000c',
         changed => {
-            'Config'                => '5.027001',
+            'Config'                => '6.23',
             'B::Op_private'         => '5.027001',
             'Module::CoreList'      => '20170807c',
             'Module::CoreList::Utils'=> '20170807c',
@@ -15170,6 +15171,17 @@ our %delta = (
             'Time::HiRes'           => '1.9744_01',
             'VMS::Studio'           => '2.41_01',
             'Win32API::File'        => '0.1204',
+        },
+        removed => {
+        }
+    },
+    '5.027002c' => {
+        delta_from => '5.027001c',
+        changed => {
+            'Config'                => '6.23',
+            'B::Op_private'         => '5.027002',
+            'Module::CoreList'      => '20170815c',
+            'Module::CoreList::Utils'=> '20170815c',
         },
         removed => {
         }
