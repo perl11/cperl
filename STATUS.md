@@ -42,7 +42,7 @@ The current stable release is
   
 the latest development release:
 
-* [5.27.0c](https://github.com/perl11/cperl/releases/tag/cperl-5.27.0) - [perl5270cdelta](perl5270cdelta.html).
+* [5.27.1c](https://github.com/perl11/cperl/releases/tag/cperl-5.27.1) - [perl5271cdelta](perl5271cdelta.html).
 
 We also have:
 
@@ -140,9 +140,6 @@ For all versions see [bench-all/](bench-all/index.html)
   inheritance checks are performed at compile-time already.
 * Support restricted stashes, i.e. closed classes, esp. method lookup, destruction
   and readonly ISA.
-
-# In the latest development releases additionally:
-  
 * study with HASH, ARRAY, CODE
 * enhanced dtrace probes
 * support for long path names, > 4096
@@ -462,4 +459,4 @@ They also revert some wrong decisions p5p already made.
 
 --
 
-2017-08-07 rurban
+2017-08-14 rurban
