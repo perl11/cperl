@@ -4723,7 +4723,8 @@ PP(pp_entersub)
                     AvARRAY(av) = ary;
                 }
 
-                Copy(MARK+1,AvARRAY(av),items,SV*);
+                if (items)
+                    Copy(MARK+1,AvARRAY(av),items,SV*);
                 AvFILLp(av) = items - 1;
             }
 	} else if (CvHASSIG(cv)) { /* mark argc==0 */
