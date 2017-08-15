@@ -507,7 +507,7 @@ PPt(pp_oelemfast, "(:Ref,:Int):Any")
     SETs(AvARRAY(MUTABLE_AV(SvRV(obj)))[ix]);
     if (lvalue && !TOPs) {
         HV *klass = SvSTASH(obj);
-#if 0 && OLD_FIELDS_GV
+#if 0
         GV *fields;
         SV *name = newSVpvn_flags(HvNAME(klass), HvNAMELEN(klass),
                                   HvNAMEUTF8(klass)|SVs_TEMP);

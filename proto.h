@@ -1555,7 +1555,7 @@ PERL_CALLCONV PADOFFSET	Perl_field_pad(pTHX_ const HV* klass, const char* key, I
 #define PERL_ARGS_ASSERT_FIELD_PAD	\
 	assert(klass); assert(key)
 
-PERL_CALLCONV void	Perl_field_pad_add(pTHX_ const HV* klass, const char* key, I32 klen, PADOFFSET targ)
+PERL_CALLCONV void	Perl_field_pad_add(pTHX_ HV* klass, const char* key, I32 klen, PADOFFSET targ)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
@@ -1568,6 +1568,9 @@ PERL_CALLCONV PADOFFSET	Perl_field_search(pTHX_ const HV* klass, const char* key
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_FIELD_SEARCH	\
 	assert(klass); assert(key)
+
+PERL_CALLCONV int	Perl_fields_size(char* fields)
+			__attribute__global__;
 
 PERL_CALLCONV SV*	Perl_filter_add(pTHX_ filter_t funcp, SV* datasv)
 			__attribute__global__;

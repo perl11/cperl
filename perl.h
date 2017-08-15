@@ -7649,9 +7649,11 @@ INFNAN_NV_U8_DECL PL_nan;
    reusing the old pads. */
 #define PERL_GOTOSIG_TAILCALL
 
+#define MAX_NUMFIELDS 65536 /* U16_MAX */
+
 /* temporarily only */
-#define OLD_FIELDS_GV 1
-#define MAX_NUMFIELDS U16MAX
+/* #define OLD_FIELDS_GV / **/
+/* #define FIELDS_DYNAMIC_PADSIZE / * */
 
 #undef croak_no_modify_sv
 #define croak_no_modify_sv(sv) Perl_croak_no_modify_sv(aTHX_ (SV*)sv,__FILE__,__LINE__)

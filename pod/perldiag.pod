@@ -6409,6 +6409,10 @@ BEGIN block.
 In perl5 too many elements silently overflow to the other side, or
 with hash iterators, just iterate over half of the hash only.
 
+=item Too many fields
+
+(F) A class can contain only max. 65536 fields. (cperl only)
+
 =item Too many )'s
 
 (A) You've accidentally run your script through B<csh> instead of Perl.

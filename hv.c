@@ -2466,6 +2466,10 @@ Perl_hv_undef_flags(pTHX_ HV *hv, U32 flags)
         }
         if (!HvAUX(hv)->xhv_name_u.xhvnameu_name && ! HvAUX(hv)->xhv_backreferences)
             SvFLAGS(hv) &= ~SVf_OOK;
+#if defined(HvFIELDS_get)
+        if (HvFIELDS_get(hv))
+            PerlMemShared_free(HvFIELDS(hv));
+#endif
     }
     if (!SvOOK(hv)) {
 	Safefree(HvARRAY(hv));

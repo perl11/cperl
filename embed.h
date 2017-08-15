@@ -172,6 +172,7 @@
 #define field_pad(a,b,c)	Perl_field_pad(aTHX_ a,b,c)
 #define field_pad_add(a,b,c,d)	Perl_field_pad_add(aTHX_ a,b,c,d)
 #define field_search(a,b,c,d)	Perl_field_search(aTHX_ a,b,c,d)
+#define fields_size		Perl_fields_size
 #define filter_add(a,b)		Perl_filter_add(aTHX_ a,b)
 #define filter_del(a)		Perl_filter_del(aTHX_ a)
 #define filter_read(a,b,c)	Perl_filter_read(aTHX_ a,b,c)

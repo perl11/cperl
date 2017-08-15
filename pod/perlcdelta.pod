@@ -78,16 +78,13 @@ as an updated module in the L</Modules and Pragmata> section.
 
 =head1 Performance Enhancements
 
-XXX Changes which enhance performance without changing behaviour go here.
-There may well be none in a stable release.
-
-[ List each enhancement as a =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+The L<fields> API refactor using a local L<perlapi/HvFIELDS> buffer
+and not globals C<%FIELDS> and C<@FIELDS> SVs anymore gained 25% speed
+and similar memory improvements.
 
 =back
 
@@ -181,7 +178,7 @@ and New Warnings
 
 =item *
 
-XXX L<message|perldiag/"message">
+L<Too many fields|perldiag/"Too many fields">
 
 =back
 
@@ -323,6 +320,14 @@ well.
 =item *
 
 Added L<perlapi/hv_undef_flags> to the public API.
+
+=item *
+
+Refactored the L<fields> API from global data into methods.
+Added a L<perlapi/HvFIELDS> field to HvAUX as linear buffer
+of "name\0pad...\0" fields, no class C<%FIELDS> and C<@FIELDS> anymore.
+See L<[cperl #322]|https://github.com/perl11/cperl/issues/322>
+However C<-DFIELDS_DYNAMIC_PADSIZE> is still unstable with optimized builds.
 
 =back
 

@@ -2290,9 +2290,9 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
                     SV * const tmp = newSVpvs_flags("", SVs_TEMP);
                     const char *const hvename = HvENAME_get(sv);
 		    Perl_dump_indent(aTHX_
-		     level, file, "  ENAME = \"%s\"\n",
-                     generic_pv_escape(tmp, hvename,
-                                       HvENAMELEN_get(sv), HvENAMEUTF8(sv)));
+		        level, file, "  ENAME = \"%s\"\n",
+                        generic_pv_escape(tmp, hvename,
+                                          HvENAMELEN_get(sv), HvENAMEUTF8(sv)));
                 }
 	    }
 	    if (backrefs) {
@@ -2318,30 +2318,51 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
 		    Perl_dump_indent(aTHX_ level, file, "  MRO_LINEAR_ALL = 0x%"
                                  UVxf "\n",
 				 PTR2UV(meta->mro_linear_all));
-		do_sv_dump(level+1, file, MUTABLE_SV(meta->mro_linear_all), nest+1, maxnest,
-			   dumpops, pvlim);
+                    do_sv_dump(level+1, file, MUTABLE_SV(meta->mro_linear_all), nest+1,
+                               maxnest, dumpops, pvlim);
 		}
 		if (meta->mro_linear_current) {
 		    Perl_dump_indent(aTHX_ level, file,
                                  "  MRO_LINEAR_CURRENT = 0x%" UVxf "\n",
 				 PTR2UV(meta->mro_linear_current));
-		do_sv_dump(level+1, file, MUTABLE_SV(meta->mro_linear_current), nest+1, maxnest,
-			   dumpops, pvlim);
+                    do_sv_dump(level+1, file, MUTABLE_SV(meta->mro_linear_current), nest+1,
+                               maxnest, dumpops, pvlim);
 		}
 		if (meta->mro_nextmethod) {
 		    Perl_dump_indent(aTHX_ level, file,
                                  "  MRO_NEXTMETHOD = 0x%" UVxf "\n",
 				 PTR2UV(meta->mro_nextmethod));
-		do_sv_dump(level+1, file, MUTABLE_SV(meta->mro_nextmethod), nest+1, maxnest,
-			   dumpops, pvlim);
+                    do_sv_dump(level+1, file, MUTABLE_SV(meta->mro_nextmethod), nest+1,
+                               maxnest, dumpops, pvlim);
 		}
 		if (meta->isa) {
 		    Perl_dump_indent(aTHX_ level, file, "  ISA = 0x%" UVxf "\n",
 				 PTR2UV(meta->isa));
-		do_sv_dump(level+1, file, MUTABLE_SV(meta->isa), nest+1, maxnest,
-			   dumpops, pvlim);
+                    do_sv_dump(level+1, file, MUTABLE_SV(meta->isa), nest+1,
+                               maxnest, dumpops, pvlim);
 		}
 	    }
+#if defined(HvFIELDS_get)
+            if (HvFIELDS_get(sv)) {
+                SV * const tmp = newSVpvs_flags("", SVs_TEMP);
+                char *fields = HvFIELDS(sv);
+                STRLEN l;
+# ifdef FIELDS_DYNAMIC_PADSIZE
+                const char padsize = *fields;
+                fields++;
+# else
+                const char padsize = sizeof(PADOFFSET);
+# endif
+                l = strlen(fields);
+                for ( ; *fields; l=strlen(fields), fields += l+padsize+1 ) {
+                    PADOFFSET pad;
+                    memcpy(&pad, &fields[l+1], padsize);
+                    Perl_sv_catpvf(aTHX_ tmp, "%s:%lu ", fields, pad);
+                }
+                Perl_dump_indent(aTHX_ level, file, "  FIELDS = %s\n",
+                                 SvPVX(tmp));
+            }
+#endif
 	}
 	if (nest < maxnest) {
 	    HV * const hv = MUTABLE_HV(sv);

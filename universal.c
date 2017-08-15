@@ -1056,6 +1056,15 @@ XS(XS_re_regexp_pattern)
    and {href} being assigned to an %hash.
  */
 
+PERL_STATIC_INLINE PADOFFSET
+S_fields_padoffset(const char *fields, const int offset,
+                   const char padsize)
+{
+    PADOFFSET pad;
+    memcpy(&pad, &fields[offset], padsize);
+    return pad;
+}
+
 XS(XS_Mu_new); /* prototype to pass -Wmissing-prototypes */
 XS(XS_Mu_new)
 {
@@ -1067,23 +1076,47 @@ XS(XS_Mu_new)
         SV *name = ST(0);
         HV *stash = gv_stashsv(name, SvUTF8(name));
         AV *av = newAV();
+#ifdef OLD_FIELDS_GV
         if (hv_existss(stash, "FIELDS")) { /* has fields? */
             AV *fields;
+#else
+        char *fields;
+        if ((fields = HvFIELDS_get(stash))) { /* has fields? */
+# ifdef FIELDS_DYNAMIC_PADSIZE
+            const char padsize = *fields;
+# else
+            const char padsize = sizeof(PADOFFSET);
+# endif
+#endif
             SSize_t i, fill;
             if (SvREADONLY(name))
                 name = newSVpvn_flags(SvPVX(name), SvCUR(name), SvUTF8(name)|SVs_TEMP);
-#if OLD_FIELDS_GV
+#ifdef OLD_FIELDS_GV
             sv_catpvs(name, "::FIELDS");
             fields = GvAVn(gv_fetchsv(name, 0, SVt_PVAV));
             fill = AvFILLp(fields);
+#else
+            fill = numfields(stash);
+#endif
             av_extend(av, fill);
             AvFILLp(av) = fill;
-#endif
             items--; /* skip $self */
+#ifdef OLD_FIELDS_GV
             for (i=0; i<=fill; i++) {
                 const SV *padix = AvARRAY(fields)[i];
                 const PADOFFSET po = SvIVX(padix);
+#else
+#ifdef FIELDS_DYNAMIC_PADSIZE
+            fields++;
+#endif
+            for (i=0; *fields; i++ ) {
+                int l = strlen(fields);
+                const PADOFFSET po = S_fields_padoffset(fields, l+1, padsize);
+#endif
                 const PADNAME *pn = PAD_COMPNAME(po);
+#ifndef OLD_FIELDS_GV
+                fields += l+padsize+1;
+#endif
                 /* use a pseudohash or string with all the names as first element?
                    no, this is just an optional new method. */
                 if (items > i) { /* copy from args */
@@ -1122,9 +1155,9 @@ XS(XS_Mu_CREATE)
 	croak_xs_usage(cv, "classname");
     else {
         SV *name = ST(0);
-#if OLD_FIELDS_GV
-        HV *stash = gv_stashsv(name, SvUTF8(name));
         AV *av = newAV();
+        HV *stash = gv_stashsv(name, SvUTF8(name));
+#ifdef OLD_FIELDS_GV
         if (hv_existss(stash, "FIELDS")) { /* has fields? */
             AV *fields;
             if (SvREADONLY(name))
@@ -1134,7 +1167,14 @@ XS(XS_Mu_CREATE)
             if (fields)
                 av_extend(av, AvFILLp(fields));
         }
+#else
+        SSize_t fill;
+        if (HvFIELDS_get(stash)) { /* has fields? */
+            fill = numfields(stash);
+            av_extend(av, fill);
+        }
 #endif
+
         AvSHAPED_on(av);
         ST(0) = sv_bless(newRV((SV*)av), stash);
         XSRETURN(1);

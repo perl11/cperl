@@ -131,6 +131,7 @@ struct xpvhv_aux {
                                    used to detect each() after insert for warnings */
 #endif
     U32         xhv_aux_flags;  /* assorted extra flags */
+    char *      xhv_aux_fields; /* buffer of class field "name\0"pad entries */
 };
 
 #define HvAUXf_SCAN_STASH   0x1   /* stash is being scanned by gv_check */
@@ -396,6 +397,9 @@ C<SV*>.
 #define HvPKGTYPE_NN(hv) HvCLASS(hv) \
                            ? HvROLE(hv) ? "role" : "class" \
                            : "package"
+#define HvFIELDS_get(hv)  (SvOOK(hv) && HvCLASS(hv) \
+                           ? HvAUX(hv)->xhv_aux_fields : NULL)
+#define HvFIELDS(hv)      HvAUX(hv)->xhv_aux_fields
 
 /* Checking that hv is a valid package stash is the
    caller's responsibility */
