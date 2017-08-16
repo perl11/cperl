@@ -151,13 +151,6 @@ struct xpvhv {
 #define HV_NO_RITER (U32)U32_MAX
 
 /*
-=head1 Hash Manipulation Functions
-
-=for apidoc AmU||HEf_SVKEY
-This flag, used in the length slot of hash entries and magic structures,
-specifies the structure contains an C<SV*> pointer where a C<char*> pointer
-is to be expected.  (For information only--not to be used).
-
 =head1 Handy Values
 
 =for apidoc AmU||Nullhv
@@ -165,7 +158,7 @@ Null HV pointer.
 
 (deprecated - use C<(HV *)NULL> instead)
 
-=head1 Hash Manipulation Functions
+=head1 Hash Accessor Macros
 
 =for apidoc Am|char*|HvNAME|HV* stash
 Returns the package name of a stash, or C<NULL> if C<stash> isn't a stash.
@@ -190,6 +183,90 @@ Returns the length of the stash's effective name.
 
 =for apidoc Am|unsigned char|HvENAMEUTF8|HV *stash
 Returns true if the effective name is in UTF-8 encoding.
+
+=for apidoc Am|U32|HvFLAGS|HV *hv
+Returns the hash specific flags from HvAUX.
+
+=for apidoc Am|SV**|HvARRAY|HV *hv
+Array accessor.
+
+=for apidoc Am|U32|HvFILL|HV *hv
+Accessor to L</hv_fill>
+
+=for apidoc Am|U32|HvMAX|HV *hv
+Size of L</HvARRAY>
+
+=for apidoc Am|struct xpvhv_aux*|HvAUX|HV *hv
+An extra hash struct available if L</SvOOK> is true.
+This quite intentionally does no C<SvOOK> flag checking. That's your
+responsibility.
+
+=for apidoc Am|U32|HvRITER|HV *hv
+Writable access to the riter field in HvAUX.
+
+=for apidoc Am|U32*|HvEITER|HV *hv
+Writable access to the eiter field in HvAUX.
+
+=for apidoc Am|void|HvRITER_set|HV *hv|U32 riter
+Access to L</hv_riter_set>
+
+=for apidoc Am|void|HvEITER_set|HV *hv|U32 eiter
+Access to L</hv_eiter_set>
+
+=for apidoc Am|U32|HvRITER_get|HV *hv
+Returns the L</HvRITER> or the C<HV_NO_RITER> value if HvAUX does not exist.
+
+=for apidoc Am|U32*|HvEITER_get|HV *hv
+Returns the L</HvEITER> or C<NULL>
+
+=for apidoc Am|U32|HvRAND_get|HV *hv
+Returns the value of xhv_rand or 0
+
+With PERL_HASH_RANDOMIZE_KEYS (i.e. not in cperl) the random value for
+hash traversal.
+
+=for apidoc Am|U32|HvLASTRAND_get|HV *hv
+Returns the value of xhv_last_rand or 0.
+
+With PERL_HASH_RANDOMIZE_KEYS (i.e. not in cperl) the last random
+value for hash traversal, used to detect each() after insert for
+warnings.
+
+=for apidoc Am|bool|HvSTATIC|HV *hv
+Returns !0 if the HvAUXf_STATIC flag is set, when the hash buffer are
+statically allocated (only with embedder or in the compiler). Is
+usually combined with SvREADONLY.
+
+=for apidoc Am|const char*|HvPKGTYPE|HV *stash
+Returns either "package", "role" or "class"
+
+=for apidoc Am|const char*|HvPKGTYPE_NN|HV *stash
+Returns L</HvPKGTYPE> for an existing stash.
+
+=for apidoc Am|char*|HvFIELDS_get|HV *klass
+Returns the fields buffer for a class or NULL.
+
+=for apidoc Am|char*|HvFIELDS|HV *klass
+Returns the writable fields buffer for a class, which needs to exist.
+
+=for apidoc Am|bool|HvCLASS|HV *stash
+If the stash is a class.
+
+=for apidoc Am|void|HvCLASS_on|HV *stash
+Turns the stash into a class.
+
+=for apidoc Am|bool|HvROLE|HV *stash
+If the stash is a role.
+
+=for apidoc Am|void|HvROLE_on|HV *stash
+Turns the stash into a role.
+
+=head1 Hash Entries
+
+=for apidoc AmU||HEf_SVKEY
+This flag, used in the length slot of hash entries and magic structures,
+specifies the structure contains an C<SV*> pointer where a C<char*> pointer
+is to be expected.  (For information only--not to be used).
 
 =for apidoc Am|void*|HeKEY|HE* he
 Returns the actual pointer stored in the key slot of the hash entry.  The
@@ -227,7 +304,7 @@ keys in perl are free to contain embedded nulls, so using C<strlen()>
 or similar is not a good way to find the length of hash keys.  This is
 very similar to the C<SvPV()> macro described elsewhere in this
 document.  See also C<L</HeUTF8>>.  Note also that the hash key
-length cannot be longer than 31bit, even if it is a HEf_SVKEY.
+length cannot be longer than 31bit, even if it is a C<HEf_SVKEY>.
 
 If you are using C<HePV> to get values to pass to C<newSVpvn()> to create a
 new SV, you should consider using C<newSVhek(HeKEY_hek(he))> as it is more
