@@ -326,7 +326,7 @@ well.
 
 =item *
 
-XXX
+Added L<perlapi/hv_undef_flags> to the public API.
 
 =back
 

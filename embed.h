@@ -262,6 +262,7 @@
 #define hv_rand_set(a,b)	Perl_hv_rand_set(aTHX_ a,b)
 #define hv_scalar(a)		Perl_hv_scalar(aTHX_ a)
 #define hv_study(a)		Perl_hv_study(aTHX_ a)
+#define hv_undef_flags(a,b)	Perl_hv_undef_flags(aTHX_ a,b)
 #define init_i18nl10n(a)	Perl_init_i18nl10n(aTHX_ a)
 #define init_i18nl14n(a)	Perl_init_i18nl14n(aTHX_ a)
 #define init_stacks()		Perl_init_stacks(aTHX)

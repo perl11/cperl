@@ -6757,7 +6757,7 @@ Perl_sv_clear(pTHX_ SV *const orig_sv)
 		goto get_next_sv; /* process this new sv */
 	    }
 	    /* free empty hash */
-	    Perl_hv_undef_flags(aTHX_ MUTABLE_HV(sv), HV_NAME_SETALL);
+	    hv_undef_flags(MUTABLE_HV(sv), HV_NAME_SETALL);
 	    assert(!HvARRAY((HV*)sv));
 	    break;
 	case SVt_PVAV:
@@ -6948,7 +6948,7 @@ Perl_sv_clear(pTHX_ SV *const orig_sv)
 #endif
 
 		    /* free any remaining detritus from the hash struct */
-		    Perl_hv_undef_flags(aTHX_ MUTABLE_HV(sv), HV_NAME_SETALL);
+		    hv_undef_flags(MUTABLE_HV(sv), HV_NAME_SETALL);
 		    assert(!HvARRAY((HV*)sv));
 		    goto free_body;
 		}

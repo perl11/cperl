@@ -2365,11 +2365,17 @@ Perl_hfree_next_entry(pTHX_ HV *hv, U32 *indexp)
 
 Undefines the hash.  The XS equivalent of C<undef(%hash)>.
 
-As well as freeing all the elements of the hash (like C<hv_clear()>), this
+As well as freeing all the elements of the hash (like L</hv_clear>), this
 also frees any auxiliary data and storage associated with the hash.
 
 See L</av_clear> for a note about the hash possibly being invalid on
 return.
+
+=for apidoc hv_undef_flags
+
+Adds the C<HV_NAME_SETALL> flag optionally to L</hv_undef>, which
+is needed when being called from L</sv_clear>. Then we must check for
+effective names that need freeing, as well as the usual name.
 
 =cut
 */
@@ -2416,48 +2422,50 @@ Perl_hv_undef_flags(pTHX_ HV *hv, U32 flags)
     }
     hfreeentries(hv);
     if (SvOOK(hv)) {
-      struct mro_meta *meta;
-      const char *name;
+        struct mro_meta *meta;
+        const char *name;
 
-      if (HvENAME_get(hv)) {
-	if (PL_phase != PERL_PHASE_DESTRUCT)
-	    mro_isa_changed_in(hv);
-        if (PL_stashcache) {
-            DEBUG_o(Perl_deb(aTHX_ "hv_undef_flags clearing PL_stashcache for effective name '%"
-                             HEKf "'\n", HEKfARG(HvENAME_HEK(hv))));
-	    (void)hv_deletehek(PL_stashcache, HvENAME_HEK(hv), G_DISCARD);
+        if (HvENAME_get(hv)) {
+            if (PL_phase != PERL_PHASE_DESTRUCT)
+                mro_isa_changed_in(hv);
+            if (PL_stashcache) {
+                DEBUG_o(Perl_deb(aTHX_
+                    "hv_undef_flags clearing PL_stashcache for effective name '%"
+                    HEKf "'\n", HEKfARG(HvENAME_HEK(hv))));
+                (void)hv_deletehek(PL_stashcache, HvENAME_HEK(hv), G_DISCARD);
+            }
         }
-      }
 
-      /* If this call originated from sv_clear, then we must check for
-       * effective names that need freeing, as well as the usual name. */
-      name = HvNAME(hv);
-      if (flags & HV_NAME_SETALL ? !!HvAUX(hv)->xhv_name_u.xhvnameu_name : !!name) {
-        if (name && PL_stashcache) {
-            DEBUG_o(Perl_deb(aTHX_ "hv_undef_flags clearing PL_stashcache for name '%"
-                             HEKf "'\n", HEKfARG(HvNAME_HEK(hv))));
-	    (void)hv_deletehek(PL_stashcache, HvNAME_HEK(hv), G_DISCARD);
+        /* If this call originated from sv_clear, then we must check for
+         * effective names that need freeing, as well as the usual name. */
+        name = HvNAME(hv);
+        if (flags & HV_NAME_SETALL ? !!HvAUX(hv)->xhv_name_u.xhvnameu_name : !!name) {
+            if (name && PL_stashcache) {
+                DEBUG_o(Perl_deb(aTHX_
+                    "hv_undef_flags clearing PL_stashcache for name '%"
+                    HEKf "'\n", HEKfARG(HvNAME_HEK(hv))));
+                (void)hv_deletehek(PL_stashcache, HvNAME_HEK(hv), G_DISCARD);
+            }
+            hv_name_set(hv, NULL, 0, flags);
         }
-	hv_name_set(hv, NULL, 0, flags);
-      }
-      if((meta = HvAUX(hv)->xhv_mro_meta)) {
-	if (meta->mro_linear_all) {
-	    SvREFCNT_dec_NN(meta->mro_linear_all);
-	    /* mro_linear_current is just acting as a shortcut pointer,
-	       hence the else.  */
-	}
-	else
-	    /* Only the current MRO is stored, so this owns the data.
-	     */
-	    SvREFCNT_dec(meta->mro_linear_current);
-	SvREFCNT_dec(meta->mro_nextmethod);
-	SvREFCNT_dec(meta->isa);
-	SvREFCNT_dec(meta->super);
-	Safefree(meta);
-	HvAUX(hv)->xhv_mro_meta = NULL;
-      }
-      if (!HvAUX(hv)->xhv_name_u.xhvnameu_name && ! HvAUX(hv)->xhv_backreferences)
-	SvFLAGS(hv) &= ~SVf_OOK;
+        if ((meta = HvAUX(hv)->xhv_mro_meta)) {
+            if (meta->mro_linear_all) {
+                SvREFCNT_dec_NN(meta->mro_linear_all);
+                /* mro_linear_current is just acting as a shortcut pointer,
+                   hence the else.  */
+            }
+            else
+                /* Only the current MRO is stored, so this owns the data.
+                 */
+                SvREFCNT_dec(meta->mro_linear_current);
+            SvREFCNT_dec(meta->mro_nextmethod);
+            SvREFCNT_dec(meta->isa);
+            SvREFCNT_dec(meta->super);
+            Safefree(meta);
+            HvAUX(hv)->xhv_mro_meta = NULL;
+        }
+        if (!HvAUX(hv)->xhv_name_u.xhvnameu_name && ! HvAUX(hv)->xhv_backreferences)
+            SvFLAGS(hv) &= ~SVf_OOK;
     }
     if (!SvOOK(hv)) {
 	Safefree(HvARRAY(hv));
