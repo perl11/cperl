@@ -100,6 +100,11 @@ The L<fields> API refactor using a local L<perlapi/HvFIELDS> buffer
 and not globals C<%FIELDS> and C<@FIELDS> SVs anymore gained 25% speed
 and similar memory improvements.
 
+=item *
+
+Optimize field method calls to faster oelemfast OPs, accessing the
+field directly.
+
 =back
 
 =head1 Modules and Pragmata

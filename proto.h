@@ -8505,11 +8505,12 @@ STATIC void	S_cop_free(pTHX_ COP *cop)
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE const char *	S_core_type_name(pTHX_ core_types_t t);
 #endif
-STATIC void	S_do_method_finalize(pTHX_ const HV* klass, OP* o, const PADOFFSET floor, const PADOFFSET self)
+STATIC void	S_do_method_finalize(pTHX_ const HV* klass, const CV* cv, OP* o, const PADOFFSET self)
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2);
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_DO_METHOD_FINALIZE	\
-	assert(klass); assert(o)
+	assert(klass); assert(cv); assert(o)
 
 STATIC OP *	S_dup_attrlist(pTHX_ OP *o)
 			__attribute__nonnull__(pTHX_1);
