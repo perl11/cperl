@@ -302,10 +302,11 @@ barestmt:	PLUGSTMT
 			{
 			  if ($2->op_type == OP_CONST) {
 			    const char *const name =
-				SvPV_nolen_const(((SVOP*)$2)->op_sv);
-			    if (strEQc(name, "BEGIN") || strEQc(name, "END")
-                             || strEQc(name, "INIT")  || strEQc(name, "CHECK")
-                             || strEQc(name, "UNITCHECK"))
+				SvPV_nolen_const(cSVOPx($2)->op_sv);
+			    if (SvCUR(cSVOPx($2)->op_sv) >= 3 &&
+                                (   strEQc(name, "BEGIN") || strEQc(name, "END")
+                                 || strEQc(name, "INIT")  || strEQc(name, "CHECK")
+                                 || strEQc(name, "UNITCHECK")) )
                                 CvSPECIAL_on(PL_compcv);
 			  }
 			  else

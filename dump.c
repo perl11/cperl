@@ -3686,10 +3686,10 @@ Perl_pn_peek_short(pTHX_ PADNAME * pn)
     }
     sv_catpv(s, pn->xpadn_pv);
     if (PadnameREFCNT(pn) != 1) {
-        Perl_sv_catpvf(aTHX_ s, " [%d]", PadnameREFCNT(pn));
+        Perl_sv_catpvf(aTHX_ s, " [%d]", (int)PadnameREFCNT(pn));
     }
     if (pn->xpadn_gen != 0) {
-        Perl_sv_catpvf(aTHX_ s, "%d", pn->xpadn_gen);
+        Perl_sv_catpvf(aTHX_ s, "%d", (int)pn->xpadn_gen);
     }
     return SvPVX(s);
 }
