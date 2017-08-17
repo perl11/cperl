@@ -1098,7 +1098,8 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
 	ostash = stash;
     }
 
-    is_import = cBOOL(strEQc(name,"import") || strEQc(name,"unimport"));
+    is_import = cBOOL(len >= 6 &&
+                      (strEQc(name,"import") || strEQc(name,"unimport")));
     if (is_import)
 	flags |= GV_CLASS;
     gv = gv_fetchmeth_pvn(stash, name, nend - name, 0, flags);
