@@ -1319,6 +1319,7 @@
 #define do_vecset(a)		Perl_do_vecset(aTHX_ a)
 #define do_vop(a,b,c,d)		Perl_do_vop(aTHX_ a,b,c,d)
 #define dofile(a,b)		Perl_dofile(aTHX_ a,b)
+#define fields_padoffset	Perl_fields_padoffset
 #define finalize_optree(a)	Perl_finalize_optree(aTHX_ a)
 #define find_lexical_cv(a)	Perl_find_lexical_cv(aTHX_ a)
 #define find_runcv_where(a,b,c)	Perl_find_runcv_where(aTHX_ a,b,c)

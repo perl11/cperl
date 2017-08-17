@@ -5541,19 +5541,46 @@ Perl_fields_size(char *fields)
 /*
 We want to use a dynamic padsize in the fields buffer.
 */
-#ifndef DEBUGGING
-PERL_STATIC_INLINE
-#endif
 PADOFFSET
-S_fields_padoffset(const char *fields, const int offset,
-                   const char padsize)
+Perl_fields_padoffset(const char *fields, const int offset,
+                      const char padsize)
 {
+    /* fight the optimizer, which insists to get the whole word.
+       really, this cries for inline assembly. */
+#if defined(FIELDS_DYNAMIC_PADSIZE) && !defined(DEBUGGING)
+    union {
+        unsigned char p1;
+        U16  p2;
+# if PTRSIZE == 8 /* signed long */
+        U64TYPE po;
+# else
+        PADOFFSET po;
+# endif
+    } pad;
+    PERL_ARGS_ASSERT_FIELDS_PADOFFSET;
+    if (LIKELY(padsize == 1)) {
+        pad.p1 = (unsigned char)(fields[offset]);
+        DEBUG_v(PerlIO_printf(Perl_debug_log, "po %s %d\n", fields, pad.p1));
+        return (PADOFFSET)pad.p1;
+    }
+    else if (padsize == 2) {
+        pad.p2 = (U16)fields[offset];
+        return (PADOFFSET)pad.p2;
+    }
+    else
+        pad.po = (PADOFFSET)fields[offset];
+    DEBUG_v(PerlIO_printf(Perl_debug_log, "po %s %d %d => %lu '%d'\n", fields,
+        offset, (int)padsize, pad.po, (int)(unsigned char)(fields[offset])));
+    return (PADOFFSET)pad.po;
+#else
     PADOFFSET pad;
+    PERL_ARGS_ASSERT_FIELDS_PADOFFSET;
     memcpy(&pad, &fields[offset], padsize);
-    /*DEBUG_v(PerlIO_printf(Perl_debug_log, "po %s %d %d => %lu\n", fields, offset, (int)padsize, pad));*/
+    DEBUG_v(PerlIO_printf(Perl_debug_log, "po %s %d %d => %lu\n", fields,
+                          offset, (int)padsize, pad));
     return pad;
+#endif
 }
-
 
 /*
 =for apidoc field_pad_add
@@ -5732,7 +5759,7 @@ Perl_field_search(pTHX_ const HV* klass, const char* key, I32 klen, bool want_pa
                   l = strlen(fields), fields += l+padsize+1, i++ )
                 ;
             if (*fields) /* found */
-                return want_pad ? S_fields_padoffset(fields, l+1, padsize)
+                return want_pad ? fields_padoffset(fields, l+1, padsize)
                     : (PADOFFSET)i;
             else
                 return NOT_IN_PAD;
@@ -5846,7 +5873,7 @@ Perl_field_index(pTHX_ const HV* klass, U16 i)
             for (j=0; *fields && j < i; l=strlen(fields), fields += l+padsize+1, j++ )
                 ;
             if (i == j)
-                return S_fields_padoffset(fields, l+1, padsize);
+                return fields_padoffset(fields, l+1, padsize);
             else
                 return NOT_IN_PAD;
         }
@@ -20072,7 +20099,7 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
 # endif
         l = strlen(fields);
         for (; *fields; l=strlen(fields), fields += l+padsize+1 ) {
-            PADOFFSET po = S_fields_padoffset(fields, l+1, padsize);
+            PADOFFSET po = fields_padoffset(fields, l+1, padsize);
 #endif
             const PADNAME *pn = PAD_COMPNAME(po);
             const char *key = PadnamePV(pn);
@@ -20351,7 +20378,7 @@ Perl_class_role_finalize(pTHX_ OP* o)
 #else
     for (i=0; *fields; i++) {
         STRLEN l = strlen(fields);
-        PADOFFSET po = S_fields_padoffset(fields, l+1, padsize);
+        PADOFFSET po = fields_padoffset(fields, l+1, padsize);
 #endif
         PADNAME *pn = PAD_COMPNAME(po);
         char *reftype = PadnamePV(pn);
