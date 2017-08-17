@@ -7653,7 +7653,7 @@ INFNAN_NV_U8_DECL PL_nan;
 
 /* temporarily only */
 /* #define OLD_FIELDS_GV / **/
-/* #define FIELDS_DYNAMIC_PADSIZE / * */
+#define FIELDS_DYNAMIC_PADSIZE /* */
 
 #undef croak_no_modify_sv
 #define croak_no_modify_sv(sv) Perl_croak_no_modify_sv(aTHX_ (SV*)sv,__FILE__,__LINE__)

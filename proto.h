@@ -1569,6 +1569,11 @@ PERL_CALLCONV PADOFFSET	Perl_field_search(pTHX_ const HV* klass, const char* key
 #define PERL_ARGS_ASSERT_FIELD_SEARCH	\
 	assert(klass); assert(key)
 
+PERL_CALLCONV PADOFFSET	Perl_fields_padoffset(const char *fields, const int offset, const char padsize)
+			__attribute__nonnull__(1);
+#define PERL_ARGS_ASSERT_FIELDS_PADOFFSET	\
+	assert(fields)
+
 PERL_CALLCONV int	Perl_fields_size(char* fields)
 			__attribute__global__;
 

@@ -2355,12 +2355,11 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
 # endif
                 l = strlen(fields);
                 for ( ; *fields; l=strlen(fields), fields += l+padsize+1 ) {
-                    PADOFFSET pad;
-                    memcpy(&pad, &fields[l+1], padsize);
+                    PADOFFSET pad = fields_padoffset(fields, l+1, padsize);
                     Perl_sv_catpvf(aTHX_ tmp, "%s:%lu ", fields, pad);
                 }
-                Perl_dump_indent(aTHX_ level, file, "  FIELDS = %s\n",
-                                 SvPVX(tmp));
+                Perl_dump_indent(aTHX_ level, file, "  FIELDS = %s (0x%" UVxf ")\n",
+                                 SvPVX(tmp), PTR2UV(HvFIELDS(sv)));
             }
 #endif
 	}

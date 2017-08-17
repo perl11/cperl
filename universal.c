@@ -1056,15 +1056,6 @@ XS(XS_re_regexp_pattern)
    and {href} being assigned to an %hash.
  */
 
-PERL_STATIC_INLINE PADOFFSET
-S_fields_padoffset(const char *fields, const int offset,
-                   const char padsize)
-{
-    PADOFFSET pad;
-    memcpy(&pad, &fields[offset], padsize);
-    return pad;
-}
-
 XS(XS_Mu_new); /* prototype to pass -Wmissing-prototypes */
 XS(XS_Mu_new)
 {
@@ -1111,7 +1102,7 @@ XS(XS_Mu_new)
 #endif
             for (i=0; *fields; i++ ) {
                 int l = strlen(fields);
-                const PADOFFSET po = S_fields_padoffset(fields, l+1, padsize);
+                const PADOFFSET po = fields_padoffset(fields, l+1, padsize);
 #endif
                 const PADNAME *pn = PAD_COMPNAME(po);
 #ifndef OLD_FIELDS_GV

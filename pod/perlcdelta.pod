@@ -327,7 +327,6 @@ Refactored the L<fields> API from global data into methods.
 Added a L<perlapi/HvFIELDS> field to HvAUX as linear buffer
 of "name\0pad...\0" fields, no class C<%FIELDS> and C<@FIELDS> anymore.
 See L<[cperl #322]|https://github.com/perl11/cperl/issues/322>
-However C<-DFIELDS_DYNAMIC_PADSIZE> is still unstable with optimized builds.
 
 =back
 
