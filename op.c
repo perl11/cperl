@@ -19880,7 +19880,7 @@ Perl_class_role(pTHX_ OP* o)
 
 A field may start as lexical or access call in the class block and
 method pad, and needs to be converted to oelemfast ops, which are
-basically aelemfast_lex_u (lexical typed self, const ix < 128).
+basically aelemfast_lex_u (lexical typed self, const ix < 256).
 
   PADxV targ     -> OELEMFAST(self)[targ]
 
@@ -19898,21 +19898,35 @@ field lookup at run-time.
 =cut
 */
 static void
-S_do_method_finalize(pTHX_ const HV *klass, OP *o,
-                     const PADOFFSET floor, const PADOFFSET self)
+S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
+                     OP *o, const PADOFFSET self)
 {
+    PADNAME *pn;
+    PADNAMELIST *pnl = PadlistNAMES(CvPADLIST(cv));
     PERL_ARGS_ASSERT_DO_METHOD_FINALIZE;
     if (IS_TYPE(o, PADSV)) { /* $field -> $self->field[i] */
         /* check if it's a field, or a my var. self is the first my var */
-        if (o->op_targ < self && o->op_targ >= floor && PAD_COMPNAME(o->op_targ)) {
-            assert(o->op_targ - floor < 128);   /* TODO aelem_u/oelem */
-            o->op_private = o->op_targ - floor; /* field offset */
-            DEBUG_k(Perl_deb(aTHX_ "method_finalize: padsv %s %d => oelemfast [%d] %d\n",
-                             PAD_COMPNAME_PV(o->op_targ),
-                             (int)o->op_targ, (int)o->op_private, (int)self));
-            o->op_targ = self;
-            OpTYPE_set(o, OP_OELEMFAST);
+        pn = PadnamelistARRAY(pnl)[o->op_targ];
+        if (o->op_targ > self && pn && PadnameOUTER(pn)) {
+            I32 klen = PadnameUTF8(pn) ? -(PadnameLEN(pn)-1) : PadnameLEN(pn)-1;
+            int ix = (int)field_search(klass, PadnamePV(pn)+1, klen, FALSE);
+            if (ix >= 0) {
+                assert(ix < 256);      /* TODO aelem_u/oelem */
+                o->op_private = (U8)ix;
+                DEBUG_k(Perl_deb(aTHX_ "method_finalize: padsv %s %d => oelemfast %d[%d]\n",
+                    PadnamePV(pn), (int)o->op_targ, (int)self, (int)o->op_private));
+                o->op_targ = self;
+                OpTYPE_set(o, OP_OELEMFAST);
+            }
         }
+#if DEBUGGING
+        else if (o->op_targ == self) {
+            pn = PadnamelistARRAY(pnl)[o->op_targ];
+            assert(strEQc(PadnamePV(pn), "$self"));
+            DEBUG_k(Perl_deb(aTHX_ "method_finalize: self %d\n",
+                             (int)o->op_targ));
+        }
+#endif
     }
     /* TODO: disable hashref syntax for fields. only direct lexical inside
        or method outside.*/
@@ -19940,18 +19954,20 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
             SV* key = ITEM_SV(++items);
             I32 klen = SvUTF8(key) ? -SvCUR(key) : SvCUR(key);
             PADOFFSET ix = field_search(klass, SvPVX(key), klen, FALSE);
-            if (ix != NOT_IN_PAD && ix < (self + floor)) {
-                assert(ix < 128);   /* TODO aelem_u or oelem */
-                o->op_private = ix; /* field offset */
-                DEBUG_k(Perl_deb(aTHX_ "method_finalize: $self->{%s} => $self->[%d] %d\n",
-                                 SvPVX(key), (int)ix, (int)self));
+            if (ix != NOT_IN_PAD) {
+                Perl_warn(aTHX_
+                    "The $self->{field} syntax inside class methods will be invalid soon.");
+                assert(ix < 256);   /* TODO aelem_u or oelem */
+                o->op_private = (U8)ix; /* field offset */
+                DEBUG_k(Perl_deb(aTHX_ "method_finalize: $self->{%s} => $self %d[%d]\n",
+                                 SvPVX(key), (int)self, (int)ix));
                 o->op_targ = self;
                 PerlMemShared_free(cUNOP_AUXo->op_aux - 1);
                 OpTYPE_set(o, OP_OELEMFAST);
             }
         }
     }
-    /* optimize typed accessor calls $self->field -> $self->field[i] */
+    /* optimize typed accessor calls $self->field -> $self->[i] */
     else if (IS_TYPE(o, ENTERSUB) && IS_TYPE(OpFIRST(o), PUSHMARK)) {
         OP *arg = OpNEXT(OpFIRST(o));
         /* first and only arg is typed $self */
@@ -19960,18 +19976,36 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
             IS_TYPE(OpNEXT(arg), METHOD_NAMED))
         {
             SV* const meth = cMETHOPx_meth(OpNEXT(arg));
-            if (meth && SvPOK(meth) &&
-                self <= PadnamelistMAXNAMED(PL_comppad_name) &&
-                PAD_COMPNAME(self) && PAD_COMPNAME_TYPE(self)) {
+            pn = PadnamelistARRAY(pnl)[arg->op_targ];
+            if (meth && SvPOK(meth) && pn && PadnameTYPE(pn) &&
+                PadnameLEN(pn) == 5 && strEQc(PadnamePV(pn), "$self"))
+            {
                 const I32 klen = SvUTF8(meth) ? -SvCUR(meth) : SvCUR(meth);
                 const PADOFFSET ix = field_search(klass, SvPVX(meth), klen, FALSE);
                 if (ix != NOT_IN_PAD) {
-                    assert(ix < 128);   /* TODO aelem_u or oelem */
-                    o->op_private = ix; /* field offset */
-                    DEBUG_k(Perl_deb(aTHX_ "method_finalize: $self->%s => $self->[%d] %d\n",
-                                     SvPVX(meth), (int)ix, (int)self));
-                    o->op_targ = 1;
-                    OpTYPE_set(o, OP_OELEMFAST);
+                    if (LIKELY(ix < 256)) {
+                        HV *type;
+                        PADOFFSET po;
+                        o->op_private = (U8)ix; /* field offset */
+                        DEBUG_k(Perl_deb(aTHX_
+                            "method_finalize %s: $self->%s => oelemfast %d[%d]\n",
+                            SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
+                            SvPVX(meth), (int)self, (int)ix));
+                        o->op_targ = self;
+                        OpTYPE_set(o, OP_OELEMFAST);
+                        op_null(OpFIRST(o)); /* might be pointed to */
+                        OpNEXT(OpFIRST(o)) = o;
+                        OpMORESIB_set(OpFIRST(o), NULL);
+                        OpFLAGS(o) &= ~(OPf_KIDS|OPf_REF|OPf_STACKED);
+                        op_null(OpNEXT(arg));
+                        op_null(arg);
+                        po = field_pad(klass, SvPVX(meth), klen);
+                        pn = PAD_COMPNAME(po);
+                        type = PadnameTYPE(pn);
+                        if (type)
+                            OpRETTYPE_set(o, stash_to_coretype(type));
+                        /*finalize_op(o);*/
+                    }
                 } else {
                     DEBUG_kv(Perl_deb(aTHX_ "method_finalize: $self->%s not a field\n",
                                      SvPVX(meth)));
@@ -19983,7 +20017,7 @@ S_do_method_finalize(pTHX_ const HV *klass, OP *o,
 	OP *kid;
 	for (kid = cUNOPo->op_first; kid; kid = OpSIBLING(kid)) {
             if (IS_PADxV_OP(kid) || OpKIDS(kid))
-                S_do_method_finalize(aTHX_ klass, kid, floor, self);
+                S_do_method_finalize(aTHX_ klass, cv, kid, self);
         }
     }
 }
@@ -20001,7 +20035,7 @@ static void
 S_method_finalize(pTHX_ const HV* klass, const CV* cv)
 {
     OP *o;
-    PADOFFSET self = 1, floor = 0;
+    PADOFFSET self = 1;
     PERL_ARGS_ASSERT_METHOD_FINALIZE;
 
     if (CvHASSIG(cv)) {
@@ -20011,9 +20045,8 @@ S_method_finalize(pTHX_ const HV* klass, const CV* cv)
         if ((items[1].uv & SIGNATURE_ACTION_MASK) == SIGNATURE_padintro)
             self = items[2].uv >> OPpPADRANGE_COUNTSHIFT;
     }
-    if ((o = CvROOT(cv))) {
-        floor = o->op_targ;
-        S_do_method_finalize(aTHX_ klass, o, floor, self);
+    if ((o = CvROOT(cv)) && CvMETHOD(cv) && HvFIELDS_get(klass)) {
+        S_do_method_finalize(aTHX_ klass, cv, o, self);
     }
 }
 

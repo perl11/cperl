@@ -504,7 +504,7 @@ PPt(pp_oelemfast, "(:Ref,:Int):Any")
         Perl_die(aTHX_ "Not a class %s", name);
     }*/
     EXTEND(SP, 1);
-    SETs(AvARRAY(MUTABLE_AV(SvRV(obj)))[ix]);
+    PUSHs(AvARRAY(MUTABLE_AV(SvRV(obj)))[ix]);
     if (lvalue && !TOPs) {
         HV *klass = SvSTASH(obj);
 #if 0
@@ -529,11 +529,11 @@ PPt(pp_oelemfast, "(:Ref,:Int):Any")
             /* XXX typed? */
 
             if (*PadnamePV(pn) == '$')
-                SETs(newSV(0));
+                PUSHs(newSV(0));
             else if (*PadnamePV(pn) == '@')
-                SETs(newSV_type(SVt_PVAV));
+                PUSHs(newSV_type(SVt_PVAV));
             else if (*PadnamePV(pn) == '%')
-                SETs(newSV_type(SVt_PVHV));
+                PUSHs(newSV_type(SVt_PVHV));
         }
     }
     RETURN;

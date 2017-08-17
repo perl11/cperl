@@ -1292,8 +1292,8 @@ ApM	|void	|class_role	|NN OP* o
 ApM	|void	|class_role_finalize|NN OP* o
 #if defined(PERL_IN_OP_C)
 sd	|void	|method_finalize	|NN const HV* klass|NN const CV* cv
-sd	|void	|do_method_finalize	|NN const HV* klass|NN OP* o \
-					|const PADOFFSET floor|const PADOFFSET self
+sd	|void	|do_method_finalize	|NN const HV* klass|NN const CV* cv|NN OP* o \
+		        		|const PADOFFSET self
 #endif
 
 : peephole optimiser

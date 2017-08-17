@@ -1153,6 +1153,15 @@ S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o, const CV *c
     if (o->op_targ && optype != OP_NULL)
         S_opdump_indent(aTHX_ o, level, bar, file, "TARG = %ld\n",
                         (long)o->op_targ);
+    if (optype == OP_AELEMFAST
+        || optype == OP_AELEMFAST_LEX
+#ifdef USE_CPERL
+        || optype == OP_AELEMFAST_LEX_U
+        || optype == OP_OELEMFAST
+#endif
+        )
+        S_opdump_indent(aTHX_ o, level, bar, file, "PRIVATE = %d\n",
+                        (int)o->op_private);
 
     if (o->op_flags || o->op_slabbed || o->op_savefree || o->op_static) {
         SV * const tmpsv = newSVpvs("");
@@ -3833,21 +3842,28 @@ Perl_pn_peek(pTHX_ PADNAME * pn)
 {
     SV *s;
     SV* flags;
+    long lo, hi;
     if (!pn) return "";
     flags = newSVpvs_flags("", SVs_TEMP);
     SV_SET_STRINGIFY_FLAGS(flags,PadnameFLAGS(pn),pn_flags_names);
     /* TODO: identify undef (!PadnamePV(name)) and const names
        (PadnamePV(name) && !PadnameLEN(name)).
        See pad.c */
+    lo = (long)COP_SEQ_RANGE_LOW(pn);
+    if (lo > PERL_PADSEQ_INTRO - 10000)
+        lo = lo - PERL_PADSEQ_INTRO;
+    hi = (long)COP_SEQ_RANGE_LOW(pn);
+    if (hi > PERL_PADSEQ_INTRO - 10000)
+        hi = hi - PERL_PADSEQ_INTRO;
     s = Perl_newSVpvf(aTHX_
-                      "PADNAME: \"%s\" %s%s %s %s\t(%u-%u) "
+                      "PADNAME: \"%s\" %s%s %s %s\t(%ld..%ld) "
                       "LEN=%d, REFCNT=%d, FLAGS=0x%x",
                       pn->xpadn_pv,
                       PadnameOURSTASH(pn) ? "our " : "",
                       PadnameOURSTASH(pn) ? HvNAME(PadnameOURSTASH(pn)) : "",
                       PadnameTYPE(pn) ? HvPKGTYPE(PadnameTYPE(pn)) : "",
                       PadnameTYPE(pn) ? HvNAME(PadnameTYPE(pn)) : "",
-                      (unsigned)COP_SEQ_RANGE_LOW(pn),(unsigned)COP_SEQ_RANGE_HIGH(pn),
+                      lo, hi,
                       (int)PadnameLEN(pn),
                       (int)PadnameREFCNT(pn),
                       (int)PadnameFLAGS(pn));
@@ -3878,6 +3894,9 @@ Perl_pn_peek_short(pTHX_ PADNAME * pn)
         sv_catpvs(s, " ");
     }
     sv_catpv(s, pn->xpadn_pv);
+    if (PadnameFLAGS(pn)) {
+        Perl_sv_catpvf(aTHX_ s, " 0x%x", (unsigned)PadnameFLAGS(pn));
+    }
     if (PadnameREFCNT(pn) != 1) {
         Perl_sv_catpvf(aTHX_ s, " [%d]", (int)PadnameREFCNT(pn));
     }
@@ -3902,7 +3921,7 @@ Perl_pnl_dump(pTHX_ PADNAMELIST * pnl)
     Perl_dump_indent(aTHX_ 1, file, "MAX = %" IVdf "\n", (IV)(pnl->xpadnl_max));
     Perl_dump_indent(aTHX_ 1, file, "MAXNAMED = %" IVdf "\n", (IV)PadnamelistMAXNAMED(pnl));
     Perl_dump_indent(aTHX_ 1, file, "REFCNT = %" IVdf "\n", (IV)PadnamelistREFCNT(pnl));
-    Perl_dump_indent(aTHX_ 1, file, "ARRAY = 0x%" UVxf "\n", PTR2UV(*pnp));
+    Perl_dump_indent(aTHX_ 1, file, "ARRAY = 0x%" UVxf "\n", PTR2UV(pnp));
     if (!pnp) return;
     for (i = 0; i <= PadnamelistMAX(pnl); i++) {
         Perl_dump_indent(aTHX_ 1, file, "[%u]: %s\n",
@@ -3950,6 +3969,7 @@ Perl_padlist_dump(pTHX_ PADLIST * padl)
         for (i = 1; i <= max; i++) {
             SV** padp;
             pl = PadlistARRAY(padl)[i];
+            if (!pl) continue;
             padp = AvARRAY(pl);
             Perl_dump_indent(aTHX_ 0, file, "PAD[%d] = 0x%p %s\n", (int)i, pl,
                              (pl == PL_comppad)?" (comppad)":"");
