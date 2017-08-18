@@ -25,6 +25,11 @@ here, but most should go in the L</Performance Enhancements> section.
 
 [ List each enhancement as a =head2 entry ]
 
+=head2 dump more COP fields
+
+Dump the values of a COP $^H, %^H and the lexical warnings via
+C<op_dump()> and it's XS module L<Devel::Peek>.
+
 =head1 Security
 
 XXX Any security-related notices go here.  In particular, any security
@@ -111,6 +116,11 @@ XXX
 =head2 Updated Modules and Pragmata
 
 =over 4
+
+=item L<Devel::Peek> 1.26_03
+
+Dump the values of a COP $^H, %^H and lexical warnings.
+Improved the test a bit.
 
 =item L<fields> 2.26c
 

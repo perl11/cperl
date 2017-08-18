@@ -98,6 +98,42 @@ const struct flag_to_name cv_flags_names[] = {
     {CVf_MULTI, "MULTI,"}
 };
 
+const struct flag_to_name hints_flags_names[] = {
+    {HINT_INTEGER, "integer,"},
+    {HINT_STRICT_REFS, "strict refs,"},
+    {HINT_LOCALE, "locale,"},
+    {HINT_BYTES, "bytes,"},
+    {HINT_LOCALE_PARTIAL, "locale partial,"},
+    {HINT_EXPLICIT_STRICT_REFS, "explicit strict refs,"},
+    {HINT_EXPLICIT_STRICT_SUBS, "explicit strict subs,"},
+    {HINT_EXPLICIT_STRICT_VARS, "explicit strict vars,"},
+    {HINT_BLOCK_SCOPE, "block scope,"},
+    {HINT_STRICT_SUBS, "strict subs,"},
+    {HINT_STRICT_VARS, "strict vars,"},
+    {HINT_UNI_8_BIT, "unicode_strings,"},
+    {HINT_NEW_INTEGER, "overload int,"},
+    {HINT_NEW_FLOAT, "overload float,"},
+    {HINT_NEW_BINARY, "overload binary,"},
+    {HINT_NEW_STRING, "overload string,"},
+    {HINT_NEW_RE, "overload re,"},
+    {HINT_LOCALIZE_HH, "localize %^H,"},
+    {HINT_LEXICAL_IO_IN, "input ${^OPEN},"},
+    {HINT_LEXICAL_IO_OUT, "output ${^OPEN},"},
+    {HINT_RE_TAINT, "re taint,"},
+    {HINT_RE_EVAL, "re eval,"},
+    {HINT_FILETEST_ACCESS, "filetest,"},
+    {HINT_UTF8, "utf8,"},
+    {HINT_NO_AMAGIC, "ovld no amg,"},
+    {HINT_RE_FLAGS, "re /xism,"},
+    {HINT_FEATURE_MASK, "3 feature bits,"},
+    {HINT_STRICT_HASHPAIRS, "strict hashpairs,"},
+#ifndef HINT_M_VMSISH_STATUS
+    {HINT_STRICT_NAMES, "strict names,"},
+#else
+    {HINT__M_VMSISH_STATUS, "vmsish,"},
+#endif
+};
+
 #define SV_SET_STRINGIFY_FLAGS(d,flags,names) STMT_START { \
             sv_setpv(d,"");                                 \
             append_flags(d, flags, names);     \
@@ -1298,30 +1334,57 @@ S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o, const CV *c
 	if (CopLINE(cCOPo))
 	    S_opdump_indent(aTHX_ o, level, bar, file, "LINE = %" UVuf "\n",
                             (UV)CopLINE(cCOPo));
-
         if (CopSTASHPV(cCOPo)) {
             SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
             HV *stash = CopSTASH(cCOPo);
             const char * const hvname = HvNAME_get(stash);
 
             S_opdump_indent(aTHX_ o, level, bar, file, "PACKAGE = \"%s\"\n",
-                               generic_pv_escape(tmpsv, hvname,
-                                  HvNAMELEN(stash), HvNAMEUTF8(stash)));
+                            generic_pv_escape(tmpsv, hvname,
+                                HvNAMELEN(stash), HvNAMEUTF8(stash)));
         }
-
         if (CopLABEL(cCOPo)) {
             SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
             STRLEN label_len;
             U32 label_flags;
             const char *label = CopLABEL_len_flags(cCOPo,
-                                                   &label_len, &label_flags);
+                                    &label_len, &label_flags);
             S_opdump_indent(aTHX_ o, level, bar, file, "LABEL = \"%s\"\n",
                             generic_pv_escape( tmpsv, label, label_len,
                                                (label_flags & SVf_UTF8)));
         }
-
         S_opdump_indent(aTHX_ o, level, bar, file, "SEQ = %u\n",
                         (unsigned int)cCOPo->cop_seq);
+        if (cCOPo->cop_hints) {
+            SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
+            SV_SET_STRINGIFY_FLAGS(tmpsv,cCOPo->cop_hints,hints_flags_names);
+            S_opdump_indent(aTHX_ o, level, bar, file, "$^H = 0x%" UVxf " (%s)\n",
+                     (UV)cCOPo->cop_hints, SvPVX_const(tmpsv));
+        }
+        if (cCOPo->cop_hints_hash) {
+            SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
+            HV *hv = cophh_2hv(cCOPo->cop_hints_hash, 0);
+            HE *entry;
+            (void)hv_iterinit(hv);
+            while ((entry = hv_iternext_flags(hv, 0))) {
+                const HEK* hek = HeKEY_hek(entry);
+                sv_catpv( tmpsv, HEK_KEY(hek));
+                sv_catpvs(tmpsv, "=>");
+                if (SvIOK(HeVAL(entry)))
+                    Perl_sv_catpvf(aTHX_ tmpsv, "%" IVdf, SvIVX(HeVAL(entry)));
+                else
+                    sv_catpv( tmpsv, sv_peek(HeVAL(entry)));
+                sv_catpvs(tmpsv, ",");
+            }
+            if (SvCUR(tmpsv))
+                SvPVX(tmpsv)[SvCUR(tmpsv)-1] = '\0';
+            S_opdump_indent(aTHX_ o, level, bar, file, "%^H = 0x%" UVxf " (%s)\n",
+                            (UV)cCOPo->cop_hints_hash, SvPVX_const(tmpsv));
+        }
+        if (cCOPo->cop_warnings) {
+            S_opdump_indent(aTHX_ o, level, bar, file, "WARNINGS = 0x%" UVxf " (%d)\n",
+                            (UV)cCOPo->cop_warnings, (int)*cCOPo->cop_warnings);
+        }
 	break;
 
     case OP_ENTERITER:

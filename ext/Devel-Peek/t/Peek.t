@@ -1540,7 +1540,10 @@ dumpindent is 4 at -e line 1.
      | FLAGS = (VOID,SLABBED,MORESIB)
      | LINE = 1
      | PACKAGE = "t"
-     |     |
+     | SEQ = NNN
+     | $^H = 0x100 (block scope)
+     | %^H = 0xNNN (feature_lexsubs=>1,feature_signatures=>1)
+     |
 5    +-enterxssub UNOP(0xNNN) ===> 1 [leave 0xNNN]
        TARG = 1
        FLAGS = (VOID,KIDS,STACKED,SLABBED)
@@ -1566,13 +1569,15 @@ EODUMP
 
     $e =~ s/GV = t::DumpProg \(0xNNN\)/PADIX = 2/ if $threads;
     $e =~ s/SVOP/PADOP/g if $threads;
+    local $ENV{PERL_HASH_SEED} = 0;
     my $out = t::runperl
                  switches => ['-Ilib'],
                  prog => 'package t; use Devel::Peek q-DumpProg-; DumpProg();',
                  stderr=>1;
     my $origout = $out;
     $out =~ s/FLAGS = 0x[[:xdigit:]]+ \(/FLAGS = \(/g if $] > 5.022;
-    $out =~ s/ *SEQ = .*\n//;
+    $out =~ s/SEQ = \d+/SEQ = NNN/;
+    $out =~ s/\%\^H = 0x[[:xdigit:]]+ /\%\^H = 0xNNN /;
     $out =~ s/\s+\n/\n/gm;
     $out =~ s/0x[0-9a-f]{2,}\]/${1}0xNNN]/g;
     $out =~ s/\(0x[0-9a-f]{3,}\)/(0xNNN)/g;

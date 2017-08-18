@@ -3,7 +3,7 @@ use strict;
 use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use version;
-$VERSION = '5.20170815c';
+$VERSION = '5.20170818c';
 $VERSION =~ s/c$//;
 
 sub _undelta {
@@ -15182,6 +15182,7 @@ our %delta = (
             'B::Op_private'         => '5.027002',
             'Module::CoreList'      => '20170815c',
             'Module::CoreList::Utils'=> '20170815c',
+            'Devel::Peek'           => '1.26_03',
             'fields'                => '2.26c',
             'Mu'                    => '0.02c',
         },
