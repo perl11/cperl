@@ -519,6 +519,9 @@ Ap	|void	|gv_dump	|NULLOK GV* gv
 Apd	|OPclass|op_class	|NULLOK const OP *o
 Ap	|void	|op_dump	|NN const OP *o
 Apd	|void	|op_dump_cv	|NN const OP *o|NULLOK const CV *cv
+#ifdef DEBUGGING
+XEpd	|void	|cop_dump	|NN const OP *o
+#endif
 Ap	|void	|pmop_dump	|NULLOK PMOP* pm
 Ap	|void	|dump_sub	|NN const GV* gv
 Ap	|void	|dump_sub_perl	|NN const GV* gv|bool justperl

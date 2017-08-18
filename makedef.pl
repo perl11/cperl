@@ -253,6 +253,7 @@ unless ($define{'DEBUGGING'}) {
 		    Perl_debstackptrs
                     Perl_deb_hechain
                     Perl_deb_hek
+                    Perl_cop_dump
                     Perl_hv_dump
 		    Perl_pad_sv
 		    Perl_pad_setsv

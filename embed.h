@@ -1028,6 +1028,7 @@
 #    endif
 #  endif
 #  if defined(DEBUGGING)
+#define cop_dump(a)		Perl_cop_dump(aTHX_ a)
 #define deb_hechain(a)		Perl_deb_hechain(aTHX_ a)
 #define deb_hek(a,b)		Perl_deb_hek(aTHX_ a,b)
 #    if defined(PERL_IN_REGCOMP_C)

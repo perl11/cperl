@@ -7379,6 +7379,12 @@ PERL_CALLCONV void	Perl_av_dump(pTHX_ SV* av)
 #define PERL_ARGS_ASSERT_AV_DUMP	\
 	assert(av)
 
+PERL_CALLCONV void	Perl_cop_dump(pTHX_ const OP *o)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_COP_DUMP	\
+	assert(o)
+
 PERL_CALLCONV void	Perl_deb_hechain(pTHX_ HE* entry)
 			__attribute__global__;
 

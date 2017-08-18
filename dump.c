@@ -28,6 +28,7 @@
 #define PERL_IN_DUMP_C
 #include "perl.h"
 #include "regcomp.h"
+#include "feature.h"
 
 static const char* const svtypenames[SVt_LAST] = {
     "NULL",
@@ -125,7 +126,7 @@ const struct flag_to_name hints_flags_names[] = {
     {HINT_UTF8, "utf8,"},
     {HINT_NO_AMAGIC, "ovld no amg,"},
     {HINT_RE_FLAGS, "re /xism,"},
-    {HINT_FEATURE_MASK, "3 feature bits,"},
+    /*{HINT_FEATURE_MASK, "3 feature bits,"},*/
     {HINT_STRICT_HASHPAIRS, "strict hashpairs,"},
 #ifndef HINT_M_VMSISH_STATUS
     {HINT_STRICT_NAMES, "strict names,"},
@@ -1356,10 +1357,18 @@ S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o, const CV *c
         S_opdump_indent(aTHX_ o, level, bar, file, "SEQ = %u\n",
                         (unsigned int)cCOPo->cop_seq);
         if (cCOPo->cop_hints) {
+            U32 h = cCOPo->cop_hints;
             SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
-            SV_SET_STRINGIFY_FLAGS(tmpsv,cCOPo->cop_hints,hints_flags_names);
+            SV_SET_STRINGIFY_FLAGS(tmpsv,h,hints_flags_names);
+            if (h & HINT_FEATURE_MASK && h & HINT_LOCALIZE_HH) {
+                if ((h & HINT_FEATURE_MASK) >> HINT_FEATURE_SHIFT == FEATURE_BUNDLE_CUSTOM)
+                    sv_catpvs(tmpsv, ",feature current");
+                else
+                    Perl_sv_catpvf(aTHX_ tmpsv, ",feature_bundle %d",
+                                   (int)(h & HINT_FEATURE_MASK) >> HINT_FEATURE_SHIFT);
+            }
             S_opdump_indent(aTHX_ o, level, bar, file, "$^H = 0x%" UVxf " (%s)\n",
-                     (UV)cCOPo->cop_hints, SvPVX_const(tmpsv));
+                     (UV)h, SvPVX_const(tmpsv));
         }
         if (cCOPo->cop_hints_hash) {
             SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
@@ -1382,8 +1391,8 @@ S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o, const CV *c
                             (UV)cCOPo->cop_hints_hash, SvPVX_const(tmpsv));
         }
         if (cCOPo->cop_warnings) {
-            S_opdump_indent(aTHX_ o, level, bar, file, "WARNINGS = 0x%" UVxf " (%d)\n",
-                            (UV)cCOPo->cop_warnings, (int)*cCOPo->cop_warnings);
+            S_opdump_indent(aTHX_ o, level, bar, file, "WARNINGS = 0x%" UVxf "\n",
+                            (UV)cCOPo->cop_warnings);
         }
 	break;
 
@@ -1519,6 +1528,90 @@ Perl_op_dump(pTHX_ const OP *o)
         PL_debug |= DEBUG_m_FLAG;
 #endif
 }
+
+/*
+=for apidoc cop_dump
+Dumps a COP, even when it is deleted. Esp. useful for lexical hints in PL_curcop.
+
+With DEBUGGING only.
+=cut
+*/
+#ifdef DEBUGGING
+void Perl_cop_dump(pTHX_ const OP *o)
+{
+    I32 level = 0;
+    UV bar = 0;
+    PerlIO *file = Perl_debug_log;
+    PERL_ARGS_ASSERT_COP_DUMP;
+
+    if (OpTYPE(o))
+        return op_dump(o);
+
+    if (CopLINE(cCOPo))
+        S_opdump_indent(aTHX_ o, level, bar, file, "LINE = %" UVuf "\n",
+                        (UV)CopLINE(cCOPo));
+    if (CopSTASHPV(cCOPo)) {
+        SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
+        HV *stash = CopSTASH(cCOPo);
+        const char * const hvname = HvNAME_get(stash);
+
+        S_opdump_indent(aTHX_ o, level, bar, file, "PACKAGE = \"%s\"\n",
+                        generic_pv_escape(tmpsv, hvname,
+                                          HvNAMELEN(stash), HvNAMEUTF8(stash)));
+    }
+    if (CopLABEL(cCOPo)) {
+        SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
+        STRLEN label_len;
+        U32 label_flags;
+        const char *label = CopLABEL_len_flags(cCOPo,
+                                               &label_len, &label_flags);
+        S_opdump_indent(aTHX_ o, level, bar, file, "LABEL = \"%s\"\n",
+                        generic_pv_escape( tmpsv, label, label_len,
+                                           (label_flags & SVf_UTF8)));
+    }
+    S_opdump_indent(aTHX_ o, level, bar, file, "SEQ = %u\n",
+                    (unsigned int)cCOPo->cop_seq);
+    if (cCOPo->cop_hints) {
+        U32 h = cCOPo->cop_hints;
+        SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
+        SV_SET_STRINGIFY_FLAGS(tmpsv,h,hints_flags_names);
+        if (h & HINT_FEATURE_MASK && h & HINT_LOCALIZE_HH) {
+            if ((h & HINT_FEATURE_MASK) >> HINT_FEATURE_SHIFT == FEATURE_BUNDLE_CUSTOM)
+                sv_catpvs(tmpsv, ",feature current");
+            else
+                Perl_sv_catpvf(aTHX_ tmpsv, ",feature_bundle %d",
+                               (int)(h & HINT_FEATURE_MASK) >> HINT_FEATURE_SHIFT);
+        }
+        S_opdump_indent(aTHX_ o, level, bar, file, "$^H = 0x%" UVxf " (%s)\n",
+                        (UV)h, SvPVX_const(tmpsv));
+    }
+    if (cCOPo->cop_hints_hash) {
+        SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
+        HV *hv = cophh_2hv(cCOPo->cop_hints_hash, 0);
+        HE *entry;
+        (void)hv_iterinit(hv);
+        while ((entry = hv_iternext_flags(hv, 0))) {
+            const HEK* hek = HeKEY_hek(entry);
+            sv_catpv( tmpsv, HEK_KEY(hek));
+            sv_catpvs(tmpsv, "=>");
+            if (SvIOK(HeVAL(entry)))
+                Perl_sv_catpvf(aTHX_ tmpsv, "%" IVdf, SvIVX(HeVAL(entry)));
+            else
+                sv_catpv( tmpsv, sv_peek(HeVAL(entry)));
+            sv_catpvs(tmpsv, ",");
+        }
+        if (SvCUR(tmpsv))
+            SvPVX(tmpsv)[SvCUR(tmpsv)-1] = '\0';
+        S_opdump_indent(aTHX_ o, level, bar, file, "%^H = 0x%" UVxf " (%s)\n",
+                        (UV)cCOPo->cop_hints_hash, SvPVX_const(tmpsv));
+    }
+    if (cCOPo->cop_warnings) {
+        S_opdump_indent(aTHX_ o, level, bar, file, "WARNINGS = 0x%" UVxf "\n",
+                        (UV)cCOPo->cop_warnings);
+    }
+}
+
+#endif
 
 /*
 =for apidoc op_dump_cv
