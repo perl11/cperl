@@ -825,6 +825,7 @@ PERLVAR(I, sv_count,	IV)		/* how many SV* are currently allocated, */
 
 PERLVARI(I, dump_re_max_len, STRLEN, 60)
 PERLVARI(I, hash_slowdos, U16, 0)       /* Number of concurrent hash DoS attacks */
+PERLVARI(I, mathbigint_loaded, bool, FALSE)
 
 /* For internal uses of randomness, this ensures the sequence of
  * random numbers returned by rand() isn't modified by perl's internal

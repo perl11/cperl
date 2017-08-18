@@ -3,7 +3,6 @@ our $VERSION = '0.01';
 my $HINT_EXACT_ARITH = 0x0000010; # see perl.h
 
 sub import {
-  use Math::BigInt try => 'GMP';
   $^H |= $HINT_EXACT_ARITH;
   # $^H{exact_arith} = 'Math::BigInt';
 }
@@ -31,11 +30,15 @@ exact_arith - promote on overflow to bigint/num
 =head1 DESCRIPTION
 
 This is a new lexical user-pragma since cperl 5.32 to use exact
-arithmetic, without loosing precision on all builtin arithmetic ops.
-As in perl6.
+arithmetic, without loosing precision on all builtin integer
+arithmetic ops.  As in perl6, but only for integer arithmetic and much
+faster.
 
-It is of course a bit slower than without, but it's much faster than
+There's no noticible performance hit. It's much faster than
 perl6, since it only does use bigint on IV/UV overflows which do
 happen very seldom.
+
+When L<Math::BigInt::GMP> is available it is preferred, otherwise it
+falls back to L<Math::BigInt>.
 
 =cut

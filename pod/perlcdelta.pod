@@ -195,6 +195,13 @@ rules for use with Turkic languages.  Previously, Perl ignored these,
 but now, it uses them when it detects that it is operating under a
 Turkic UTF-8 locale.
 
+=head2 exact_arith
+
+Zero-overhead exact integer arithmetic with automatic promotion to
+L<Math::BigInt::GMP> or L<Math::BigInt> on integer overflows. Can be
+turned on globally via C<-Duseexactarith> or lexically via
+C<use exact_arith;>.
+
 =head2 It is now possible to compile perl to always use thread-safe
 locale operations.
 

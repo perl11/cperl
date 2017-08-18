@@ -192,6 +192,7 @@
 #define PL_markstack		(vTHX->Imarkstack)
 #define PL_markstack_max	(vTHX->Imarkstack_max)
 #define PL_markstack_ptr	(vTHX->Imarkstack_ptr)
+#define PL_mathbigint_loaded	(vTHX->Imathbigint_loaded)
 #define PL_max_cowrefcnt	(vTHX->Imax_cowrefcnt)
 #define PL_max_intro_pending	(vTHX->Imax_intro_pending)
 #define PL_max_refcnt		(vTHX->Imax_refcnt)

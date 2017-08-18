@@ -1910,7 +1910,7 @@ Does a binary arithmetic op via Math::BigInt and string eval
 when requested via use exact_arith.
 Can do a unary negation with &PL_sv_undef as 2nd arg.
 
-Slow but exact. But only called on arithmetic overflow, so still
+Slow but exact. Only called on integer arithmetic overflow, so still
 much faster than perl6, which doesn't check overflows, only does type
 and range analysis.
 
@@ -1928,13 +1928,18 @@ Perl_bigint_arith(pTHX_ const char *op, SV* const left, SV* const right)
     DEBUG_kv(PerlIO_printf(Perl_debug_log, "bigint_arith: base %p sp %p mark %p %d\n",
         PL_stack_base, PL_stack_sp, PL_markstack_ptr, (int)TOPMARK));
     /* otherwise it's already loaded. avoids the $INC{} check */
-#if 0 && !defined(USE_EXACT_ARITH)
-    /*require_pv("Math::BigInt");*/
-    Perl_load_module(aTHX_ PERL_LOADMOD_IMPORT_OPS, newSVpvs("Math::BigInt"), NULL
+#if !defined(USE_EXACT_ARITH)
+    if (!PL_mathbigint_loaded) { /* faster than a hash check */
+        dSP;
+        PUSHSTACKi(PERLSI_REQUIRE);
+        /*require_pv("Math::BigInt");*/
+        Perl_load_module(aTHX_ PERL_LOADMOD_IMPORT_OPS, newSVpvs("Math::BigInt"), NULL,
                      op_prepend_elem(OP_LIST,
                                      newSVOP(OP_CONST, 0, newSVpvs("try")),
                                      newSVOP(OP_CONST, 0, newSVpvs("GMP"))));
-    PUSHSTACKi(PERLSI_REQUIRE);
+        POPSTACK;
+        PL_mathbigint_loaded = TRUE;
+    }
 #endif
     sv = Perl_newSVpvf(aTHX_ "Math::BigInt->%s(", op);
     if (SvIOK(left)) {
