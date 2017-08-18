@@ -15,17 +15,17 @@ require './t/test.pl';
 $::NO_ENDING = $::NO_ENDING = 1;
 
 if ( $^O eq "VMS" ) {
-  skip_all( "- regen.pl needs porting." );
+    skip_all( "- regen.pl needs porting." );
 }
 if ($^O eq 'dec_osf') {
     skip_all("$^O cannot handle this test");
 }
 if ( $::IS_EBCDIC || $::IS_EBCDIC) {
-  skip_all( "- We don't regen on EBCDIC." );
+    skip_all( "- We don't regen on EBCDIC." );
 }
 use Config;
 if ( $Config{usecrosscompile} ) {
-  skip_all( "Not all files are available during cross-compilation" );
+    skip_all( "Not all files are available during cross-compilation" );
 }
 
 my %skip = ("regen_perly.pl"    => [qw(perly.act perly.h perly.tab)],
