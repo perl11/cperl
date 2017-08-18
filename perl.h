@@ -5397,11 +5397,11 @@ END_EXTERN_C
 #define LEX_NOTPARSING		11	/* borrowed from toke.c */
 
 /* Hints are now stored in a dedicated U32, so the bottom 8 bits are no longer
-   special and there is no need for HINT_PRIVATE_MASK for COPs
+   special and there is no need for HINT_PRIVATE_MASK for COPs.
    However, bitops store HINT_INTEGER in their op_private.
 
-    NOTE: The typical module using these has the bit value hard-coded, so don't
-    blindly change the values of these.
+   NOTE: The typical module using these has the bit value hard-coded, so don't
+   blindly change the values of these.
 
    If we run out of bits, the 2 locale ones could be combined.  The PARTIAL one
    is for "use locale 'FOO'" which excludes some categories.  It requires going
@@ -5412,7 +5412,8 @@ END_EXTERN_C
 #define HINT_STRICT_REFS	0x00000002 /* strict pragma */
 #define HINT_LOCALE		0x00000004 /* locale pragma */
 #define HINT_BYTES		0x00000008 /* bytes pragma */
-#define HINT_LOCALE_PARTIAL	0x00000010 /* locale, but a subset of categories */
+#define HINT_LOCALE_PARTIAL	0x00000004 /* ignored. was a subset of categories */
+#define HINT_EXACT_ARITH	0x00000010 /* exact_arith pragma */
 
 #define HINT_EXPLICIT_STRICT_REFS	0x00000020 /* strict.pm */
 #define HINT_EXPLICIT_STRICT_SUBS	0x00000040 /* strict.pm */
@@ -5443,7 +5444,7 @@ END_EXTERN_C
 
 #define HINT_RE_FLAGS		0x02000000 /* re '/xism' pragma */
 
-#define HINT_FEATURE_MASK	0x1c000000 /* 3 bits for feature bundles */
+#define HINT_FEATURE_MASK	0x1c000000 /* 3 bits (4,8,10) for feature bundles */
 
 #define HINT_STRICT_HASHPAIRS	0x20000000 /* strict pragma */
 
@@ -6379,40 +6380,40 @@ typedef struct am_table_short AMTS;
 
 #ifdef USE_LOCALE /* These locale things are all subject to change */
 
-   /* Returns TRUE if the plain locale pragma without a parameter is in effect.
-    * */
-#  define IN_LOCALE_RUNTIME	(PL_curcop                                  \
-                              && CopHINTS_get(PL_curcop) & HINT_LOCALE)
+/* Returns TRUE if the plain locale pragma without a parameter is in effect
+ */
+#   define IN_LOCALE_RUNTIME	(PL_curcop \
+                                && CopHINTS_get(PL_curcop) & HINT_LOCALE)
 
-   /* Returns TRUE if either form of the locale pragma is in effect */
-#  define IN_SOME_LOCALE_FORM_RUNTIME                                       \
-        cBOOL(CopHINTS_get(PL_curcop) & (HINT_LOCALE|HINT_LOCALE_PARTIAL))
+/* Returns TRUE if either form of the locale pragma is in effect */
+#   define IN_SOME_LOCALE_FORM_RUNTIME   \
+           cBOOL(CopHINTS_get(PL_curcop) & (HINT_LOCALE|HINT_LOCALE_PARTIAL))
 
-#  define IN_LOCALE_COMPILETIME	cBOOL(PL_hints & HINT_LOCALE)
-#  define IN_SOME_LOCALE_FORM_COMPILETIME                                   \
-                        cBOOL(PL_hints & (HINT_LOCALE|HINT_LOCALE_PARTIAL))
+#   define IN_LOCALE_COMPILETIME	cBOOL(PL_hints & HINT_LOCALE)
+#   define IN_SOME_LOCALE_FORM_COMPILETIME \
+                          cBOOL(PL_hints & (HINT_LOCALE|HINT_LOCALE_PARTIAL))
 
-#  define IN_LOCALE                                                         \
-        (IN_PERL_COMPILETIME ? IN_LOCALE_COMPILETIME : IN_LOCALE_RUNTIME)
-#  define IN_SOME_LOCALE_FORM                                               \
-                    (IN_PERL_COMPILETIME ? IN_SOME_LOCALE_FORM_COMPILETIME  \
-                                         : IN_SOME_LOCALE_FORM_RUNTIME)
+#   define IN_LOCALE \
+	(IN_PERL_COMPILETIME ? IN_LOCALE_COMPILETIME : IN_LOCALE_RUNTIME)
+#   define IN_SOME_LOCALE_FORM \
+	(IN_PERL_COMPILETIME ? IN_SOME_LOCALE_FORM_COMPILETIME \
+	                     : IN_SOME_LOCALE_FORM_RUNTIME)
 
-#  define IN_LC_ALL_COMPILETIME   IN_LOCALE_COMPILETIME
-#  define IN_LC_ALL_RUNTIME       IN_LOCALE_RUNTIME
+#   define IN_LC_ALL_COMPILETIME   IN_LOCALE_COMPILETIME
+#   define IN_LC_ALL_RUNTIME       IN_LOCALE_RUNTIME
 
-#  define IN_LC_PARTIAL_COMPILETIME   cBOOL(PL_hints & HINT_LOCALE_PARTIAL)
-#  define IN_LC_PARTIAL_RUNTIME                                             \
-              (PL_curcop && CopHINTS_get(PL_curcop) & HINT_LOCALE_PARTIAL)
+#   define IN_LC_PARTIAL_COMPILETIME   \
+		cBOOL(PL_hints & HINT_LOCALE_PARTIAL)
+#   define IN_LC_PARTIAL_RUNTIME  \
+               (PL_curcop && CopHINTS_get(PL_curcop) & HINT_LOCALE_PARTIAL)
 
-#  define IN_LC_COMPILETIME(category)                                       \
-       (       IN_LC_ALL_COMPILETIME                                        \
-        || (   IN_LC_PARTIAL_COMPILETIME                                    \
-            && Perl__is_in_locale_category(aTHX_ TRUE, (category))))
-#  define IN_LC_RUNTIME(category)                                           \
-      (IN_LC_ALL_RUNTIME || (IN_LC_PARTIAL_RUNTIME                          \
-                 && Perl__is_in_locale_category(aTHX_ FALSE, (category))))
-#  define IN_LC(category)  \
+#   define IN_LC_COMPILETIME(category)                                       \
+       (IN_LC_ALL_COMPILETIME || (IN_LC_PARTIAL_COMPILETIME                  \
+                  && Perl__is_in_locale_category(aTHX_ TRUE, (category))))
+#   define IN_LC_RUNTIME(category)                                           \
+       (IN_LC_ALL_RUNTIME || (IN_LC_PARTIAL_RUNTIME                          \
+                  && Perl__is_in_locale_category(aTHX_ FALSE, (category))))
+#   define IN_LC(category)  \
                     (IN_LC_COMPILETIME(category) || IN_LC_RUNTIME(category))
 
 #  if defined (PERL_CORE) || defined (PERL_IN_XSUB_RE)

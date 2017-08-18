@@ -1694,24 +1694,19 @@ case 2:
                           SV *constsv = cSVOPx_sv((ps[(4) - (5)].val.opval));
                           assert((ps[(2) - (5)].val.opval)->op_targ);
                           if (SvTYPE(constsv) != SVt_IV)
-                            Perl_croak(aTHX_ "Invalid array size %s[%s]",
+                              /* TODO: add max check */
+                              Perl_croak(aTHX_ "Invalid array size %s[%s]",
                                   PAD_COMPNAME_PV((ps[(2) - (5)].val.opval)->op_targ),
                                   SvPOK(constsv) ? SvPVX(constsv) : "");
+#ifndef USE_CPERL
+			  ck_warner_d(packWARN(WARN_EXPERIMENTAL__SHAPED_ARRAYS),
+                                      "The shaped_arrays feature is experimental");
+#endif
                           /* - is not a THING, syntax error near "[-"
                           if (size <= 0)
                             Perl_croak(aTHX_ "Invalid array size %s[%d]",
                                   PAD_COMPNAME_PV($2->op_targ), size);
                           */
-			  if (!FEATURE_SHAPED_ARRAYS_IS_ENABLED)
-                              Perl_croak(aTHX_ "Experimental "
-                                    "shaped_arrays not enabled");
-#ifndef USE_CPERL
-                          /* Policies... Either provide a stable feature or not.
-                             No need to be defensive about every single new feature */
-			  ck_warner_d(
-				packWARN(WARN_EXPERIMENTAL__SHAPED_ARRAYS),
-				"The shaped_arrays feature is experimental");
-#endif
                           av_init_shaped(MUTABLE_AV(PAD_SV((ps[(2) - (5)].val.opval)->op_targ)), SvIVX(constsv),
                                         PadnameTYPE(PAD_COMPNAME((ps[(2) - (5)].val.opval)->op_targ)));
 			  (yyval.opval) = newAVREF((ps[(2) - (5)].val.opval));
@@ -1719,13 +1714,10 @@ case 2:
     break;
 
   case 269:
-#line 1281 "perly.y"
+#line 1276 "perly.y"
     {
                           dVAR;
                           assert((ps[(2) - (4)].val.opval)->op_targ);
-			  if (!FEATURE_SHAPED_ARRAYS_IS_ENABLED)
-                              Perl_croak(aTHX_ "Experimental "
-                                    "shaped_arrays not enabled");
 #ifndef USE_CPERL
 			  ck_warner_d(packWARN(WARN_EXPERIMENTAL__SHAPED_ARRAYS),
                                       "The shaped_arrays feature is experimental");
@@ -1736,59 +1728,59 @@ case 2:
     break;
 
   case 270:
-#line 1296 "perly.y"
+#line 1288 "perly.y"
     { (yyval.opval) = newHVREF((ps[(2) - (2)].val.opval));
 			  if ((yyval.opval)) (yyval.opval)->op_private |= (ps[(1) - (2)].val.ival);
 			}
     break;
 
   case 271:
-#line 1302 "perly.y"
+#line 1294 "perly.y"
     { (yyval.opval) = newAVREF((ps[(2) - (2)].val.opval)); }
     break;
 
   case 272:
-#line 1304 "perly.y"
+#line 1296 "perly.y"
     { (yyval.opval) = newAVREF((ps[(1) - (4)].val.opval)); }
     break;
 
   case 273:
-#line 1308 "perly.y"
+#line 1300 "perly.y"
     { (yyval.opval) = newGVREF(0,(ps[(2) - (2)].val.opval)); }
     break;
 
   case 275:
-#line 1313 "perly.y"
+#line 1305 "perly.y"
     { (yyval.opval) = newAVREF((ps[(1) - (3)].val.opval)); }
     break;
 
   case 277:
-#line 1318 "perly.y"
+#line 1310 "perly.y"
     { (yyval.opval) = newHVREF((ps[(1) - (3)].val.opval)); }
     break;
 
   case 279:
-#line 1323 "perly.y"
+#line 1315 "perly.y"
     { (yyval.opval) = newGVREF(0,(ps[(1) - (3)].val.opval)); }
     break;
 
   case 280:
-#line 1328 "perly.y"
+#line 1320 "perly.y"
     { (yyval.opval) = scalar((ps[(1) - (1)].val.opval)); }
     break;
 
   case 281:
-#line 1330 "perly.y"
+#line 1322 "perly.y"
     { (yyval.opval) = scalar((ps[(1) - (1)].val.opval)); }
     break;
 
   case 282:
-#line 1332 "perly.y"
+#line 1324 "perly.y"
     { (yyval.opval) = op_scope((ps[(1) - (1)].val.opval)); }
     break;
 
   case 283:
-#line 1335 "perly.y"
+#line 1327 "perly.y"
     { (yyval.opval) = (ps[(1) - (1)].val.opval); }
     break;
 
@@ -1796,6 +1788,6 @@ case 2:
     
 
 /* Generated from:
- * ac6379666f27453bb10d8e2cd64af1c1db41da0cc1279a982c10d01c6f302e3c perly.y
+ * 7facc7951005bbf4895bcfbd7470de63df6a7be7042e0a8651a151337ebcb1bb perly.y
  * 5132b115dedc64fcaea289ebf11528abd6f23d9b88e5247a236e1116603edcdb regen_perly.pl
  * ex: set ro: */

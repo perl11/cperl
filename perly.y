@@ -1254,24 +1254,19 @@ sizearydecl :	'@' PRIVATEREF '[' THING ']'
                           SV *constsv = cSVOPx_sv($4);
                           assert($2->op_targ);
                           if (SvTYPE(constsv) != SVt_IV)
-                            Perl_croak(aTHX_ "Invalid array size %s[%s]",
+                              /* TODO: add max check */
+                              Perl_croak(aTHX_ "Invalid array size %s[%s]",
                                   PAD_COMPNAME_PV($2->op_targ),
                                   SvPOK(constsv) ? SvPVX(constsv) : "");
+#ifndef USE_CPERL
+			  ck_warner_d(packWARN(WARN_EXPERIMENTAL__SHAPED_ARRAYS),
+                                      "The shaped_arrays feature is experimental");
+#endif
                           /* - is not a THING, syntax error near "[-"
                           if (size <= 0)
                             Perl_croak(aTHX_ "Invalid array size %s[%d]",
                                   PAD_COMPNAME_PV($2->op_targ), size);
                           */
-			  if (!FEATURE_SHAPED_ARRAYS_IS_ENABLED)
-                              Perl_croak(aTHX_ "Experimental "
-                                    "shaped_arrays not enabled");
-#ifndef USE_CPERL
-                          /* Policies... Either provide a stable feature or not.
-                             No need to be defensive about every single new feature */
-			  ck_warner_d(
-				packWARN(WARN_EXPERIMENTAL__SHAPED_ARRAYS),
-				"The shaped_arrays feature is experimental");
-#endif
                           av_init_shaped(MUTABLE_AV(PAD_SV($2->op_targ)), SvIVX(constsv),
                                         PadnameTYPE(PAD_COMPNAME($2->op_targ)));
 			  $$ = newAVREF($2);
@@ -1281,9 +1276,6 @@ computedsizearydecl :	'@' PRIVATEREF '[' ']' %prec '('
                         {
                           dVAR;
                           assert($2->op_targ);
-			  if (!FEATURE_SHAPED_ARRAYS_IS_ENABLED)
-                              Perl_croak(aTHX_ "Experimental "
-                                    "shaped_arrays not enabled");
 #ifndef USE_CPERL
 			  ck_warner_d(packWARN(WARN_EXPERIMENTAL__SHAPED_ARRAYS),
                                       "The shaped_arrays feature is experimental");

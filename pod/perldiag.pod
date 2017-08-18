@@ -2371,22 +2371,6 @@ C<push>, C<pop>, C<shift>, C<splice>, C<unshift>, and C<values> to be called wit
 scalar argument.  This experiment is considered unsuccessful, and
 has been removed.  The C<postderef> feature may meet your needs better.
 
-=item Experimental shaped_arrays not enabled
-
-(F) To declare shaped arrays you must first enable the feature:
-
-    use feature "shaped_arrays";
-    # or simply use v5.22;
-    my @a[5];
-
-=item Experimental subroutine signatures not enabled
-
-(F) To use subroutine signatures, you must first enable them:
-
-    no warnings "experimental::signatures";
-    use feature "signatures";
-    sub foo ($left, $right) { ... }
-
 =item Explicit blessing to '' (assuming package main)
 
 (W misc) You are blessing a reference to a zero length string.  This has

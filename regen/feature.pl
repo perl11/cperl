@@ -51,10 +51,12 @@ my %feature_bundle = (
     "5.11"   =>	[qw(say state switch unicode_strings)],
     "5.15"   =>	[qw(say state switch unicode_strings unicode_eval
 		    evalbytes current_sub fc)],
+    #"5.21"  => [qw(say state switch unicode_strings unicode_eval
+    #		    evalbytes current_sub fc shaped_arrays)],
     "5.23"   =>	[qw(say state switch unicode_strings unicode_eval
 		    evalbytes current_sub fc postderef_qq)],
-    "5.27"   =>	[qw(say state switch unicode_strings unicode_eval
-		    evalbytes postderef_qq bitwise)],
+    #"5.27"  =>	[qw(say state switch unicode_strings unicode_eval
+    #		    evalbytes current_sub fc postderef_qq)],
 );
 $feature_bundle{"5.10"} = $feature_bundle{"5.9.5"};
 $feature_bundle{"5.13"} = $feature_bundle{"5.11"};
@@ -62,9 +64,10 @@ $feature_bundle{"5.17"} = $feature_bundle{"5.15"};
 $feature_bundle{"5.19"} = $feature_bundle{"5.15"};
 $feature_bundle{"5.21"} = $feature_bundle{"5.15"};
 $feature_bundle{"5.25"} = $feature_bundle{"5.23"};
-$feature_bundle{"5.29"} = $feature_bundle{"5.27"};
+$feature_bundle{"5.27"} = $feature_bundle{"5.23"};
+$feature_bundle{"5.29"} = $feature_bundle{"5.23"};
 
-my @noops = qw( postderef lexical_subs );
+my @noops = qw( postderef lexical_subs shaped_arrays );
 my @removed = qw( array_base );
 
 
@@ -685,8 +688,9 @@ The declared size is always equal to the actual size, the array is
 pre-filled with undef. Thus shaped arrays are faster to access at run-time
 than aelemfast (constant indices).
 
-If declared with a L<perltypes/"coretypes">, the elements are preinitialized with the
-corresponding C<0> values. You can also use native types.
+If declared with a L<perltypes/"coretypes">, the elements are
+preinitialized with the corresponding C<0> values. You can also use
+native types.
 
    my Int @a[10]; # pre-declares 10 elements with IV's of value 0
    my UInt @a[10];# with UV's of value 0

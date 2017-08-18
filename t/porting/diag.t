@@ -703,7 +703,6 @@ The crypt() function is not implemented on NetWare
 The flock() function is not implemented on NetWare
 The rewinddir() function is not implemented on NetWare
 The seekdir() function is not implemented on NetWare
-The shaped_arrays feature is experimental
 The telldir() function is not implemented on NetWare
 This perl was compiled without taint support. Cowardly refusing to run with -t or -T flags
 This version of OS/2 does not support %s.%s
