@@ -5443,14 +5443,9 @@
 #define	USE_SAFE_HASHITER		/**/
 #endif
 
-/* PERL_EXACT_ARITH:
- *	This symbol, if defined, indicates that Perl can use exact_arith
- *      (i.e. Math::BigInt and the exact_arith pragma is available).
- */
 /* USE_EXACT_ARITH:
  *	This symbol, if defined, indicates that Perl uses exact_arith by default.
  */
-#define PERL_EXACT_ARITH
 #ifndef USE_EXACT_ARITH
 /*#define	USE_EXACT_ARITH		/ **/
 #endif
@@ -5495,6 +5490,6 @@
 #endif
 
 /* Generated from:
- * d6f6933cdf8c0d2a8229a10398be8ab93195b596f3d3651d60c11c6adbdf02bc config_h.SH
+ * 9b8b46a53f7403db05cffce734c650a45e4e1e8737935394d67ae6ccb1ced933 config_h.SH
  * 779f7d9f5e8ff0183560760978ba5ce91a652fc7752be895204fc40530d35938 uconfig.sh
  * ex: set ro: */

@@ -713,15 +713,10 @@
 #  define SUBST_TAINT_BOOLRET 16	/* return is boolean (don't taint) */
 #endif
 
-#ifdef PERL_EXACT_ARITH
-# ifdef USE_EXACT_ARITH
-#  define IS_EXACT_ARITH   1
-# else
-#  define IS_EXACT_ARITH   PL_curcop->cop_hints & HINT_EXACT_ARITH
-/*#define IS_EXACT_ARITH cop_hints_fetch_pvs(PL_curcop, "exact_arith", REFCOUNTED_HE_EXISTS)*/
-# endif
+#ifdef USE_EXACT_ARITH
+# define IS_EXACT_ARITH   1
 #else
-# define IS_EXACT_ARITH   0
+# define IS_EXACT_ARITH   PL_curcop->cop_hints & HINT_EXACT_ARITH
 #endif
 
 /* XXX All process group stuff is handled in pp_sys.c.  Should these

@@ -5488,14 +5488,9 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #$usesafehashiter	USE_SAFE_HASHITER		/**/
 #endif
 
-/* PERL_EXACT_ARITH:
- *	This symbol, if defined, indicates that Perl can use exact_arith
- *      (i.e. Math::BigInt and the exact_arith pragma is available).
- */
 /* USE_EXACT_ARITH:
  *	This symbol, if defined, indicates that Perl uses exact_arith by default.
  */
-#define PERL_EXACT_ARITH
 #ifndef USE_EXACT_ARITH
 #$useexactarith	USE_EXACT_ARITH		/**/
 #endif

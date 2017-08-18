@@ -9092,12 +9092,10 @@ Perl_sv_inc_nomg(pTHX_ SV *const sv)
 #endif
 	if (SvIsUV(sv)) {
 	    if (SvUVX(sv) == UV_MAX) {
-#ifdef PERL_EXACT_ARITH
                 if (UNLIKELY(IS_EXACT_ARITH)) {
                     bigint_arith("binc", sv, &PL_sv_undef);
                     return;
                 }
-#endif
 		sv_setnv(sv, UV_MAX_P1);
 	    } else {
 		(void)SvIOK_only_UV(sv);
