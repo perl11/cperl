@@ -41,4 +41,18 @@ happen very seldom.
 When L<Math::BigInt::GMP> is available it is preferred, otherwise it
 falls back to L<Math::BigInt>.
 
+=head1 32-BIT WARNING
+
+On most ivsize = 4 32bit systems with 64bit integer support, either
+soft via quadmath or hard via the native 64bit CPU, an integer larger
+than 32bit will always be represented as NV, as a double. So there
+will be never be an integer overflow detection, and there will never
+be exact arithmetic on overlarge numbers.
+
+You need to use large IV's then, via C<-Duse64bitint>.
+
+Only on very rare old 32bit machines without 64bit support
+(i.e. without d_quad, without i64size==8) 32bit integer arithmetic
+will trigger an overflow.
+
 =cut

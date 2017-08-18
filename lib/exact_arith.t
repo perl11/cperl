@@ -1,4 +1,6 @@
 #!./perl -- -*- mode: cperl; cperl-indent-level: 4 -*-
+# 64bit int on 64bit CPU, or 32bit via -Duse64bitint
+# 32bit without -Duse64bitint cannot be tested. requires !d_quad.
 
 BEGIN {
     chdir 't' if -d 't';
@@ -7,48 +9,54 @@ BEGIN {
 
 use strict;
 use Config ();
-use vars '$a', '$b';
+my ($ivsize, $can64) = ($Config::Config{ivsize}, $Config::Config{i64size});
 require '../t/test.pl';
-skip_all("test only with ivsize 8") unless $Config::Config{ivsize} == 8;
+skip_all("test only with 64bit IV on a 64bit CPU")
+  unless $ivsize == 8 and $can64 == 8;
 push @INC, 'cpan/Math-BigInt/lib' if is_miniperl();
 plan(15);
 
 $|=1;
-# XXX 64bit IV only. needs to be global to bypass constant folding.
-$a = 18446744073709551614;
-$b = 1844674407370955162400;
+# make $ta constant foldable (cperl only)
+# Note: on 32bit $ta is a NV, bypassing exact_arith
+my $ta :const = 18446744073709551614;
+# $a needs to be initialized at run-time to bypass constant folding.
+my $a = 18446744073709551614;
+my $r1 :const = '36893488147419103228';
+my $r2 :const = 3.68934881474191e+19;
 
-# test it at compile-time in constant folding
+# test it at compile-time via constant folding
 use exact_arith;
-my $n = 18446744073709551614 * 2; # => Math::BigInt or *::GMP
+my $n = $ta * 2; # constant folded with cperl
 like(ref $n, qr/^Math::BigInt/,  '* type (c)');
-ok($n eq '36893488147419103228', '* val (c)');
+is($n, $r1, '* val (c)');
 
 {
     no exact_arith;
-    my $m = 18446744073709551614 * 2;
+    my $m = $ta * 2;
     is(ref $m, '', '* no type (c)');
-    is($m, 3.68934881474191e+19, '* no val (c)');
+    is($m, $r2, '* no val (c)');
 }
 
+# and at run-time
 my $two = 2;
-$n = $a * $two; # run-time
+$n = $a * $two;
 like(ref $n, qr/^Math::BigInt/,  '* type (r)');
-ok($n eq '36893488147419103228', '* val (r)');
+is($n, $r1, '* val (r)');
 
 {
     no exact_arith;
     my $m = $a * $two;
     is(ref $m, '', '* no type (r)');
-    is($m, 3.68934881474191e+19, '* no val (r)');
+    is($m, $r2, '* no val (r)');
 }
 
-my $c = 18446744073709551614 + 10000;
+my $c = $ta + 10000;
 like(ref $c, qr/^Math::BigInt/,  '+ type (c)');
 my $r = $a + 10000;
 like(ref $r, qr/^Math::BigInt/,  '+ type (r)');
 
-$c = 18446744073709551614 - (- 2);
+$c = $ta - (- 2);
 like(ref $c, qr/^Math::BigInt/,  '- type (c)');
 $r = $c  - 1;
 like(ref $r, qr/^Math::BigInt/,  '- type (r)');
@@ -59,7 +67,7 @@ like(ref $r, qr/^Math::BigInt/,  '- type (r)');
 #$r = $b / 3;
 #like(ref $r, qr/^Math::BigInt/,  '/ type (r)');
 
-$c = 18446744073709551614 ** 2;
+$c = $ta ** 2;
 like(ref $c, qr/^Math::BigInt/,  '** type (c)');
 $r = $a ** 2;
 like(ref $r, qr/^Math::BigInt/,  '** type (r)');
