@@ -5375,7 +5375,8 @@ EXTCONST char *const PL_phase_names[];
 #  define PL_amagic_generation PL_na
 #endif /* !PERL_CORE */
 
-#define PL_hints PL_compiling.cop_hints
+#define PL_hints 	PL_compiling.cop_hints
+#define PL_hints_hash 	PL_compiling.cop_hints_hash
 
 END_EXTERN_C
 
@@ -5412,7 +5413,7 @@ END_EXTERN_C
 #define HINT_STRICT_REFS	0x00000002 /* strict pragma */
 #define HINT_LOCALE		0x00000004 /* locale pragma */
 #define HINT_BYTES		0x00000008 /* bytes pragma */
-#define HINT_LOCALE_PARTIAL	0x00000004 /* ignored. was a subset of categories */
+#define HINT_LOCALE_PARTIAL	0x00000004 /* ignored. was 0x10 categories subset */
 #define HINT_EXACT_ARITH	0x00000010 /* exact_arith pragma */
 
 #define HINT_EXPLICIT_STRICT_REFS	0x00000020 /* strict.pm */
@@ -6382,19 +6383,28 @@ typedef struct am_table_short AMTS;
 
 /* Returns TRUE if the plain locale pragma without a parameter is in effect
  */
-#   define IN_LOCALE_RUNTIME	(PL_curcop \
-                                && CopHINTS_get(PL_curcop) & HINT_LOCALE)
+#   define IN_LOCALE_RUNTIME                                                \
+        (PL_curcop                                                          \
+         && CopHINTS_get(PL_curcop) & HINT_LOCALE                           \
+         && !SvIVX(cophh_fetch_pvs(PL_curcop->cop_hints_hash, "locale", 0)) \
+         )
 
-/* Returns TRUE if either form of the locale pragma is in effect */
+/* Returns TRUE if either form of the locale pragma is in effect (unused) */
 #   define IN_SOME_LOCALE_FORM_RUNTIME   \
-           cBOOL(CopHINTS_get(PL_curcop) & (HINT_LOCALE|HINT_LOCALE_PARTIAL))
+        cBOOL(CopHINTS_get(PL_curcop) & HINT_LOCALE)
 
-#   define IN_LOCALE_COMPILETIME	cBOOL(PL_hints & HINT_LOCALE)
+/* (used) */
+#   define IN_LOCALE_COMPILETIME                                    \
+        cBOOL(PL_hints & HINT_LOCALE                                \
+              && !SvIVX(cophh_fetch_pvs(PL_hints_hash, "locale", 0)))
+/* (unused) */
 #   define IN_SOME_LOCALE_FORM_COMPILETIME \
-                          cBOOL(PL_hints & (HINT_LOCALE|HINT_LOCALE_PARTIAL))
+        cBOOL(PL_hints & HINT_LOCALE)
 
+/* Only for use locale; (used) */
 #   define IN_LOCALE \
 	(IN_PERL_COMPILETIME ? IN_LOCALE_COMPILETIME : IN_LOCALE_RUNTIME)
+/* use locale ... ; (unused) */
 #   define IN_SOME_LOCALE_FORM \
 	(IN_PERL_COMPILETIME ? IN_SOME_LOCALE_FORM_COMPILETIME \
 	                     : IN_SOME_LOCALE_FORM_RUNTIME)
@@ -6402,19 +6412,19 @@ typedef struct am_table_short AMTS;
 #   define IN_LC_ALL_COMPILETIME   IN_LOCALE_COMPILETIME
 #   define IN_LC_ALL_RUNTIME       IN_LOCALE_RUNTIME
 
+/* the next 5 are actually used */
 #   define IN_LC_PARTIAL_COMPILETIME   \
-		cBOOL(PL_hints & HINT_LOCALE_PARTIAL)
+	cBOOL(PL_hints & HINT_LOCALE_PARTIAL)
 #   define IN_LC_PARTIAL_RUNTIME  \
-               (PL_curcop && CopHINTS_get(PL_curcop) & HINT_LOCALE_PARTIAL)
+        cBOOL(PL_curcop && CopHINTS_get(PL_curcop) & HINT_LOCALE_PARTIAL)
 
-#   define IN_LC_COMPILETIME(category)                                       \
-       (IN_LC_ALL_COMPILETIME || (IN_LC_PARTIAL_COMPILETIME                  \
-                  && Perl__is_in_locale_category(aTHX_ TRUE, (category))))
-#   define IN_LC_RUNTIME(category)                                           \
-       (IN_LC_ALL_RUNTIME || (IN_LC_PARTIAL_RUNTIME                          \
-                  && Perl__is_in_locale_category(aTHX_ FALSE, (category))))
+#   define IN_LC_COMPILETIME(category) \
+	(IN_LC_PARTIAL_COMPILETIME  && Perl__is_in_locale_category(aTHX_  TRUE, (category)))
+#   define IN_LC_RUNTIME(category)     \
+        (IN_LC_PARTIAL_RUNTIME && Perl__is_in_locale_category(aTHX_ FALSE, (category)))
 #   define IN_LC(category)  \
-                    (IN_LC_COMPILETIME(category) || IN_LC_RUNTIME(category))
+        (IN_LC_COMPILETIME(category) || IN_LC_RUNTIME(category))
+
 
 #  if defined (PERL_CORE) || defined (PERL_IN_XSUB_RE)
 

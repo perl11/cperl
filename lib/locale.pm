@@ -51,7 +51,6 @@ to behave as if in the "C" locale; attempts to change the locale will fail.
 # argument.
 
 $locale::hint_bits = 0x4;
-# $locale::partial_hint_bits = 0x10;  # Unused. If pragma had an argument
 
 # The pseudo-category :characters consists of 2 real ones; but it also is
 # given its own number, -1, because in the complement form it also has the
@@ -99,10 +98,8 @@ sub import {
                 next;
             }
 
-            # $^H |= $locale::partial_hint_bits;
-            # This form of the pragma did override the other
+            $^H |= $locale::hint_bits;
             # Now check the $^H{locale} value.
-            # $^H &= ~$locale::hint_bits;
 
             $arg =~ s/^://;
 
