@@ -248,7 +248,9 @@ L</Platform Support> section, instead.
 
 =item *
 
-XXX
+Fixed C<d_builtin_arith_overflow> detection and usage for 32bit
+systems with C<use64bitint>. They do use the 'll' suffix, same as with
+WIN64.  Now we can use this optimization.
 
 =back
 

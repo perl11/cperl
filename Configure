@@ -17529,6 +17529,9 @@ case "$d_builtin_arith_overflow" in
         16) suffix=ll
            ;;
         8) suffix=l
+           if [ $ptrsize = 4 ]; then
+               suffix=ll
+           fi
            ;;
     esac
     echo "Checking whether your compiler can handle all 6 __builtin_<arith>${suffix}_overflow intrinsics..."
