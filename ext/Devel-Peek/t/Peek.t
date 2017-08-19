@@ -1576,7 +1576,7 @@ EODUMP
                  stderr=>1;
     my $origout = $out;
     $out =~ s/FLAGS = 0x[[:xdigit:]]+ \(/FLAGS = \(/g if $] > 5.022;
-    $out =~ s/SEQ = \d+/SEQ = NNN/;
+    $out =~ s/SEQ = \d+ \(-?\d+\)/SEQ = NNN/;
     $out =~ s/\%\^H = 0x[[:xdigit:]]+ /\%\^H = 0xNNN /;
     $out =~ s/\s+\n/\n/gm;
     $out =~ s/0x[0-9a-f]{2,}\]/${1}0xNNN]/g;

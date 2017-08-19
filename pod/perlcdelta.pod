@@ -29,6 +29,8 @@ here, but most should go in the L</Performance Enhancements> section.
 
 Dump the values of a COP $^H, %^H and the lexical warnings via
 C<op_dump()> and it's XS module L<Devel::Peek>.
+Improve the display of cop SEQ values and ranges, and padnames.
+Added a DEBUGGING C<cop_dump()> helper, esp. useful for deleted PL_curcop's.
 
 =head1 Security
 

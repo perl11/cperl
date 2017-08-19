@@ -1368,8 +1368,8 @@ S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o, const CV *c
                             generic_pv_escape( tmpsv, label, label_len,
                                                (label_flags & SVf_UTF8)));
         }
-        S_opdump_indent(aTHX_ o, level, bar, file, "SEQ = %u\n",
-                        (unsigned int)cCOPo->cop_seq);
+        S_opdump_indent(aTHX_ o, level, bar, file, "SEQ = %u (%d)\n",
+                        (unsigned int)cCOPo->cop_seq, PERL_PADSEQ_INTRO - cCOPo->cop_seq);
         if (cCOPo->cop_hints) {
             U32 h = cCOPo->cop_hints;
             SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
@@ -1583,8 +1583,8 @@ void Perl_cop_dump(pTHX_ const OP *o)
                         generic_pv_escape( tmpsv, label, label_len,
                                            (label_flags & SVf_UTF8)));
     }
-    S_opdump_indent(aTHX_ o, level, bar, file, "SEQ = %u\n",
-                    (unsigned int)cCOPo->cop_seq);
+    S_opdump_indent(aTHX_ o, level, bar, file, "SEQ = %u (%d)\n",
+                    (unsigned int)cCOPo->cop_seq, PERL_PADSEQ_INTRO - cCOPo->cop_seq);
     if (cCOPo->cop_hints) {
         U32 h = cCOPo->cop_hints;
         SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
@@ -2643,8 +2643,15 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
 	Perl_dump_indent(aTHX_ level, file, "  FILE = \"%s\"\n", CvFILE(sv));
 	Perl_dump_indent(aTHX_ level, file, "  DEPTH = %" IVdf "\n", (IV)CvDEPTH(sv));
         SV_SET_STRINGIFY_FLAGS(d,CvFLAGS(sv),cv_flags_names);
-	Perl_dump_indent(aTHX_ level, file, "  CVFLAGS = 0x%" UVxf " (%s)\n", (UV)CvFLAGS(sv), SvPVX_const(d));
-	Perl_dump_indent(aTHX_ level, file, "  OUTSIDE_SEQ = %" UVuf "\n", (UV)CvOUTSIDE_SEQ(sv));
+	Perl_dump_indent(aTHX_ level, file, "  CVFLAGS = 0x%" UVxf " (%s)\n",
+                         (UV)CvFLAGS(sv), SvPVX_const(d));
+        if (CvOUTSIDE_SEQ(sv) > PERL_PADSEQ_INTRO - 10000) /* heuristic for a valid-seq */
+            Perl_dump_indent(aTHX_ level, file, "  OUTSIDE_SEQ = %" UVuf " (%d)\n",
+                             (UV)CvOUTSIDE_SEQ(sv),
+                             (int)(PERL_PADSEQ_INTRO - CvOUTSIDE_SEQ(sv)));
+        else
+            Perl_dump_indent(aTHX_ level, file, "  OUTSIDE_SEQ = %" UVuf "\n",
+                             (UV)CvOUTSIDE_SEQ(sv));
 	if (!CvISXSUB(sv)) {
 	    Perl_dump_indent(aTHX_ level, file, "  PADLIST = 0x%" UVxf " [%" IVdf "]\n",
                              PTR2UV(CvPADLIST(sv)),
@@ -3833,13 +3840,14 @@ Perl_pn_peek(pTHX_ PADNAME * pn)
        (PadnamePV(name) && !PadnameLEN(name)).
        See pad.c */
     s = Perl_newSVpvf(aTHX_
-                      "PADNAME: \"%s\" %s%s %s %s\t"
+                      "PADNAME: \"%s\" %s%s %s %s\t(%u-%u) "
                       "LEN=%d, REFCNT=%d, FLAGS=0x%x",
                       pn->xpadn_pv,
                       PadnameOURSTASH(pn) ? "our " : "",
                       PadnameOURSTASH(pn) ? HvNAME(PadnameOURSTASH(pn)) : "",
                       PadnameTYPE(pn) ? HvPKGTYPE(PadnameTYPE(pn)) : "",
                       PadnameTYPE(pn) ? HvNAME(PadnameTYPE(pn)) : "",
+                      (unsigned)COP_SEQ_RANGE_LOW(pn),(unsigned)COP_SEQ_RANGE_HIGH(pn),
                       (int)PadnameLEN(pn),
                       (int)PadnameREFCNT(pn),
                       (int)PadnameFLAGS(pn));
