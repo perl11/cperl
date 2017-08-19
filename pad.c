@@ -46,31 +46,30 @@ internal purpose in XSUBs.
 
 The PADLIST has a C array where pads are stored.
 
-The 0th entry of the PADLIST is a PADNAMELIST
-which represents the "names" or rather
-the "static type information" for lexicals.  The individual elements of a
-PADNAMELIST are PADNAMEs.  Future
-refactorings might stop the PADNAMELIST from being stored in the PADLIST's
-array, so don't rely on it.  See L</PadlistNAMES>.
+The 0th entry of the PADLIST is a PADNAMELIST which represents the
+"names" or rather the "static type information" for lexicals.  The
+individual elements of a PADNAMELIST are PADNAMEs.  Future
+refactorings might stop the PADNAMELIST from being stored in the
+PADLIST's array, so don't rely on it.  See L</PadlistNAMES>.
 
 The CvDEPTH'th entry of a PADLIST is a PAD (an AV) which is the stack frame
-at that depth of recursion into the CV.  The 0th slot of a frame AV is an
+at that depth of recursion into the CV.  The 0-th slot of a frame AV is an
 AV which is C<@_>.  Other entries are storage for variables and op targets.
 
-Iterating over the PADNAMELIST iterates over all possible pad
-items.  Pad slots for targets (C<SVs_PADTMP>)
-and GVs end up having &PL_padname_undef "names", while slots for constants 
-have C<&PL_padname_const> "names" (see C<L</pad_alloc>>).  That
-C<&PL_padname_undef>
-and C<&PL_padname_const> are used is an implementation detail subject to
-change.  To test for them, use C<!PadnamePV(name)> and
-S<C<PadnamePV(name) && !PadnameLEN(name)>>, respectively.
+Iterating over the PADNAMELIST iterates over all possible pad items.
+Pad slots for targets (C<SVs_PADTMP>) and GVs end up having
+C<&PL_padname_undef> "names", while slots for constants have
+C<&PL_padname_const> "names" (see C<L</pad_alloc>>).  That
+C<&PL_padname_undef> and C<&PL_padname_const> are used is an
+implementation detail subject to change.  To test for them, use
+C<!PadnamePV(name)> and S<C<PadnamePV(name) && !PadnameLEN(name)>>,
+respectively.
 
-Only C<my>/C<our> variable slots get valid names.
+Only lexical variable slots get valid names (i.e. my/our/state/has).
 The rest are op targets/GVs/constants which are statically allocated
 or resolved at compile time.  These don't have names by which they
 can be looked up from Perl code at run time through eval"" the way
-C<my>/C<our> variables can be.  Since they can't be looked up by "name"
+lexical variables can be.  Since they can't be looked up by "name"
 but only by their index allocated at compile time (which is usually
 in C<PL_op->op_targ>), wasting a name SV for them doesn't make sense.
 

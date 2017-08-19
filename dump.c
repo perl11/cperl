@@ -135,6 +135,20 @@ const struct flag_to_name hints_flags_names[] = {
 #endif
 };
 
+const struct flag_to_name pn_flags_names[] = {
+    {PADNAMEt_OUTER, "outer,"},
+    {PADNAMEt_STATE, "state,"},
+    {PADNAMEt_LVALUE, "lvalue,"},
+    {PADNAMEt_TYPED,  "typed,"},
+    {PADNAMEt_OUR,    "our,"},
+#ifdef PADNAMEt_UTF8
+    {PADNAMEt_UTF8,   "utf8,"},
+#endif
+#ifdef PADNAMEt_CONST
+    {PADNAMEt_CONST,  "const,"},
+#endif
+};
+
 #define SV_SET_STRINGIFY_FLAGS(d,flags,names) STMT_START { \
             sv_setpv(d,"");                                 \
             append_flags(d, flags, names);     \
@@ -3811,16 +3825,31 @@ char *
 Perl_pn_peek(pTHX_ PADNAME * pn)
 {
     SV *s;
+    SV* flags;
     if (!pn) return "";
-    s = Perl_newSVpvf(aTHX_ "PADNAME: \"%s\", %s, %s %s,\tREFCNT=%d, GEN=%d, LEN=%d, FLAGS=0x%x",
+    flags = newSVpvs_flags("", SVs_TEMP);
+    SV_SET_STRINGIFY_FLAGS(flags,PadnameFLAGS(pn),pn_flags_names);
+    /* TODO: identify undef (!PadnamePV(name)) and const names
+       (PadnamePV(name) && !PadnameLEN(name)).
+       See pad.c */
+    s = Perl_newSVpvf(aTHX_
+                      "PADNAME: \"%s\" %s%s %s %s\t"
+                      "LEN=%d, REFCNT=%d, FLAGS=0x%x",
                       pn->xpadn_pv,
+                      PadnameOURSTASH(pn) ? "our " : "",
                       PadnameOURSTASH(pn) ? HvNAME(PadnameOURSTASH(pn)) : "",
                       PadnameTYPE(pn) ? HvPKGTYPE(PadnameTYPE(pn)) : "",
                       PadnameTYPE(pn) ? HvNAME(PadnameTYPE(pn)) : "",
-                      (int)PadnameREFCNT(pn),
-                      (int)pn->xpadn_gen,
                       (int)PadnameLEN(pn),
+                      (int)PadnameREFCNT(pn),
                       (int)PadnameFLAGS(pn));
+    if (SvCUR(flags)) {
+        sv_catpvs(s, " (");
+        sv_catsv(s,  flags);
+        sv_catpvs(s, ")");
+    }
+    if (pn->xpadn_gen)
+        Perl_sv_catpvf(aTHX_ s, ", GEN=%d", (int)pn->xpadn_gen);
     SvTEMP_on(s);
     return SvPVX(s);
 }
