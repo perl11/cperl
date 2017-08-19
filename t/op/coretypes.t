@@ -132,7 +132,7 @@ my Int %a; my Str %b;
 %a = %b;
 EOF
 
-$err = qr/Need type cast or dynamic inheritence from Bla to Int/;
+$err = qr/Type of scalar assignment to \@a must be Int \(not Bla\)/;
 fresh_perl_like(<<'EOF', $err, $args, 'warn with user-type to coretype');
 package Bla;
 my Bla $b;

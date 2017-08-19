@@ -119,6 +119,10 @@ XXX
 
 =over 4
 
+=item C<coretypes> 0.03c
+
+Each coretype is now a class.
+
 =item L<Devel::Peek> 1.26_03
 
 Dump the values of a COP $^H, %^H and lexical warnings.

@@ -47,8 +47,8 @@ Individual members of C<PL_parser> have their own documentation.
     S_def_coretype(aTHX_ sv, NULL, 0)
 #define def_coretype_2(sv, t1, len) \
     S_def_coretype(aTHX_ sv, t1, len)
-#define CORETYPE_VERSION_STR "0.02c"
-#define CORETYPE_VERSION_NV   0.02
+#define CORETYPE_VERSION_STR "0.03c"
+#define CORETYPE_VERSION_NV   0.03
 
 #define pl_yylval	(PL_parser->yylval)
 
@@ -553,6 +553,7 @@ S_def_coretype(pTHX_ SV *sv, const char *t1, int len)
     stash = GvHV(gv_HVadd(gv_fetchsv(sv, GV_ADD|GV_NO_SVGMAGIC, SVt_PVHV)));
     Perl_set_version(aTHX_ SvPVX(version), SvCUR(version),
                      STR_WITH_LEN(CORETYPE_VERSION_STR), CORETYPE_VERSION_NV);
+    HvCLASS_on(stash);
     isa = GvAV(gv_AVadd(gv_fetchsv(svisa, GV_ADD|GV_NO_SVGMAGIC, SVt_PVAV)));
     if (t1)
         av_push(isa, newSVpvn(t1, len));

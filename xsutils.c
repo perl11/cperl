@@ -141,9 +141,10 @@ static void boot_core_cperl(pTHX) {
 
 #define DEF_CORETYPE(s) \
     stash = GvHV(gv_HVadd(gv_fetchpvs("main::" s "::", GV_ADD, SVt_PVHV))); \
-    Perl_set_version(aTHX_ STR_WITH_LEN(s "::VERSION"), STR_WITH_LEN("0.02c"), 0.02);  \
-    isa = GvAV(gv_AVadd(gv_fetchpvs(s "::ISA", GV_ADD, SVt_PVAV)));         \
-    mg_set(MUTABLE_SV(isa))
+    Perl_set_version(aTHX_ STR_WITH_LEN(s "::VERSION"), STR_WITH_LEN("0.03c"), 0.03);  \
+    isa = GvAV(gv_AVadd(gv_fetchpvs(s "::ISA", GV_ADD, SVt_PVAV)));     \
+    mg_set(MUTABLE_SV(isa));                                            \
+    HvCLASS_on(stash)
 
 #define TYPE_EXTENDS_1(t, t1)            \
     av_push(isa, newSVpvs(t1));          \
@@ -203,7 +204,7 @@ boot_coretypes(pTHX_ SV *xsfile)
     DEF_CORETYPE_1("Any");
     DEF_CORETYPE_1("Void"); /* needed */
 #endif
-    Perl_set_version(aTHX_ STR_WITH_LEN("coretypes::VERSION"), STR_WITH_LEN("0.02c"), 0.02);
+    Perl_set_version(aTHX_ STR_WITH_LEN("coretypes::VERSION"), STR_WITH_LEN("0.03c"), 0.03);
     xs_incset(aTHX_ STR_WITH_LEN("coretypes.pm"), xsfile);
 }
 #undef DEF_CORETYPE
