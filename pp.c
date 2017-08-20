@@ -1944,25 +1944,33 @@ Perl_bigint_arith(pTHX_ const char *op, SV* const left, SV* const right)
     sv = Perl_newSVpvf(aTHX_ "Math::BigInt->%s(", op);
     if (SvIOK(left)) {
         if (SvUOK(left))
-            Perl_sv_catpvf(aTHX_ sv, "%"UVuf"", SvUVX(left));
+            Perl_sv_catpvf(aTHX_ sv, "%" UVuf, SvUVX(left));
         else
-            Perl_sv_catpvf(aTHX_ sv, "%"IVdf"", SvIVX(left));
+            Perl_sv_catpvf(aTHX_ sv, "%" IVdf, SvIVX(left));
     } else {
 	STORE_LC_NUMERIC_SET_STANDARD();
-	/* full precision, not just %g. TODO long double */
-	Perl_sv_catpvf(aTHX_ sv, "%.15g, ", SvNVX(left));
+	/* full precision, not just %g */
+#ifdef USE_LONG_DOUBLE
+	Perl_sv_catpvf(aTHX_ sv, "%." STRINGIFY(LDBL_DIG) PERL_PRIgldbl ", ", SvNVX(left));
+#else
+	Perl_sv_catpvf(aTHX_ sv, "%." STRINGIFY(DBL_DIG) "g, ", SvNVX(left));
+#endif
 	RESTORE_LC_NUMERIC();
     }
     if (SvIOK(right)) {
         PL_stack_sp--;
         if (SvUOK(right))
-            Perl_sv_catpvf(aTHX_ sv, ", %"UVuf")", SvUVX(right));
+            Perl_sv_catpvf(aTHX_ sv, ", %" UVuf ")", SvUVX(right));
         else
-            Perl_sv_catpvf(aTHX_ sv, ", %"IVdf")", SvIVX(right));
+            Perl_sv_catpvf(aTHX_ sv, ", %" IVdf ")", SvIVX(right));
     } else if (SvNOK(right)) {
 	STORE_LC_NUMERIC_SET_STANDARD();
         PL_stack_sp--;
-	Perl_sv_catpvf(aTHX_ sv, ", %.15g)", SvNVX(right));
+#ifdef USE_LONG_DOUBLE
+	Perl_sv_catpvf(aTHX_ sv, ", %." STRINGIFY(LDBL_DIG) PERL_PRIgldbl ")", SvNVX(right));
+#else
+        Perl_sv_catpvf(aTHX_ sv, ", %." STRINGIFY(DBL_DIG) "g)", SvNVX(right));
+#endif
 	RESTORE_LC_NUMERIC();
     } else {
 	Perl_sv_catpvf(aTHX_ sv, ")");

@@ -9,7 +9,8 @@ BEGIN {
 
 use strict;
 use Config ();
-my ($ivsize, $can64) = ($Config::Config{ivsize}, $Config::Config{i64size});
+my ($ivsize, $can64, $ld) =
+  ($Config::Config{ivsize}, $Config::Config{i64size}, $Config::Config{uselongdouble});
 require '../t/test.pl';
 skip_all("test only with 64bit IV on a 64bit CPU")
   unless $ivsize == 8 and $can64 == 8;
@@ -23,7 +24,7 @@ my $ta :const = 18446744073709551614;
 # $a needs to be initialized at run-time to bypass constant folding.
 my $a = 18446744073709551614;
 my $r1 :const = '36893488147419103228';
-my $r2 :const = 3.68934881474191e+19;
+my $r2 :const = $ld ? 3.68934881474191032e+19 : 3.68934881474191e+19;
 
 # test it at compile-time via constant folding
 use exact_arith;
