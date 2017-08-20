@@ -10,7 +10,7 @@ BEGIN {
 use utf8;
 use 5.021011;
 
-plan( tests => 15 );
+plan( tests => 16 );
 
 {
   my $h = eval '{main ⇒ 1}';
@@ -57,4 +57,8 @@ is($@, '', 'no error with pow >3 digits ');
   eval '2⁴';
   is($@, 'Unrecognized character \xE2; marked by <-- HERE after 2<-- HERE near column 2 at (eval 21) line 1.'."\n", 'throws error without utf8');
 }
+
+my $b = 1;
+$a = eval '(1+$b)²';
+is($a, 4, 'unicode () pow 2');
 
