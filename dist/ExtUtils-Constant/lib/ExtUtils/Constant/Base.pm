@@ -492,6 +492,9 @@ sub switch_clause {
   my ($self, $args, $namelen, $items, @items) = @_;
   my ($indent, $comment) = @{$args}{qw(indent comment)};
   $indent = ' ' x ($indent || 2);
+  if ($^V =~ /c$/ && $] >= 5.027002) {
+    require exact_arith; exact_arith->unimport;
+  }
 
   local $Text::Wrap::huge = 'overflow';
   local $Text::Wrap::columns = 80;

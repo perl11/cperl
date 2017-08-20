@@ -7087,7 +7087,7 @@ S_curse(pTHX_ SV * const sv, const bool check_refcnt) {
 		PUSHs(tmpref);
 		PUTBACK;
 		call_sv(MUTABLE_SV(destructor),
-			    G_DISCARD|G_EVAL|G_KEEPERR|G_VOID);
+                        G_DISCARD|G_EVAL|G_KEEPERR|G_VOID);
 		POPSTACK;
 		SPAGAIN;
 		LEAVE;

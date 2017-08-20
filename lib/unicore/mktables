@@ -30,6 +30,11 @@ use File::Spec;
 use Text::Tabs;
 use re "/aa";
 use feature 'state';
+BEGIN {
+  if ($^V =~ /c$/ && $] >= 5.027002) {
+    require exact_arith; exact_arith->unimport;
+  }
+}
 
 sub DEBUG () { 0 }  # Set to 0 for production; 1 for development
 my $debugging_build = $Config{"ccflags"} =~ /-DDEBUGGING/;

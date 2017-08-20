@@ -713,11 +713,7 @@
 #  define SUBST_TAINT_BOOLRET 16	/* return is boolean (don't taint) */
 #endif
 
-#ifdef USE_EXACT_ARITH
-# define IS_EXACT_ARITH   1
-#else
-# define IS_EXACT_ARITH   PL_curcop->cop_hints & HINT_EXACT_ARITH
-#endif
+#define IS_EXACT_ARITH   PL_curcop->cop_hints & HINT_EXACT_ARITH
 
 /* XXX All process group stuff is handled in pp_sys.c.  Should these
    defines move there?  If so, I could simplify this a lot. --AD  9/96.

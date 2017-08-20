@@ -2021,8 +2021,9 @@ sub init_PERL {
     # miniperl has priority over all but the canonical perl when in the
     # core.  Otherwise its a last resort.
     my $miniperl = "miniperl$Config{exe_ext}";
-    if( $self->{PERL_CORE} ) {
+    if ( $self->{PERL_CORE} ) {
         splice @perls, 1, 0, $miniperl;
+        $self->{PERL} = $^X;
     }
     else {
         push @perls, $miniperl;

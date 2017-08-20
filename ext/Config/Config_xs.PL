@@ -26,7 +26,7 @@ BEGIN {
     if (-d 'ext/Config') {
         chdir 'ext/Config';
     }
-    unless(-d 'regen') {
+    unless (-d 'regen') {
         unshift @INC, '../../lib', '../../lib/auto';
         $in_core = 1;
     }
@@ -78,6 +78,9 @@ my $xsincustm  = 'Config_xs_tmp.in';
 my $xsoutcustm = 'Config_xs_tmp.out';
 # patched with our values, a generated file
 my $xstarg= 'Config.xs';
+
+# no exact_arith:
+$^H &= ~0x10 if $Config{useexactarith}; # cperl-only
 
 my ($in, $xs, %h, $gperf_ok);
 
@@ -312,7 +315,8 @@ while (<$in>) {
           } elsif ($v eq '') {
               $l  = 0;
               $qv = 'ALN64I (char*)VEMPTY'
-        } else { # a string in ASCII/characters
+          } else { # a string in ASCII/characters
+            $^H &= ~0x10 if $Config{useexactarith};
             my $lv = length($v);
             die "the value of Config key $k is over permitted length"
               unless $lv <= 1<<15;

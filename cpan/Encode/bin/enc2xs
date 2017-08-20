@@ -5,6 +5,7 @@ BEGIN {
     # In case we need it in future...
     require Config; import Config;
     pop @INC if $INC[-1] eq '.';
+    $^H &= ~0x10 if $Config{useexactarith}; # cperl-only
 }
 use strict;
 use warnings;

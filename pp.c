@@ -1955,13 +1955,13 @@ Perl_bigint_arith(pTHX_ const char *op, SV* const left, SV* const right)
 	Perl_sv_catpvf(aTHX_ sv, ")");
     }
 
-    (void)eval_sv(sv, G_SCALAR|G_KEEPERR);
+    (void)eval_sv(sv, G_SCALAR);/* G_KEEPERR simulates cleanup */
 
     DEBUG_kv(PerlIO_printf(Perl_debug_log, "bigint_arith: base %p sp %p mark %p %d\n",
                  PL_stack_base, PL_stack_sp, PL_markstack_ptr, (int)TOPMARK));
     SvREFCNT_dec(sv);
-    if (SvTRUE_NN(ERRSV))
-        Perl_croak_nocontext("%s", SvPV_nolen_const(ERRSV));
+    /*if (SvTRUE_NN(ERRSV))
+      Perl_croak_nocontext("%s", SvPV_nolen_const(ERRSV));*/
     LEAVE;
 }
 

@@ -929,6 +929,7 @@ perl_destruct(pTHXx)
     SvREFCNT_dec(PL_main_cv);
     PL_main_cv = NULL;
     PERL_SET_PHASE(PERL_PHASE_DESTRUCT);
+    PL_curcop->cop_hints &= ~HINT_EXACT_ARITH;
 
     /* Tell PerlIO we are about to tear things apart in case
        we have layers which are using resources that should
