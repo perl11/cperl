@@ -277,6 +277,33 @@ S_op_next_nn(OP* o) {
 }
 
 /*
+=for apidoc in|OP*	|op_prev_nn	|OP* us
+
+Returns the previous sibling op, pointing to us.
+Walk the the siblings until the parent, and then descent again to the kids until we find us.
+
+=cut
+*/
+PERL_STATIC_INLINE OP*
+S_op_prev_nn(OP* us) {
+    OP* o = us;
+    PERL_ARGS_ASSERT_OP_PREV_NN;
+#ifndef PERL_OP_PARENT
+    Perl_croak_nocontext("panic: invalid op_prev_nn");
+#endif
+    for (; o; o = OpSIBLING(o)) ;
+    if (!o->op_moresib) {
+        if (!o->op_sibparent)
+            return NULL;
+        o = OpFIRST(o->op_sibparent);
+    }
+    if (OpSIBLING(o) == us)
+        return o;
+    for (; OpSIBLING(o) != us; o = OpSIBLING(o)) ;
+    return o;
+}
+
+/*
 =for apidoc sn|void	|prune_chain_head |OP** op_p
 
 remove any leading "empty" ops from the op_next chain whose first
@@ -3063,8 +3090,8 @@ S_maybe_op_signature(pTHX_ CV *cv, OP *o)
               - 1 /* 1..N fits in 1 slot rather than 0..N-1 */
             ) / (UVSIZE * 8 / SIGNATURE_SHIFT) + 1;
 
-    DEBUG_k(Perl_deb(aTHX_ "fake_signature: %s\n",
-                     SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN))));
+    DEBUG_k(Perl_deb(aTHX_ "fake_signature: %" SVf "\n",
+                     SVfARG(cv_name(cv, NULL, CV_NAME_NOMAIN))));
     items = (UNOP_AUX_item*)PerlMemShared_malloc(sizeof(UNOP_AUX_item) * size);
 
     items[0].uv = size - 1;
@@ -14638,8 +14665,8 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
     opt_params  = params & ((1<<15)-1);
     actions = (++items)->uv;
     DEBUG_k(Perl_deb(aTHX_
-        "ck_sig: %s arity=%d/%d actions=0x%" UVxf " items=%u\n",
-        SvPVX_const(cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN)),
+        "ck_sig: %" SVf " arity=%d/%d actions=0x%" UVxf " items=%u\n",
+        SVfARG(cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN)),
         (int)mand_params, (int)opt_params, actions, (unsigned)o->op_aux[-1].uv));
 
     aop = OpFIRST(entersubop);
@@ -19911,26 +19938,42 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
             I32 klen = PadnameUTF8(pn) ? -(PadnameLEN(pn)-1) : PadnameLEN(pn)-1;
             int ix = (int)field_search(klass, PadnamePV(pn)+1, klen, FALSE);
             if (ix >= 0) {
-                assert(ix < 256);      /* TODO aelem_u/oelem */
-                o->op_private = (U8)ix;
-                DEBUG_k(Perl_deb(aTHX_ "method_finalize: padsv %s %d => oelemfast %d[%d]\n",
-                    PadnamePV(pn), (int)o->op_targ, (int)self, (int)o->op_private));
-                o->op_targ = self;
-                OpTYPE_set(o, OP_OELEMFAST);
+                if (LIKELY(ix < 256)) {
+                    o->op_private = (U8)ix;
+                    DEBUG_k(Perl_deb(aTHX_
+                        "method_finalize %" SVf ": padsv %s %d => oelemfast %d[%d]\n",
+                                     SVfARG(cv_name((CV*)cv, NULL, CV_NAME_NOMAIN)),
+                        PadnamePV(pn), (int)o->op_targ, (int)self, (int)o->op_private));
+                    o->op_targ = self;
+                    OpTYPE_set(o, OP_OELEMFAST);
+                } else { /* padsv -> oelem self,fieldname */
+                    OP *field = newSVOP(OP_CONST, 0,
+                                        newSVpvn_flags(PadnamePV(pn)+1, PadnameLEN(pn)-1,
+                                                 PadnameUTF8(pn) ? SVf_UTF8 : 0));
+                    I32 flags = o->op_flags & OPf_MOD;
+                    OP* obj = newBINOP(OP_OELEM, flags, o, field);
+                    OP* prev = S_op_prev_nn(o);
+                    if (o->op_private & OPpMAYBE_LVSUB)
+                        obj->op_private |= OPpMAYBE_LVSUB;
+                    DEBUG_k(Perl_deb(aTHX_
+                        "method_finalize %" SVf ": padsv %s %d %d => oelem->{%s}\n",
+                        SVfARG(cv_name((CV*)cv, NULL, CV_NAME_NOMAIN)),
+                        PadnamePV(pn), (int)o->op_targ, (int)ix, PadnamePV(pn)));
+                    OpMORESIB_set(prev, obj);
+                }
             }
         }
 #if DEBUGGING
         else if (o->op_targ == self) {
             pn = PadnamelistARRAY(pnl)[o->op_targ];
             assert(strEQc(PadnamePV(pn), "$self"));
-            DEBUG_k(Perl_deb(aTHX_ "method_finalize: self %d\n",
-                             (int)o->op_targ));
+            DEBUG_k(Perl_deb(aTHX_ "method_finalize: self %d\n", (int)o->op_targ));
         }
 #endif
     }
-    /* TODO: disable hashref syntax for fields. only direct lexical inside
+    /* Disabled old hashref syntax for fields. Only direct lexical inside
        or method outside.*/
-    /* check hashref $self->{field}.
+    /* Check hashref $self->{field}.
        Easier to this in S_maybe_multideref if PL_parser->in_class, but here
        we are sure it's inside the class method. */
     else if (IS_TYPE(o, MULTIDEREF)) {
@@ -19959,8 +20002,9 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
                     "The $self->{field} syntax inside class methods will be invalid soon.");
                 assert(ix < 256);   /* TODO aelem_u or oelem */
                 o->op_private = (U8)ix; /* field offset */
-                DEBUG_k(Perl_deb(aTHX_ "method_finalize: $self->{%s} => $self %d[%d]\n",
-                                 SvPVX(key), (int)self, (int)ix));
+                DEBUG_k(Perl_deb(aTHX_
+                    "method_finalize: $self->{%s} => $self %d[%d]\n",
+                    SvPVX(key), (int)self, (int)ix));
                 o->op_targ = self;
                 PerlMemShared_free(cUNOP_AUXo->op_aux - 1);
                 OpTYPE_set(o, OP_OELEMFAST);
@@ -19988,8 +20032,8 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
                         PADOFFSET po;
                         o->op_private = (U8)ix; /* field offset */
                         DEBUG_k(Perl_deb(aTHX_
-                            "method_finalize %s: $self->%s => oelemfast %d[%d]\n",
-                            SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
+                            "method_finalize %" SVf ": $self->%s => oelemfast %d[%d]\n",
+                            SVfARG(cv_name((CV*)cv, NULL, CV_NAME_NOMAIN)),
                             SvPVX(meth), (int)self, (int)ix));
                         o->op_targ = self;
                         OpTYPE_set(o, OP_OELEMFAST);
@@ -20005,10 +20049,24 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
                         if (type)
                             OpRETTYPE_set(o, stash_to_coretype(type));
                         /*finalize_op(o);*/
+                    } else {
+                        OP *field = newSVOP(OP_CONST, 0,
+                                        newSVpvn_flags(SvPVX(meth), SvCUR(meth),
+                                                       SvUTF8(meth)));
+                        I32 flags = o->op_flags & OPf_MOD;
+                        OP* obj = newBINOP(OP_OELEM, flags, arg, field);
+                        OP* prev = S_op_prev_nn(o);
+                        if (o->op_private & OPpMAYBE_LVSUB)
+                            obj->op_private |= OPpMAYBE_LVSUB;
+                        DEBUG_k(Perl_deb(aTHX_
+                            "method_finalize %" SVf ": $self->%s => oelem->{%s}\n",
+                            SVfARG(cv_name((CV*)cv, NULL, CV_NAME_NOMAIN)),
+                            SvPVX(meth), PadnamePV(pn)));
+                        OpMORESIB_set(prev, obj);
                     }
                 } else {
-                    DEBUG_kv(Perl_deb(aTHX_ "method_finalize: $self->%s not a field\n",
-                                     SvPVX(meth)));
+                    DEBUG_kv(Perl_deb(aTHX_
+                        "method_finalize: $self->%s not a field\n", SvPVX(meth)));
                 }
             }
         }
