@@ -295,7 +295,8 @@ that they represent may be covered elsewhere.
 
 =item *
 
-XXX
+Added F<t/op/oelem.t> for classes with more than 256 fields, realloc
+fields for bigger padsize 2, and computed field names.
 
 =back
 

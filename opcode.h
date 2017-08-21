@@ -3163,7 +3163,7 @@ EXTCONST U32 PL_opargs[] = {
 	0x00000040,	/* padany */
 	0x00044804,	/* sassign */
 	0x00088808,	/* aassign */
-	0x0005c400,	/* oelem */
+	0x0005c800,	/* oelem */
 	0x0021c000,	/* oelemfast */
 	0x0000ac0d,	/* chop */
 	0x00026c8c,	/* schop */
@@ -4265,7 +4265,7 @@ EXTCONST U16  PL_op_private_bitdefs[] = {
     0x30dc, 0x42d8, 0x0614, 0x06b0, 0x31cc, 0x3fc9, /* padhv */
     0x0f7c, 0x0538, 0x0d14, 0x0067, /* sassign */
     0x0af8, 0x09f4, 0x08f0, 0x31cc, 0x0067, /* aassign */
-    0x30dc, 0x31cc, 0x0003, /* oelem */
+    0x30dc, 0x31cc, 0x0067, /* oelem */
     0x025f, /* oelemfast, aelemfast, aelemfast_lex, aelemfast_lex_u */
     0x45f0, 0x0003, /* chomp, schomp, i_complement, s_complement, sin, cos, exp, log, sqrt, int, hex, oct, abs, ord, chr, chroot, rmdir */
     0x31cc, 0x0003, /* pos, av2arylen, akeys, keys */
@@ -4343,7 +4343,7 @@ EXTCONST U8 PL_op_private_valid[] = {
     /* PADANY     */ (0),
     /* SASSIGN    */ (OPpARG2_MASK|OPpASSIGN_CONSTINIT|OPpASSIGN_BACKWARDS|OPpASSIGN_CV_TO_GV),
     /* AASSIGN    */ (OPpARG2_MASK|OPpMAYBE_LVSUB|OPpASSIGN_COMMON_AGG|OPpASSIGN_COMMON_RC1|OPpASSIGN_COMMON_SCALAR),
-    /* OELEM      */ (OPpARG1_MASK|OPpMAYBE_LVSUB|OPpLVAL_INTRO),
+    /* OELEM      */ (OPpARG2_MASK|OPpMAYBE_LVSUB|OPpLVAL_INTRO),
     /* OELEMFAST  */ (255),
     /* CHOP       */ (OPpARG1_MASK),
     /* SCHOP      */ (OPpARG1_MASK),

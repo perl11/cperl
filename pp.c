@@ -455,19 +455,21 @@ PP(pp_rv2sv)
 PPt(pp_oelem, "(:Ref,:Str):Any")
 {
     dSP;
-    SV * const obj   = POPs;
-    SV * const field = TOPs;
+    SV * const field = POPs;
+    SV * const obj   = TOPs;
     HV * klass;
     SV ** svp;
     PADOFFSET ix;
     const I32 lvalue = (PL_op->op_flags & OPf_MOD || LVRET);
     I32 klen;
 
-    if (UNLIKELY(!obj || SvOBJECT(obj) || !(klass = SvSTASH(obj)) || !SvOOK(klass)
-                 || !SvROK(obj) || SvTYPE(SvRV(obj)) != SVt_PVAV))
+    if (UNLIKELY(!obj || !SvROK(obj) || SvTYPE(SvRV(obj)) != SVt_PVAV
+                 || !SvOBJECT(SvRV(obj)) || !(klass = SvSTASH(SvRV(obj)))
+                 || !SvOOK(klass)))   
         DIE(aTHX_ "Invalid object");
     if (UNLIKELY(!HvCLASS(klass))) {
-        const char *name = HvNAME_get(klass) ? HEK_KEY(HvNAME_HEK_NN(klass)) : "__ANON__";
+        const char *name = HvNAME_get(klass)
+            ? HEK_KEY(HvNAME_HEK_NN(klass)) : "__ANON__";
         Perl_die(aTHX_ "Not a class %s", name);
     }
     if (UNLIKELY(!SvPOK(field)))
@@ -475,8 +477,11 @@ PPt(pp_oelem, "(:Ref,:Str):Any")
     klen = SvUTF8(field) ? -(I32)SvCUR(field) : (I32)SvCUR(field);
     ix = field_search(klass, SvPVX(field), klen, FALSE);
     if (UNLIKELY(ix == NOT_IN_PAD)) {
-        const char *name = HvNAME_get(klass) ? HEK_KEY(HvNAME_HEK_NN(klass)) : "__ANON__";
-        Perl_die(aTHX_ "Object field %" SVf " in class %s not found", SVfARG(field), name);
+        const char *name = HvNAME_get(klass)
+            ? HEK_KEY(HvNAME_HEK_NN(klass)) : "__ANON__";
+        Perl_die(aTHX_
+                 "Object field %" SVf " in class %s not found",
+                 SVfARG(field), name);
     }
     svp = av_fetch(MUTABLE_AV(SvRV(obj)), ix, lvalue);
     if (svp) TOPs = *svp;

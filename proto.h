@@ -8678,10 +8678,18 @@ PERL_STATIC_INLINE OP*	S_op_next_nn(OP* o)
 #endif
 
 #ifndef PERL_NO_INLINE_FUNCTIONS
-PERL_STATIC_INLINE OP*	S_op_prev_nn(OP* us)
+PERL_STATIC_INLINE OP*	S_op_prev_nn(const OP* us)
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_OP_PREV_NN	\
 	assert(us)
+#endif
+
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE OP*	S_op_prevstart_nn(const OP* start, const OP* us)
+			__attribute__nonnull__(1)
+			__attribute__nonnull__(2);
+#define PERL_ARGS_ASSERT_OP_PREVSTART_NN	\
+	assert(start); assert(us)
 #endif
 
 STATIC OP*	S_op_sibling_newUNOP(pTHX_ OP *parent, OP *start, I32 type, I32 flags);
