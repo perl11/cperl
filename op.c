@@ -277,6 +277,33 @@ S_op_next_nn(OP* o) {
 }
 
 /*
+=for apidoc in|OP*	|op_prev	|OP* us
+
+Returns the previous sibling op, pointing to us.
+Walk the the siblings until the parent, and then descent again to the kids until we find us.
+
+=cut
+*/
+PERL_STATIC_INLINE OP*
+S_op_prev_nn(OP* us) {
+    OP* o = us;
+    PERL_ARGS_ASSERT_OP_PREV_NN;
+#ifndef PERL_OP_PARENT
+    Perl_croak_nocontext("panic: invalid op_prev_nn");
+#endif
+    for (; o; o = OpSIBLING(o)) ;
+    if (!o->op_moresib) {
+        if (!o->op_sibparent)
+            return NULL;
+        o = OpFIRST(o->op_sibparent);
+    }
+    if (OpSIBLING(o) == us)
+        return o;
+    for (; OpSIBLING(o) != us; o = OpSIBLING(o)) ;
+    return o;
+}
+
+/*
 =for apidoc sn|void	|prune_chain_head |OP** op_p
 
 remove any leading "empty" ops from the op_next chain whose first
@@ -19911,20 +19938,34 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
             I32 klen = PadnameUTF8(pn) ? -(PadnameLEN(pn)-1) : PadnameLEN(pn)-1;
             int ix = (int)field_search(klass, PadnamePV(pn)+1, klen, FALSE);
             if (ix >= 0) {
-                assert(ix < 256);      /* TODO aelem_u/oelem */
-                o->op_private = (U8)ix;
-                DEBUG_k(Perl_deb(aTHX_ "method_finalize: padsv %s %d => oelemfast %d[%d]\n",
-                    PadnamePV(pn), (int)o->op_targ, (int)self, (int)o->op_private));
-                o->op_targ = self;
-                OpTYPE_set(o, OP_OELEMFAST);
+                if (LIKELY(ix < 256)) {
+                    o->op_private = (U8)ix;
+                    DEBUG_k(Perl_deb(aTHX_ "method_finalize %s: padsv %s %d => oelemfast %d[%d]\n",
+                        SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
+                        PadnamePV(pn), (int)o->op_targ, (int)self, (int)o->op_private));
+                    o->op_targ = self;
+                    OpTYPE_set(o, OP_OELEMFAST);
+                } else { /* padsv -> oelem self,fieldname */
+                    OP *field = newSVOP(OP_CONST, 0,
+                                        newSVpvn_flags(PadnamePV(pn)+1, PadnameLEN(pn)-1,
+                                                 PadnameUTF8(pn) ? SVf_UTF8 : 0));
+                    I32 flags = o->op_flags & OPf_MOD;
+                    OP* obj = newBINOP(OP_OELEM, flags, o, field);
+                    OP* prev = S_op_prev_nn(o);
+                    if (o->op_private & OPpMAYBE_LVSUB)
+                        obj->op_private |= OPpMAYBE_LVSUB;
+                    DEBUG_k(Perl_deb(aTHX_ "method_finalize %s: padsv %s %d %d => oelem->{%s}\n",
+                                     SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
+                                     PadnamePV(pn), (int)o->op_targ, (int)ix, PadnamePV(pn)));
+                    OpMORESIB_set(prev, obj);
+                }
             }
         }
 #if DEBUGGING
         else if (o->op_targ == self) {
             pn = PadnamelistARRAY(pnl)[o->op_targ];
             assert(strEQc(PadnamePV(pn), "$self"));
-            DEBUG_k(Perl_deb(aTHX_ "method_finalize: self %d\n",
-                             (int)o->op_targ));
+            DEBUG_k(Perl_deb(aTHX_ "method_finalize: self %d\n", (int)o->op_targ));
         }
 #endif
     }
@@ -19983,12 +20024,26 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
                 const I32 klen = SvUTF8(meth) ? -SvCUR(meth) : SvCUR(meth);
                 const PADOFFSET ix = field_search(klass, SvPVX(meth), klen, FALSE);
                 if (ix != NOT_IN_PAD) {
-                    assert(ix < 256);   /* TODO aelem_u or oelem */
-                    o->op_private = (U8)ix; /* field offset */
-                    DEBUG_k(Perl_deb(aTHX_ "method_finalize: $self->%s => $self->[%d]\n",
-                                     SvPVX(meth), (int)ix));
-                    o->op_targ = self;
-                    OpTYPE_set(o, OP_OELEMFAST);
+                    if (LIKELY(ix < 256)) {
+                        o->op_private = (U8)ix; /* field offset */
+                        DEBUG_k(Perl_deb(aTHX_ "method_finalize %s: $self->%s => $self->[%d]\n",
+                                         SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
+                                         SvPVX(meth), (int)ix));
+                        o->op_targ = self;
+                        OpTYPE_set(o, OP_OELEMFAST);
+                    } else {
+                        OP *field = newSVOP(OP_CONST, 0,
+                                        newSVpvn_flags(SvPVX(meth), SvCUR(meth), SvUTF8(meth)));
+                        I32 flags = o->op_flags & OPf_MOD;
+                        OP* obj = newBINOP(OP_OELEM, flags, arg, field);
+                        OP* prev = S_op_prev_nn(o);
+                        if (o->op_private & OPpMAYBE_LVSUB)
+                            obj->op_private |= OPpMAYBE_LVSUB;
+                        DEBUG_k(Perl_deb(aTHX_ "method_finalize %s: $self->%s => oelem->{%s}\n",
+                                         SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
+                                         SvPVX(meth), PadnamePV(pn)));
+                        OpMORESIB_set(prev, obj);
+                    }
                 } else {
                     DEBUG_kv(Perl_deb(aTHX_ "method_finalize: $self->%s not a field\n",
                                      SvPVX(meth)));

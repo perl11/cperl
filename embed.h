@@ -1782,6 +1782,7 @@
 #define op_destroy(a)		S_op_destroy(aTHX_ a)
 #define op_integerize(a)	S_op_integerize(aTHX_ a)
 #define op_next_nn		S_op_next_nn
+#define op_prev_nn		S_op_prev_nn
 #define op_sibling_newUNOP(a,b,c,d)	S_op_sibling_newUNOP(aTHX_ a,b,c,d)
 #define op_std_init(a)		S_op_std_init(aTHX_ a)
 #define op_typed(a)		S_op_typed(aTHX_ a)

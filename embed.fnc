@@ -2273,6 +2273,7 @@ s	|void	|clear_special_blocks	|NN const char *const fullname\
 sn	|void	|prune_chain_head 	|NN OP** op_p
 s	|const char*|typename 	|NULLOK const HV* stash
 in	|OP*	|op_next_nn 	|NN OP* o
+in	|OP*	|op_prev_nn 	|NN OP* us
 s	|OPSLAB*|new_slab	|size_t sz
 i	|void	|op_destroy	|NULLOK OP* o
 #if defined(USE_ITHREADS)
