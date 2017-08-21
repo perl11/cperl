@@ -703,6 +703,20 @@ either with open() or binmode().
 
 (F) A package declaration inside a class block is forbidden.
 
+=item Cannot open %s as a dirhandle: it is already open as a filehandle
+
+(F) You tried to use opendir() to associate a dirhandle to a symbol (glob
+or scalar) that already holds a filehandle.  Since this idiom might render
+your code confusing, it was deprecated in Perl 5.10.  As of Perl 5.28, it
+is a fatal error.
+
+=item Cannot open %s as a filehandle: it is already open as a dirhandle
+
+(F) You tried to use open() to associate a filehandle to a symbol (glob
+or scalar) that already holds a dirhandle.  Since this idiom might render
+your code confusing, it was deprecated in Perl 5.10.  As of Perl 5.28, it
+is a fatal error.
+
 =item Cannot pack %f with '%c'
 
 (F) You tried converting an infinity or not-a-number to an integer,
@@ -2825,6 +2839,13 @@ not match 8 spaces.
 text.  You should check the pattern to ensure that recursive patterns
 either consume text or fail.
 
+=item Infinite recursion via empty pattern
+
+(F) You tried to use the empty pattern inside of a regex code block,
+for instance C</(?{ s!!! })/>, which resulted in re-executing
+the same pattern, which is an infinite loop which is broken by
+throwing an exception.
+
 =item Initialization of state variables in list context currently forbidden
 
 (F) C<state> only permits initializing a single scalar variable, in scalar
@@ -3615,6 +3636,19 @@ identifier failed.
 
 (F) The charnames handler returned malformed UTF-8.
 
+=item Malformed UTF-8 string in "%s"
+
+(F) This message indicates a bug either in the Perl core or in XS
+code. Such code was trying to find out if a character, allegedly
+stored internally encoded as UTF-8, was of a given type, such as
+being punctuation or a digit.  But the character was not encoded
+in legal UTF-8.  The C<%s> is replaced by a string that can be used
+by knowledgeable people to determine what the type being checked
+against was.
+
+Passing malformed strings was deprecated in Perl 5.18, and
+became fatal in Perl 5.26.
+
 =item Malformed UTF-8 string in '%c' format in unpack
 
 (F) You tried to unpack something that didn't comply with UTF-8 encoding
@@ -3629,19 +3663,6 @@ rules and perl was unable to guess how to make more progress.
 
 (F) You tried to unpack something that didn't comply with UTF-8 encoding
 rules and perl was unable to guess how to make more progress.
-
-=item Malformed UTF-8 string in "%s"
-
-(F) This message indicates a bug either in the Perl core or in XS
-code. Such code was trying to find out if a character, allegedly
-stored internally encoded as UTF-8, was of a given type, such as
-being punctuation or a digit.  But the character was not encoded
-in legal UTF-8.  The C<%s> is replaced by a string that can be used
-by knowledgeable people to determine what the type being checked
-against was.
-
-Passing malformed strings was deprecated in Perl 5.18, and
-became fatal in Perl 5.26.
 
 =item Malformed UTF-16 surrogate
 
@@ -4521,21 +4542,6 @@ that isn't open.  Check your control flow.  See also L<perlfunc/-X>.
 =item oops: oopsHV
 
 (S internal) An internal warning that the grammar is screwed up.
-
-=item Cannot open %s as a filehandle: it is already open as a dirhandle
-
-(F) You tried to use open() to associate a filehandle to a symbol (glob
-or scalar) that already holds a dirhandle.  Since this idiom might render
-your code confusing, it was deprecated in Perl 5.10.  As of Perl 5.28, it
-is a fatal error.
-
-=item Cannot open %s as a dirhandle: it is already open as a filehandle
-
-(F) You tried to use opendir() to associate a dirhandle to
-a symbol (glob or scalar) that already holds a filehandle.
-This idiom might render your code confusing
-and this was deprecated in Perl 5.10. As of Perl 5.28, this
-is a fatal error.
 
 =item Operand with no preceding operator in regex; marked by S<<-- HERE> in
 m/%s/
@@ -5911,6 +5917,13 @@ Perl.  Particularly, its current behavior is noticed for being
 unnecessarily complex and unintuitive, and is very likely to be
 overhauled.
 
+=item Sorry, hash keys must be smaller than 2**31 bytes
+
+(F) You tried to create a hash containing a very large key, where "very
+large" means that it needs at least 2 gigabytes to store. Unfortunately,
+Perl doesn't yet handle such large hash keys. You should
+reconsider your design to avoid hashing such a long string directly.
+
 =item sort is now a reserved word
 
 (F) An ancient error message that almost nobody ever runs into anymore.
@@ -7249,13 +7262,6 @@ became a fatal error in Perl 5.28.
 (S internal) The behavior of C<each()> after insertion is undefined;
 it may skip items, or visit items more than once.  Consider using
 C<keys()> instead of C<each()>.
-
-=item Infinite recursion via empty pattern
-
-(F) You tried to use the empty pattern inside of a regex code block,
-for instance C</(?{ s!!! })/>, which resulted in re-executing
-the same pattern, which is an infinite loop which is broken by
-throwing an exception.
 
 =item Use of := for an empty attribute list is not allowed
 
