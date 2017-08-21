@@ -19971,6 +19971,7 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
     }
     /* TODO: disable hashref syntax for fields. only direct lexical inside
        or method outside.*/
+#if 0
     /* check hashref $self->{field}.
        Easier to this in S_maybe_multideref if PL_parser->in_class, but here
        we are sure it's inside the class method. */
@@ -19996,8 +19997,6 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
             I32 klen = SvUTF8(key) ? -SvCUR(key) : SvCUR(key);
             PADOFFSET ix = field_search(klass, SvPVX(key), klen, FALSE);
             if (ix != NOT_IN_PAD) {
-                Perl_warn(aTHX_
-                    "The $self->{field} syntax inside class methods will be invalid soon.");
                 assert(ix < 256);   /* TODO aelem_u or oelem */
                 o->op_private = (U8)ix; /* field offset */
                 DEBUG_k(Perl_deb(aTHX_ "method_finalize: $self->{%s} => $self %d[%d]\n",
@@ -20008,6 +20007,7 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
             }
         }
     }
+#endif
     /* optimize typed accessor calls $self->field -> $self->[i] */
     else if (IS_TYPE(o, ENTERSUB) && IS_TYPE(OpFIRST(o), PUSHMARK)) {
         OP *arg = OpNEXT(OpFIRST(o));
