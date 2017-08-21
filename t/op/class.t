@@ -5,7 +5,7 @@ BEGIN {
     #require './test.pl';
 }
 local($\, $", $,) = (undef, ' ', '');
-print "1..35\n";
+print "1..44\n";
 my $test = 1;
 
 # allow has hash fields (YAML::Mo)
@@ -94,7 +94,7 @@ $b3->h = (has => "field");
 print $b3->h != 1 ? "not " : "", "ok ", $test++, " # hash field\n";
 #print scalar $b3->h, $b3->h;
 
-# compose role methods
+# compose role methods #311
 role Foo2 {
   has $a = 1;
   method foo2 {
@@ -114,3 +114,23 @@ print "ok $test # parsed role composition\n"; $test++;
 my $b4 = new Baz4;
 $b4->test;
 $b4->foo2;
+
+role Foo3 {
+  has $a3 = 2;
+  has $b3 = 2;
+}
+class Bar3 does Foo3 does Foo2 {
+  method test {
+    $self->foo2;
+    print $self->a  != 1 ? "not " : "", "ok ", $test++, " # copied role field\n";
+    print $self->b3 != 2 ? "not " : "", "ok ", $test++, " # copied role field\n";
+  }
+}
+my $b_3 = new Bar3;
+my @b_f = $b_3->fields;
+print @b_f == 3 ? "" : "not ", "ok $test # mixed up 3 indices\n"; $test++;
+print $b_f[0]->name eq '$a3' ? "" : "not ", "ok $test # \$a3\n"; $test++;
+print $b_f[1]->name eq '$b3' ? "" : "not ", "ok $test # \$b3\n"; $test++;
+print $b_f[2]->name eq '$a'  ? "" : "not ", "ok $test # \$a\n"; $test++;
+#print "'",$_->name,",'" for @b_f;
+$b_3->test;

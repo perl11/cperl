@@ -20276,7 +20276,7 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
             I32 klen = PadnameLEN(pn);
             klen = PadnameUTF8(pn) ? -(klen-1) : klen-1;
             /* check for duplicate */
-            if (field_search(klass, key+1, klen, FALSE) != NOT_IN_PAD) {
+            if (field_search(klass, key+1, klen, NULL) != NOT_IN_PAD) {
                 /* fatal with roles, valid and ignored for classes */
                 if (HvROLE(curclass))
                     Perl_croak(aTHX_
@@ -20310,6 +20310,7 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
 =for apidoc add_does_methods
 
 Copy all not-existing methods from the parent roles to the class/role.
+Fixup changed oelemfast indices.
 
 Duplicates are fatal:
 "Method %s from %s already exists in %s during role composition"
@@ -20350,7 +20351,8 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                 sv_catpvs(name, "::");
                 sv_catpvn_flags(name, HeKEY(entry), HeKLEN(entry), HeUTF8(entry));
                 sym = gv_fetchsv(name, 0, SVt_PVCV);
-                /* note that we already copied the fields */
+                /* Note that we already copied the fields.
+                   But we don't know if the indices for oelemfast matchup. #311 */
                 if (sym && GvCV(sym)) {
                     /*ncv = GvCV(sym);*/
                     if (CvMETHOD(cv) && !CvMULTI(cv)) {
@@ -20368,7 +20370,7 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                 }
                 /* ignore default field accessors, they are created later */
                 if (CvISXSUB(cv) &&
-                    field_search(klass, HeKEY(entry), HeKLEN_UTF8(entry), FALSE) != NOT_IN_PAD) {
+                    field_search(klass, HeKEY(entry), HeKLEN_UTF8(entry), NULL) != NOT_IN_PAD) {
                     DEBUG_kv(Perl_deb(aTHX_ "add_does_methods: ignore field accessor %s::%s\n",
                                       klassname, HeKEY(entry)));
                     SvCUR_set(name, len);

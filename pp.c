@@ -475,7 +475,7 @@ PPt(pp_oelem, "(:Ref,:Str):Any")
     if (UNLIKELY(!SvPOK(field)))
         DIE(aTHX_ "Invalid object field");
     klen = SvUTF8(field) ? -(I32)SvCUR(field) : (I32)SvCUR(field);
-    ix = field_search(klass, SvPVX(field), klen, FALSE);
+    ix = field_search(klass, SvPVX(field), klen, NULL);
     if (UNLIKELY(ix == NOT_IN_PAD)) {
         const char *name = HvNAME_get(klass)
             ? HEK_KEY(HvNAME_HEK_NN(klass)) : "__ANON__";
