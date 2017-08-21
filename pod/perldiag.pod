@@ -6784,7 +6784,7 @@ iterating over it, and someone else stuck a message in the stream of
 data Perl expected.  Someone's very confused, or perhaps trying to
 subvert Perl's population of %ENV for nefarious purposes.
 
-=item Unknown regex modifier "%s"
+=item Unknown regexp modifier "/%s"
 
 (F) Alphanumerics immediately following the closing delimiter
 of a regular expression pattern are interpreted by Perl as modifier
