@@ -5730,13 +5730,13 @@ Searches for the fieldname without the '$' in C<%class::>
 
 If klen is negative, the hash key is UTF8.
 
-Returns the field index in the object/class fields list
-or with C<want_pad> set, the padoffset into comppad.
 Returns C<NOT_IN_PAD> if not found.
+Returns the field index in the object/class fields list
+and with C<*po> set, sets there the padoffset into comppad.
 =cut
 */
 PADOFFSET
-Perl_field_search(pTHX_ const HV* klass, const char* key, I32 klen, bool want_pad)
+Perl_field_search(pTHX_ const HV* klass, const char* key, I32 klen, PADOFFSET* pop)
 {
 #ifdef OLD_FIELDS_GV
     SV* gv;
@@ -5751,13 +5751,13 @@ Perl_field_search(pTHX_ const HV* klass, const char* key, I32 klen, bool want_pa
     svp = hv_fetch(GvHV(fields), key, klen, FALSE);
 
     if (svp && SvIOK(*svp)) {
-        if (want_pad) {
-            SV *po = AvARRAY(GvAV(fields))[SvIVX(*svp)];
-            return po && SvIOK(po)
-                ? (PADOFFSET)SvIVX(po)
-                : NOT_IN_PAD;
+        IV ix = SvIVX(*svp);
+        if (pop) {
+            SV *po = AvARRAY(GvAV(fields))[ix];
+            if (po && SvIOK(po))
+                *pop = (PADOFFSET)SvIVX(po);
         }
-        return (PADOFFSET)SvIVX(*svp);
+        return (PADOFFSET)ix;
     }
     else
         return NOT_IN_PAD;
@@ -5783,10 +5783,11 @@ Perl_field_search(pTHX_ const HV* klass, const char* key, I32 klen, bool want_pa
             for (i=0; *fields && strNE(fields, key);
                   l = strlen(fields), fields += l+padsize+1, i++ )
                 ;
-            if (*fields) /* found */
-                return want_pad ? fields_padoffset(fields, l+1, padsize)
-                    : (PADOFFSET)i;
-            else
+            if (*fields) { /* found */
+                if (pop)
+                    *pop = fields_padoffset(fields, l+1, padsize);
+                return (PADOFFSET)i;
+            } else
                 return NOT_IN_PAD;
         }
     }
@@ -5804,8 +5805,12 @@ If klen is negative, the key is UTF8.
 PADOFFSET
 Perl_field_pad(pTHX_ const HV* klass, const char* key, I32 klen)
 {
+    PADOFFSET po;
     PERL_ARGS_ASSERT_FIELD_PAD;
-    return field_search(klass, key, klen, TRUE);
+    if (field_search(klass, key, klen, &po) != NOT_IN_PAD)
+        return po;
+    else
+        return NOT_IN_PAD;
 }
 
 /*
@@ -19936,7 +19941,7 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
         pn = PadnamelistARRAY(pnl)[o->op_targ];
         if (o->op_targ > self && pn && PadnameOUTER(pn)) {
             I32 klen = PadnameUTF8(pn) ? -(PadnameLEN(pn)-1) : PadnameLEN(pn)-1;
-            int ix = (int)field_search(klass, PadnamePV(pn)+1, klen, FALSE);
+            int ix = (int)field_search(klass, PadnamePV(pn)+1, klen, NULL);
             if (ix >= 0) {
                 if (LIKELY(ix < 256)) {
                     o->op_private = (U8)ix;
@@ -19997,7 +20002,7 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
         {
             SV* key = ITEM_SV(++items);
             I32 klen = SvUTF8(key) ? -SvCUR(key) : SvCUR(key);
-            PADOFFSET ix = field_search(klass, SvPVX(key), klen, FALSE);
+            PADOFFSET ix = field_search(klass, SvPVX(key), klen, NULL);
             if (ix != NOT_IN_PAD) {
                 assert(ix < 256);   /* TODO aelem_u or oelem */
                 o->op_private = (U8)ix; /* field offset */
@@ -20013,7 +20018,8 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
 #endif
     /* optimize typed accessor calls $self->field -> $self->[i] */
     else if (IS_TYPE(o, ENTERSUB) && IS_TYPE(OpFIRST(o), PUSHMARK)) {
-        OP *arg = OpNEXT(OpFIRST(o));
+        OP *f = OpFIRST(o);
+        OP *arg = OpNEXT(f);
         /* first and only arg is typed $self */
         if (IS_TYPE(arg, PADSV) &&
             arg->op_targ == self && /* $self is always the first inside the method */
@@ -20025,25 +20031,27 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
                 PadnameLEN(pn) == 5 && strEQc(PadnamePV(pn), "$self"))
             {
                 const I32 klen = SvUTF8(meth) ? -SvCUR(meth) : SvCUR(meth);
-                const PADOFFSET ix = field_search(klass, SvPVX(meth), klen, FALSE);
+                PADOFFSET po;
+                const PADOFFSET ix = field_search(klass, SvPVX(meth), klen, &po);
                 if (ix != NOT_IN_PAD) {
                     if (LIKELY(ix < 256)) {
                         HV *type;
-                        PADOFFSET po;
-                        o->op_private = (U8)ix; /* field offset */
+                        f->op_private = (U8)ix; /* field offset */
                         DEBUG_k(Perl_deb(aTHX_
                             "method_finalize %" SVf ": $self->%s => oelemfast %d[%d]\n",
                             SVfARG(cv_name((CV*)cv, NULL, CV_NAME_NOMAIN)),
                             SvPVX(meth), (int)self, (int)ix));
-                        o->op_targ = self;
-                        OpTYPE_set(o, OP_OELEMFAST);
-                        op_null(OpFIRST(o)); /* might be pointed to */
-                        OpNEXT(OpFIRST(o)) = o;
-                        OpMORESIB_set(OpFIRST(o), NULL);
+                        f->op_targ = self;
+                        OpTYPE_set(f, OP_OELEMFAST); /* PUSHMARK is the bb leader,
+                                                        not ENTERSUB. Some next might point
+                                                        to it */
+                        OpMORESIB_set(f, OpSIBLING(o));
+                        OpNEXT(f) = OpNEXT(o);
                         OpFLAGS(o) &= ~(OPf_KIDS|OPf_REF|OPf_STACKED);
-                        op_null(OpNEXT(arg));
-                        op_null(arg);
-                        po = field_pad(klass, SvPVX(meth), klen);
+                        op_free(o);
+                        op_free(OpNEXT(arg));
+                        op_free(arg);
+                        /* has TYPE */
                         pn = PAD_COMPNAME(po);
                         type = PadnameTYPE(pn);
                         if (type)

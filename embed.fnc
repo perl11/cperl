@@ -934,7 +934,8 @@ p	|OP*	|localize	|NN OP *o|I32 lex
 p	|OP*	|hasterm	|NN OP *o
 : Used in pp.c
 Apd	|void	|field_pad_add	|NN HV* klass|NN const char* key|I32 klen|PADOFFSET targ
-Apd	|PADOFFSET|field_search	|NN const HV* klass|NN const char* key|I32 klen|bool want_pad
+Apd	|PADOFFSET|field_search	|NN const HV* klass|NN const char* key|I32 klen \
+				|NULLOK PADOFFSET *po
 Apd	|PADOFFSET|field_pad	|NN const HV* klass|NN const char* key|I32 klen
 Apd	|PADOFFSET|field_index	|NN const HV* klass|U16 i
 pn	|PADOFFSET|fields_padoffset|NN const char *fields|const int offset|const char padsize
