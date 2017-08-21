@@ -1189,6 +1189,8 @@ to change it, such as with an auto-increment.
 (P) The internal routine that does assignment to a substr() was handed
 a NULL.
 
+=item Can't modify non-lvalue subroutine call of &%s in %s
+
 =item Can't modify non-lvalue %s call of %s
 
 (F) Subroutines or methods meant to be used in lvalue context should
@@ -1656,7 +1658,8 @@ uses the character values modulus 256 instead, as if you had provided:
 
    unpack("s", "\x{f3}b")
 
-=item charnames alias definitions may not contain a sequence of multiple spaces
+=item charnames alias definitions may not contain a sequence of multiple
+spaces; marked by S<<-- HERE> in %s
 
 (F) You defined a character name which had multiple space characters
 in a row.  Change them to single spaces.  Usually these names are
@@ -1664,7 +1667,8 @@ defined in the C<:alias> import argument to C<use charnames>, but they
 could be defined by a translator installed into C<$^H{charnames}>.  See
 L<charnames/CUSTOM ALIASES>.
 
-=item charnames alias definitions may not contain trailing white-space
+=item charnames alias definitions may not contain trailing white-space;
+marked by S<<-- HERE> in %s
 
 (F) You defined a character name which ended in a space
 character.  Remove the trailing space(s).  Usually these names are
@@ -2651,7 +2655,7 @@ zero-length sequence.  When such an escape is used in a character
 class its behavior is not well defined.  Check that the correct
 escape has been used, and the correct charname handler is in scope.
 
-=item Illegal binary digit %s
+=item Illegal binary digit '%c'
 
 (F) You used a digit other than 0 or 1 in a binary number.
 
@@ -2715,7 +2719,7 @@ numbers don't take to this kindly.
 (F) The number of bits in vec() (the third argument) must be a power of
 two from 1 to 32 (or 64, if your platform supports that).
 
-=item Illegal octal digit %s
+=item Illegal octal digit '%c'
 
 (F) You used an 8 or 9 in an octal number.
 
@@ -4263,11 +4267,13 @@ doesn't know where you wanted to redirect stdout.
 redirection, and found a '>' or a '>>' on the command line, but can't
 find the name of the file to which to write data destined for stdout.
 
+=item No package name allowed for subroutine %s in "our"
+
 =item No package name allowed for variable %s in "our"
 
-(F) Fully qualified variable names are not allowed in "our"
-declarations, because that doesn't make much sense under existing
-rules.  Such syntax is reserved for future extensions.
+(F) Fully qualified subroutine and variable names are not allowed in "our"
+declarations, because that doesn't make much sense under existing rules.
+Such syntax is reserved for future extensions.
 
 =item No Perl script found in input
 
@@ -4362,8 +4368,6 @@ also L<perlref>.
 
 (F) An attempt was made to specify an entry in an overloading table that
 doesn't somehow point to a valid subroutine.  See L<overload>.
-
-=item Not enough arguments for %s%s%s
 
 =item Not enough arguments for %s
 
@@ -6378,11 +6382,10 @@ BEGIN block.
 
 (F) Perl supports a maximum of only 14 args to syscall().
 
-=item Too many arguments for %s%s%s
-
 =item Too many arguments for %s
 
-(F) The function requires fewer arguments than you specified.
+(F) The subroutine or method is declared with fewer arguments than you
+specified.
 
 =item Too many elements
 

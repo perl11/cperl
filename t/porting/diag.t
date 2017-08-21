@@ -42,6 +42,7 @@ foreach (@{(setup_embed())[0]}) {
   push @functions, 'S_' . $_->[2] if $_->[0] =~ /s/;
 };
 push @functions, 'Perl_mess';
+push @functions, 'S_croak_caller';
 
 my $regcomp_fail_re = '\b(?:(?:Simple_)?v)?FAIL[2-4]?(?:utf8f)?\b';
 my $regcomp_re =

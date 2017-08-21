@@ -865,6 +865,7 @@ S_bad_type_core(pTHX_ const char *argname, GV *gv,
     assert(namesv);
 
     /* TODO utf8 for got and wanted */
+    /* diag_listed_as: Type of arg %d to %s must be %s (not %s) */
     yyerror_pv(Perl_form(aTHX_ "Type of arg %s to %" SVf " must be %s (not %s)",
                          argname, SVfARG(namesv), wanted, name),
                SvUTF8(namesv));
@@ -926,6 +927,7 @@ Perl_allocmy(pTHX_ const char *const name, const STRLEN len, const U32 flags)
 	if (!(flags & SVf_UTF8 && UTF8_IS_START(name[1]))
 	 && isASCII(name[1])
 	 && (!isPRINT(name[1]) || strchr("\t\n\r\f", name[1]))) {
+	    /* diag_listed_as: Can't use global %s in "%s" */
 	    yyerror(Perl_form(aTHX_ "Can't use global %c^%c%.*s in \"%s\"",
 			      name[0], toCTRL(name[1]), (int)(len - 2), name + 2,
 			      PL_parser->in_my == KEY_state ? "state" : "my"));
@@ -15112,6 +15114,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
             sv_catsv(tmpbuf, namesv);
             /* with no args provided we haven't seen padintro yet */
             if (pad_ix > 0 && PAD_NAME(pad_ix)) {
+                /* diag_listed_as: Not enough arguments for %s */
                 yyerror_pv(Perl_form(aTHX_ "Not enough arguments for %s. Missing %s",
                                      SvPVX_const(tmpbuf), PadnamePV(PAD_NAME(pad_ix))),
                            SvUTF8(namesv));

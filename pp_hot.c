@@ -5043,6 +5043,7 @@ PP(pp_signature)
             if ((1 == argc - mand_params) && (items->uv & 0xf) == SIGNATURE_padintro) {
                 PADOFFSET pad_ix = (++items)->uv >> OPpPADRANGE_COUNTSHIFT;
                 PADNAME * const pn = padnl[pad_ix];
+                /* diag_listed_as: Not enough arguments for %s */
                 S_croak_caller("Not enough arguments for %s%s%s %s. Want: %"UVuf
                                ", but got: %"UVuf". Missing %s",
                                CvDESC3(cv),
@@ -5050,6 +5051,7 @@ PP(pp_signature)
                                mand_params, argc, PadnamePV(pn));
             } else
 #endif
+            /* diag_listed_as: Not enough arguments for %s */
             S_croak_caller("Not enough arguments for %s%s%s %s. Want: %" UVuf
                            ", but got: %" UVuf,
                            CvDESC3(cv),
@@ -5058,12 +5060,14 @@ PP(pp_signature)
         }
         if (UNLIKELY(!slurpy && argc > mand_params + opt_params)) {
             if (opt_params)
+                /* diag_listed_as: Too many arguments for %s */
                 S_croak_caller("Too many arguments for %s%s%s %s. Want: %" UVuf "-%" UVuf
                                ", but got: %" UVuf,
                                CvDESC3(cv),
                                SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
                                mand_params, mand_params + opt_params, argc);
             else
+                /* diag_listed_as: Too many arguments for %s */
                 S_croak_caller("Too many arguments for %s%s%s %s. Want: %" UVuf
                                ", but got: %" UVuf,
                                CvDESC3(cv),
@@ -5387,6 +5391,7 @@ PP(pp_signature)
                 if (!(PL_op->op_private & OPpSIGNATURE_FAKE)) {
                     PERL_CONTEXT *cx = &cxstack[cxstack_ix];
                     const CV *cv = cx->blk_sub.cv;
+                    /* diag_listed_as: Odd name/value argument for subroutine */
                     S_croak_caller("Odd name/value argument for %s%s%s %s", CvDESC3(cv),
                                    SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)));
                 }
