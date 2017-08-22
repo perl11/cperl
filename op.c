@@ -9880,6 +9880,7 @@ S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
  * $lhs = call(...); => $lhs = do {...inlined...};
  */
 
+#ifdef PERL_INLINE_SUBS
 static OP*
 S_cv_do_inline(pTHX_ const OP *o, const OP *cvop, CV *cv, bool meth)
 {
@@ -9910,6 +9911,7 @@ S_cv_do_inline(pTHX_ const OP *o, const OP *cvop, CV *cv, bool meth)
     }
     return (OP*)pushmarkop;
 }
+#endif
 
 static void
 S_already_defined(pTHX_ CV *const cv, OP * const block, OP * const o,
@@ -18500,7 +18502,7 @@ Perl_rpeep(pTHX_ OP *o)
                 }
             }
 
-            /* inline subs or methods */
+            /* convert static methods to subs, inline subs, free null ops */
             {
                 int i = 0, meth = 0;
                 OP* o2 = o;
@@ -18510,6 +18512,30 @@ Perl_rpeep(pTHX_ OP *o)
                     OPCODE type = o2->op_type;
                     if (type == OP_GV || type == OP_GVSV) {
                         gvop = o2; /* gvsv for variable method parts, left or right */
+                        /* delete the null ops between op_gv and op_entersub
+                           for easier arity checks. there are not being pointed to. */
+#ifdef PERL_FREE_NULLOPS
+                        for (; o2 && OP_TYPE_IS(o2->op_next, OP_NULL) && i<8; i++) {
+                            OP* on = o2->op_next;
+                            if (on && IS_TYPE(on, NULL)) {
+                                OP* tmp = on->op_next;
+                                DEBUG_k(j++);
+                                /* XXX fixup kids and siblings also? */
+                                if (OpSIBLING(o2) == on)
+                                    OpMORESIB_set(o2, tmp);
+                                if (OpKIDS(on)) {
+                                    if (OpFIRST(on) == on)
+                                        OpFIRST(on) = tmp;
+                                }
+                                op_free(on);
+                                o2->op_next = tmp;
+                            } else {
+                                o2 = o2->op_next;
+                            }
+                        }
+                        DEBUG_k(if(j)
+                            deb("rpeep: freed %d NULL ops between GV and ENTERSUB\n", j));
+#endif
                     } else if (type == OP_METHOD_NAMED) {
                         /* method name only with pkg->m, not $obj->m */
                         /* TODO: we could speculate and cache an inlined variant for $obj */
@@ -18528,80 +18554,94 @@ Perl_rpeep(pTHX_ OP *o)
                     SV *gv = cSVOPx(gvop)->op_sv;
 #endif
                     CV* cv = NULL;
-                    char *cvname = NULL;
+                    SV* rcv = NULL;
                     /* for methods only if the static &pkg->cv exists, or the obj is typed */
                     if (gv) {
-                        if (SvTYPE(gv) == SVt_PVGV && (cv = GvCV(gv))
-                            && SvTYPE(cv) == SVt_PVCV)
-#ifdef DEBUGGING
-                            cvname = GvNAME_get(gv)
-#endif
-                                ;
-                        else if (SvROK(gv) && (cv = (CV*)SvRV((SV*)gv))
-                                 && SvTYPE(cv) == SVt_PVCV)
-#ifdef DEBUGGING
-                            cvname = HEK_KEY(CvNAME_HEK(cv))
-#endif
-                                ;
-                        else if (SvTYPE(gv) == SVt_PV
-                                 && OP_TYPE_IS(o->op_next, OP_CONST)
-                                 && OP_TYPE_IS(gvop, OP_METHOD_NAMED))
+                        if (SvTYPE(gv) == SVt_PVGV && (cv = GvCV(gv)) &&
+                            SvTYPE(cv) == SVt_PVCV) {
+                            ;
+                        } else if (SvROK(gv) && (cv = (CV*)SvRV((SV*)gv)) && 
+                                   SvTYPE(cv) == SVt_PVCV) {
+                            rcv = gv;
+                        } else if (SvTYPE(gv) == SVt_PV &&
+                                   OP_TYPE_IS(o->op_next, OP_CONST) &&
+                                   OP_TYPE_IS(gvop, OP_METHOD_NAMED))
                         {
-                            SV *name = cSVOPx_sv(o->op_next);
+                            SV *name = cSVOPx_sv(OpNEXT(o));
                             if (SvTYPE(name) == SVt_PV) {
-                                GV *gvf;
-                                name = newSVpvn_utf8(SvPVX(name), SvCUR(name), SvUTF8(name));
-                                if (SvPVX(name))
-                                    sv_catpvs(name, "::");
-                                else
-                                    sv_catpvs(name, "main::");
-                                sv_catpvn(name, SvPVX(gv), SvCUR(gv));
-                                if (!SvUTF8(name) && SvUTF8(gv))
-                                    SvUTF8_on(name);
-                                SvIsCOW_off(name);
-                                gvf = gv_fetchsv(name, GV_NOADD_NOINIT|SvUTF8(name), SVt_PVCV);
-                                SvREFCNT_dec(name);
-                                if (gvf && SvROK(gvf) && SvTYPE(SvRV((SV*)gvf)) == SVt_PVCV) {
-                                    cv = (CV*)SvRV((SV*)gvf);
-#ifdef DEBUGGING
-                                    cvname = HEK_KEY(CvNAME_HEK(cv));
-#endif
+                                GV **gvp = NULL;
+                                GV *gvf = NULL;
+                                HV *stash = gv_stashsv(name, SvUTF8(name));
+                                if (stash && SvTYPE(stash) == SVt_PVHV) {
+                                    /* bypass cache and gv overhead */
+                                    gvp = (GV**)hv_common(stash, gv, NULL, 0, 0,
+                                             HV_FETCH_ISEXISTS|HV_FETCH_JUST_SV, NULL, 0);
                                 }
-                                else if (gvf && SvTYPE(gvf) == SVt_PVGV && GvCV(gvf)) {
-                                    cv = GvCV(gvf);
-#ifdef DEBUGGING
-                                    cvname = GvNAME_get(gvf);
-#endif
+                                if (gvp) {
+                                    gvf = *gvp;
+                                    if (SvROK(gvf) &&
+                                        SvTYPE(SvRV((SV*)gvf)) == SVt_PVCV) {
+                                        cv = (CV*)SvRV((SV*)gvf);
+                                        rcv = (SV*)gvf;
+                                    }
+                                    else if (SvTYPE(gvf) == SVt_PVGV &&
+                                             (cv = GvCV(gvf))) {
+                                        ;
+                                    }
                                 }
+#if defined(PERL_STATIC_METH)
+                                /* XXX The first static ::import call converts the
+                                   stash{import} entry from a GV to a plain PV,
+                                   breaking all subsequent calls. */
                                 if (cv) {
+                                    assert(gvf);
                                     /* convert static method to normal sub */
-/* See http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html */
-#if 0
-                                    OP* cop = o->op_next;
-                                    OP* ngv = cop->op_sibling = scalar(newGVOP(OP_GV, 0, gvf));
-                                    cop->op_private &= ~(OPpCONST_BARE|OPpCONST_STRICT);
-                                    ngv->op_next = o2;
-                                    for (; cop->op_next != gvop; cop=cop->op_next) ;
-                                    cop->op_next = cop->op_sibling = ngv;
-                                    op_free(gvop);
-#else
+                                    /* See http://blogs.perl.org/users/rurban/2011/06/
+                                           how-perl-calls-subs-and-methods.html */
                                     /* remove bareword-ness of class name */
-                                    o->op_next->op_private &= ~(OPpCONST_BARE|OPpCONST_STRICT);
+                                    o->op_next->op_private &=
+                                        ~(OPpCONST_BARE|OPpCONST_STRICT);
+                                    if (CvISXSUB(cv) && CvROOT(cv) &&
+                                        GvXSCV(gvf) && !PL_perldb)
+                                    {
+                                        DEBUG_k(Perl_deb(aTHX_ "entersub -> xs %" SVf "\n",
+                                            SVfARG(cv_name(cv, NULL, CV_NAME_NOMAIN))));
+                                        OpTYPE_set(o2, OP_ENTERXSSUB);
+                                    }
+                                    /* from METHOP to GV */
                                     OpTYPE_set(gvop, OP_GV);
-                                    gvop->op_ppaddr = PL_ppaddr[OP_GV];
-                                    SvREFCNT_dec(cSVOPx_sv(gvop));
-                                    ((SVOP*)gvop)->op_sv = (SV*)gvf;
-#endif
+                                    /* METH and GV share the same sv* pos */
+                                    if (LIKELY(gv != (SV*)gvf && gv != rcv)) {
+                                        SvREFCNT_dec(gv);
+                                        ((SVOP*)gvop)->op_sv = rcv ? rcv : (SV*)gvf;
+                                    }
+                                    gvop->op_flags |= OPf_WANT_SCALAR;
                                     o2->op_flags |= OPf_STACKED;
-                                    DEBUG_k(deb("rpeep: convert static method call to sub %s\n", cvname));
+                                    DEBUG_k(Perl_deb(aTHX_
+                                        "rpeep: static method call to sub %s::%s\n",
+                                         SvPVX_const(name), SvPVX_const(gv)));
+                                    meth = FALSE;
+                                }
+#endif
+                            }
+                        }
+#ifdef PERL_INLINE_SUBS
+                        if (cv && CvINLINABLE(cv) && !meth) {
+                            if (cop_hints_fetch_pvs(PL_curcop, "inline", REFCOUNTED_HE_EXISTS)) {
+                                DEBUG_k(Perl_deb(aTHX_ "rpeep: skip inline sub %s, no inline\n",
+                                                 SvPVX_const(cv_name,0,GV_NAME_NOMAIN)));
+                            } else {
+                                OP* tmp;
+                                DEBUG_k(Perl_deb(aTHX_ "rpeep: inline sub %s::%s\n",
+                                                 pkg, cvname));
+                                if ((tmp = cv_do_inline(o, o2, cv))) {
+                                    o = tmp;
+                                    if (oldop)
+                                        oldop->op_next = o;
                                 }
                             }
                         }
-                        if (cv && CvINLINABLE(cv)) {
-                            DEBUG_k(deb("rpeep: inline %s %s\n", meth ? "method" : "sub",
-                                        cvname));
-                            o2 = S_cv_do_inline(o, o2, cv, !!meth);
-                        }
+#endif
                     }
                 }
             }
