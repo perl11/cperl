@@ -5775,12 +5775,12 @@ Searches for the fieldname without the '$' in C<%class::>
 
 If klen is negative, the hash key is UTF8.
 
-Returns C<NOT_IN_PAD> if not found.
+Returns C<-1> if not found.
 Returns the field index in the object/class fields list
 and with C<*po> set, sets there the padoffset into comppad.
 =cut
 */
-PADOFFSET
+int
 Perl_field_search(pTHX_ const HV* klass, const char* key, I32 klen, PADOFFSET* pop)
 {
 #ifdef OLD_FIELDS_GV
@@ -5802,7 +5802,7 @@ Perl_field_search(pTHX_ const HV* klass, const char* key, I32 klen, PADOFFSET* p
             if (po && SvIOK(po))
                 *pop = (PADOFFSET)SvIVX(po);
         }
-        return (PADOFFSET)ix;
+        return (int)ix;
     }
     else
         return NOT_IN_PAD;
@@ -5831,9 +5831,9 @@ Perl_field_search(pTHX_ const HV* klass, const char* key, I32 klen, PADOFFSET* p
             if (*fields) { /* found */
                 if (pop)
                     *pop = fields_padoffset(fields, l+1, padsize);
-                return (PADOFFSET)i;
+                return i;
             } else
-                return NOT_IN_PAD;
+                return -1;
         }
     }
 #endif
@@ -5852,7 +5852,7 @@ Perl_field_pad(pTHX_ const HV* klass, const char* key, I32 klen)
 {
     PADOFFSET po;
     PERL_ARGS_ASSERT_FIELD_PAD;
-    if (field_search(klass, key, klen, &po) != NOT_IN_PAD)
+    if (field_search(klass, key, klen, &po) >= 0)
         return po;
     else
         return NOT_IN_PAD;
@@ -5896,7 +5896,7 @@ Perl_numfields(pTHX_ const HV* klass)
 #endif
             for (i=0; *fields; l=strlen(fields), fields += l+padsize+1, i++ )
                 ;
-            return i;
+            return (U16)i;
         }
     }
 #endif
@@ -19986,7 +19986,7 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
         pn = PadnamelistARRAY(pnl)[o->op_targ];
         if (o->op_targ > self && pn && PadnameOUTER(pn)) {
             I32 klen = PadnameUTF8(pn) ? -(PadnameLEN(pn)-1) : PadnameLEN(pn)-1;
-            int ix = (int)field_search(klass, PadnamePV(pn)+1, klen, NULL);
+            int ix = field_search(klass, PadnamePV(pn)+1, klen, NULL);
             if (ix >= 0) {
                 if (LIKELY(ix < 256)) {
                     o->op_private = (U8)ix;
@@ -20057,8 +20057,8 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
         {
             SV* key = ITEM_SV(++items);
             I32 klen = SvUTF8(key) ? -SvCUR(key) : SvCUR(key);
-            PADOFFSET ix = field_search(klass, SvPVX(key), klen, NULL);
-            if (ix != NOT_IN_PAD) {
+            int ix = field_search(klass, SvPVX(key), klen, NULL);
+            if (ix != -1) {
                 assert(ix < 256);   /* TODO aelem_u or oelem */
                 o->op_private = (U8)ix; /* field offset */
                 DEBUG_k(Perl_deb(aTHX_
@@ -20087,8 +20087,8 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
             {
                 const I32 klen = SvUTF8(meth) ? -SvCUR(meth) : SvCUR(meth);
                 PADOFFSET po;
-                const PADOFFSET ix = field_search(klass, SvPVX(meth), klen, &po);
-                if (ix != NOT_IN_PAD) {
+                const int ix = field_search(klass, SvPVX(meth), klen, &po);
+                if (ix != -1) {
                     HV *type;
                     if (LIKELY(ix < 256)) {
                         f->op_private = (U8)ix; /* field offset */
@@ -20114,6 +20114,7 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
                         /*finalize_op(o);*/
                     }
 #if 0
+                    /* the XS method is easier and faster */
                     else {
                         OP *field = newSVOP(OP_CONST, 0,
                                         newSVpvn_flags(SvPVX(meth), SvCUR(meth),
@@ -20276,7 +20277,7 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
             I32 klen = PadnameLEN(pn);
             klen = PadnameUTF8(pn) ? -(klen-1) : klen-1;
             /* check for duplicate */
-            if (field_search(klass, key+1, klen, NULL) != NOT_IN_PAD) {
+            if (field_search(klass, key+1, klen, NULL) >= 0) {
                 /* fatal with roles, valid and ignored for classes */
                 if (HvROLE(curclass))
                     Perl_croak(aTHX_
@@ -20370,7 +20371,7 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                 }
                 /* ignore default field accessors, they are created later */
                 if (CvISXSUB(cv) &&
-                    field_search(klass, HeKEY(entry), HeKLEN_UTF8(entry), NULL) != NOT_IN_PAD) {
+                    field_search(klass, HeKEY(entry), HeKLEN_UTF8(entry), NULL) >= 0) {
                     DEBUG_kv(Perl_deb(aTHX_ "add_does_methods: ignore field accessor %s::%s\n",
                                       klassname, HeKEY(entry)));
                     SvCUR_set(name, len);

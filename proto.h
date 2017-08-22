@@ -1562,7 +1562,7 @@ PERL_CALLCONV void	Perl_field_pad_add(pTHX_ HV* klass, const char* key, I32 klen
 #define PERL_ARGS_ASSERT_FIELD_PAD_ADD	\
 	assert(klass); assert(key)
 
-PERL_CALLCONV PADOFFSET	Perl_field_search(pTHX_ const HV* klass, const char* key, I32 klen, PADOFFSET *po)
+PERL_CALLCONV int	Perl_field_search(pTHX_ const HV* klass, const char* key, I32 klen, PADOFFSET *po)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
