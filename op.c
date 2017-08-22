@@ -20103,14 +20103,16 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
                         OpMORESIB_set(f, OpSIBLING(o));
                         OpNEXT(f) = OpNEXT(o);
                         OpFLAGS(o) &= ~(OPf_KIDS|OPf_REF|OPf_STACKED);
-                        op_free(o);
-                        op_free(OpNEXT(arg));
-                        op_free(arg);
+
                         /* has TYPE */
                         pn = PAD_COMPNAME(po);
                         type = PadnameTYPE(pn);
                         if (type)
                             OpRETTYPE_set(o, stash_to_coretype(type));
+
+                        /*op_free(o);*/ /* need the pad still */
+                        op_free(OpNEXT(arg));
+                        op_free(arg);
                         /*finalize_op(o);*/
                     }
 #if 0
@@ -20137,13 +20139,14 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
                         OpNEXT(obj) = OpNEXT(OpNEXT(arg));
 
                         OpFLAGS(o) &= ~(OPf_KIDS|OPf_REF|OPf_STACKED);
-                        op_free(o);
-                        op_free(OpNEXT(arg));
 
                         pn = PAD_COMPNAME(po);
                         type = PadnameTYPE(pn);
                         if (type)
                             OpRETTYPE_set(obj, stash_to_coretype(type));
+
+                        op_free(o);
+                        op_free(OpNEXT(arg));
                     }
 #endif
                 } else {
@@ -20188,6 +20191,29 @@ S_method_finalize(pTHX_ const HV* klass, const CV* cv)
     if ((o = CvROOT(cv)) && CvMETHOD(cv) && HvFIELDS_get(klass)) {
         S_do_method_finalize(aTHX_ klass, cv, o, self);
     }
+}
+
+bool
+S_role_field_fixup(pTHX_ OP* o, CV* cv, U16 ix, U16 nix, bool doit)
+{
+    bool fixedup = FALSE;
+    if (IS_TYPE(o, OELEMFAST) && o->op_private == (U8)ix) {
+        DEBUG_k(Perl_deb(aTHX_ "role_field_fixup %s: %d => %d %s\n",
+                         SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                         (int)ix, (int)nix, !doit ? "CHECK" : "DONE"));
+        if (doit) {
+            o->op_private = (U8)nix;
+        }
+        fixedup = TRUE;
+    }
+    if (OpKIDS(o)) {
+	OP *kid;
+	for (kid = cUNOPo->op_first; kid; kid = OpSIBLING(kid)) {
+            if (IS_TYPE(kid, OELEMFAST) || OpKIDS(kid))
+                fixedup |= S_role_field_fixup(aTHX_ kid, cv, ix, nix, doit);
+        }
+    }
+    return fixedup;
 }
 
 /*
@@ -20307,6 +20333,33 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
     }
 }
 
+bool S_check_role_field_fixup(pTHX_ HV* klass, HV* newclass, CV* cv, bool doit)
+{
+   U16 num = numfields(klass);
+   int i;
+   bool need_copy = FALSE;
+   /* TODO: better iterate once manually, than twice via methods */
+   for (i=0; i<num; i++) {
+       PADOFFSET po = field_index(klass, i);
+       PADNAME *pn = PAD_COMPNAME(po);
+       if (!PadnameLEN(pn))
+           continue;
+       else {
+           I32 klen = PadnameUTF8(pn) ? -(PadnameLEN(pn)-1) : PadnameLEN(pn)-1;
+           int nix = field_search(newclass, PadnamePV(pn)+1, klen, NULL);
+           if (nix != -1 && i != (U16)nix) {
+               bool result = S_role_field_fixup(aTHX_ CvROOT(cv), cv,
+                                                (U16)i, (U16)nix, doit);
+               /*DEBUG_k(Perl_deb(aTHX_ "check_role_field_fixup %s: (%d => %d) => %s\n",
+                                SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                                i, (int)nix, result ? "TRUE" : "FALSE"));*/
+               need_copy |= result;
+           }
+       }
+   }
+   return need_copy;
+}
+
 /*
 =for apidoc add_does_methods
 
@@ -20325,6 +20378,7 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
     STRLEN len = HvNAMELEN(klass);
     SV *name = newSVpvn_flags(klassname, len, HvNAMEUTF8(klass)|SVs_TEMP);
     SSize_t i;
+    bool need_copy = TRUE;
     PERL_ARGS_ASSERT_ADD_DOES_METHODS;
 
     for (i=0; i<=AvFILL(does); i++) {
@@ -20352,8 +20406,7 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                 sv_catpvs(name, "::");
                 sv_catpvn_flags(name, HeKEY(entry), HeKLEN(entry), HeUTF8(entry));
                 sym = gv_fetchsv(name, 0, SVt_PVCV);
-                /* Note that we already copied the fields.
-                   But we don't know if the indices for oelemfast matchup. #311 */
+                /* Note that we already copied the fields. */
                 if (sym && GvCV(sym)) {
                     /*ncv = GvCV(sym);*/
                     if (CvMETHOD(cv) && !CvMULTI(cv)) {
@@ -20386,38 +20439,44 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                         DEBUG_kv(Perl_deb(aTHX_
                             "add_does_methods: ignore other field XS accessor\n"));
                     }
-                    /* fallthrough to GV alias */
+                    need_copy = FALSE; /* GV alias */
                 }
-                /* fallthrough to GV alias for those also:
                 else if (CvCONST(cv)) {
+                    need_copy = FALSE; /* GV alias */
                     DEBUG_kv(Perl_deb(aTHX_
                         "add_does_methods: CvCONST NYI\n"));
                 }
                 else if (CvMULTI(cv)) {
                     DEBUG_kv(Perl_deb(aTHX_
                         "add_does_methods: CvMULTI NYI\n"));
-                }*/
-                /* TODO: compare pad targs. might need to create a new method
-                   with adjusted pads. */
-                {
-                    /* GV alias */
+                }
+                /* compare field indices. might need to create a new method
+                   with adjusted indices. #311 */
+                if (need_copy) {
+                    need_copy = S_check_role_field_fixup(aTHX_ curclass, klass, cv, FALSE);
+                }
+                if (!need_copy) { /* GV alias */
                     DEBUG_k(Perl_deb(aTHX_ "add_does_methods: alias %s::%s to %s %s\n",
                                  HvNAME(curclass), HeKEY(entry), HvPKGTYPE_NN(klass),
                                  klassname));
                     sym = gv_fetchsv_nomg(name, GV_ADD, SVt_PVCV);
                     SvSetMagicSV((SV*)sym, (SV*)gv); /* glob_assign_glob */
-#if 0
+                } else {
                     /* CV copy */
-                    ncv = MUTABLE_CV(newSV_type(SvTYPE(cv)));
+                    CV* ncv = MUTABLE_CV(newSV_type(SvTYPE(cv)));
+                    DEBUG_k(Perl_deb(aTHX_ "add_does_methods: copy %s::%s to %s %s\n",
+                                 HvNAME(curclass), HeKEY(entry), HvPKGTYPE_NN(klass),
+                                 klassname));
                     CvGV_set(ncv, sym);
                     CvSTASH_set(ncv, klass);
                     OP_REFCNT_LOCK;
+                    /* TODO: either clone the optree or pessimize oelemfast */
                     CvROOT(ncv)	     = OpREFCNT_inc(CvROOT(cv));
                     if (CvHASSIG(cv))
                         CvSIGOP(ncv) = CvSIGOP(cv);
                     OP_REFCNT_UNLOCK;
                     CvSTART(ncv)     = CvSTART(cv);
-                    CvOUTSIDE(ncv)   = CvOUTSIDE(cv);
+                    CvOUTSIDE(ncv)   = CvOUTSIDE(cv); /* ? */
                     CvOUTSIDE_SEQ(ncv) = CvOUTSIDE_SEQ(cv);
                     CvFILE(ncv)   = CvFILE(cv); /* ? */
                     if (SvPOK(cv)) {
@@ -20437,9 +20496,10 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                         CvPADLIST(ncv) = CvPADLIST(cv);
                         /*ncv = S_cv_clone_pad(aTHX_ cv, ncv, CvOUTSIDE(cv), NULL, FALSE);*/
                     }
+                    if (!S_check_role_field_fixup(aTHX_ curclass, klass, ncv, TRUE))
+                        assert(!"check_role_field_fixup with copied ncv");
                     mro_method_changed_in(klass);
                     DEBUG_kv(sv_dump((SV*)ncv));
-#endif
                 }
             }
             SvCUR_set(name, len);
