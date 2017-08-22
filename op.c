@@ -204,6 +204,8 @@ static const char array_passed_to_stat[] =
 #define IS_LEAVESUB_OP(o)  \
     (OP_TYPE_IS_NN((o), OP_LEAVESUB) \
   || OP_TYPE_IS_NN((o), OP_LEAVESUBLV))
+#define IS_SUB_TYPE(type)  \
+    ((type) == OP_ENTERSUB) || ((type) == OP_ENTERXSSUB)
 #define OP_GIMME_VOID(o)    (OP_GIMME((o),0) == G_VOID)
 #define OP_GIMME_SCALAR(o)  (OP_GIMME((o),0) == G_SCALAR)
 
@@ -4003,7 +4005,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
     case OP_AELEM:
     case OP_HELEM:
 	ref(OpFIRST(o), o->op_type);
-	if ((type == OP_ENTERSUB || type == OP_ENTERXSSUB) &&
+	if ((IS_SUB_TYPE(type)) &&
 	     !(o->op_private & (OPpLVAL_INTRO | OPpDEREF)))
 	    o->op_private |= OPpLVAL_DEFER;
 	if (type == OP_LEAVESUBLV)
@@ -18508,6 +18510,10 @@ Perl_rpeep(pTHX_ OP *o)
                 OP* o2 = o;
                 OP* gvop = NULL;
                 /* scan from pushmark to the next entersub call, 4 args with $->$ */
+                while (OpNEXT(o) && IS_TYPE(OpNEXT(o), PUSHMARK)) {
+                    oldop = o;
+                    o = OpNEXT(o);
+                }
                 for (; o2 && i<8; o2 = o2->op_next, i++) {
                     OPCODE type = o2->op_type;
                     if (type == OP_GV || type == OP_GVSV) {
@@ -18515,9 +18521,9 @@ Perl_rpeep(pTHX_ OP *o)
                         /* delete the null ops between op_gv and op_entersub
                            for easier arity checks. there are not being pointed to. */
 #ifdef PERL_FREE_NULLOPS
-                        for (; o2 && OP_TYPE_IS(o2->op_next, OP_NULL) && i<8; i++) {
+                        for (; o2 && IS_NULL_OP(OpNEXT(o2)) && i<8; i++) {
                             OP* on = o2->op_next;
-                            if (on && IS_TYPE(on, NULL)) {
+                            if (on && IS_NULL_OP(on)) {
                                 OP* tmp = on->op_next;
                                 DEBUG_k(j++);
                                 /* XXX fixup kids and siblings also? */
@@ -18538,16 +18544,17 @@ Perl_rpeep(pTHX_ OP *o)
 #endif
                     } else if (type == OP_METHOD_NAMED) {
                         /* method name only with pkg->m, not $obj->m */
-                        /* TODO: we could speculate and cache an inlined variant for $obj */
-                        gvop = OP_TYPE_IS(o->op_next, OP_CONST) ? o2 : NULL;
+                        /* TODO: we could speculate and cache an inlined variant for $obj,
+                           matching the METHOP rclass */
+                        gvop = IS_TYPE(OpNEXT(o), CONST) ? o2 : NULL;
                         meth++;
                     }
                     else if (type == OP_METHOD) /* $obj->$m needs run-time dispatch */
                         break;
-                    else if (type == OP_ENTERSUB || type == OP_ENTERXSSUB)
+                    else if (IS_SUB_TYPE(type))
                         break;
                 }
-                if (o2 && OP_TYPE_IS(o2, OP_ENTERSUB) && gvop) {
+                if (o2 && IS_SUB_OP(o2) && gvop) {
 #ifdef USE_ITHREADS
                     SV *gv = PAD_SVl(cPADOPx(gvop)->op_padix);
 #else
@@ -18564,8 +18571,8 @@ Perl_rpeep(pTHX_ OP *o)
                                    SvTYPE(cv) == SVt_PVCV) {
                             rcv = gv;
                         } else if (SvTYPE(gv) == SVt_PV &&
-                                   OP_TYPE_IS(o->op_next, OP_CONST) &&
-                                   OP_TYPE_IS(gvop, OP_METHOD_NAMED))
+                                   IS_TYPE(OpNEXT(o), CONST) &&
+                                   IS_TYPE(gvop, METHOD_NAMED))
                         {
                             SV *name = cSVOPx_sv(OpNEXT(o));
                             if (SvTYPE(name) == SVt_PV) {
