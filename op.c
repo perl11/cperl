@@ -18504,7 +18504,7 @@ Perl_rpeep(pTHX_ OP *o)
                 }
             }
 
-            /* convert static methods to subs, inline subs, free null ops */
+            /* convert static methods to subs, later inline subs */
             {
                 int i = 0, meth = 0;
                 OP* o2 = o;
@@ -18518,30 +18518,6 @@ Perl_rpeep(pTHX_ OP *o)
                     OPCODE type = o2->op_type;
                     if (type == OP_GV || type == OP_GVSV) {
                         gvop = o2; /* gvsv for variable method parts, left or right */
-                        /* delete the null ops between op_gv and op_entersub
-                           for easier arity checks. there are not being pointed to. */
-#ifdef PERL_FREE_NULLOPS
-                        for (; o2 && IS_NULL_OP(OpNEXT(o2)) && i<8; i++) {
-                            OP* on = o2->op_next;
-                            if (on && IS_NULL_OP(on)) {
-                                OP* tmp = on->op_next;
-                                DEBUG_k(j++);
-                                /* XXX fixup kids and siblings also? */
-                                if (OpSIBLING(o2) == on)
-                                    OpMORESIB_set(o2, tmp);
-                                if (OpKIDS(on)) {
-                                    if (OpFIRST(on) == on)
-                                        OpFIRST(on) = tmp;
-                                }
-                                op_free(on);
-                                o2->op_next = tmp;
-                            } else {
-                                o2 = o2->op_next;
-                            }
-                        }
-                        DEBUG_k(if(j)
-                            deb("rpeep: freed %d NULL ops between GV and ENTERSUB\n", j));
-#endif
                     } else if (type == OP_METHOD_NAMED) {
                         /* method name only with pkg->m, not $obj->m */
                         /* TODO: we could speculate and cache an inlined variant for $obj,
