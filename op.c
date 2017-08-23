@@ -20193,7 +20193,7 @@ S_method_finalize(pTHX_ const HV* klass, const CV* cv)
     }
 }
 
-bool
+static bool
 S_role_field_fixup(pTHX_ OP* o, CV* cv, U16 ix, U16 nix, bool doit)
 {
     bool fixedup = FALSE;
@@ -20333,7 +20333,8 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
     }
 }
 
-bool S_check_role_field_fixup(pTHX_ HV* klass, HV* newclass, CV* cv, bool doit)
+static bool
+S_check_role_field_fixup(pTHX_ HV* klass, HV* newclass, CV* cv, bool doit)
 {
    U16 num = numfields(klass);
    int i;
@@ -20463,6 +20464,11 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                     SvSetMagicSV((SV*)sym, (SV*)gv); /* glob_assign_glob */
                 } else {
                     /* CV copy */
+#if 1
+                    Perl_die(aTHX_ "panic: cannot yet adjust field indices when composing role "
+                               "%s::%s into %s %s [cperl #311]\n",
+                               HvNAME(curclass), HeKEY(entry), HvPKGTYPE_NN(klass), klassname);
+#else                
                     CV* ncv = MUTABLE_CV(newSV_type(SvTYPE(cv)));
                     DEBUG_k(Perl_deb(aTHX_ "add_does_methods: copy %s::%s to %s %s\n",
                                  HvNAME(curclass), HeKEY(entry), HvPKGTYPE_NN(klass),
@@ -20500,6 +20506,7 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                         assert(!"check_role_field_fixup with copied ncv");
                     mro_method_changed_in(klass);
                     DEBUG_kv(sv_dump((SV*)ncv));
+#endif
                 }
             }
             SvCUR_set(name, len);

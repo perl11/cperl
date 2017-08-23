@@ -219,6 +219,21 @@ and New Warnings
 
 L<Too many fields|perldiag/"Too many fields">
 
+cperl 5.27.2 added a new limitation of max. 65536 fields per class.
+
+=item *
+
+C<panic: cannot yet adjust field indices when composing role %s::%s into %s %s [cperl #311]">
+
+When copying a method from a role to a class, and the field index from
+the role method would be different to a field index in the resulting
+class, the method is not yet fixed up to the new indices. A
+temp. solution would be to change the ordering of the roles, or to use
+the C<< $self->field >> method syntax in the role method.  This should
+be fixed before 5.28. Currently we can only alias composed role
+methods and we don't change the ordering of the fields.  See L<[cperl
+#311]|https://github.com/perl11/cperl/issues/311>
+
 =back
 
 =head3 New Warnings

@@ -626,6 +626,7 @@ Not array reference given to mod2fname
 NYI
 Operator or semicolon missing before %c%s
 Out of memory during list extend
+panic: cannot yet adjust field indices when composing role %s::%s into %s %s [cperl #311]
 panic queryaddr
 Parse error
 PerlApp::TextQuery: no arguments, please

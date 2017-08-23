@@ -5,7 +5,7 @@ BEGIN {
     #require './test.pl';
 }
 local($\, $", $,) = (undef, ' ', '');
-print "1..44\n";
+print "1..35\n";
 my $test = 1;
 
 # allow has hash fields (YAML::Mo)
@@ -119,18 +119,19 @@ role Foo3 {
   has $a3 = 2;
   has $b3 = 2;
 }
-class Bar3 does Foo3 does Foo2 {
-  method test {
-    $self->foo2;
-    print $self->a  != 1 ? "not " : "", "ok ", $test++, " # copied role field\n";
-    print $self->b3 != 2 ? "not " : "", "ok ", $test++, " # copied role field\n";
-  }
-}
-my $b_3 = new Bar3;
-my @b_f = $b_3->fields;
-print @b_f == 3 ? "" : "not ", "ok $test # mixed up 3 indices\n"; $test++;
-print $b_f[0]->name eq '$a3' ? "" : "not ", "ok $test # \$a3\n"; $test++;
-print $b_f[1]->name eq '$b3' ? "" : "not ", "ok $test # \$b3\n"; $test++;
-print $b_f[2]->name eq '$a'  ? "" : "not ", "ok $test # \$a\n"; $test++;
-#print "'",$_->name,",'" for @b_f;
-$b_3->test;
+
+#class Bar3 does Foo3 does Foo2 {
+#  method test {
+#    $self->foo2;
+#    print $self->a  != 1 ? "not " : "", "ok ", $test++, " # copied role field\n";
+#    print $self->b3 != 2 ? "not " : "", "ok ", $test++, " # copied role field\n";
+#  }
+#}
+#my $b_3 = new Bar3;
+#my @b_f = $b_3->fields;
+#print @b_f == 3 ? "" : "not ", "ok $test # mixed up 3 indices\n"; $test++;
+#print $b_f[0]->name eq '$a3' ? "" : "not ", "ok $test # \$a3\n"; $test++;
+#print $b_f[1]->name eq '$b3' ? "" : "not ", "ok $test # \$b3\n"; $test++;
+#print $b_f[2]->name eq '$a'  ? "" : "not ", "ok $test # \$a\n"; $test++;
+##print "'",$_->name,",'" for @b_f;
+#$b_3->test;
