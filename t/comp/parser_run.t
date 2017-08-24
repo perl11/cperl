@@ -10,7 +10,7 @@ BEGIN {
 }
 
 require './test.pl';
-plan(3);
+plan(4);
 
 # [perl #130814] can reallocate lineptr while looking ahead for
 # "Missing $ on loop variable" diagnostic.
@@ -34,6 +34,16 @@ ${sub#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 EOS
 Illegal declaration of anonymous subroutine at - line 1.
 EXPECTED
+
+SKIP:
+{
+    # [perl #131949] use after free
+    # detected by ASAN
+    # Win32 cmd.exe can't handle newlines well
+    skip("Need POSIXish", 1) if $^O eq "MSWin32";
+    my $out = runperl(prog => "\@{ 0\n\n}", stderr => 1, non_portable => 1);
+    is($out, "", "check for ASAN use after free");
+}
 
 __END__
 # ex: set ts=8 sts=4 sw=4 et:
