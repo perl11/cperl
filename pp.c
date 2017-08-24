@@ -5640,9 +5640,11 @@ PP(pp_list)
 {
     I32 markidx = POPMARK;
     if (GIMME_V != G_ARRAY) {
-	SV **mark = PL_stack_base + markidx;
+        /* don't initialize mark here, EXTEND() may move the stack */
+        SV **mark;
 	dSP;
         EXTEND(SP, 1);          /* in case no arguments, as in @empty */
+        mark = PL_stack_base + markidx;
 	if (++MARK <= SP)
 	    *MARK = *SP;		/* unwanted list, return last item */
 	else
