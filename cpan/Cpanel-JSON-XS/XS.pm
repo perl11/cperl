@@ -1,5 +1,5 @@
 package Cpanel::JSON::XS;
-our $VERSION = '3.0237';
+our $VERSION = '3.0238';
 our $XS_VERSION = $VERSION;
 # $VERSION = eval $VERSION;
 
@@ -170,6 +170,8 @@ B<Changes to JSON::XS>
   - #72 parsing of values followed \0, like 1\0 does fail.
 
   - #72 parsing of illegal unicode or non-unicode characters.
+
+  - #96 locale-insensitive numeric conversion
 
 - public maintenance and bugtracker
 

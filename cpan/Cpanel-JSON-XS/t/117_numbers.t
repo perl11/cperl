@@ -3,7 +3,7 @@ use Cpanel::JSON::XS;
 use Test::More;
 use Config;
 plan skip_all => "Yet unhandled inf/nan with $^O" if $^O eq 'dec_osf';
-plan tests => 24;
+plan tests => 25;
 
 # infnan_mode = 0:
 is encode_json([9**9**9]),         '[null]', "inf -> null stringify_infnan(0)";
@@ -126,3 +126,10 @@ $str = 'bar';
 $resnum = ($] > 5.007 && $] <= 5.010) ? '23' : '23.0';
 is encode_json({test => [$num, $str]}), qq|{"test":[$resnum,"bar"]}|,
   'int/string dualvar';
+
+{
+  use POSIX qw(setlocale);
+  setlocale(&POSIX::LC_ALL, "fr_FR.utf-8");
+  is encode_json({"invalid" => 123.45}), qq|{"invalid":123.45}|,
+    "numeric radix";
+}

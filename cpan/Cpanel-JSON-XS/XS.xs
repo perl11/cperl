@@ -28,6 +28,10 @@
 #define HAVE_BAD_POWL
 #endif
 
+#if PERL_VERSION < 22 && defined(HAS_SETLOCALE)
+#define NEED_NUMERIC_LOCALE_C
+#endif
+
 /* FIXME: still a refcount error */
 #define HAVE_DECODE_BOM
 #define UTF8BOM     "\357\273\277"      /* EF BB BF */
@@ -1387,6 +1391,9 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
     {
       char *savecur, *saveend;
       char inf_or_nan = 0;
+#ifdef NEED_NUMERIC_LOCALE_C
+      char *locale = NULL;
+#endif
       NV nv = SvNVX(sv);
       /* trust that perl will do the right thing w.r.t. JSON syntax. */
       need (aTHX_ enc, NV_DIG + 32);
@@ -1406,10 +1413,21 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
         }
       }
 #endif
+      /* locale insensitive sprintf radix #96 */
+#ifdef NEED_NUMERIC_LOCALE_C
+      locale = setlocale(LC_NUMERIC, NULL);
+      if (!locale || strNE(locale, "C")) {
+        setlocale(LC_NUMERIC, "C");
+      }
+#endif
 #ifdef USE_QUADMATH
       quadmath_snprintf(enc->cur, enc->end - enc->cur, "%.*Qg", (int)NV_DIG, nv);
 #else
       (void)Gconvert (nv, NV_DIG, 0, enc->cur);
+#endif
+#ifdef NEED_NUMERIC_LOCALE_C
+      if (locale)
+        setlocale(LC_NUMERIC, locale);
 #endif
 
 #ifdef STR_INF4

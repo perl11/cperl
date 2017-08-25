@@ -15183,6 +15183,7 @@ our %delta = (
             'Module::CoreList'      => '20170815c',
             'Module::CoreList::Utils'=> '20170815c',
             'coretypes'             => '0.03c',
+            'Cpanel::JSON::XS'      => '3.0238',
             'Devel::Peek'           => '1.26_03',
             'fields'                => '2.26c',
             'Mu'                    => '0.02c',
