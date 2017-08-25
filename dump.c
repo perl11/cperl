@@ -1539,16 +1539,18 @@ void
 Perl_op_dump(pTHX_ const OP *o)
 {
 #ifdef DEBUGGING
-    int was_m = 0;
-    if (DEBUG_m_TEST) {PL_debug &= ~DEBUG_m_FLAG; was_m++;}
+    const U32 mask = DEBUG_m_FLAG|DEBUG_H_FLAG;
+    U32 was = PL_debug & mask;
+    if (was)
+        PL_debug &= ~mask;
 #endif
 
     PERL_ARGS_ASSERT_OP_DUMP;
     do_op_dump(0, Perl_debug_log, o);
 
 #ifdef DEBUGGING
-    if (was_m)
-        PL_debug |= DEBUG_m_FLAG;
+    if (was)
+        PL_debug |= was;
 #endif
 }
 
