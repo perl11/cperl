@@ -115,18 +115,24 @@ my $b4 = new Baz4;
 $b4->test;
 $b4->foo2;
 
-role Foo3 {
-  has $a3 = 2;
-  has $b3 = 2;
-}
-
-#class Bar3 does Foo3 does Foo2 {
+# TODO: crash with wrong padoffset
+#eval { do './op/class1.inc'; };
+#eval q|
+#role Foo3 {
+#  has $a3 = 2;
+#  has $b3 = 2;
+#}
+#class Bar3 does Foo3 does Foo2 { #a3 b3 a
 #  method test {
 #    $self->foo2;
 #    print $self->a  != 1 ? "not " : "", "ok ", $test++, " # copied role field\n";
 #    print $self->b3 != 2 ? "not " : "", "ok ", $test++, " # copied role field\n";
 #  }
 #}
+#|;
+
+#print $@ eq 'panic: cannot yet adjust field indices when composing role Foo2::foo2 into class Bar3 [cperl #311]' ? "" : "not ",
+#  "ok ", $test++, " # error with not-composible roles $@\n";
 #my $b_3 = new Bar3;
 #my @b_f = $b_3->fields;
 #print @b_f == 3 ? "" : "not ", "ok $test # mixed up 3 indices\n"; $test++;

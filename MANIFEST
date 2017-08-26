@@ -5760,7 +5760,8 @@ t/op/chars.t			See if character escapes work
 t/op/chdir.t			See if chdir works
 t/op/chop.t			See if chop works
 t/op/chr.t			See if chr works
-t/op/class.t			See if class, method and multi works
+t/op/class.t			See if class, role, method and fields works
+t/op/class1.inc			Extra file for class.t
 t/op/closure.t			See if closures work
 t/op/closure_test.pl		Extra file for closure.t
 t/op/concat2.t			Tests too complex for concat.t

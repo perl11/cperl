@@ -20299,8 +20299,12 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
             PADOFFSET po = fields_padoffset(fields, l+1, padsize);
 #endif
             const PADNAME *pn = PAD_COMPNAME(po);
-            const char *key = PadnamePV(pn);
-            I32 klen = PadnameLEN(pn);
+            char *key;
+            I32 klen;
+            if (!pn)
+                continue;
+            key = PadnamePV(pn);
+            klen = PadnameLEN(pn);
             klen = PadnameUTF8(pn) ? -(klen-1) : klen-1;
             /* check for duplicate */
             if (field_search(klass, key+1, klen, NULL) >= 0) {
@@ -20343,7 +20347,7 @@ S_check_role_field_fixup(pTHX_ HV* klass, HV* newclass, CV* cv, bool doit)
    for (i=0; i<num; i++) {
        PADOFFSET po = field_index(klass, i);
        PADNAME *pn = PAD_COMPNAME(po);
-       if (!PadnameLEN(pn))
+       if (!pn || !PadnameLEN(pn))
            continue;
        else {
            I32 klen = PadnameUTF8(pn) ? -(PadnameLEN(pn)-1) : PadnameLEN(pn)-1;
@@ -20621,14 +20625,23 @@ Perl_class_role_finalize(pTHX_ OP* o)
         PADOFFSET po = fields_padoffset(fields, l+1, padsize);
 #endif
         PADNAME *pn = PAD_COMPNAME(po);
-        char *reftype = PadnamePV(pn);
-        char *key = reftype + 1; /* skip the $ */
-        SV *sv = PAD_SV(po);
+        char *reftype;
+        char *key;
+        SV *sv;
         /*OP *body;*/
-        U32 klen = PadnameLEN(pn) - 1;
-        U32 utf8 = is_utf8 ? SVf_UTF8
-                           : PadnameUTF8(pn) ? SVf_UTF8 : 0;
-        bool lval = !PadnameCONST(pn);
+        U32 klen;
+        U32 utf8;
+        bool lval;
+
+        if (!pn)
+            continue;
+        reftype = PadnamePV(pn);
+        key = reftype + 1; /* skip the $ */
+        sv = PAD_SV(po);
+        klen = PadnameLEN(pn) - 1;
+        utf8 = is_utf8 ? SVf_UTF8
+                       : PadnameUTF8(pn) ? SVf_UTF8 : 0;
+        lval = !PadnameCONST(pn);
 
 #ifndef OLD_FIELDS_GV
         fields += l+padsize+1;
