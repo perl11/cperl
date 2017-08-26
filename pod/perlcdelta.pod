@@ -25,12 +25,23 @@ here, but most should go in the L</Performance Enhancements> section.
 
 [ List each enhancement as a =head2 entry ]
 
-=head2 dump more COP fields
+=head2 Optimize static methods to subs
 
-Dump the values of a COP $^H, %^H and the lexical warnings via
+When a method call can be proven at compile-time to use a specific
+subroutine, optimize away the run-time method dispatch.
+When it is for a XS subroutine, such as with e.g. C<use strict;> which does
+C<< BEGIN {require strict;} strict->import; >> the C<< strict->import >>
+part is optimized from the slow C<entersub> op to the C<enterxssub> op,
+as if via C<strict::import("strict",...)>.
+See L<http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html>.
+This is ~4% faster for each such method call.
+
+=head2 Dump more COP fields
+
+Dump the values of a COP C<$^H>, C<%^H> and the lexical warnings via
 C<op_dump()> and it's XS module L<Devel::Peek>.
 Improve the display of cop SEQ values and ranges, and padnames.
-Added a DEBUGGING C<cop_dump()> helper, esp. useful for deleted PL_curcop's.
+Added a DEBUGGING C<cop_dump()> helper, esp. useful for deleted C<PL_curcop>'s.
 
 =head2 More unicode ops
 
