@@ -21,8 +21,9 @@ ok( !main->can('removed'), 'function not available as method' );
 # replacement
 sub replaced { 'func' }
 is( replaced(), 'func', 'original function still bound' );
-is( main->replaced, 'meth', 'method is replaced function' );
 BEGIN { delete $main::{replaced} }
+# Changed for static meth optim
+is( main->replaced, 'meth', 'method is replaced function' );
 sub replaced { 'meth' }
 
 # and now with undef

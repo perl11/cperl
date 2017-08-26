@@ -33,7 +33,8 @@ When it is for a XS subroutine, such as with e.g. C<use strict;> which does
 C<< BEGIN {require strict;} strict->import; >> the C<< strict->import >>
 part is optimized from the slow C<entersub> op to the C<enterxssub> op,
 as if via C<strict::import("strict",...)>.
-Also the slow GV lookup in entersub is converted to a faster CVref lookup.
+The slow GV lookup in entersub cannot be converted to a faster CVref lookup,
+as this would break dynamic method redefinitions.
 See L<http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html>.
 This is ~4% faster for each such method call.
 
@@ -331,6 +332,14 @@ that they represent may be covered elsewhere.
 
 Added F<t/op/oelem.t> for classes with more than 256 fields, realloc
 fields for bigger padsize 2, and computed field names.
+
+=item *
+
+Changed one case in F<t/op/symbolcache.t> for
+L<static method optimizations|/"Optimize static methods to subs">.
+When you redefine a method, you need to clear the old method GV, to be able
+to call the new redefined one, as the static method optimization binds to
+the GV.
 
 =back
 

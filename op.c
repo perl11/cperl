@@ -15739,7 +15739,7 @@ Perl_ck_subr(pTHX_ OP *o)
 	    if (IS_CONST_OP(aop)) {
                 SV *meth  = cMETHOPx_meth(cvop);
                 /* check for method field or ctor op: ctor CLASS->new */
-                if (LIKELY(SvPOK(meth))) {
+                if (LIKELY(SvPOK(meth))) { /* always a shared COW string */
                     SV *pkg   = cSVOPx_sv(aop);
                     HV *stash = gv_stashsv(pkg, SvUTF8(pkg));
                     /* skip ""->method */
@@ -15757,10 +15757,11 @@ Perl_ck_subr(pTHX_ OP *o)
                         if (gvp) {
                             GV *gv = *gvp;
                             CV* cvf = NULL;
-                            SV *rcv = NULL;
                             if (SvROK(gv) && SvTYPE(SvRV((SV*)gv)) == SVt_PVCV) {
                                 cvf = (CV*)SvRV((SV*)gv);
-                                rcv = (SV*)gv;
+                                /* we'd really need a proper GV here.
+                                   see t/op/symbolcache.t */
+                                gv = CvGV(cvf);
                             }
                             else if (SvTYPE(gv) == SVt_PVGV) {
                                 cvf = GvCV(gv);
@@ -15783,10 +15784,8 @@ Perl_ck_subr(pTHX_ OP *o)
                                 OpTYPE_set(cvop, OP_GV);
                                 OpPRIVATE(cvop) |= OPpGV_WASMETHOD;
                                 /* threads? cGVOPx_gv */
-                                if (UNLIKELY(rcv))
-                                    ((SVOP*)cvop)->op_sv = SvREFCNT_inc_NN(rcv);
-                                else
-                                    ((SVOP*)cvop)->op_sv = SvREFCNT_inc_NN(gv);
+                                /* t/op/symbolcache.t needs a replacable GV, not a CV */
+                                ((SVOP*)cvop)->op_sv = SvREFCNT_inc_NN(gv);
                                 SvREFCNT_dec(meth);
                                 cvop->op_flags |= OPf_WANT_SCALAR;
                                 o->op_flags |= OPf_STACKED;
