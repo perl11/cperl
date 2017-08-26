@@ -149,6 +149,9 @@ Improved the test a bit.
 Implemented L<Mu/fields> returning fields objects, as in perl6
 (there called I<Attributes>).
 
+Revert the conversion of a fields package to class. Only close
+the ISA as with base.
+
 =item L<Mu> 0.02c
 
 Implemented L<Mu/fields> returning fields objects.

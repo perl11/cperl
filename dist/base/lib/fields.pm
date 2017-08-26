@@ -40,7 +40,8 @@ sub import {
     my $fattr = ($attr{$package} ||= [1]);
     my $next = @$fattr;
     # cperl: set the class flag in the stash, and close the ISA
-    Internals::HvCLASS($package, 1);
+    # Internals::HvCLASS($package, 1);
+    Internals::SvREADONLY(@{"$package\::ISA"}, 1);
 
     # Quiet pseudo-hash deprecation warning for uses of fields::new.
     bless \%{"$package\::FIELDS"}, 'pseudohash';
