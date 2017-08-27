@@ -1338,15 +1338,29 @@ S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o, const CV *c
 
     case OP_CONST:
     case OP_HINTSEVAL:
+	/* with ITHREADS, consts are stored in the pad, and the right pad
+	 * may not be active here */
+#ifdef USE_ITHREADS
+	if ((((SVOP*)o)->op_sv) || !IN_PERL_COMPILETIME)
+#endif
+	S_opdump_indent(aTHX_ o, level, bar, file, "SV = %s\n",
+                        SvPEEK(cSVOPo_sv));
+        break;
     case OP_METHOD_NAMED:
     case OP_METHOD_SUPER:
     case OP_METHOD_REDIR:
     case OP_METHOD_REDIR_SUPER:
-#ifndef USE_ITHREADS
-	/* with ITHREADS, consts are stored in the pad, and the right pad
-	 * may not be active here, so skip */
-	S_opdump_indent(aTHX_ o, level, bar, file, "SV = %s\n",
+#ifdef USE_ITHREADS
+	if ((((SVOP*)o)->op_sv) || !IN_PERL_COMPILETIME)
+            S_opdump_indent(aTHX_ o, level, bar, file, "METH = %s\n",
+                            SvPEEK(cMETHOPx_meth(o)));
+	S_opdump_indent(aTHX_ o, level, bar, file, "RCLASS_TARG = %" UVuf "\n",
+                        (UV)cMETHOPx(o)->op_rclass_targ);
+#else
+	S_opdump_indent(aTHX_ o, level, bar, file, "METH = %s\n",
                         SvPEEK(cMETHOPx_meth(o)));
+	S_opdump_indent(aTHX_ o, level, bar, file, "RCLASS = %s\n",
+                        SvPEEK(cMETHOPx_rclass(o)));
 #endif
 	break;
     case OP_NULL:
