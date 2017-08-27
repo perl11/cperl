@@ -28,7 +28,7 @@ here, but most should go in the L</Performance Enhancements> section.
 =head2 Optimize static methods to subs
 
 When a method call can be proven at compile-time to use a specific
-subroutine, optimize away the run-time method dispatch.
+subroutine, optimize away the run-time method dispatch on a non-threaded perl.
 When it is for a XS subroutine, such as with e.g. C<use strict;> which does
 C<< BEGIN {require strict;} strict->import; >> the C<< strict->import >>
 part is optimized from the slow C<entersub> op to the C<enterxssub> op,

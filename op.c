@@ -15742,17 +15742,18 @@ Perl_ck_subr(pTHX_ OP *o)
                 if (LIKELY(SvPOK(meth))) { /* always a shared COW string */
                     SV *pkg   = cSVOPx_sv(aop);
                     HV *stash = gv_stashsv(pkg, SvUTF8(pkg));
+                    GV **gvp;
                     /* skip ""->method */
                     if (LIKELY((SvPOK(pkg) ? SvCUR(pkg) : TRUE) &&
                                stash && SvTYPE(stash) == SVt_PVHV)) {
-                        /* bypass cache and gv overhead */
-                        GV **gvp = (GV**)hv_common(stash, meth, NULL, 0, 0,
-                                       HV_FETCH_ISEXISTS|HV_FETCH_JUST_SV, NULL, 0);
                         /* Mu ctor's */
                         if ( strEQc(SvPVX(meth), "new") ||
                              strEQc(SvPVX(meth), "CREATE") ) {
                             OpRETTYPE_set(o, type_Object);
                         }
+                        /* bypass cache and gv overhead */
+                        gvp = (GV**)hv_common(stash, meth, NULL, 0, 0,
+                                       HV_FETCH_ISEXISTS|HV_FETCH_JUST_SV, NULL, 0);
                         /* static method -> sub */
                         if (gvp) {
                             GV *gv = *gvp;
@@ -15772,7 +15773,6 @@ Perl_ck_subr(pTHX_ OP *o)
                                     Perl_croak(aTHX_
                                         "Invalid method call on class subroutine %" SVf,
                                         SVfARG(cv_name(cvf,NULL,CV_NAME_NOMAIN)));
-                                /*OpPRIVATE(aop) &= ~(OPpCONST_BARE|OPpCONST_STRICT);*/
                                 if (CvISXSUB(cvf) && CvROOT(cvf) &&
                                     GvXSCV(gv) && !PL_perldb)
                                 {
@@ -15781,17 +15781,24 @@ Perl_ck_subr(pTHX_ OP *o)
                                     OpTYPE_set(o, OP_ENTERXSSUB);
                                 }
                                 /* from METHOP to GV */
+#ifndef USE_ITHREADS
                                 OpTYPE_set(cvop, OP_GV);
                                 OpPRIVATE(cvop) |= OPpGV_WASMETHOD;
-                                /* threads? cGVOPx_gv */
                                 /* t/op/symbolcache.t needs a replacable GV, not a CV */
+#ifdef USE_ITHREADS
+                                SvREFCNT_inc_simple_void_NN(gv);
+                                cPADOPx(cvop)->op_padix = pad_alloc(OP_GV, 0);
+                                PAD_SETSV(cPADOPx(cvop)->op_padix, (SV*)gv);
+#else
                                 ((SVOP*)cvop)->op_sv = SvREFCNT_inc_NN(gv);
+#endif
                                 SvREFCNT_dec(meth);
                                 cvop->op_flags |= OPf_WANT_SCALAR;
                                 o->op_flags |= OPf_STACKED;
                                 DEBUG_k(Perl_deb(aTHX_
                                     "ck_subr: static method call to sub %s::%s\n",
                                     SvPVX_const(pkg), SvPVX_const(meth)));
+#endif
                             }
                         }
                     }
