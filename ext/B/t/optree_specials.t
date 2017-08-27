@@ -130,7 +130,7 @@ EOT_EOT
 # p              <0> pushmark s ->q
 # q              <$> const(PV "warnings") sM ->r
 # r              <$> const(PV "qw") sM ->s
-# s              <.> method_named(PV "unimport") ->t
+# s              <$> gv(*warnings::unimport) s/WASMETHOD ->t
 # BEGIN 4:
 # y  <1> leavesub[1 ref] K/REFC,1 ->(end)
 # -     <@> lineseq KP ->y
@@ -326,7 +326,7 @@ EOT_EOT
 # p  <0> pushmark s
 # q  <$> const(PV "warnings") sM
 # r  <$> const(PV "qw") sM
-# s  <.> method_named(PV "unimport") 
+# s  <$> gv(*warnings::unimport) s/WASMETHOD
 # t  <1> entersub[t1] KRS*/TARG,STRICT
 # u  <1> leavesub[1 ref] K/REFC,1
 # BEGIN 4:
@@ -429,7 +429,7 @@ EOT_EOT
 # p  <0> pushmark s
 # q  <$> const(PV "warnings") sM
 # r  <$> const(PV "qw") sM
-# s  <.> method_named(PV "unimport") 
+# s  <$> gv(*warnings::unimport) s/WASMETHOD
 # t  <1> entersub[t1] KRS*/TARG,STRICT
 # u  <1> leavesub[1 ref] K/REFC,1
 EONT_EONT
