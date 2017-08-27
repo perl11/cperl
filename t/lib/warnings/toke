@@ -151,6 +151,11 @@ sub foo (_$) {}
 EXPECT
 Illegal character after '_' in prototype for main::foo : _$ at - line 2.
 ########
+use warnings;
+sub f ([)
+EXPECT
+Missing ']' in prototype for main::f : [ at - line 2.
+########
 # toke.c
 $a =~ m/$foo/eq;
 $a =~ s/$foo/fool/seq;
