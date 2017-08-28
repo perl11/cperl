@@ -195,9 +195,6 @@ static const char array_passed_to_stat[] =
 #define IS_AND_OP(o)   ((o)->op_type == OP_AND)
 #define IS_OR_OP(o)    ((o)->op_type == OP_OR)
 #define IS_CONST_OP(o) ((o)->op_type == OP_CONST)
-#define IS_STATE_OP(o)  \
-      (OP_TYPE_IS_NN((o), OP_NEXTSTATE) \
-    || OP_TYPE_IS_NN((o), OP_DBSTATE))
 #define IS_RV2ANY_OP(o)  \
       (OP_TYPE_IS_NN((o), OP_RV2SV) \
     || OP_TYPE_IS_NN((o), OP_RV2AV) \
@@ -354,17 +351,17 @@ first node in op_p.
 =cut
 */
 static void
-S_prune_chain_head(OP** op_p)
+S_prune_chain_head(OP** opp)
 {
     PERL_ARGS_ASSERT_PRUNE_CHAIN_HEAD;
-    while (*op_p
-        && (   IS_NULL_OP(*op_p)
-            || IS_TYPE(*op_p, SCOPE)
-            || IS_TYPE(*op_p, SCALAR)
-            || IS_TYPE(*op_p, LINESEQ)))
-        *op_p = OpNEXT(*op_p);
-    if (*op_p && IS_STATE_OP(*op_p) && IS_TYPE(OpNEXT(*op_p), SIGNATURE))
-        *op_p = OpNEXT(*op_p);
+    while (*opp
+        && (   IS_NULL_OP(*opp)
+            || IS_TYPE(*opp, SCOPE)
+            || IS_TYPE(*opp, SCALAR)
+            || IS_TYPE(*opp, LINESEQ)))
+        *opp = OpNEXT(*opp);
+    if (*opp && OP_IS_COP(OpTYPE(*opp)) && IS_TYPE(OpNEXT(*opp), SIGNATURE))
+        *opp = OpNEXT(*opp);
 }
 
 
@@ -2385,9 +2382,8 @@ Perl_scalarvoid(pTHX_ OP *arg)
         SV *useless_sv = NULL;
         const char* useless = NULL;
 
-        if (IS_STATE_OP(o)
-            || (IS_NULL_OP(o) && (o->op_targ == OP_NEXTSTATE
-                               || o->op_targ == OP_DBSTATE)))
+        if (OP_IS_COP(OpTYPE(o))
+            || (IS_NULL_OP(o) && (OP_IS_COP(OpTARG(o)))))
             PL_curcop = (COP*)o;                /* for warning below */
 
         /* assumes no premature commitment */
@@ -4078,7 +4074,7 @@ S_process_optree(pTHX_ CV *cv, OP *root, OP *start)
         if (   kid
             && IS_TYPE(kid, LINESEQ)
             && (kid = OpFIRST(kid))
-            && IS_STATE_OP(kid)
+            && OP_IS_COP(OpTYPE(kid))
             && (!CopLABEL((COP*)kid))
             && (kid = OpSIBLING(kid))
             && IS_TYPE(kid, AASSIGN)
@@ -4571,7 +4567,7 @@ S_finalize_op(pTHX_ OP* o)
         case OP_EXEC:
             if (OpHAS_SIBLING(o)) {
                 OP *sib = OpSIBLING(o);
-                if (   IS_STATE_OP(sib)
+                if (   OP_IS_COP(OpTYPE(sib))
                        && ckWARN(WARN_EXEC)
                        && OpHAS_SIBLING(sib))
                     {
@@ -6584,12 +6580,12 @@ Perl_op_scope(pTHX_ OP *o)
 	    OP *kid;
             OpTYPE_set(o, OP_SCOPE);
 	    kid = OpFIRST(o);
-	    if (IS_STATE_OP(kid)) {
+	    if (OP_IS_COP(OpTYPE(kid))) {
 		op_null(kid);
 
 		/* The following deals with things like 'do {1 for 1}' */
 		kid = OpSIBLING(kid);
-		if (kid && IS_STATE_OP(kid))
+		if (kid && OP_IS_COP(OpTYPE(kid)))
 		    op_null(kid);
 	    }
 	}
@@ -6612,7 +6608,7 @@ Perl_op_unscope(pTHX_ OP *o)
     if (o && IS_TYPE(o, LINESEQ)) {
 	OP *kid = OpFIRST(o);
 	for(; kid; kid = OpSIBLING(kid))
-	    if (IS_STATE_OP(kid))
+	    if (OP_IS_COP(OpTYPE(kid)))
 		op_null(kid);
     }
     return o;
@@ -21315,14 +21311,12 @@ Perl_rpeep(pTHX_ OP *o)
 	    }
 	    break;
 	case OP_STUB:
-	    if ((o->op_flags & OPf_WANT) != OPf_WANT_LIST) {
+	    if (!OpWANT_LIST(o)) {
 		break; /* Scalar stub must produce undef.  List stub is noop */
 	    }
 	    goto nothin;
 	case OP_NULL:
-	    if (o->op_targ == OP_NEXTSTATE
-		|| o->op_targ == OP_DBSTATE)
-	    {
+	    if (OP_IS_COP(o->op_targ)) {
 		PL_curcop = ((COP*)o);
 	    }
 #ifdef PERL_REMOVE_OP_NULL
@@ -21710,8 +21704,7 @@ Perl_rpeep(pTHX_ OP *o)
                     ) {
                         U8 old_count;
                         assert(OpNEXT(oldoldop) == oldop);
-                        assert(   IS_TYPE(oldop, NEXTSTATE)
-                               || IS_TYPE(oldop, DBSTATE));
+                        assert(OP_IS_COP(OpTYPE(oldop)));
                         assert(OpNEXT(oldop) == o);
 
                         old_count
@@ -22051,8 +22044,8 @@ Perl_rpeep(pTHX_ OP *o)
                  * altering the basic op_first/op_sibling layout. */
                 kid = OpFIRST(kid);
                 assert(
-                       OP_TYPE_IS_OR_WAS_NN(kid, OP_NEXTSTATE)
-                    || OP_TYPE_IS_OR_WAS_NN(kid, OP_DBSTATE)
+                       OP_IS_COP(OpTYPE(kid))
+                    || (IS_NULL_OP(kid) && OP_IS_COP(OpTARG(kid)))
                     || IS_TYPE(kid, STUB)
                     || IS_TYPE(kid, ENTER)
                     || (PL_parser && PL_parser->error_count));
