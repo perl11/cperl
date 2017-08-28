@@ -2601,26 +2601,25 @@ s	|bool	|process_special_blocks	|I32 floor \
 					|NN GV *const gv|NN CV *const cv
 s	|void	|clear_special_blocks	|NN const char *const fullname\
 					|NN GV *const gv|NN CV *const cv
-
-#if defined(USE_CPERL)
-sn	|void	|prune_chain_head 	|NN OP** op_p
+sn	|void	|prune_chain_head 	|NN OP** opp
+#  if defined(USE_CPERL)
 s	|const char*|typename 	|NULLOK const HV* stash
 in	|OP*	|op_next_nn 	|NN OP* o
 in	|OP*	|op_prev_nn 	|NN const OP* us
 in	|OP*	|op_prevstart_nn|NN const OP* start|NN const OP* us
 s	|OPSLAB*|new_slab	|size_t sz
 i	|void	|op_destroy	|NULLOK OP* o
-#  if defined(USE_ITHREADS)
+#    if defined(USE_ITHREADS)
 s	|void	|op_clear_gv	|NULLOK OP* o|NN PADOFFSET *ixp
-#  else
+#    else
 s	|void	|op_clear_gv	|NULLOK OP* o|NN SV** svp
-#  endif
+#    endif
 s	|OP*	|op_sibling_newUNOP	|NULLOK OP *parent|NULLOK OP *start|I32 type|I32 flags
 sM	|void	|process_optree	|NULLOK CV *cv|NN OP *root|NN OP *start
 s	|void	|check_hash_fields_and_hekify	|NULLOK UNOP *rop|NN SVOP *key_op|int real
-#  ifdef PERL_FAKE_SIGNATURE
+#    ifdef PERL_FAKE_SIGNATURE
 s	|void	|maybe_op_signature	|NN CV *cv|NN OP *o
-#  endif
+#    endif
 sM	|void	|maybe_multiconcat	|NN OP *o
 s	|bool	|aassign_padcheck|NN OP* o|bool rhs
 s	|int	|aassign_scan	|NN OP* o|bool rhs|bool top|NN int *scalars_p
