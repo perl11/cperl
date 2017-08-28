@@ -53,6 +53,24 @@ PPt(pp_nextstate, "():Void")
     PERL_ASYNC_CHECK();
     return NORMAL;
 }
+PP(pp_setstate)
+{
+    PL_curcop = (COP*)PL_op;
+    TAINT_NOT;
+    PL_curcop->cop_seq = PL_stack_sp - PL_stack_base; /* save SP */
+    FREETMPS;
+    PERL_ASYNC_CHECK();
+    return NORMAL;
+}
+PP(pp_keepstate)
+{
+    TAINT_NOT;
+    PL_stack_sp = PL_stack_base + PL_curcop->cop_seq; /* reset SP */
+    PL_curcop = (COP*)PL_op;
+    FREETMPS;
+    PERL_ASYNC_CHECK();
+    return NORMAL;
+}
 
 PPt(pp_gvsv, "():Scalar")
 {

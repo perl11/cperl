@@ -5717,6 +5717,8 @@ lib/Getopt/Std.t		See if Getopt::Std and Getopt::Long work
 lib/h2ph.t			See if h2ph works like it should
 lib/h2xs.t			See if h2xs produces expected lists of files
 lib/hashiter.pm			For "use hashiter" - allow destructive iterators
+lib/inline.pm			For "no inline"
+lib/inline.t			For "no inline" testing
 lib/integer.pm			For "use integer"
 lib/integer.t			For "use integer" testing
 lib/Internals.pod		Document the Internals namespace (implemented by universal.c)

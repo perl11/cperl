@@ -406,7 +406,9 @@ reset		symbol reset		ck_fun		is%	S?
 
 lineseq		line sequence		ck_null		p@		"():Void"
 nextstate	next statement		ck_null		s;		"():Void"
-dbstate		debug next statement	ck_null		s;	        "():Void"
+setstate	first inlined statement	ck_null		s;		"():Void"
+keepstate	inlined statement	ck_null		s;		"():Void"
+dbstate		debug next statement	ck_null		s;		"():Void"
 unstack		iteration finalizer	ck_null		s0		"():Void"
 enter		block entry		ck_null		0	
 leave		block exit		ck_null		@	

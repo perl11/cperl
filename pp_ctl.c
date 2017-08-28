@@ -2191,7 +2191,7 @@ PP(pp_leave)
 
     if (gimme == G_VOID)
         PL_stack_sp = oldsp;
-    else
+    else if (!(PL_op->op_private & OPpLEAVE_SP))
         leave_adjust_stacks(oldsp, oldsp, gimme,
                                 PL_op->op_private & OPpLVALUE ? 3 : 1);
 

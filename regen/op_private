@@ -287,7 +287,7 @@ use strict;
 # of PL_hints, although only bits 6 & 7 are officially used for that
 # purpose (the rest ought to be masked off). Bit 5 is set separately
 
-for (qw(nextstate dbstate)) {
+for (qw(nextstate dbstate setstate keepstate)) {
     addbits($_,
         5 => qw(OPpHUSH_VMSISH          HUSH),
     );
@@ -413,6 +413,8 @@ addbits($_, 6 => qw(OPpREFCOUNTED REFC))
 # Do not copy return value
 addbits($_, 7 => qw(OPpLVALUE LV)) for qw(leave leaveloop);
 
+# Leave stack on inlined leavesub converted to a leave
+addbits('leave', 5 => qw(OPpLEAVE_SP SP));
 
 
 # autovivify: Want ref to something, disabled for aelem*_u

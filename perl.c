@@ -1977,6 +1977,9 @@ S_Internals_V(pTHX_ CV *cv)
 #  ifdef PERL_HASH_FUNC_SUPERFAST
 			     " PERL_HASH_FUNC_SUPERFAST"
 #  endif
+#  ifdef PERL_INLINE_SUBS
+			     " PERL_INLINE_SUBS"
+#  endif
 #  ifdef PERL_IS_MINIPERL
 			     " PERL_IS_MINIPERL"
 #  endif
