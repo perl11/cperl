@@ -1435,7 +1435,7 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
                    || strEQc(enc->cur, STR_INF2)
                    || strEQc(enc->cur, STR_INF3)
                    || strEQc(enc->cur, STR_INF4)))
-#elif STR_INF2
+#elif defined(STR_INF2)
       if (UNLIKELY(strEQc(enc->cur, STR_INF)
                    || strEQc(enc->cur, STR_INF2)))
 #else
@@ -1469,7 +1469,7 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
                      || strEQc(enc->cur+1, STR_INF2)
                      || strEQc(enc->cur+1, STR_INF3)
                      || strEQc(enc->cur+1, STR_INF4)))
-#elif STR_INF2
+#elif defined(STR_INF2)
         if (UNLIKELY(strEQc(enc->cur+1, STR_INF)
                    || strEQc(enc->cur+1, STR_INF2)))
 #else

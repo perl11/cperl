@@ -148,9 +148,10 @@ XXX
 
 Each coretype is now a class.
 
-=item L<Cpanel::JSON::XS> 3.0238
+=item L<Cpanel::JSON::XS> 3.0239
 
 Fixed locale-insensitive numeric conversion on older perls.
+Fixed compilation under windows.
 
 =item L<Devel::Peek> 1.26_03
 
