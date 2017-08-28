@@ -1,7 +1,7 @@
 package attributes;
 
 # TODO: convert import also to XS
-our $VERSION = '1.13c';
+our $VERSION = '1.14c';
 $VERSION =~ s/c$//;
 #@EXPORT_OK = qw(get reftype);
 @EXPORT = ();

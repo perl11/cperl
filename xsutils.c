@@ -538,7 +538,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 		    else
 			subname = (SV*)CvGV((const CV *)sv);
 		    if (ckWARN(WARN_ILLEGALPROTO)) {
-			if (!validate_proto(subname, proto, TRUE, FALSE))
+			if (!validate_proto(subname, proto, TRUE, FALSE, FALSE))
                             goto next_attr;
                     }
 		    cv_ckproto_len_flags((const CV *)sv, (const GV *)subname,

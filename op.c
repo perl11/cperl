@@ -4741,7 +4741,7 @@ S_move_proto_attr(pTHX_ OP **proto, OP **attrs, const GV * name)
         else
             svname = (SV *)name;
         if (ckWARN(WARN_ILLEGALPROTO)) {
-            if (!validate_proto(svname, cSVOPx_sv(new_proto), TRUE, FALSE))
+            if (!validate_proto(svname, cSVOPx_sv(new_proto), TRUE, FALSE, FALSE))
                 return;
         }
         if (*proto && ckWARN(WARN_PROTOTYPE)) {

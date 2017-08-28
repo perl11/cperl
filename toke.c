@@ -1732,14 +1732,15 @@ C<false>.
 
 Note that C<NULL> is a valid C<proto> and will always return C<true>.
 
-In cperl this also detects if it's a signature, and returns FALSE then.
-Thus the illegalproto warnings are relaxed.
+In cperl with maybe_sig TRUE this also detects if it's a signature,
+and returns FALSE then.  Thus the illegalproto warnings are relaxed.
 
 =cut
 */
 
 bool
-Perl_validate_proto(pTHX_ SV *name, SV *proto, bool dowarn, bool maybe_sig)
+Perl_validate_proto(pTHX_ SV *name, SV *proto, bool dowarn, bool curstash,
+                    bool maybe_sig)
 {
     STRLEN len, origlen;
     char *p;
@@ -1753,6 +1754,7 @@ Perl_validate_proto(pTHX_ SV *name, SV *proto, bool dowarn, bool maybe_sig)
     bool bad_proto_after_underscore;
 
     PERL_ARGS_ASSERT_VALIDATE_PROTO;
+    PERL_UNUSED_ARG(curstash);
 
     if (!proto)
 	return TRUE;
@@ -9296,7 +9298,7 @@ Perl_yylex(pTHX)
                         if (!s)
                             Perl_croak(aTHX_ "Prototype not terminated");
                         have_proto = validate_proto(PL_subname, PL_lex_stuff,
-                                                    ckWARN(WARN_ILLEGALPROTO), TRUE);
+                                                    ckWARN(WARN_ILLEGALPROTO), FALSE, TRUE);
                     }
                     if (have_proto) {
                         if (PL_parser->in_class && cvflags & CVf_METHOD && !SvCUR(PL_lex_stuff)) {
