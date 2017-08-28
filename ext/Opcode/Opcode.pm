@@ -415,7 +415,7 @@ These are a hotchpotch of opcodes still waiting to be considered
     bless -- could be used to change ownership of objects
 	     (reblessing)
 
-     regcmaybe regcreset regcomp subst substcont
+    regcmaybe regcreset regcomp subst substcont
 
     sprintf prtf -- can core dump
 
@@ -436,6 +436,8 @@ These are a hotchpotch of opcodes still waiting to be considered
     enterwhen leavewhen
     break continue
     smartmatch
+
+    setstate keepstate -- inlined variants of nextstate
 
     custom -- where should this go
 
