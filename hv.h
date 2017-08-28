@@ -812,6 +812,7 @@ instead of a string/length pair, and no precomputed hash.
 #define HV_FETCH_JUST_SV	0x20
 #define HV_DELETE		0x40
 #define HV_FETCH_EMPTY_HE	0x80 /* Leave HeVAL null. */
+#define HV_FETCH_NO_SV         0x100 /* HeVAL is not a SV* */
 /* TODO: combinations
    fetch || store (STORE IFEMPTY) (strtab, magic) "fetch-as-store"
    fetch && delete (strtab)

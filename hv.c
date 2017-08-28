@@ -729,7 +729,8 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 		}
 		HeVAL(entry) = val;
 	    } else if (action & HV_FETCH_ISSTORE) {
-		SvREFCNT_dec(HeVAL(entry));
+                if (!(action & HV_FETCH_NO_SV))
+                    SvREFCNT_dec(HeVAL(entry));
 		HeVAL(entry) = val;
 	    }
 	} else if (HeVAL(entry) == PLACEHOLDER) {

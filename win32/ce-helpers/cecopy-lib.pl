@@ -60,6 +60,7 @@ sub BEGIN {
     filetest.pm
     FindBin.pm
     if.pm
+    inline.pm
     integer.pm
     less.pm
     locale.pm

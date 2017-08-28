@@ -4178,6 +4178,13 @@ PERL_CALLCONV void	Perl_op_clear(pTHX_ OP* o)
 #define PERL_ARGS_ASSERT_OP_CLEAR	\
 	assert(o)
 
+PERL_CALLCONV OP*	Perl_op_clone_oplist(pTHX_ OP* o, OP* last, bool init)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_OP_CLONE_OPLIST	\
+	assert(o)
+
 PERL_CALLCONV OP*	Perl_op_contextualize(pTHX_ OP* o, I32 context)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
@@ -8067,15 +8074,11 @@ PERL_CALLCONV PerlInterpreter*	perl_clone_using(PerlInterpreter *proto_perl, UV 
 STATIC bool	S_cv_check_inline(pTHX_ const OP *o, CV *compcv)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
-#define PERL_ARGS_ASSERT_CV_CHECK_INLINE	\
-	assert(o); assert(compcv)
 
-STATIC OP*	S_cv_do_inline(pTHX_ const OP *o, const OP *cvop, CV *cv, bool meth)
+STATIC OP*	S_cv_do_inline(pTHX_ OP *o, OP *cvop, CV *cv, bool meth)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3);
-#define PERL_ARGS_ASSERT_CV_DO_INLINE	\
-	assert(o); assert(cvop); assert(cv)
 
 #    endif
 #  endif
@@ -8873,6 +8876,11 @@ STATIC void	S_op_check_type(pTHX_ OP* o, OP* left, OP* right, bool is_assign)
 #define PERL_ARGS_ASSERT_OP_CHECK_TYPE	\
 	assert(o); assert(left); assert(right)
 
+STATIC OP*	S_op_clone_sv(pTHX_ OP* o)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_OP_CLONE_SV	\
+	assert(o)
+
 STATIC SV*	S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
@@ -8882,6 +8890,7 @@ STATIC SV*	S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE void	S_op_destroy(pTHX_ OP* o);
 #endif
+STATIC OP*	S_op_fixup(pTHX_ OP *old, OP *newop, U32 init);
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE void	S_op_gv_set(pTHX_ OP* o, GV* gv)
 			__attribute__nonnull__(pTHX_1)
