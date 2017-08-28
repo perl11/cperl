@@ -1449,7 +1449,7 @@ S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o, const CV *c
 #endif
 	break;
     case OP_NULL:
-	if (o->op_targ < OP_NEXTSTATE || o->op_targ > OP_DBSTATE)
+	if (!(OP_IS_COP(o->op_targ)))
 	    break;
 	/* FALLTHROUGH */
     case OP_NEXTSTATE:
