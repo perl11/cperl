@@ -927,7 +927,10 @@ Skip failing freebsd localhost resolver tests.
 
 Add SECURITY AND PORTABILITY warning paragraph to pod.
 
-=item L<Opcode> 1.40_03c
+=item L<Opcode> 1.40_04c
+
+Added the new setstate and keepstate ops for the inliner,
+variants of nextstate.
 
 Restrict the new op 'enterffi'.
 
