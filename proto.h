@@ -5284,10 +5284,10 @@ PERL_CALLCONV void	Perl_set_context(void *t)
 #define PERL_ARGS_ASSERT_SET_CONTEXT	\
 	assert(t)
 
-PERL_CALLCONV void	Perl_set_numeric_local(pTHX)
+PERL_CALLCONV void	Perl_set_numeric_standard(pTHX)
 			__attribute__global__;
 
-PERL_CALLCONV void	Perl_set_numeric_standard(pTHX)
+PERL_CALLCONV void	Perl_set_numeric_underlying(pTHX)
 			__attribute__global__;
 
 PERL_CALLCONV void	Perl_set_version(pTHX_ const char *name, STRLEN nlen, const char *strval, STRLEN plen, NV nvval)
