@@ -4667,7 +4667,8 @@ as with :prototype(...)
 =cut
 */
 static void
-S_move_proto_attr(pTHX_ OP **proto, OP **attrs, const GV * name)
+S_move_proto_attr(pTHX_ OP **proto, OP **attrs, const GV * name,
+                        bool curstash)
 {
     OP *new_proto = NULL;
     STRLEN pvlen;
@@ -4741,7 +4742,7 @@ S_move_proto_attr(pTHX_ OP **proto, OP **attrs, const GV * name)
         else
             svname = (SV *)name;
         if (ckWARN(WARN_ILLEGALPROTO)) {
-            if (!validate_proto(svname, cSVOPx_sv(new_proto), TRUE, FALSE, FALSE))
+            if (!validate_proto(svname, cSVOPx_sv(new_proto), TRUE, curstash, FALSE))
                 return;
         }
         if (*proto && ckWARN(WARN_PROTOTYPE)) {
@@ -10035,7 +10036,7 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
     spot = (CV **)svspot;
 
     if (!(PL_parser && PL_parser->error_count))
-        move_proto_attr(&proto, &attrs, (GV *)PadnameSV(name));
+        move_proto_attr(&proto, &attrs, (GV *)PadnameSV(name), FALSE);
 
     if (proto) {
 	assert(IS_CONST_OP(proto));
@@ -10408,10 +10409,10 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 
     if (!ec) {
         if (isGV(gv)) {
-            move_proto_attr(&proto, &attrs, gv);
+            move_proto_attr(&proto, &attrs, gv, FALSE);
         } else {
             assert(cSVOPo);
-            move_proto_attr(&proto, &attrs, (GV *)cSVOPo->op_sv);
+            move_proto_attr(&proto, &attrs, (GV *)cSVOPo->op_sv, TRUE);
         }
     }
 

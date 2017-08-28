@@ -137,9 +137,12 @@ Illegal character in prototype for main::fòò : @$\0 at (eval 1) line 1.
 use utf8;
 use warnings;
 eval "sub foo (@\0) {}";
+eval "sub foo2 :prototype(@\0) {}";
 EXPECT
 Prototype after '@' for main::foo : @\0 at (eval 1) line 1.
 Illegal character in prototype for main::foo : @\0 at (eval 1) line 1.
+Prototype after '@' for main::foo2 : @\x{0} at (eval 2) line 1.
+Illegal character in prototype for main::foo2 : @\x{0} at (eval 2) line 1.
 ########
 use warnings;
 eval "sub foo (@\$) {}";
@@ -152,9 +155,11 @@ EXPECT
 Illegal character after '_' in prototype for main::foo : _$ at - line 2.
 ########
 use warnings;
-sub f ([)
+sub f ([);
+sub f :prototype([)
 EXPECT
 Missing ']' in prototype for main::f : [ at - line 2.
+Missing ']' in prototype for main::f : [ at - line 3.
 ########
 # toke.c
 $a =~ m/$foo/eq;

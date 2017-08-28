@@ -1818,14 +1818,22 @@ Perl_validate_proto(pTHX_ SV *name, SV *proto, bool dowarn, bool curstash,
             ? sv_uni_display(tmpsv, newSVpvn_flags(p, origlen, SVs_TEMP | SVf_UTF8),
                              origlen, UNI_DISPLAY_ISPRINT)
             : pv_pretty(tmpsv, p, origlen, 60, NULL, NULL, PERL_PV_ESCAPE_NONASCII);
+
+	if (curstash && !memchr(SvPVX(name), ':', SvCUR(name))) {
+	    SV *name2 = sv_2mortal(newSVsv(PL_curstname));
+	    sv_catpvs(name2, "::");
+	    sv_catsv(name2, (SV *)name);
+	    name = name2;
+	}
+
+	if (proto_after_greedy_proto)
+	    Perl_warner(aTHX_ packWARN(WARN_ILLEGALPROTO),
+			"Prototype after '%c' for %" SVf " : %s",
+			greedy_proto, SVfARG(name), p);
 	if (in_brackets)
 	    Perl_warner(aTHX_ TRUE,
 			"Missing ']' in prototype for %" SVf " : %s",
 			SVfARG(name), p);
-        if (proto_after_greedy_proto)
-            Perl_warner(aTHX_ TRUE,
-                        "Prototype after '%c' for %" SVf " : %s",
-                        greedy_proto, SVfARG(name), p);
         if (bad_proto)
             Perl_warner(aTHX_ TRUE,
                         "Illegal character in prototype for %" SVf " : %s",
