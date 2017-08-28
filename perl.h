@@ -122,6 +122,9 @@
 
 /* <--- here ends the logic shared by perl.h and makedef.pl */
 
+/* enable the experimental cperl inliner */
+/* #define PERL_INLINE_SUBS / * */
+
 /* Microsoft Visual C++ 6.0 needs special treatment in numerous places */
 #if defined(WIN32) && defined(_MSC_VER) && _MSC_VER >= 1200 && _MSC_VER < 1300
 #  define USING_MSVC6

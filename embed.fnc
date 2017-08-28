@@ -1277,15 +1277,17 @@ s|core_types_t	|arg_type_sv	|NN SV* sv|NULLOK char** usertype|NULLOK int* u8
 in	|int	|match_type1	|const U32 sig|core_types_t arg1
 in	|int	|match_type2	|const U32 sig|core_types_t arg1|core_types_t arg2
 #    ifdef PERL_INLINE_SUBS
-s	|bool	|cv_check_inline|NN const OP *o|NN CV *compcv
-s	|OP*	|cv_do_inline|NN const OP *o|NN const OP *cvop|NN CV *cv|bool meth
+sm	|bool	|cv_check_inline|NN const OP *o|NN CV *compcv
+sm	|OP*	|cv_do_inline|NN OP *o|NN OP *cvop|NN CV *cv|bool meth
 #    endif
 i	|OP*	|new_entersubop |NN GV* gv |NN OP* arg
+sM	|OP*	|op_clone_sv	|NN OP* o
 #  endif
 #endif
 : Used in op.c, pp_hot.c, and universal.c
 #if defined(USE_CPERL)
 XEp	|void	|arg_check_type_sv |NULLOK const PADNAME* pn|NN SV* sv|NULLOK GV *cvname
+AMRp	|OP*	|op_clone_oplist|NN OP* o  |NULLOK OP* last|bool init
 #endif
 : Used in op.c and pp_sys.c
 p	|int	|mode_from_discipline	|NULLOK const char* s|STRLEN len
@@ -2636,6 +2638,7 @@ s	|bool	|mderef_uoob_gvsv|NN OP* o|NN SV* idx
 #    endif
 s	|bool	|mderef_uoob_targ|NN OP* o|PADOFFSET targ
 s	|bool	|peep_leaveloop	 |NN BINOP* leave|NN OP* from|NN OP* to
+sM	|OP*	|op_fixup	 |NULLOK OP *old|NULLOK OP *newop|U32 init
 #  endif /*CPERL */
 #endif /* OP_C */
 

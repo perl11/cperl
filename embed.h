@@ -565,6 +565,7 @@
 #define op_append_elem(a,b,c)	Perl_op_append_elem(aTHX_ a,b,c)
 #define op_append_list(a,b,c)	Perl_op_append_list(aTHX_ a,b,c)
 #define op_class(a)		Perl_op_class(aTHX_ a)
+#define op_clone_oplist(a,b,c)	Perl_op_clone_oplist(aTHX_ a,b,c)
 #define op_contextualize(a,b)	Perl_op_contextualize(aTHX_ a,b)
 #define op_convert_list(a,b,c)	Perl_op_convert_list(aTHX_ a,b,c)
 #define op_dump(a)		Perl_op_dump(aTHX_ a)
@@ -2091,8 +2092,10 @@
 #define new_entersubop(a,b)	S_new_entersubop(aTHX_ a,b)
 #define new_slab(a)		S_new_slab(aTHX_ a)
 #define op_check_type(a,b,c,d)	S_op_check_type(aTHX_ a,b,c,d)
+#define op_clone_sv(a)		S_op_clone_sv(aTHX_ a)
 #define op_const_sv(a,b,c)	S_op_const_sv(aTHX_ a,b,c)
 #define op_destroy(a)		S_op_destroy(aTHX_ a)
+#define op_fixup(a,b,c)		S_op_fixup(aTHX_ a,b,c)
 #define op_gv_set(a,b)		S_op_gv_set(aTHX_ a,b)
 #define op_next_nn		S_op_next_nn
 #define op_prev_nn		S_op_prev_nn
