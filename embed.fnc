@@ -2112,6 +2112,7 @@ Apd	|void	|sv_uncow       |NN SV *const sv|const U32 flags
 Apd	|void	|sv_force_normal_flags|NN SV *const sv|const U32 flags
 pX	|SSize_t|tmps_grow_p	|SSize_t ix
 Apd	|SV*	|sv_rvweaken	|NN SV *const sv
+Apd	|SV*	|sv_rvunweaken	|NN SV *const sv
 AnpMd	|SV*	|sv_get_backrefs|NN SV *const sv
 : This is indirectly referenced by globals.c. This is somewhat annoying.
 p	|int	|magic_killbackrefs|NN SV *sv|NN MAGIC *mg

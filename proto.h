@@ -6006,6 +6006,12 @@ PERL_CALLCONV void	Perl_sv_reset(pTHX_ const char* s, HV *const stash)
 	assert(s)
 
 PERL_CALLCONV void	Perl_sv_resetpvn(pTHX_ const char* s, STRLEN len, HV *const stash);
+PERL_CALLCONV SV*	Perl_sv_rvunweaken(pTHX_ SV *const sv)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_SV_RVUNWEAKEN	\
+	assert(sv)
+
 PERL_CALLCONV SV*	Perl_sv_rvweaken(pTHX_ SV *const sv)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
