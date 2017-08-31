@@ -51,7 +51,10 @@ SKIP: {
 	unless $Config{d_fork} || $Config{d_pseudofork};
 
     my $cpid = fork();
-    if (0 == $cpid) {
+    if (!defined $cpid) {
+        die "fork failed";
+    }
+    elsif (0 == $cpid) {
 	# the child:
 	sleep(1);
 	my $connector = IO::Socket::UNIX->new(Peer => $socketpath);
@@ -99,7 +102,7 @@ SKIP: {
     my $new = IO::Socket::UNIX->new_from_fd($listener->fileno(), 'r+');
 
     is($new->sockdomain(), $d, 'domain match');
-    SKIP: {
+    SKIP: { # BSD's
       skip "no Socket::SO_PROTOCOL", 1 if !defined(eval { Socket::SO_PROTOCOL });
       skip "SO_PROTOCOL defined but not implemented", 1
          if !defined $new->sockopt(Socket::SO_PROTOCOL);
