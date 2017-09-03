@@ -31,7 +31,7 @@ BEGIN {
     $ENV{PERL_RL} = 'Perl'; # Suppress system Term::ReadLine::Gnu
 }
 
-plan(133);
+plan(137);
 
 my $rc_filename = '.perldb';
 rename $rc_filename, $rc_filename.".orig" if -f $rc_filename;
@@ -2889,6 +2889,90 @@ for my $f ('sig2sig', 'sig2pp', 'pp2sig') {
           qr/^Not enough arguments for subroutine .*/ms,
           "No error [cperl #167]");
     }
+}
+
+{
+    # perl 5 RT #120174 - 'p' command
+    my $wrapper = DebugWrap->new(
+        {
+            cmds =>
+            [
+                'b 2',
+                'c',
+                'p@abc',
+                'q',
+            ],
+            prog => '../lib/perl5db/t/rt-120174',
+        }
+    );
+
+    $wrapper->contents_like(
+        qr/1234/,
+        q/RT 120174: p command can be invoked without space after 'p'/,
+    );
+}
+
+{
+    # perl 5 RT #120174 - 'x' command on array
+    my $wrapper = DebugWrap->new(
+        {
+            cmds =>
+            [
+                'b 2',
+                'c',
+                'x@abc',
+                'q',
+            ],
+            prog => '../lib/perl5db/t/rt-120174',
+        }
+    );
+
+    $wrapper->contents_like(
+        qr/0\s+1\n1\s+2\n2\s+3\n3\s+4/ms,
+        q/RT 120174: x command can be invoked without space after 'x' before array/,
+    );
+}
+
+{
+    # perl 5 RT #120174 - 'x' command on array ref
+    my $wrapper = DebugWrap->new(
+        {
+            cmds =>
+            [
+                'b 2',
+                'c',
+                'x\@abc',
+                'q',
+            ],
+            prog => '../lib/perl5db/t/rt-120174',
+        }
+    );
+
+    $wrapper->contents_like(
+        qr/\s+0\s+1\n\s+1\s+2\n\s+2\s+3\n\s+3\s+4/ms,
+        q/RT 120174: x command can be invoked without space after 'x' before array ref/,
+    );
+}
+
+{
+    # perl 5 RT #120174 - 'x' command on hash ref
+    my $wrapper = DebugWrap->new(
+        {
+            cmds =>
+            [
+                'b 4',
+                'c',
+                'x\%xyz',
+                'q',
+            ],
+            prog => '../lib/perl5db/t/rt-120174',
+        }
+    );
+
+    $wrapper->contents_like(
+        qr/\s+'alpha'\s+=>\s+'beta'\n\s+'gamma'\s+=>\s+'delta'/ms,
+        q/RT 120174: x command can be invoked without space after 'x' before hash ref/,
+    );
 }
 
 END {
