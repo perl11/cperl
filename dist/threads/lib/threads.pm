@@ -5,7 +5,7 @@ use 5.008;
 use strict;
 use warnings;
 
-our $VERSION = '2.17_01';
+our $VERSION = '2.18_01';
 my $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
