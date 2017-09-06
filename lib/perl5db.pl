@@ -527,7 +527,7 @@ BEGIN {
 use vars qw($VERSION $header);
 
 # bump to X.XX in blead, only use X.XX_XX in maint
-$VERSION = '1.51_01c';
+$VERSION = '1.52_01c';
 
 $header = "perl5db.pl version $VERSION";
 
@@ -1869,7 +1869,10 @@ sub _DB__trim_command_and_return_first_component {
     $cmd =~ s/\A\s+//s;    # trim annoying leading whitespace
     $cmd =~ s/\s+\z//s;    # trim annoying trailing whitespace
 
-    my ($verb, $args) = $cmd =~ m{\A(\S*)\s*(.*)}s;
+    # A single-character debugger command can be immediately followed by its
+    # argument if they aren't both alphanumeric; otherwise require space
+    # between commands and arguments:
+    my ($verb, $args) = $cmd =~ m{\A(.\b|\S*)\s*(.*)}s;
 
     $obj->cmd_verb($verb);
     $obj->cmd_args($args);
