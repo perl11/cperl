@@ -1566,6 +1566,13 @@
 #define _av_dump(a,b)		S__av_dump(aTHX_ a,b)
 #define _hv_dump(a,b,c)		S__hv_dump(aTHX_ a,b,c)
 #    endif
+#    if defined(PERL_IN_LOCALE_C)
+#      if defined(USE_LOCALE)
+#define print_bytes_for_locale(a,b,c)	S_print_bytes_for_locale(aTHX_ a,b,c)
+#define print_collxfrm_input_and_return(a,b,c,d)	S_print_collxfrm_input_and_return(aTHX_ a,b,c,d)
+#define setlocale_debug_string	S_setlocale_debug_string
+#      endif
+#    endif
 #    if defined(PERL_IN_PAD_C)
 #define cv_dump(a,b)		S_cv_dump(aTHX_ a,b)
 #    endif
@@ -1575,11 +1582,6 @@
 #    if defined(PERL_IN_TOKE_C)
 #define printbuf(a,b)		S_printbuf(aTHX_ a,b)
 #define tokereport(a,b)		S_tokereport(aTHX_ a,b)
-#    endif
-#    if defined(USE_LOCALE) && defined(PERL_IN_LOCALE_C)
-#define print_bytes_for_locale(a,b,c)	S_print_bytes_for_locale(aTHX_ a,b,c)
-#define print_collxfrm_input_and_return(a,b,c,d)	S_print_collxfrm_input_and_return(aTHX_ a,b,c,d)
-#define setlocale_debug_string	S_setlocale_debug_string
 #    endif
 #  endif
 #  if defined(DEBUG_LEAKING_SCALARS_FORK_DUMP)
@@ -1704,6 +1706,18 @@
 #  endif
 #  if defined(PERL_IN_HV_C) && defined(DEBUGGING)
 #define action_name(a)		S_action_name(aTHX_ a)
+#  endif
+#  if defined(PERL_IN_LOCALE_C)
+#define save_to_buffer		S_save_to_buffer
+#    if defined(USE_LOCALE)
+#define new_collate(a)		S_new_collate(aTHX_ a)
+#define new_ctype(a)		S_new_ctype(aTHX_ a)
+#define set_numeric_radix()	S_set_numeric_radix(aTHX)
+#define stdize_locale(a)	S_stdize_locale(aTHX_ a)
+#      if defined(WIN32)
+#define my_setlocale(a,b)	S_my_setlocale(aTHX_ a,b)
+#      endif
+#    endif
 #  endif
 #  if defined(PERL_IN_LOCALE_C) || defined(PERL_IN_SV_C) || defined(PERL_IN_MATHOMS_C)
 #    if defined(USE_LOCALE_COLLATE)
@@ -2049,15 +2063,6 @@
 #define padlist_dup(a,b)	Perl_padlist_dup(aTHX_ a,b)
 #define padname_dup(a,b)	Perl_padname_dup(aTHX_ a,b)
 #define padnamelist_dup(a,b)	Perl_padnamelist_dup(aTHX_ a,b)
-#  endif
-#  if defined(USE_LOCALE) && defined(PERL_IN_LOCALE_C)
-#define new_collate(a)		S_new_collate(aTHX_ a)
-#define new_ctype(a)		S_new_ctype(aTHX_ a)
-#define set_numeric_radix()	S_set_numeric_radix(aTHX)
-#define stdize_locale(a)	S_stdize_locale(aTHX_ a)
-#    if defined(WIN32)
-#define my_setlocale(a,b)	S_my_setlocale(aTHX_ a,b)
-#    endif
 #  endif
 #  if defined(USE_LOCALE_COLLATE)
 #define magic_setcollxfrm(a,b)	Perl_magic_setcollxfrm(aTHX_ a,b)

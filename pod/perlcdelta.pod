@@ -663,12 +663,6 @@ XXX
 
 =head1 Internal Changes
 
-XXX Changes which affect the interface available to C<XS> code go here.  Other
-significant internal changes for future core maintainers should be noted as
-well.
-
-[ List each change as a =item entry ]
-
 =over 4
 
 =item *
@@ -685,6 +679,16 @@ See L<[cperl #322]|https://github.com/perl11/cperl/issues/322>
 =item *
 
 L<perlintern/validate_proto> got an additional cperl-only bool argument C<maybe_sig>.
+
+=item *
+
+A new function, L<C<Perl_langinfo()>|perlapi/Perl_langinfo> has been
+added.  It is an (almost) drop-in replacement for the system
+C<nl_langinfo(3)>, but works on platforms that lack that; as well as
+being more thread-safe, and hiding some gotchas with locale handling
+from the caller.  Code that uses this, needn't use L<C<localeconv(3)>>
+(and be affected by the gotchas) to find the decimal point, thousands
+separator, or currency symbol.  See L<perlapi/Perl_langinfo>.
 
 =back
 
