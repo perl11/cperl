@@ -11780,7 +11780,6 @@ S_regpiece(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
             if (max < min) {    /* If can't match, warn and optimize to fail
                                    unconditionally */
                 reginsert(pRExC_state, OPFAIL, orig_emit, depth+1);
-                orig_emit->flags = 0;
                 if (PASS2) {
                     ckWARNreg(RExC_parse, "Quantifier {n,m} with n > m can't match");
                     NEXT_OFF(orig_emit)= regarglen[OPFAIL] + NODE_STEP_REGNODE;
@@ -11800,14 +11799,12 @@ S_regpiece(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 	    if ((flags&SIMPLE)) {
                 if (min == 0 && max == REG_INFTY) {
                     reginsert(pRExC_state, STAR, ret, depth+1);
-                    ret->flags = 0;
                     MARK_NAUGHTY(4);
                     RExC_seen |= REG_UNBOUNDED_QUANTIFIER_SEEN;
                     goto nest_check;
                 }
                 if (min == 1 && max == REG_INFTY) {
                     reginsert(pRExC_state, PLUS, ret, depth+1);
-                    ret->flags = 0;
                     MARK_NAUGHTY(3);
                     RExC_seen |= REG_UNBOUNDED_QUANTIFIER_SEEN;
                     goto nest_check;
@@ -11920,7 +11917,6 @@ S_regpiece(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
         ender = reg_node(pRExC_state, SUCCEED);
         REGTAIL(pRExC_state, ret, ender);
         reginsert(pRExC_state, SUSPEND, ret, depth+1);
-        ret->flags = 0;
         ender = reg_node(pRExC_state, TAIL);
         REGTAIL(pRExC_state, ret, ender);
     }
@@ -18733,6 +18729,7 @@ S_reg2Lanode(pTHX_ RExC_state_t *pRExC_state, const U8 op, const U32 arg1, const
 * if (PASS2)
 *     NEXT_OFF(orig_emit) = regarglen[OPFAIL] + NODE_STEP_REGNODE;
 *
+* ALSO NOTE - operand->flags will be set to 0 as well.
 */
 STATIC void
 S_reginsert(pTHX_ RExC_state_t *pRExC_state, U8 op, regnode *operand, U32 depth)
@@ -18806,7 +18803,6 @@ S_reginsert(pTHX_ RExC_state_t *pRExC_state, U8 op, regnode *operand, U32 depth)
 #endif
     }
 
-
     place = operand;		/* Op node, where operand used to be. */
 #ifdef RE_TRACK_PATTERN_OFFSETS
     if (RExC_offsets) {         /* MJD */
@@ -18825,6 +18821,7 @@ S_reginsert(pTHX_ RExC_state_t *pRExC_state, U8 op, regnode *operand, U32 depth)
     }
 #endif
     src = NEXTOPER(place);
+    place->flags = 0;
     FILL_ADVANCE_NODE(place, op);
     Zero(src, offset, regnode);
 }
