@@ -1188,7 +1188,7 @@
 /*
 	DECOMPOSED_REST: The remaining 869 non-mark and non-hangul normalizables
 
-	&regcharclass_multi_char_folds::decomposed_rest()
+	&regcharclass_multi_char_folds::decomposed_id_rest()
 */
 /*** GENERATED CODE ***/
 #define is_DECOMPOSED_REST_utf8_safe_part0(s,e)                             \
@@ -3812,7 +3812,7 @@
 /*
 	DECOMPOSED_REST: The remaining 869 non-mark and non-hangul normalizables
 
-	&regcharclass_multi_char_folds::decomposed_rest()
+	&regcharclass_multi_char_folds::decomposed_id_rest()
 */
 /*** GENERATED CODE ***/
 #define is_DECOMPOSED_REST_utf8_safe_part0(s,e)                             \
@@ -6751,7 +6751,7 @@
 /*
 	DECOMPOSED_REST: The remaining 869 non-mark and non-hangul normalizables
 
-	&regcharclass_multi_char_folds::decomposed_rest()
+	&regcharclass_multi_char_folds::decomposed_id_rest()
 */
 /*** GENERATED CODE ***/
 #define is_DECOMPOSED_REST_utf8_safe_part0(s,e)                             \
@@ -8367,6 +8367,6 @@
  * 6757ed0d9631d00c05560b9c66703b7ba9764ab05512066e0feaaeba329c1a07 lib/unicore/mktables
  * cdecb300baad839a6f62791229f551a4fa33f3cbdca08e378dc976466354e778 lib/unicore/version
  * 913d2f93f3cb6cdf1664db888bf840bc4eb074eef824e082fceda24a9445e60c regen/charset_translations.pl
- * 916174aa4a5e65e5686d2bda8522d335603b9c92bc0ec4c1eaa5d3c6ac958522 regen/regcharclass.pl
- * a6967a5eb6f40862d25bc55f6993e8f5c97130419ad7c3a1c70bb72d1aa5816a regen/regcharclass_multi_char_folds.pl
+ * c85aaf6affb02d5ae6797602f99bb454f82918b38cb2dc223687a095fd3c984c regen/regcharclass.pl
+ * 238f19c31ed356f1f849c63d3da8ad9bf41413ebcfddec2592c446c4555c8fb6 regen/regcharclass_multi_char_folds.pl
  * ex: set ro: */

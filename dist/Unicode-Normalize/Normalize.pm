@@ -143,10 +143,10 @@ Unicode::Normalize - Unicode Normalization Forms
 
   use Unicode::Normalize;
 
-  $NFD_string  = NFD($string);  # Normalization Form D
-  $NFC_string  = NFC($string);  # Normalization Form C
-  $NFKD_string = NFKD($string); # Normalization Form KD
-  $NFKC_string = NFKC($string); # Normalization Form KC
+  $NFD_string  = NFD($string);  # Canonical Decomposition
+  $NFC_string  = NFC($string);  # Canonical Composition
+  $NFKD_string = NFKD($string); # Compatible Decomposition
+  $NFKC_string = NFKC($string); # Compatible Composition
 
 (2) using function names exported on request:
 
@@ -238,8 +238,8 @@ the decomposition is compatibility decomposition.
 
 The string returned is not always in NFD/NFKD. Reordering may be required.
 
- $NFD_string  = reorder(decompose($string));       # eq. to NFD()
- $NFKD_string = reorder(decompose($string, TRUE)); # eq. to NFKD()
+    $NFD_string  = reorder(decompose($string));       # eq. to NFD()
+    $NFKD_string = reorder(decompose($string, TRUE)); # eq. to NFKD()
 
 =item C<$reordered_string = reorder($string)>
 
@@ -277,12 +277,12 @@ should be equal to the entire C<$normalized>.
 When you have a C<$normalized> string and an C<$unnormalized> string
 following it, a simple concatenation is wrong:
 
- $concat = $normalized . normalize($form, $unnormalized); # wrong!
+    $concat = $normalized . normalize($form, $unnormalized); # wrong!
 
 Instead of it, do like this:
 
- ($processed, $unprocessed) = splitOnLastStarter($normalized);
- $concat = $processed . normalize($form,$unprocessed.$unnormalized);
+    ($processed, $unprocessed) = splitOnLastStarter($normalized);
+     $concat = $processed . normalize($form, $unprocessed.$unnormalized);
 
 C<splitOnLastStarter()> should be called with a pre-normalized parameter
 C<$normalized>, that is in the same form as C<$form> you want.
@@ -548,7 +548,7 @@ compiled into your perl.  The following table lists the default Unicode
 version that comes with various perl versions.  (It is possible to change
 the Unicode version in any perl version to be any earlier Unicode version,
 so one could cause Unicode 3.2 to be used in any perl version starting with
-5.8.0.  Read F<C<$Config{privlib}>/unicore/README.perl> for details.
+5.8.0.  See C<$Config{privlib}>/F<unicore/README.perl>.
 
     perl's version     implemented Unicode version
        5.6.1              3.0.1
@@ -629,6 +629,10 @@ Public Review Issue #29: Normalization Issue
 =item http://www.unicode.org/notes/tn5/
 
 Canonical Equivalence in Applications - UTN #5
+
+=item https://rurban.github.io/safeclib/doc/safec-3.0/
+
+For wcsnorm_s() and wcsfc_s(). Uses the -ind -uni -utf16 options.
 
 =back
 

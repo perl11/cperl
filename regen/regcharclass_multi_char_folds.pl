@@ -30,7 +30,7 @@ use Unicode::Normalize qw(NFC NFD);
 # things that match EXACTFA.  It does check for and croak if there ever were
 # to be an upper Latin1 range multi-character fold.
 #
-# This is designed for input to regen/regcharlass.pl.
+# This is designed for input to regen/regcharclass.pl.
 
 sub gen_combinations ($;) {
     # Generate all combinations for the first parameter which is an array of
@@ -135,7 +135,7 @@ sub multi_char_folds ($) {
     # case could be added here if necessary.
     #
     # No combinations of this with 's' need be added, as any of these
-    # containing 's' are prohibted under /iaa.
+    # containing 's' are prohibited under /iaa.
     push @folds, '"\x{17F}\x{17F}"' if $all_folds;
 
 
@@ -154,9 +154,9 @@ sub latin_or_common {
     @list
 }
 
-# all 869 decomposed characters, which are not mark and not Hangul characters.
-# for Hangul we have special rules.
-sub decomposed_rest {
+# All 869 decomposed identifier sequences, which are not Mark and not Hangul characters.
+# For Hangul we have special rules.
+sub decomposed_id_rest {
     my @nfd;
     for my $c (1..0x10FFFF) {
         my $s   = chr($c);
@@ -174,6 +174,56 @@ sub decomposed_rest {
         }
     }
     @nfd
+}
+
+# The first codepoint of all 923 decomposed sequences,
+# which are not Mark and not Hangul characters.
+# also all not identifier characters.
+sub decomposed_all_rest_first {
+    my (@nfd, %h);
+    for my $c (1..0x10FFFF) {
+        my $s   = chr($c);
+        if ($s =~ /\p{IsM}/ or $s =~ /\p{Hangul}/) {
+            next;
+        }
+        my $nfd = NFD($s);
+        # all NFD's which have a different NFC:
+        # diacrits, dialytika, tonos...
+        if (NFC($s) ne $nfd) {
+            my @first = unpack "U*", $nfd;
+            $h{ $first[0] }++;
+        }
+    }
+    for (sort {$a <=> $b} keys %h) {
+        my $q = sprintf"\\x{%X}", $_;
+        push @nfd, "\"$q\"";
+        #push @nfd, sprintf "%04X", $_;
+    }
+    @nfd
+}
+
+# The first codepoint of all NNN composed sequences,
+# which are not Hangul characters.
+sub composed_all_first {
+    my (@nfc, %h);
+    for my $c (1..0x10FFFF) {
+        my $s   = chr($c);
+        if ($s =~ /\p{IsM}/ or $s =~ /\p{Hangul}/) {
+            next;
+        }
+        my $nfc = NFC($s);
+        # all NFC's which have a different NFD:
+        if (NFD($s) ne $nfc) {
+            my @first = unpack "U*", $nfc;
+            $h{ $first[0] }++;
+        }
+    }
+    for (sort {$a <=> $b} keys %h) {
+        my $q = sprintf"\\x{%X}", $_;
+        #push @nfc, "\"$q\"";
+        push @nfc, sprintf "%04X", $_;
+    }
+    @nfc
 }
 
 1

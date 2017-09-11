@@ -13,12 +13,24 @@
 #include "perl.h"
 #include "XSUB.h"
 
+#ifdef USE_CPERL
+/* The faster variant */
+#define NORMALIZE_IND_TBL
+#endif
 /* These 5 files are prepared by mkheader */
-#include "unfcmb.h"
-#include "unfcan.h"
-#include "unfcpt.h"
-#include "unfcmp.h"
-#include "unfexc.h"
+#ifndef NORMALIZE_IND_TBL
+#include "un8fcmb.h"
+#include "un8fcan.h"
+#include "un8fcpt.h"
+#include "un8fcmp.h"
+#include "un8fexc.h"
+#else
+#include "un8ifcmb.h"
+#include "un8ifcan.h"
+#include "un8ifcpt.h"
+#include "un8ifcmp.h"
+#include "un8ifexc.h"
+#endif
 
 /* The generated normalization tables since v5.20 are in native character set
  * terms.  Prior to that, they were in Unicode terms.  So we use 'uvchr' for
@@ -113,51 +125,141 @@
 #define Hangul_IsT(u)  ((Hangul_TBase  < (u)) && ((u) <= Hangul_TFinal))
 /* HANGUL end */
 
+#ifdef NORMALIZE_IND_TBL
+static U8 S_tmp[8];
+
+#define UN8F_cc         UN8IF_cc
+#define UN8F_canon      UN8IF_canon
+#define UN8F_compat     UN8IF_compat
+#define UN8F_compos     UN8IF_compos
+#define UN8F_combin     UN8IF_combin
+#define UN8F_complist_s UN8IF_complist_s
+#define UN8F_complist   UN8IF_complist
+#define UN8F_COMPLIST_FIRST_LONG UN8IF_COMPLIST_FIRST_LONG
+#endif
+
 /* this is used for canonical ordering of combining characters (c.c.). */
 typedef struct {
     U8 cc;	/* combining class */
     UV uv;	/* codepoint */
     STRLEN pos; /* position */
-} UNF_cc;
+} UN8F_cc;
 
 static int compare_cc(const void *a, const void *b)
 {
     int ret_cc;
-    ret_cc = ((UNF_cc*) a)->cc - ((UNF_cc*) b)->cc;
+    ret_cc = ((UN8F_cc*) a)->cc - ((UN8F_cc*) b)->cc;
     if (ret_cc)
 	return ret_cc;
 
-    return ( ((UNF_cc*) a)->pos > ((UNF_cc*) b)->pos )
-	 - ( ((UNF_cc*) a)->pos < ((UNF_cc*) b)->pos );
+    return ( ((UN8F_cc*) a)->pos > ((UN8F_cc*) b)->pos )
+	 - ( ((UN8F_cc*) a)->pos < ((UN8F_cc*) b)->pos );
 }
+
+#ifdef NORMALIZE_IND_TBL
+/* also used for compat */
+static int bsearch_exc (const void *ptr1, const void *ptr2) {
+    UN8IF_canon_exc_t *e1 = (UN8IF_canon_exc_t *)ptr1;
+    UN8IF_canon_exc_t *e2 = (UN8IF_canon_exc_t *)ptr2;
+    return e1->cp > e2->cp ? 1 : e1->cp == e2->cp ? 0 : -1;
+}
+#endif
 
 static U8* dec_canonical(UV uv)
 {
+#ifndef NORMALIZE_IND_TBL
     U8 ***plane, **row;
     if (OVER_UTF_MAX(uv))
 	return NULL;
-    plane = (U8***)UNF_canon[uv >> 16];
+    plane = (U8***)UN8F_canon[uv >> 16];
     if (! plane)
 	return NULL;
     row = plane[(uv >> 8) & 0xff];
-    return row ? row[uv & 0xff] : NULL;
+    return row[uv & 0xff];
+#else
+    const UN8IF_canon_PLANE_T **plane, *row;
+    if (UNLIKELY(PERL_UNICODE_MAX < uv)) {
+	return NULL;
+    }
+    plane = UN8IF_canon[uv >> 16];
+    if (! plane)
+	return NULL;
+    row = plane[(uv >> 8) & 0xff];
+    if (row) {
+        const UN8IF_canon_PLANE_T vi = row[uv & 0xff];
+        if (!vi)
+            return NULL;
+        else if (UNLIKELY(vi == (U16)-1)) { /* overlong */
+            UN8IF_canon_exc_t *e;
+            assert(UN8IF_canon_exc_size);
+            e = (UN8IF_canon_exc_t *)bsearch(&uv, &UN8IF_canon_exc,
+                    UN8IF_canon_exc_size, sizeof(UN8IF_canon_exc[0]), bsearch_exc);
+            if (e) {
+                return (U8*)e->v;
+            }
+        }
+        else {
+            const int l = UN8IF_canon_LEN(vi);
+            const int i = UN8IF_canon_IDX(vi);
+            const char* tbl = UN8IF_canon_tbl[l-1];
+            memcpy(S_tmp, &tbl[i*l], l);
+            S_tmp[l] = '\0';
+            return S_tmp;
+        }
+    }
+    return NULL;
+#endif
 }
 
 static U8* dec_compat(UV uv)
 {
+#ifndef NORMALIZE_IND_TBL
     U8 ***plane, **row;
     if (OVER_UTF_MAX(uv))
 	return NULL;
-    plane = (U8***)UNF_compat[uv >> 16];
+    plane = (U8***)UN8F_compat[uv >> 16];
     if (! plane)
 	return NULL;
     row = plane[(uv >> 8) & 0xff];
     return row ? row[uv & 0xff] : NULL;
+#else
+    const UN8IF_compat_PLANE_T **plane, *row;
+    if (UNLIKELY(PERL_UNICODE_MAX < uv)) {
+	return NULL;
+    }
+    plane = UN8IF_compat[uv >> 16];
+    if (! plane)
+	return NULL;
+    row = plane[(uv >> 8) & 0xff];
+    if (row) {
+        const UN8IF_compat_PLANE_T vi = row[uv & 0xff];
+        if (!vi)
+            return NULL;
+        else if (UNLIKELY(vi == (U16)-1)) { /* overlong */
+            UN8IF_compat_exc_t *e;
+            assert(UN8IF_compat_exc_size);
+            e = (UN8IF_compat_exc_t *)bsearch(&uv, &UN8IF_compat_exc,
+                    UN8IF_compat_exc_size, sizeof(UN8IF_compat_exc[0]), bsearch_exc);
+            if (e) {
+                return (U8*)e->v;
+            }
+        }
+        else {
+            const int l = UN8IF_compat_LEN(vi);
+            const int i = UN8IF_compat_IDX(vi);
+            const char* tbl = UN8IF_compat_tbl[l-1];
+            memcpy(S_tmp, &tbl[i*l], l);
+            S_tmp[l] = '\0';
+            return S_tmp;
+        }
+    }
+    return NULL;
+#endif
 }
 
-static UV composite_uv(UV uv, UV uv2)
+static U32 composite_uv(UV uv, UV uv2)
 {
-    UNF_complist ***plane, **row, *cell, *i;
+    const UN8F_complist_s ***plane, **row, *cell;
 
     if (!uv2 || OVER_UTF_MAX(uv) || OVER_UTF_MAX(uv2))
 	return 0;
@@ -172,7 +274,7 @@ static UV composite_uv(UV uv, UV uv2)
 	UV tindex = uv2 - Hangul_TBase;
 	return(uv + tindex);
     }
-    plane = UNF_compos[uv >> 16];
+    plane = UN8F_compos[uv >> 16];
     if (! plane)
 	return 0;
     row = plane[(uv >> 8) & 0xff];
@@ -181,9 +283,22 @@ static UV composite_uv(UV uv, UV uv2)
     cell = row[uv & 0xff];
     if (! cell)
 	return 0;
-    for (i = cell; i->nextchar; i++) {
-	if (uv2 == i->nextchar)
-	    return i->composite;
+    if (LIKELY(uv < UN8F_COMPLIST_FIRST_LONG)) {
+        UN8F_complist_s *i;
+        for (i = (UN8F_complist_s *)cell; i->nextchar; i++) {
+            if ((U16)uv2 == i->nextchar)
+                return (UV)(i->composite);
+            else if ((U16)uv2 < i->nextchar) /* nextchar is sorted */
+                break;
+        }
+    } else {
+        UN8F_complist *i;
+        for (i = (UN8F_complist *)cell; i->nextchar; i++) {
+            if (uv2 == i->nextchar)
+                return i->composite;
+            else if (uv2 < i->nextchar) /* nextchar is sorted */
+                break;
+        }
     }
     return 0;
 }
@@ -193,7 +308,7 @@ static U8 getCombinClass(UV uv)
     U8 **plane, *row;
     if (OVER_UTF_MAX(uv))
 	return 0;
-    plane = (U8**)UNF_combin[uv >> 16];
+    plane = (U8**)UN8F_combin[uv >> 16];
     if (! plane)
 	return 0;
     row = plane[(uv >> 8) & 0xff];
@@ -280,9 +395,9 @@ U8* pv_utf8_reorder(pTHX_ U8* s, STRLEN slen, U8** dp, STRLEN dlen)
     U8* dstart = *dp;
     U8* d = dstart;
 
-    UNF_cc  seq_ary[CC_SEQ_SIZE];
-    UNF_cc* seq_ptr = seq_ary; /* use array at the beginning */
-    UNF_cc* seq_ext = NULL; /* extend if need */
+    UN8F_cc  seq_ary[CC_SEQ_SIZE];
+    UN8F_cc* seq_ptr = seq_ary; /* use array at the beginning */
+    UN8F_cc* seq_ext = NULL; /* extend if need */
     STRLEN seq_max = CC_SEQ_SIZE;
     STRLEN cc_pos = 0;
 
@@ -301,12 +416,12 @@ U8* pv_utf8_reorder(pTHX_ U8* s, STRLEN slen, U8** dp, STRLEN dlen)
 		seq_max = cc_pos + CC_SEQ_STEP; /* new size */
 		if (CC_SEQ_SIZE == cc_pos) { /* seq_ary full */
 		    STRLEN i;
-		    New(0, seq_ext, seq_max, UNF_cc);
+		    New(0, seq_ext, seq_max, UN8F_cc);
 		    for (i = 0; i < cc_pos; i++)
 			seq_ext[i] = seq_ary[i];
 		}
 		else {
-		    Renew(seq_ext, seq_max, UNF_cc);
+		    Renew(seq_ext, seq_max, UN8F_cc);
 		}
 		seq_ptr = seq_ext; /* use seq_ext from now */
 	    }
@@ -325,7 +440,7 @@ U8* pv_utf8_reorder(pTHX_ U8* s, STRLEN slen, U8** dp, STRLEN dlen)
 	    STRLEN i;
 
 	    if (cc_pos > 1) /* reordered if there are two c.c.'s */
-		qsort((void*)seq_ptr, cc_pos, sizeof(UNF_cc), compare_cc);
+		qsort((void*)seq_ptr, cc_pos, sizeof(UN8F_cc), compare_cc);
 
 	    for (i = 0; i < cc_pos; i++) {
 		Renew_d_if_not_enough_to(UTF8_MAXLEN)
@@ -401,7 +516,7 @@ U8* pv_utf8_compose(pTHX_ U8* s, STRLEN slen, U8** dp, STRLEN dlen, bool isconti
 		 curCC != 0 && preCC < curCC  -- lower CC */
 	    else {
 		/* try composition */
-		UV uvComp = composite_uv(uvS, uv);
+		U32 uvComp = composite_uv(uvS, uv);
 
 		if (uvComp && !isExclusion(uvComp))  {
 		    uvS = uvComp;
@@ -862,10 +977,10 @@ getComposite(uv, uv2)
     UV uv2
   PROTOTYPE: $$
   PREINIT:
-    UV composite;
+    U32 composite;
   CODE:
     composite = composite_uv(uv, uv2);
-    RETVAL = composite ? newSVuv(composite) : &PL_sv_undef;
+    RETVAL = composite ? newSVuv((UV)composite) : &PL_sv_undef;
   OUTPUT:
     RETVAL
 

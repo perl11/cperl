@@ -240,11 +240,14 @@ sub __clean {
                 \) \s*
             : \s* \5 \s*
         ([()])
-    /$1 ( $2 && $3 ) ? $4 : $5 $6/gx;
-    #$expr=~s/\(\(U8\*\)s\)\[(\d+)\]/S$1/g if length $expr > 8000;
-    #$expr=~s/\s+//g if length $expr > 8000;
-
-    die "Expression too long" if length $expr > 8000;
+        /$1 ( $2 && $3 ) ? $4 : $5 $6/gx;
+    
+    if (length $expr > 8000) {
+      $expr=~s/\(\(U8\*\)s\)\[(\d+)\]/S$1/g;
+      $expr=~s/ //g;
+      $expr=~s/^#define/#define /;
+    }
+    die "Expression too long: $expr" if length $expr > 14000;
 
     return $expr;
 }
@@ -346,7 +349,8 @@ sub new {
         } elsif ($str =~ / - /x ) { # A range:  Replace this element on the
                                     # list with its expansion
             my ($lower, $upper) = $str =~ / 0x (.+?) \s* - \s* 0x (.+) /x;
-            die "Format must be like '0xDEAD - 0xBEAF'; instead was '$str'" if ! defined $lower || ! defined $upper;
+            die "Format must be like '0xDEAD - 0xBEAF'; instead was '$str'"
+                if ! defined $lower || ! defined $upper;
             foreach my $cp (hex $lower .. hex $upper) {
                 push @{$opt{txt}}, sprintf "0x%X", $cp;
             }
@@ -864,25 +868,29 @@ sub calculate_mask(@) {
             my @bits_that_differ = pop_count($list[$i] ^ $list[$j]);
             my $differ_count = @bits_that_differ;
             my $key = join ",", @bits_that_differ;
-            push @{$hash{$differ_count}{$key}}, $list[$i] unless grep { $_ == $list[$i] } @{$hash{$differ_count}{$key}};
+            push @{$hash{$differ_count}{$key}}, $list[$i]
+                unless grep { $_ == $list[$i] } @{$hash{$differ_count}{$key}};
             push @{$hash{$differ_count}{$key}}, $list[$j];
         }
     }
 
-    print STDERR __LINE__, ": calculate_mask() called:  List of values grouped by differing bits: ", Dumper \%hash if DEBUG;
+    print STDERR __LINE__, ": calculate_mask() called:  ",
+      "List of values grouped by differing bits: ", Dumper \%hash if DEBUG;
 
     my @final_results;
     foreach my $count (reverse sort { $a <=> $b } keys %hash) {
         my $need = 2 ** $count;     # Need 8 values for 3 differing bits, etc
         foreach my $bits (sort keys %{$hash{$count}}) {
 
-            print STDERR __LINE__, ": For $count bit(s) difference ($bits), need $need; have ", scalar @{$hash{$count}{$bits}}, "\n" if DEBUG;
+            print STDERR __LINE__, ": For $count bit(s) difference ($bits), need $need;"
+              , " have ", scalar @{$hash{$count}{$bits}}, "\n" if DEBUG;
 
             # Look only as long as there are at least as many elements in the
             # subset as are needed
             while ((my $cur_count = @{$hash{$count}{$bits}}) >= $need) {
 
-                print STDERR __LINE__, ": Looking at bit positions ($bits): ", Dumper $hash{$count}{$bits} if DEBUG;
+                print STDERR __LINE__, ": Looking at bit positions ($bits): ",
+                  Dumper $hash{$count}{$bits} if DEBUG;
 
                 # Start with the first element in it
                 my $try_base = $hash{$count}{$bits}[0];
@@ -906,14 +914,18 @@ sub calculate_mask(@) {
                     my $try_this = $hash{$count}{$bits}[$i];
                     my @positions = pop_count($try_base ^ $try_this);
 
-                    print STDERR __LINE__, ": $try_base vs $try_this: is (", join(',', @positions), ") a subset of ($bits)?" if DEBUG;;
+                    print STDERR __LINE__, ": $try_base vs $try_this: is (",
+                      join(',', @positions), ") a subset of ($bits)?" if DEBUG;;
 
                     foreach my $pos (@positions) {
                         unless (grep { $pos == $_ } @bits) {
                             print STDERR "  No\n" if DEBUG;
                             my $remaining = $cur_count - $i - 1;
                             if ($remaining && @subset + $remaining < $need) {
-                                print STDERR __LINE__, ": Can stop trying $try_base, because even if all the remaining $remaining values work, they wouldn't add up to the needed $need when combined with the existing ", scalar @subset, " ones\n" if DEBUG;
+                                print STDERR __LINE__, ": Can stop trying $try_base, ",
+                                  "because even if all the remaining $remaining values work, ",
+                                  "they wouldn't add up to the needed $need when combined ",
+                                  "with the existing ", scalar @subset, " ones\n" if DEBUG;
                                 last TRY;
                             }
                             next TRY;
@@ -928,7 +940,8 @@ sub calculate_mask(@) {
                     $compare &= $try_this;
                 }
 
-                print STDERR __LINE__, ": subset (", join(", ", @subset), ") has ", scalar @subset, " elements; needs $need\n" if DEBUG;
+                print STDERR __LINE__, ": subset (", join(", ", @subset), ") has ",
+                  scalar @subset, " elements; needs $need\n" if DEBUG;
 
                 if (@subset < $need) {
                     shift @{$hash{$count}{$bits}};
@@ -943,14 +956,16 @@ sub calculate_mask(@) {
                 $mask = ~$mask & 0xFF;
                 push @final_results, [$compare, $mask];
 
-                printf STDERR "%d: Got it: compare=%d=0x%X; mask=%X\n", __LINE__, $compare, $compare, $mask if DEBUG;
+                printf STDERR "%d: Got it: compare=%d=0x%X; mask=%X\n",
+                  __LINE__, $compare, $compare, $mask if DEBUG;
 
                 # These values are now spoken for.  Remove them from future
                 # consideration
                 foreach my $remove_count (sort keys %hash) {
                     foreach my $bits (sort keys %{$hash{$remove_count}}) {
                         foreach my $to_remove (@subset) {
-                            @{$hash{$remove_count}{$bits}} = grep { $_ != $to_remove } @{$hash{$remove_count}{$bits}};
+                            @{$hash{$remove_count}{$bits}} =
+                              grep { $_ != $to_remove } @{$hash{$remove_count}{$bits}};
                         }
                     }
                 }
@@ -1054,7 +1069,9 @@ sub _cond_as_str {
             my @return;
             foreach my $mask_ref (@masks) {
                 if (defined $mask_ref->[1]) {
-                    push @return, sprintf "( ( $test & $self->{val_fmt} ) == $self->{val_fmt} )", $mask_ref->[1], $mask_ref->[0];
+                    push @return,
+                      sprintf "( ( $test & $self->{val_fmt} ) == $self->{val_fmt} )",
+                              $mask_ref->[1], $mask_ref->[0];
                 }
                 else {  # An undefined mask means to use the value as-is
                     push @return, sprintf "$test == $self->{val_fmt}", $mask_ref->[0];
@@ -1147,7 +1164,8 @@ sub _cond_as_str {
                 # Otherwise there is no savings over the two branches that can
                 # define the range.
                 if (@this_masks == 1 && defined $this_masks[0][1]) {
-                    $output = sprintf "( $test & $self->{val_fmt} ) == $self->{val_fmt}", $this_masks[0][1], $this_masks[0][0];
+                    $output = sprintf "( $test & $self->{val_fmt} ) == $self->{val_fmt}",
+                                      $this_masks[0][1], $this_masks[0][0];
                 }
             }
 
@@ -1172,7 +1190,8 @@ sub _cond_as_str {
                                 . " )";
                 }
                 else {  # Full bounds checking
-                    $ranges[$i] = sprintf("( $self->{val_fmt} <= $test && $test <= $self->{val_fmt} )", $ranges[$i]->[0], $ranges[$i]->[1]);
+                    $ranges[$i] = sprintf("( $self->{val_fmt} <= $test && $test <= $self->{val_fmt} )",
+                                          $ranges[$i]->[0], $ranges[$i]->[1]);
                 }
             }
         }
@@ -1257,9 +1276,12 @@ sub _render {
 
     my $str= "$lb$cond ?$yes$ind: $no$rb";
     if (length $str > 6000) {
-        push @$submacros, sprintf "#define $def\n( %s )", "_part" . (my $yes_idx= 0+@$submacros), $yes;
-        push @$submacros, sprintf "#define $def\n( %s )", "_part" . (my $no_idx= 0+@$submacros), $no;
-        return sprintf "%s%s ? $def : $def%s", $lb, $cond, "_part$yes_idx", "_part$no_idx", $rb;
+        push @$submacros, sprintf "#define $def\n( %s )", "_part" 
+                                  . (my $yes_idx= 0+@$submacros), $yes;
+        push @$submacros, sprintf "#define $def\n( %s )", "_part"
+                                  . (my $no_idx= 0+@$submacros), $no;
+        return sprintf "%s%s ? $def : $def%s", $lb, $cond,
+                       "_part$yes_idx", "_part$no_idx", $rb;
     }
     return $str;
 }
@@ -1275,9 +1297,11 @@ sub render {
     my ( $self, $op, $combine, $opts_ref, $def_fmt )= @_;
     
     my @submacros;
-    my $macro= sprintf "#define $def_fmt\n( %s )", "", $self->_render( $op, $combine, 0, $opts_ref, $def_fmt, \@submacros );
+    my $macro= sprintf "#define $def_fmt\n( %s )", "",
+               $self->_render( $op, $combine, 0, $opts_ref, $def_fmt, \@submacros );
 
-    return join "\n\n", map { "/*** GENERATED CODE ***/\n" . __macro( __clean( $_ ) ) } @submacros, $macro;
+    return join "\n\n", map { "/*** GENERATED CODE ***/\n"
+                                . __macro( __clean( $_ ) ) } @submacros, $macro;
 }
 
 # make_macro
@@ -1295,7 +1319,7 @@ sub render {
 #
 # It is illegal to do a type 'cp' macro on a pattern with multi-codepoint
 # sequences in it, as the generated macro will accept only a single codepoint
-# as an argument.
+# as an argument. (TODO)
 #
 # It is also illegal to do a non-safe macro on a pattern with multi-codepoint
 # sequences in it, as even if it is known to be well-formed, we need to not
@@ -1760,8 +1784,17 @@ MARK: 1963 mark characters (Combining, Overlay, ...)
 
 DECOMPOSED_REST: The remaining 869 non-mark and non-hangul normalizables
 => UTF8 :safe
-&regcharclass_multi_char_folds::decomposed_rest()
+&regcharclass_multi_char_folds::decomposed_id_rest()
 
 HANGUL: has special normalization rules
 => UTF8 :fast
 \p{Hangul}
+
+# The following three are only needed for safeclib wcsnorm_s()
+#MARK: 1963 mark characters (Combining, Overlay, ...)
+#=> cp_high :fast
+#\p{IsM}
+#
+#DECOMPOSED_REST: The remaining 869 non-mark and non-hangul normalizables
+#=> cp_high :fast
+#&regcharclass_multi_char_folds::decomposed_rest()

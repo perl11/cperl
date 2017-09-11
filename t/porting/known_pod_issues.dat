@@ -410,6 +410,8 @@ dist/test-simple/lib/test/tutorial.pod	Apparent broken link	5
 dist/test-simple/lib/test/tutorial.pod	unresolved internal link	1
 dist/test-simple/lib/test/use/ok.pm	Apparent broken link	1
 dist/time-hires/hires.pm	Apparent broken link	2
+dist/unicode-normalize/normalize.pm	? Should you be using L<...> instead of	1
+dist/unicode-normalize/normalize.pm	Verbatim line length including indents exceeds 79 by	3
 ext/amiga-exec/exec.pm	Verbatim line length including indents exceeds 79 by	1
 ext/config/config_xs.in	Apparent internal link is missing its forward slash	2
 ext/dynaloader/dynaloader.pod	Apparent broken link	1
