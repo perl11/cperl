@@ -1070,6 +1070,8 @@ use File::Glob qw(:case);
     'Module::Load::Conditional' => {
         'DISTRIBUTION' => 'BINGOS/Module-Load-Conditional-0.68.tar.gz',
         'FILES'        => q[cpan/Module-Load-Conditional],
+        # check cperl builtins
+        'CUSTOMIZED'   => [ qw( lib/Module/Load/Conditional.pm ) ],
     },
 
     'Module::Loaded' => {
