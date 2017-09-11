@@ -11,6 +11,7 @@ use File::Spec  ();
 use FileHandle  ();
 use version;
 
+use Config ();
 use Module::Metadata ();
 
 use constant ON_VMS   => $^O eq 'VMS';
@@ -22,7 +23,7 @@ BEGIN {
                         $FIND_VERSION $ERROR $CHECK_INC_HASH $FORCE_SAFE_INC ];
     use Exporter;
     @ISA            = qw[Exporter];
-    $VERSION        = '0.68';
+    $VERSION        = '0.68_01';
     $VERBOSE        = 0;
     $DEPRECATED     = 0;
     $FIND_VERSION   = 1;
@@ -195,6 +196,25 @@ sub check_install {
         if( defined $filename && $FIND_VERSION ) {
             no strict 'refs';
             $href->{version} = ${ "$args->{module}"."::VERSION" };
+        }
+    }
+
+    ### Some modules are cperl builtins
+    if (!$filename
+        && $args->{module} =~ /^(?:DynaLoader|XSLoader|strict|coretypes)$/
+        && $Config::Config{usecperl})
+    {
+        require Module::CoreList;
+
+        my $cperl_ver = Module::CoreList->find_version("$]c");
+        if( defined $cperl_ver ) {
+            my $ver = $cperl_ver->{ $args->{module} };
+            if( defined $ver ) {
+                $filename = $href->{'file'} = '(builtin)';
+                if( $FIND_VERSION ) {
+                    $href->{version} = $ver;
+                }
+            }
         }
     }
 
