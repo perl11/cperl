@@ -1,7 +1,6 @@
 #!/usr/bin/perl -w
 
 use strict;
-use vars qw(%Build %Targets $Verbose $Test);
 use Config;
 use Text::Tabs;
 use Text::Wrap;
@@ -11,6 +10,8 @@ if (ord("A") == 193) {
     print "1..0 # EBCDIC sort order is different\n";
     exit;
 }
+
+our (%Build, $Verbose, $Test);
 
 # Generate the sections of files listed in %Targets from pod/perl.pod
 # Mostly these are rules in Makefiles
@@ -22,7 +23,7 @@ if (ord("A") == 193) {
 # --tap exit if perl.pod, MANIFEST are consistent, and regenerated
 #   files are up to date, die otherwise.
 
-%Targets = (
+our %Targets = (
             manifest => 'MANIFEST',
             vms => 'vms/descrip_mms.template',
             nmake => 'win32/Makefile',
