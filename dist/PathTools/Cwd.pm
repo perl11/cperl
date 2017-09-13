@@ -77,20 +77,9 @@ sub _vms_efs () {
 
 
 # If loading the XS stuff doesn't work, we can fall back to pure perl
-if(! defined &getcwd && defined &DynaLoader::boot_DynaLoader) {
-  eval {#eval is questionable since we are handling potential errors like
-        #"Cwd object version 3.48 does not match bootstrap parameter 3.50
-        #at lib/DynaLoader.pm line 216." by having this eval
-    no warnings 'redefine';
-    if ( $] >= 5.006 ) {
-      require XSLoader;
-      XSLoader::load( __PACKAGE__, $XS_VERSION);
-    } else {
-      require DynaLoader;
-      push @ISA, 'DynaLoader';
-      __PACKAGE__->bootstrap( $XS_VERSION );
-    }
-  };
+if(! defined &getcwd && defined &DynaLoader::boot_DynaLoader) { # skipped on miniperl
+    require XSLoader;
+    XSLoader::load( __PACKAGE__, $XS_VERSION);
 }
 
 # Big nasty table of function aliases
