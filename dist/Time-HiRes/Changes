@@ -1,5 +1,27 @@
 Revision history for the Perl extension Time::HiRes.
 
+1.9747 [???]
+ - Switch to XSLoader from Dynaloader
+
+1.9746 [2017-08-17]
+ - Unreliable t/usleep.t and t/utime.t tests [rt.cpan.org #122819]
+   Avoid testing for $dt = $t2 - $t1 and assuming $dt is less than
+   some value since a heavily loaded machine can delay the $t2.
+   Testing for greater than is fine.
+ - Tweak the configuring messages about subsecond stat/utime.
+
+1.9745 [2017-08-14]
+  - Properly check for futimens/utimensat actually doing something.
+    This should handle 'gnukfreebsd' (which has only stubs, so far
+    we have been skipping the test) and as a new thing 'gnu' (Hurd)
+    (also only stubs).  Thanks to Nigel Horne.
+  - Scan in t/utime.t whether the filesystem (wherever File::Temp
+    puts it tempfiles) supports subsecond timestamps.  This removes
+    the fragile Linux/ext3 specific hack.  As a side effect, the
+    setting of subsecond timestamps is tested only if reading of
+    them is supported.  Thanks to Carsten Gaebler for the test idea,
+    and Ryan Voots for testing.
+
 1.9744 [2017-07-27]
   - add more potential clock constants, like CLOCK_MONOTONIC_FAST
     (available in FreeBSD), and not all potentially found clock

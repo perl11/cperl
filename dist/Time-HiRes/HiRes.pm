@@ -4,9 +4,9 @@ package Time::HiRes;
 use strict;
 
 require Exporter;
-require DynaLoader;
+use XSLoader ();
 
-our @ISA = qw(Exporter DynaLoader);
+our @ISA = qw(Exporter);
 
 our @EXPORT = qw( );
 # More or less this same list is in Makefile.PL.  Should unify.
@@ -49,8 +49,7 @@ our @EXPORT_OK = qw (usleep sleep ualarm alarm gettimeofday time tv_interval
 		 stat lstat utime
 		);
 
-
-our $VERSION = '1.9744_01';
+our $VERSION = '1.9747_01';
 our $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -91,7 +90,7 @@ sub import {
     Time::HiRes->export_to_level(1, $this, @_);
 }
 
-bootstrap Time::HiRes;
+XSLoader::load( 'Time::HiRes', $XS_VERSION );
 
 # Preloaded methods go here.
 
