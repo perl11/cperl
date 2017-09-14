@@ -15,8 +15,8 @@ no warnings 'once';
 
 plan(tests => 149);
 
-@A::ISA = 'B';
-@B::ISA = 'C';
+@A::ISA = 'BB';
+@BB::ISA = 'C';
 
 sub C::d {"C::d"}
 sub D::d {"D::d"}
@@ -55,7 +55,7 @@ is(meth $obj, "meth");
 
 is( A->d, "C::d");		# Update hash table;
 
-*B::d = \&D::d;			# Import now.
+*BB::d = \&D::d;			# Import now.
 is(A->d, "D::d");		# Update hash table;
 
 {
@@ -67,42 +67,42 @@ is(A->d, "D::d");		# Update hash table;
 is(A->d, "D::d");
 
 {
-    local *B::d;
-    eval 'sub B::d {"B::d1"}';	# Import now.
-    is(A->d, "B::d1");	# Update hash table;
-    undef &B::d;
+    local *BB::d;
+    eval 'sub BB::d {"BB::d1"}';	# Import now.
+    is(A->d, "BB::d1");	# Update hash table;
+    undef &BB::d;
     is((eval { A->d }, ($@ =~ /Undefined subroutine/)), 1);
 }
 
 is(A->d, "D::d");		# Back to previous state
 
-eval 'no warnings "redefine"; sub B::d {"B::d2"}';	# Import now.
-is(A->d, "B::d2");		# Update hash table;
+eval 'no warnings "redefine"; sub BB::d {"BB::d2"}';	# Import now.
+is(A->d, "BB::d2");		# Update hash table;
 
 # What follows is hardly guarantied to work, since the names in scripts
-# are already linked to "pruned" globs. Say, 'undef &B::d' if it were
-# after 'delete $B::{d}; sub B::d {}' would reach an old subroutine.
+# are already linked to "pruned" globs. Say, 'undef &BB::d' if it were
+# after 'delete $BB::{d}; sub BB::d {}' would reach an old subroutine.
 
-undef &B::d;
-delete $B::{d};
+undef &BB::d;
+delete $BB::{d};
 is(A->d, "C::d");
 
-eval 'sub B::d {"B::d2.5"}';
+eval 'sub BB::d {"BB::d2.5"}';
 A->d;				# Update hash table;
-my $glob = \delete $B::{d};	# non-void context; hang on to the glob
+my $glob = \delete $BB::{d};	# non-void context; hang on to the glob
 is(A->d, "C::d");		# Update hash table;
 
-eval 'sub B::d {"B::d3"}';	# Import now.
-is(A->d, "B::d3");		# Update hash table;
+eval 'sub BB::d {"BB::d3"}';	# Import now.
+is(A->d, "BB::d3");		# Update hash table;
 
-delete $B::{d};
+delete $BB::{d};
 *dummy::dummy = sub {};		# Mark as updated
 is(A->d, "C::d");
 
-eval 'sub B::d {"B::d4"}';	# Import now.
-is(A->d, "B::d4");		# Update hash table;
+eval 'sub BB::d {"BB::d4"}';	# Import now.
+is(A->d, "BB::d4");		# Update hash table;
 
-delete $B::{d};			# Should work without any help too
+delete $BB::{d};			# Should work without any help too
 is(A->d, "C::d");
 
 {
@@ -119,17 +119,17 @@ my $counter;
 
 eval <<'EOF';
 sub C::e;
-BEGIN { *B::e = \&C::e }	# Shouldn't prevent AUTOLOAD in original pkg
+BEGIN { *BB::e = \&C::e }	# Shouldn't prevent AUTOLOAD in original pkg
 sub Y::f;
 $counter = 0;
 
 @X::ISA = 'Y';
-@Y::ISA = 'B';
+@Y::ISA = 'BB';
 
-sub B::AUTOLOAD {
+sub BB::AUTOLOAD {
   my $c = ++$counter;
-  my $meth = $B::AUTOLOAD; 
-  my $msg = "B: In $meth, $c";
+  my $meth = $BB::AUTOLOAD; 
+  my $msg = "BB: In $meth, $c";
   eval "sub $meth { \$msg }";
   goto &$meth;
 }
@@ -145,11 +145,11 @@ EOF
 is(A->e(), "C: In C::e, 1");	# We get a correct autoload
 is(A->e(), "C: In C::e, 1");	# Which sticks
 
-is(A->ee(), "B: In A::ee, 2"); # We get a generic autoload, method in top
-is(A->ee(), "B: In A::ee, 2"); # Which sticks
+is(A->ee(), "BB: In A::ee, 2"); # We get a generic autoload, method in top
+is(A->ee(), "BB: In A::ee, 2"); # Which sticks
 
-is(Y->f(), "B: In Y::f, 3");	# We vivify a correct method
-is(Y->f(), "B: In Y::f, 3");	# Which sticks
+is(Y->f(), "BB: In Y::f, 3");	# We vivify a correct method
+is(Y->f(), "BB: In Y::f, 3");	# Which sticks
 
 # This test is not intended to be reasonable. It is here just to let you
 # know that you broke some old construction. Feel free to rewrite the test
@@ -157,18 +157,18 @@ is(Y->f(), "B: In Y::f, 3");	# Which sticks
 
 {
 no warnings 'redefine';
-*B::AUTOLOAD = sub {
+*BB::AUTOLOAD = sub {
   use warnings;
   my $c = ++$counter;
   my $meth = $::AUTOLOAD; 
   no strict 'refs';
-  *$::AUTOLOAD = sub { "new B: In $meth, $c" };
+  *$::AUTOLOAD = sub { "new BB: In $meth, $c" };
   goto &$::AUTOLOAD;
 };
 }
 
-is(A->eee(), "new B: In A::eee, 4");	# We get a correct $autoload
-is(A->eee(), "new B: In A::eee, 4");	# Which sticks
+is(A->eee(), "new BB: In A::eee, 4");	# We get a correct $autoload
+is(A->eee(), "new BB: In A::eee, 4");	# Which sticks
 
 # test that failed subroutine calls don't affect method calls
 {
@@ -198,7 +198,7 @@ my $e;
 
 eval '$e = bless {}, "E::A"; E::A->foo()';
 like ($@, qr/^\QCan't locate object method "foo" via package "E::A" at/);
-eval '$e = bless {}, "E::B"; $e->foo()';  
+eval '$e = bless {}, "E::B"; $e->foo()';
 like ($@, qr/^\QCan't locate object method "foo" via package "E::B" at/);
 eval 'E::C->foo()';
 like ($@, qr/^\QCan't locate object method "foo" via package "E::C" (perhaps /);
