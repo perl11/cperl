@@ -2849,8 +2849,7 @@ Perl_Gv_AMupdate(pTHX_ HV *stash, bool destructing)
             gv = gv_fetchmeth_pvn(stash, cooky, l, -1, 0);
             cv = 0;
             if (gv && (cv = GvCV(gv)) && CvHASGV(cv)) {
-                const HEK * const gvhek =
-                    CvNAMED(cv) ? CvNAME_HEK(cv) : GvNAME_HEK(CvGV(cv));
+                const HEK * const gvhek = CvGvNAME_HEK(cv);
                 const HEK * const stashek =
                     HvNAME_HEK(CvNAMED(cv) ? CvSTASH(cv) : GvSTASH(CvGV(cv)));
                 if ( HEK_LEN(gvhek) == 3 && strEQc(HEK_KEY(gvhek), "nil")
