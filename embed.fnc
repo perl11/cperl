@@ -1090,11 +1090,11 @@ Ap	|I32	|mg_size	|NN SV* sv
 Apn	|void	|mini_mktime	|NN struct tm *ptm
 AMmd	|OP*	|op_lvalue	|NULLOK OP* o|I32 type
 Ap	|OP*	|op_lvalue_flags|NULLOK OP* o|I32 type|U32 flags
-p	|void	|prefinalize_optree	|NULLOK CV* cv|NN OP* o
+p	|void	|optimize_optree|NN OP* o
 p	|void	|finalize_optree	|NN OP* o
 #if defined(PERL_IN_OP_C)
-s	|void	|prefinalize_op	|NULLOK CV *cv|NN OP* o
 s	|void	|cant_declare	|NN OP* o
+s	|void	|optimize_op	|NN OP* o
 s	|void	|finalize_op	|NN OP* o
 s	|void	|move_proto_attr|NN OP **proto|NN OP **attrs \
 				|NN const GV *name|bool curstash
@@ -2295,7 +2295,7 @@ s	|void	|op_clear_gv	|NULLOK OP* o|NN PADOFFSET *ixp
 s	|void	|op_clear_gv	|NULLOK OP* o|NN SV** svp
 #endif
 s	|OP*	|op_sibling_newUNOP	|NULLOK OP *parent|NULLOK OP *start|I32 type|I32 flags
-sM	|void	|postprocess_optree	|NULLOK CV *cv|NN OP *root|NN OP **startp
+sM	|void	|process_optree	|NULLOK CV *cv|NN OP *root|NN OP *start
 s	|void	|check_hash_fields_and_hekify	|NULLOK UNOP *rop|NN SVOP *key_op
 #ifdef PERL_FAKE_SIGNATURE
 s	|void	|maybe_op_signature|NN CV *cv|NN OP *o

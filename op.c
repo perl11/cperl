@@ -2989,46 +2989,73 @@ S_cv_check_inline(pTHX_ const OP *o, CV *compcv)
 #endif
 
 /*
-=for apidoc s|void |postprocess_optree	|NULLOK CV *cv|NN OP *root|NN OP **startp
+=for apidoc s|void |process_optree	|NULLOK CV *cv|NN OP *root|NN OP *start
 
 Do the post-compilation processing of an op_tree with specified
-root and start (startp may be updated):
+root and start
 
   * attach it to cv (if non-null)
   * set refcnt
-  * run peep, finalize etc
+  * run pre-peep optimizer, peep, finalize, prune an empty head, etc
   * tidy pad
 
 =cut
 */
 
 static void
-S_postprocess_optree(pTHX_ CV *cv, OP *root, OP **startp)
+S_process_optree(pTHX_ CV *cv, OP *root, OP *start)
 {
-    PERL_ARGS_ASSERT_POSTPROCESS_OPTREE;
+    OP **startp;
+    PERL_ARGS_ASSERT_PROCESS_OPTREE;
 
     if (cv) {
         CvROOT(cv) = root;
         /* The cv no longer needs to hold a refcount on the slab, as CvROOT
            itself has a refcount. */
         CvSLABBED_off(cv);
-        OpslabREFCNT_dec_padok((OPSLAB *)CvSTART(cv));
-        CvSTART(cv) = *startp;
         startp = &CvSTART(cv);
+        OpslabREFCNT_dec_padok((OPSLAB *)*startp);
     }
+    else
+        /* XXX for some reason, evals, require and main optrees are
+         * never attached to their CV; instead they just hang off
+         * PL_main_root + PL_main_start or PL_eval_root + PL_eval_start
+         * and get manually freed when appropriate */
+        startp = PL_in_eval? &PL_eval_start : &PL_main_start;
+    *startp = start;
+
     root->op_private |= OPpREFCOUNTED;
     OpREFCNT_set(root, 1);
-    prefinalize_optree(cv, root);
+#ifdef PERL_FAKE_SIGNATURE
+    /* does the sub look like it might start with 'my (...) = @_' ? */
+    if (cv && IS_LEAVESUB_OP(root)) {
+        OP *kid = OpFIRST(root);
+        if (   kid
+            && IS_TYPE(kid, LINESEQ)
+            && (kid = OpFIRST(kid))
+            && IS_STATE_OP(kid)
+            && (!CopLABEL((COP*)kid))
+            && (kid = OpSIBLING(kid))
+            && IS_TYPE(kid, AASSIGN)
+            && OpWANT_VOID(kid)
+        )
+        {
+            S_maybe_op_signature(aTHX_ cv, root);
+            root   = CvROOT(cv);
+        }
+    }
+#endif
+    optimize_optree(root);
     CALL_PEEP(*startp);
     finalize_optree(root);
     S_prune_chain_head(startp);
 
-    /* now that optimizer has done its work, adjust pad values */
     if (cv) {
 #ifdef PERL_INLINE_SUBS
-        if (*startp && cv_check_inline(*startp, cv))
+        if (start && cv_check_inline(start, cv))
             CvINLINABLE_on(cv);
 #endif
+        /* now that optimizer has done its work, adjust pad values */
         pad_tidy(IS_TYPE(root, LEAVEWRITE)
                     ? padtidy_FORMAT
                     : CvCLONE(cv) ? padtidy_SUBCLONE : padtidy_SUB);
@@ -3251,68 +3278,66 @@ S_maybe_op_signature(pTHX_ CV *cv, OP *o)
 
 
 /*
-=for apidoc prefinalize_op
-per op-level helper function for Perl_finalize_optree()
+=for apidoc optimize_optree
 
-=cut
-*/
-static void
-S_prefinalize_op(pTHX_ CV *cv, OP* o)
-{
-    PERL_UNUSED_CONTEXT;
-    PERL_ARGS_ASSERT_PREFINALIZE_OP;
-    PERL_UNUSED_ARG(cv);
-    PERL_UNUSED_ARG(o);
-
-    /* XXX currently not needed. When first needed, add a big switch
-     * statement and recursion similar to S_finalize_op()
-     */
-
-}
-
-
-/*
-=for apidoc prefinalize_optree
-
-This function is like finalize_optree(), but is called prior to the
-peephole optimiser being called (finalize_optree() is called after peep()).
-Thus it gives you access to the optree before optimisations.
-
-If non-null, cv is the CV which the optree is attached to.
+This function applies some optimisations to the optree in top-down order.
+It is called before the peephole optimizer, which processes ops in
+execution order. Note that finalize_optree() also does a top-down scan,
+but is called *after* the peephole optimizer.
 
 =cut
 */
 void
-Perl_prefinalize_optree(pTHX_ CV *cv, OP* o)
+Perl_optimize_optree(pTHX_ OP* o)
 {
-    PERL_ARGS_ASSERT_PREFINALIZE_OPTREE;
+    PERL_ARGS_ASSERT_OPTIMIZE_OPTREE;
 
     ENTER;
     SAVEVPTR(PL_curcop);
 
-#ifdef PERL_FAKE_SIGNATURE
-    /* does the sub look like it might start with 'my (...) = @_' ? */
-    if (cv && IS_LEAVESUB_OP(o)) {
-        OP *kid = OpFIRST(o);
-        if (   kid
-            && IS_TYPE(kid, LINESEQ)
-            && (kid = OpFIRST(kid))
-            && IS_STATE_OP(kid)
-            && (!CopLABEL((COP*)kid))
-            && (kid = OpSIBLING(kid))
-            && IS_TYPE(kid, AASSIGN)
-            && OpWANT_VOID(kid)
-        )
-        {
-            S_maybe_op_signature(aTHX_ cv, o);
-            o = CvROOT(cv);
-        }
-    }
-#endif
-
-    S_prefinalize_op(aTHX_ cv, o);
+    optimize_op(o);
 
     LEAVE;
+}
+
+
+/* 
+=for apidoc optimize_op
+
+Helper for optimize_optree() which optimises a single op then recurses
+to optimise any children.
+
+=cut
+*/
+STATIC void
+S_optimize_op(pTHX_ OP* o)
+{
+    OP *kid;
+
+    PERL_ARGS_ASSERT_OPTIMIZE_OP;
+    assert(o->op_type != OP_FREED);
+
+    switch (o->op_type) {
+    case OP_NEXTSTATE:
+    case OP_DBSTATE:
+	PL_curcop = ((COP*)o);		/* for warnings */
+	break;
+
+
+    case OP_SUBST:
+	if (cPMOPo->op_pmreplrootu.op_pmreplroot)
+	    optimize_op(cPMOPo->op_pmreplrootu.op_pmreplroot);
+	break;
+
+    default:
+	break;
+    }
+
+    if (!(o->op_flags & OPf_KIDS))
+        return;
+
+    for (kid = cUNOPo->op_first; kid; kid = OpSIBLING(kid))
+        optimize_op(kid);
 }
 
 
@@ -5496,7 +5521,7 @@ Perl_newPROG(pTHX_ OP *o)
 	i = PL_savestack_ix;
 	SAVEFREEOP(o);
 	ENTER;
-        postprocess_optree(NULL, PL_eval_root, &PL_eval_start);
+        process_optree(NULL, PL_eval_root, PL_eval_start);
 	LEAVE;
 	PL_savestack_ix = i;
     }
@@ -5538,7 +5563,7 @@ Perl_newPROG(pTHX_ OP *o)
 	PL_curcop = &PL_compiling;
 	PL_main_start = LINKLIST(PL_main_root);
 	OpNEXT(PL_main_root) = NULL;
-        postprocess_optree(NULL, PL_main_root, &PL_main_start);
+        process_optree(NULL, PL_main_root, PL_main_start);
 	cv_forget_slab(PL_compcv);
 	PL_compcv = 0;
 
@@ -7563,6 +7588,11 @@ Perl_pmruntime(pTHX_ OP *o, OP *expr, OP *repl, UV flags, I32 floor)
 		OpNEXT(scope) = NULL; /* stop on last op */
 		op_null(scope);
 	    }
+
+	    if (is_compiletime)
+		/* runtime finalizes as part of finalizing whole tree */
+                optimize_optree(o);
+
 	    /* have to peep the DOs individually as we've removed it from
 	     * the op_next chain */
 	    CALL_PEEP(o);
@@ -10280,7 +10310,7 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
 #ifdef PERL_DEBUG_READONLY_OPS
         slab = (OPSLAB *)CvSTART(cv);
 #endif
-        postprocess_optree(cv, block, &start);
+        process_optree(cv, block, start);
     }
 
   attrs:
@@ -10806,7 +10836,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 #ifdef PERL_DEBUG_READONLY_OPS
         slab = (OPSLAB *)CvSTART(cv);
 #endif
-        postprocess_optree(cv, block, &start);
+        process_optree(cv, block, start);
     }
 
   attrs:
@@ -11255,7 +11285,7 @@ Perl_newFORM(pTHX_ I32 floor, OP *o, OP *block)
     root = newUNOP(OP_LEAVEWRITE, 0, scalarseq(block));
     start = LINKLIST(root);
     OpNEXT(root) = NULL;
-    postprocess_optree(cv, root, &start);
+    process_optree(cv, root, start);
     cv_forget_slab(cv);
 
   finish:

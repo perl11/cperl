@@ -4276,6 +4276,11 @@ PERL_CALLCONV OP*	Perl_op_sibling_splice(OP *parent, OP *start, int del_count, O
 			__attribute__global__;
 
 PERL_CALLCONV OP*	Perl_op_unscope(pTHX_ OP* o);
+PERL_CALLCONV void	Perl_optimize_optree(pTHX_ OP* o)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_OPTIMIZE_OPTREE	\
+	assert(o)
+
 PERL_CALLCONV void	Perl_pack_cat(pTHX_ SV *cat, const char *pat, const char *patend, SV **beglist, SV **endlist, SV ***next_in_list, U32 flags)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
@@ -4507,11 +4512,6 @@ PERL_CALLCONV void	Perl_populate_isa(pTHX_ const char *name, STRLEN len, ...)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_POPULATE_ISA	\
 	assert(name)
-
-PERL_CALLCONV void	Perl_prefinalize_optree(pTHX_ CV* cv, OP* o)
-			__attribute__nonnull__(pTHX_2);
-#define PERL_ARGS_ASSERT_PREFINALIZE_OPTREE	\
-	assert(o)
 
 PERL_CALLCONV REGEXP*	Perl_pregcomp(pTHX_ SV * const pattern, const U32 flags)
 			__attribute__global__
@@ -8770,6 +8770,11 @@ STATIC core_types_t	S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
 #define PERL_ARGS_ASSERT_OP_TYPED_USER	\
 	assert(o)
 
+STATIC void	S_optimize_op(pTHX_ OP* o)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_OPTIMIZE_OP	\
+	assert(o)
+
 STATIC bool	S_peep_leaveloop(pTHX_ OP* leave, OP* from, OP* to)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)
@@ -8784,16 +8789,11 @@ STATIC OP*	S_pmtrans(pTHX_ OP* o, OP* expr, OP* repl)
 #define PERL_ARGS_ASSERT_PMTRANS	\
 	assert(o); assert(expr); assert(repl)
 
-STATIC void	S_postprocess_optree(pTHX_ CV *cv, OP *root, OP **startp)
+STATIC void	S_process_optree(pTHX_ CV *cv, OP *root, OP *start)
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3);
-#define PERL_ARGS_ASSERT_POSTPROCESS_OPTREE	\
-	assert(root); assert(startp)
-
-STATIC void	S_prefinalize_op(pTHX_ CV *cv, OP* o)
-			__attribute__nonnull__(pTHX_2);
-#define PERL_ARGS_ASSERT_PREFINALIZE_OP	\
-	assert(o)
+#define PERL_ARGS_ASSERT_PROCESS_OPTREE	\
+	assert(root); assert(start)
 
 STATIC bool	S_process_special_blocks(pTHX_ I32 floor, const char *const fullname, GV *const gv, CV *const cv)
 			__attribute__nonnull__(pTHX_2)
