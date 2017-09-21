@@ -5964,7 +5964,7 @@ PP(pp_hslice)
                 DIE(aTHX_ PL_no_helem_sv, SVfARG(keysv));
             }
             if (localizing) {
-		if (HvNAME_get(hv) && isGV(*svp))
+		if (HvNAME_get(hv) && isGV_or_RVCV(*svp))
 		    save_gp(MUTABLE_GV(*svp), !OpSPECIAL(PL_op));
 		else if (preeminent)
 		    save_helem_flags(hv, keysv, svp,

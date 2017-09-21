@@ -2541,19 +2541,22 @@ Perl_cv_name(pTHX_ CV *cv, SV *sv, U32 flags)
                     if (HEK_UTF8(cvname)) SvUTF8_on(retsv);
 		} else {
                     const HV *const pkg = CvSTASH(cv);
-                    if (flags & CV_NAME_NOMAIN
+                    if (pkg && flags & CV_NAME_NOMAIN
                         && HvNAMELEN_get(pkg) == 4
                         && strnEQ(HEK_KEY(HvNAME_HEK_NN(pkg)), "main", 4))
                     {
                         sv_sethek(retsv, cvname);
                         if (HEK_UTF8(cvname)) SvUTF8_on(retsv);
                     } else {
-                        const HEK *const hvname = HvNAME_HEK(pkg);
-                        sv_sethek(retsv, hvname);
+                        const HEK *const hvname = pkg ? HvNAME_HEK(pkg) : NULL;
+                        if (hvname)
+                            sv_sethek(retsv, hvname);
+                        else
+                            sv_setpvs(retsv, "__ANON__");
                         sv_catpvs(retsv, "::");
                         sv_cathek(retsv, cvname);
-                        if (HEK_UTF8(hvname) || HEK_UTF8(cvname))
-                            SvUTF8_on(retsv);
+                        /* if (HEK_UTF8(cvname) || (hvname && HEK_UTF8(hvname)))
+                          SvUTF8_on(retsv); */
                     }
 		}
 	    }
