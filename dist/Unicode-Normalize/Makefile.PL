@@ -8,17 +8,19 @@ my $mm_ver = ExtUtils::MakeMaker->VERSION;
 if (-f "Normalize.xs") {
     print STDERR "Making header files for XS...\n";
 
-    do './mkheader' or die $@ || "mkheader: $!";
+    # our $ind = 1;
+    do './mkheader' or die $@ || "mkheader -ind: $!";
 
-    $clean = { FILES => 'unfcan.h unfcmb.h unfcmp.h unfcpt.h unfexc.h' };
+    $clean = { FILES => 'un8ifcan.h un8ifcmb.h un8ifcmp.h un8ifcpt.h un8ifexc.h' };
 }
 
 WriteMakefile(
     ($mm_ver < 6.58)
-    ? ('AUTHOR' => 'SADAHIRO Tomoyuki <SADAHIRO@cpan.org>, Karl Williamson <khw@cpan.org>')
+    ? ('AUTHOR' => 'SADAHIRO Tomoyuki <SADAHIRO@cpan.org>, Karl Williamson <khw@cpan.org>, Reini Urban <rurban@cpan.org>')
     : ('AUTHOR' =>         [
                            'SADAHIRO Tomoyuki <SADAHIRO@cpan.org>',
                            'Karl Williamson <khw@cpan.org>',
+                           'Reini Urban <rurban@cpan.org>',
                            ]),
     'ABSTRACT'          => 'Unicode Normalization Forms',
     'INSTALLDIRS'       => ($] >= 5.007002 && $] < 5.011) ? 'perl' : 'site',
@@ -43,12 +45,12 @@ WriteMakefile(
         'meta-spec' => { version => 2 },
         resources       => {
             repository    => {
-                url  => 'https://github.com/khwilliamson/Unicode-Normalize.git',
-                web  => 'https://github.com/khwilliamson/Unicode-Normalize',
+                url  => 'https://github.com/rurban/Unicode-Normalize.git',
+                web  => 'https://github.com/rurban/Unicode-Normalize',
                 type => 'git',
             },
             bugtracker    => {
-                web  => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Unicode-Normalize',
+                web  => 'https://github.com/rurban/Unicode-Normalize/issues',
             },
         },
     })),

@@ -1,31 +1,48 @@
-#!perl
+#!perl -s
 #
-# This auxiliary script makes five header files
-# used for building XSUB of Unicode::Normalize.
+# This auxiliary script creates five header files
+# used for building XSUB of Unicode::Normalize, and into other c libraries. (safeclib)
 #
 # Usage:
-#    <do 'mkheader'> in perl, or <perl mkheader> on command line
+#    do 'mkheader' in perl, or
+#    perl mkheader [-uni] [-ind] [-utf16] [-std] on the command line
 #
 # Input files:
 #    unicore/CombiningClass.pl (or unicode/CombiningClass.pl)
 #    unicore/Decomposition.pl (or unicode/Decomposition.pl)
 #
 # Output files:
-#    unfcan.h
-#    unfcpt.h
-#    unfcmb.h
-#    unfcmp.h
-#    unfexc.h
+#    un[8w16][i]fcan.h
+#    un[8w16][i]fcpt.h
+#    un[8w16][i]fcmb.h
+#    un[8w16][i]fcmp.h
+#    un[8w16][i]fexc.h
 #
+# -ind creates an indirection table of offsets into the tbl 1-4 strings.
+# The offset fits into a short. The 3 left-most bits indicating tbl 1-4.
+# This saves space for all the 4byte pointers as the tables are very sparse.
+# It needs 3x less memory, 174772 => 55520 bytes.
+# Even better would be bitset compression, like roaring or EWAH.
+#
+# -uni and -utf16 are only needed to create tables for other libraries, such
+# as safeclib. -uni creates wchar_t UTF-32 tables for sizeof(wchar_t)==4 and
+# together with -utf16 creates wchar_t UTF-16 tables for sizeof(wchar_t)==2.
+# With -uni the creation of EBCDIC tables is skipped.
+#
+# With -std stdint (uint16_t, ...) types are used, without perl U8, U16, U32.
+
 use 5.006;
 use strict;
 use warnings;
+no warnings 'redefine';
 use Carp;
 use File::Spec;
 use File::Copy;
 use File::Compare;
 use SelectSaver;
 use Config;
+use vars qw($uni $ind $utf16 $std);
+use Unicode::UCD;
 
 my ($cperl_core);
 
@@ -38,10 +55,17 @@ BEGIN {
     }
 }
 
+if ($utf16 and !$uni) {
+    die "-utf16 requires -uni\n";
+}
+
 $cperl_core++ if $ENV{PERL_CORE} and $Config{usecperl};
 our $PACKAGE = 'Unicode::Normalize, mkheader';
-
-our $prefix = "UNF_";
+$Unicode::Normalize::VERSION = '1.25' unless $Unicode::Normalize::VERSION;
+our $w8 = $uni ? "W" : "8";
+our $prefix = "UN$w8";
+$prefix .= $ind ? "IF_" : "F_";
+our $fprefix = "un". ($uni ? ($utf16 ? "w16" : "w") : "8") . ($ind ? "i" : "") ."f";
 our $structname = "${prefix}complist";
 
 # Starting in v5.20, the tables in lib/unicore are built using the platform's
@@ -60,7 +84,8 @@ our %CompList;	# $listname,$2nd  => $codepoint : composite
 
 ##### The below part is common to mkheader and PP #####
 
-our %Combin;	# $codepoint => $number    : combination class
+# http://www.unicode.org/reports/tr44/#Canonical_Combining_Class_Values
+our %Combin;	# $codepoint => $number    : combining class values
 our %Canon;	# $codepoint => \@codepoints : canonical decomp.
 our %Compat;	# $codepoint => \@codepoints : compat. decomp.
 our %Compos;	# $1st,$2nd  => $codepoint : composite
@@ -80,7 +105,7 @@ our $Decomp = do "unicore/Decomposition.pl"
 # CompositionExclusions.txt since Unicode 3.2.0.  If this ever changes, it
 # would be better to get the values from Unicode::UCD rather than hard-code
 # them here, as that will protect from having to make fixes for future
-# changes. 67 + 14 code points
+# changes. 67 + 14 code points, latest checked: Unicode 10.0
 our @CompEx = qw(
     0958 0959 095A 095B 095C 095D 095E 095F 09DC 09DD 09DF 0A33 0A36
     0A59 0A5A 0A5B 0A5E 0B5C 0B5D 0F43 0F4D 0F52 0F57 0F5C 0F69 0F76
@@ -116,7 +141,9 @@ sub decomposeHangul {
        VBase + $vindex,
       $tindex ? (TBase + $tindex) : (),
     );
-    return wantarray ? @ret : pack_U(@ret);
+    return wantarray ? @ret :
+      $uni ? pack("W*",@ret)
+           : pack_U(@ret);
 }
 
 ########## getting full decomposition ##########
@@ -156,6 +183,17 @@ for my $s (@CompEx) {
     $Exclus{$u} = 1;
 }
 
+# histogram of the 54 CC values. (max 03f - 6bit)
+# we use it only for reordering, so we could benefit from tighter storage.
+#my %CombinStats;
+#foreach my $u (keys %Combin) {
+#    $CombinStats{$Combin{$u}}++;
+#}
+#print "cc (CombiningClass) table: ", scalar keys %CombinStats, " unique values\n";
+#foreach my $cc (sort {$a <=> $b} keys %CombinStats) {
+#    print "$cc\t$CombinStats{$cc}\n";
+#}
+
 foreach my $u (keys %Canon) {
     my $dec = $Canon{$u};
 
@@ -184,7 +222,7 @@ sub getCanonList {
     my @dec = map {
 	(SBase <= $_ && $_ <= SFinal) ? decomposeHangul($_)
 	    : $Canon{$_} ? @{ $Canon{$_} } : $_
-		} @src;
+    } @src;
     return join(" ",@src) eq join(" ",@dec) ? @dec : getCanonList(@dec);
     # condition @src == @dec is not ok.
 }
@@ -233,16 +271,65 @@ sub split_into_char {
     }
     return @ary;
 }
+sub split_utf16 (@) {
+    my @v;
+    for (@_) {
+        if ($_ < 0x10000) {
+            push @v, $_;
+        } else {
+            my $cp = $_ - 0x10000;
+            my $d1 = 0xd800 + (($cp >> 10) & 0x3ff);
+            my $d2 = 0xdc00 + ($cp & 0x3ff);
+            push @v, $d1, $d2;
+        }
+    }
+    @v
+}
 
-sub _U_stringify {
+# lengths in units: uni/utf16: wchar_t, utf8: byte
+sub _utf8_len {
+    scalar split_into_char(pack_U(@_));
+}
+sub _uni_len {
+    scalar @_;
+}
+sub _utf16_len {
+    scalar split_utf16 @_;
+}
+# UTF-8 char* string literal
+sub _utf8_stringify {
     sprintf '"%s"', join '',
 	map sprintf("\\x%02x", $_), split_into_char(pack_U(@_));
 }
-
-foreach my $hash (\%Canon, \%Compat) {
-    foreach my $key (keys %$hash) {
-	$hash->{$key} = _U_stringify( @{ $hash->{$key} } );
-    }
+# wchar_t* string literal
+sub _uni_stringify {
+    sprintf 'L"%s"', join '',
+	map sprintf($_ > 34 && $_ < 127 && $_ != 92 ? "%c" : "\\x%04x", $_), @_;
+}
+# wchar_t UCS-16 string literal
+sub _utf16_stringify {
+    sprintf 'L"%s"', join ',',
+	map sprintf($_ > 39 && $_ < 127 && $_ != 92 ? "%c" : "\\x%04x", $_),
+        split_utf16 @_;
+}
+# array of single wchar_t without \0
+sub _uni_ind_stringify {
+    sprintf '{%s}', join ',',
+	map sprintf($_ > 39 && $_ < 127 && $_ != 92 && $_ != 39
+                    ? "L'%c'" : "L'\\x%04x'", $_), @_;
+}
+# array of wchar_t UCS-16 characters without \0
+sub _utf16_ind_stringify {
+    sprintf '{%s}', join ',',
+	map sprintf($_ > 39 && $_ < 127 && $_ != 92
+                    ? "L'%c'" : "L'\\x%04x'", $_),
+        split_utf16 @_;
+}
+# array of char without \0
+sub _utf8_ind_stringify {
+    sprintf '{%s}', join ',',
+	map sprintf($_ > 32 && $_ < 127 && $_ != 92 && $_ != 39
+                    ? "'%c'" : "'\\x%02x'", $_), split_into_char(pack_U(@_));
 }
 
 ########## writing header files ##########
@@ -260,21 +347,25 @@ sub upd_core {
 my @boolfunc = (
     {
 	name => "Exclusion",
+        desc => "Composite exclusions",
 	type => "bool",
 	hash => \%Exclus,
     },
     {
 	name => "Singleton",
+        desc => "Singletons",
 	type => "bool",
 	hash => \%Single,
     },
     {
 	name => "NonStDecomp",
+        desc => "non-starter decompositions",
 	type => "bool",
 	hash => \%NonStD,
     },
     {
 	name => "Comp2nd",
+        desc => "may be composed with a prev char",
 	type => "bool",
 	hash => \%Comp2nd,
     },
@@ -283,15 +374,21 @@ my @boolfunc = (
 my $orig_fh = SelectSaver->new;
 {
 
-my $file = "unfexc.h";
+my @h_args = ($Unicode::Normalize::VERSION,
+              $uni?" -uni":"", $ind?" -ind":"",
+              Unicode::UCD::UnicodeVersion(),
+              $utf16 ? 16 : $uni ? 32 : 8);
+my $file = $fprefix . "exc.h";
 open FH, ">", $file or croak "$PACKAGE: $file can't be made";
 binmode FH; select FH;
 
-    print << 'EOF';
+printf FH << 'EOF', @h_args;
 /* ex: set ro ft=c: -*- buffer-read-only: t -*-
  *
  * !!!!!!!   DO NOT EDIT THIS FILE   !!!!!!!
- * This file is auto-generated by Unicode-Normalize/mkheader.
+ * This file is auto-generated by Unicode-Normalize %s
+ * mkheader%s%s
+ * for Unicode %s UTF-%d
  * Any changes here will be lost!
  */
 EOF
@@ -300,7 +397,12 @@ foreach my $tbl (@boolfunc) {
     my @temp = sort {$a <=> $b} keys %{$tbl->{hash}};
     my $type = $tbl->{type};
     my $name = $tbl->{name};
-    print "$type is$name (UV uv)\n{\n  return\n\t";
+    printf "/* %s */\n", $tbl->{desc};
+    if ($std) {
+        print "$type is$name (wint_t uv)\n{\n  return\n\t";
+    } else {
+        print "$type is$name (UV uv)\n{\n  return\n\t";
+    }
 
     while (@temp) {
 	my $cur = shift @temp;
@@ -316,7 +418,11 @@ foreach my $tbl (@boolfunc) {
 	    print "\n\t|| " if @temp;
 	}
     }
-    print "\n\t? TRUE : FALSE;\n}\n\n";
+    if ($uni) {
+        print "\n\t? 1 : 0;\n}\n\n";
+    } else {
+        print "\n\t? TRUE : FALSE;\n}\n\n";
+    }
 }
 
 close FH;
@@ -324,97 +430,377 @@ upd_core($file) if $cperl_core;
 
 ####################################
 
-my $compinit =
-    "typedef struct { UV nextchar; UV composite; } $structname;\n\n";
+my $compinit = "typedef struct { U32 nextchar; U32 composite; } $structname;\n";
+# wint_t is signed with mingw32 > -Woverflow. use uint16_t instead
+$compinit .= "typedef struct { U16 nextchar; U16 composite; }".
+                 " ${structname}_s;\n\n";
+$compinit =~ s/ U(\d\d) / uint\$_t /g if $std;
+my $complist = "";
+my ($maxn, $maxl, $maxr, $nshort) = (0,0,0,0);
+my $flong;
 
 foreach my $i (sort keys %CompList) {
-    $compinit .= "$structname $i [] = {\n";
-    $compinit .= join ",\n",
-	map sprintf("\t{ %d, %d }", $_, $CompList{$i}{$_}),
-	    sort {$a <=> $b } keys %{ $CompList{$i} };
-    $compinit .= ",\n{0,0}\n};\n\n"; # with sentinel
+    my $n = 1 + scalar keys %{ $CompList{$i} };
+    my @v = sort {$a <=> $b } keys %{ $CompList{$i} };
+    my $lastv = $v[$#v];
+    if ($flong or $lastv > 0xffff or $CompList{$i}{$lastv} > 0xffff) {
+        $nshort++;
+        unless ($flong) {
+            $flong = $i;
+            $flong =~ s/^.*_complist_//;
+            $flong = "0x".$flong;
+        }
+        $complist .= "static const $structname $i [$n] = {\n";
+    } else {
+        $complist .= "static const ${structname}_s $i [$n] = {\n";
+    }
+    $complist .= join ",\n",
+      map sprintf("\t{ 0x%x, 0x%x }", $_, $CompList{$i}{$_}), @v;
+    $complist .= ", { 0, 0 }};\n"; # need the sentinel
+    # statistics
+    $maxn = $n if $n > $maxn;
+    $maxl = $lastv if $lastv > $maxl;
+    $maxr = $CompList{$i}{$lastv} if $CompList{$i}{$lastv} > $maxr;
 }
+# how many > short (0xffff)
+$compinit .= sprintf("/* max nextchar: %d/0x%x, max composite: %d/0x%x, max length: %d */\n",
+                     $maxl, $maxl, $maxr, $maxr, $maxn);
+$compinit .= sprintf("/* %d/%d lists > short (0xffff) */\n\n",
+                     $nshort, scalar keys  %CompList);
+$compinit .= "#define ${prefix}COMPLIST_FIRST_LONG $flong\n\n";
+$compinit .= $complist;
+# TODO: create the complist rows as bitmap, not array of char
 
 my @tripletable = (
     {
-	file => "unfcmb",
+	file => $fprefix . "cmb.h",
 	name => "combin",
-	type => "STDCHAR",
+        desc => "CombiningClass",
+	type => $uni ? 'uint8_t' : "STDCHAR",
 	hash => \%Combin,
 	null =>  0,
     },
     {
-	file => "unfcan",
+	file => $fprefix . "can.h",
 	name => "canon",
-	type => "char*",
+        desc => "Canonical Decomposition",
+	type => $uni ? "wchar_t*" : "char*",
 	hash => \%Canon,
 	null => "NULL",
     },
     {
-	file => "unfcpt",
+	file => $fprefix . "cpt.h",
 	name => "compat",
-	type => "char*",
+        desc => "Compat. Decomposition",
+	type => $uni ? "wchar_t*" : "char*",
 	hash => \%Compat,
 	null => "NULL",
     },
     {
-	file => "unfcmp",
+	file => $fprefix . "cmp.h",
 	name => "compos",
-	type => "$structname *",
+        desc => "Composition",
+	type => "${structname}_s *",
 	hash => \%Comp1st,
 	null => "NULL",
 	init => $compinit,
     },
 );
 
+sub ptrtype {
+  my ($type) = @_;
+  return ($type =~ /\*$/) ? 1 : 0;
+}
+
+sub maxl {
+    return undef unless @_;
+    my $max = shift;
+    for my $e (@_) {
+        $max = $e if defined $e and (!defined $max or $e > $max);
+    }
+    return $max;
+}
+
+sub len_list_stringify {
+  local $^W; no warnings;
+  local $" = ','; # LIST_SEPARATOR
+  my @tl = @_;
+  shift @tl;
+  "(@tl)"
+}
+
+# compat -uni: (1664,1190,638,109,16|14,1,1,....1 for 18)
+my %compat_exc; # maxlen = 5
+my $indtblrx = qr/^(canon|compat)$/;
+
 foreach my $tbl (@tripletable) {
-    my $file = "$tbl->{file}.h";
-    my $head = "${prefix}$tbl->{name}";
+    my $file = $tbl->{file};
+    my $name = $tbl->{name};
+    my $head = "${prefix}$name";
     my $type = $tbl->{type};
     my $hash = $tbl->{hash};
     my $null = $tbl->{null};
     my $init = $tbl->{init};
+    my $doind = $ind && ($name =~ $indtblrx ? 1 : 0);
 
     open FH, ">", $file or croak "$PACKAGE: $file can't be made";
     binmode FH; select FH;
     my %val;
 
-    print FH << 'EOF';
+    printf FH << 'EOF', @h_args;
 /* ex: set ro ft=c: -*- buffer-read-only: t -*-
  *
  * !!!!!!!   DO NOT EDIT THIS FILE   !!!!!!!
- * This file is auto-generated by Unicode-Normalize/mkheader.
+ * This file is auto-generated by Unicode-Normalize %s
+ * mkheader%s%s
+ * for Unicode %s UTF-%d
  * Any changes here will be lost!
  */
 EOF
-
+    printf "/* %s */\n", $tbl->{desc};
     print $init if defined $init;
 
-    foreach my $uv (keys %$hash) {
-	croak sprintf("a Unicode code point 0x%04X over 0x10FFFF.", $uv)
-	    unless $uv <= 0x10FFFF;
-	my @c = unpack 'CCCC', pack 'N', $uv;
-	$val{ $c[1] }{ $c[2] }{ $c[3] } = $hash->{$uv};
+    my ($indtype, %ival, @ival, @l, $shift, $mask);
+    my $stringify = $uni
+      ? ($utf16 ? \&_utf16_stringify : \&_uni_stringify)
+      : \&_utf8_stringify;
+    my $lensub = $uni
+      ? ($utf16 ? \&_utf16_len : \&_uni_len)
+      : \&_utf8_len;
+    if ($name =~ $indtblrx) {
+        foreach my $uv (keys %$hash) {
+            croak sprintf("a Unicode code point 0x%04X over 0x10FFFF.", $uv)
+              unless $uv <= 0x10FFFF;
+            my @v = $utf16 ? split_utf16(@{ $hash->{$uv} }) : @{ $hash->{$uv} };
+            if ($doind) {
+                $stringify = $uni 
+                  ? ($utf16 ? \&_utf16_ind_stringify : \&_uni_ind_stringify) 
+                  : \&_utf8_ind_stringify;
+                # length in wchar/byte
+                my $n = $lensub->(@v);
+                # skip U+FDFA http://www.unicode.org/reports/tr31/#NFKC_Modifications
+                # with length 18 on NFKD (compat).
+                if ($n > 5) {
+                    $compat_exc{$uv} = $uni ? _uni_stringify( @v ) : _utf8_stringify( @v );
+                }
+                $ival{$n}{ $stringify->( @v ) } = $uv;
+                my @c = unpack 'CCCC', pack 'N', $uv;
+                $val{ $c[1] }{ $c[2] }{ $c[3] } = [ @v ];
+            }
+            else {
+                # *stringify = $uni ? \&_uni_stringify : \&_utf8_stringify; 
+                my @c = unpack 'CCCC', pack 'N', $uv;
+                $val{ $c[1] }{ $c[2] }{ $c[3] } = $stringify->( @v );
+            }
+            # $hash->{$uv} = stringify( @v );
+        }
+        if ($doind) {
+            $null = '0';
+            for my $n (sort keys %ival) { # 1-4 for canon, 1-6 for compat
+                my @v = sort keys %{$ival{$n}};
+                $ival[$n] = [ @v ]; # the values
+                $l[$n] = scalar @v;
+            }
+            print "\n/* Using now indirect tables with indices into the unique values */\n";
+            print "/* even sparing the final \\0 */\n\n";
+            # find unique values with 1-4 entries
+            my $size = 16;
+            $indtype = $std ? 'uint16_t' : 'U16';
+            if ($l[1] < 256 && $l[2] < 256 && $l[3] < 256 && $l[4] < 256) {
+                $indtype = $std ? 'uint8_t' : 'U8';
+                $size = 8;
+            } elsif ($l[1] > 0xffff or $l[2] > 0xffff or $l[3] > 0xffff or $l[4] > 0xffff) {
+                die "Too many indirect tables: @l";
+            }
+            printf "#undef NORMALIZE_IND_TBL\n";
+            printf "#define NORMALIZE_IND_TBL\n";
+            print "/* tbl sizes: ",len_list_stringify(@l)," */\n";
+            # canon: (917,762,227,36)
+            # compat: (1664,1190,638,109,16|14,1,1) # special-case the last
+            my $l = @l-1;
+            $shift = (2**($size-1) >> $l-1); # highest bit rsh for all lengths
+            $mask = $shift - 1;
+            printf "/* l: 1-%d */\n", $l;
+            my $max = maxl @l;
+            printf "/* max size: %d 0x%x */\n", $max, $max;
+            if ($max > $mask) {
+                # if this is only U+FDFA sallallahou alayhe wasallam => 18 upper case letters
+                # handle it seperately. also the len=7+8 rows.
+                $l = 5; # special-case the rest
+                $shift = (2**($size-1) >> $l-1); # highest bit rsh for all lengths
+                $mask = $shift - 1;
+                warn sprintf
+                  "Overlarge $name tables for indirect, ".
+                  "special-case the last %s max=0x%x, mask=0x%x",
+                  len_list_stringify(@l), $max, $mask;
+                die "max > mask" if $max > $mask;
+                shift @l;
+                @l = @l[0..$l];
+            }
+            printf "#define %s_MAXLEN  %d\n",   $head, $l;
+            printf "#define TBL(i)               ((i-1) << %d)\n", 16-$l;
+            printf "/* value = (const $type)\&UN%sIF_${name}_tbl[LEN-1][IDX] */\n",
+              $w8;
+            printf "#define %s_LEN(v)  (((v) >> %d) + 1)\n", $head, 16-$l;
+            printf "#define %s_IDX(v)  ((v) & 0x%x)\n", $head, $mask;
+            printf "#define %s_PLANE_T %s\n", $head, $indtype;
+            printf "\n";
+            print "/* the values */\n";
+            for my $n (sort keys %ival) { # 1-5
+                my $i = 0;
+                my @v = @{$ival[$n]}; # the unique values
+                my $size = scalar @v;
+                $type =~ s/\*$//;
+                next if $n > $l;
+                printf "static const $type ${head}_tbl_$n [$size][$n] = {";
+                for my $v (@v) {
+                    printf "\n /* %3d */ ", $i if $i % 8 == 0;
+                    print " ",$v;
+                    print ','  if $i != $size-1;
+                    $i++;
+                }
+                print "};\n\n";
+            }
+            if (%compat_exc) {
+                my $c = scalar keys %compat_exc;
+                print "/* the special-cased overlong entries */\n";
+                my $maxcp = maxl(sort {$a <=> $b} keys %compat_exc);
+                my $init = $std
+                  ? "typedef struct { const wint_t cp; const $type* v; } ${head}_exc_t;\n"
+                  : "typedef struct { const U32 cp; const $type* v; } ${head}_exc_t;\n";
+                if ($maxcp < 0xffff) {
+                    if ($std) {
+                        $init =~ s/ wint_t / uint16_t /;
+                    } else {
+                        $init =~ s/ U32 / U16 /;
+                    }
+                }
+                print $init;
+                print "/* sorted for binary search */\n";
+                printf "#define ${head}_exc_size %d\n", $c;
+                printf "static const ${head}_exc_t ${head}_exc [%d] = {\n", $c;
+                my $i = 0;
+                for my $cp (sort {$a <=> $b} keys %compat_exc) {
+                    printf "\t{ 0x%x, %s }", $cp, $compat_exc{$cp};
+                    printf "," if ++$i < $c;
+                    printf "\n";
+                }
+                print "};\n\n";
+            } else {
+                printf "/* no exception table */\n";
+                printf "#define ${head}_exc_size %d\n\n", 0;
+            }
+            printf "static const $type* ${head}_tbl [$l] = {\n";
+            for my $i (1..$l) {
+                if (exists $ival{$i}) {
+                    print "\t(const $type*) ${head}_tbl_$i";
+                }
+                else {
+                    print "\tNULL";
+                }
+                print (($i == $l) ? "\n" : ",\n");
+            }
+            print "};\n\n";
+        }
+    } else {
+        if ($name eq 'compat') {
+            $stringify = $uni ? \&_uni_stringify : \&_utf8_stringify;
+        } else {
+            $stringify = sub { @_ }; # identity (list of ints or a string)
+        }
+        foreach my $uv (keys %$hash) {
+            croak sprintf("a Unicode code point 0x%04X over 0x10FFFF.", $uv)
+              unless $uv <= 0x10FFFF;
+            my @c = unpack 'CCCC', pack 'N', $uv;
+            my $v = $hash->{$uv};
+            
+            if ($name eq 'compat') {
+                my @v = $utf16 ? split_utf16 @$v : @$v;
+                $val{ $c[1] }{ $c[2] }{ $c[3] } = $stringify->( @v );
+            } else {
+                $val{ $c[1] }{ $c[2] }{ $c[3] } = $v;
+            }
+        }
     }
-
+ 
+    print "/* the rows */\n";
+    # TODO: also combin
     foreach my $p (sort { $a <=> $b } keys %val) {
 	next if ! $val{ $p };
 	for (my $r = 0; $r < 256; $r++) {
-	    next if ! $val{ $p }{ $r };
-	    printf "static $type ${head}_%02x_%02x [256] = {\n", $p, $r;
+            next if ! $val{ $p }{ $r };
+            if ($doind) {
+                printf "static const $indtype ${head}_%02x_%02x [256] = {\n", $p, $r;
+            } else {
+                printf "static const $type ${head}_%02x_%02x [256] = {\n", $p, $r;
+            }
 	    for (my $c = 0; $c < 256; $c++) {
-		print "\t", defined $val{$p}{$r}{$c}
-		    ? "($type)".$val{$p}{$r}{$c}
-		    : $null;
+                my $uv = ($p << 16) + ($r << 8) + $c;
+                if ($c % 8 == 0) {
+                    if ($p) {
+                        printf "/* %02x%02x%02x */ ", $p,$r,$c;
+                    } else {
+                        printf "/*   %02x%02x */ ", $r,$c;
+                    }
+                }
+                if (defined $val{$p}{$r}{$c}) {
+                    if ($doind) {
+                        my $i = 0;
+                        my @s = @{ $val{$p}{$r}{$c} };
+                        my $s = $stringify->( @s );
+                        my $n = $lensub->(@s);
+                        my @v = @{$ival[$n]}; # the unique values
+                        # search for $i, the index into @v
+                        for my $v (@v) {
+                            if ($v eq $s) {
+                                if ($n <= 5) {
+                                    $val{$p}{$r}{$c} = sprintf("TBL(%d)|%d", $n, $i);
+                                } else {
+                                    $val{$p}{$r}{$c} = sprintf("(%s)-1 /*TBL(%d)|%d*/",
+                                                               $indtype, $n, $i);
+                                }
+                            }
+                            $i++;
+                        }
+                        if (ref $val{$p}{$r}{$c} eq 'ARRAY') {
+                            die "$p $r $c unresolved: uv=$uv $s @{$val{$p}{$r}{$c}}";
+                        }
+                    } else {
+                        if (ref $val{$p}{$r}{$c} eq 'ARRAY') {
+                            die "$file $p $r $c unresolved: uv=$uv @{$val{$p}{$r}{$c}}";
+                        }
+                    }
+                    if ($type =~ /(uint|wchar)/ or $doind) {
+                        print " ",$val{$p}{$r}{$c};
+                    } elsif ($type =~ /complist/) {
+                        my $s = $val{$p}{$r}{$c};
+                        my ($c) = $s =~ m/_complist_(......)/;
+                        my $i = hex $c;
+                        if ($i >= hex $flong) {
+                            print " (const ${prefix}complist_s*)", $s;
+                        } else {
+                            print " ", $s;
+                        }
+                    } else {
+                        print " ($type)".$val{$p}{$r}{$c};
+                    }
+                } else {
+		    print " ",$null;
+                }
 		print ','  if $c != 255;
 		print "\n" if $c % 8 == 7;
 	    }
 	    print "};\n\n";
 	}
     }
+    print "/* the planes */\n";
     foreach my $p (sort { $a <=> $b } keys %val) {
 	next if ! $val{ $p };
-	printf "static $type* ${head}_%02x [256] = {\n", $p;
+        if ($doind) {
+            printf "static const $indtype* ${head}_%02x [256] = {\n", $p;
+        } else {
+            printf "static const $type* ${head}_%02x [256] = {\n", $p;
+        }
 	for (my $r = 0; $r < 256; $r++) {
 	    print $val{ $p }{ $r }
 		? sprintf("${head}_%02x_%02x", $p, $r)
@@ -424,7 +810,13 @@ EOF
 	}
 	print "};\n\n";
     }
-    print "static $type** $head [] = {\n";
+    print "/* the main plane */\n";
+    if ($doind) {
+        printf "#undef TBL\n";
+        printf "static const $indtype** ${head} [] = {\n";
+    } else {
+        print "static const $type** $head [] = {\n";
+    }
     for (my $p = 0; $p <= 0x10; $p++) {
 	print $val{ $p } ? sprintf("${head}_%02x", $p) : "NULL";
 	print ','  if $p != 0x10;
@@ -439,3 +831,6 @@ EOF
 
 1;
 __END__
+# Local Variables:
+# perl-indent-level: 4
+# End:

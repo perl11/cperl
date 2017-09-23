@@ -6167,10 +6167,10 @@ toke.c				The tokener, i.e. lexer
 uconfig.h			Configuration header for microperl
 uconfig.sh			Configuration script for microperl
 uconfig64.sh			Configuration script for microperl for LP64
-unfcan.h			Unicode::Normalize generated header
-unfcmb.h			Unicode::Normalize generated header
-unfcmp.h			Unicode::Normalize generated header
-unfexc.h			Unicode::Normalize generated header
+un8ifcan.h			Unicode::Normalize generated header
+un8ifcmb.h			Unicode::Normalize generated header
+un8ifcmp.h			Unicode::Normalize generated header
+un8ifexc.h			Unicode::Normalize generated header
 unicode_constants.h		compile-time macros for Unicode code points
 universal.c			The default UNIVERSAL package methods
 unixish.h			Defines that are assumed on Unix
