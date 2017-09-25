@@ -4734,6 +4734,7 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
             ) {
             /* Either it's a shared hash key, or it's suitable for
                copy-on-write.  */
+#ifdef DEBUGGING
             if (DEBUG_C_TEST) {
                 PerlIO_printf(Perl_debug_log, "Copy on write: sstr --> dstr \"%s\"\n",
                               SvPVX_const(sstr));
@@ -4742,6 +4743,7 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
                     sv_dump(dstr);
                 }
             }
+#endif
 #ifdef PERL_ANY_COW
             if (!(sflags & SVf_IsCOW)) {
                     SvIsCOW_on(sstr);
@@ -4921,7 +4923,7 @@ Perl_sv_setsv_cow(pTHX_ SV *dstr, SV *sstr)
 #endif
 
     PERL_ARGS_ASSERT_SV_SETSV_COW;
-
+#ifdef DEBUGGING
     if (DEBUG_C_TEST) {
 	PerlIO_printf(Perl_debug_log, "Fast copy on write: %p -> %p\n",
 		      (void*)sstr, (void*)dstr);
@@ -4929,7 +4931,7 @@ Perl_sv_setsv_cow(pTHX_ SV *dstr, SV *sstr)
 	if (dstr)
 		    sv_dump(dstr);
     }
-
+#endif
     if (dstr) {
 	if (SvTHINKFIRST(dstr))
 	    sv_force_normal_flags(dstr, SV_COW_DROP_PV);
@@ -5278,12 +5280,14 @@ Perl_sv_uncow(pTHX_ SV * const sv, const U32 flags)
 	const STRLEN len = SvLEN(sv);
 	const STRLEN cur = SvCUR(sv);
 
+#ifdef DEBUGGING
         if (DEBUG_C_TEST) {
                 PerlIO_printf(Perl_debug_log,
                               "Uncopy on write: Force normal %ld \"%s\"\n",
                               (long) flags, pvx);
                 DEBUG_v(sv_dump(sv));
         }
+#endif
         SvIsCOW_off(sv);
 # ifdef PERL_COPY_ON_WRITE
 	if (len) {
@@ -5321,9 +5325,10 @@ Perl_sv_uncow(pTHX_ SV * const sv, const U32 flags)
 	    } else {
 		unshare_hek(SvSHARED_HEK_FROM_PV(pvx));
 	    }
-            if (DEBUG_C_TEST && DEBUG_v_TEST) {
+# ifdef DEBUGGING
+            if (DEBUG_C_TEST && DEBUG_v_TEST)
                 sv_dump(sv);
-            }
+# endif
 	}
 #else
 	    const char * const pvx = SvPVX_const(sv);
@@ -6888,11 +6893,13 @@ Perl_sv_clear(pTHX_ SV *const orig_sv)
 		     && !(IoFLAGS(sv) & IOf_FAKE_DIRP)))
 	    {
 		if (SvIsCOW(sv)) {
+#ifdef DEBUGGING
 		    if (DEBUG_C_TEST) {
 			PerlIO_printf(Perl_debug_log, "Copy on write: clear \"%s\"\n",
                                       SvPVX_const(sv));
 			DEBUG_v(sv_dump(sv));
 		    }
+#endif
 		    if (SvLEN(sv)) {
 			if (CowREFCNT(sv)) {
 			    sv_buf_to_rw(sv);
