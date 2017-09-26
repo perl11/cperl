@@ -4000,6 +4000,7 @@ S_require_file(pTHX_ SV *sv)
     I32 old_savestack_ix;
     const bool op_is_require = PL_op->op_type == OP_REQUIRE;
     const char *const op_name = op_is_require ? "require" : "do";
+    SV * const *svp_cached = NULL;
 
     PERL_ARGS_ASSERT_REQUIRE_FILE;
     assert(op_is_require || PL_op->op_type == OP_DOFILE);
@@ -4009,6 +4010,17 @@ S_require_file(pTHX_ SV *sv)
     name = SvPV_nomg_const(sv, len);
     if (!(name && len > 0 && *name))
         DIE(aTHX_ "Missing or undefined argument to %s", op_name);
+
+#ifndef VMS
+    /* try to return earlier (save the SAFE_PATHNAME check) if INC already got the name */
+    if (op_is_require) {
+        /* Optimized to only perform one single lookup.
+           Stored is the path on success or UNDEF on load failure. */
+        svp_cached = hv_fetch(GvHVn(PL_incgv), (char*) name, len, 0);
+        if ( svp_cached && *svp_cached != UNDEF )
+            RETPUSHYES;
+    }
+#endif
 
     if (!IS_SAFE_PATHNAME(name, len, op_name)) {
         if (!op_is_require) {
@@ -4049,13 +4061,13 @@ S_require_file(pTHX_ SV *sv)
     }
     if (op_is_require) {
 	SV * const * const svp = hv_fetch(GvHVn(PL_incgv),
-					  unixname, unixlen, 0);
+                                          unixname, unixlen, 0);
 	if ( svp ) {
 	    if (*svp != UNDEF)
 		RETPUSHYES;
 	    else
 		DIE(aTHX_ "Attempt to reload %s aborted.\n"
-			    "Compilation failed in require", unixname);
+                    "Compilation failed in require", unixname);
 	}
 
         /*XXX OPf_KIDS should always be true? -dapm 4/2017 */
