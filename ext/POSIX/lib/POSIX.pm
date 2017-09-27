@@ -4,7 +4,7 @@ use warnings;
 
 our ($AUTOLOAD, %SIGRT);
 
-our $VERSION = '1.77_03';
+our $VERSION = '1.78_03';
 our $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -440,6 +440,8 @@ my %other_export_tags = (
 
     # realpath has an Cwd replacement
     stdlib_h_c99 => [ @{$default_export_tags{stdlib_h}}, qw( strtold ) ],
+
+    sys_resource_h => [qw(PRIO_PROCESS PRIO_PGRP PRIO_USER)],
 
     sys_socket_h => [qw(
         MSG_CTRUNC MSG_DONTROUTE MSG_EOR MSG_OOB MSG_PEEK MSG_TRUNC MSG_WAITALL

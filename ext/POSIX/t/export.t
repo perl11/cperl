@@ -180,6 +180,10 @@ my %expect = (
         ),
         # this stuff was added with cperl in 5.27
         qw( realpath ),
+        # added in 5.27
+        qw(
+            PRIO_PROCESS PRIO_PGRP PRIO_USER
+        ),
     ],
 );
 
