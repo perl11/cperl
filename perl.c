@@ -126,6 +126,7 @@ Perl_sys_init(int* argc, char*** argv)
 
     PERL_UNUSED_ARG(argc); /* may not be used depending on _BODY macro */
     PERL_UNUSED_ARG(argv);
+
 #if defined(U32_ALIGNMENT_REQUIRED) && defined(__GNUC__) && (defined(__x86_64__) || defined(__i386))
     /* Generate SIGBUS on unaligned access even on x86:
        Set AC in EFLAGS. See http://orchistro.tistory.com/206
@@ -144,6 +145,13 @@ Perl_sys_init(int* argc, char*** argv)
 #  error not __i386 nor __x86_64__
 # endif
 #endif
+#ifdef USE_OPPROF
+    {
+        char _f[80];
+        sprintf(_f, "/tmp/cperl-opprof.%d", (int)PerlProc_getpid());
+        PL_opprof_io = PerlIO_open(_f, "a");
+    }
+#endif
     PERL_SYS_INIT_BODY(argc, argv);
 }
 
@@ -157,6 +165,32 @@ Perl_sys_init3(int* argc, char*** argv, char*** env)
     PERL_UNUSED_ARG(argc); /* may not be used depending on _BODY macro */
     PERL_UNUSED_ARG(argv);
     PERL_UNUSED_ARG(env);
+
+#if defined(U32_ALIGNMENT_REQUIRED) && defined(__GNUC__) && (defined(__x86_64__) || defined(__i386))
+    /* Generate SIGBUS on unaligned access even on x86:
+       Set AC in EFLAGS. See http://orchistro.tistory.com/206
+       Also see https://sourceforge.net/p/predef/wiki/Architectures/
+       for possible other compilers. Here only GNU C: gcc, clang, icc.
+       MSVC would be nice also. perl5 core had this wrong since 2001. */
+# ifdef __x86_64__
+    __asm__("pushf\n"
+            "orl $0x40000, (%rsp)\n"
+            "popf");
+# elif defined(__i386)
+    __asm__("pushf\n"
+            "orl $0x40000, (%esp)\n"
+            "popf");
+# else
+#  error not __i386 nor __x86_64__
+# endif
+#endif
+#ifdef USE_OPPROF
+    {
+        char _f[80];
+        sprintf(_f, "/tmp/cperl-opprof.%d", (int)PerlProc_getpid());
+        PL_opprof_io = PerlIO_open(_f, "a");
+    }
+#endif
     PERL_SYS_INIT3_BODY(argc, argv, env);
 }
 
@@ -749,6 +783,9 @@ perl_destruct(pTHXx)
 	PL_veto_cleanup = TRUE;
         return STATUS_EXIT;
     }
+#ifdef USE_OPPROF
+    PerlIO_close(PL_opprof_io);
+#endif
 
 #ifdef DEBUG_LEAKING_SCALARS_FORK_DUMP
     if (destruct_level != 0) {

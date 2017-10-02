@@ -443,6 +443,8 @@
 #define PL_Gop_seq		(my_vars->Gop_seq)
 #define PL_op_sequence		(my_vars->Gop_sequence)
 #define PL_Gop_sequence		(my_vars->Gop_sequence)
+#define PL_opprof_io		(my_vars->Gopprof_io)
+#define PL_Gopprof_io		(my_vars->Gopprof_io)
 #define PL_perlio_debug_fd	(my_vars->Gperlio_debug_fd)
 #define PL_Gperlio_debug_fd	(my_vars->Gperlio_debug_fd)
 #define PL_perlio_fd_refcnt	(my_vars->Gperlio_fd_refcnt)

@@ -346,6 +346,10 @@ unless ($define{'USE_REENTRANT_API'}) {
     ++$skip{PL_reentrant_buffer};
 }
 
+unless ($define{'USE_OPPROF'}) {
+    ++$skip{PL_opprof_io};
+}
+
 if ($define{'MYMALLOC'}) {
     try_symbols(qw(
 		    Perl_dump_mstats

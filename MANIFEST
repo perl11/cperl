@@ -6355,6 +6355,7 @@ Porting/mksample		Generate Porting/config_H and Porting/config.sh
 Porting/new-perldelta.pl	Generate a new perldelta
 Porting/newtests-perldelta.pl	Generate Perldelta stub for newly added tests
 Porting/op.d			DTrace script for op timings
+Porting/opprof.pl		OP profiling helper
 Porting/perl_version		Build helper script to return the current version
 Porting/perldelta_template.pod	Template for creating new perldelta.pod files
 Porting/perlhist_calculate.pl	Perform calculations to update perlhist

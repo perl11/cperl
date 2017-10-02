@@ -29,9 +29,16 @@
     if (PERL_LOAD_RETURN_ENABLED())                 \
         Perl_dtrace_probe_load(aTHX_ name, FALSE);
 
+#ifdef USE_OPPROF
+#  define PERL_DTRACE_PROBE_OP(op)                  \
+    PerlIO_printf(PL_opprof_io, "%d\n", op->op_type);\
+    if (PERL_OP_ENTRY_ENABLED())                    \
+        Perl_dtrace_probe_op(aTHX_ op);
+#else
 #  define PERL_DTRACE_PROBE_OP(op)                  \
     if (PERL_OP_ENTRY_ENABLED())                    \
         Perl_dtrace_probe_op(aTHX_ op);
+#endif
 
 #  define PERL_DTRACE_PROBE_PHASE(phase)            \
     if (PERL_PHASE_CHANGE_ENABLED())                \
