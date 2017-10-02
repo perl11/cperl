@@ -340,3 +340,7 @@ PERLVARI(G, my_cxt_keys, const char **, NULL)
 PERLVARI(G, my_cxt_keys_size, int,	0)	/* size of PL_my_cxt_keys */
 #  endif
 #endif
+
+#ifdef USE_OPPROF
+PERLVAR(G, opprof_io, PerlIO *)
+#endif

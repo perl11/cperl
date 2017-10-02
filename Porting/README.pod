@@ -308,6 +308,10 @@ This script outputs the added tests between the two versions of Perl.
 
 DTrace script for op probes. See L<perldtrace>.
 
+=head2 F<opprof.pl>
+
+Post-process tmp files with op_type stats generated via C<-DUSE_OPPROF>.
+
 =head2 F<perldelta_template.pod>
 
 Template for F<perldelta>.
