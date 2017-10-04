@@ -593,6 +593,19 @@ Perl_Slab_to_rw(pTHX_ OPSLAB *const slab)
 #    define PerlMemShared PerlMem
 #endif
 
+/* make freed ops die if they're inadvertently executed */
+#ifdef DEBUGGING
+static OP *
+S_pp_freed(pTHX)
+{
+    if (PL_op->op_targ)
+        DIE(aTHX_ "panic: freed op %s 0x%p called\n",
+                  PL_op_name[PL_op->op_targ], PL_op);
+    else
+        DIE(aTHX_ "panic: freed op 0x%p called\n", PL_op);
+}
+#endif
+
 /*
 =for apidoc Xp|void	|Slab_Free	|NN void *op
 
@@ -611,16 +624,20 @@ Perl_Slab_Free(pTHX_ void *op)
 
     PERL_ARGS_ASSERT_SLAB_FREE;
 
+#ifdef DEBUGGING
+    o->op_ppaddr = S_pp_freed;
+    o->op_targ = (PADOFFSET)o->op_type;
+#endif
+    /* If this op is already freed, our refcount will get screwy. */
+    assert(ISNT_TYPE(o, FREED));
+
     if (!o->op_slabbed) {
         if (!o->op_static)
 	    PerlMemShared_free(op);
 	return;
     }
-
-    slab = OpSLAB(o);
-    /* If this op is already freed, our refcount will get screwy. */
-    assert(ISNT_TYPE(o, FREED));
     o->op_type = OP_FREED;
+    slab = OpSLAB(o);
     OpNEXT(o) = slab->opslab_freed;
     slab->opslab_freed = o;
 #ifdef DEBUGGING
