@@ -1209,7 +1209,15 @@ use File::Glob qw(:case);
         # instead
         # XXX We can and should fix this, but clean up the DRY-failure in utils
         # first
-        'EXCLUDED' => ['perldoc'],
+        'EXCLUDED' => ['perldoc',
+
+            # https://rt.cpan.org/Ticket/Display.html?id=116827
+            't/02_module_pod_output.t'
+        ],
+        'CUSTOMIZED'   => [
+	    # [rt.cpan.org #88204], [rt.cpan.org #120229]
+	    'lib/Pod/Perldoc.pm',
+	],
     },
 
     'Pod::Simple' => {
