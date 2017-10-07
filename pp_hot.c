@@ -1307,14 +1307,12 @@ PPt(pp_padsv, "(:Any):Any")
 	OP * const op = PL_op;
 	/* access PL_curpad once */
 	SV ** const padentry = &(PAD_SVl(op->op_targ));
-	{
-	    dTARG;
-	    TARG = *padentry;
-            DEBUG_Xv(Perl_deb(aTHX_ "  padsv padp %p [%lu] => tops %p %-4s\n",
-                              TARG, op->op_targ, TOPs, SvPEEK(TOPs)));
-	    PUSHs(TARG);
-	    PUTBACK; /* no pop/push after this, TOPs ok */
-	}
+
+        DEBUG_Xv(Perl_deb(aTHX_ "  padsv padp %p [%lu] => tops %p %-4s\n",
+                          *padentry, op->op_targ, TOPs, SvPEEK(TOPs)));
+        PUSHs(*padentry);
+        PUTBACK; /* no pop/push after this, TOPs ok */
+
 	if (op->op_flags & OPf_MOD) {
 	    if (op->op_private & OPpLVAL_INTRO)
 		if (!(op->op_private & OPpPAD_STATE))
