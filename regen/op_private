@@ -301,9 +301,8 @@ for (qw(nextstate dbstate setstate keepstate)) {
 
 addbits($_, 7 => qw(OPpLVAL_INTRO LVINTRO))
     for qw(gvsv rv2sv rv2hv rv2gv rv2av aelem helem oelem aslice split
-           hslice delete padsv padav padhv enteriter entersub enterxssub enterffi 
-           padrange
-           pushmark cond_expr refassign lvref lvrefslice lvavref multideref
+           hslice delete padsv padsv2 padav padhv enteriter entersub enterxssub enterffi
+           padrange pushmark cond_expr refassign lvref lvrefslice lvavref multideref
            multiconcat),
            #qw(int_padsv uint_padsv str_padsv num_padsv),
            'list', # this gets set in my_attrs() for some reason
@@ -418,7 +417,7 @@ addbits('leave', 5 => qw(OPpLEAVE_SP SP));
 
 
 # autovivify: Want ref to something, disabled for aelem*_u
-for (qw(rv2gv rv2sv padsv aelem helem entersub enterxssub enterffi)) {
+for (qw(rv2gv rv2sv padsv padsv2 aelem helem entersub enterxssub enterffi)) {
         #int_padsv uint_padsv str_padsv num_padsv
     addbits($_, '4..5' => {
                 mask_def  => 'OPpDEREF',
@@ -511,7 +510,7 @@ addbits($_, 7 => qw(OPpPV_IS_UTF8 UTF)) for qw(last redo next goto dump);
 #   \our   $foo = ...
 #   \state $foo = ...
 
-addbits($_, 6 => qw(OPpPAD_STATE STATE))  for qw(padav padhv padsv lvavref
+addbits($_, 6 => qw(OPpPAD_STATE STATE))  for qw(padav padhv padsv padsv2 lvavref
                                                  lvref refassign pushmark);
 #addbits($_, 6 => qw(OPpPAD_NATIVE NATIVE)) 
 #  for qw(int_padsv uint_padsv str_padsv num_padsv);

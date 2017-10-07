@@ -44,6 +44,14 @@ PPt(pp_const, "():Scalar")
     RETURN;
 }
 
+PPt(pp_const2, "():List")
+{
+    dSP;
+    XPUSHs(cSVOP_sv);
+    XPUSHs((SV*)(OpLAST(PL_op)));
+    RETURN;
+}
+
 PPt(pp_nextstate, "():Void")
 {
     PL_curcop = (COP*)PL_op;
@@ -1299,7 +1307,7 @@ PP(pp_padrange)
     RETURN;
 }
 
-PPt(pp_padsv, "(:Any):Any")
+PPt(pp_padsv, "():Scalar")
 {
     dSP;
     EXTEND(SP, 1);
@@ -1319,6 +1327,49 @@ PPt(pp_padsv, "(:Any):Any")
 	    if (op->op_private & OPpLVAL_INTRO)
 		if (!(op->op_private & OPpPAD_STATE))
 		    save_clearsv(padentry);
+	    if (op->op_private & OPpDEREF) {
+		/* TOPs is equivalent to TARG here.  Using TOPs (SP) rather
+		   than TARG reduces the scope of TARG, so it does not
+		   span the call to save_clearsv, resulting in smaller
+		   machine code. */
+		TOPs = vivify_ref(TOPs, op->op_private & OPpDEREF);
+	    }
+	}
+	return op->op_next;
+    }
+}
+
+/* 11th most op pair. valid if first has no OPf_MOD flag */
+PPt(pp_padsv2, "():List")
+{
+    dSP;
+    EXTEND(SP, 2);
+    {
+	OP * const op = PL_op;
+	/* access PL_curpad once */
+	SV * const padentry = PAD_SVl(op->op_targ);
+        const PADOFFSET targ2 = (PADOFFSET)OpFIRST(op);
+        SV * const pad2 = PAD_SVl(targ2);
+	{
+	    dTARG;
+	    TARG = padentry;
+            DEBUG_Xv(Perl_deb(aTHX_ "  padsv2 padp %p [%lu] => tops %p %-4s\n",
+                              TARG, op->op_targ, TOPs, SvPEEK(TOPs)));
+	    PUSHs(TARG);
+	    PUTBACK; /* no pop/push after this, TOPs ok */
+
+	    TARG = pad2;
+            DEBUG_Xv(Perl_deb(aTHX_ "  padsv2 padp %p [%lu] => tops %p %-4s\n",
+                              TARG, (PADOFFSET)OpFIRST(op),
+                              TOPs, SvPEEK(TOPs)));
+	    PUSHs(TARG);
+	    PUTBACK;
+	}
+        /*assert(!(op->op_flags & OPf_MOD));*/
+	if (op->op_flags & OPf_MOD) { /* only the second */
+	    if (op->op_private & OPpLVAL_INTRO)
+		if (!(op->op_private & OPpPAD_STATE))
+		    save_clearsv(&PAD_SVl(targ2));
 	    if (op->op_private & OPpDEREF) {
 		/* TOPs is equivalent to TARG here.  Using TOPs (SP) rather
 		   than TARG reduces the scope of TARG, so it does not

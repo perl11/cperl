@@ -51,6 +51,7 @@ pushmark	pushmark		ck_null		ps0		"():Void"
 wantarray	wantarray		ck_null		is0		""
 
 const		constant item		ck_svconst	ps$		"():Scalar"
+const2		2 constant items	ck_null		ps2		"():List"
 
 gvsv		scalar variable		ck_null		ds$		"():Scalar"
 gv		glob value		ck_null		ds$		"():Scalar"
@@ -60,6 +61,7 @@ padav		private array		ck_null		d0		"():Array"
 padhv		private hash		ck_null		d0		"():Hash"
 # throws unimplemented op
 padany		private value		ck_null		d0		"():Void"
+padsv2		2 private variables	ck_null		ds1		"():List"
 
 # Lvalue operators.
 
