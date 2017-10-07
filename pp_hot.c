@@ -1302,31 +1302,23 @@ PP(pp_padrange)
 PPt(pp_padsv, "(:Any):Any")
 {
     dSP;
+    OP * const op = PL_op;
+    /* access PL_curpad once */
+    SV ** const padentry = &(PAD_SVl(op->op_targ));
+
     EXTEND(SP, 1);
-    {
-	OP * const op = PL_op;
-	/* access PL_curpad once */
-	SV ** const padentry = &(PAD_SVl(op->op_targ));
-
-        DEBUG_Xv(Perl_deb(aTHX_ "  padsv padp %p [%lu] => tops %p %-4s\n",
+    DEBUG_Xv(Perl_deb(aTHX_ "  padsv padp %p [%lu] => tops %p %-4s\n",
                           *padentry, op->op_targ, TOPs, SvPEEK(TOPs)));
-        PUSHs(*padentry);
-        PUTBACK; /* no pop/push after this, TOPs ok */
+    PUSHs(*padentry);
 
-	if (op->op_flags & OPf_MOD) {
-	    if (op->op_private & OPpLVAL_INTRO)
-		if (!(op->op_private & OPpPAD_STATE))
-		    save_clearsv(padentry);
-	    if (op->op_private & OPpDEREF) {
-		/* TOPs is equivalent to TARG here.  Using TOPs (SP) rather
-		   than TARG reduces the scope of TARG, so it does not
-		   span the call to save_clearsv, resulting in smaller
-		   machine code. */
-		TOPs = vivify_ref(TOPs, op->op_private & OPpDEREF);
-	    }
-	}
-	return op->op_next;
+    if (op->op_flags & OPf_MOD) {
+        if (op->op_private & OPpLVAL_INTRO)
+            if (!(op->op_private & OPpPAD_STATE))
+                save_clearsv(padentry);
+        if (op->op_private & OPpDEREF)
+            TOPs = vivify_ref(TOPs, OPpDEREF);
     }
+    RETURN;
 }
 
 PPt(pp_readline, "(:Scalar):Any")
