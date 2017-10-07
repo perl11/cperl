@@ -1226,9 +1226,14 @@ S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o, const CV *c
         S_opdump_link(aTHX_ o, op_parent((OP*)o), file);
     }
 
-    if (o->op_targ && optype != OP_NULL)
-        S_opdump_indent(aTHX_ o, level, bar, file, "TARG = %ld\n",
+    if (o->op_targ && (optype != OP_NULL)) {
+        if (optype == OP_PADSV2)
+            S_opdump_indent(aTHX_ o, level, bar, file, "TARG = %d << 16 | %d\n",
+                        (int)o->op_targ & 0xffff, (int)o->op_targ >> 16);
+        else
+            S_opdump_indent(aTHX_ o, level, bar, file, "TARG = %ld\n",
                         (long)o->op_targ);
+    }
     if (optype == OP_AELEMFAST
         || optype == OP_AELEMFAST_LEX
 #ifdef USE_CPERL

@@ -21060,18 +21060,24 @@ Perl_rpeep(pTHX_ OP *o)
                 ASSUME(!(o2->op_flags &
                     ~(OPf_WANT|OPf_PARENS|OPf_REF|OPf_MOD|OPf_SPECIAL)));
                 /* empty flags and private => combine to 2 */
-                if (IS_TYPE(o, PADSV) && !(o->op_flags & OPf_MOD)
-                    && o->op_targ < U16_MAX)
+                if (IS_TYPE(OpNEXT(o2), PADSV) && !(o2->op_flags & OPf_MOD)
+                    && o2->op_targ < U16_MAX && OpNEXT(o2)->op_targ < U16_MAX)
                 {
+                    o2 = OpNEXT(o2);
                     /* convert o+o2 to padsv2 */
-                    OP *op = newUNOP(OP_PADSV2, o2->op_flags + (o2->op_private<<8), NULL);
-                    op->op_targ =  o->op_targ;
-                    OpFIRST(op) = (OP*)(o2->op_targ);
                     DEBUG_k(Perl_deb(aTHX_
-                        "rpeep: padsv2 0x%x 0x%x\n", OpFLAGS(o), OpFLAGS(o2)));
-                    op->op_next = o2->op_next;
-                    op->op_sibparent = o2->op_sibparent;
-                    o = o2;
+                        "rpeep: padsv2 0x%x 0x%x %d-%d\n",
+                                     OpFLAGS(o), OpFLAGS(o2),
+                                     (int)o->op_targ, (int)o2->op_targ));
+                    /*o->op_next      = o2->op_next;
+                      o->op_sibparent = o2->op_sibparent;*/
+                    o->op_targ   += (o2->op_targ << 16);
+                    o->op_flags   = o2->op_flags;
+                    o->op_private = o2->op_private;
+                    o->op_rettype = o2->op_rettype;
+                    OpTYPE_set(o, OP_PADSV2);
+                    op_null(o2);
+                    o2->op_opt = 1;
                     break;
                 }
                 if ((o2->op_flags &

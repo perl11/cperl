@@ -1346,23 +1346,18 @@ PPt(pp_padsv2, "():List")
     EXTEND(SP, 2);
     {
 	OP * const op = PL_op;
-	/* access PL_curpad once */
-	SV * const padentry = PAD_SVl(op->op_targ);
-        const PADOFFSET targ2 = (PADOFFSET)OpFIRST(op);
+        const PADOFFSET targ1 = op->op_targ & 0xffff;
+        const PADOFFSET targ2 = op->op_targ >> 16;
+	SV * const pad1 = PAD_SVl(targ1);
         SV * const pad2 = PAD_SVl(targ2);
 	{
-	    dTARG;
-	    TARG = padentry;
             DEBUG_Xv(Perl_deb(aTHX_ "  padsv2 padp %p [%lu] => tops %p %-4s\n",
-                              TARG, op->op_targ, TOPs, SvPEEK(TOPs)));
-	    PUSHs(TARG);
-	    PUTBACK; /* no pop/push after this, TOPs ok */
-
-	    TARG = pad2;
+                              pad1, targ1, TOPs, SvPEEK(TOPs)));
+	    PUSHs(pad1);
+	    /*PUTBACK;*/ /* no pop/push after this, TOPs ok */
             DEBUG_Xv(Perl_deb(aTHX_ "  padsv2 padp %p [%lu] => tops %p %-4s\n",
-                              TARG, (PADOFFSET)OpFIRST(op),
-                              TOPs, SvPEEK(TOPs)));
-	    PUSHs(TARG);
+                              pad2, targ2, TOPs, SvPEEK(TOPs)));
+	    PUSHs(pad2);
 	    PUTBACK;
 	}
         /*assert(!(op->op_flags & OPf_MOD));*/
@@ -1371,10 +1366,6 @@ PPt(pp_padsv2, "():List")
 		if (!(op->op_private & OPpPAD_STATE))
 		    save_clearsv(&PAD_SVl(targ2));
 	    if (op->op_private & OPpDEREF) {
-		/* TOPs is equivalent to TARG here.  Using TOPs (SP) rather
-		   than TARG reduces the scope of TARG, so it does not
-		   span the call to save_clearsv, resulting in smaller
-		   machine code. */
 		TOPs = vivify_ref(TOPs, op->op_private & OPpDEREF);
 	    }
 	}
