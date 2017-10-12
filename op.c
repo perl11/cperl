@@ -3391,7 +3391,7 @@ S_finalize_op(pTHX_ OP* o)
 	/* FALLTHROUGH */
 #ifdef USE_ITHREADS
     case OP_HINTSEVAL:
-        Perl_op_relocate_sv(aTHX_ &cSVOPo->op_sv, &o->op_targ);
+        op_relocate_sv(&cSVOPo->op_sv, &o->op_targ);
 #endif
         break;
 
@@ -3401,7 +3401,7 @@ S_finalize_op(pTHX_ OP* o)
     case OP_METHOD_SUPER:
     case OP_METHOD_REDIR:
     case OP_METHOD_REDIR_SUPER:
-        Perl_op_relocate_sv(aTHX_ &cMETHOPx(o)->op_u.op_meth_sv, &o->op_targ);
+        op_relocate_sv(&cMETHOPx(o)->op_u.op_meth_sv, &o->op_targ);
         break;
 #endif
 
@@ -13287,7 +13287,7 @@ Perl_ck_method(pTHX_ OP *o)
         new_op = newMETHOP_named(OP_METHOD_REDIR, 0, methsv);
     }
 #ifdef USE_ITHREADS
-    Perl_op_relocate_sv(aTHX_ &rclass, &cMETHOPx(new_op)->op_rclass_targ);
+    op_relocate_sv(&rclass, &cMETHOPx(new_op)->op_rclass_targ);
 #else
     cMETHOPx(new_op)->op_rclass_sv = rclass;
 #endif
@@ -17243,7 +17243,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
 
 #ifdef USE_ITHREADS
                             /* Relocate sv to the pad for thread safety */
-                            Perl_op_relocate_sv(aTHX_ &cSVOPo->op_sv, &o->op_targ);
+                            op_relocate_sv(&cSVOPo->op_sv, &o->op_targ);
                             arg->pad_offset = o->op_targ;
                             o->op_targ = 0;
 #else

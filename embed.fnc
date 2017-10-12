@@ -547,7 +547,7 @@ s	|void	|add_isa_fields	|NN HV* klass|NN AV* isa
 s	|void	|add_does_methods	|NN HV* klass|NN AV* does
 #endif
 #if defined(USE_ITHREADS)
-pXo	|void	|op_relocate_sv	|NN SV** svp|NN PADOFFSET* targp
+pX	|void	|op_relocate_sv	|NN SV** svp|NN PADOFFSET* targp
 #endif
 Afpd	|char*	|form		|NN const char* pat|...
 Ap	|char*	|vform		|NN const char* pat|NULLOK va_list* args

@@ -13666,7 +13666,7 @@ Perl_parse_subsignature(pTHX)
                                  * with more SIGNATURE_padintro actions.
                                  * I can't think of any easy way round
                                  * this - DAPM */
-                                Perl_op_relocate_sv(aTHX_ &dummy, &po);
+                                op_relocate_sv(&dummy, &po);
                                 PUSH_ITEM(pad_offset, po);
 #else
                                 PUSH_ITEM(sv, constsv);

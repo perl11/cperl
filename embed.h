@@ -2045,6 +2045,7 @@
 #  endif
 #  if defined(USE_ITHREADS)
 #define mro_meta_dup(a,b)	Perl_mro_meta_dup(aTHX_ a,b)
+#define op_relocate_sv(a,b)	Perl_op_relocate_sv(aTHX_ a,b)
 #define padlist_dup(a,b)	Perl_padlist_dup(aTHX_ a,b)
 #define padname_dup(a,b)	Perl_padname_dup(aTHX_ a,b)
 #define padnamelist_dup(a,b)	Perl_padnamelist_dup(aTHX_ a,b)
