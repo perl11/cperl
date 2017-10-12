@@ -283,6 +283,11 @@
  */
 /*#define HAS_MEMMOVE	/ **/
 
+/* HAS_MEMSET:
+ *     This symbol is always defined and kept for backcompt with extensions.
+ */
+#define HAS_MEMSET
+
 /* HAS_MKDIR:
  *	This symbol, if defined, indicates that the mkdir routine is available
  *	to create directories.  Otherwise you should fork off a new process to
@@ -2126,14 +2131,6 @@
  *	own version.
  */
 /*#define HAS_SAFE_BCOPY	/ **/
-
-/* HAS_SAFE_MEMCPY:
- *	This symbol, if defined, indicates that the memcpy routine is available
- *	to copy potentially overlapping memory blocks.  If you need to
- *	copy overlapping memory blocks, you should check HAS_MEMMOVE and
- *	use memmove() instead, if available.
- */
-/*#define HAS_SAFE_MEMCPY	/ **/
 
 /* HAS_SANE_MEMCMP:
  *	This symbol, if defined, indicates that the memcmp routine is available
@@ -5548,6 +5545,6 @@
 #endif
 
 /* Generated from:
- * 7b1a81576b4e0a92704e10f8004aec284e20f0825da3428bf4d9ea99e13787ab config_h.SH
- * 2cd48f491f36108ab20a0af2ec574f2e27acd8e5cc8a62df89fd58c19fb4bf28 uconfig.sh
+ * 332e8079bc2c30b22cd182369d87d99b4c5351f44d52578760c1eeef21f77478 config_h.SH
+ * 58f83557c9323fa9c0a1fbdb8a3414e0b2ed52d2e747e7a8aa253fad62f6d2d0 uconfig.sh
  * ex: set ro: */

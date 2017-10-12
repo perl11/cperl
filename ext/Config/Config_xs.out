@@ -266,7 +266,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1309
+#define TOTAL_KEYWORDS 1308
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 37
 #define MIN_HASH_VALUE 3
@@ -1425,7 +1425,6 @@ struct stringpool_t
     char stringpool_str4002[sizeof ("randseedtype")];
     char stringpool_str4003[sizeof ("i_execinfo")];
     char stringpool_str4004[sizeof ("d_double_style_cray")];
-    char stringpool_str4008[sizeof ("d_safemcpy")];
     char stringpool_str4016[sizeof ("d_setservent_r")];
     char stringpool_str4018[sizeof ("d_static_inline")];
     char stringpool_str4019[sizeof ("d_endservent_r")];
@@ -2737,7 +2736,6 @@ static const struct stringpool_t stringpool_contents =
     "randseedtype",
     "i_execinfo",
     "d_double_style_cray",
-    "d_safemcpy",
     "d_setservent_r",
     "d_static_inline",
     "d_endservent_r",
@@ -5945,10 +5943,8 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4003,		T_INV,0,ALN64I"@@i_execinfo@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4004,	T_INV,0,ALN64I"@@d_double_style_cray@@"},
-      {XSCNO}, {XSCNO}, {XSCNO},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4008,		T_INV,0,ALN64I"@@d_safemcpy@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4016,		T_INV,0,ALN64I"@@d_setservent_r@@"},
       {XSCNO},
@@ -7079,7 +7075,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str8847,	T_INV,0,ALN64I"@@d_ndbm_h_uses_prototypes@@"}
     };
 
-#line 7082 "Config.xs"
+#line 7078 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);

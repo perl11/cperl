@@ -7014,7 +7014,7 @@ PERL_CALLCONV int	Perl_my_memcmp(const void* vs1, const void* vs2, size_t len)
 	assert(vs1); assert(vs2)
 
 #endif
-#if !defined(HAS_MEMCPY) || (!defined(HAS_MEMMOVE) && !defined(HAS_SAFE_MEMCPY))
+#if !defined(HAS_MEMCPY) || !defined(HAS_MEMMOVE)
 PERL_CALLCONV void*	Perl_my_bcopy(const void* vfrom, void* vto, size_t len)
 			__attribute__global__
 			__attribute__nonnull__(1)
