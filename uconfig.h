@@ -28,12 +28,6 @@
  */
 /*#define HAS_ALARM		/ **/
 
-/* HAS_BCMP:
- *	This symbol is defined if the bcmp() routine is available to
- *	compare blocks of memory.
- */
-/*#define HAS_BCMP	/ **/
-
 /* HAS_CBRT:
  *	This symbol, if defined, indicates that the cbrt() (cube root)
  *	function is available.
@@ -258,10 +252,9 @@
 /*#define HAS_MBTOWC		/ **/
 
 /* HAS_MEMCMP:
- *	This symbol, if defined, indicates that the memcmp routine is available
- *	to compare blocks of memory.
+ *     This symbol is always defined and kept for backcompt with extensions.
  */
-#define HAS_MEMCMP	/**/
+#define HAS_MEMCMP
 
 /* HAS_MEMCPY:
  *     This symbol is always defined and kept for backcompt with extensions.
@@ -2113,13 +2106,6 @@
  */
 /*#define HAS_READDIR_R	   / **/
 #define READDIR_R_PROTO 0	   /**/
-
-/* HAS_SANE_MEMCMP:
- *	This symbol, if defined, indicates that the memcmp routine is available
- *	and can be used to compare relative magnitudes of chars with their high
- *	bits set.  If it is not defined, roll your own version.
- */
-/*#define HAS_SANE_MEMCMP	/ **/
 
 /* HAS_SEM:
  *	This symbol, if defined, indicates that the entire sem*(2) library is
@@ -5527,6 +5513,6 @@
 #endif
 
 /* Generated from:
- * b7bb04e8e9c778bb0db9979a163e88bd3cc66c35375ad0f070e9a6bfca056e7e config_h.SH
- * c735f4999957013b342b40e7745f1b3866f0b424999c88cbef183eb1028bb569 uconfig.sh
+ * 544335a22181f9e1ce1eeac6214eff8a90cdc63a10c88888ea01da2a4ce5aefc config_h.SH
+ * 7d572296bf00d3a047274db0d0c3d58d337147aaa355ddacfa6c4a6b23ed9b61 uconfig.sh
  * ex: set ro: */

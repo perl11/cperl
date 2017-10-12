@@ -495,10 +495,6 @@ d_backtrace (d_backtrace.U):
 	indicates to the C program that the backtrace() routine is available
 	to get a stack trace.
 
-d_bcmp (d_bcmp.U):
-	This variable conditionally defines the HAS_BCMP symbol if
-	the bcmp() routine is available to compare strings.
-
 d_bsd (Guess.U):
 	This symbol conditionally defines the symbol BSD when running on a
 	BSD system.
@@ -1703,9 +1699,7 @@ d_memchr (d_memchr.U):
 	to locate characters within a C string.
 
 d_memcmp (d_memcmp.U):
-	This variable conditionally defines the HAS_MEMCMP symbol, which
-	indicates to the C program that the memcmp() routine is available
-	to compare blocks of memory.
+	This variable was deleted with 5.28. HAS_MEMCMP is now always defined.
 
 d_memcpy (d_memcpy.U):
 	This variable was deleted with 5.28. HAS_MEMCPY is now always defined.
@@ -2163,11 +2157,6 @@ d_rmdir (d_rmdir.U):
 d_round (d_round.U):
 	This variable conditionally defines the HAS_ROUND symbol, which
 	indicates to the C program that the round() routine is available.
-
-d_sanemcmp (d_sanemcmp.U):
-	This variable conditionally defines the HAS_SANE_MEMCMP symbol if
-	the memcpy() routine is available and can be used to compare relative
-	magnitudes of chars with their high bits set.
 
 d_sbrkproto (d_sbrkproto.U):
 	This variable conditionally defines the HAS_SBRK_PROTO symbol,

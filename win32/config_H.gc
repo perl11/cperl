@@ -28,12 +28,6 @@
  */
 #define HAS_ALARM		/**/
 
-/* HAS_BCMP:
- *	This symbol is defined if the bcmp() routine is available to
- *	compare blocks of memory.
- */
-/*#define HAS_BCMP	/ **/
-
 /* HAS_CBRT:
  *	This symbol, if defined, indicates that the cbrt() (cube root)
  *	function is available.
@@ -251,10 +245,24 @@
 #define HAS_MBTOWC		/**/
 
 /* HAS_MEMCMP:
- *	This symbol, if defined, indicates that the memcmp routine is available
- *	to compare blocks of memory.
+ *     This symbol is always defined and kept for backcompt with extensions.
  */
-#define HAS_MEMCMP	/**/
+#define HAS_MEMCMP
+
+/* HAS_MEMCPY:
+ *     This symbol is always defined and kept for backcompt with extensions.
+ */
+#define HAS_MEMCPY
+
+/* HAS_MEMMOVE:
+ *     This symbol is always defined and kept for backcompt with extensions.
+ */
+#define HAS_MEMMOVE
+
+/* HAS_MEMSET:
+ *     This symbol is always defined and kept for backcompt with extensions.
+ */
+#define HAS_MEMSET
 
 /* HAS_MKDIR:
  *	This symbol, if defined, indicates that the mkdir routine is available
@@ -1043,13 +1051,6 @@
  *	argument form of open(2) is available.
  */
 /*#define HAS_OPEN3		/ **/
-
-/* HAS_SANE_MEMCMP:
- *	This symbol, if defined, indicates that the memcmp routine is available
- *	and can be used to compare relative magnitudes of chars with their high
- *	bits set.  If it is not defined, roll your own version.
- */
-#define HAS_SANE_MEMCMP	/**/
 
 /* HAS_SIGACTION:
  *	This symbol, if defined, indicates that Vr4's sigaction() routine

@@ -175,7 +175,7 @@ ARCH BuiltWithPatchPerl Mcc PERL_PATCHLEVEL ccflags_nolargefiles
 charbits config_heavy d_acosh d_asctime64 d_asinh d_atanh d_attribut
 d_attribute_deprecated d_attribute_format d_attribute_malloc
 d_attribute_nonnull d_attribute_noreturn d_attribute_pure
-d_attribute_unused d_attribute_warn_unused_result d_backtrace d_bcopy
+d_attribute_unused d_attribute_warn_unused_result d_backtrace d_bcmp d_bcopy
 d_builtin_arith_overflow d_builtin_choose_expr d_builtin_expect
 d_bzero d_c99_variadic_macros d_cbrt d_clearenv d_copysign d_cplusplus
 d_ctermid d_ctime64 d_difftime64 d_dir_dd_fd d_dladdr d_duplocale
@@ -189,12 +189,12 @@ d_ipv6_mreq d_ipv6_mreq_source d_isblank d_isfinitel d_isinfl d_isless
 d_isnormal d_j0 d_j0l d_lc_monetary_2008 d_ldexpl d_lgamma d_lgamma_r
 d_libname_unique d_llrint d_llrintl d_llround d_llroundl d_localtime64
 d_localtime_r_needs_tzset d_log1p d_log2 d_logb d_lrint d_lrintl
-d_lround d_lroundl d_malloc_good_size d_malloc_size d_memcpy d_memmem
+d_lround d_lroundl d_malloc_good_size d_malloc_size d_memcmp d_memcpy d_memmem
 d_memmove d_memset d_mktime64 d_modfl_pow32_bug d_modflproto d_nan
 d_ndbm d_ndbm_h_uses_prototypes d_nearbyint d_newlocale d_nextafter
 d_nexttoward d_nv_zero_is_allbits_zero d_prctl d_prctl_set_name
 d_printf_format_null d_pseudofork d_ptrdiff_t d_regcomp d_remainder
-d_remquo d_rint d_round d_safebcpy d_safemcpy d_scalbn d_sfio
+d_remquo d_rint d_round d_safebcpy d_safemcpy d_sanemcmp d_scalbn d_sfio
 d_siginfo_si_addr d_siginfo_si_band d_siginfo_si_errno d_siginfo_si_fd
 d_siginfo_si_pid d_siginfo_si_status d_siginfo_si_uid
 d_siginfo_si_value d_signbit d_sin6_scope_id d_sitearch d_snprintf
