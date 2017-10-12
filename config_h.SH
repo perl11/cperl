@@ -868,8 +868,9 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #$i_vfork I_VFORK	/**/
 
 /* CAN_VAPROTO:
- *	This variable is defined on systems supporting prototype declaration
- *	of functions with a variable number of arguments.
+ *	This variable is defined on all C89 systems, supporting
+ *	prototype declaration of functions with a variable number of
+ *	arguments.
  */
 /* _V:
  *	This macro is used to declare function parameters in prototypes for
@@ -882,12 +883,8 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  *	with no variable number of arguments, since it might be possible to
  *	have a non-effect _V() macro and still get prototypes via _().
  */
-#$vaproto CAN_VAPROTO	/**/
-#ifdef CAN_VAPROTO
+#define CAN_VAPROTO
 #define	_V(args) args
-#else
-#define	_V(args) ()
-#endif
 
 /* OSNAME:
  *	This symbol contains the name of the operating system, as determined

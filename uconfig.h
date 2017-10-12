@@ -833,8 +833,9 @@
 /*#define I_VFORK	/ **/
 
 /* CAN_VAPROTO:
- *	This variable is defined on systems supporting prototype declaration
- *	of functions with a variable number of arguments.
+ *	This variable is defined on all C89 systems, supporting
+ *	prototype declaration of functions with a variable number of
+ *	arguments.
  */
 /* _V:
  *	This macro is used to declare function parameters in prototypes for
@@ -847,12 +848,8 @@
  *	with no variable number of arguments, since it might be possible to
  *	have a non-effect _V() macro and still get prototypes via _().
  */
-/*#define CAN_VAPROTO	/ **/
-#ifdef CAN_VAPROTO
+#define CAN_VAPROTO
 #define	_V(args) args
-#else
-#define	_V(args) ()
-#endif
 
 /* OSNAME:
  *	This symbol contains the name of the operating system, as determined
@@ -5499,6 +5496,6 @@
 #endif
 
 /* Generated from:
- * 7649cc9221b298e6c3d86139fcda69bc6c4082d5a719f457ba602539721623e0 config_h.SH
- * 6f89d61ee21f2e5339dcc2547e7d2c1aa4faab6c109e34a7b0ea1295b320c691 uconfig.sh
+ * 4c01d5373e7339726d7d2f4f88044a045593ab7cce5689c076a27a006569d762 config_h.SH
+ * cc9f8b5b15da7ac936deec632019a769af157d2db88a268c5028e86288218813 uconfig.sh
  * ex: set ro: */

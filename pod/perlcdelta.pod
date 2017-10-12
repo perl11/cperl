@@ -781,6 +781,10 @@ Ditto: Keep HAS_VPRINTF
 
 Ditto: Keep HASVOLATILE
 
+=item vaproto
+
+Ditto: Keep CAN_VAPROTO, _V
+
 =back
 
 =back
