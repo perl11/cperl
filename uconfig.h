@@ -2658,18 +2658,9 @@
 #define HASVOLATILE
 
 /* HAS_VPRINTF:
- *	This symbol, if defined, indicates that the vprintf routine is available
- *	to printf with a pointer to an argument list.  If unavailable, you
- *	may need to write your own, probably in terms of _doprnt().
+ *	This symbol is always defined and kept for backcompat with extensions.
  */
-/* USE_CHAR_VSPRINTF:
- *	This symbol is defined if this system has vsprintf() returning type
- *	(char*).  The trend seems to be to declare it as "int vsprintf()".  It
- *	is up to the package author to declare vsprintf correctly based on the
- *	symbol.
- */
-#define HAS_VPRINTF	/**/
-/*#define USE_CHAR_VSPRINTF 	/ **/
+#define HAS_VPRINTF
 
 /* DOUBLESIZE:
  *	This symbol contains the size of a double, so that the C preprocessor
@@ -5508,6 +5499,6 @@
 #endif
 
 /* Generated from:
- * 21bfa411dd392fe3cb71006a216787005581b700f09d43cad9b05239d0732037 config_h.SH
- * afc5af3e9964d4f4562e27db5db389b3064d734dbc97f1e3d31d6d28823068bc uconfig.sh
+ * 7649cc9221b298e6c3d86139fcda69bc6c4082d5a719f457ba602539721623e0 config_h.SH
+ * 6f89d61ee21f2e5339dcc2547e7d2c1aa4faab6c109e34a7b0ea1295b320c691 uconfig.sh
  * ex: set ro: */

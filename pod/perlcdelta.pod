@@ -748,6 +748,8 @@ i_wchar
 
 =item d_strctcpy
 
+=item d_charvspr
+
 =item d_memset
 
 Beware: HAS_MEMSET is undefined since v5.28, but always considered to be
@@ -770,6 +772,10 @@ Ditto: Keep HAS_MEMCPY
 =item d_memmove
 
 Ditto: Keep HAS_MEMMOVE
+
+=item d_vprintf
+
+Ditto: Keep HAS_VPRINTF
 
 =item d_volatile
 

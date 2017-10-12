@@ -177,7 +177,7 @@ d_attribute_deprecated d_attribute_format d_attribute_malloc
 d_attribute_nonnull d_attribute_noreturn d_attribute_pure
 d_attribute_unused d_attribute_warn_unused_result d_backtrace d_bcmp
 d_bcopy d_builtin_arith_overflow d_builtin_choose_expr
-d_builtin_expect d_bzero d_c99_variadic_macros d_cbrt d_clearenv
+d_builtin_expect d_bzero d_c99_variadic_macros d_cbrt d_charvspr d_clearenv
 d_copysign d_cplusplus d_ctermid d_ctime64 d_difftime64 d_dir_dd_fd
 d_dladdr d_duplocale d_erf d_erfc d_exp2 d_expm1 d_fdclose d_fdim
 d_fegetround d_fma d_fmax d_fmin d_fp_classify d_fp_classl
@@ -199,11 +199,11 @@ d_regcomp d_remainder d_remquo d_rint d_round d_safebcpy d_safemcpy
 d_sanemcmp d_scalbn d_sfio d_siginfo_si_addr d_siginfo_si_band
 d_siginfo_si_errno d_siginfo_si_fd d_siginfo_si_pid
 d_siginfo_si_status d_siginfo_si_uid d_siginfo_si_value d_signbit
-d_sin6_scope_id d_sitearch d_snprintf d_sockaddr_in6 d_sockaddr_sa_len
+d_sin6_scope_id d_sitearch d_sockaddr_in6 d_sockaddr_sa_len
 d_sprintf_returns_strlen d_stat d_statfs_f_flags d_statfs_s
 d_static_inline d_statvfs d_strlcat d_strlcpy d_strctcpy d_tgamma
 d_timegm d_trunc d_truncl d_unsetenv d_uselocale d_ustat
-d_vendorscript d_vms_case_sensitive_symbols d_volatile d_vsnprintf
+d_vendorscript d_vms_case_sensitive_symbols d_volatile d_vprintf
 d_wcscmp d_wcsxfrm defvoidused dl_so_eq_ext doop_cflags doubleinfbytes
 doublekind doublemantbits doublenanbytes dtrace extern_C found_libucb
 from gccansipedantic git_branch git_commit_id git_commit_id_title

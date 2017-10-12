@@ -266,7 +266,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1299
+#define TOTAL_KEYWORDS 1297
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 37
 #define MIN_HASH_VALUE 3
@@ -284,8 +284,8 @@ Config_hash (register const char *str, register unsigned int len)
       10329, 10329, 10329, 10329, 10329, 10329, 10329, 10329, 10329, 10329,
       10329, 10329, 10329, 10329, 10329, 10329, 10329, 10329, 10329, 10329,
       10329, 10329, 10329, 10329, 10329, 10329, 10329, 10329,     7,   129,
-          5,    21,    10,    28,    13,    92,     0,     8,    17,    14,
-          3, 10329, 10329, 10329, 10329,     1,     6,     0,     2,     2,
+          5,    21,    10,    28,    13,    78,     0,     8,    17,    14,
+          3, 10329, 10329, 10329, 10329,     1,     2,     0,     2,     2,
           9,     0,     1,     0,     1, 10329,     0,     1,     1,     0,
          80,     0,     0,     0,     0,     2,     0,     0,     0,     0,
       10329, 10329, 10329, 10329, 10329,     9,  2084,   133,  1252,   156,
@@ -401,20 +401,20 @@ struct stringpool_t
     char stringpool_str92[sizeof ("i_prot")];
     char stringpool_str93[sizeof ("perl5")];
     char stringpool_str95[sizeof ("ln")];
+    char stringpool_str97[sizeof ("SUBVERSION")];
     char stringpool_str98[sizeof ("lns")];
     char stringpool_str99[sizeof ("line")];
     char stringpool_str100[sizeof ("d_pipe")];
-    char stringpool_str101[sizeof ("SUBVERSION")];
     char stringpool_str102[sizeof ("lint")];
     char stringpool_str103[sizeof ("i_poll")];
     char stringpool_str104[sizeof ("d_poll")];
     char stringpool_str108[sizeof ("trnl")];
     char stringpool_str109[sizeof ("d_rint")];
     char stringpool_str110[sizeof ("PATCHLEVEL")];
+    char stringpool_str111[sizeof ("PERL_SUBVERSION")];
     char stringpool_str112[sizeof ("PERL_VERSION")];
     char stringpool_str113[sizeof ("d_strtold_l")];
     char stringpool_str114[sizeof ("PERL_REVISION")];
-    char stringpool_str115[sizeof ("PERL_SUBVERSION")];
     char stringpool_str119[sizeof ("d_setprior")];
     char stringpool_str124[sizeof ("d_strerrm")];
     char stringpool_str126[sizeof ("d_strerror_l")];
@@ -443,20 +443,20 @@ struct stringpool_t
     char stringpool_str172[sizeof ("d_dladdr")];
     char stringpool_str177[sizeof ("d_open3")];
     char stringpool_str179[sizeof ("i_niin")];
+    char stringpool_str180[sizeof ("sPRIXU64")];
     char stringpool_str181[sizeof ("dlsrc")];
     char stringpool_str182[sizeof ("d_readdir_r")];
     char stringpool_str183[sizeof ("sitelib")];
+    char stringpool_str186[sizeof ("d_PRIi64")];
+    char stringpool_str187[sizeof ("d_PRId64")];
     char stringpool_str193[sizeof ("d_strchr")];
-    char stringpool_str194[sizeof ("sPRIXU64")];
+    char stringpool_str194[sizeof ("PERL_PATCHLEVEL")];
     char stringpool_str197[sizeof ("sGMTIME_min")];
-    char stringpool_str198[sizeof ("PERL_PATCHLEVEL")];
     char stringpool_str199[sizeof ("cp")];
-    char stringpool_str200[sizeof ("d_PRIi64")];
-    char stringpool_str201[sizeof ("d_PRId64")];
     char stringpool_str206[sizeof ("i8size")];
+    char stringpool_str211[sizeof ("d_PRIo64")];
     char stringpool_str221[sizeof ("d_inetntop")];
     char stringpool_str223[sizeof ("scriptdir")];
-    char stringpool_str225[sizeof ("d_PRIo64")];
     char stringpool_str226[sizeof ("cpio")];
     char stringpool_str234[sizeof ("d_asinh")];
     char stringpool_str237[sizeof ("perllibs")];
@@ -559,8 +559,8 @@ struct stringpool_t
     char stringpool_str617[sizeof ("d_strlcat")];
     char stringpool_str623[sizeof ("d_cuserid")];
     char stringpool_str624[sizeof ("siteman1dir")];
+    char stringpool_str626[sizeof ("d_PRIu64")];
     char stringpool_str635[sizeof ("Source")];
-    char stringpool_str640[sizeof ("d_PRIu64")];
     char stringpool_str642[sizeof ("find")];
     char stringpool_str646[sizeof ("u8size")];
     char stringpool_str648[sizeof ("usesocks")];
@@ -684,9 +684,9 @@ struct stringpool_t
     char stringpool_str1144[sizeof ("d_cmsghdr_s")];
     char stringpool_str1145[sizeof ("d_fd_set")];
     char stringpool_str1146[sizeof ("d_setpent")];
+    char stringpool_str1148[sizeof ("d_gmtime64")];
     char stringpool_str1151[sizeof ("troff")];
     char stringpool_str1156[sizeof ("d_setgrent_r")];
-    char stringpool_str1162[sizeof ("d_gmtime64")];
     char stringpool_str1166[sizeof ("installprefix")];
     char stringpool_str1167[sizeof ("mips_type")];
     char stringpool_str1168[sizeof ("full_ar")];
@@ -836,9 +836,9 @@ struct stringpool_t
     char stringpool_str1739[sizeof ("i_math")];
     char stringpool_str1746[sizeof ("archlib")];
     char stringpool_str1747[sizeof ("d_getsent")];
+    char stringpool_str1748[sizeof ("d_difftime64")];
     char stringpool_str1754[sizeof ("d_siginfo_si_uid")];
     char stringpool_str1760[sizeof ("Author")];
-    char stringpool_str1762[sizeof ("d_difftime64")];
     char stringpool_str1773[sizeof ("chmod")];
     char stringpool_str1778[sizeof ("doublekind")];
     char stringpool_str1781[sizeof ("d_longlong")];
@@ -895,9 +895,9 @@ struct stringpool_t
     char stringpool_str1957[sizeof ("sysroot")];
     char stringpool_str1958[sizeof ("glibpth")];
     char stringpool_str1959[sizeof ("perlpath")];
+    char stringpool_str1969[sizeof ("archname64")];
     char stringpool_str1971[sizeof ("d_readv")];
     char stringpool_str1976[sizeof ("stdio_stream_array")];
-    char stringpool_str1983[sizeof ("archname64")];
     char stringpool_str1984[sizeof ("sysman")];
     char stringpool_str1988[sizeof ("d_getpgid")];
     char stringpool_str1991[sizeof ("d_tcsetpgrp")];
@@ -1063,10 +1063,10 @@ struct stringpool_t
     char stringpool_str2548[sizeof ("sockethdr")];
     char stringpool_str2550[sizeof ("i_socks")];
     char stringpool_str2552[sizeof ("d_endpwent")];
+    char stringpool_str2560[sizeof ("d_PRIx64")];
     char stringpool_str2565[sizeof ("d_sitearch")];
     char stringpool_str2568[sizeof ("d_setnetent_r")];
     char stringpool_str2571[sizeof ("d_dbl_dig")];
-    char stringpool_str2574[sizeof ("d_PRIx64")];
     char stringpool_str2575[sizeof ("groupcat")];
     char stringpool_str2578[sizeof ("d_stdiobase")];
     char stringpool_str2583[sizeof ("d_querylocale")];
@@ -1131,16 +1131,15 @@ struct stringpool_t
     char stringpool_str2808[sizeof ("d_shmget")];
     char stringpool_str2811[sizeof ("i_langinfo")];
     char stringpool_str2813[sizeof ("html3dir")];
+    char stringpool_str2820[sizeof ("d_fpos64_t")];
     char stringpool_str2829[sizeof ("d_nl_langinfo")];
     char stringpool_str2832[sizeof ("mailx")];
-    char stringpool_str2834[sizeof ("d_fpos64_t")];
     char stringpool_str2836[sizeof ("pmake")];
     char stringpool_str2842[sizeof ("d_readlink")];
     char stringpool_str2847[sizeof ("d_vsnprintf")];
-    char stringpool_str2852[sizeof ("d_vprintf")];
+    char stringpool_str2852[sizeof ("d_mktime64")];
     char stringpool_str2853[sizeof ("fflushNULL")];
     char stringpool_str2861[sizeof ("setgrent_r_proto")];
-    char stringpool_str2866[sizeof ("d_mktime64")];
     char stringpool_str2868[sizeof ("installman3dir")];
     char stringpool_str2874[sizeof ("d_fegetround")];
     char stringpool_str2888[sizeof ("alignbytes")];
@@ -1454,13 +1453,13 @@ struct stringpool_t
     char stringpool_str4386[sizeof ("d_endservent_r")];
     char stringpool_str4402[sizeof ("i_xlocale")];
     char stringpool_str4407[sizeof ("sitearchexp")];
+    char stringpool_str4410[sizeof ("config_arg7")];
     char stringpool_str4414[sizeof ("i_sysfilio")];
+    char stringpool_str4416[sizeof ("config_arg24")];
     char stringpool_str4421[sizeof ("fflushall")];
-    char stringpool_str4424[sizeof ("config_arg7")];
     char stringpool_str4429[sizeof ("d_pwpasswd")];
-    char stringpool_str4430[sizeof ("config_arg24")];
+    char stringpool_str4432[sizeof ("config_arg34")];
     char stringpool_str4433[sizeof ("installsitehtml3dir")];
-    char stringpool_str4446[sizeof ("config_arg34")];
     char stringpool_str4456[sizeof ("d_double_style_cray")];
     char stringpool_str4461[sizeof ("config_arg1")];
     char stringpool_str4462[sizeof ("config_arg15")];
@@ -1483,8 +1482,8 @@ struct stringpool_t
     char stringpool_str4516[sizeof ("d_frexpl")];
     char stringpool_str4517[sizeof ("getservbyport_r_proto")];
     char stringpool_str4536[sizeof ("git_branch")];
+    char stringpool_str4540[sizeof ("config_arg14")];
     char stringpool_str4541[sizeof ("installsitehtml1dir")];
-    char stringpool_str4554[sizeof ("config_arg14")];
     char stringpool_str4563[sizeof ("extern_C")];
     char stringpool_str4578[sizeof ("d_killpg")];
     char stringpool_str4579[sizeof ("installvendorlib")];
@@ -1532,7 +1531,6 @@ struct stringpool_t
     char stringpool_str4944[sizeof ("installvendorhtml3dir")];
     char stringpool_str4950[sizeof ("d_getservent_r")];
     char stringpool_str4953[sizeof ("vendorprefix")];
-    char stringpool_str4962[sizeof ("d_charvspr")];
     char stringpool_str4976[sizeof ("i_syswait")];
     char stringpool_str4977[sizeof ("db_version_patch")];
     char stringpool_str5002[sizeof ("installhtmlhelpdir")];
@@ -1703,20 +1701,20 @@ static const struct stringpool_t stringpool_contents =
     "i_prot",
     "perl5",
     "ln",
+    "SUBVERSION",
     "lns",
     "line",
     "d_pipe",
-    "SUBVERSION",
     "lint",
     "i_poll",
     "d_poll",
     "trnl",
     "d_rint",
     "PATCHLEVEL",
+    "PERL_SUBVERSION",
     "PERL_VERSION",
     "d_strtold_l",
     "PERL_REVISION",
-    "PERL_SUBVERSION",
     "d_setprior",
     "d_strerrm",
     "d_strerror_l",
@@ -1745,20 +1743,20 @@ static const struct stringpool_t stringpool_contents =
     "d_dladdr",
     "d_open3",
     "i_niin",
+    "sPRIXU64",
     "dlsrc",
     "d_readdir_r",
     "sitelib",
-    "d_strchr",
-    "sPRIXU64",
-    "sGMTIME_min",
-    "PERL_PATCHLEVEL",
-    "cp",
     "d_PRIi64",
     "d_PRId64",
+    "d_strchr",
+    "PERL_PATCHLEVEL",
+    "sGMTIME_min",
+    "cp",
     "i8size",
+    "d_PRIo64",
     "d_inetntop",
     "scriptdir",
-    "d_PRIo64",
     "cpio",
     "d_asinh",
     "perllibs",
@@ -1861,8 +1859,8 @@ static const struct stringpool_t stringpool_contents =
     "d_strlcat",
     "d_cuserid",
     "siteman1dir",
-    "Source",
     "d_PRIu64",
+    "Source",
     "find",
     "u8size",
     "usesocks",
@@ -1986,9 +1984,9 @@ static const struct stringpool_t stringpool_contents =
     "d_cmsghdr_s",
     "d_fd_set",
     "d_setpent",
+    "d_gmtime64",
     "troff",
     "d_setgrent_r",
-    "d_gmtime64",
     "installprefix",
     "mips_type",
     "full_ar",
@@ -2138,9 +2136,9 @@ static const struct stringpool_t stringpool_contents =
     "i_math",
     "archlib",
     "d_getsent",
+    "d_difftime64",
     "d_siginfo_si_uid",
     "Author",
-    "d_difftime64",
     "chmod",
     "doublekind",
     "d_longlong",
@@ -2197,9 +2195,9 @@ static const struct stringpool_t stringpool_contents =
     "sysroot",
     "glibpth",
     "perlpath",
+    "archname64",
     "d_readv",
     "stdio_stream_array",
-    "archname64",
     "sysman",
     "d_getpgid",
     "d_tcsetpgrp",
@@ -2365,10 +2363,10 @@ static const struct stringpool_t stringpool_contents =
     "sockethdr",
     "i_socks",
     "d_endpwent",
+    "d_PRIx64",
     "d_sitearch",
     "d_setnetent_r",
     "d_dbl_dig",
-    "d_PRIx64",
     "groupcat",
     "d_stdiobase",
     "d_querylocale",
@@ -2433,16 +2431,15 @@ static const struct stringpool_t stringpool_contents =
     "d_shmget",
     "i_langinfo",
     "html3dir",
+    "d_fpos64_t",
     "d_nl_langinfo",
     "mailx",
-    "d_fpos64_t",
     "pmake",
     "d_readlink",
     "d_vsnprintf",
-    "d_vprintf",
+    "d_mktime64",
     "fflushNULL",
     "setgrent_r_proto",
-    "d_mktime64",
     "installman3dir",
     "d_fegetround",
     "alignbytes",
@@ -2756,13 +2753,13 @@ static const struct stringpool_t stringpool_contents =
     "d_endservent_r",
     "i_xlocale",
     "sitearchexp",
-    "i_sysfilio",
-    "fflushall",
     "config_arg7",
-    "d_pwpasswd",
+    "i_sysfilio",
     "config_arg24",
-    "installsitehtml3dir",
+    "fflushall",
+    "d_pwpasswd",
     "config_arg34",
+    "installsitehtml3dir",
     "d_double_style_cray",
     "config_arg1",
     "config_arg15",
@@ -2785,8 +2782,8 @@ static const struct stringpool_t stringpool_contents =
     "d_frexpl",
     "getservbyport_r_proto",
     "git_branch",
-    "installsitehtml1dir",
     "config_arg14",
+    "installsitehtml1dir",
     "extern_C",
     "d_killpg",
     "installvendorlib",
@@ -2834,7 +2831,6 @@ static const struct stringpool_t stringpool_contents =
     "installvendorhtml3dir",
     "d_getservent_r",
     "vendorprefix",
-    "d_charvspr",
     "i_syswait",
     "db_version_patch",
     "installhtmlhelpdir",
@@ -3064,15 +3060,16 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str95,			T_INV,0,ALN64I"@@ln@@"},
-      {XSCNO}, {XSCNO},
+      {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str97,		T_INV,0,ALN64I"@@SUBVERSION@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str98,			T_INV,0,ALN64I"@@lns@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str99,			T_INV,0,ALN64I"@@line@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str100,			T_INV,0,ALN64I"@@d_pipe@@"},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str101,		T_INV,0,ALN64I"@@SUBVERSION@@"},
+      {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str102,			T_INV,0,ALN64I"@@lint@@"},
 
@@ -3086,16 +3083,15 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str109,			T_INV,0,ALN64I"@@d_rint@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str110,		T_INV,0,ALN64I"@@PATCHLEVEL@@"},
-      {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str111,	T_INV,0,ALN64I"@@PERL_SUBVERSION@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str112,		T_INV,0,ALN64I"@@PERL_VERSION@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str113,		T_INV,0,ALN64I"@@d_strtold_l@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str114,		T_INV,0,ALN64I"@@PERL_REVISION@@"},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str115,	T_INV,0,ALN64I"@@PERL_SUBVERSION@@"},
-      {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str119,		T_INV,0,ALN64I"@@d_setprior@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
@@ -3168,42 +3164,43 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str179,			T_INV,0,ALN64I"@@i_niin@@"},
-      {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str180,		T_INV,0,ALN64I"@@sPRIXU64@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str181,			T_INV,0,ALN64I"@@dlsrc@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str182,		T_INV,0,ALN64I"@@d_readdir_r@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str183,		T_INV,0,ALN64I"@@sitelib@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str186,		T_INV,0,ALN64I"@@d_PRIi64@@"},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str187,		T_INV,0,ALN64I"@@d_PRId64@@"},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str193,		T_INV,0,ALN64I"@@d_strchr@@"},
 
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str194,		T_INV,0,ALN64I"@@sPRIXU64@@"},
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str194,	T_INV,0,ALN64I"@@PERL_PATCHLEVEL@@"},
       {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str197,		T_INV,0,ALN64I"@@sGMTIME_min@@"},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str198,	T_INV,0,ALN64I"@@PERL_PATCHLEVEL@@"},
+      {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str199,			T_INV,0,ALN64I"@@cp@@"},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str200,		T_INV,0,ALN64I"@@d_PRIi64@@"},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str201,		T_INV,0,ALN64I"@@d_PRId64@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str206,			T_INV,0,ALN64I"@@i8size@@"},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str211,		T_INV,0,ALN64I"@@d_PRIo64@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str221,		T_INV,0,ALN64I"@@d_inetntop@@"},
       {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str223,		T_INV,0,ALN64I"@@scriptdir@@"},
-      {XSCNO},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str225,		T_INV,0,ALN64I"@@d_PRIo64@@"},
+      {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str226,			T_INV,0,ALN64I"@@cpio@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
@@ -3488,14 +3485,13 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str623,		T_INV,0,ALN64I"@@d_cuserid@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str624,		T_INV,0,ALN64I"@@siteman1dir@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
       {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str626,		T_INV,0,ALN64I"@@d_PRIu64@@"},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str635,			T_INV,0,ALN64I"@@Source@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str640,		T_INV,0,ALN64I"@@d_PRIu64@@"},
-      {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str642,			T_INV,0,ALN64I"@@find@@"},
       {XSCNO}, {XSCNO}, {XSCNO},
@@ -3848,16 +3844,16 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1145,		T_INV,0,ALN64I"@@d_fd_set@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1146,		T_INV,0,ALN64I"@@d_setpent@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1148,		T_INV,0,ALN64I"@@d_gmtime64@@"},
+      {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1151,			T_INV,0,ALN64I"@@troff@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1156,		T_INV,0,ALN64I"@@d_setgrent_r@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1162,		T_INV,0,ALN64I"@@d_gmtime64@@"},
-      {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1166,		T_INV,0,ALN64I"@@installprefix@@"},
 
@@ -4277,17 +4273,16 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1746,		T_INV,0,ALN64I"@@archlib@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1747,		T_INV,0,ALN64I"@@d_getsent@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1748,		T_INV,0,ALN64I"@@d_difftime64@@"},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1754,	T_INV,0,ALN64I"@@d_siginfo_si_uid@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1760,			T_INV,0,ALN64I"@@Author@@"},
-      {XSCNO},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1762,		T_INV,0,ALN64I"@@d_difftime64@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-      {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1773,			T_INV,0,ALN64I"@@chmod@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
@@ -4441,15 +4436,15 @@ Config_lookup (register const char *str, register unsigned int len)
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1959,		T_INV,0,ALN64I"@@perlpath@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-      {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1969,		T_INV,0,ALN64I"@@archname64@@"},
+      {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1971,		T_INV,0,ALN64I"@@d_readv@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1976,	T_INV,0,ALN64I"@@stdio_stream_array@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1983,		T_INV,0,ALN64I"@@archname64@@"},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1984,			T_INV,0,ALN64I"@@sysman@@"},
       {XSCNO}, {XSCNO}, {XSCNO},
@@ -4908,8 +4903,10 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2552,		T_INV,0,ALN64I"@@d_endpwent@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-      {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2560,		T_INV,0,ALN64I"@@d_PRIx64@@"},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2565,		T_INV,0,ALN64I"@@d_sitearch@@"},
       {XSCNO}, {XSCNO},
@@ -4918,9 +4915,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2571,		T_INV,0,ALN64I"@@d_dbl_dig@@"},
-      {XSCNO}, {XSCNO},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2574,		T_INV,0,ALN64I"@@d_PRIx64@@"},
+      {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2575,		T_INV,0,ALN64I"@@groupcat@@"},
       {XSCNO}, {XSCNO},
@@ -5103,17 +5098,16 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2813,		T_INV,0,ALN64I"@@html3dir@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2820,		T_INV,0,ALN64I"@@d_fpos64_t@@"},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2829,		T_INV,0,ALN64I"@@d_nl_langinfo@@"},
       {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2832,			T_INV,0,ALN64I"@@mailx@@"},
-      {XSCNO},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2834,		T_INV,0,ALN64I"@@d_fpos64_t@@"},
-      {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2836,			T_INV,0,ALN64I"@@pmake@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
@@ -5124,16 +5118,13 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2847,		T_INV,0,ALN64I"@@d_vsnprintf@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2852,		T_INV,0,ALN64I"@@d_vprintf@@"},
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2852,		T_INV,0,ALN64I"@@d_mktime64@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2853,		T_INV,0,ALN64I"@@fflushNULL@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2861,	T_INV,0,ALN64I"@@setgrent_r_proto@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2866,		T_INV,0,ALN64I"@@d_mktime64@@"},
-      {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2868,		T_INV,0,ALN64I"@@installman3dir@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
@@ -6037,28 +6028,29 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4407,		T_INV,0,ALN64I"@@sitearchexp@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4410,		T_INV,0,ALN64I"@@config_arg7@@"},
+      {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4414,		T_INV,0,ALN64I"@@i_sysfilio@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO},
 
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4421,		T_INV,0,ALN64I"@@fflushall@@"},
-      {XSCNO}, {XSCNO},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4424,		T_INV,0,ALN64I"@@config_arg7@@"},
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4416,		T_INV,0,ALN64I"@@config_arg24@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4429,		T_INV,0,ALN64I"@@d_pwpasswd@@"},
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4421,		T_INV,0,ALN64I"@@fflushall@@"},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4430,		T_INV,0,ALN64I"@@config_arg24@@"},
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4429,		T_INV,0,ALN64I"@@d_pwpasswd@@"},
       {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4432,		T_INV,0,ALN64I"@@config_arg34@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4433,	T_INV,0,ALN64I"@@installsitehtml3dir@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-      {XSCNO}, {XSCNO}, {XSCNO},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4446,		T_INV,0,ALN64I"@@config_arg34@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4456,	T_INV,0,ALN64I"@@d_double_style_cray@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
@@ -6120,14 +6112,14 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4536,		T_INV,0,ALN64I"@@git_branch@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4540,		T_INV,0,ALN64I"@@config_arg14@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4541,	T_INV,0,ALN64I"@@installsitehtml1dir@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
       {XSCNO}, {XSCNO}, {XSCNO},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4554,		T_INV,0,ALN64I"@@config_arg14@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4563,		T_INV,0,ALN64I"@@extern_C@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
@@ -6284,9 +6276,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4953,		T_INV,0,ALN64I"@@vendorprefix@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4962,		T_INV,0,ALN64I"@@d_charvspr@@"},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
@@ -7194,7 +7184,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str10328,	T_INV,0,ALN64I"@@nv_preserves_uv_bits@@"}
     };
 
-#line 7197 "Config.xs"
+#line 7187 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);
