@@ -241,6 +241,11 @@
  */
 #define HAS_MBTOWC		/**/
 
+/* HAS_MEMCHR:
+ *     This symbol is always defined and kept for backcompat with extensions.
+ */
+#define HAS_MEMCHR
+
 /* HAS_MEMCMP:
  *     This symbol is always defined and kept for backcompt with extensions.
  */
@@ -1929,12 +1934,6 @@
  *	routine is available for use.
  */
 /*#define HAS_MALLOC_GOOD_SIZE	/**/
-
-/* HAS_MEMCHR:
- *	This symbol, if defined, indicates that the memchr routine is available
- *	to locate characters within a C string.
- */
-#define HAS_MEMCHR	/**/
 
 /* HAS_MKDTEMP:
  *	This symbol, if defined, indicates that the mkdtemp routine is

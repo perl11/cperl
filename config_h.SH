@@ -286,23 +286,28 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$d_mbtowc HAS_MBTOWC		/**/
 
+/* HAS_MEMCHR:
+ *     This symbol is always defined and kept for backcompat with extensions.
+ */
+#define HAS_MEMCHR
+
 /* HAS_MEMCMP:
- *     This symbol is always defined and kept for backcompt with extensions.
+ *     This symbol is always defined and kept for backcompat with extensions.
  */
 #define HAS_MEMCMP
 
 /* HAS_MEMCPY:
- *     This symbol is always defined and kept for backcompt with extensions.
+ *     This symbol is always defined and kept for backcompat with extensions.
  */
 #define HAS_MEMCPY
 
 /* HAS_MEMMOVE:
- *     This symbol is always defined and kept for backcompt with extensions.
+ *     This symbol is always defined and kept for backcompat with extensions.
  */
 #define HAS_MEMMOVE
 
 /* HAS_MEMSET:
- *     This symbol is always defined and kept for backcompt with extensions.
+ *     This symbol is always defined and kept for backcompat with extensions.
  */
 #define HAS_MEMSET
 
@@ -2030,12 +2035,6 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  *		extern off_t lseek(int, off_t, int);
  */
 #$d_lseekproto	HAS_LSEEK_PROTO	/**/
-
-/* HAS_MEMCHR:
- *	This symbol, if defined, indicates that the memchr routine is available
- *	to locate characters within a C string.
- */
-#$d_memchr HAS_MEMCHR	/**/
 
 /* HAS_MKSTEMP:
  *	This symbol, if defined, indicates that the mkstemp routine is

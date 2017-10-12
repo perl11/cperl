@@ -251,23 +251,28 @@
  */
 /*#define HAS_MBTOWC		/ **/
 
+/* HAS_MEMCHR:
+ *     This symbol is always defined and kept for backcompat with extensions.
+ */
+#define HAS_MEMCHR
+
 /* HAS_MEMCMP:
- *     This symbol is always defined and kept for backcompt with extensions.
+ *     This symbol is always defined and kept for backcompat with extensions.
  */
 #define HAS_MEMCMP
 
 /* HAS_MEMCPY:
- *     This symbol is always defined and kept for backcompt with extensions.
+ *     This symbol is always defined and kept for backcompat with extensions.
  */
 #define HAS_MEMCPY
 
 /* HAS_MEMMOVE:
- *     This symbol is always defined and kept for backcompt with extensions.
+ *     This symbol is always defined and kept for backcompat with extensions.
  */
 #define HAS_MEMMOVE
 
 /* HAS_MEMSET:
- *     This symbol is always defined and kept for backcompt with extensions.
+ *     This symbol is always defined and kept for backcompat with extensions.
  */
 #define HAS_MEMSET
 
@@ -1995,12 +2000,6 @@
  *		extern off_t lseek(int, off_t, int);
  */
 /*#define	HAS_LSEEK_PROTO	/ **/
-
-/* HAS_MEMCHR:
- *	This symbol, if defined, indicates that the memchr routine is available
- *	to locate characters within a C string.
- */
-#define HAS_MEMCHR	/**/
 
 /* HAS_MKSTEMP:
  *	This symbol, if defined, indicates that the mkstemp routine is
@@ -5513,6 +5512,6 @@
 #endif
 
 /* Generated from:
- * 544335a22181f9e1ce1eeac6214eff8a90cdc63a10c88888ea01da2a4ce5aefc config_h.SH
- * 7d572296bf00d3a047274db0d0c3d58d337147aaa355ddacfa6c4a6b23ed9b61 uconfig.sh
+ * 792180045626b810f525723b977b06d0459a585cddc8747fb088e561a6d25e50 config_h.SH
+ * 5eec6ec5db22f688d677aee65f406383831f668fd28c2300e23b5883bec4fa49 uconfig.sh
  * ex: set ro: */

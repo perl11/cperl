@@ -1965,10 +1965,9 @@
 /*#define HAS_MADVISE		/ **/
 
 /* HAS_MEMCHR:
- *	This symbol, if defined, indicates that the memchr routine is available
- *	to locate characters within a C string.
+ *     This symbol is always defined and kept for backcompat with extensions.
  */
-#define HAS_MEMCHR	/**/
+#define HAS_MEMCHR
 
 /* HAS_MKDTEMP:
  *	This symbol, if defined, indicates that the mkdtemp routine is

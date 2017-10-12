@@ -1694,9 +1694,7 @@ d_mbtowc (d_mbtowc.U):
 	to convert multibyte to a wide character.
 
 d_memchr (d_memchr.U):
-	This variable conditionally defines the HAS_MEMCHR symbol, which
-	indicates to the C program that the memchr() routine is available
-	to locate characters within a C string.
+	This variable was deleted with 5.28. HAS_MEMCHR is now always defined.
 
 d_memcmp (d_memcmp.U):
 	This variable was deleted with 5.28. HAS_MEMCMP is now always defined.
