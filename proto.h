@@ -6995,14 +6995,6 @@ PERL_CALLCONV_NO_RET int	Perl_magic_regdatum_set(pTHX_ SV* sv, MAGIC* mg)
 	assert(sv); assert(mg)
 
 #endif
-#if !defined(HAS_BZERO) && !defined(HAS_MEMSET)
-PERL_CALLCONV void*	Perl_my_bzero(void* vloc, size_t len)
-			__attribute__global__
-			__attribute__nonnull__(1);
-#define PERL_ARGS_ASSERT_MY_BZERO	\
-	assert(vloc)
-
-#endif
 #if !defined(HAS_GETENV_LEN)
 PERL_CALLCONV char*	Perl_getenv_len(pTHX_ const char *env_elem, unsigned long *len)
 			__attribute__nonnull__(pTHX_1)
@@ -7029,14 +7021,6 @@ PERL_CALLCONV void*	Perl_my_bcopy(const void* vfrom, void* vto, size_t len)
 			__attribute__nonnull__(2);
 #define PERL_ARGS_ASSERT_MY_BCOPY	\
 	assert(vfrom); assert(vto)
-
-#endif
-#if !defined(HAS_MEMSET)
-PERL_CALLCONV void*	Perl_my_memset(void* vloc, int ch, size_t len)
-			__attribute__global__
-			__attribute__nonnull__(1);
-#define PERL_ARGS_ASSERT_MY_MEMSET	\
-	assert(vloc)
 
 #endif
 #if !defined(HAS_MKDIR) || !defined(HAS_RMDIR)

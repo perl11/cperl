@@ -711,6 +711,19 @@ years already.
 
 =back
 
+=item Removed probes and keys
+
+=over 2
+
+=item d_bzero
+
+=item d_memset
+
+Beware: HAS_MEMSET now undefined, but always considered to be
+defined. (Because of C89)
+
+=back
+
 =back
 
 =head1 Testing
