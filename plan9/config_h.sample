@@ -615,15 +615,6 @@
  */
 /*#define HAS_USLEEP		/ **/
 
-/* HASVOLATILE:
- *	This symbol, if defined, indicates that this C compiler knows about
- *	the volatile declaration.
- */
-#define	HASVOLATILE	/**/
-#ifndef HASVOLATILE
-#define volatile
-#endif
-
 /* HAS_WAIT4:
  *	This symbol, if defined, indicates that wait4() exists.
  */
@@ -2585,6 +2576,11 @@
  *	handler using "Signal_t handler(sig)".
  */
 #define Signal_t void	/* Signal handler's return type */
+
+/* HASVOLATILE:
+ *	This symbol is always defined and kept for backcompat with extensions.
+ */
+#define HASVOLATILE
 
 /* HAS_VPRINTF:
  *	This symbol, if defined, indicates that the vprintf routine is available

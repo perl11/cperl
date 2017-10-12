@@ -938,7 +938,6 @@ usevfork=''
 d_vms_case_sensitive_symbols='undef'
 d_voidsig=''
 signal_t=''
-d_volatile=''
 d_charvspr=''
 d_vprintf=''
 d_wait4=''
@@ -17298,37 +17297,6 @@ eval $inlibc
 set quadmath.h i_quadmath
 eval $inhdr
 
-: check for volatile keyword
-echo " "
-echo 'Checking to see if your C compiler knows about "volatile"...' >&4
-$cat >try.c <<'EOCP'
-int main()
-{
-	typedef struct _goo_struct goo_struct;
-	goo_struct * volatile goo = ((goo_struct *)0);
-	struct _goo_struct {
-		long long_int;
-		int reg_int;
-		char char_var;
-	};
-	typedef unsigned short foo_t;
-	char *volatile foo;
-	volatile int bar;
-	volatile foo_t blech;
-	foo = foo;
-}
-EOCP
-if $cc -c $ccflags try.c >/dev/null 2>&1 ; then
-	val="$define"
-	echo "Yup, it does."
-else
-	val="$undef"
-	echo "Nope, it doesn't."
-fi
-set d_volatile
-eval $setvar
-$rm_try
-
 : Check basic sizes
 echo " "
 $echo "Choosing the C types to be used for Perl's internal types..." >&4
@@ -17597,10 +17565,6 @@ eval $setvar
 $rm_try
 
 $echo "Checking how many bits of your UVs your NVs can preserve..." >&4
-: volatile so that the compiler has to store it out to memory.
-if test X"$d_volatile" = X"$define"; then
-	volatile=volatile
-fi
 $cat <<EOP >try.c
 #include <stdio.h>
 #$i_stdlib I_STDLIB
@@ -17610,7 +17574,8 @@ $cat <<EOP >try.c
 #include <sys/types.h>
 #include <signal.h>
 #ifdef SIGFPE
-$volatile int bletched = 0;
+/* volatile so that the compiler has to store it out to memory */
+volatile int bletched = 0;
 $signal_t blech(int s) { bletched = 1; }
 #endif
 int main() {
@@ -17661,10 +17626,6 @@ esac
 $rm_try
 
 $echo "Checking to find the largest integer value your NVs can hold..." >&4
-: volatile so that the compiler has to store it out to memory.
-if test X"$d_volatile" = X"$define"; then
-	volatile=volatile
-fi
 $cat <<EOP >try.c
 #include <stdio.h>
 
@@ -17676,10 +17637,11 @@ main() {
   int count = 1;
 
   while(count < 256) {
-    $volatile NV up = value + 1.0;
-    $volatile NV negated = -value;
-    $volatile NV down = negated - 1.0;
-    $volatile NV got_up = up - value;
+    /* volatile so that the compiler has to store it out to memory */
+    volatile NV up = value + 1.0;
+    volatile NV negated = -value;
+    volatile NV down = negated - 1.0;
+    volatile NV got_up = up - value;
     int up_good = got_up == 1.0;
     int got_down = down - negated;
     int down_good = got_down == -1.0;
@@ -17744,10 +17706,6 @@ fi
 $rm_try
 
 $echo "Checking whether NV 0.0 is all bits zero in memory..." >&4
-: volatile so that the compiler has to store it out to memory.
-if test X"$d_volatile" = X"$define"; then
-	volatile=volatile
-fi
 $cat <<EOP >try.c
 #include <stdio.h>
 #$i_stdlib I_STDLIB
@@ -17763,7 +17721,8 @@ $cat <<EOP >try.c
 #include <sys/types.h>
 #include <signal.h>
 #ifdef SIGFPE
-$volatile int bletched = 0;
+/* volatile so that the compiler has to store it out to memory */
+volatile int bletched = 0;
 $signal_t blech(int s) { bletched = 1; }
 #endif
 
@@ -25566,7 +25525,6 @@ d_vms_case_sensitive_symbols='$d_vms_case_sensitive_symbols'
 d_void_closedir='$d_void_closedir'
 d_voidsig='$d_voidsig'
 d_voidtty='$d_voidtty'
-d_volatile='$d_volatile'
 d_vprintf='$d_vprintf'
 d_vsnprintf='$d_vsnprintf'
 d_wait4='$d_wait4'

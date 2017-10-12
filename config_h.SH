@@ -2688,13 +2688,9 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #define Signal_t $signal_t	/* Signal handler's return type */
 
 /* HASVOLATILE:
- *	This symbol, if defined, indicates that this C compiler knows about
- *	the volatile declaration.
+ *	This symbol is always defined and kept for backcompat with extensions.
  */
-#$d_volatile	HASVOLATILE	/**/
-#ifndef HASVOLATILE
-#define volatile
-#endif
+#define HASVOLATILE
 
 /* HAS_VPRINTF:
  *	This symbol, if defined, indicates that the vprintf routine is available

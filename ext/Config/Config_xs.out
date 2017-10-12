@@ -266,7 +266,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1300
+#define TOTAL_KEYWORDS 1299
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 37
 #define MIN_HASH_VALUE 3
@@ -1177,7 +1177,6 @@ struct stringpool_t
     char stringpool_str3046[sizeof ("i_sysstatfs")];
     char stringpool_str3051[sizeof ("issymlink")];
     char stringpool_str3053[sizeof ("i_varargs")];
-    char stringpool_str3054[sizeof ("d_volatile")];
     char stringpool_str3056[sizeof ("d_copysign")];
     char stringpool_str3059[sizeof ("d_symlink")];
     char stringpool_str3061[sizeof ("installbin")];
@@ -2480,7 +2479,6 @@ static const struct stringpool_t stringpool_contents =
     "i_sysstatfs",
     "issymlink",
     "i_varargs",
-    "d_volatile",
     "d_copysign",
     "d_symlink",
     "installbin",
@@ -5240,9 +5238,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str3053,		T_INV,0,ALN64I"@@i_varargs@@"},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str3054,		T_INV,0,ALN64I"@@d_volatile@@"},
-      {XSCNO},
+      {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str3056,		T_INV,0,ALN64I"@@d_copysign@@"},
       {XSCNO}, {XSCNO},
@@ -7198,7 +7194,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str10328,	T_INV,0,ALN64I"@@nv_preserves_uv_bits@@"}
     };
 
-#line 7201 "Config.xs"
+#line 7197 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);

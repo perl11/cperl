@@ -2159,13 +2159,9 @@
 #define Signal_t void	/* Signal handler's return type */
 
 /* HASVOLATILE:
- *	This symbol, if defined, indicates that this C compiler knows about
- *	the volatile declaration.
+ *	This symbol is always defined and kept for backcompat with extensions.
  */
-#define	HASVOLATILE	/**/
-#ifndef HASVOLATILE
-#define volatile
-#endif
+#define HASVOLATILE
 
 /* I_DIRENT:
  *	This symbol, if defined, indicates to the C program that it should

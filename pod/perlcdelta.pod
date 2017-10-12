@@ -770,6 +770,10 @@ Ditto: Keep HAS_MEMCPY
 
 Ditto: Keep HAS_MEMMOVE
 
+=item d_volatile
+
+Ditto: Keep HASVOLATILE
+
 =back
 
 =back

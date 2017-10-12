@@ -2653,13 +2653,9 @@
 #define Signal_t int	/* Signal handler's return type */
 
 /* HASVOLATILE:
- *	This symbol, if defined, indicates that this C compiler knows about
- *	the volatile declaration.
+ *	This symbol is always defined and kept for backcompat with extensions.
  */
-/*#define	HASVOLATILE	/ **/
-#ifndef HASVOLATILE
-#define volatile
-#endif
+#define HASVOLATILE
 
 /* HAS_VPRINTF:
  *	This symbol, if defined, indicates that the vprintf routine is available
@@ -5512,6 +5508,6 @@
 #endif
 
 /* Generated from:
- * 792180045626b810f525723b977b06d0459a585cddc8747fb088e561a6d25e50 config_h.SH
- * 5eec6ec5db22f688d677aee65f406383831f668fd28c2300e23b5883bec4fa49 uconfig.sh
+ * 21bfa411dd392fe3cb71006a216787005581b700f09d43cad9b05239d0732037 config_h.SH
+ * afc5af3e9964d4f4562e27db5db389b3064d734dbc97f1e3d31d6d28823068bc uconfig.sh
  * ex: set ro: */

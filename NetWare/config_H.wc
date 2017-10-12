@@ -622,15 +622,6 @@
  */
 /*#define HAS_USLEEP		/**/
 
-/* HASVOLATILE:
- *	This symbol, if defined, indicates that this C compiler knows about
- *	the volatile declaration.
- */
-#define	HASVOLATILE	/**/
-#ifndef HASVOLATILE
-#define volatile
-#endif
-
 /* HAS_WAIT4:
  *	This symbol, if defined, indicates that wait4() exists.
  */
@@ -676,6 +667,11 @@
  */
 /*#define I_DBM	/**/
 #define I_RPCSVC_DBM	/**/
+
+/* HASVOLATILE:
+ *	This symbol is always defined and kept for backcompat with extensions.
+ */
+#define HASVOLATILE
 
 /* I_DIRENT:
  *	This symbol, if defined, indicates to the C program that it should

@@ -203,8 +203,8 @@ d_sin6_scope_id d_sitearch d_snprintf d_sockaddr_in6 d_sockaddr_sa_len
 d_sprintf_returns_strlen d_stat d_statfs_f_flags d_statfs_s
 d_static_inline d_statvfs d_strlcat d_strlcpy d_strctcpy d_tgamma
 d_timegm d_trunc d_truncl d_unsetenv d_uselocale d_ustat
-d_vendorscript d_vms_case_sensitive_symbols d_vsnprintf d_wcscmp
-d_wcsxfrm defvoidused dl_so_eq_ext doop_cflags doubleinfbytes
+d_vendorscript d_vms_case_sensitive_symbols d_volatile d_vsnprintf
+d_wcscmp d_wcsxfrm defvoidused dl_so_eq_ext doop_cflags doubleinfbytes
 doublekind doublemantbits doublenanbytes dtrace extern_C found_libucb
 from gccansipedantic git_branch git_commit_id git_commit_id_title
 git_describe git_uncommitted_changes gnulibc_version hash_func
