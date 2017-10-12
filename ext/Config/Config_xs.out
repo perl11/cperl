@@ -266,7 +266,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1297
+#define TOTAL_KEYWORDS 1294
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 37
 #define MIN_HASH_VALUE 3
@@ -633,7 +633,6 @@ struct stringpool_t
     char stringpool_str899[sizeof ("from")];
     char stringpool_str902[sizeof ("i16size")];
     char stringpool_str905[sizeof ("i_inttypes")];
-    char stringpool_str908[sizeof ("prototype")];
     char stringpool_str912[sizeof ("d_umask")];
     char stringpool_str914[sizeof ("passcat")];
     char stringpool_str920[sizeof ("initialinstalllocation")];
@@ -1001,7 +1000,6 @@ struct stringpool_t
     char stringpool_str2357[sizeof ("d_fchmod")];
     char stringpool_str2358[sizeof ("cf_email")];
     char stringpool_str2371[sizeof ("d_asctime_r")];
-    char stringpool_str2372[sizeof ("vaproto")];
     char stringpool_str2374[sizeof ("d_log1p")];
     char stringpool_str2375[sizeof ("d_seekdir")];
     char stringpool_str2378[sizeof ("i_sysmode")];
@@ -1078,7 +1076,6 @@ struct stringpool_t
     char stringpool_str2600[sizeof ("d_fpclassify")];
     char stringpool_str2604[sizeof ("scriptdirexp")];
     char stringpool_str2606[sizeof ("ccstdflags")];
-    char stringpool_str2607[sizeof ("ansi2knr")];
     char stringpool_str2610[sizeof ("installhtml1dir")];
     char stringpool_str2613[sizeof ("installhtml3dir")];
     char stringpool_str2620[sizeof ("d_getlogin")];
@@ -1933,7 +1930,6 @@ static const struct stringpool_t stringpool_contents =
     "from",
     "i16size",
     "i_inttypes",
-    "prototype",
     "d_umask",
     "passcat",
     "initialinstalllocation",
@@ -2301,7 +2297,6 @@ static const struct stringpool_t stringpool_contents =
     "d_fchmod",
     "cf_email",
     "d_asctime_r",
-    "vaproto",
     "d_log1p",
     "d_seekdir",
     "i_sysmode",
@@ -2378,7 +2373,6 @@ static const struct stringpool_t stringpool_contents =
     "d_fpclassify",
     "scriptdirexp",
     "ccstdflags",
-    "ansi2knr",
     "installhtml1dir",
     "installhtml3dir",
     "d_getlogin",
@@ -3697,10 +3691,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str905,		T_INV,0,ALN64I"@@i_inttypes@@"},
-      {XSCNO}, {XSCNO},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str908,		T_INV,0,ALN64I"@@prototype@@"},
-      {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str912,		T_INV,0,ALN64I"@@d_umask@@"},
       {XSCNO},
@@ -4732,9 +4723,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2371,		T_INV,0,ALN64I"@@d_asctime_r@@"},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2372,		T_INV,0,ALN64I"@@vaproto@@"},
-      {XSCNO},
+      {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2374,		T_INV,0,ALN64I"@@d_log1p@@"},
 
@@ -4946,9 +4935,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2606,		T_INV,0,ALN64I"@@ccstdflags@@"},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2607,		T_INV,0,ALN64I"@@ansi2knr@@"},
-      {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2610,	T_INV,0,ALN64I"@@installhtml1dir@@"},
       {XSCNO}, {XSCNO},
@@ -7184,7 +7171,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str10328,	T_INV,0,ALN64I"@@nv_preserves_uv_bits@@"}
     };
 
-#line 7187 "Config.xs"
+#line 7174 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);

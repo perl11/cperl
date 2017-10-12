@@ -783,6 +783,10 @@ Ditto: Keep HAS_VPRINTF
 
 Ditto: Keep HASVOLATILE
 
+=item prototype
+
+Ditto: Keep CAN_PROTOTYPE in perl.h
+
 =item vaproto
 
 Ditto: Keep CAN_VAPROTO, _V

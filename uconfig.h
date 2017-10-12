@@ -3060,24 +3060,6 @@
 #define PRIVLIB "/usr/local/lib/perl5/5.27"		/**/
 #define PRIVLIB_EXP "/usr/local/lib/perl5/5.27"		/**/
 
-/* CAN_PROTOTYPE:
- *	If defined, this macro indicates that the C compiler can handle
- *	function prototypes.
- */
-/* _:
- *	This macro is used to declare function parameters for folks who want
- *	to make declarations with prototypes using a different style than
- *	the above macros.  Use double parentheses.  For example:
- *
- *		int main _((int argc, char *argv[]));
- */
-/*#define	CAN_PROTOTYPE	/ **/
-#ifdef CAN_PROTOTYPE
-#define	_(args) args
-#else
-#define	_(args) ()
-#endif
-
 /* PTRSIZE:
  *	This symbol contains the size of a pointer, so that the C preprocessor
  *	can make decisions based on it.  It will be sizeof(void *) if
@@ -5496,6 +5478,6 @@
 #endif
 
 /* Generated from:
- * 4c01d5373e7339726d7d2f4f88044a045593ab7cce5689c076a27a006569d762 config_h.SH
+ * c4ba76ba30cd5140ca133a122d39cb7f4f63e10c29eeda6afd9142d155bb5450 config_h.SH
  * cc9f8b5b15da7ac936deec632019a769af157d2db88a268c5028e86288218813 uconfig.sh
  * ex: set ro: */

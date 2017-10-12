@@ -171,24 +171,24 @@ useversionedarchname
     unless ($in_core) { # cperl doesn't need these, CPAN does
         push @cannedkeys , qw(
 
-ARCH BuiltWithPatchPerl Mcc PERL_PATCHLEVEL ansi2knr ccflags_nolargefiles
-charbits config_heavy d_acosh d_asctime64 d_asinh d_atanh d_attribut
-d_attribute_deprecated d_attribute_format d_attribute_malloc
-d_attribute_nonnull d_attribute_noreturn d_attribute_pure
-d_attribute_unused d_attribute_warn_unused_result d_backtrace d_bcmp
-d_bcopy d_builtin_arith_overflow d_builtin_choose_expr
-d_builtin_expect d_bzero d_c99_variadic_macros d_cbrt d_charvspr d_clearenv
-d_copysign d_cplusplus d_ctermid d_ctime64 d_difftime64 d_dir_dd_fd
-d_dladdr d_duplocale d_erf d_erfc d_exp2 d_expm1 d_fdclose d_fdim
-d_fegetround d_fma d_fmax d_fmin d_fp_classify d_fp_classl
-d_fpgetround d_freelocale d_fs_data_s d_fstatfs d_fstatvfs d_futimes
-d_gdbm_ndbm_h_uses_prototypes d_gdbmndbm_h_uses_prototypes
-d_getaddrinfo d_getfsstat d_getmnt d_getmntent d_getnameinfo
-d_gmtime64 d_hasmntopt d_hypot d_ilogb d_inc_version_list d_inetntop
-d_inetpton d_ip_mreq d_ip_mreq_source d_ipv6_mreq d_ipv6_mreq_source
-d_isblank d_isfinitel d_isinfl d_isless d_isnormal d_j0 d_j0l
-d_lc_monetary_2008 d_ldexpl d_lgamma d_lgamma_r d_libname_unique
-d_llrint d_llrintl d_llround d_llroundl d_localtime64
+ARCH BuiltWithPatchPerl Mcc PERL_PATCHLEVEL ansi2knr
+ccflags_nolargefiles charbits config_heavy d_acosh d_asctime64 d_asinh
+d_atanh d_attribut d_attribute_deprecated d_attribute_format
+d_attribute_malloc d_attribute_nonnull d_attribute_noreturn
+d_attribute_pure d_attribute_unused d_attribute_warn_unused_result
+d_backtrace d_bcmp d_bcopy d_builtin_arith_overflow
+d_builtin_choose_expr d_builtin_expect d_bzero d_c99_variadic_macros
+d_cbrt d_charvspr d_clearenv d_copysign d_cplusplus d_ctermid
+d_ctime64 d_difftime64 d_dir_dd_fd d_dladdr d_duplocale d_erf d_erfc
+d_exp2 d_expm1 d_fdclose d_fdim d_fegetround d_fma d_fmax d_fmin
+d_fp_classify d_fp_classl d_fpgetround d_freelocale d_fs_data_s
+d_fstatfs d_fstatvfs d_futimes d_gdbm_ndbm_h_uses_prototypes
+d_gdbmndbm_h_uses_prototypes d_getaddrinfo d_getfsstat d_getmnt
+d_getmntent d_getnameinfo d_gmtime64 d_hasmntopt d_hypot d_ilogb
+d_inc_version_list d_inetntop d_inetpton d_ip_mreq d_ip_mreq_source
+d_ipv6_mreq d_ipv6_mreq_source d_isblank d_isfinitel d_isinfl d_isless
+d_isnormal d_j0 d_j0l d_lc_monetary_2008 d_ldexpl d_lgamma d_lgamma_r
+d_libname_unique d_llrint d_llrintl d_llround d_llroundl d_localtime64
 d_localtime_r_needs_tzset d_log1p d_log2 d_logb d_lrint d_lrintl
 d_lround d_lroundl d_malloc_good_size d_malloc_size d_memchr d_memcmp
 d_memcpy d_memmem d_memmove d_memset d_mktime64 d_modfl_pow32_bug
@@ -221,8 +221,8 @@ libswanted_nolargefiles longdblinfbytes longdblkind longdblmantbits
 longdblnanbytes madlyh madlyobj madlysrc mistrustnm
 nv_overflows_integers_at nvmantbits op_cflags perl_patchlevel
 perl_revision perl_static_inline perl_subversion perl_version ppmarch
-pthread_h_first regexec_cflags rm_try run sGMTIME_max sGMTIME_min
-sLOCALTIME_max sLOCALTIME_min sitehtml1dir sitehtml1direxp
+pthread_h_first prototype regexec_cflags rm_try run sGMTIME_max
+sGMTIME_min sLOCALTIME_max sLOCALTIME_min sitehtml1dir sitehtml1direxp
 sitehtml3dir sitehtml3direxp siteman1dir siteman1direxp siteman3dir
 siteman3direxp sitescript sitescriptexp st_ino_sign st_ino_size
 targetsh to toke_cflags usecbacktrace usecperl usedevel usedtrace

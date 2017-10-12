@@ -4745,8 +4745,7 @@ procselfexe (d_procselfexe.U):
 	the executing program.
 
 prototype (prototype.U):
-	This variable holds the eventual value of CAN_PROTOTYPE, which
-	indicates the C compiler can handle function prototypes.
+	This variable was deleted with 5.28. CAN_PROTOTYPE is now always defined.
 
 ptrsize (ptrsize.U):
 	This variable contains the value of the PTRSIZE symbol, which
