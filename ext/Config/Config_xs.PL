@@ -210,9 +210,9 @@ from gccansipedantic git_branch git_commit_id git_commit_id_title
 git_describe git_uncommitted_changes gnulibc_version hash_func
 html1dir html1direxp html3dir html3direxp i_assert i_bfd i_dld
 i_execinfo i_fenv i_gdbm_ndbm i_gdbmndbm i_mallocmalloc i_mntent
-i_quadmath i_sfio i_stdbool i_stdint i_sysmount i_syspoll i_sysstatfs
-i_sysstatvfs i_sysvfs i_ustat i_xlocale ieeefp_h
-initialinstalllocation installhtml1dir installhtml3dir
+i_quadmath i_sfio i_stdarg i_stdbool i_stdint i_sysmount i_syspoll
+i_sysstatfs i_sysstatvfs i_sysvfs i_ustat i_varargs i_varhdr i_xlocale
+ieeefp_h initialinstalllocation installhtml1dir installhtml3dir
 installsitehtml1dir installsitehtml3dir installsiteman1dir
 installsiteman3dir installsitescript installvendorhtml1dir
 installvendorhtml3dir installvendorman1dir installvendorman3dir

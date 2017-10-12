@@ -2913,17 +2913,6 @@
 /*#define HAS_TM_TM_ZONE		/ **/
 /*#define HAS_TM_TM_GMTOFF		/ **/
 
-/* I_STDARG:
- *	This symbol, if defined, indicates that <stdarg.h> exists and should
- *	be included.
- */
-/* I_VARARGS:
- *	This symbol, if defined, indicates to the C program that it should
- *	include <varargs.h>.
- */
-#define I_STDARG		/**/
-/*#define I_VARARGS	/ **/
-
 /* PERL_INC_VERSION_LIST:
  *	This variable specifies the list of subdirectories in over
  *	which perl.c:incpush() and lib/lib.pm will automatically
@@ -5478,6 +5467,6 @@
 #endif
 
 /* Generated from:
- * c4ba76ba30cd5140ca133a122d39cb7f4f63e10c29eeda6afd9142d155bb5450 config_h.SH
- * cc9f8b5b15da7ac936deec632019a769af157d2db88a268c5028e86288218813 uconfig.sh
+ * 6830834a072eeb3f0df533bbb29785298222e4d7c6ab7a2be28fe5a287d3f1a2 config_h.SH
+ * dbad30d2518d2de22f99e27808b1ca9d380c9fd3bda4d594d92e1c1f468315d4 uconfig.sh
  * ex: set ro: */

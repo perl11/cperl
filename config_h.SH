@@ -2948,17 +2948,6 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #$d_tm_tm_zone HAS_TM_TM_ZONE		/**/
 #$d_tm_tm_gmtoff HAS_TM_TM_GMTOFF		/**/
 
-/* I_STDARG:
- *	This symbol, if defined, indicates that <stdarg.h> exists and should
- *	be included.
- */
-/* I_VARARGS:
- *	This symbol, if defined, indicates to the C program that it should
- *	include <varargs.h>.
- */
-#$i_stdarg I_STDARG		/**/
-#$i_varargs I_VARARGS	/**/
-
 /* PERL_INC_VERSION_LIST:
  *	This variable specifies the list of subdirectories in over
  *	which perl.c:incpush() and lib/lib.pm will automatically

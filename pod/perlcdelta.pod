@@ -752,6 +752,10 @@ i_wchar
 
 =item d_charvspr
 
+=item i_varargs
+
+=item i_varhdr
+
 =item d_memset
 
 Beware: HAS_MEMSET is undefined since v5.28, but always considered to be
@@ -782,6 +786,10 @@ Ditto: Keep HAS_VPRINTF
 =item d_volatile
 
 Ditto: Keep HASVOLATILE
+
+=item i_stdarg
+
+Ditto: Keep I_STDARG in perl.h
 
 =item prototype
 
