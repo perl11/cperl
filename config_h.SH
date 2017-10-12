@@ -69,12 +69,6 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$d_bcmp HAS_BCMP	/**/
 
-/* HAS_BCOPY:
- *	This symbol is defined if the bcopy() routine is available to
- *	copy blocks of memory.
- */
-#$d_bcopy HAS_BCOPY	/**/
-
 /* HAS_CBRT:
  *	This symbol, if defined, indicates that the cbrt() (cube root)
  *	function is available.
@@ -305,18 +299,14 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #$d_memcmp HAS_MEMCMP	/**/
 
 /* HAS_MEMCPY:
- *	This symbol, if defined, indicates that the memcpy routine is available
- *	to copy blocks of memory.
+ *     This symbol is always defined and kept for backcompt with extensions.
  */
-#$d_memcpy HAS_MEMCPY	/**/
+#define HAS_MEMCPY
 
 /* HAS_MEMMOVE:
- *	This symbol, if defined, indicates that the memmove routine is available
- *	to copy potentially overlapping blocks of memory. This should be used
- *	only when HAS_SAFE_BCOPY is not defined. If neither is there, roll your
- *	own version.
+ *     This symbol is always defined and kept for backcompt with extensions.
  */
-#$d_memmove HAS_MEMMOVE	/**/
+#define HAS_MEMMOVE
 
 /* HAS_MEMSET:
  *     This symbol is always defined and kept for backcompt with extensions.
@@ -2158,14 +2148,6 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$d_readdir_r HAS_READDIR_R	   /**/
 #define READDIR_R_PROTO $readdir_r_proto	   /**/
-
-/* HAS_SAFE_BCOPY:
- *	This symbol, if defined, indicates that the bcopy routine is available
- *	to copy potentially overlapping memory blocks. Normally, you should
- *	probably use memmove() or memcpy(). If neither is defined, roll your
- *	own version.
- */
-#$d_safebcpy HAS_SAFE_BCOPY	/**/
 
 /* HAS_SANE_MEMCMP:
  *	This symbol, if defined, indicates that the memcmp routine is available

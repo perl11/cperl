@@ -34,12 +34,6 @@
  */
 /*#define HAS_BCMP	/ **/
 
-/* HAS_BCOPY:
- *	This symbol is defined if the bcopy() routine is available to
- *	copy blocks of memory.
- */
-/*#define HAS_BCOPY	/ **/
-
 /* HAS_CBRT:
  *	This symbol, if defined, indicates that the cbrt() (cube root)
  *	function is available.
@@ -270,18 +264,14 @@
 #define HAS_MEMCMP	/**/
 
 /* HAS_MEMCPY:
- *	This symbol, if defined, indicates that the memcpy routine is available
- *	to copy blocks of memory.
+ *     This symbol is always defined and kept for backcompt with extensions.
  */
-#define HAS_MEMCPY	/**/
+#define HAS_MEMCPY
 
 /* HAS_MEMMOVE:
- *	This symbol, if defined, indicates that the memmove routine is available
- *	to copy potentially overlapping blocks of memory. This should be used
- *	only when HAS_SAFE_BCOPY is not defined. If neither is there, roll your
- *	own version.
+ *     This symbol is always defined and kept for backcompt with extensions.
  */
-/*#define HAS_MEMMOVE	/ **/
+#define HAS_MEMMOVE
 
 /* HAS_MEMSET:
  *     This symbol is always defined and kept for backcompt with extensions.
@@ -2123,14 +2113,6 @@
  */
 /*#define HAS_READDIR_R	   / **/
 #define READDIR_R_PROTO 0	   /**/
-
-/* HAS_SAFE_BCOPY:
- *	This symbol, if defined, indicates that the bcopy routine is available
- *	to copy potentially overlapping memory blocks. Normally, you should
- *	probably use memmove() or memcpy(). If neither is defined, roll your
- *	own version.
- */
-/*#define HAS_SAFE_BCOPY	/ **/
 
 /* HAS_SANE_MEMCMP:
  *	This symbol, if defined, indicates that the memcmp routine is available
@@ -5545,6 +5527,6 @@
 #endif
 
 /* Generated from:
- * 332e8079bc2c30b22cd182369d87d99b4c5351f44d52578760c1eeef21f77478 config_h.SH
- * 58f83557c9323fa9c0a1fbdb8a3414e0b2ed52d2e747e7a8aa253fad62f6d2d0 uconfig.sh
+ * b7bb04e8e9c778bb0db9979a163e88bd3cc66c35375ad0f070e9a6bfca056e7e config_h.SH
+ * c735f4999957013b342b40e7745f1b3866f0b424999c88cbef183eb1028bb569 uconfig.sh
  * ex: set ro: */
