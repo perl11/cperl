@@ -6119,15 +6119,15 @@ static OP *
 S_fold_constants(pTHX_ OP *const o)
 {
     dVAR;
-    OP * VOL curop;
-    SV * VOL sv = NULL;
+    OP * volatile curop;
+    SV * volatile sv = NULL;
     COP not_compiling;
     OP *newop;
     OP *old_next;
     SV * const oldwarnhook = PL_warnhook;
     SV * const olddiehook  = PL_diehook;
     int ret = 0;
-    VOL I32 type = o->op_type;
+    volatile I32 type = o->op_type;
     I32 old_cxix;
     U8 oldwarn = PL_dowarn;
     bool is_stringify;

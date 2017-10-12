@@ -525,7 +525,7 @@ PERL_CALLCONV I32	Perl_call_pv(pTHX_ const char* sub_name, I32 flags)
 #define PERL_ARGS_ASSERT_CALL_PV	\
 	assert(sub_name)
 
-PERL_CALLCONV I32	Perl_call_sv(pTHX_ SV* sv, VOL I32 flags)
+PERL_CALLCONV I32	Perl_call_sv(pTHX_ SV* sv, volatile I32 flags)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_CALL_SV	\
