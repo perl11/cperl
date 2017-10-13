@@ -1152,10 +1152,8 @@ Perl_nextargv(pTHX_ GV *gv, bool nomagicopen)
                         /* XXX silently ignore failures */
 #ifdef HAS_FCHOWN
                         PERL_UNUSED_RESULT(fchown(PL_lastfd,fileuid,filegid));
-#else
-#ifdef HAS_CHOWN
+#elif defined(HAS_CHOWN)
                         PERL_UNUSED_RESULT(PerlLIO_chown(PL_oldname,fileuid,filegid));
-#endif
 #endif
                     }
 		}
@@ -1385,14 +1383,12 @@ Perl_do_close(pTHX_ GV *gv, bool not_implicit)
             }
 #endif
             if (
-#ifdef HAS_RENAME
-#  ifdef ARGV_USE_ATFUNCTIONS
-		S_my_renameat(dfd, SvPVX(*temp_psv), dfd, orig_pv) < 0
-#  else
-                PerlLIO_rename(SvPVX(*temp_psv), orig_pv) < 0
-#  endif
-#else
+#if !defined(HAS_RENAME)
                 link(SvPVX(*temp_psv), orig_pv) < 0
+#elif defined(ARGV_USE_ATFUNCTIONS)
+		S_my_renameat(dfd, SvPVX(*temp_psv), dfd, orig_pv) < 0
+#else
+                PerlLIO_rename(SvPVX(*temp_psv), orig_pv) < 0
 #endif
                 ) {
                 if (!not_implicit) {
@@ -2929,33 +2925,29 @@ Perl_vms_start_glob
     fp = Perl_vms_start_glob(aTHX_ tmpglob, io);
 
 #else /* !VMS */
-#ifdef DOSISH
-#ifdef OS2
+# ifdef DOSISH
+#  if defined(OS2)
     sv_setpv(tmpcmd, "for a in ");
     sv_catsv(tmpcmd, tmpglob);
     sv_catpv(tmpcmd, "; do echo \"$a\\0\\c\"; done |");
-#else
-#ifdef DJGPP
+#  elif defined(DJGPP)
     sv_setpv(tmpcmd, "/dev/dosglob/"); /* File System Extension */
     sv_catsv(tmpcmd, tmpglob);
-#else
+#  else
     sv_setpv(tmpcmd, "perlglob ");
     sv_catsv(tmpcmd, tmpglob);
     sv_catpv(tmpcmd, " |");
-#endif /* !DJGPP */
-#endif /* !OS2 */
-#else /* !DOSISH */
-#if defined(CSH)
+#  endif
+# elif defined(CSH)
     sv_setpvn(tmpcmd, PL_cshname, PL_cshlen);
     sv_catpv(tmpcmd, " -cf 'set nonomatch; glob ");
     sv_catsv(tmpcmd, tmpglob);
     sv_catpv(tmpcmd, "' 2>/dev/null |");
-#else
+# else
     sv_setpv(tmpcmd, "echo ");
     sv_catsv(tmpcmd, tmpglob);
     sv_catpv(tmpcmd, "|tr -s ' \t\f\r' '\\n\\n\\n\\n'|");
-#endif /* !CSH */
-#endif /* !DOSISH */
+# endif /* !DOSISH && !CSH */
     {
         SV ** const svp = hv_fetchs(GvHVn(PL_envgv), "LS_COLORS", 0);
         if (svp && *svp)
