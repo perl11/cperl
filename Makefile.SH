@@ -1637,9 +1637,14 @@ $spitshell >>$Makefile <<'!NO!SUBS!'
 depend: makedepend $(DTRACE_H) $(generated_headers)
 	sh ./makedepend MAKE="$(MAKE)" cflags
 
-.PHONY: test check test_prep test_prep_nodll test_prep_pre \
+.PHONY: test check check-syntax test_prep test_prep_nodll test_prep_pre \
 	test_prep_reonly test_tty test-tty test_notty test-notty \
 	test_harness test_harness_notty minitest test-reonly _test
+
+# emacs flymake-mode
+check-syntax:
+	test -n "$(CHK_SOURCES)" && \
+	  `sh $(shellflags) cflags "optimize='$(OPTIMIZE)'" $(CHK_SOURCES)` -o /dev/null -S $(CHK_SOURCES)
 
 _test:
 	echo >&2 The _test target is deprecated. Please upgrade your smoker
