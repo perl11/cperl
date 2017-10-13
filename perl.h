@@ -623,6 +623,7 @@
 #define CAN_PROTOTYPE
 #define I_STDARG
 #define I_STDLIB
+#define I_STDDEF
 #endif
 
 /* By compiling a perl with -DNO_TAINT_SUPPORT or -DSILENT_NO_TAINT_SUPPORT,
@@ -961,12 +962,8 @@ EXTERN_C int usleep(unsigned int);
 #  define PERL_STRLEN_EXPAND_SHIFT 2
 #endif
 
-#if defined(STANDARD_C) && defined(I_STDDEF) && !defined(PERL_GCC_PEDANTIC)
-#   include <stddef.h>
-#   define STRUCT_OFFSET(s,m)  offsetof(s,m)
-#else
-#   define STRUCT_OFFSET(s,m)  (Size_t)(&(((s *)0)->m))
-#endif
+#include <stddef.h>
+#define STRUCT_OFFSET(s,m)  offsetof(s,m)
 
 /* ptrdiff_t is C11, so undef it under pedantic builds */
 #ifdef PERL_GCC_PEDANTIC

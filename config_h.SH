@@ -739,12 +739,6 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$i_memory I_MEMORY		/**/
 
-/* I_STDDEF:
- *	This symbol, if defined, indicates that <stddef.h> exists and should
- *	be included.
- */
-#$i_stddef I_STDDEF	/**/
-
 /* I_STRING:
  *	This symbol, if defined, indicates to the C program that it should
  *	include <string.h> (USG systems) instead of <strings.h> (BSD systems).

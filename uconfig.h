@@ -704,12 +704,6 @@
  */
 /*#define I_MEMORY		/ **/
 
-/* I_STDDEF:
- *	This symbol, if defined, indicates that <stddef.h> exists and should
- *	be included.
- */
-#define I_STDDEF	/**/
-
 /* I_STRING:
  *	This symbol, if defined, indicates to the C program that it should
  *	include <string.h> (USG systems) instead of <strings.h> (BSD systems).
@@ -5461,6 +5455,6 @@
 #endif
 
 /* Generated from:
- * 8f9ec6540e8be60cd252d55c9f6ceee0edf9e0926ce831900eaba078e6e88bde config_h.SH
- * dbad30d2518d2de22f99e27808b1ca9d380c9fd3bda4d594d92e1c1f468315d4 uconfig.sh
+ * 04652a70a94f74ee00ec0df8940ad380ee3d3bd028dd8a39045bd4b0ae999806 config_h.SH
+ * 069c8e5e6df098d4fa4a936969fefe1ac8cdd6a4ddf3426e19375802a750c264 uconfig.sh
  * ex: set ro: */
