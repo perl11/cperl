@@ -266,7 +266,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1289
+#define TOTAL_KEYWORDS 1288
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 37
 #define MIN_HASH_VALUE 5
@@ -1086,7 +1086,6 @@ struct stringpool_t
     char stringpool_str2807[sizeof ("lddlflags")];
     char stringpool_str2811[sizeof ("ivdformat")];
     char stringpool_str2819[sizeof ("d_msgget")];
-    char stringpool_str2820[sizeof ("d_sprintf_returns_strlen")];
     char stringpool_str2826[sizeof ("d_nl_langinfo")];
     char stringpool_str2831[sizeof ("useithreads")];
     char stringpool_str2835[sizeof ("d_snprintf")];
@@ -2378,7 +2377,6 @@ static const struct stringpool_t stringpool_contents =
     "lddlflags",
     "ivdformat",
     "d_msgget",
-    "d_sprintf_returns_strlen",
     "d_nl_langinfo",
     "useithreads",
     "d_snprintf",
@@ -4938,9 +4936,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2819,		T_INV,0,ALN64I"@@d_msgget@@"},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2820,	T_INV,0,ALN64I"@@d_sprintf_returns_strlen@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2826,		T_INV,0,ALN64I"@@d_nl_langinfo@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
@@ -7026,7 +7022,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str9576,	T_INV,0,ALN64I"@@d_attribute_always_inline@@"}
     };
 
-#line 7029 "Config.xs"
+#line 7025 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);

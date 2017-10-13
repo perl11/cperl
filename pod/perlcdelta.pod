@@ -742,15 +742,17 @@ i_wchar
 
 =item d_bzero
 
+=item d_charvspr
+
 =item d_safebcpy
 
 =item d_safemcpy
 
 =item d_sanemcmp
 
-=item d_strctcpy
+=item d_sprintf_returns_strlen
 
-=item d_charvspr
+=item d_strctcpy
 
 =item i_varargs
 

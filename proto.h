@@ -7326,15 +7326,6 @@ STATIC void	S_validate_suid(pTHX_ PerlIO *rsfp)
 
 #  endif
 #endif
-#if !defined(SPRINTF_RETURNS_STRLEN)
-PERL_CALLCONV int	Perl_my_sprintf(char *buffer, const char *pat, ...)
-			__attribute__global__
-			__attribute__nonnull__(1)
-			__attribute__nonnull__(2);
-#define PERL_ARGS_ASSERT_MY_SPRINTF	\
-	assert(buffer); assert(pat)
-
-#endif
 #if !defined(USE_ITHREADS)
 #  if defined(PERL_IN_OP_C)
 STATIC bool	S_mderef_uoob_gvsv(pTHX_ OP* o, SV* idx)
