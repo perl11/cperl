@@ -746,6 +746,8 @@ i_wchar
 
 =item d_charvspr
 
+=item d_dbl_dig
+
 =item d_safebcpy
 
 =item d_safemcpy

@@ -70,14 +70,6 @@
  */
 /*#define HAS_CUSERID		/ **/
 
-/* HAS_DBL_DIG:
- *	This symbol, if defined, indicates that this system's <float.h>
- *	or <limits.h> defines the symbol DBL_DIG, which is the number
- *	of significant digits in a double precision number.  If this
- *	symbol is not defined, a guess of 15 is usually pretty good.
- */
-/*#define HAS_DBL_DIG 	/ **/
-
 /* HAS_DIFFTIME:
  *	This symbol, if defined, indicates that the difftime routine is
  *	available.
@@ -5421,6 +5413,6 @@
 #endif
 
 /* Generated from:
- * 74a87db69e86a772f4ee139d295acef8b71d462428907cccc08cc52032fecf41 config_h.SH
+ * 7598292bf45f7f0f60c6a6f4f9a85caa69a897d5e2abeb9fd14d37af825dbca7 config_h.SH
  * 9b6fdb318525cdfc84716ffbfa24b5840fac420ac225004d1142bbc349820821 uconfig.sh
  * ex: set ro: */

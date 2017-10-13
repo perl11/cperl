@@ -266,7 +266,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1284
+#define TOTAL_KEYWORDS 1283
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 37
 #define MIN_HASH_VALUE 3
@@ -1127,7 +1127,6 @@ struct stringpool_t
     char stringpool_str2685[sizeof ("scriptdirexp")];
     char stringpool_str2707[sizeof ("installsitelib")];
     char stringpool_str2709[sizeof ("sGMTIME_max")];
-    char stringpool_str2724[sizeof ("d_dbl_dig")];
     char stringpool_str2727[sizeof ("d_sitearch")];
     char stringpool_str2732[sizeof ("cf_by")];
     char stringpool_str2739[sizeof ("d_tm_tm_gmtoff")];
@@ -2414,7 +2413,6 @@ static const struct stringpool_t stringpool_contents =
     "scriptdirexp",
     "installsitelib",
     "sGMTIME_max",
-    "d_dbl_dig",
     "d_sitearch",
     "cf_by",
     "d_tm_tm_gmtoff",
@@ -5035,10 +5033,7 @@ Config_lookup (register const char *str, register unsigned int len)
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2709,		T_INV,0,ALN64I"@@sGMTIME_max@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2724,		T_INV,0,ALN64I"@@d_dbl_dig@@"},
-      {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2727,		T_INV,0,ALN64I"@@d_sitearch@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
@@ -7040,7 +7035,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str9600,	T_INV,0,ALN64I"@@known_extensions@@"}
     };
 
-#line 7043 "Config.xs"
+#line 7038 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);

@@ -105,14 +105,6 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$d_cuserid HAS_CUSERID		/**/
 
-/* HAS_DBL_DIG:
- *	This symbol, if defined, indicates that this system's <float.h>
- *	or <limits.h> defines the symbol DBL_DIG, which is the number
- *	of significant digits in a double precision number.  If this
- *	symbol is not defined, a guess of 15 is usually pretty good.
- */
-#$d_dbl_dig HAS_DBL_DIG 	/**/
-
 /* HAS_DIFFTIME:
  *	This symbol, if defined, indicates that the difftime routine is
  *	available.

@@ -1787,9 +1787,6 @@ typedef UVTYPE UV;
 */
 #include <limits.h>
 #include <float.h>
-#ifndef HAS_DBL_DIG
-#define DBL_DIG	15   /* A guess that works lots of places */
-#endif
 #endif
 
 #ifdef OVR_LDBL_DIG

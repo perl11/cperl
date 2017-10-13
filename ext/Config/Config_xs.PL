@@ -179,9 +179,9 @@ d_attribute_pure d_attribute_unused d_attribute_warn_unused_result
 d_backtrace d_bcmp d_bcopy d_builtin_arith_overflow
 d_builtin_choose_expr d_builtin_expect d_bzero d_c99_variadic_macros
 d_cbrt d_charvspr d_clearenv d_copysign d_cplusplus d_ctermid
-d_ctime64 d_difftime64 d_dir_dd_fd d_dladdr d_duplocale d_erf d_erfc
-d_exp2 d_expm1 d_fdclose d_fdim d_fegetround d_fma d_fmax d_fmin
-d_fp_classify d_fp_classl d_fpgetround d_freelocale d_fs_data_s
+d_ctime64 d_dbl_dig d_difftime64 d_dir_dd_fd d_dladdr d_duplocale
+d_erf d_erfc d_exp2 d_expm1 d_fdclose d_fdim d_fegetround d_fma d_fmax
+d_fmin d_fp_classify d_fp_classl d_fpgetround d_freelocale d_fs_data_s
 d_fstatfs d_fstatvfs d_futimes d_gdbm_ndbm_h_uses_prototypes
 d_gdbmndbm_h_uses_prototypes d_getaddrinfo d_getfsstat d_getmnt
 d_getmntent d_getnameinfo d_gmtime64 d_hasmntopt d_hypot d_ilogb
