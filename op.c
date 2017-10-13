@@ -9892,9 +9892,10 @@ S_cv_do_inline(pTHX_ const OP *o, const OP *cvop, CV *cv, bool meth)
 {
     /* WIP splice inlined ENTERSUB into the current body */
     const OP *pushmarkop = o;
+    PERL_ARGS_ASSERT_CV_DO_INLINE;
 
-    assert(o); /* the pushmark */
-    assert(cv);
+    /*assert(o); the pushmark
+    assert(cv);*/
     assert(IS_TYPE(o, PUSHMARK));
     assert(IS_TYPE(cvop, ENTERSUB));
     /* first translate the args to the temp vars */
@@ -14859,8 +14860,8 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
 #ifdef DEBUGGING
             if (UNLIKELY(items->iv == -1)) /* [cperl #164] */
                 Perl_croak(aTHX_
-                      "panic: Missing padintro item in signature of %s",
-                      SvPVX_const(cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN)));
+                      "panic: Missing padintro item in signature of %" SVf,
+                      SVfARG(cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN)));
             varcount = items->uv & OPpPADRANGE_COUNTMASK;
             DEBUG_kv(Perl_deb(aTHX_
                 "ck_sig: padintro action=%d pad_ix=%d varcount=%d %s "
@@ -18683,8 +18684,8 @@ Perl_rpeep(pTHX_ OP *o)
                                     gvop->op_flags |= OPf_WANT_SCALAR;
                                     o2->op_flags |= OPf_STACKED;
                                     DEBUG_k(Perl_deb(aTHX_
-                                        "rpeep: static method call to sub %s::%s\n",
-                                         SvPVX_const(name), SvPVX_const(gv)));
+                                        "rpeep: static method call to sub %" SVf "::%" SVf "\n",
+                                         SVfARG(name), SVfARG(gv)));
                                     meth = FALSE;
                                 }
                             }
@@ -18692,13 +18693,13 @@ Perl_rpeep(pTHX_ OP *o)
 #ifdef PERL_INLINE_SUBS
                         if (cv && CvINLINABLE(cv) && !meth) {
                             if (cop_hints_fetch_pvs(PL_curcop, "inline", REFCOUNTED_HE_EXISTS)) {
-                                DEBUG_k(Perl_deb(aTHX_ "rpeep: skip inline sub %s, no inline\n",
-                                                 SvPVX_const(cv_name,0,GV_NAME_NOMAIN)));
+                                DEBUG_k(Perl_deb(aTHX_ "rpeep: skip inline sub %" SVf ", no inline\n",
+                                    SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN))));
                             } else {
                                 OP* tmp;
-                                DEBUG_k(Perl_deb(aTHX_ "rpeep: inline sub %s::%s\n",
-                                                 pkg, cvname));
-                                if ((tmp = cv_do_inline(o, o2, cv))) {
+                                DEBUG_k(Perl_deb(aTHX_ "rpeep: inline sub %" SVf "\n",
+                                    SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN))));
+                                if ((tmp = cv_do_inline(o, o2, cv, FALSE))) {
                                     o = tmp;
                                     if (oldop)
                                         oldop->op_next = o;
@@ -20501,8 +20502,8 @@ S_role_field_fixup(pTHX_ OP* o, CV* cv, U16 ix, U16 nix, bool doit)
 {
     bool fixedup = FALSE;
     if (IS_TYPE(o, OELEMFAST) && o->op_private == (U8)ix) {
-        DEBUG_k(Perl_deb(aTHX_ "role_field_fixup %s: %d => %d %s\n",
-                         SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+        DEBUG_k(Perl_deb(aTHX_ "role_field_fixup %" SVf ": %d => %d %s\n",
+                         SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN)),
                          (int)ix, (int)nix, !doit ? "CHECK" : "DONE"));
         if (doit) {
             o->op_private = (U8)nix;
@@ -20658,8 +20659,8 @@ S_check_role_field_fixup(pTHX_ HV* klass, HV* newclass, CV* cv, bool doit)
            if (nix != -1 && i != (U16)nix) {
                bool result = S_role_field_fixup(aTHX_ CvROOT(cv), cv,
                                                 (U16)i, (U16)nix, doit);
-               /*DEBUG_k(Perl_deb(aTHX_ "check_role_field_fixup %s: (%d => %d) => %s\n",
-                                SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+               /*DEBUG_k(Perl_deb(aTHX_ "check_role_field_fixup %" SVf ": (%d => %d) => %s\n",
+                                SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN)),
                                 i, (int)nix, result ? "TRUE" : "FALSE"));*/
                need_copy |= result;
            }

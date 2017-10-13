@@ -8011,6 +8011,13 @@ STATIC bool	S_cv_check_inline(pTHX_ const OP *o, CV *compcv)
 #define PERL_ARGS_ASSERT_CV_CHECK_INLINE	\
 	assert(o); assert(compcv)
 
+STATIC OP*	S_cv_do_inline(pTHX_ const OP *o, const OP *cvop, CV *cv, bool meth)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT_CV_DO_INLINE	\
+	assert(o); assert(cvop); assert(cv)
+
 #  endif
 #endif
 #if defined(PERL_IN_AV_C)
