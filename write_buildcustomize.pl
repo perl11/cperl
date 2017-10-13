@@ -22,6 +22,8 @@ if ( @ARGV ) {
 # needed to build the nonxs modules
 # After which, all nonxs modules are in lib, which was always sufficient to
 # allow miniperl to build everything else.
+# Getopt::Long is here because it's used by podlators, which is one of the
+# nonxs modules.
 # Term::ReadLine is not here for building but for allowing the debugger to
 # run under miniperl when nothing but miniperl will build :-(.
 
