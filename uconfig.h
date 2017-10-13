@@ -654,13 +654,6 @@
  */
 /*#define I_FCNTL	/ **/
 
-/* I_FLOAT:
- *	This symbol, if defined, indicates to the C program that it should
- *	include <float.h> to get definition of symbols like DBL_MAX or
- *	DBL_MIN, i.e. machine dependent floating point values.
- */
-/*#define I_FLOAT		/ **/
-
 /* I_GDBM:
  *	This symbol, if defined, indicates that <gdbm.h> exists and should
  *	be included.
@@ -5428,6 +5421,6 @@
 #endif
 
 /* Generated from:
- * b134ca30dc75bb4e955a20ad50b793041709f2380ce83cde5a0f21191bdbbaed config_h.SH
- * 9d43f9f40f19b23742b1b63e55adb9ee69df1f0b7d2246f0fa150c3653c3f414 uconfig.sh
+ * 74a87db69e86a772f4ee139d295acef8b71d462428907cccc08cc52032fecf41 config_h.SH
+ * 9b6fdb318525cdfc84716ffbfa24b5840fac420ac225004d1142bbc349820821 uconfig.sh
  * ex: set ro: */

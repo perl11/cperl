@@ -622,6 +622,7 @@
 #define VOL volatile
 #define CAN_PROTOTYPE
 #define HAS_STRCHR
+#define I_FLOAT
 #define I_LIMITS
 #define I_STDARG
 #define I_STDLIB
@@ -1785,9 +1786,7 @@ typedef UVTYPE UV;
    a long double - Allen).
 */
 #include <limits.h>
-#ifdef I_FLOAT
 #include <float.h>
-#endif
 #ifndef HAS_DBL_DIG
 #define DBL_DIG	15   /* A guess that works lots of places */
 #endif
@@ -1805,9 +1804,7 @@ typedef UVTYPE UV;
    (see config.h)
 */
 # include <limits.h>
-# ifdef I_FLOAT
-#  include <float.h>
-# endif
+# include <float.h>
 # ifndef HAS_LDBL_DIG
 #  if LONG_DOUBLESIZE == 10
 #   define LDBL_DIG 18 /* assume IEEE */

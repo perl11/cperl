@@ -266,7 +266,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1285
+#define TOTAL_KEYWORDS 1284
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 37
 #define MIN_HASH_VALUE 3
@@ -649,7 +649,6 @@ struct stringpool_t
     char stringpool_str948[sizeof ("d_setpent")];
     char stringpool_str951[sizeof ("d_fds_bits")];
     char stringpool_str952[sizeof ("full_ar")];
-    char stringpool_str957[sizeof ("i_float")];
     char stringpool_str961[sizeof ("d_regcmp")];
     char stringpool_str963[sizeof ("startperl")];
     char stringpool_str965[sizeof ("d_pause")];
@@ -1937,7 +1936,6 @@ static const struct stringpool_t stringpool_contents =
     "d_setpent",
     "d_fds_bits",
     "full_ar",
-    "i_float",
     "d_regcmp",
     "startperl",
     "d_pause",
@@ -3708,10 +3706,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str951,		T_INV,0,ALN64I"@@d_fds_bits@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str952,		T_INV,0,ALN64I"@@full_ar@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str957,		T_INV,0,ALN64I"@@i_float@@"},
-      {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str961,		T_INV,0,ALN64I"@@d_regcmp@@"},
       {XSCNO},
@@ -7045,7 +7040,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str9600,	T_INV,0,ALN64I"@@known_extensions@@"}
     };
 
-#line 7048 "Config.xs"
+#line 7043 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);

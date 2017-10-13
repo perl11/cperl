@@ -795,6 +795,10 @@ Ditto: Keep HAS_VPRINTF
 
 Ditto: Keep HASVOLATILE
 
+=item i_float
+
+Ditto: Keep I_FLOAT in perl.h
+
 =item i_limits
 
 Ditto: Keep I_LIMITS in perl.h

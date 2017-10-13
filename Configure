@@ -993,7 +993,6 @@ i_dlfcn=''
 i_execinfo=''
 i_fcntl=''
 i_fenv=''
-i_float=''
 i_fp=''
 i_fp_class=''
 i_gdbm=''
@@ -7093,10 +7092,6 @@ EOCP
 esac
 $rm_try
 
-: see if this is a float.h system
-set float.h i_float
-eval $inhdr
-
 : check for long doubles
 echo " "
 echo "Checking to see if you have long double..." >&4
@@ -7183,13 +7178,10 @@ $echo "Checking the kind of long doubles you have..." >&4
 case "$d_longdbl" in
 define)
 $cat <<EOP >try.c
-#$i_float I_FLOAT
 #$i_stdlib I_STDLIB
 #define LONGDBLSIZE $longdblsize
 #define DOUBLESIZE $doublesize
-#ifdef I_FLOAT
 #include <float.h>
-#endif
 #ifdef I_STDLIB
 #include <stdlib.h>
 #endif
@@ -12694,11 +12686,8 @@ eval $inlibc
 : See if number of significant digits in a double precision number is known
 echo " "
 $cat >dbl_dig.c <<EOM
-#$i_float I_FLOAT
 #include <limits.h>
-#ifdef I_FLOAT
 #include <float.h>
-#endif
 #ifdef DBL_DIG
 printf("Contains DBL_DIG");
 #endif
@@ -16388,11 +16377,8 @@ eval $setvar
 : See if number of significant digits in a double precision number is known
 echo " "
 $cat >ldbl_dig.c <<EOM
-#$i_float I_FLOAT
 #include <limits.h>
-#ifdef I_FLOAT
 #include <float.h>
-#endif
 #ifdef LDBL_DIG
 printf("Contains LDBL_DIG");
 #endif
@@ -20862,11 +20848,8 @@ $rm_try
 : Check the length of the double mantissa
 $echo "Checking how many mantissa bits your doubles have..." >&4
 $cat >try.c <<EOP
-#$i_float I_FLOAT
 #$i_sunmath I_SUNMATH
-#ifdef I_FLOAT
-# include <float.h>
-#endif
+#include <float.h>
 #ifdef I_SUNMATH
 # include <sunmath.h>
 #endif
@@ -20892,11 +20875,8 @@ $rm_try
 : Check the length of the longdouble mantissa
 $echo "Checking how many mantissa bits your long doubles have..." >&4
 $cat >try.c <<EOP
-#$i_float I_FLOAT
 #$i_sunmath I_SUNMATH
-#ifdef I_FLOAT
-# include <float.h>
-#endif
+#include <float.h>
 #ifdef I_SUNMATH
 # include <sunmath.h>
 #endif
@@ -25241,7 +25221,6 @@ i_dlfcn='$i_dlfcn'
 i_execinfo='$i_execinfo'
 i_fcntl='$i_fcntl'
 i_fenv='$i_fenv'
-i_float='$i_float'
 i_fp='$i_fp'
 i_fp_class='$i_fp_class'
 i_gdbm='$i_gdbm'
