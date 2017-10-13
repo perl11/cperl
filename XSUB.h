@@ -127,14 +127,12 @@ is a lexical C<$_> in scope.
 #if defined(__SYMBIAN32__)
 #  define XS_EXTERNAL(name) EXPORT_C XSPROTO(name)
 #  define XS_INTERNAL(name) EXPORT_C STATIC XSPROTO(name)
+#elif defined(__cplusplus)
+#  define XS_EXTERNAL(name) extern "C" GLOBAL XSPROTO(name)
+#  define XS_INTERNAL(name) static XSPROTO(name)
 #else
-#  ifdef __cplusplus
-#    define XS_EXTERNAL(name) extern "C" GLOBAL XSPROTO(name)
-#    define XS_INTERNAL(name) static XSPROTO(name)
-#  else
-#    define XS_EXTERNAL(name) GLOBAL XSPROTO(name)
-#    define XS_INTERNAL(name) STATIC XSPROTO(name)
-#  endif
+#  define XS_EXTERNAL(name) GLOBAL XSPROTO(name)
+#  define XS_INTERNAL(name) STATIC XSPROTO(name)
 #endif
 
 /* We do export xsub symbols by default for the public XS macro.
