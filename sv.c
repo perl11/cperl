@@ -9138,7 +9138,7 @@ Perl_sv_inc_nomg(pTHX_ SV *const sv)
     if (flags & SVp_NOK) {
 	const NV was = SvNVX(sv);
 	if (LIKELY(!Perl_isinfnan(was)) &&
-            NV_OVERFLOWS_INTEGERS_AT &&
+            NV_OVERFLOWS_INTEGERS_AT != 0.0 &&
 	    was >= NV_OVERFLOWS_INTEGERS_AT) {
 	    Perl_ck_warner(aTHX_ packWARN(WARN_IMPRECISION),
 			   "Lost precision when incrementing %" NVff " by 1",
@@ -9320,7 +9320,7 @@ Perl_sv_dec_nomg(pTHX_ SV *const sv)
 	{
 	    const NV was = SvNVX(sv);
 	    if (LIKELY(!Perl_isinfnan(was)) &&
-                NV_OVERFLOWS_INTEGERS_AT &&
+                NV_OVERFLOWS_INTEGERS_AT != 0.0 &&
 		was <= -NV_OVERFLOWS_INTEGERS_AT) {
                 /* diag_listed_as: Lost precision when incrementing %f by 1 */
 		Perl_ck_warner(aTHX_ packWARN(WARN_IMPRECISION),
