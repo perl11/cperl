@@ -1256,6 +1256,7 @@ Perl_op_clear(pTHX_ OP *o)
 	SvREFCNT_dec(cMETHOPx(o)->op_rclass_sv);
 	cMETHOPx(o)->op_rclass_sv = NULL;
 #endif
+        /* FALLTHROUGH */
     case OP_METHOD_NAMED:
     case OP_METHOD_SUPER:
         SvREFCNT_dec(cMETHOPx(o)->op_u.op_meth_sv);
@@ -1375,12 +1376,14 @@ Perl_op_clear(pTHX_ OP *o)
 
                 case MDEREF_HV_padhv_helem:
                     is_hash = TRUE;
+                    /* FALLTHROUGH */
                 case MDEREF_AV_padav_aelem:
                     pad_free((++items)->pad_offset);
                     goto do_elem;
 
                 case MDEREF_HV_gvhv_helem:
                     is_hash = TRUE;
+                    /* FALLTHROUGH */
                 case MDEREF_AV_gvav_aelem:
 #ifdef USE_ITHREADS
                     op_clear_gv(o, &((++items)->pad_offset));
@@ -1391,6 +1394,7 @@ Perl_op_clear(pTHX_ OP *o)
 
                 case MDEREF_HV_gvsv_vivify_rv2hv_helem:
                     is_hash = TRUE;
+                    /* FALLTHROUGH */
                 case MDEREF_AV_gvsv_vivify_rv2av_aelem:
 #ifdef USE_ITHREADS
                     op_clear_gv(o, &((++items)->pad_offset));
@@ -1401,6 +1405,7 @@ Perl_op_clear(pTHX_ OP *o)
 
                 case MDEREF_HV_padsv_vivify_rv2hv_helem:
                     is_hash = TRUE;
+                    /* FALLTHROUGH */
                 case MDEREF_AV_padsv_vivify_rv2av_aelem:
                     pad_free((++items)->pad_offset);
                     goto do_vivify_rv2xv_elem;
@@ -1408,6 +1413,7 @@ Perl_op_clear(pTHX_ OP *o)
                 case MDEREF_HV_pop_rv2hv_helem:
                 case MDEREF_HV_vivify_rv2hv_helem:
                     is_hash = TRUE;
+                    /* FALLTHROUGH */
                 do_vivify_rv2xv_elem:
                 case MDEREF_AV_pop_rv2av_aelem:
                 case MDEREF_AV_vivify_rv2av_aelem:

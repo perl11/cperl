@@ -159,4 +159,4 @@ threads::shared dist/threads-shared/t/waithires.t dc867159fd2fa8c09326cd7627f5a0
 version cpan/version/lib/version.pm 2a13001de38b343b29720bd432612472dfd3f265
 version cpan/version/lib/version/regex.pm 78326aeeff8b3603558da9f9b86822a04c0b7be2
 version vutil.c 51f411696cdbf3b7c3f3adb2f5b6f45fbfdd2f1f
-version vxs.inc 60bac1fa8830adcbe3bb4b24c09b1826206198a0
+version vxs.inc 4d5b01db64de0e6f54db11baa30aac9ecc0b2788
