@@ -791,6 +791,10 @@ Ditto: Keep HASVOLATILE
 
 Ditto: Keep I_STDARG in perl.h
 
+=item i_stdlib
+
+Ditto: Keep I_STDLIB in perl.h
+
 =item prototype
 
 Ditto: Keep CAN_PROTOTYPE in perl.h

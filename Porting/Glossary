@@ -3645,10 +3645,9 @@ i_stdint (i_stdint.U):
 	indicates to the C program that <stdint.h> exists and should
 	be included.
 
-i_stdlib (i_stdlib.U):
-	This variable conditionally defines the I_STDLIB symbol, which
-	indicates to the C program that <stdlib.h> exists and should
-	be included.
+i_stddef (i_stdlib.U):
+	This variable was deleted with 5.28. I_STDLIB is now always
+        defined.
 
 i_string (i_string.U):
 	This variable conditionally defines the I_STRING symbol, which
@@ -4732,7 +4731,8 @@ procselfexe (d_procselfexe.U):
 	the executing program.
 
 prototype (prototype.U):
-	This variable was deleted with 5.28. CAN_PROTOTYPE is now always defined.
+	This variable was deleted with 5.28. CAN_PROTOTYPE is now always
+        defined.
 
 ptrsize (ptrsize.U):
 	This variable contains the value of the PTRSIZE symbol, which
