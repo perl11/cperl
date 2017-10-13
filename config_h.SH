@@ -702,13 +702,6 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$i_gdbm I_GDBM	/**/
 
-/* I_LIMITS:
- *	This symbol, if defined, indicates to the C program that it should
- *	include <limits.h> to get definition of symbols like WORD_BIT or
- *	LONG_MAX, i.e. machine dependant limitations.
- */
-#$i_limits I_LIMITS		/**/
-
 /* I_LOCALE:
  *	This symbol, if defined, indicates to the C program that it should
  *	include <locale.h>.

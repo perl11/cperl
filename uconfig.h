@@ -667,13 +667,6 @@
  */
 /*#define I_GDBM	/ **/
 
-/* I_LIMITS:
- *	This symbol, if defined, indicates to the C program that it should
- *	include <limits.h> to get definition of symbols like WORD_BIT or
- *	LONG_MAX, i.e. machine dependant limitations.
- */
-/*#define I_LIMITS		/ **/
-
 /* I_LOCALE:
  *	This symbol, if defined, indicates to the C program that it should
  *	include <locale.h>.
@@ -5435,6 +5428,6 @@
 #endif
 
 /* Generated from:
- * 17fee637e149114386d47502a0bf072cf0aa7beaf67bc4e1c48b50e9c1b28de9 config_h.SH
- * 300e94d93f605140b9293e077a8b08eb6268f0b2e3a98e9b6353d244f1a02d82 uconfig.sh
+ * b134ca30dc75bb4e955a20ad50b793041709f2380ce83cde5a0f21191bdbbaed config_h.SH
+ * 12a567ed14412ef070b31d6ac1fca85529a60d8e554febad8cfa682c04b93ce1 uconfig.sh
  * ex: set ro: */
