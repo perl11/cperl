@@ -758,6 +758,8 @@ i_wchar
 
 =item d_strctcpy
 
+=item i_values
+
 =item i_varargs
 
 =item i_varhdr

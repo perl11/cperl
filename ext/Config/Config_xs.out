@@ -266,7 +266,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1283
+#define TOTAL_KEYWORDS 1282
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 37
 #define MIN_HASH_VALUE 3
@@ -1171,7 +1171,6 @@ struct stringpool_t
     char stringpool_str2912[sizeof ("ccflags_nolargefiles")];
     char stringpool_str2918[sizeof ("d_regcomp")];
     char stringpool_str2930[sizeof ("vendorhtml3dir")];
-    char stringpool_str2933[sizeof ("i_values")];
     char stringpool_str2936[sizeof ("d_endpwent_r")];
     char stringpool_str2939[sizeof ("html3dir")];
     char stringpool_str2940[sizeof ("fflushNULL")];
@@ -2457,7 +2456,6 @@ static const struct stringpool_t stringpool_contents =
     "ccflags_nolargefiles",
     "d_regcomp",
     "vendorhtml3dir",
-    "i_values",
     "d_endpwent_r",
     "html3dir",
     "fflushNULL",
@@ -5158,10 +5156,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2930,		T_INV,0,ALN64I"@@vendorhtml3dir@@"},
-      {XSCNO}, {XSCNO},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2933,		T_INV,0,ALN64I"@@i_values@@"},
-      {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2936,		T_INV,0,ALN64I"@@d_endpwent_r@@"},
       {XSCNO}, {XSCNO},
@@ -7035,7 +7030,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str9600,	T_INV,0,ALN64I"@@known_extensions@@"}
     };
 
-#line 7038 "Config.xs"
+#line 7033 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);
