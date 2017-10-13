@@ -621,6 +621,7 @@
 #ifndef PERL_CORE
 #define VOL volatile
 #define CAN_PROTOTYPE
+#define HAS_STRCHR
 #define I_STDARG
 #define I_STDLIB
 #define I_STDDEF
@@ -1029,11 +1030,6 @@ EXTERN_C int usleep(unsigned int);
 #define TOO_LATE_FOR(ch)	TOO_LATE_FOR_(ch, "")
 #define MALLOC_TOO_LATE_FOR(ch)	TOO_LATE_FOR_(ch, " with $ENV{PERL_MALLOC_OPT}")
 #define MALLOC_CHECK_TAINT2(argc,argv)	MALLOC_CHECK_TAINT(argc,argv,NULL)
-
-#if !defined(HAS_STRCHR) && defined(HAS_INDEX) && !defined(strchr)
-#define strchr index
-#define strrchr rindex
-#endif
 
 #ifdef I_MEMORY
 #  include <memory.h>
@@ -4578,10 +4574,8 @@ double atof (const char*);
 Time_t time();
 struct tm *gmtime(), *localtime();
 #if defined(OEMVS)
-char *(strchr)(), *(strrchr)();
 char *(strcpy)(), *(strcat)();
 #else
-char *strchr(), *strrchr();
 char *strcpy(), *strcat();
 #endif
 #endif /* ! STANDARD_C */

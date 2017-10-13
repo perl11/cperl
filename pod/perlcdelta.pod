@@ -742,6 +742,8 @@ i_wchar
 
 =item d_bzero
 
+=item d_index
+
 =item d_charvspr
 
 =item d_safebcpy
@@ -780,6 +782,10 @@ Ditto: Keep HAS_MEMCPY
 =item d_memmove
 
 Ditto: Keep HAS_MEMMOVE
+
+=item d_strchr
+
+Ditto: Keep HAS_STRCHR
 
 =item d_vprintf
 
