@@ -3534,8 +3534,7 @@ i_math (i_math.U):
         defined.
 
 i_memory (i_memory.U):
-	This variable conditionally defines the I_MEMORY symbol, and indicates
-	whether a C program should include <memory.h>.
+	This variable and I_MEMORY was deleted with 5.28.
 
 i_mntent (i_mntent.U):
 	This variable conditionally defines the I_MNTENT symbol, and indicates

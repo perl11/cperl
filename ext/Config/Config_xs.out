@@ -266,7 +266,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1278
+#define TOTAL_KEYWORDS 1277
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 37
 #define MIN_HASH_VALUE 3
@@ -893,7 +893,6 @@ struct stringpool_t
     char stringpool_str1938[sizeof ("cf_email")];
     char stringpool_str1942[sizeof ("u64size")];
     char stringpool_str1948[sizeof ("d_dirnamlen")];
-    char stringpool_str1949[sizeof ("i_memory")];
     char stringpool_str1952[sizeof ("chmod")];
     char stringpool_str1954[sizeof ("sitehtml1dir")];
     char stringpool_str1957[sizeof ("d_sqrtl")];
@@ -2174,7 +2173,6 @@ static const struct stringpool_t stringpool_contents =
     "cf_email",
     "u64size",
     "d_dirnamlen",
-    "i_memory",
     "chmod",
     "sitehtml1dir",
     "d_sqrtl",
@@ -4376,9 +4374,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1948,		T_INV,0,ALN64I"@@d_dirnamlen@@"},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1949,		T_INV,0,ALN64I"@@i_memory@@"},
-      {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1952,			T_INV,0,ALN64I"@@chmod@@"},
       {XSCNO},
@@ -7022,7 +7018,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str9783,	T_INV,0,ALN64I"@@known_extensions@@"}
     };
 
-#line 7025 "Config.xs"
+#line 7021 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);

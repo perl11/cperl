@@ -760,6 +760,8 @@ i_wchar
 
 =item d_strerrm
 
+=item i_memory
+
 =item i_values
 
 =item i_varargs

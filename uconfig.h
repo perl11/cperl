@@ -658,12 +658,6 @@
  */
 /*#define	I_LOCALE		/ **/
 
-/* I_MEMORY:
- *	This symbol, if defined, indicates to the C program that it should
- *	include <memory.h>.
- */
-/*#define I_MEMORY		/ **/
-
 /* I_STRING:
  *	This symbol, if defined, indicates to the C program that it should
  *	include <string.h> (USG systems) instead of <strings.h> (BSD systems).
@@ -5381,6 +5375,6 @@
 #endif
 
 /* Generated from:
- * 0327d817e3c2b5de3b4b175986a4b77ca165f086a5b23645700a65a41b2d1bf7 config_h.SH
- * de19652bb64a4d23e08e03cf0fc920b8782eec5160aa95ed8ba94121e2d0ba7c uconfig.sh
+ * ad9694f4bf21141633189468932446519d6eb5a3b48849247598de41261c0b88 config_h.SH
+ * 79ed2edc65181dc789956cbba9164e6685f1c3b8c4bdf0a0c9078af5755af329 uconfig.sh
  * ex: set ro: */

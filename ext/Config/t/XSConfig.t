@@ -169,8 +169,9 @@ if (exists $XSConfig{canned_gperf}) { #fix up PP Config to look like XS Config
             d_index d_memchr d_memcmp d_memcpy d_memmove d_memset
             d_safebcpy d_safemcpy d_sanemcmp d_sprintf_returns_strlen
             d_strchr d_strctcpy d_strerrm d_strerror d_volatile
-            d_vprintf i_assert i_float i_limits i_math i_stdarg
-            i_stdlib i_values i_varargs i_varhdr prototype vaproto
+            d_vprintf i_assert i_float i_limits i_math i_memory
+            i_stdarg i_stdlib i_values i_varargs i_varhdr prototype
+            vaproto
 
       );
   }
