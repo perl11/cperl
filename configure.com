@@ -6574,7 +6574,6 @@ $ ELSE
 $   WC "i_stdbool='undef'"
 $ ENDIF
 $ WC "i_stdint='undef'"
-$ WC "i_string='define'"
 $ WC "i_sunmath='undef'"
 $ WC "i_sysaccess='" + i_sysaccess + "'"
 $ WC "i_sysdir='undef'"

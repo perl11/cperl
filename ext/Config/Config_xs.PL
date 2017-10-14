@@ -252,8 +252,8 @@ if ($gperf_ok) {
             d_safebcpy d_safemcpy d_sanemcmp d_sprintf_returns_strlen
             d_strchr d_strctcpy d_strerrm d_strerror d_volatile
             d_vprintf i_assert i_float i_limits i_math i_memory
-            i_stdarg i_stdlib i_values i_varargs i_varhdr prototype
-            vaproto
+            i_stdarg i_stdlib i_string i_values i_varargs i_varhdr
+            prototype strings vaproto
 
         );
     }

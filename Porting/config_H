@@ -664,11 +664,11 @@
  */
 #define	I_LOCALE		/**/
 
-/* I_STRING:
- *	This symbol, if defined, indicates to the C program that it should
- *	include <string.h> (USG systems) instead of <strings.h> (BSD systems).
+/* I_STDBOOL:
+ *	This symbol, if defined, indicates that <stdbool.h> exists and should
+ *	be included.
  */
-#define I_STRING		/**/
+/*#define I_STDBOOL	/ **/
 
 /* I_SYS_DIR:
  *	This symbol, if defined, indicates to the C program that it should

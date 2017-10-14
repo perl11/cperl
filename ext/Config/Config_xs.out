@@ -266,7 +266,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1277
+#define TOTAL_KEYWORDS 1275
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 37
 #define MIN_HASH_VALUE 3
@@ -607,7 +607,6 @@ struct stringpool_t
     char stringpool_str961[sizeof ("d_eofnblk")];
     char stringpool_str962[sizeof ("d_fdim")];
     char stringpool_str963[sizeof ("grep")];
-    char stringpool_str964[sizeof ("i_string")];
     char stringpool_str967[sizeof ("sig_size")];
     char stringpool_str971[sizeof ("d_strlcpy")];
     char stringpool_str973[sizeof ("egrep")];
@@ -627,7 +626,6 @@ struct stringpool_t
     char stringpool_str1023[sizeof ("d_isinf")];
     char stringpool_str1024[sizeof ("d_ftello")];
     char stringpool_str1028[sizeof ("d_isfinite")];
-    char stringpool_str1031[sizeof ("strings")];
     char stringpool_str1038[sizeof ("i_db")];
     char stringpool_str1040[sizeof ("d_isinfl")];
     char stringpool_str1041[sizeof ("d_nanosleep")];
@@ -1887,7 +1885,6 @@ static const struct stringpool_t stringpool_contents =
     "d_eofnblk",
     "d_fdim",
     "grep",
-    "i_string",
     "sig_size",
     "d_strlcpy",
     "egrep",
@@ -1907,7 +1904,6 @@ static const struct stringpool_t stringpool_contents =
     "d_isinf",
     "d_ftello",
     "d_isfinite",
-    "strings",
     "i_db",
     "d_isinfl",
     "d_nanosleep",
@@ -3595,9 +3591,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str962,			T_INV,0,ALN64I"@@d_fdim@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str963,			T_INV,0,ALN64I"@@grep@@"},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str964,		T_INV,0,ALN64I"@@i_string@@"},
-      {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str967,		T_INV,0,ALN64I"@@sig_size@@"},
       {XSCNO}, {XSCNO}, {XSCNO},
@@ -3651,10 +3645,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1028,		T_INV,0,ALN64I"@@d_isfinite@@"},
-      {XSCNO}, {XSCNO},
-
-      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1031,		T_INV,0,ALN64I"@@strings@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1038,			T_INV,0,ALN64I"@@i_db@@"},
       {XSCNO},
@@ -7018,7 +7009,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str9783,	T_INV,0,ALN64I"@@known_extensions@@"}
     };
 
-#line 7021 "Config.xs"
+#line 7012 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);

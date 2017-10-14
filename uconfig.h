@@ -658,12 +658,6 @@
  */
 /*#define	I_LOCALE		/ **/
 
-/* I_STRING:
- *	This symbol, if defined, indicates to the C program that it should
- *	include <string.h> (USG systems) instead of <strings.h> (BSD systems).
- */
-#define I_STRING		/**/
-
 /* I_SYS_DIR:
  *	This symbol, if defined, indicates to the C program that it should
  *	include <sys/dir.h>.
@@ -5375,6 +5369,6 @@
 #endif
 
 /* Generated from:
- * ad9694f4bf21141633189468932446519d6eb5a3b48849247598de41261c0b88 config_h.SH
- * 79ed2edc65181dc789956cbba9164e6685f1c3b8c4bdf0a0c9078af5755af329 uconfig.sh
+ * 616505b28688242e23e2975772665cfcf4d2bf117587405c00d59e3a829915ed config_h.SH
+ * 8bc96bdf88c7180a0009080045c90a639ed07ed43d15c97905b8806b74611c34 uconfig.sh
  * ex: set ro: */

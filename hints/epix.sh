@@ -25,7 +25,6 @@ esac
 usrinc='/svr4/usr/include'
 
 # Various things that Configure apparently doesn't get right.
-strings='/svr4/usr/include/string.h'
 timeincl='/svr4/usr/include/sys/time.h '
 libc='/svr4/usr/lib/libc.a'
 glibpth="/svr4/usr/lib /svr4/usr/lib/cmplrs/cc /usr/ccs/lib /svr4/lib /svr4/usr/ucblib $glibpth"
