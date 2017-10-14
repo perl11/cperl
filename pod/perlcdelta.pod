@@ -813,6 +813,10 @@ Ditto: Keep I_FLOAT in perl.h
 
 Ditto: Keep I_LIMITS in perl.h
 
+=item i_math
+
+Ditto: Keep I_MATH in perl.h
+
 =item i_stdarg
 
 Ditto: Keep I_STDARG in perl.h

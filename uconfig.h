@@ -658,12 +658,6 @@
  */
 /*#define	I_LOCALE		/ **/
 
-/* I_MATH:
- *	This symbol, if defined, indicates to the C program that it should
- *	include <math.h>.
- */
-#define I_MATH		/**/
-
 /* I_MEMORY:
  *	This symbol, if defined, indicates to the C program that it should
  *	include <memory.h>.
@@ -5393,6 +5387,6 @@
 #endif
 
 /* Generated from:
- * bd549f62ea823034406077d473bc2399c082f3036228a8e4447d5ef443ecb8b5 config_h.SH
- * 365d722819fd54aeb9d8085e9964110bbbcf32e0d750e96f9324ecddeb950c5b uconfig.sh
+ * e6508a291f28e586170b39dd0082e04d50d2a4b284e1226526d494ec027f0bd8 config_h.SH
+ * 76dffb09b00ee8151d8f55d4c283c82dc6e75dfbd8c1c9fd4fe222613ab27d1f uconfig.sh
  * ex: set ro: */

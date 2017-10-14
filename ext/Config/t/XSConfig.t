@@ -164,11 +164,14 @@ if (exists $XSConfig{canned_gperf}) { #fix up PP Config to look like XS Config
   if (!$in_core and $] < 5.027) { # for older CPAN installs
     # deleted with v5.27.5/v5.27.2c
     push @cannedkeys , qw(
-            ansi2knr d_bcmp d_bcopy d_bzero d_charvspr d_dbl_dig d_index d_memchr
-            d_memcmp d_memcpy d_memmove d_memset d_safebcpy d_safemcpy d_sanemcmp
-            d_sprintf_returns_strlen d_strchr d_strctcpy d_volatile
-            d_vprintf i_float i_limits i_stdarg i_stdlib i_values
-            i_varargs i_varhdr prototype vaproto
+
+            ansi2knr d_bcmp d_bcopy d_bzero d_charvspr d_dbl_dig
+            d_index d_memchr d_memcmp d_memcpy d_memmove d_memset
+            d_safebcpy d_safemcpy d_sanemcmp d_sprintf_returns_strlen
+            d_strchr d_strctcpy d_volatile d_vprintf i_float i_limits
+            i_math i_stdarg i_stdlib i_values i_varargs i_varhdr
+            prototype vaproto
+
       );
   }
   for my $k (@cannedkeys) {
