@@ -4306,8 +4306,7 @@ S_require_file(pTHX_ SV *sv)
 			continue;
 		    sv_setpv(namesv, unixdir);
 		    sv_catpv(namesv, unixname);
-#else
-#  ifdef __SYMBIAN32__
+#elif defined(__SYMBIAN32__)
 		    if (PL_origfilename[0] &&
 			PL_origfilename[1] == ':' &&
 			!(dir[0] && dir[1] == ':'))
@@ -4319,8 +4318,8 @@ S_require_file(pTHX_ SV *sv)
 		        Perl_sv_setpvf(aTHX_ namesv,
 				       "%s\\%s",
 				       dir, name);
-#  else
-		    /* The equivalent of
+#else
+		    /* The equivalent of		    
 		       Perl_sv_setpvf(aTHX_ namesv, "%s/%s", dir, name);
 		       but without the need to parse the format string, or
 		       call strlen on either pointer, and with the correct
@@ -4346,7 +4345,6 @@ S_require_file(pTHX_ SV *sv)
 			SvCUR_set(namesv, dirlen + len + 1);
 			SvPOK_on(namesv);
 		    }
-#  endif
 #endif
 		    TAINT_PROPER(op_name);
 		    tryname = SvPVX(namesv);
