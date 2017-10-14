@@ -734,6 +734,8 @@ i_wchar
 
 =over 2
 
+=item ansi2knr
+
 =item d_bcmp
 
 =item d_bcopy

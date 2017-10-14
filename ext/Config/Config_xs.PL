@@ -171,7 +171,7 @@ useversionedarchname
     unless ($in_core) { # cperl doesn't need these, CPAN does
         push @cannedkeys , qw(
 
-ARCH BuiltWithPatchPerl Mcc PERL_PATCHLEVEL ccflags_nolargefiles
+ARCH BuiltWithPatchPerl Mcc PERL_PATCHLEVEL ansi2knr ccflags_nolargefiles
 charbits config_heavy d_acosh d_asctime64 d_asinh d_atanh d_attribut
 d_attribute_deprecated d_attribute_format d_attribute_malloc
 d_attribute_nonnull d_attribute_noreturn d_attribute_pure
