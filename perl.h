@@ -613,6 +613,7 @@
 #define CAN_PROTOTYPE
 #define HAS_STRCHR
 #define HAS_STRERROR
+#define I_ASSERT
 #define I_FLOAT
 #define I_MATH
 #define I_LIMITS
@@ -3369,12 +3370,10 @@ EXTERN_C int perl_tsa_mutex_unlock(perl_mutex* mutex)
 #  define __attribute__warn_unused_result__
 #endif
 
-#ifdef I_ASSERT
-#  if !defined(DEBUGGING) && !defined(NDEBUG)
-#    define NDEBUG 1
-#  endif
-#  include <assert.h>
+#if !defined(DEBUGGING) && !defined(NDEBUG)
+#  define NDEBUG 1
 #endif
+#include <assert.h>
 
 /* For functions that are marked as __attribute__noreturn__, it's not
    appropriate to call return.  In either case, include the lint directive.
@@ -4183,7 +4182,7 @@ Gid_t getegid (void);
 			"\", line %d", STRINGIFY(what), __LINE__),	\
              (void) 0)), ((void)0))
 
-/* assert() gets defined if DEBUGGING (and I_ASSERT).
+/* assert() gets defined if DEBUGGING.
  * If no DEBUGGING, the <assert.h> has not been included. */
 #ifndef assert
 #  define assert(what)	Perl_assert(what)

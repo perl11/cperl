@@ -805,6 +805,10 @@ Ditto: Keep HAS_VPRINTF
 
 Ditto: Keep HASVOLATILE
 
+=item i_assert
+
+Ditto: Keep I_ASSERT in perl.h
+
 =item i_float
 
 Ditto: Keep I_FLOAT in perl.h
