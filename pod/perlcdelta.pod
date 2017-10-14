@@ -758,6 +758,8 @@ i_wchar
 
 =item d_strctcpy
 
+=item d_strerrm
+
 =item i_values
 
 =item i_varargs
@@ -790,6 +792,10 @@ Ditto: Keep HAS_MEMMOVE
 =item d_strchr
 
 Ditto: Keep HAS_STRCHR
+
+=item d_strerror
+
+Ditto: Keep HAS_STRERROR
 
 =item d_vprintf
 

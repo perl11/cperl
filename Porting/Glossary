@@ -2540,14 +2540,10 @@ d_strcoll (d_strcoll.U):
 	available to compare strings using collating information.
 
 d_strerrm (d_strerror.U):
-	This variable holds what Strerror is defined as to translate an error
-	code condition into an error message string. It could be 'strerror'
-	or a more complex macro emulating strerror with sys_errlist[], or the
-	"unknown" string when both strerror and sys_errlist are missing.
+	This variable and the Strerror(e) macro was deleted with 5.28. 
 
 d_strerror (d_strerror.U):
-	This variable conditionally defines HAS_STRERROR if strerror() is
-	available to translate error numbers to strings.
+	This variable was deleted with 5.28. HAS_STRERROR is now always defined.
 
 d_strerror_l (d_strerror_l.U):
 	This variable conditionally defines the HAS_STRERROR_L symbol, which

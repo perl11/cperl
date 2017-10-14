@@ -2472,24 +2472,12 @@
 #define FILE_bufsiz(fp)	((fp)->_IO_read_end - (fp)->_IO_read_base)
 #endif
 
-/* HAS_STRERROR:
- *	This symbol, if defined, indicates that the strerror routine is
- *	available to translate error numbers to strings. See the writeup
- *	of Strerror() in this file before you try to define your own.
- */
 /* HAS_SYS_ERRLIST:
  *	This symbol, if defined, indicates that the sys_errlist array is
  *	available to translate error numbers to strings. The extern int
  *	sys_nerr gives the size of that table.
  */
-/* Strerror:
- *	This preprocessor symbol is defined as a macro if strerror() is
- *	not available to translate error numbers to strings but sys_errlist[]
- *	array is there.
- */
-/*#define HAS_STRERROR		/ **/
 /*#define HAS_SYS_ERRLIST	/ **/
-#define Strerror(e) strerror(e)
 
 /* HAS_STRERROR_R:
  *	This symbol, if defined, indicates that the strerror_r routine
@@ -5405,6 +5393,6 @@
 #endif
 
 /* Generated from:
- * fe46fb10ff89de26f2340ecd9b9d68524ea214702a99999753addf8b2fdb5665 config_h.SH
- * 669657c97d5080747ab26ee675ed6f0b19ad1f65272a214a9ff2eea2c004ec5d uconfig.sh
+ * bd549f62ea823034406077d473bc2399c082f3036228a8e4447d5ef443ecb8b5 config_h.SH
+ * 365d722819fd54aeb9d8085e9964110bbbcf32e0d750e96f9324ecddeb950c5b uconfig.sh
  * ex: set ro: */
