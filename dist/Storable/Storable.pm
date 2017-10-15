@@ -2,6 +2,7 @@
 #  Copyright (c) 1995-2001, Raphael Manfredi
 #  Copyright (c) 2002-2014 by the Perl 5 Porters
 #  Copyright (c) 2015-2016 cPanel Inc
+#  Copyright (c) 2017 Reini Urban
 #
 #  You may redistribute only under the same terms as Perl 5, as specified
 #  in the README file that comes with the distribution.
@@ -20,16 +21,23 @@ package Storable; @ISA = qw(Exporter);
 	lock_store lock_nstore lock_retrieve
         file_magic read_magic
 	BLESS_OK TIE_OK FLAGS_COMPAT
+        stack_depth stack_depth_hash
 );
 
-use vars qw($canonical $forgive_me $VERSION);
+use vars qw($canonical $forgive_me $VERSION $XS_VERSION);
 
-$VERSION = '3.01c';
-$VERSION =~ s/c$//;
+$VERSION = '3.05_14';
+$XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
 BEGIN {
-    if (eval { local $SIG{__DIE__}; require Log::Agent; 1 }) {
+    if (eval {
+        local $SIG{__DIE__};
+        local @INC = @INC;
+        pop @INC if $INC[-1] eq '.';
+        require Log::Agent;
+        1;
+    }) {
         Log::Agent->import;
     }
     #
@@ -80,7 +88,7 @@ $Storable::flags = FLAGS_COMPAT;
 $Storable::downgrade_restricted = 1;
 $Storable::accept_future_minor = 1;
 
-XSLoader::load('Storable', $Storable::VERSION);
+XSLoader::load('Storable');
 
 #
 # Determine whether locking is possible, but only when needed.
@@ -648,6 +656,22 @@ all values unlocked.  To make Storable C<croak()> instead, set
 C<$Storable::downgrade_restricted> to a C<FALSE> value.  To restore
 the default set it back to some C<TRUE> value.
 
+The cperl PERL_PERTURB_KEYS_TOP hash strategy has a known problem with
+restricted hashes.
+
+=item huge objects
+
+On 64bit systems some data structures may exceed the 2G (i.e. I32_MAX)
+limit. On 32bit systems also strings between I32 and U32 (2G-4G).
+Since Storable 3.00 (not in perl5 core) we are able to store and
+retrieve these objects, even if perl5 itself is not able to handle
+them.  These are strings longer then 4G, arrays with more then 2G
+elements and hashes with more then 2G elements. cperl forbids hashes
+with more than 2G elements, but this fail in cperl then. perl5 itself
+at least until 5.26 allows it, but cannot iterate over them.
+Note that creating those objects might cause out of memory
+exceptions by the operating system before perl has a chance to abort.
+
 =item files from future versions of Storable
 
 Earlier versions of Storable would immediately croak if they encountered
@@ -674,16 +698,23 @@ relevant feature.
 
 =head1 ERROR REPORTING
 
-Storable uses the "exception" paradigm, in that it does not try to workaround
-failures: if something bad happens, an exception is generated from the
-caller's perspective (see L<Carp> and C<croak()>).  Use eval {} to trap
-those exceptions.
+Storable uses the "exception" paradigm, in that it does not try to
+workaround failures: if something bad happens, an exception is
+generated from the caller's perspective (see L<Carp> and C<croak()>).
+Use eval {} to trap those exceptions.
 
 When Storable croaks, it tries to report the error via the C<logcroak()>
 routine from the C<Log::Agent> package, if it is available.
 
 Normal errors are reported by having store() or retrieve() return C<undef>.
 Such errors are usually I/O errors (or truncated stream errors at retrieval).
+
+When Storable throws the "Max. recursion depth with nested structures
+exceeded" error we are already out of stack space. Unfortunately on
+some earlier perl versions cleaning up a recursive data structure
+recurses into the free calls, which will lead to stack overflows in
+the cleanup. This data structure is not properly cleaned up then, it
+will only be destroyed during global destruction.
 
 =head1 WIZARDS ONLY
 
@@ -847,6 +878,14 @@ There are a few things you need to know, however:
 
 =item *
 
+Since Storable 3.05 we probe for the stack recursion limit for references,
+arrays and hashes to a maximal depth of ~1200-35000, otherwise we might
+fall into a stack-overflow.  On JSON::XS this limit is 512 btw.  With
+references not immediately referencing each other there's no such
+limit yet, so you might fall into such a stack-overflow segfault.
+
+=item *
+
 You can create endless loops if the things you serialize via freeze()
 (for instance) point back to the object we're trying to serialize in
 the hook.
@@ -858,6 +897,12 @@ the list of object [A, C] where both object A and C refer to the SAME object
 B, and if there is a serializing hook in A that says freeze(B), then when
 deserializing, we'll get [A', C'] where A' refers to B', but C' refers to D,
 a deep clone of B'.  The topology was not preserved.
+
+=item *
+
+The maximal stack recursion limit for your system is returned by
+C<stack_depth()> and C<stack_depth_hash()>. The hash limit is usually
+half the size of the array and ref limit, as the Perl hash API is not optimal.
 
 =back
 
@@ -1063,21 +1108,23 @@ in the value of a hash key that is overridden by another key/value
 pair in the same hash, thus causing immediate destructor execution.
 
 To disable blessing objects while thawing/retrieving remove the flag
-BLESS_OK = 2 from C<$Storable::flags> or set the 2nd argument for
+C<BLESS_OK> = 2 from C<$Storable::flags> or set the 2nd argument for
 thaw/retrieve to 0.
 
-To disable tieing data while thawing/retrieving remove the flag TIE_OK
+To disable tieing data while thawing/retrieving remove the flag C<TIE_OK>
 = 4 from C<$Storable::flags> or set the 2nd argument for thaw/retrieve
 to 0.
 
-With the default setting of $Storable::flags = 6, creating or destroying
+With the default setting of C<$Storable::flags> = 6, creating or destroying
 random objects, even renamed objects can be controlled by an attacker.
 See CVE-2015-1592 and its metasploit module.
 
-If your application requires accepting data from untrusted sources, you
-are best off with a less powerful and more-likely safe serialization format
-and implementation. If your data is sufficiently simple, JSON is the best
-choice and offers maximum interoperability.
+If your application requires accepting data from untrusted sources,
+you are best off with a less powerful and more-likely safe
+serialization format and implementation. If your data is sufficiently
+simple, Cpanel::JSON::XS, Data::MessagePack or Serial are the best
+choices and offers maximum interoperability, but note that Serial is
+unsafe by default.
 
 =head1 WARNING
 
@@ -1147,34 +1194,6 @@ problems when storing large unsigned integers that had never been converted
 to string or floating point.  In other words values that had been generated
 by integer operations such as logic ops and then not used in any string or
 arithmetic context before storing.
-
-=head2 Large data on 64-bit platforms
-
-Storable's current data format is incapable of representing lengths greater
-than fit into a signed 32-bit integer, or about 2 GB. In practice, this
-means that, even with the latest Perl and a 64-bit machine with plenty of
-memory, you cannot store, retrieve, or clone any of the following:
-
-=over 4
-
-=item *
-
-A string containing 2**31 or more bytes (including as an element of an array, or
-a key or value in a hash)
-
-=item *
-
-An array with 2**31 or more elements
-
-=item *
-
-A hash with 2**31 or more keys
-
-=back
-
-Attempting to do so will yield an exception.
-
-This may be fixed in the future.
 
 =head2 64 bit data in perl 5.6.0 and 5.6.1
 
@@ -1249,7 +1268,7 @@ Thank you to (in chronological order):
 	Dominic Dunlop <domo@computer.org>
 	Erik Haugan <erik@solbors.no>
 	Benjamin A. Holzman <ben.holzman@grantstreet.com>
-	Reini Urban <rurban@cpanel.net>
+	Reini Urban <rurban@cpan.org>
 	Todd Rinaldo <toddr@cpanel.net>
 	Aaron Crane <arc@cpan.org>
 
@@ -1266,13 +1285,14 @@ Murray Nesbitt made Storable thread-safe.  Marc Lehmann added overloading
 and references to tied items support.  Benjamin Holzman added a performance
 improvement for overloaded classes; thanks to Grant Street Group for footing
 the bill.
+Reini Urban took over maintainance from p5p, and added security fixes
+and huge object support.
 
 =head1 AUTHOR
 
 Storable was written by Raphael Manfredi
 F<E<lt>Raphael_Manfredi@pobox.comE<gt>>
-Maintenance is now done by the perl5-porters
-F<E<lt>perl5-porters@perl.orgE<gt>>
+Maintenance is now done by cperl L<http://perl11.org/cperl>
 
 Please e-mail us with problems, bug fixes, comments and complaints,
 although if you have compliments you should send them to Raphael.

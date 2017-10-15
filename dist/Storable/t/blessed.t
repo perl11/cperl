@@ -27,16 +27,16 @@ use Storable qw(freeze thaw store retrieve);
 
 %::immortals =
     ('u' => \undef,
-     'y' => \(1 == 1),
-     'n' => \(1 == 0)
+     'y' => \(!!1),  # yes
+     'n' => \(!!0)   # no
 );
 
 
 %::weird_refs = 
-  (REF     => \(my $aref    = []),
-  VSTRING => \(my $vstring = v1.2.3),
-  'long VSTRING' => \(my $vstring = eval "v" . 0 x 300),
-  LVALUE  => \(my $substr  = substr((my $str = "foo"), 0, 3)));
+  (REF            => \(my $aref    = []),
+   VSTRING        => \(my $vstring = v1.2.3),
+   'long VSTRING' => \(my $lvstring = eval "v" . 0 x 300),
+   LVALUE         => \(my $substr  = substr((my $str = "foo"), 0, 3)));
 
 my $test = 12;
 my $tests = $test + 23 + (2 * 6 * keys %::immortals) + (3 * keys %::weird_refs);
@@ -66,8 +66,8 @@ package main;
 
 # Still less than 256 bytes, so long classname logic not fully exercised
 #   Identifier too long - 5.004
-#   parser.h: char	tokenbuf[256]: cperl => 1024
-my $m = $Config{usecperl} ? 56 : 14;
+#   parser.h: char	tokenbuf[256]: cperl5.24 => 1024
+my $m = ($Config{usecperl} and $] >= 5.024) ? 56 : 14;
 my $longname = "LONG_NAME_" . ('xxxxxxxxxxxxx::' x $m) . "final";
 
 eval <<EOC;
@@ -78,7 +78,7 @@ EOC
 is($@, '');
 
 eval <<EOC;
-package ${name}_WITH_HOOK;
+package ${longname}_WITH_HOOK;
 
 \@ISA = ("SHORT_NAME_WITH_HOOK");
 EOC
@@ -86,12 +86,11 @@ is($@, '');
 
 # Construct a pool of objects
 my @pool;
-
 for (my $i = 0; $i < 10; $i++) {
     push(@pool, SHORT_NAME->make);
     push(@pool, SHORT_NAME_WITH_HOOK->make);
     push(@pool, $longname->make);
-    push(@pool, "${name}_WITH_HOOK"->make);
+    push(@pool, "${longname}_WITH_HOOK"->make);
 }
 
 my $x = freeze \@pool;
@@ -104,14 +103,14 @@ is(scalar @{$y}, @pool);
 is(ref $y->[0], 'SHORT_NAME');
 is(ref $y->[1], 'SHORT_NAME_WITH_HOOK');
 is(ref $y->[2], $longname);
-is(ref $y->[3], "${name}_WITH_HOOK");
+is(ref $y->[3], "${longname}_WITH_HOOK");
 
 my $good = 1;
 for (my $i = 0; $i < 10; $i++) {
     do { $good = 0; last } unless ref $y->[4*$i]   eq 'SHORT_NAME';
     do { $good = 0; last } unless ref $y->[4*$i+1] eq 'SHORT_NAME_WITH_HOOK';
     do { $good = 0; last } unless ref $y->[4*$i+2] eq $longname;
-    do { $good = 0; last } unless ref $y->[4*$i+3] eq "${name}_WITH_HOOK";
+    do { $good = 0; last } unless ref $y->[4*$i+3] eq "${longname}_WITH_HOOK";
 }
 is($good, 1);
 
@@ -152,6 +151,8 @@ sub STORABLE_thaw {
 
 package main;
 
+# XXX Failed tests:  15, 27, 39 with 5.12 and 5.10 threaded.
+# 15: 1 fail (y x 1), 27: 2 fail (y x 2), 39: 3 fail (y x 3)
 # $Storable::DEBUGME = 1;
 my $count;
 foreach $count (1..3) {
@@ -161,7 +162,12 @@ foreach $count (1..3) {
     my $i =  RETURNS_IMMORTALS->make ($immortal, $count);
 
     my $f = freeze ($i);
-    isnt($f, undef);
+  TODO: {
+      # ref sv_true is not always sv_true, at least in older threaded perls.
+      local $TODO = "Some 5.10/12 do not preserve ref identity with freeze \\(1 == 1)"
+        if !defined($f) and $] < 5.013 and $] > 5.009 and $immortal eq 'y';
+      isnt($f, undef);
+    }
     my $t = thaw $f;
     pass("thaw didn't crash");
   }
@@ -248,7 +254,7 @@ is(ref $t, 'STRESS_THE_STACK');
 my $file = "storable-testfile.$$";
 die "Temporary file '$file' already exists" if -e $file;
 
-#END { while (-f $file) {unlink $file or die "Can't unlink '$file': $!" }}
+END { while (-f $file) {unlink $file or die "Can't unlink '$file': $!" }}
 
 $STRESS_THE_STACK::freeze_count = 0;
 $STRESS_THE_STACK::thaw_count = 0;

@@ -6,6 +6,7 @@ pm_to_blib
 Makefile
 Makefile.PL
 ppport.h
+Storable/stacksize.h
 Storable/storable-testfile.*
 Time-HiRes/*.inc
 Time-HiRes/xdefine

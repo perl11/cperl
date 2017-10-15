@@ -1151,6 +1151,16 @@ uni.data: $(MINIPERL_EXE) $(CONFIGPM) lib/unicore/mktables $(nonxs_ext)
 #	can in this makefile to decide if needs to run or not
 #	touch uni.data
 
+!NO!SUBS!
+$spitshell >>$Makefile <<!GROK!THIS!
+
+rebuild_storable: \$(PERL_EXE) $cwd_dep
+	-\$(RUN_PERL) dist/Storable/stacksize --core
+	\$(MAKE) -C dist/Storable PERL_CORE=1
+
+!GROK!THIS!
+$spitshell >>$Makefile <<'!NO!SUBS!'
+
 # $(PERL_EXE) and ext because pod_lib.pl needs Digest::MD5
 # But also this ensures that all extensions are built before we try to scan
 # them, which picks up Devel::PPPort's documentation.
