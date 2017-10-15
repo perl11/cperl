@@ -15003,6 +15003,17 @@ our %delta = (
         removed => {
         }
     },
+    '5.026002c' => {
+        delta_from => '5.026001c',
+        changed => {
+            'Config'                => '5.026',
+            'Module::CoreList'      => '5.20170807c',
+            'Module::CoreList::Utils'=> '5.20170807c',
+            'Storable'              => '3.05_14',
+        },
+        removed => {
+        }
+    },
     5.027000 => {
         delta_from => 5.026000,
         changed => {
@@ -15127,6 +15138,23 @@ our %delta = (
             'strict'                => '1.13c',
             'VMS::Studio'           => '2.41_01',
             'Win32API::File'        => '0.1204',
+        },
+        removed => {
+        }
+    },
+    '5.027002c' => {
+        delta_from => '5.027001c',
+        changed => {
+            'Config'                => '6.23',
+            'B::Op_private'         => '5.027002',
+            'Module::CoreList'      => '20170815c',
+            'Module::CoreList::Utils'=> '20170815c',
+            'coretypes'             => '0.03c',
+            'Cpanel::JSON::XS'      => '3.0239',
+            'Devel::Peek'           => '1.26_03',
+            'fields'                => '2.26c',
+            'Module::Load::Conditional' => '0.68_01',
+            'Mu'                    => '0.02c',
         },
         removed => {
         }
