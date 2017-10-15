@@ -29,6 +29,10 @@ XXX
 
 =over 4
 
+=item L<ExtUtils::MakeMaker>
+
+Fixed F<Config.pm> target for cperl
+
 =item L<Storable> 3.05_14
 
 Try to fix readonly stacksize.h with perlbrew. [cperl #335]
@@ -71,13 +75,13 @@ XXX
 
 =over 4
 
-=item XXX
+=item Microsoft Visual C
 
 =over
 
 =item *
 
-XXX
+Change from default MSVC90FREE to MSVC110FREE
 
 =back
 

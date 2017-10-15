@@ -3,7 +3,7 @@ use strict;
 use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use version;
-$VERSION = '5.20170807c';
+$VERSION = '5.20171015c';
 $VERSION =~ s/c$//;
 
 sub _undelta {
@@ -344,8 +344,10 @@ our %released = (
     5.027000 => '2017-05-31',
     5.027001 => '2017-06-03',
     '5.026001c' => '2017-08-07',
+    '5.027001c' => '2017-08-15',
     '5.024003c' => '????-??-??',
-    '5.027001c' => '????-??-??',
+    '5.026002c' => '????-??-??',
+    '5.027002c' => '????-??-??',
  );
 
 sub version_sort {
@@ -14751,10 +14753,11 @@ our %delta = (
     5.026000 => {
         delta_from => 5.025012,
         changed => {
+            'B::Op_private'         => '5.026000',
             'Config'                => '5.026',
-            'Module::CoreList'      => '5.20170420',
-            'Module::CoreList::TieHashDelta'=> '5.20170420',
-            'Module::CoreList::Utils'=> '5.20170420',
+            'Module::CoreList'      => '5.20170530',
+            'Module::CoreList::TieHashDelta'=> '5.20170530',
+            'Module::CoreList::Utils'=> '5.20170530',
         },
         removed => {
         }
@@ -15081,7 +15084,7 @@ our %delta = (
     '5.027000c' => {
         delta_from => '5.026000c',
         changed => {
-            'Config'                => '5.027',
+            'Config'                => '6.22',
             'Module::CoreList'      => '5.20170514c',
             'Module::CoreList::Utils'=> '5.20170428c',
             'Archive::Tar'          => '0.26',
@@ -15106,29 +15109,80 @@ our %delta = (
     '5.027001c' => {
         delta_from => '5.027000c',
         changed => {
-            'Config'                => '5.027001',
-            'Module::CoreList'      => '5.20170714c',
-            'Module::CoreList::Utils'=> '5.20170714c',
+            'Config'                => '6.23',
+            'B::Op_private'         => '5.027001',
+            'Module::CoreList'      => '20170807c',
+            'Module::CoreList::Utils'=> '20170807c',
             'attributes'            => '1.12c',
             'B'                     => '1.68_08',
             'B::C'                  => '1.55_04',
             'B::Debug'              => '1.25',
             'base'                  => '2.26c',
             'Cpanel::JSON::XS'      => '3.0237',
+            'Cwd'                   => '4.68c',
             'deprecate'             => '0.03_01',
             'Devel::Peek'           => '1.26_02',
             'Devel::PPPort'         => '3.36_02',
+            'Encode'                => '2.92',
+            'ExtUtils::CBuilder'    => '0.280226',
+            'ExtUtils::CBuilder::Base'=> '0.280226',
+            'ExtUtils::CBuilder::Platform::Unix'=> '0.280226',
+            'ExtUtils::CBuilder::Platform::VMS'=> '0.280226',
+            'ExtUtils::CBuilder::Platform::Windows'=> '0.280226',
+            'ExtUtils::CBuilder::Platform::Windows::BCC'=> '0.280226',
+            'ExtUtils::CBuilder::Platform::Windows::GCC'=> '0.280226',
+            'ExtUtils::CBuilder::Platform::Windows::MSVC'=> '0.280226',
+            'ExtUtils::CBuilder::Platform::aix'=> '0.280226',
+            'ExtUtils::CBuilder::Platform::android'=> '0.280226',
+            'ExtUtils::CBuilder::Platform::cygwin'=> '0.280226',
+            'ExtUtils::CBuilder::Platform::darwin'=> '0.280226',
+            'ExtUtils::CBuilder::Platform::dec_osf'=> '0.280226',
+            'ExtUtils::CBuilder::Platform::os2'=> '0.280226',
             'ExtUtils::Constant'    => '0.23_09',
-            'ExtUtils::MakeMaker::Locale' => '8.04_05',
-            'ExtUtils::MakeMaker'   => '8.04_05',
-            'ExtUtils::MM_Unix'     => '8.04_05',
-            'ExtUtils::MM_Win32'    => '8.04_05',
+            'ExtUtils::Command'     => '7.30',
+            'ExtUtils::Command::MM' => '7.30',
+            'ExtUtils::Install'     => '2.14',
+            'ExtUtils::Installed'   => '2.14',
+            'ExtUtils::Liblist::Kid' => '8.30_06',
+            'ExtUtils::MakeMaker'   => '8.30_04',
+            'ExtUtils::Mkbootstrap' => '8.30_04c',
+            'ExtUtils::MM'          => '8.30_04',
+            'ExtUtils::MM_Any'      => '8.30_04',
+            'ExtUtils::MM_Unix'     => '8.30_04',
+            'ExtUtils::Packlist'    => '2.14',
+            'ExtUtils::ParseXS'             => '3.35_02',
+            'ExtUtils::ParseXS::Constants'  => '3.35_02',
+            'ExtUtils::ParseXS::CountLines' => '3.35_02',
+            'ExtUtils::ParseXS::Eval'       => '3.35_02',
+            'ExtUtils::ParseXS::Utilities'  => '3.35_02',
+            'ExtUtils::Typemaps'            => '3.35',
+            'ExtUtils::Typemaps::Cmd'       => '3.35',
+            'ExtUtils::Typemaps::InputMap'  => '3.35',
+            'ExtUtils::Typemaps::OutputMap' => '3.35',
+            'ExtUtils::Typemaps::Type'      => '3.35',
             'fields'                => '2.25c',
-            'File::Spec::Functions' => '3.36_05',
+            'File::Path'            => '3.15_01c',
+	    'File::Spec'            => '4.68c',
+	    'File::Spec::AmigaOS'   => '3.68',
+	    'File::Spec::Cygwin'    => '3.68',
+	    'File::Spec::Epoc'      => '3.68',
+	    'File::Spec::Functions' => '3.68',
+	    'File::Spec::Mac'       => '3.68',
+	    'File::Spec::OS2'       => '3.68',
+	    'File::Spec::Unix'      => '4.68c',
+	    'File::Spec::VMS'       => '4.68',
+	    'File::Spec::Win32'     => '4.68c',
+            'Filter::Simple'        => '0.94',
+            'Getopt::Long'          => '2.50',
+            'IPC::Cmd'              => '0.98',
             'IO::Socket'            => '1.38_01',
             'IO::Socket::INET'      => '1.35_01',
             'IO::Socket::UNIX'      => '1.26_01',
+            'JSON::PP'              => '2.94_01',
+            'JSON::PP::Boolean'     => '2.94_01',
+            'Locale::Codes'         => '3.53',
             'Opcode'                => '1.39_02c',
+            'Math::BigRat'          => '0.2613',
             'Metamodel'             => '',
             'Mu'                    => '0.01c',
             'Net::Ping'             => '2.61',
@@ -15136,6 +15190,9 @@ our %delta = (
             'SelectSaver'           => '1.02_01',
             'Storable'              => '3.05_13',
             'strict'                => '1.13c',
+            'threads'               => '2.16_01',
+            'threads::shared'       => '1.57',
+            'Time::HiRes'           => '1.9744_01',
             'VMS::Studio'           => '2.41_01',
             'Win32API::File'        => '0.1204',
         },
@@ -15155,6 +15212,7 @@ our %delta = (
             'fields'                => '2.26c',
             'Module::Load::Conditional' => '0.68_01',
             'Mu'                    => '0.02c',
+            'Opcode'                => '1.39_03c',
         },
         removed => {
         }
@@ -15976,6 +16034,11 @@ our %deprecated = (
     },
     '5.026001c' => {
         delta_from => '5.026000c',
+        changed => {},
+        removed => {}
+    },
+    '5.026002c' => {
+        delta_from => '5.026001c',
         changed => {},
         removed => {}
     },
