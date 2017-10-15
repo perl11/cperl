@@ -175,6 +175,10 @@ With a slightly adjusted patch from @voegelas.
 
 Implemented L<Mu/fields> returning fields objects.
 
+=item L<Storable> 3.05_14
+
+Try to fix readonly stacksize.h with perlbrew. [cperl #335]
+
 =back
 
 =head2 Removed Modules and Pragmata
