@@ -1,3 +1,9 @@
+2017-10-15 13:57:00 rurban
+    Version 3.05_14
+
+        * perlbrew fix: try to fix the readonly stacksize.h
+        [cperl #335]
+
 2017-07-24 13:57:13 rurban
     Version 3.05_13
 

@@ -1201,7 +1201,7 @@ uni.data: $(MINIPERL_EXE) $(CONFIGPM) lib/unicore/mktables $(nonxs_ext)
 $spitshell >>$Makefile <<!GROK!THIS!
 
 rebuild_storable: \$(PERL_EXE) $cwd_dep
-	\$(RUN_PERL) dist/Storable/stacksize --core
+	-\$(RUN_PERL) dist/Storable/stacksize --core
 	\$(MAKE) -C dist/Storable PERL_CORE=1
 
 !GROK!THIS!
