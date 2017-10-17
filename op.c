@@ -10803,7 +10803,6 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
 {
     dVAR;
     LOOP *loop;
-    OP *wop;
     PADOFFSET padoff = 0;
     I32 iterflags = 0;
     I32 iterpflags = 0;
@@ -10880,19 +10879,47 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
             && SvIOK(leftsv = cSVOPx_sv(left))
             && SvIOK(rightsv = cSVOPx_sv(right)))
         {
-            if (UNLIKELY(SvIV(rightsv) < SvIV(leftsv)))
+            const int l = SvIV(rightsv) - SvIV(leftsv);
+            if (UNLIKELY(l < 0))
                 DIE(aTHX_ "Invalid for range iterator (%" IVdf " .. %" IVdf ")",
                     SvIV(leftsv), SvIV(rightsv));
-#ifdef DEBUGGING
-            /* TODO: unroll loop for small constant ranges, if the body is not too big */
-            if (SvIV(rightsv)-SvIV(leftsv) <= PERL_MAX_UNROLL_LOOP_COUNT) {
+            /* unroll loop for small constant ranges, if the body is not too big */
+            if (l <= PERL_MAX_UNROLL_LOOP_COUNT) {
                 DEBUG_kv(Perl_deb(aTHX_ "TODO unroll loop (%" IVdf "..%" IVdf ")\n",
                                   SvIV(leftsv), SvIV(rightsv)));
-                /* TODO use op_clone_optree, check the block body for itersv.
-                   hard-code assignments to the itersv.
-                 */
+                /* TODO scan the body for itervar or LOOP ops (goto, redo, next, last)
+                   if itervar is *_ keep the loop, as most ops use implicit TARG.
+                   else we can search for it, and unroll faster if not used.
+                   enteriter {iter* block unstack}... leaveloop.
+
+                   e.g. -e'print for 0..0'
+                   enter nextstate pushmark const(0) const(0) gv(_) enteriter
+                   iter_lazyiv and pushmark gvsv(_) print unstack iter_lazyiv and
+                   leaveloop leave
+                   =>
+                   enter gvsv const sassign pushmark gvsv(_) print leave
+                */
+                if (1)
+                    ;
+                else if (l == 0) {
+                    return block; /* no need to clone */
+                } else {
+                    int i;
+                    if (OP_IS_LISTOP(block->op_type))
+                        listop = (LISTOP*)block; /* reuse the first block op */
+                    else
+                        listop = NULL;
+                    for (i=0; i<=l; i++) {
+                        /* TODO: assign constiv to itersv */
+                        OP *o = op_clone_optree(block, TRUE);
+                        if (!i && !listop)
+                            listop = (LISTOP*)force_list(o, FALSE);
+                        op_append_list(OP_LIST, (OP*)listop, o);
+                        /* TODO: add unstack */
+                    }
+                    return (OP*)listop;
+                }
             }
-#endif
             optype = OP_ITER_LAZYIV;
         }
 	range->op_flags &= ~OPf_KIDS;
@@ -10915,8 +10942,7 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
     }
 
     loop = (LOOP*)op_convert_list(OP_ENTERITER, iterflags,
-                                  op_append_elem(OP_LIST, list(expr),
-                                                 scalar(sv)));
+               op_append_elem(OP_LIST, list(expr), scalar(sv)));
     assert(!OpNEXT(loop));
     /* for my  $x () sets OPpLVAL_INTRO;
      * for our $x () sets OPpOUR_INTRO */
@@ -10939,9 +10965,8 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
         OpLASTSIB_set(OpLAST(loop), (OP*)loop);
     }
     loop->op_targ = padoff;
-    wop = newWHILEOP(flags, 1, loop, newOP(optype, OPf_KIDS),
+    return newWHILEOP(flags, 1, loop, newOP(optype, OPf_KIDS),
                      block, cont, 0);
-    return wop;
 }
 
 /*
