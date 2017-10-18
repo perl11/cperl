@@ -429,3 +429,9 @@ EXPECT
 syntax error at - line 1.
 syntax error at - line 1, near "$a +"
 Execution of - aborted due to compilation errors.
+########
+# NAME tr/// range with empty \N{} at the start
+tr//\N{}-0/;
+EXPECT
+Unknown charname '' at - line 1, within string
+Execution of - aborted due to compilation errors.
