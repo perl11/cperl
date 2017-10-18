@@ -7,7 +7,7 @@
 #
 package B;
 
-$B::VERSION = '1.71_09';
+$B::VERSION = '1.75_09';
 
 require XSLoader;
 require Exporter;
@@ -1355,8 +1355,6 @@ The C<B::COP> class is used for "nextstate" and "dbstate" ops.  As of Perl
 =item file
 
 =item cop_seq
-
-=item arybase
 
 =item line
 

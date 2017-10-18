@@ -81,6 +81,12 @@ It croaks if it would otherwise return a UTF-8 string that contains
 malformed UTF-8.  This protects agains potential security threats.  This
 is considered a bug fix as well ([perl #131642]).
 
+=head2 Assigning non-zero to C<$[> is fatal
+
+Setting L<< C<$[>|perlvar/$[ >> to a non-zero value has been deprecated since
+Perl 5.12 and now throws a fatal error.
+See L<<< perldeprecation/Assigning non-zero to C<< $[ >> is fatal >>>.
+
 =head1 Deprecations
 
 XXX Any deprecated features, syntax, modules etc. should be listed here.

@@ -7,7 +7,7 @@ BEGIN {
     set_up_inc( '../lib' );
     skip_all("no parent yet")
       if is_miniperl() and !eval 'require "parent"';
-    plan (tests => 196); # some tests are run in BEGIN block
+    plan (tests => 195); # some tests are run in BEGIN block
 }
 
 # Test that defined() returns true for magic variables created on the fly,
@@ -618,7 +618,7 @@ SKIP: {
 SKIP: {
     skip_if_miniperl("No XS in miniperl", 3);
 
-    for ( [qw( %- Tie::Hash::NamedCapture )], [qw( $[ arybase )],
+    for ( [qw( %- Tie::Hash::NamedCapture )],
           [qw( %! Errno )] ) {
 	my ($var, $mod) = @$_;
 	my $modfile = $mod =~ s|::|/|gr . ".pm";

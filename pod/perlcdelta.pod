@@ -193,6 +193,10 @@ Add the FREEBSD_KERNEL_VERSION key for FreeBSD.
 
 Whitespace only
 
+=item L<feature> 1.54_01
+
+C<array_base> was removed.
+
 =item L<IO> 1.39_02
 
 Skip EINVAL on FreeBSD tests when binding a tcp listener on localhost.
@@ -267,7 +271,11 @@ L<[perl #130674]|https://rt.perl.org/Public/Bug/Display.html?id=130674>
 
 =item *
 
-XXX
+L<arybase> was removed.
+
+Setting C<$[> to a non-zero value has been deprecated since Perl 5.12 and
+throws a fatal error as of Perl 5.30.
+See L<perldeprecation/Assigning non-zero to C<< $[ >> is fatal>
 
 =back
 

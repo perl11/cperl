@@ -27,7 +27,6 @@ my %feature = (
     switch          => 'switch',
     bitwise         => 'bitwise',
     evalbytes       => 'evalbytes',
-    array_base      => 'arybase',
     current_sub     => '__SUB__',
     refaliasing     => 'refaliasing',
     postderef_qq    => 'postderef_qq',
@@ -47,9 +46,9 @@ my $cperl_default = qr/^signatures|lexsubs|shaped_arrays|fc|current_sub$/;
 # 5.odd implies the next 5.even, but an explicit 5.even can override it.
 my %feature_bundle = (
      all     => [ keys %feature ],
-     default =>	[qw(array_base)],
-    "5.9.5"  =>	[qw(say state switch array_base)],
-    "5.11"   =>	[qw(say state switch unicode_strings array_base)],
+     default =>	[qw()],
+    "5.9.5"  =>	[qw(say state switch)],
+    "5.11"   =>	[qw(say state switch unicode_strings)],
     "5.15"   =>	[qw(say state switch unicode_strings unicode_eval
 		    evalbytes current_sub fc)],
     "5.23"   =>	[qw(say state switch unicode_strings unicode_eval
@@ -66,6 +65,7 @@ $feature_bundle{"5.25"} = $feature_bundle{"5.23"};
 $feature_bundle{"5.29"} = $feature_bundle{"5.27"};
 
 my @noops = qw( postderef lexical_subs );
+my @removed = qw( array_base );
 
 
 ###########################################################################
@@ -190,6 +190,10 @@ for (sort keys %Aliases) {
 
 print $pm "my \%noops = (\n";
 print $pm "    $_ => 1,\n", for @noops;
+print $pm ");\n";
+
+print $pm "my \%removed = (\n";
+print $pm "    $_ => 1,\n", for @removed;
 print $pm ");\n";
 
 print $pm <<EOPM;
@@ -382,7 +386,7 @@ read_only_bottom_close_and_rename($h);
 __END__
 package feature;
 
-our $VERSION = '1.52_01';
+our $VERSION = '1.54_01';
 
 FEATURES
 
@@ -533,9 +537,9 @@ on cperl since 5.27.
 
 =head2 The 'array_base' feature
 
-This feature supports the legacy C<$[> variable.  See L<perlvar/$[> and
-L<arybase>.  It is on by default but disabled under C<use v5.16> (see
-L</IMPLICIT LOADING>, below).
+This feature supported the legacy C<$[> variable.  See L<perlvar/$[>.
+It was on by default but disabled under C<use v5.16> (see
+L</IMPLICIT LOADING>, below) and unavailable since perl 5.30.
 
 This feature is available under this name starting with Perl 5.16.  In
 previous versions, it was simply on all the time, and this pragma knew
@@ -835,6 +839,9 @@ sub __common {
         }
         if (!exists $feature{$name}) {
             if (exists $noops{$name}) {
+                next;
+            }
+            if (!$import && exists $removed{$name}) {
                 next;
             }
             unknown_feature($name);

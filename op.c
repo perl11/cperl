@@ -19196,7 +19196,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
             /* at this point we're looking for an OP_AELEM, OP_HELEM,
              * OP_EXISTS or OP_DELETE */
 
-            /* if something like arybase (a.k.a $[ ) is in scope,
+            /* if a custom array/hash access checker is in scope,
              * abandon optimisation attempt */
             /* similarly for customised exists and delete with
                use autovivication */
