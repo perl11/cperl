@@ -13,7 +13,8 @@ BEGIN {
         or skip_all("XS::APItest not available");
 }
 
-plan tests => 143;
+plan tests => 144;
+use Config;
 
 # run some code N times. If the number of SVs at the end of loop N is
 # greater than (N-1)*delta at the end of loop 1, we've got a leak
@@ -610,4 +611,9 @@ EOF
         re::regname("foo", 1);
     }
     ::leak(2, 0, \&named, "Perl_reg_named_buff_fetch() on no-name RE");
+}
+
+{
+    sub N_leak { eval 'tr//\N{}-0/' }
+    ::leak(2, 0, \&N_leak, "a bad \\N{} in a range leaks");
 }
