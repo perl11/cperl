@@ -23507,7 +23507,7 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
         if (strEQc(SvPVX(tmpnam), "Mu"))
             continue;
 
-        curclass = gv_stashsv(tmpnam, 0);
+        curclass = gv_stashsv(tmpnam, GV_ADD);
         fields = HvFIELDS_get(curclass);
         if (!fields) /* nothing to copy */
             continue;
@@ -23519,7 +23519,8 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
             const PADNAME *pn = PAD_COMPNAME(po);
             char *key;
             I32 klen;
-            if (!pn || po > AvFILLp(PL_comppad))
+            /* wrong pad? */
+            if (po > AvFILLp(comppad) || !pn)
                 continue;
             key = PadnamePV(pn);
             if (!key)
@@ -23610,7 +23611,7 @@ S_padnamelist_type_fixup(pTHX_ PADNAMELIST *pnl, HV *oldklass, HV *newklass)
 
 Copy all not-existing methods from the parent roles to the class/role.
 Fixup ISA for type checks.
-Fixup changed oelemfast indices.
+Fixup changed oelem{,fast} indices.
 
 Duplicates are fatal:
 "Method %s from %s already exists in %s during role composition"
@@ -23671,14 +23672,14 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                 /* ignore default field accessors, they are created later */
                 if (CvISXSUB(cv) &&
                     field_search(klass, HeKEY(entry), HeKLEN_UTF8(entry), NULL) >= 0) {
-                    DEBUG_kv(Perl_deb(aTHX_ "add_does_methods: ignore field accessor %s::%s\n",
-                                      klassname, HeKEY(entry)));
+                    DEBUG_kv(Perl_deb(aTHX_
+                        "add_does_methods: ignore default field accessor %s::%s\n",
+                        klassname, HeKEY(entry)));
                     SvCUR_set(name, len);
                     continue;
                 }
                 /* We also might have class methods without a GV, but
                    I believe we already vivified them to fat GVs */
-
                 if (UNLIKELY(CvISXSUB(cv))) {
                     if (CvXSUB(cv) == S_Mu_sv_xsub ||
                         CvXSUB(cv) == S_Mu_av_xsub) {
@@ -23691,11 +23692,13 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                 else if (CvCONST(cv)) {
                     need_fieldfixup = FALSE; /* GV alias */
                     DEBUG_kv(Perl_deb(aTHX_
-                        "add_does_methods: CvCONST NYI\n"));
+                        "add_does_methods: CvCONST %s::%s NYI\n",
+                        klassname, HeKEY(entry)));
                 }
                 else if (CvMULTI(cv)) {
                     DEBUG_kv(Perl_deb(aTHX_
-                        "add_does_methods: CvMULTI NYI\n"));
+                        "add_does_methods: CvMULTI %s::%s NYI\n",
+                        klassname, HeKEY(entry)));
                 }
                 /* compare field indices. might need to create a new method
                    with adjusted indices. #311 */
