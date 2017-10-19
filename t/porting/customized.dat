@@ -145,5 +145,5 @@ threads dist/threads/threads.xs 9d4c375efbcd56b57416c87406afec861bc01360
 threads::shared dist/threads-shared/t/waithires.t dc867159fd2fa8c09326cd7627f5a0635ca5e3b5
 version cpan/version/lib/version.pm 0452729f5f60eede0478950ab2f96723df6211e7
 version cpan/version/lib/version/regex.pm f46db13227bff99d4421b857a9d9fe5066e70db4
-version vutil.c 34d7968a94bf8c8d4fb9fa7f3156f7ddc85c19d8
+version vutil.c d6b4d1086297ce1c0f88afde4195d4b9fb6b7583
 version vxs.inc 3b4325d86d3beafcc546f6b0598289d5bb41c74c
