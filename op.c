@@ -23506,7 +23506,7 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
         if (strEQc(SvPVX(tmpnam), "Mu"))
             continue;
 
-        curclass = gv_stashsv(tmpnam, 0);
+        curclass = gv_stashsv(tmpnam, GV_ADD);
         fields = HvFIELDS_get(curclass);
         if (!fields) /* nothing to copy */
             continue;
@@ -23518,7 +23518,8 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
             const PADNAME *pn = PAD_COMPNAME(po);
             char *key;
             I32 klen;
-            if (!pn || po > AvFILLp(PL_comppad))
+            /* wrong pad? */
+            if (po > AvFILLp(comppad) || !pn)
                 continue;
             key = PadnamePV(pn);
             if (!key)
@@ -23721,6 +23722,10 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                     CvGV_set(ncv, sym);
                     
                     CvSTASH_set(ncv, klass);
+                    CvROOT(ncv)	     = op_clone_oplist(CvROOT(cv), NULL, TRUE);
+                    CvSTART(ncv)     = LINKLIST(CvROOT(ncv));
+                    if (CvHASSIG(cv))
+                        CvSIGOP(ncv) = (UNOP_AUX*)OpNEXT(CvSTART(ncv));
                     if (CvPADLIST(cv)) {
                         PADNAMELIST *pnl = PadlistNAMES(CvPADLIST(cv));
                         pnl = cv_clone_padname0(cv, pnl);
