@@ -4185,6 +4185,13 @@ PERL_CALLCONV OP*	Perl_op_clone_oplist(pTHX_ OP* o, OP* last, bool init)
 #define PERL_ARGS_ASSERT_OP_CLONE_OPLIST	\
 	assert(o)
 
+PERL_CALLCONV OP*	Perl_op_clone_optree(pTHX_ OP* o, bool init)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_OP_CLONE_OPTREE	\
+	assert(o)
+
 PERL_CALLCONV OP*	Perl_op_contextualize(pTHX_ OP* o, I32 context)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
