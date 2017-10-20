@@ -6130,6 +6130,8 @@ Do various compile-time assignments on const rhs values, to enable
 constant folding.
 my @a[] = (...) comes also here, setting the computed lhs AvSHAPED size.
 
+Try to optimize to IASSIGN with a lexical and a const IV < 128.
+
 Return the newASSIGNOP, or the folded assigned value.
 
 =cut
@@ -6240,9 +6242,19 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
             SV *lsv = GvSV(gv);
             assert(IS_TYPE(OpFIRST(left), GV));
             if (SvTYPE(lsv) == SVt_NULL || SvTYPE(lsv) == SvTYPE(rsv)) {
-                DEBUG_k(Perl_deb(aTHX_ "our $%s :const = %s\n",
+                if (SvIOK(rsv) && abs(SvIVX(rsv)) < 128) {
+                    OpTYPE_set(left, OP_IASSIGN);
+                    optype = OP_IASSIGN;
+                    left->op_private = SvIVX(rsv);
+                    DEBUG_k(Perl_deb(aTHX_ "iassign: our $%s :const = %s\n",
                                  SvPEEK(lsv), SvPEEK(rsv)));
-                SvSetMagicSV(lsv, SvREFCNT_inc_NN(rsv));
+                    /*sv_free(rsv);*/
+                    op_free(right);
+                } else {
+                    SvSetMagicSV(lsv, SvREFCNT_inc_NN(rsv));
+                    DEBUG_k(Perl_deb(aTHX_ "our $%s :const = %s\n",
+                                 SvPEEK(lsv), SvPEEK(rsv)));
+                }
                 SvREADONLY_on(lsv);
                 assign = ck_rvconst(left);
             }
@@ -15584,6 +15596,7 @@ S_op_check_type(pTHX_ OP* o, OP* left, OP* right, bool is_assign)
 /*
 =for apidoc ck_sassign
 CHECK callback for sassign (s2	S S	"(:Scalar,:Scalar):Scalar")
+and iassign (s0		"():Int")
 
 Esp. handles state var initialization and tries to optimize away the
 assignment for a lexical C<$_> via L</maybe_targlex>.
@@ -15618,6 +15631,21 @@ Perl_ck_sassign(pTHX_ OP *o)
 
     DEBUG_kv(Perl_deb(aTHX_ "ck_sassign: check types\n"));
     op_check_type(o, left, right, TRUE);
+
+    if (   IS_CONST_OP(right) && SvIOK(cSVOPx_sv(right))
+        && abs(SvIVX(cSVOPx_sv(right))) < 128
+        && IS_TYPE(left, PADSV))
+    {
+        DEBUG_kv(Perl_deb(aTHX_ "ck_sassign: => iassign\n"));
+        /* sassign left const(IV) -> iassign */
+        OpTYPE_set(o, OP_IASSIGN);
+        o->op_targ = OpLAST(o)->op_targ;
+        o->op_private = SvIVX(cSVOPx_sv(right));
+        o->op_flags -= OPf_KIDS;
+        op_free(left);
+        /*sv_free(cSVOPx_sv(OpFIRST(o)));*/
+        op_free(right);
+    }    
     return S_maybe_targlex(aTHX_ o);
 }
 
@@ -22127,6 +22155,20 @@ Perl_rpeep(pTHX_ OP *o)
 	    break;
 
 	case OP_SASSIGN:
+            if (IS_CONST_OP(OpFIRST(o)) && SvIOK(cSVOPx_sv(OpFIRST(o)))
+                && abs(SvIVX(cSVOPx_sv(OpFIRST(o)))) < 128
+                && IS_TYPE(OpLAST(o), PADSV)) {
+                /* sassign left const(IV) -> iassign */
+                DEBUG_kv(Perl_deb(aTHX_ "rpeep: => iassign\n"));
+                OpTYPE_set(o, OP_IASSIGN);
+                o->op_targ = OpLAST(o)->op_targ;
+                o->op_private = SvIVX(cSVOPx_sv(OpFIRST(o)));
+                o->op_flags -= OPf_KIDS;
+                op_free(OpLAST(o));
+                /*sv_free(cSVOPx_sv(OpFIRST(o)));*/
+                op_free(OpFIRST(o));
+                oldop = NULL;
+            }
 	    if (OP_GIMME_VOID(o)
                 || (IS_TYPE(OpNEXT(o), LINESEQ)
                     && (IS_TYPE(OpNEXT(OpNEXT(o)), LEAVESUB)

@@ -66,6 +66,7 @@ padsv2		2 private variables	ck_null		d0		"():List"
 # Lvalue operators.
 
 sassign		scalar assignment	ck_sassign	s2	S S	"(:Scalar,:Scalar):Scalar"
+iassign		const iv assignment	ck_null		s0		"():Int"
 aassign		list assignment		ck_aassign	t2	L L	"(:List,:List):List"
 oelem		object element		ck_null		2	R S	"(:Ref,:Str):Any"
 oelemfast	constant object element	ck_null		0		"():Any"
