@@ -108,6 +108,8 @@ Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 894e4c1810c2602f3b5
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 029a563ad4a56599e8455e614170871241a7cd79
 Module::Load::Conditional cpan/Module-Load-Conditional/lib/Module/Load/Conditional.pm 9749bb2a08a404662d137901e7483799acbff5d8
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
+NEXT cpan/NEXT/lib/NEXT.pm 2c83d03ee361816e53ccb931137d314ab878d19f
+NEXT cpan/NEXT/t/next.t 66fd60eb0f75b6f3eea95d1dee745f9a7a348146
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
 Net::Domain cpan/libnet/lib/Net/Domain.pm 73f78880a95de5372bb234f37c386f52e43795d9
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 8ac11522808238b028b935fa94bf5ff319e68938
