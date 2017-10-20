@@ -10884,7 +10884,9 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
             if (SvIV(rightsv)-SvIV(leftsv) <= PERL_MAX_UNROLL_LOOP_COUNT) {
                 DEBUG_kv(Perl_deb(aTHX_ "TODO unroll loop (%" IVdf "..%" IVdf ")\n",
                                   SvIV(leftsv), SvIV(rightsv)));
-                /* TODO easy with op_clone_oplist from feature/gh23-inline-subs|feature/gh311-opclone */
+                /* TODO use op_clone_optree, check the block body for itersv.
+                   hard-code assignments to the itersv.
+                 */
             }
 #endif
             optype = OP_ITER_LAZYIV;
@@ -11556,6 +11558,26 @@ S_op_fixup(pTHX_ OP *old, OP *newop, U32 init) {
     return NULL;
 }
 
+#define FIXUP(oa,field)                         \
+    if (((oa*)o)->op_##field)                   \
+        op_fixup(((oa*)o)->op_##field, ((oa*)clone)->op_##field, pass2+2)
+
+#define OPCLONE(oa)                             \
+    if (!pass2) {                               \
+        NewOpSz(1102,clone,sizeof(oa));         \
+        if (!clone->op_slabbed) {               \
+            memcpy(clone, o, sizeof(oa));       \
+            clone->op_slabbed = 0;              \
+        } else {                                \
+            memcpy(clone, o, sizeof(oa));       \
+        }                                       \
+        op_fixup(o, clone, 0);                  \
+    } else {                                    \
+        clone = op_fixup(o, NULL, 4);           \
+    }                                           \
+    if (o->op_sibparent)                        \
+        op_fixup(o->op_sibparent, clone->op_sibparent, pass2+2)
+
 /*
 =for apidoc op_clone_oplist
 
@@ -11564,7 +11586,8 @@ This is the opposite to C<cv_clone>, which clones that pads, but not the ops.
 If C<last> == NULL, clones the whole sub (i.e. tree), otherwise until C<last>.
 
 Relinks all ops inside this list, but not the ones outside.
-TODO: Walking by list will miss op_other LOGOP branches.
+TODO: Walking by list will miss op_other LOGOP branches. See rpeep
+for the other logic.
 We really should walk the tree (first, sibling).
 
 In the first pass visit and store all op_next pointers, and
@@ -11590,26 +11613,6 @@ Perl_op_clone_oplist(pTHX_ OP* o, OP* last, bool init) {
     PERL_ARGS_ASSERT_OP_CLONE_OPLIST;
 
     op_fixup(NULL, NULL, init?1:0); /* init the fixup cache */
-
-#define FIXUP(oa,field)                                                 \
-    if (((oa*)o)->op_##field)                                           \
-        op_fixup(((oa*)o)->op_##field, ((oa*)clone)->op_##field, pass2+2)
-
-#define OPCLONE(oa)                             \
-    if (!pass2) {                               \
-        NewOpSz(1102,clone,sizeof(oa));         \
-        if (!clone->op_slabbed) {               \
-            memcpy(clone, o, sizeof(oa));       \
-            clone->op_slabbed = 0;              \
-        } else {                                \
-            memcpy(clone, o, sizeof(oa));       \
-        }                                       \
-        op_fixup(o, clone, 0);                  \
-    } else {                                    \
-        clone = op_fixup(o, NULL, 4);           \
-    }                                           \
-    if (o->op_sibparent)                        \
-        op_fixup(o->op_sibparent, clone->op_sibparent, pass2+2)
 
     /* first pass:  fixup and record all the next pointers, in exec order.
        second pass: the rest first, sibling, last, ... all pointers are now known */
@@ -11659,9 +11662,6 @@ Perl_op_clone_oplist(pTHX_ OP* o, OP* last, bool init) {
             case OA_SVOP:
                 OPCLONE(SVOP);
                 break;
-            case OA_PADOP:
-                OPCLONE(PADOP);
-                break;
             case OA_PVOP_OR_SVOP:
                 OPCLONE(PVOP);
                 break;
@@ -11688,6 +11688,117 @@ Perl_op_clone_oplist(pTHX_ OP* o, OP* last, bool init) {
                 prev = clone;
             }
         }
+    }
+    return first;
+}
+
+/*
+=for apidoc op_clone_optree
+
+Clones just the op tree/graph, not the data.
+This is the opposite to C<cv_clone>, which clones that pads, but not the ops,
+and different to L</op_clone_oplist>, which walks just the list of op_next pointers.
+
+Relinks all ops inside this list, but not the ones outside.
+
+In the first pass visit and store all op_next pointers, and
+store all the locations of the to be fixed up other pointers,
+in the 2nd pass all pointers inside the graph are known, and
+fixup the missing other pointers.
+
+C<init> = TRUE will re-initialize the op cache.
+
+Note that when op_clone_oplist is called outside of the first compiler
+passes, the ops will not be slabbed. The third rpeep pass is already
+to late.
+
+=cut
+*/
+
+OP*
+Perl_op_clone_optree(pTHX_ OP* o, bool init) {
+    OP *clone = NULL, *prev = NULL, * first = NULL;
+    int pass2;
+    PERL_ARGS_ASSERT_OP_CLONE_OPTREE;
+
+    op_fixup(NULL, NULL, init?1:0); /* init the fixup cache */
+
+    /* first pass:  fixup and record all the next pointers, in exec order.
+       second pass: the rest first, sibling, last, ... all pointers are now known */
+    for (pass2=0; pass2<2; pass2++) {
+        for (; o; o = OpSIBLING(o)) {
+            switch (OpCLASS(o->op_type)) {
+            case OA_BASEOP:
+                OPCLONE(OP);
+                break;
+            case OA_UNOP:
+            case OA_BASEOP_OR_UNOP:
+            case OA_FILESTATOP:
+            case OA_LOOPEXOP:
+                OPCLONE(UNOP);
+                FIXUP(UNOP,first);
+                break;
+            case OA_UNOP_AUX:
+                OPCLONE(UNOP_AUX);
+                FIXUP(UNOP,first);
+                break;
+            case OA_BINOP:
+                OPCLONE(BINOP);
+                FIXUP(BINOP,first);
+                FIXUP(BINOP,last);
+                break;
+            case OA_LISTOP:
+                OPCLONE(LISTOP);
+                FIXUP(LISTOP,first);
+                FIXUP(LISTOP,last);
+                break;
+            case OA_LOGOP:
+                OPCLONE(LOGOP);
+                FIXUP(LOGOP,first);
+                FIXUP(LOGOP,other);
+                break;
+            case OA_PMOP:
+                OPCLONE(PMOP);
+                FIXUP(PMOP,first);
+                FIXUP(PMOP,last);
+                break;
+            case OA_METHOP: /* 14 */
+                OPCLONE(METHOP);
+                if (o->op_private & 1) {
+                    FIXUP(METHOP,u.op_first);   /* dynamic */
+                }
+                break;
+            case OA_SVOP:
+                OPCLONE(SVOP);
+                break;
+            case OA_PVOP_OR_SVOP:
+                OPCLONE(PVOP);
+                break;
+            case OA_LOOP:
+                OPCLONE(LOOP);
+                FIXUP(LOOP,first);
+                FIXUP(LOOP,last);
+                FIXUP(LOOP,redoop);
+                FIXUP(LOOP,nextop);
+                FIXUP(LOOP,lastop);
+                break;
+            case OA_COP:
+                OPCLONE(COP);
+                break;
+
+            default:
+                assert(0 && !"op_clone_optree: missing OA_CLASS case");
+            }
+            if (!pass2) {
+                if (prev)
+                    prev->op_next = clone;
+                else
+                    first = clone;
+                prev = clone;
+            }
+        }
+        if (OpKIDS(o))
+            o = OpFIRST(o);
     }
 #undef OPCLONE
 #undef FIXUP
@@ -11824,7 +11935,7 @@ S_cv_do_inline(pTHX_ OP *o, OP *cvop, CV *cv, bool meth)
     /* we need to clone the optree, as we most likely change the state and args.
        Note: cv_clone is useless for us. It clones the pad, but not
        the ops. We need to keep the pads, but clone the ops. */
-    o = op_clone_oplist(CvSTART(cv), NULL, TRUE);
+    o = op_clone_optree(CvROOT(cv), TRUE);
     firstop = o;
     /* XXX! walking by list will miss op_other LOGOP branches.
        we really should walk the tree (first-sibling) */
@@ -20539,14 +20650,6 @@ S_peep_leaveloop(pTHX_ BINOP* leave, OP* from, OP* to)
     if (IS_CONST_OP(from) && IS_CONST_OP(to)
         && SvIOK(fromsv = cSVOPx_sv(from)) && SvIOK(tosv = cSVOPx_sv(to)))
     {
-#ifdef DEBUGGING
-        /* Unrolling is easier in newFOROP? */
-        if (SvIV(tosv)-SvIV(fromsv) <= PERL_MAX_UNROLL_LOOP_COUNT) {
-            DEBUG_kv(Perl_deb(aTHX_ "rpeep: possibly unroll loop (%" IVdf "..%" IVdf ")\n",
-                              SvIV(fromsv), SvIV(tosv)));
-            /* TODO op_clone_oplist from feature/gh23-inline-subs|feature/gh311-opclone */
-        }
-#endif
         /* 2. Check all aelem if can aelem_u */
         maxto = SvIV(tosv);
     }
@@ -23519,7 +23622,7 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
             char *key;
             I32 klen;
             /* wrong pad? */
-            if (po > AvFILLp(comppad) || !pn)
+            if (po > AvFILLp(PL_comppad) || !pn)
                 continue;
             key = PadnamePV(pn);
             if (!key)
@@ -23722,7 +23825,7 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                     CvGV_set(ncv, sym);
                     
                     CvSTASH_set(ncv, klass);
-                    CvROOT(ncv)	     = op_clone_oplist(CvROOT(cv), NULL, TRUE);
+                    CvROOT(ncv)	     = op_clone_optree(CvROOT(cv), TRUE);
                     CvSTART(ncv)     = LINKLIST(CvROOT(ncv));
                     if (CvHASSIG(cv))
                         CvSIGOP(ncv) = (UNOP_AUX*)OpNEXT(CvSTART(ncv));
