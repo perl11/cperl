@@ -276,6 +276,34 @@ PPt(pp_sassign, "(:Scalar,:Scalar):Scalar")
     RETURN;
 }
 
+PPt(pp_iassign, "():Int")
+{
+    dSP;
+    SV *left = PAD_SVl(PL_op->op_targ);
+
+    assert(TAINTING_get || !TAINT_get);
+    if (UNLIKELY(TAINT_get))
+	TAINT_NOT;
+    if (UNLIKELY(SvTEMP(left)) && !SvSMAGICAL(left) && SvREFCNT(left) == 1
+        && (!isGV_with_GP(left) || SvFAKE(left)) && ckWARN(WARN_MISC)) {
+	Perl_warner(aTHX_ packWARN(WARN_MISC),
+                    "Useless assignment to a temporary");
+    }
+    /* my $i :const = val; initialization must temp. lift constness */
+    if (UNLIKELY(OpSPECIAL(PL_op) && SvREADONLY(left))) {
+        SvREADONLY_off(left);
+        sv_setiv(left, (IV)PL_op->op_private);
+        SvSETMAGIC(left);
+        SETs(left);
+        SvREADONLY_on(left);
+    } else {
+        sv_setiv(left, (IV)PL_op->op_private);
+        SvSETMAGIC(left);
+        SETs(left);
+    }
+    RETURN;
+}
+
 PPt(pp_cond_expr, "(:Scalar):Void")
 {
     dSP;
