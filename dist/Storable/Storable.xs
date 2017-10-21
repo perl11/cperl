@@ -391,9 +391,15 @@ typedef struct stcxt {
 #  define MAX_DEPTH_HASH  ((PST_STACK_MAX_DEPTH_HASH >> 1) - (STACK_RESERVE*2))
 # endif
 #else
+# ifdef WIN32
 /* uninitialized (stacksize failed): safe */
-# define MAX_DEPTH        512
-# define MAX_DEPTH_HASH   256
+#  define MAX_DEPTH        512
+#  define MAX_DEPTH_HASH   256
+# else
+    /* reliable SEGV */
+#  define MAX_DEPTH        65000
+#  define MAX_DEPTH_HASH   35000
+# endif
 #endif
 #define MAX_DEPTH_ERROR "Max. recursion depth with nested structures exceeded"
 

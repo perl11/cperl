@@ -1,3 +1,11 @@
+2017-10-21 10:08:53 rurban
+    Version 3.05_15
+
+        * t/blessed.t: TODO 5.10/5.12 threaded ref sv_true identity,
+        ref sv_true is not sv_true with those old perls.
+        * stacksize: low values only for Windows with unreliable SEGV signals,
+        back to higher depths with all others.
+
 2017-10-15 13:57:00 rurban
     Version 3.05_14
 

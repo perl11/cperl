@@ -146,16 +146,21 @@ sub STORABLE_thaw {
     foreach (@refs) {
         $fail++ if $_ != $expect;
     }
-    main::is($fail, undef);
+  TODO: {
+      # ref sv_true is not always sv_true, at least in older threaded perls.
+      local $TODO = "Threaded 5.10/12 does not preserve sv_true ref identity"
+        if $fail and $] < 5.013 and $] > 5.009 and $what eq 'y';
+      main::is($fail, undef, "$x thaw"); # (@refs) == $expect
+    }
 }
 
 package main;
 
 # XXX Failed tests:  15, 27, 39 with 5.12 and 5.10 threaded.
 # 15: 1 fail (y x 1), 27: 2 fail (y x 2), 39: 3 fail (y x 3)
-# $Storable::DEBUGME = 1;
 my $count;
 foreach $count (1..3) {
+  #local $Storable::DEBUGME = 1;
   my $immortal;
   foreach $immortal (keys %::immortals) {
     print "# $immortal x $count\n";
@@ -164,9 +169,9 @@ foreach $count (1..3) {
     my $f = freeze ($i);
   TODO: {
       # ref sv_true is not always sv_true, at least in older threaded perls.
-      local $TODO = "Some 5.10/12 do not preserve ref identity with freeze \\(1 == 1)"
-        if !defined($f) and $] < 5.013 and $] > 5.009 and $immortal eq 'y';
-      isnt($f, undef);
+      local $TODO = "Threaded 5.10/12 does not preserve sv_true ref identity"
+        if !defined($f) and $] < 5.013 and $] > 5.009 and $immortal =~ /[yu]/;
+      isnt($f, undef, "freeze $immortal x $count");
     }
     my $t = thaw $f;
     pass("thaw didn't crash");
