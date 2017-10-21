@@ -7046,6 +7046,14 @@ PERL_CALLCONV Size_t	Perl_my_strlcpy(char *dst, const char *src, Size_t size)
 			__attribute__global__;
 
 #endif
+#if !defined(HAS_STRNLEN)
+PERL_CALLCONV Size_t	Perl_my_strnlen(const char *str, Size_t maxlen)
+			__attribute__global__
+			__attribute__nonnull__(1);
+#define PERL_ARGS_ASSERT_MY_STRNLEN	\
+	assert(str)
+
+#endif
 #if !defined(HAS_TRUNCATE) && !defined(HAS_CHSIZE) && defined(F_FREESP)
 PERL_CALLCONV I32	Perl_my_chsize(pTHX_ int fd, Off_t length)
 			__attribute__global__
