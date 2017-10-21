@@ -1,3 +1,8 @@
+2017-10-21 17:55:53 rurban
+    Version 3.05_16
+
+        * stacksize: larger stack reserve. Unified to 32 across all platforms.
+
 2017-10-21 10:08:53 rurban
     Version 3.05_15
 

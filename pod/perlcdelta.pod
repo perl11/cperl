@@ -175,7 +175,7 @@ With a slightly adjusted patch from @voegelas.
 
 Implemented L<Mu/fields> returning fields objects.
 
-=item L<Storable> 3.05_15
+=item L<Storable> 3.05_16
 
 Try to fix readonly stacksize.h with perlbrew. [cperl #335]
 
@@ -183,6 +183,7 @@ Fix t/blessed.t for 5.10/5.12 threaded.
 
 Restore max stacksizes for non-windows systems with proper
 system(SHELLSTRING) passing signals.
+Unify stack reserve to 32 across all platforms.
 
 =back
 

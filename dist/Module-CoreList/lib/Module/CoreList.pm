@@ -15188,7 +15188,7 @@ our %delta = (
             'fields'                => '2.26c',
             'Module::Load::Conditional' => '0.68_01',
             'Mu'                    => '0.02c',
-            'Storable'              => '3.05_15',
+            'Storable'              => '3.05_16',
         },
         removed => {
         }
