@@ -671,17 +671,45 @@ XXX
 
 =over 4
 
-=item *
+=item -Werror=pointer-arith
 
 With GCC, C<-Werror=pointer-arith> is now enabled by default,
 disallowing arithmetic on void and function pointers.
 
-=item *
+=item d_builtin_arith_overflow
 
 Fixed C<d_builtin_arith_overflow> detection and usage for 32bit
 systems with C<use64bitint>. They do use the 'll' suffix, same as with
 WIN64.  Now we can use this optimization.
 cperl-only.
+
+=item New probes
+
+Note that cperl ignores the new C<HAS_BUILTIN_{ADD,MUL,SUB}_OVERFLOW>
+config keys as we use the better C<HAS_BUILTIN_ARITH_OVERFLOW> for
+years already.
+
+=over 2
+
+=item HAS_THREAD_SAFE_NL_LANGINFO_L
+
+=item HAS_LOCALECONV_L
+
+=item HAS_MBRLEN
+
+=item HAS_MBRTOWC
+
+=item HAS_MEMRCHR
+
+=item HAS_NANOSLEEP
+
+=item HAS_STRNLEN
+
+=item HAS_STRTOLD_L
+
+=item I_WCHAR
+
+=back
 
 =back
 
