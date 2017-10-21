@@ -4271,6 +4271,12 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$d_nan HAS_NAN		/**/
 
+/* HAS_NANOSLEEP:
+ *	This symbol, if defined, indicates that the nanosleep
+ *	system call is available to sleep with 1E-9 sec accuracy.
+ */
+#$d_nanosleep HAS_NANOSLEEP		/**/
+
 /* HAS_NEARBYINT:
  *	This symbol, if defined, indicates that the nearbyint routine is
  *	available to return the integral value closest to (according to
@@ -4577,6 +4583,12 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  *	available to do string copying.
  */
 #$d_strlcpy HAS_STRLCPY		/**/
+
+/* HAS_STRNLEN:
+ *	This symbol, if defined, indicates that the strnlen () routine is
+ *	available to check the length of a string up to a maximum.
+ */
+#$d_strnlen HAS_STRNLEN		/**/
 
 /* HAS_STRTOLD:
  *	This symbol, if defined, indicates that the strtold routine is
@@ -5005,6 +5017,12 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$i_ustat	I_USTAT		/**/
 
+/* I_WCHAR:
+ *     This symbol, if defined, indicates to the C program that <wchar.h>
+ *     is available for inclusion
+ */
+#$i_wchar   I_WCHAR	/**/
+
 /* LDLIBPTHNAME:
  *	This symbol indicates the name of the shared library
 	search path. On a unix typically LD_LIBRARY_PATH, LIBPATH,
@@ -5308,7 +5326,7 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #define	NVSIZE		$nvsize		/**/
 #$d_nv_preserves_uv	NV_PRESERVES_UV
 #define	NV_PRESERVES_UV_BITS	$nv_preserves_uv_bits
-#define	NV_OVERFLOWS_INTEGERS_AT	$nv_overflows_integers_at
+#define	NV_OVERFLOWS_INTEGERS_AT	($nv_overflows_integers_at)
 #$d_nv_zero_is_allbits_zero	NV_ZERO_IS_ALLBITS_ZERO
 #if UVSIZE == 8
 #   ifdef BYTEORDER

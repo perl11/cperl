@@ -13,5 +13,13 @@
  * Symbols should only be here temporarily. Once they are actually used,
  * they should be removed from here.
  *
+ * HAS_THREAD_SAFE_NL_LANGINFO_L
+ * HAS_LOCALECONV_L
+ * HAS_MBRLEN
+ * HAS_MBRTOWC
  * HAS_MEMRCHR
+ * HAS_NANOSLEEP
+ * HAS_STRNLEN
+ * HAS_STRTOLD_L
+ * I_WCHAR
  */

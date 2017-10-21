@@ -4236,6 +4236,12 @@
  */
 /*#define HAS_NAN		/ **/
 
+/* HAS_NANOSLEEP:
+ *	This symbol, if defined, indicates that the nanosleep
+ *	system call is available to sleep with 1E-9 sec accuracy.
+ */
+/*#define HAS_NANOSLEEP		/ **/
+
 /* HAS_NEARBYINT:
  *	This symbol, if defined, indicates that the nearbyint routine is
  *	available to return the integral value closest to (according to
@@ -4542,6 +4548,12 @@
  *	available to do string copying.
  */
 /*#define HAS_STRLCPY		/ **/
+
+/* HAS_STRNLEN:
+ *	This symbol, if defined, indicates that the strnlen () routine is
+ *	available to check the length of a string up to a maximum.
+ */
+/*#define HAS_STRNLEN		/ **/
 
 /* HAS_STRTOLD:
  *	This symbol, if defined, indicates that the strtold routine is
@@ -4970,6 +4982,12 @@
  */
 /*#define	I_USTAT		/ **/
 
+/* I_WCHAR:
+ *     This symbol, if defined, indicates to the C program that <wchar.h>
+ *     is available for inclusion
+ */
+/*#define   I_WCHAR	/ **/
+
 /* LDLIBPTHNAME:
  *	This symbol indicates the name of the shared library
 	search path. On a unix typically LD_LIBRARY_PATH, LIBPATH,
@@ -5273,7 +5291,7 @@
 #define	NVSIZE		8		/**/
 #undef	NV_PRESERVES_UV
 #define	NV_PRESERVES_UV_BITS	0
-#define	NV_OVERFLOWS_INTEGERS_AT	256.0*256.0*256.0*256.0*256.0*256.0*2.0*2.0*2.0*2.0*2.0
+#define	NV_OVERFLOWS_INTEGERS_AT	(256.0*256.0*256.0*256.0*256.0*256.0*2.0*2.0*2.0*2.0*2.0)
 #undef	NV_ZERO_IS_ALLBITS_ZERO
 #if UVSIZE == 8
 #   ifdef BYTEORDER
@@ -5549,6 +5567,6 @@
 #endif
 
 /* Generated from:
- * 2dfece82444b68ba8d6a8e464e998e3ebf6d407468c022c98d61e6fadb866b69 config_h.SH
- * 4ca9cf5a09dd6f52a9f2d44632e6bfc27a290db962c10aa0223e3ffb5f375427 uconfig.sh
+ * 4ec0474277320d8a519539339cf5375fbc36b69e3e96d9f4cfdfaa5baa1390b9 config_h.SH
+ * 30306d34e406d6cdd25d512d874d7d5e2a0848bc23771c8537892590b1235840 uconfig.sh
  * ex: set ro: */
