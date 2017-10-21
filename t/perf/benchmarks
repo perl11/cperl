@@ -41,8 +41,11 @@
 #
 # Each hash has three fields:
 #
-#   desc is a description of the test
+#   desc  is a description of the test; if not present, it defaults
+#           to the same value as the 'code' field
+#
 #   setup is a string containing setup code
+#
 #   code  is a string containing the code to run in a loop
 #
 # So typically a benchmark tool might do something like
@@ -1130,12 +1133,10 @@
     },
 
     'expr::arith::preinc' => {
-        desc    => '++$x',
         setup   => 'my $x = 1;',
         code    => '++$x',
     },
     'expr::arith::predec' => {
-        desc    => '--$x',
         setup   => 'my $x = 1;',
         code    => '--$x',
     },
@@ -1872,7 +1873,6 @@
 
 
     'regex::anyof_plus::anchored' => {
-        desc    => '/^[acgt]+/',
         setup   => '$_ = "a" x 100;',
         code    => '/^[acgt]+/',
     },
