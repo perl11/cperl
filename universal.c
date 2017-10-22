@@ -704,6 +704,16 @@ XS(XS_Internals_hv_clear_placehold)
     }
 }
 
+XS(XS_Internals_gc); /* prototype to pass -Wmissing-prototypes */
+XS(XS_Internals_gc)
+{
+    /*op_gc_arenas();*/
+    sv_gc_arenas();
+#ifdef __GLIBC__
+    malloc_trim(0); /* help rss report lower numbers. linux only */
+#endif
+}
+
 XS(XS_PerlIO_get_layers); /* prototype to pass -Wmissing-prototypes */
 XS(XS_PerlIO_get_layers)
 {
@@ -1431,6 +1441,7 @@ static const struct xsub_details these_details[] = {
     {"Internals::HvCLASS", XS_Internals_HvCLASS, "\\[$%];$"},
     {"Internals::SvREFCNT", XS_Internals_SvREFCNT, "\\[$%@];$"},
     {"Internals::hv_clear_placeholders", XS_Internals_hv_clear_placehold, "\\%"},
+    {"Internals::gc", XS_Internals_gc, ""},
     {"constant::_make_const", XS_constant__make_const, "\\[$@]"},
     {"PerlIO::get_layers", XS_PerlIO_get_layers, "*;@"},
     {"re::is_regexp", XS_re_is_regexp, "$"},

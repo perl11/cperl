@@ -6539,6 +6539,7 @@ t/bigmem/vec.t			Check vec() handles large offsets
 t/charset_tools.pl		To aid in portable testing across platforms with different character sets
 t/cmd/elsif.t			See if else-if works
 t/cmd/for.t			See if for loops work
+t/cmd/gc.t			See if Internals::gc() works
 t/cmd/mod.t			See if statement modifiers work
 t/cmd/subval.t			See if subroutine values work
 t/cmd/switch.t			See if switch optimizations work

@@ -1878,6 +1878,13 @@ poMX	|void	|sv_free2	|NN SV *const sv|const U32 refcnt
 : Used only in perl.c
 pd	|void	|sv_free_arenas
 #if defined(USE_CPERL)
+#ifdef PERL_CORE
+pd	|void	|opslab_gc      |NN OPSLAB *slab
+#endif
+Apd	|void	|op_gc_arenas
+Apd	|void	|sv_gc_arenas
+#endif
+#if defined(USE_CPERL)
 : a perl5 limitation
 Apd	|char*	|sv_gets	|NN SV *const sv|NN PerlIO *const fp|STRLEN append
 #else

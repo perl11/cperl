@@ -65,11 +65,22 @@ Clear any placeholders from a locked hash. Should not be used directly.
 You should use the wrapper functions provided by Hash::Util instead.
 As of 5.25 also available as C< Hash::Util::_clear_placeholders(%hash) >
 
+=item gc()
+
+Free any empty SV arena and empty body roots, and free all block
+temporaries, thus should be only called at the end of blocks. Note
+that this usually doesn't reclaim much system memory, and in certain
+configurations it might even cause crashes.
+With C<PERL_POISON> it is not needed.
+
+Experimental, unstable and might go away soon.
+
 =back
 
 =head1 AUTHOR
 
 Perl core development team.
+cperl development team.
 
 =head1 SEE ALSO
 

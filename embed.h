@@ -569,6 +569,7 @@
 #define op_convert_list(a,b,c)	Perl_op_convert_list(aTHX_ a,b,c)
 #define op_dump(a)		Perl_op_dump(aTHX_ a)
 #define op_free(a)		Perl_op_free(aTHX_ a)
+#define op_gc_arenas()		Perl_op_gc_arenas(aTHX)
 #define op_linklist(a)		Perl_op_linklist(aTHX_ a)
 #define op_null(a)		Perl_op_null(aTHX_ a)
 #define op_parent		Perl_op_parent
@@ -763,6 +764,7 @@
 #define sv_eq_flags(a,b,c)	Perl_sv_eq_flags(aTHX_ a,b,c)
 #define sv_force_normal_flags(a,b)	Perl_sv_force_normal_flags(aTHX_ a,b)
 #define sv_free(a)		Perl_sv_free(aTHX_ a)
+#define sv_gc_arenas()		Perl_sv_gc_arenas(aTHX)
 #define sv_get_backrefs		Perl_sv_get_backrefs
 #define sv_grow(a,b)		Perl_sv_grow(aTHX_ a,b)
 #define sv_inc(a)		Perl_sv_inc(aTHX_ a)
@@ -1858,6 +1860,7 @@
 #define opslab_force_free(a)	Perl_opslab_force_free(aTHX_ a)
 #define opslab_free(a)		Perl_opslab_free(aTHX_ a)
 #define opslab_free_nopad(a)	Perl_opslab_free_nopad(aTHX_ a)
+#define opslab_gc(a)		Perl_opslab_gc(aTHX_ a)
 #define parser_free_nexttoke_ops(a,b)	Perl_parser_free_nexttoke_ops(aTHX_ a,b)
 #define should_warn_nl		S_should_warn_nl
 #    if defined(PERL_DEBUG_READONLY_OPS)

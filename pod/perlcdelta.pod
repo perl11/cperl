@@ -212,6 +212,12 @@ If so, destruct all ops, leading to no valgrind leaks, even with
 --leak-check=full.
 cperl-only L<[cperl #400]|https://github.com/perl11/cperl/issues/400>
 
+=head2 Added experimental Internals::gc()
+
+With the ability to free empty SV arenas. It's currently unstable, and
+might be replaced by proper arena memory handling later.  See
+L<Internals/gc> and L<perlapi/sv_gc_arenas>.
+
 =head1 Security
 
 =head2 Variable length lookbehind in regular expression pattern matching

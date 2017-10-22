@@ -804,6 +804,61 @@ Perl_opslab_force_free(pTHX_ OPSLAB *slab)
     opslab_free(slab);
 }
 
+/*
+=for apidoc Apd|void	|op_gc_arenas
+
+Deallocate memory used by freed obslab arenas. Note that if one slab
+contains at least one live OP the whole arena stays live.
+
+=cut
+*/
+void
+Perl_op_gc_arenas(pTHX)
+{
+    /* TODO walk all CVs to look for empty arenas */
+    if (!PL_compcv
+        || CvROOT(PL_compcv)
+        || (CvSTART(PL_compcv) && !CvSLABBED(PL_compcv)))
+    {
+        return; /* not slabbed */
+    } else {
+        opslab_gc((OPSLAB *)CvSTART(PL_compcv));
+    }
+}
+
+/*
+=for apidoc pd|void	|opslab_gc
+
+Deallocate memory used by a freed obslab arena. Note that if the slab
+contains at least one live OP the whole arena stays live.
+
+=cut
+*/
+void
+Perl_opslab_gc(pTHX_ OPSLAB *slab)
+{
+    OPSLAB *slab2 = slab;
+    PERL_ARGS_ASSERT_OPSLAB_GC;
+    DEBUG_S_warn((aTHX_ "gc slab %p", (void*)slab));
+
+    do {
+        OPSLOT *slot;
+	for (slot = slab2->opslab_first;
+	     slot->opslot_next;
+	     slot = slot->opslot_next)
+        {
+	    if (slot->opslot_op.op_type != OP_FREED) {
+		assert(slot->opslot_op.op_slabbed);
+                goto next_slab;
+	    }
+	}
+        if (slab->opslab_refcnt == 1)
+            opslab_free(slab);
+    next_slab:
+        ;
+    } while ((slab2 = slab2->opslab_next));
+}
+
 #ifdef PERL_DEBUG_READONLY_OPS
 OP *
 Perl_op_refcnt_inc(pTHX_ OP *o)

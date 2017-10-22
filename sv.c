@@ -1146,7 +1146,7 @@ Perl_more_bodies (pTHX_ const svtype sv_type, const size_t body_size,
 
     assert(arena_size);
 
-    /* may need new arena-set to hold new arena */
+    /* may need new arenaset to hold new arena */
     if (!aroot || aroot->curr >= aroot->set_size) {
 	struct arena_set *newroot;
 	Newxz(newroot, 1, struct arena_set);
@@ -1157,7 +1157,7 @@ Perl_more_bodies (pTHX_ const svtype sv_type, const size_t body_size,
 	DEBUG_m(PerlIO_printf(Perl_debug_log, "new arenaset 0x%p\n", (void*)aroot));
     }
 
-    /* ok, now have arena-set with at least 1 empty/available arena-desc */
+    /* ok, now have arenaset with at least 1 empty/available arena-desc */
     curr = aroot->curr++;
     adesc = &(aroot->set[curr]);
     assert(!adesc->arena);
@@ -1194,6 +1194,9 @@ Perl_more_bodies (pTHX_ const svtype sv_type, const size_t body_size,
     while (1) {
 	/* Where the next body would start:  */
 	char * const next = start + body_size;
+#if defined(DEBUGGING)
+        Zero(start, body_size, char);
+#endif
 	if (next >= end) {
 	    /* This is the last body:  */
 	    assert(next == end);
@@ -1207,7 +1210,7 @@ Perl_more_bodies (pTHX_ const svtype sv_type, const size_t body_size,
     }
 }
 
-/* grab a new thing from the free list, allocating more if necessary.
+/* Grab a new body from the free list, allocating more if necessary.
    The inline version is used for speed in hot routines, and the
    function using it serves the rest (unless PURIFY).
 */
@@ -1216,8 +1219,8 @@ Perl_more_bodies (pTHX_ const svtype sv_type, const size_t body_size,
 	void ** const r3wt = &PL_body_roots[sv_type]; \
 	xpv = (PTR_TBL_ENT_t*) (*((void **)(r3wt))      \
 	  ? *((void **)(r3wt)) : Perl_more_bodies(aTHX_ sv_type, \
-					     bodies_by_type[sv_type].body_size,\
-					     bodies_by_type[sv_type].arena_size)); \
+				     bodies_by_type[sv_type].body_size, \
+                                     bodies_by_type[sv_type].arena_size)); \
 	*(r3wt) = *(void**)(xpv); \
     } STMT_END
 
@@ -1662,6 +1665,147 @@ Perl_sv_grow(pTHX_ SV *const sv, STRLEN newlen)
 #endif
     }
     return s;
+}
+
+/*
+=for apidoc sv_gc_arenas
+
+Free's all temporary data, as if it was at end of scope.  Scans the
+whole heap, i.e. all SV head and body arenas, and deallocate the
+memory used by freed arenas. Note that if one arena contains at least
+one live SV the whole arena stays live.
+
+=cut
+
+*/
+void
+Perl_sv_gc_arenas(pTHX)
+{
+    SV *sva, *svanext, *prev = NULL;
+#ifdef DEBUGGING
+    int yes = 0, no = 0;
+    int i = 0;
+#endif
+
+    FREETMPS;
+    /* Free empty head arenas, skipping fake ones. */
+    for (sva = PL_sv_arenaroot; sva; sva = svanext) {
+        bool filled = FALSE;
+#ifdef DEBUGGING
+        i++;
+#endif
+	svanext = MUTABLE_SV(SvANY(sva));
+	if (!SvFAKE(sva)) {
+            SV *sv;
+	    SV* svend = &sva[SvREFCNT(sva)];
+	    for (sv = sva + 1; sv < svend; ++sv) {
+		if (!SvIS_FREED(sv)) {
+                    if (SvTEMP(sv)) {
+                        sv_free(sv);
+                    } else {
+                        filled = TRUE;
+                        DEBUG_mv(PerlIO_printf(Perl_debug_log,
+                            "%-7s arena [%d] 0x%p\n", "filled", i, (void*)sva));
+                        break;
+                    }
+                }
+            }
+            if (!filled) {
+                if (sva == PL_sv_arenaroot)
+                    PL_sv_arenaroot = svanext;
+                else if (prev)
+                    prev->sv_any = svanext;
+#ifdef DEBUGGING
+                yes++;
+                DEBUG_m(PerlIO_printf(Perl_debug_log,
+                    "%7s arena [%d] 0x%p\n", "gc free", i, (void*)sva));
+                /*PoisonFree(sva, svend - sva, SV);*/
+#endif
+                if (PL_sv_root < svend && PL_sv_root > sva)
+                    PL_sv_root = NULL;
+                Safefree(sva);
+            }
+            else {
+                prev = sva;
+#ifdef DEBUGGING
+                no++;
+#endif
+            }
+        }
+        else {
+            prev = sva;
+#ifdef DEBUGGING
+            no++;
+            DEBUG_mv(PerlIO_printf(Perl_debug_log,
+                "%-7s arena [%d] 0x%p\n", "fake", i, (void*)sva));
+#endif
+        }
+    }
+    DEBUG_m(PerlIO_printf(Perl_debug_log, "arena gc: %d/%d\n", yes, yes+no));
+
+    /* Scan the PL_body_roots[type] free lists if it makes a full arenaset
+       from PL_body_arenas. See Perl_more_bodies().
+       SVt_NULL is used for HE*. */
+    if (PL_body_arenas) {
+        struct arena_set *aroot = (struct arena_set *) PL_body_arenas;
+        unsigned int curr = aroot->curr;
+#ifdef DEBUGGING
+        yes = 0;
+        no = 0;
+#endif
+        do {
+            while (curr) {
+                struct arena_desc *adesc = &(aroot->set[curr]);
+                const int type = adesc->utype;
+                void *const root = PL_body_roots[type];
+                int body_size = bodies_by_type[type].body_size;
+                /* HE chain's are similar */
+                if (!body_size && type == SVt_NULL)
+                    body_size = sizeof(HE);
+                if (root && adesc->size && body_size) {
+                    /* Check if the body_roots[type] list is empty.
+                       The end of the arena has *start == NULL,
+                       else points to next (= start+body_size).
+                       If empty root points to the arena start, if full to
+                       the arena end.
+                     */
+                    if (*(void**)adesc->arena == NULL) {
+#ifdef DEBUGGING
+                        yes++;
+                        DEBUG_m(PerlIO_printf(Perl_debug_log,
+                            "%7s body_arena [%u] type=%d size=%d 0x%p\n",
+                            "gc free", curr, type, body_size, adesc->arena));
+                        /* XXX problems with backrefs and mg */
+                        /*if (type != SVt_PVHV)
+                            PoisonFree(adesc->arena, adesc->size, char); */
+#endif
+                        Safefree(adesc->arena);
+                        adesc->arena = NULL;
+                        adesc->size = 0;
+                        PL_body_roots[type] = NULL;
+                    }
+#ifdef DEBUGGING
+                    else {
+                        no++;
+                        DEBUG_mv(PerlIO_printf(Perl_debug_log,
+                            "%-7s body_arena [%u] type=%d size=%d 0x%p\n",
+                            "filled", curr, type, body_size, adesc->arena));
+                    }
+#endif
+                }
+#ifdef DEBUGGING
+                else {
+                    DEBUG_mv(PerlIO_printf(Perl_debug_log,
+                        "%-7s body_arena [%u] type=%d size=%d 0x%p\n",
+                        "empty", curr, type, body_size, adesc->arena));
+                }
+#endif
+                curr--;
+            }
+            aroot = aroot->next;
+        } while (aroot);
+        DEBUG_m(PerlIO_printf(Perl_debug_log, "body_arena gc: %d/%d\n", yes, yes+no));
+    }
 }
 
 /*
@@ -6770,7 +6914,7 @@ Perl_sv_clear(pTHX_ SV *const orig_sv)
 		    PL_comppad = NULL;
 		    PL_curpad = NULL;
 		}
-		if (AvREAL(av) && AvFILLp(av) > -1) {
+		if (AvREAL(av) && AvARRAY(av) && AvFILLp(av) > -1) {
 		    next_sv = AvARRAY(av)[AvFILLp(av)--];
 		    /* save old iter_sv in top-most slot of AV,
 		     * and pray that it doesn't get wiped in the meantime */
@@ -7195,7 +7339,8 @@ Perl_sv_free2(pTHX_ SV *const sv, const U32 rc)
             SvREFCNT(sv) = SvREFCNT_IMMORTAL;
             return;
         }
-        sv_clear(sv);
+        if (! SvIS_FREED(sv))
+            sv_clear(sv);
         if (! SvREFCNT(sv)) /* may have have been resurrected */
             del_SV(sv);
         return;
@@ -8955,7 +9100,7 @@ Perl_sv_gets(pTHX_ SV *const sv, PerlIO *const fp, STRLEN append)
     }
    else
     {
-       /*The big, slow, and stupid way. */
+       /* The big, slow, and stupid way. */
 #ifdef USE_HEAP_INSTEAD_OF_STACK	/* Even slower way. */
 	STDCHAR *buf = NULL;
 	Newx(buf, 8192, STDCHAR);

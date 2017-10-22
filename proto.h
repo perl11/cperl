@@ -4197,6 +4197,9 @@ PERL_CALLCONV void	Perl_op_dump(pTHX_ const OP *o)
 PERL_CALLCONV void	Perl_op_free(pTHX_ OP* arg)
 			__attribute__global__;
 
+PERL_CALLCONV void	Perl_op_gc_arenas(pTHX)
+			__attribute__global__;
+
 PERL_CALLCONV OP*	Perl_op_linklist(pTHX_ OP *o)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
@@ -5683,6 +5686,9 @@ PERL_CALLCONV void	Perl_sv_free2(pTHX_ SV *const sv, const U32 refcnt)
 	assert(sv)
 
 PERL_CALLCONV void	Perl_sv_free_arenas(pTHX);
+PERL_CALLCONV void	Perl_sv_gc_arenas(pTHX)
+			__attribute__global__;
+
 PERL_CALLCONV SV*	Perl_sv_get_backrefs(SV *const sv)
 			__attribute__global__
 			__attribute__nonnull__(1);
@@ -7748,6 +7754,11 @@ PERL_CALLCONV void	Perl_opslab_free(pTHX_ OPSLAB *slab)
 PERL_CALLCONV void	Perl_opslab_free_nopad(pTHX_ OPSLAB *slab)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_OPSLAB_FREE_NOPAD	\
+	assert(slab)
+
+PERL_CALLCONV void	Perl_opslab_gc(pTHX_ OPSLAB *slab)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_OPSLAB_GC	\
 	assert(slab)
 
 PERL_CALLCONV void	Perl_parser_free_nexttoke_ops(pTHX_ yy_parser *parser, OPSLAB *slab)
