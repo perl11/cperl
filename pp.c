@@ -1159,11 +1159,10 @@ PP(pp_undef)
     }
 
     sv = TOPs;
-    if (!sv)
-        {
-            SETs(UNDEF);
-            return NORMAL;
-        }
+    if (!sv) {
+        SETs(UNDEF);
+        return NORMAL;
+    }
 
     if (SvTHINKFIRST(sv))
 	sv_force_normal_flags(sv, SV_COW_DROP_PV|SV_IMMEDIATE_UNREF);
