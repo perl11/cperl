@@ -609,6 +609,7 @@
 
 /* These exist only for back-compat with XS modules. */
 #ifndef PERL_CORE
+#define _(args) args
 #define VOL volatile
 #define CAN_PROTOTYPE
 #define HAS_STRCHR
