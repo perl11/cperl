@@ -85,7 +85,7 @@ require Exporter;
 @EXPORT = qw(gensym ungensym qualify qualify_to_ref);
 @EXPORT_OK = qw(delete_package geniosym);
 
-$VERSION = '1.08';
+$VERSION = '1.08_01';
 
 my $genpkg = "Symbol::";
 my $genseq = 0;
@@ -150,15 +150,40 @@ sub delete_package ($) {
     }
 
     my($stem, $leaf) = $pkg =~ m/(.*::)(\w+::)$/;
-    my $stem_symtab = *{$stem}{HASH};
+    my $stem_symtab = *{$stem}{HASH} if defined $stem;
     return unless defined $stem_symtab and exists $stem_symtab->{$leaf};
 
-
-    # free all the symbols in the package
+    # clear all the symbols in the package
 
     my $leaf_symtab = *{$stem_symtab->{$leaf}}{HASH};
-    foreach my $name (keys %$leaf_symtab) {
-        undef *{$pkg . $name};
+    my $keep = qr/^(CORE|Internals|utf8|Error|UNIVERSAL|PerlIO|version|re)::$/;
+    if ($pkg eq 'main::') {
+      foreach my $name (keys %main::) {
+        my $sym = $pkg . $name;
+        next if $name eq '!';
+        next if $name =~ $keep;
+        next if Internals::SvREADONLY(${$sym});
+        next if Internals::SvREADONLY(%{$sym});
+        next if Internals::SvREADONLY(@{$sym});
+
+        undef &{$sym} if defined &{$name};
+        undef ${$sym} unless $name =~ /^(STD...?|!|1|2|\]|_)$/;
+        undef @{$sym} if @{$name};
+        undef %{$sym} if %{$name};
+        undef *{$sym} unless $name =~ /^(STD...?|_)$/;
+      }
+    }
+    elsif ($pkg =~ $keep) {
+        ;
+    }
+    else {
+      foreach my $name (keys %$leaf_symtab) {
+        my $sym = $pkg . $name;
+        Internals::SvREADONLY(${$sym}, 0) if Internals::SvREADONLY(${$sym});
+        Internals::SvREADONLY(%{$sym}, 0) if Internals::SvREADONLY(%{$sym});
+        Internals::SvREADONLY(@{$sym}, 0) if Internals::SvREADONLY(@{$sym});
+        undef *{$sym};
+      }
     }
 
     # delete the symbol table

@@ -185,6 +185,11 @@ Restore max stacksizes for non-windows systems with proper
 system(SHELLSTRING) passing signals.
 Unify stack reserve to 32 across all platforms.
 
+=item L<Symbol> 1.08_01
+
+Improved Symbol::delete_package for readonly and protected symbols
+and classes.
+
 =back
 
 =head2 Removed Modules and Pragmata
