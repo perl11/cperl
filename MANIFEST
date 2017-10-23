@@ -1,5 +1,6 @@
 .dir-locals.el			Emacs control file
 .gitlab-ci.yml			Gitlab CI (continuous integration) on gitlab (where enabled)
+.metaconf-exclusions.txt	Symbols that should ignored when generating Configure
 .travis.yml			Travis CI (continuous integration) on github (where enabled)
 amigaos4/amigaio.c	AmigaOS4 port
 amigaos4/amigaio.h	AmigaOS4 port
