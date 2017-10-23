@@ -623,6 +623,7 @@
 #define I_STDDEF
 #define I_STRING
 #define SPRINTF_RETURNS_STRLEN
+#define STANDARD_C
 #endif
 
 /* By compiling a perl with -DNO_TAINT_SUPPORT or -DSILENT_NO_TAINT_SUPPORT,
