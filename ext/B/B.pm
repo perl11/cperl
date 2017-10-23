@@ -7,7 +7,7 @@
 #
 package B;
 
-$B::VERSION = '1.69_08';
+$B::VERSION = '1.71_08';
 
 require XSLoader;
 require Exporter;
@@ -260,7 +260,8 @@ sub walksymtable {
     no strict 'refs';
     $prefix = '' unless defined $prefix;
     foreach my $sym ( sort keys %$symref ) {
-        $ref= $symref->{$sym};
+        my $dummy = $symref->{$sym}; # Copying the glob and incrementing
+                                     # the GPs refcnt clears cached methods
         $fullname = "*main::".$prefix.$sym;
 	if ($sym =~ /::$/) {
 	    $sym = $prefix . $sym;
