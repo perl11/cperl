@@ -130,7 +130,6 @@ PERLVAR(I, mainstack,	AV *)		/* the stack when nothing funny is
 					   happening */
 
 /* memory management */
-PERLVAR(I, sv_count,	IV)		/* how many SV* are currently allocated */
 PERLVAR(I, sv_objcount,	IV)		/* how many objects are currently allocated.
                                            Was wrongly removed in Perl 5.20. */
 PERLVAR(I, sv_root,	SV *)		/* storage for SVs belonging to interp */
@@ -826,6 +825,10 @@ PERLVARI(I, max_cowrefcnt, UV, 0)	/* Highest CowREFCNT */
 PERLVARI(I, max_refcnt_sv, SV*, NULL)	/* SV with highest SvREFCNT */
 PERLVARI(I, count_null_ops, UV, 0)	/* Number of optimized away NULL ops */
 #endif
+/* Because re.xs sets DEBUGGING even on release builds */
+#if defined(DEBUGGING) || defined(PERL_EXT_RE_DEBUG)
+PERLVAR(I, sv_count,	IV)		/* how many SV* are currently allocated, */
+#endif                                  /* for leak checks. */
 
 PERLVARI(I, dump_re_max_len, STRLEN, 0)
 PERLVARI(I, hash_slowdos, U16, 0)       /* Number of concurrent hash DoS attacks */

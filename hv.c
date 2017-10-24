@@ -97,7 +97,7 @@ S_new_he(pTHX)
 
     if (!*root)
 	Perl_more_bodies(aTHX_ HE_SVSLOT, sizeof(HE), PERL_ARENA_SIZE);
-    he = (HE*) *root;
+    he = (HE*)*root;
     assert(he);
     DEBUG_m(PerlIO_printf(Perl_debug_log, "0x%" UVxf ": new_HE\n", PTR2UV(he)));
     *root = HeNEXT(he);
@@ -105,6 +105,7 @@ S_new_he(pTHX)
 }
 
 #define new_HE() new_he()
+/* push to the front of the freelist */
 #define del_HE(p) \
     STMT_START { \
 	HeNEXT(p) = (HE*)(PL_body_roots[HE_SVSLOT]);	\

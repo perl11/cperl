@@ -322,14 +322,12 @@ void plant_SV(pTHX_ SV* p)
 	    SvARENA_CHAIN_SET(p, PL_sv_root);           \
 	    PL_sv_root = (p);				\
 	}						\
-	--PL_sv_count;					\
     } STMT_END
 
 #define uproot_SV(p)                                    \
     STMT_START {					\
 	(p) = PL_sv_root;				\
 	PL_sv_root = MUTABLE_SV(SvARENA_CHAIN(p));      \
-	++PL_sv_count;					\
     } STMT_END
 
 #endif
@@ -1200,7 +1198,6 @@ Perl_more_bodies (pTHX_ const svtype sv_type, const size_t body_size,
     while (1) {
 	/* Where the next body would start:  */
 	char * const next = start + body_size;
-
 	if (next >= end) {
 	    /* This is the last body:  */
 	    assert(next == end);
@@ -15069,8 +15066,8 @@ perl_clone_using(PerlInterpreter *proto_perl, UV flags,
 
     PL_body_arenas = NULL;
     Zero(&PL_body_roots, 1, PL_body_roots);
-    
-    PL_sv_count		= 0;
+
+    PL_sv_objcount      = 0;
     PL_sv_root		= NULL;
     PL_sv_arenaroot	= NULL;
 
@@ -15236,6 +15233,14 @@ perl_clone_using(PerlInterpreter *proto_perl, UV flags,
 
     PL_srand_called	= proto_perl->Isrand_called;
     Copy(&(proto_perl->Irandom_state), &PL_random_state, 1, PL_RANDOM_STATE_TYPE);
+
+#ifdef DEBUGGING
+    PL_max_refcnt	= 0;
+    PL_max_cowrefcnt	= 0;
+    PL_max_refcnt_sv	= NULL;
+    PL_count_null_ops	= 0;
+    PL_sv_count		= 0;
+#endif
 
     if (flags & CLONEf_COPY_STACKS) {
 	/* next allocation will be PL_tmps_stack[PL_tmps_ix+1] */

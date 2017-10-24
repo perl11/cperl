@@ -1,19 +1,21 @@
 #!./perl
 
 # A place to put some simple leak tests. Uses XS::APItest to make
-# PL_sv_count available, allowing us to run a bit of code multiple times and
+# sv_count available, allowing us to run a bit of code multiple times and
 # see if the count increases.
 
 BEGIN {
     chdir 't' if -d 't';
     @INC = '../lib';
     require './test.pl';
-
-    eval { require XS::APItest; XS::APItest->import('sv_count'); 1 }
-	or skip_all("XS::APItest not available");
 }
 
 use Config;
+#unless ($Config{ccflags} =~ /-DDEBUGGING/) {
+#    skip_all("sv_count only available with a DEBUGGING perl");
+#}
+eval { require XS::APItest; XS::APItest->import('sv_count'); 1 }
+    or skip_all("XS::APItest not available");
 
 plan tests => 143;
 

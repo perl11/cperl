@@ -1320,6 +1320,7 @@ perl_destruct(pTHXx)
         }
     }
 
+#ifdef DEBUGGING
     if (PL_sv_count != 0 && ckWARN_d(WARN_INTERNAL))
 	Perl_warner(aTHX_ packWARN(WARN_INTERNAL),"Scalars leaked: %ld\n", (long)PL_sv_count);
 
@@ -1373,12 +1374,13 @@ perl_destruct(pTHXx)
 	close(sock);
     }
 #endif
-#endif
+#endif /*  DEBUG_LEAKING_SCALARS */
 #ifdef DEBUG_LEAKING_SCALARS_ABORT
     if (PL_sv_count)
 	abort();
 #endif
     PL_sv_count = 0;
+#endif /* DEBUGGING */
 
 #if defined(PERLIO_LAYERS)
     /* No more IO - including error messages ! */

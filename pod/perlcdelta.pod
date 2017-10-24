@@ -118,6 +118,12 @@ and similar memory improvements.
 Optimize field method calls to faster oelemfast OPs, accessing the
 field directly.
 
+=item *
+
+Removed C<PL_sv_count> variable and updates on every C<new_SV> and
+C<del_SV> on non-DEBUGGING builds.  For refcount leak checks scan the
+arenas.
+
 =back
 
 =head1 Modules and Pragmata
