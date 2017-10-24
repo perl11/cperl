@@ -81,8 +81,11 @@ static void test_power2();
 
 #ifdef PURIFY
 
-#define new_HE() (HE*)safemalloc(sizeof(HE))
-#define del_HE(p) safefree((char*)p)
+#define new_HE()   (HE*)safemalloc(sizeof(HE))
+#define del_HE(p)  \
+    DEBUG_m(PerlIO_printf(Perl_debug_log, "0x%" UVxf ": del_HE (from %s:%u [%s])\n", \
+                          PTR2UV(p), __FILE__, __LINE__, FUNCTION__));  \
+    safefree((char*)p)
 
 #else
 
@@ -96,6 +99,7 @@ S_new_he(pTHX)
 	Perl_more_bodies(aTHX_ HE_SVSLOT, sizeof(HE), PERL_ARENA_SIZE);
     he = (HE*) *root;
     assert(he);
+    DEBUG_m(PerlIO_printf(Perl_debug_log, "0x%" UVxf ": new_HE\n", PTR2UV(he)));
     *root = HeNEXT(he);
     return he;
 }
@@ -104,6 +108,8 @@ S_new_he(pTHX)
 #define del_HE(p) \
     STMT_START { \
 	HeNEXT(p) = (HE*)(PL_body_roots[HE_SVSLOT]);	\
+        DEBUG_m(PerlIO_printf(Perl_debug_log, "0x%" UVxf ": del_HE (from %s:%u [%s])\n",  \
+                              PTR2UV(p), __FILE__, __LINE__, FUNCTION__)); \
 	PL_body_roots[HE_SVSLOT] = p; \
     } STMT_END
 

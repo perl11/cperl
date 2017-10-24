@@ -242,11 +242,11 @@ Public API:
 
 #ifdef DEBUG_LEAKING_SCALARS
 #  define FREE_SV_DEBUG_FILE(sv) STMT_START { \
-	if ((sv)->sv_debug_file) PerlMemShared_free((sv)->sv_debug_file); \
+	if ((sv)->sv_debug_file) PerlMemShared_free((sv)->sv_debug_file);  \
     } STMT_END
-#  define DEBUG_SV_SERIAL(sv)						    \
-    DEBUG_m(PerlIO_printf(Perl_debug_log, "0x%" UVxf ": (%05ld) del_SV\n",    \
-	    PTR2UV(sv), (long)(sv)->sv_debug_serial))
+#  define DEBUG_SV_SERIAL(sv)						   \
+    DEBUG_m(PerlIO_printf(Perl_debug_log, "0x%" UVxf ": (%05ld) del_SV\n", \
+        PTR2UV(sv), (long)(sv)->sv_debug_serial))
 #else
 #  define FREE_SV_DEBUG_FILE(sv)
 #  define DEBUG_SV_SERIAL(sv)	NOOP
