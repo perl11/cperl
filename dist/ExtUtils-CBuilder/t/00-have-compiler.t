@@ -38,10 +38,10 @@ ok( $b, "got CBuilder object" ) or diag $@;
 
     # This will fork a child that will print
     #    'Can't exec "djaadjfkadjkfajdf"'
-    # or similar on STDERR; so make sure fd2 is temporarily closed before
-    # the fork
+    # or similar on STDERR; so make sure fd2 is temporarily redirected to
+    # oblivion before the fork
     open(my $orig_err, ">&", \*STDERR) or die "Can't dup STDERR: $!";
-    close(STDERR);
+    open(STDERR, ">", File::Spec->devnull()) or die "Can't redirect STDERR: $!";
     my $res = $b1->have_compiler;
     open(STDERR, ">&", $orig_err) or die "Can't dup \$orig_err $!";
     close($orig_err);
@@ -53,7 +53,7 @@ ok( $b, "got CBuilder object" ) or diag $@;
     configure_fake_missing_compilers($b2);
 
     open(my $orig_err, ">&", \*STDERR) or die "Can't dup STDERR: $!";
-    close(STDERR);
+    open(STDERR, ">", File::Spec->devnull()) or die "Can't redirect STDERR: $!";
     my $res = $b2->have_cplusplus;
     open(STDERR, ">&", $orig_err) or die "Can't dup \$orig_err $!";
     close($orig_err);
