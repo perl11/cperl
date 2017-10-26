@@ -164,6 +164,10 @@ Fixed compilation under windows.
 Dump the values of a COP $^H, %^H and lexical warnings.
 Improved the test a bit.
 
+=item L<Devel::PPPort> 3.36_03
+
+Silence PERL_CORE make
+
 =item L<fields> 2.26c
 
 Implemented L<Mu/fields> returning fields objects, as in perl6

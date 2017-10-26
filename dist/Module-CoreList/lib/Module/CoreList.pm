@@ -15185,6 +15185,7 @@ our %delta = (
             'coretypes'             => '0.03c',
             'Cpanel::JSON::XS'      => '3.0239',
             'Devel::Peek'           => '1.26_03',
+            'Devel::PPPort'         => '3.36_03',
             'fields'                => '2.26c',
             'Module::Load::Conditional' => '0.68_01',
             'Mu'                    => '0.02c',

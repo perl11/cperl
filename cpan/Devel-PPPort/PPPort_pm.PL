@@ -133,7 +133,9 @@ sub include
 {
   my($file, $opt) = @_;
 
-  print "including $file\n" unless $ENV{PERL_CORE};
+  print "including $file\n"
+      unless (defined $ENV{MAKEFLAGS}
+              and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/);
 
   my $data = parse_partspec("$INCLUDE/$file");
 
@@ -540,7 +542,7 @@ package Devel::PPPort;
 use strict;
 use vars qw($VERSION $data);
 
-$VERSION = '3.36_02';
+$VERSION = '3.36_03';
 
 sub _init_data
 {
