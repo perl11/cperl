@@ -846,7 +846,7 @@ PERLVARI(I, count_null_ops, UV, 0)	/* Number of optimized away NULL ops */
 PERLVAR(I, sv_count,	IV)		/* how many SV* are currently allocated, */
 #endif                                  /* for leak checks. */
 
-PERLVARI(I, dump_re_max_len, STRLEN, 0)
+PERLVARI(I, dump_re_max_len, STRLEN, 60)
 PERLVARI(I, hash_slowdos, U16, 0)       /* Number of concurrent hash DoS attacks */
 
 /* For internal uses of randomness, this ensures the sequence of
