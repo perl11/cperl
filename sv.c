@@ -424,18 +424,69 @@ S_del_sv(pTHX_ SV *p)
 {
     PERL_ARGS_ASSERT_DEL_SV;
 
-    if (DEBUG_D_TEST) {
-	SV* sva;
-	bool ok = 0;
-	for (sva = PL_sv_arenaroot; sva; sva = MUTABLE_SV(SvANY(sva))) {
-	    const SV * const sv = sva + 1;
+    if (DEBUG_D_TEST && PL_phase == PERL_PHASE_RUN) {
+	SV* sva, *svanext, *prev;
+	bool in_arena = FALSE;
+	for (sva = PL_sv_arenaroot; sva; prev = sva, sva = svanext) {
+	    SV *sv = sva + 1;
 	    const SV * const svend = &sva[SvREFCNT(sva)];
-	    if (p >= sv && p < svend) {
-		ok = 1;
-		break;
-	    }
+            svanext = MUTABLE_SV(SvANY(sva));
+            /* our arena? */
+            if (!SvFAKE(sva) && p >= sv && p < svend) {
+                bool empty = TRUE;
+                in_arena = TRUE;
+                /* check if the arena can be freed */
+                for (; sv < svend; ++sv) {
+                    if (!SvIS_FREED(sv)) {
+                        empty = FALSE;
+                        DEBUG_mv(PerlIO_printf(Perl_debug_log,
+                            "del_SV 0x%p: filled arena 0x%p\n", p, sva));
+                        break;
+                    }
+                }
+                /* What to do when free list points to the arena?
+                   Keep it or clean the freelist also?
+                   This happens when we just allocated one new arena and
+                   immediately call del_SV on the first entry.
+                */
+                /* XXX assert(PL_sv_root > sva); */
+                if (UNLIKELY(empty && PL_sv_root < svend && PL_sv_root > sva)) {
+                    static char buf[128];
+                    STRLEN len;
+                    DEBUG_m(len = my_snprintf(buf, sizeof(buf),
+                            "del_SV 0x%p: free arena 0x%p [%ld] contains freelist 0x%p\n", p, sva,
+                            (sva-PL_sv_arenaroot)/SvREFCNT(sva), PL_sv_root);
+                            PerlLIO_write(2, buf, len));
+#if 1
+                    PL_sv_root = NULL;
+#else
+                    empty = FALSE;
+#endif
+                }
+                if (UNLIKELY(empty)) {
+                    static char buf[128];
+                    STRLEN len;
+                    DEBUG_m(len = my_snprintf(buf, sizeof(buf),
+                            "del_SV 0x%p: free arena 0x%p [%ld]\n", p, sva,
+                            (sva-PL_sv_arenaroot)/SvREFCNT(sva));
+                            PerlLIO_write(2, buf, len));
+                    if (sva == PL_sv_arenaroot)
+                        PL_sv_arenaroot = svanext;
+                    else
+                        prev->sv_any = svanext;
+                    MEM_LOG_DEL_SV(p, __FILE__, __LINE__, FUNCTION__);
+                    DEBUG_SV_SERIAL(p);
+                    FREE_SV_DEBUG_FILE(p);
+                    /*PoisonFree(sva, svend - sva, SV);*/
+                    POISON_SV_HEAD(p);
+                    SvFLAGS(p) = SVTYPEMASK;
+                    Safefree(sva);
+                    return;
+                }
+                break;
+            }
 	}
-	if (!ok) {
+	if (!in_arena) {
 	    Perl_ck_warner_d(aTHX_ packWARN(WARN_INTERNAL),
 			     "Attempt to free non-arena SV: 0x%" UVxf
 			     pTHX__FORMAT, PTR2UV(p) pTHX__VALUE);
