@@ -640,10 +640,8 @@ EOF
                 $l = 5; # special-case the rest
                 $shift = (2**($size-1) >> $l-1); # highest bit rsh for all lengths
                 $mask = $shift - 1;
-                warn sprintf
-                  "Overlarge $name tables for indirect, ".
-                  "special-case the last %s max=0x%x, mask=0x%x",
-                  len_list_stringify(@l), $max, $mask;
+                warn sprintf "Overlarge $name tables for indirect %s\n",
+                  len_list_stringify(@l);
                 die "max > mask" if $max > $mask;
                 shift @l;
                 @l = @l[0..$l];
