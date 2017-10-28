@@ -237,7 +237,7 @@ PERLVAR(G, keyword_plugin_mutex, perl_mutex)   /* Mutex for PL_keyword_plugin */
 PERLVARI(G, keyword_plugin, Perl_keyword_plugin_t, Perl_keyword_plugin_standard)
 
 PERLVARI(G, op_sequence, HV *, NULL)	/* dump.c */
-PERLVARI(G, op_seq,	UV,	0)	/* dump.c */
+PERLVARI(G, op_seq,	 UV,   0)	/* dump.c */
 
 #ifdef USE_ITHREADS
 PERLVAR(G, dollarzero_mutex, perl_mutex) /* Modifying $0 */
@@ -254,6 +254,7 @@ PERLVAR(G, sv_placeholder, SV)
 PERLVAR(G, malloc_mutex, perl_mutex)	/* Mutex for malloc */
 #endif
 
+PERLVARI(G, arenas_freed, U16, 0)       /* Number of freed arenas */
 PERLVARI(G, hash_seed_set, bool, FALSE)	/* perl.c */
 PERLVARA(G, hash_seed, PERL_HASH_SEED_BYTES, unsigned char) /* perl.c and hv.h */
 

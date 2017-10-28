@@ -481,12 +481,13 @@ S_del_sv(pTHX_ SV *p)
                     POISON_SV_HEAD(p);
                     SvFLAGS(p) = SVTYPEMASK;
                     Safefree(sva);
+                    PL_arenas_freed++;
                     return;
                 }
                 break;
             }
 	}
-	if (!in_arena) {
+	if (!in_arena && !PL_arenas_freed) {
 	    Perl_ck_warner_d(aTHX_ packWARN(WARN_INTERNAL),
 			     "Attempt to free non-arena SV: 0x%" UVxf
 			     pTHX__FORMAT, PTR2UV(p) pTHX__VALUE);
@@ -1775,6 +1776,7 @@ Perl_sv_gc_arenas(pTHX)
                 if (PL_sv_root < svend && PL_sv_root > sva)
                     PL_sv_root = NULL;
                 Safefree(sva);
+                PL_arenas_freed++;
             }
             else {
                 prev = sva;
@@ -1831,6 +1833,7 @@ Perl_sv_gc_arenas(pTHX)
                             PoisonFree(adesc->arena, adesc->size, char); */
 #endif
                         Safefree(adesc->arena);
+                        PL_arenas_freed++;
                         adesc->arena = NULL;
                         adesc->size = 0;
                         PL_body_roots[type] = NULL;
@@ -6388,7 +6391,8 @@ Perl_sv_del_backref(pTHX_ SV *const tsv, SV *const sv)
 	if (SvOOK(tsv))
 	    svp = (SV**)Perl_hv_backreferences_p(aTHX_ MUTABLE_HV(tsv));
     }
-    else if (SvIS_FREED(tsv) && PL_phase == PERL_PHASE_DESTRUCT) {
+    else if (SvIS_FREED(tsv) &&
+             (PL_phase == PERL_PHASE_DESTRUCT || PL_arenas_freed)) {
 	/* It's possible for the the last (strong) reference to tsv to have
 	   become freed *before* the last thing holding a weak reference.
 	   If both survive longer than the backreferences array, then when
@@ -6409,6 +6413,8 @@ Perl_sv_del_backref(pTHX_ SV *const tsv, SV *const sv)
 	   chance that something goes out of order. We've tried to make it
 	   foolproof before, and it only resulted in evolutionary pressure on
 	   fools. Which made us look foolish for our hubris. :-(
+
+           Same for gc'd or free'd arenas with cperl.
 	*/
 	return;
     }
@@ -6426,6 +6432,8 @@ Perl_sv_del_backref(pTHX_ SV *const tsv, SV *const sv)
 	   already been freed, and so svp will be NULL. If this is the case,
 	   we should not panic. Instead, nothing needs doing, so return.  */
 	if (PL_phase == PERL_PHASE_DESTRUCT && SvREFCNT(tsv) == 0)
+	    return;
+        if (PL_arenas_freed)
 	    return;
 	Perl_croak(aTHX_ "panic: del_backref, *svp=%p phase=%s refcnt=%" UVuf,
 		   (void*)*svp, PL_phase_names[PL_phase], (UV)SvREFCNT(tsv));
