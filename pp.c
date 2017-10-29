@@ -5134,6 +5134,7 @@ PP(pp_fc)
              * casefolding becomes 'ss'; and \x{B5} (\N{MICRO SIGN}), which
              * under any fold becomes \x{3BC} (\N{GREEK SMALL LETTER MU}) --
              * For the rest, the casefold is their lowercase.  */
+            /* Actually not: There are many FC special rules [cperl #332] */
             for (; s < send; d++, s++) {
                 if (*s == MICRO_SIGN) {
                     /* \N{MICRO SIGN}'s casefold is \N{GREEK SMALL LETTER MU},
