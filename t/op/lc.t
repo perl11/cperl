@@ -16,7 +16,7 @@ BEGIN {
 
 use feature qw( fc );
 
-plan tests => 139 + 4 * 256;
+plan tests => 139 + 4 * 256 + 14;
 
 is(lc(undef),	   "", "lc(undef) is ''");
 is(lcfirst(undef), "", "lcfirst(undef) is ''");
@@ -210,12 +210,12 @@ for ("a\x{100}", "xyz\x{100}") {
 for ("A\x{100}", "XYZ\x{100}") {
     is(substr(lc($_), 0), lc($_), "[perl #38619] lc");
 }
-for ("a\x{100}", "ßyz\x{100}") { # ß to Ss (different length)
+for ("a\x{100}", "ÃŸyz\x{100}") { # ÃŸ to Ss (different length)
     is(substr(ucfirst($_), 0), ucfirst($_), "[perl #38619] ucfirst");
 }
 
 #fc() didn't exist back then, but coverage is coverage.
-for ("a\x{100}", "ßyz\x{100}", "xyz\x{100}", "XYZ\x{100}") { # ß to Ss (different length)
+for ("a\x{100}", "ÃŸyz\x{100}", "xyz\x{100}", "XYZ\x{100}") { # ÃŸ to Ss (different length)
     is(substr(fc($_), 0), fc($_), "[perl #38619] fc");
 }
 
@@ -373,4 +373,25 @@ SKIP: {
         is(lcfirst(chr $i), $unicode_lcfirst[$i], "In a UTF-8 locale, lcfirst(chr $i) is the same as official Unicode");
         is(ucfirst(chr $i), $unicode_ucfirst[$i], "In a UTF-8 locale, ucfirst(chr $i) is the same as official Unicode");
     }
+}
+
+# fc could be decomposed to NFD/FCD, but is already folded to the shorter FC NFKC
+{
+  is(fc("\x{df}\x{1fb3}"), "ss\x{3b1}\x{3b9}", "fc U+1fb3");
+  is(fc("\x{1fb7}"), "\x{3b1}\x{342}\x{3b9}", "fc U+1fb7");
+  is(fc("\x{1f71}"), "\x{1f71}", "fc U+1f71"); # NFD: \x{3b1}\x{301}"
+  is(fc("\x{1f82}"), "\x{1f02}\x{3b9}", "fc U+1f82"); # NFD: "\x{3b1}\x{313}\x{300}\x{3b9}"
+  is(fc("\x{1feb}"), "\x{1f7b}", "fc U+1feb"); # NFD: "\x{3c5}\x{301}"
+  is(fc("\x{1fee}"), "\x{1fee}", "fc U+1fee"); # NFD: "\x{a8}\x{301}"
+  is(fc("A\x{3b1}\x{345}\x{342}"), "a\x{3b1}\x{3b9}\x{342}", "fc no reordering of 3b9");
+  is(fc("\x{1d5}"), "\x{1d6}", "fc no reordering of 1d5"); # NFD: "u\x{308}\x{304}"
+  is(fc("\x{101}"), "\x{101}", "A w/ MACRON fc"); # NFD: "a\x{304}"
+  is(fc("\x{115}"), "\x{115}", "fc U+115"); # NFD: "e\x{306}"
+  is(fc("\x{df}"), "\x{df}", "fc ÃŸ"); # FC_NFKC: "\x{df}" vs "ss"
+  {
+    local $TODO = "conversion to final sigma [cperl #332]";
+    is(lc("ODYSSEU\x{3a3} "), "odysseu\x{3c2} ", "lc final sigma ");
+  }
+  is(fc("ODYSSEU\x{3a3} "), "odysseu\x{3c3} ", "fc final sigma"); # SCF+NFKC_CF: U+3c3
+  is(fc("\x{3a3}s"), "\x{3c3}s", "fc non-final sigma");
 }
