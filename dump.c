@@ -3868,10 +3868,10 @@ Perl_pn_peek(pTHX_ PADNAME * pn)
        (PadnamePV(name) && !PadnameLEN(name)).
        See pad.c */
     lo = (long)COP_SEQ_RANGE_LOW(pn);
-    if (lo > PERL_PADSEQ_INTRO - 10000)
+    if (lo > (long)(PERL_PADSEQ_INTRO - 10000))
         lo = lo - PERL_PADSEQ_INTRO;
     hi = (long)COP_SEQ_RANGE_LOW(pn);
-    if (hi > PERL_PADSEQ_INTRO - 10000)
+    if (hi > (long)(PERL_PADSEQ_INTRO - 10000))
         hi = hi - PERL_PADSEQ_INTRO;
     s = Perl_newSVpvf(aTHX_
                       "PADNAME: \"%s\" %s%s %s %s\t(%ld..%ld) "

@@ -1161,6 +1161,7 @@ ithread_create(...)
         }
 
         /* Create thread */
+        /* Unlocked inside S_ithread_create */
         MUTEX_LOCK(&MY_POOL.create_destruct_mutex);
         thread = S_ithread_create(aTHX_ &MY_POOL,
                                         function_to_call,
