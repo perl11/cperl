@@ -1502,8 +1502,8 @@ Perl_magic_getsig(pTHX_ SV *sv, MAGIC *mg)
     }
 
     if (i > 0) {
-    	if(PL_psig_ptr[i])
-    	    sv_setsv(sv,PL_psig_ptr[i]);
+        if (PL_psig_ptr[i])
+            sv_setsv(sv, PL_psig_ptr[i]);
     	else {
 	    Sighandler_t sigstate = rsignal_state(i);
 #ifdef FAKE_PERSISTENT_SIGNAL_HANDLERS
@@ -1514,14 +1514,14 @@ Perl_magic_getsig(pTHX_ SV *sv, MAGIC *mg)
 	    if (PL_sig_handlers_initted && PL_sig_defaulting[i])
 		sigstate = SIG_DFL;
 #endif
-    	    /* cache state so we don't fetch it again */
-    	    if(sigstate == (Sighandler_t) SIG_IGN)
-    	    	sv_setpvs(sv,"IGNORE");
-    	    else
+            /* cache state so we don't fetch it again */
+            if (sigstate == (Sighandler_t) SIG_IGN)
+                sv_setpvs(sv, "IGNORE");
+            else
                 sv_set_undef(sv);
-	    PL_psig_ptr[i] = SvREFCNT_inc_simple_NN(sv);
-    	    SvTEMP_off(sv);
-    	}
+            PL_psig_ptr[i] = SvREFCNT_inc_simple_NN(sv);
+            SvTEMP_off(sv);
+        }
     }
     return 0;
 }
@@ -1561,9 +1561,9 @@ Perl_csighandler(int sig)
 #ifdef FAKE_DEFAULT_SIGNAL_HANDLERS
     if (PL_sig_defaulting[sig])
 #ifdef KILL_BY_SIGPRC
-            exit((Perl_sig_to_vmscondition(sig)&STS$M_COND_ID)|STS$K_SEVERE|STS$M_INHIB_MSG);
+        exit((Perl_sig_to_vmscondition(sig)&STS$M_COND_ID)|STS$K_SEVERE|STS$M_INHIB_MSG);
 #else
-            exit(1);
+        exit(1);
 #endif
 #endif
     if (
@@ -1777,9 +1777,9 @@ Perl_magic_setsig(pTHX_ SV *sv, MAGIC *mg)
     if (sv && (isGV_with_GP(sv) || SvROK(sv))) {
 	if (i) {
 	    (void)rsignal(i, PL_csighandlerp);
-	}
-	else
+	} else {
 	    *svp = SvREFCNT_inc_simple_NN(sv);
+        }
     } else {
 	if (sv && SvOK(sv)) {
 	    s = SvPV_force(sv, len);
@@ -3410,10 +3410,10 @@ Perl_sighandler(int sig)
 
 
     if (!PL_psig_ptr[sig]) {
-		PerlIO_printf(Perl_error_log, "Signal SIG%s received, but no signal handler set.\n",
+        PerlIO_printf(Perl_error_log, "Signal SIG%s received, but no signal handler set.\n",
 				 PL_sig_name[sig]);
-		exit(sig);
-	}
+        exit(sig);
+    }
 
     if (PL_signals &  PERL_SIGNALS_UNSAFE_FLAG) {
 	/* Max number of items pushed there is 3*n or 4. We cannot fix
