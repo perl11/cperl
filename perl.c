@@ -4168,6 +4168,7 @@ S_init_main_stash(pTHX)
     sv_setpvs(get_svs("/", GV_ADD), "\n");
 
     SvFLAGS(&PL_sv_freed) = SVTYPEMASK;
+    Zero(&PL_body_freed, SVt_LAST, AV*);
 }
 
 /*

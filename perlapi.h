@@ -139,6 +139,10 @@ END_EXTERN_C
 #define PL_appctx		(*Perl_Gappctx_ptr(NULL))
 #undef  PL_arenas_freed
 #define PL_arenas_freed		(*Perl_Garenas_freed_ptr(NULL))
+#undef  PL_body_freed
+#define PL_body_freed		(*Perl_Gbody_freed_ptr(NULL))
+#undef  PL_body_freed_size
+#define PL_body_freed_size	(*Perl_Gbody_freed_size_ptr(NULL))
 #undef  PL_check
 #define PL_check		(*Perl_Gcheck_ptr(NULL))
 #undef  PL_check_mutex

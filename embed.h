@@ -2378,6 +2378,7 @@
 #define find_rundefsv2(a,b)	Perl_find_rundefsv2(aTHX_ a,b)
 #define get_db_sub(a,b)		Perl_get_db_sub(aTHX_ a,b)
 #define hasterm(a)		Perl_hasterm(aTHX_ a)
+#define in_body_arenas_freed(a,b)	S_in_body_arenas_freed(aTHX_ a,b)
 #define munge_qwlist_to_paren_list(a)	Perl_munge_qwlist_to_paren_list(aTHX_ a)
 #define newASSIGNOP_maybe_const(a,b,c)	Perl_newASSIGNOP_maybe_const(aTHX_ a,b,c)
 #define num_constlistexpr(a,b)	Perl_num_constlistexpr(aTHX_ a,b)

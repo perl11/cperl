@@ -11226,6 +11226,11 @@ PERL_CALLCONV void	Perl_hv_study(pTHX_ HV *hv)
 PERL_CALLCONV void	Perl_hv_undef_flags(pTHX_ HV *hv, U32 flags)
 			__attribute__global__;
 
+STATIC bool	S_in_body_arenas_freed(pTHX_ svtype type, void* xpv)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_IN_BODY_ARENAS_FREED	\
+	assert(xpv)
+
 PERL_CALLCONV SV*	Perl_magic_scalarpack(pTHX_ HV *hv, MAGIC *mg)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)

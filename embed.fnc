@@ -3908,6 +3908,7 @@ XEop	|STRLEN*|dup_warnings	|NULLOK STRLEN* warnings
 #  if defined(PERL_IN_SV_C)
 sd	|bool	|in_arenas_freed|NN SV* sv
 #  endif
+sd	|bool	|in_body_arenas_freed|svtype type|NN void* xpv
 #endif
 
 : removed from core, but needed for ppport
