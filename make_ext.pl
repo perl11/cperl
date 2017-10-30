@@ -314,7 +314,7 @@ sub build_extension { #build_extensions is not recursion safe
 	    last unless defined $oldv;
 	    require ExtUtils::MM_Unix;
 	    defined (my $newv = parse_version MM $vmod) or last;
-	    if ($newv ne $oldv) {
+	    if (version->parse($newv) ne $oldv) {
 		close $mfh or die "close $makefile: $!";
 		_unlink($makefile);
 		{
