@@ -183,7 +183,7 @@ Perl_safesysmalloc(MEM_SIZE size)
 #endif
 	ptr = (Malloc_t)((char*)ptr+PERL_MEMORY_DEBUG_HEADER_SIZE);
 	DEBUG_m(PerlIO_printf(Perl_debug_log, "0x%" UVxf ": (%05ld) malloc %ld bytes\n",
-                              PTR2UV(ptr),(long)PL_an++,(long)size));
+                    PTR2UV(ptr),(long)PL_an++,(long)size));
 
         /* malloc() can modify errno() even on success, but since someone
 	   writing perl code doesn't have any control over when perl calls

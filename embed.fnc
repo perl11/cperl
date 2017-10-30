@@ -3894,7 +3894,8 @@ XEop	|void   |dtrace_probe_glob |int mode|NN const char *name|bool is_entry
 XEop	|void   |dtrace_probe_hash |int mode|NN const char *name|bool is_entry
 #endif
 
-#if defined(PERL_IN_XSUTILS_C)
+#if defined(USE_CPERL)
+#  if defined(PERL_IN_XSUTILS_C)
 s	|void	|prep_cif	|NN CV* cv|NULLOK const char *nativeconv \
 				|NN const char *encoded
 #endif
@@ -3904,9 +3905,15 @@ Apd	|void	|prep_ffi_ret	|NN CV* cv|NN SV** sp|NULLOK char *rvalue
 
 XEop	|STRLEN*|dup_warnings	|NULLOK STRLEN* warnings
 
+#  if defined(PERL_IN_SV_C)
+sd	|bool	|in_arenas_freed|NN SV* sv
+#  endif
+#endif
+
 : removed from core, but needed for ppport
 #if !defined(SPRINTF_RETURNS_STRLEN) && PERL_VERSION < 28
 Apnod  |int    |my_sprintf     |NN char *buffer|NN const char *pat|...
 #endif
+
 
 : ex: set ts=8 sts=4 sw=4 noet:

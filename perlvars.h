@@ -254,7 +254,9 @@ PERLVAR(G, sv_placeholder, SV)
 PERLVAR(G, malloc_mutex, perl_mutex)	/* Mutex for malloc */
 #endif
 
-PERLVARI(G, arenas_freed, U16, 0)       /* Number of freed arenas */
+/* placeholder for freed SVs - after gc() - not pointing to a freed arena */
+PERLVAR(G, sv_freed, SV)
+PERLVAR(G, arenas_freed, AV)            /* freed arenas for gc() */
 PERLVARI(G, hash_seed_set, bool, FALSE)	/* perl.c */
 PERLVARA(G, hash_seed, PERL_HASH_SEED_BYTES, unsigned char) /* perl.c and hv.h */
 

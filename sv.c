@@ -210,6 +210,8 @@ called by visit() for each SV]):
 			of zero.  called repeatedly from perl_destruct()
 			until there are no SVs left.
 
+    sv_gc_arenas()      Replace ptrs to freed SVs with PL_sv_freed
+
 =head2 Arena allocator API Summary
 
 Private API to rest of sv.c
@@ -407,6 +409,17 @@ S_new_SV(pTHX_ const char *file, int line, const char *func)
 #endif
 
 
+/* C<visit()> wrapper to check if the RV points to a freed arena, and replace
+ * it with C<&PL_sv_freed>. */
+
+static void
+do_rv_freed(pTHX_ SV *const sv)
+{
+    if (in_arenas_freed(sv)) {
+        SvRV(sv) = SvREFCNT_inc_NN(&PL_sv_freed);
+    }
+}
+
 /* del_SV(): return an empty SV head to the free list */
 
 #ifdef DEBUGGING
@@ -480,14 +493,18 @@ S_del_sv(pTHX_ SV *p)
                     /*PoisonFree(sva, svend - sva, SV);*/
                     POISON_SV_HEAD(p);
                     SvFLAGS(p) = SVTYPEMASK;
+                    av_push(&PL_arenas_freed, newSVuv(PTR2UV(sva)));
                     Safefree(sva);
-                    PL_arenas_freed++;
+
+                    DEBUG_mv(PerlIO_printf(Perl_debug_log,
+                        "visit PL_arenas_freed for freed RV\n"));
+                    visit(do_rv_freed, SVf_ROK, SVf_ROK);
                     return;
                 }
                 break;
             }
 	}
-	if (!in_arena && !PL_arenas_freed) {
+	if (!in_arena && AvFILLp(&PL_arenas_freed) < 0) {
 	    Perl_ck_warner_d(aTHX_ packWARN(WARN_INTERNAL),
 			     "Attempt to free non-arena SV: 0x%" UVxf
 			     pTHX__FORMAT, PTR2UV(p) pTHX__VALUE);
@@ -557,6 +574,30 @@ S_sv_add_arena(pTHX_ char *const ptr, const U32 size, const U32 flags)
     SvREFCNT(sv) = 0;
 #endif
     SvFLAGS(sv) = SVTYPEMASK;
+}
+
+/*
+=for apidoc in_arenas_freed
+
+Check if the SV is in one of the freed arenas.
+
+=cut
+*/
+static bool
+S_in_arenas_freed(pTHX_ SV* sv) {
+    SSize_t i;
+    SSize_t const fill = AvFILLp(&PL_arenas_freed);
+    int const arenasize = PERL_ARENA_SIZE / sizeof(SV);
+    PERL_ARGS_ASSERT_IN_ARENAS_FREED;
+
+    if (fill < 0)
+        return FALSE;
+    for (i=0; i<fill; i++) {
+        SV* sva = AvARRAY(&PL_arenas_freed)[0];
+        if (sv > sva && sv <= (sva+arenasize))
+            return TRUE;
+    }
+    return FALSE;
 }
 
 /* visit(): call the named function for each non-free SV in the arenas
@@ -1727,6 +1768,10 @@ whole heap, i.e. all SV head and body arenas, and deallocate the
 memory used by freed arenas. Note that if one arena contains at least
 one live SV the whole arena stays live.
 
+In order to catch SvIS_FREED(sv) RVs pointing to a freed arena, scan all
+RVs for SvRV pointers to a freed arena, and replace it with sv_freed.
+Maybe need to do this also for sv_any and freed bodies.
+
 =cut
 
 */
@@ -1734,12 +1779,24 @@ void
 Perl_sv_gc_arenas(pTHX)
 {
     SV *sva, *svanext, *prev = NULL;
+    const int freed = AvFILLp(&PL_arenas_freed);
+#ifdef USE_THREADS
+    static int semaphore = 0;
+#endif
 #ifdef DEBUGGING
     int yes = 0, no = 0;
     int i = 0;
 #endif
 
     FREETMPS;
+#ifdef USE_THREADS
+    if (semaphore) {
+        DEBUG_m(PerlIO_printf(Perl_debug_log,
+            "sv_gc_arenas already running\n"));
+        return;
+    }
+    semaphore++;
+#endif
     /* Free empty head arenas, skipping fake ones. */
     for (sva = PL_sv_arenaroot; sva; sva = svanext) {
         bool filled = FALSE;
@@ -1775,8 +1832,8 @@ Perl_sv_gc_arenas(pTHX)
 #endif
                 if (PL_sv_root < svend && PL_sv_root > sva)
                     PL_sv_root = NULL;
+                av_push(&PL_arenas_freed, newSVuv(PTR2UV(sva)));
                 Safefree(sva);
-                PL_arenas_freed++;
             }
             else {
                 prev = sva;
@@ -1795,6 +1852,11 @@ Perl_sv_gc_arenas(pTHX)
         }
     }
     DEBUG_m(PerlIO_printf(Perl_debug_log, "arena gc: %d/%d\n", yes, yes+no));
+
+    /* Now scan for freed RVs and replace with sv_freed */
+    if (AvFILLp(&PL_arenas_freed) > freed) {
+        visit(do_rv_freed, SVf_ROK, SVf_ROK);
+    }
 
     /* Scan the PL_body_roots[type] free lists if it makes a full arenaset
        from PL_body_arenas. See Perl_more_bodies().
@@ -1832,8 +1894,8 @@ Perl_sv_gc_arenas(pTHX)
                         /*if (type != SVt_PVHV)
                             PoisonFree(adesc->arena, adesc->size, char); */
 #endif
+                        av_push(&PL_arenas_freed, newSVuv(PTR2UV(adesc->arena)));
                         Safefree(adesc->arena);
-                        PL_arenas_freed++;
                         adesc->arena = NULL;
                         adesc->size = 0;
                         PL_body_roots[type] = NULL;
@@ -1860,6 +1922,9 @@ Perl_sv_gc_arenas(pTHX)
         } while (aroot);
         DEBUG_m(PerlIO_printf(Perl_debug_log, "body_arena gc: %d/%d\n", yes, yes+no));
     }
+#ifdef USE_THREADS
+    semaphore--;
+#endif
 }
 
 /*
@@ -6392,7 +6457,7 @@ Perl_sv_del_backref(pTHX_ SV *const tsv, SV *const sv)
 	    svp = (SV**)Perl_hv_backreferences_p(aTHX_ MUTABLE_HV(tsv));
     }
     else if (SvIS_FREED(tsv) &&
-             (PL_phase == PERL_PHASE_DESTRUCT || PL_arenas_freed)) {
+             (PL_phase == PERL_PHASE_DESTRUCT || AvFILLp(&PL_arenas_freed) >= 0)) {
 	/* It's possible for the the last (strong) reference to tsv to have
 	   become freed *before* the last thing holding a weak reference.
 	   If both survive longer than the backreferences array, then when
@@ -6433,7 +6498,7 @@ Perl_sv_del_backref(pTHX_ SV *const tsv, SV *const sv)
 	   we should not panic. Instead, nothing needs doing, so return.  */
 	if (PL_phase == PERL_PHASE_DESTRUCT && SvREFCNT(tsv) == 0)
 	    return;
-        if (PL_arenas_freed)
+        if (AvFILLp(&PL_arenas_freed) >= 0)
 	    return;
 	Perl_croak(aTHX_ "panic: del_backref, *svp=%p phase=%s refcnt=%" UVuf,
 		   (void*)*svp, PL_phase_names[PL_phase], (UV)SvREFCNT(tsv));

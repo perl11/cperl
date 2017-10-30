@@ -569,7 +569,6 @@
 #define op_convert_list(a,b,c)	Perl_op_convert_list(aTHX_ a,b,c)
 #define op_dump(a)		Perl_op_dump(aTHX_ a)
 #define op_free(a)		Perl_op_free(aTHX_ a)
-#define op_gc_arenas()		Perl_op_gc_arenas(aTHX)
 #define op_linklist(a)		Perl_op_linklist(aTHX_ a)
 #define op_null(a)		Perl_op_null(aTHX_ a)
 #define op_parent		Perl_op_parent
@@ -612,8 +611,6 @@
 #define pregexec(a,b,c,d,e,f,g)	Perl_pregexec(aTHX_ a,b,c,d,e,f,g)
 #define pregfree(a)		Perl_pregfree(aTHX_ a)
 #define pregfree2(a)		Perl_pregfree2(aTHX_ a)
-#define prep_ffi_ret(a,b,c)	Perl_prep_ffi_ret(aTHX_ a,b,c)
-#define prep_ffi_sig(a,b,c,d)	Perl_prep_ffi_sig(aTHX_ a,b,c,d)
 #define prescan_version(a,b,c,d,e,f,g)	Perl_prescan_version(aTHX_ a,b,c,d,e,f,g)
 #define ptr_table_clear(a)	Perl_ptr_table_clear(aTHX_ a)
 #define ptr_table_fetch(a,b)	Perl_ptr_table_fetch(aTHX_ a,b)
@@ -764,7 +761,6 @@
 #define sv_eq_flags(a,b,c)	Perl_sv_eq_flags(aTHX_ a,b,c)
 #define sv_force_normal_flags(a,b)	Perl_sv_force_normal_flags(aTHX_ a,b)
 #define sv_free(a)		Perl_sv_free(aTHX_ a)
-#define sv_gc_arenas()		Perl_sv_gc_arenas(aTHX)
 #define sv_get_backrefs		Perl_sv_get_backrefs
 #define sv_grow(a,b)		Perl_sv_grow(aTHX_ a,b)
 #define sv_inc(a)		Perl_sv_inc(aTHX_ a)
@@ -1069,10 +1065,13 @@
 #define numfields(a)		Perl_numfields(aTHX_ a)
 #define op_clone_optree(a,b)	Perl_op_clone_optree(aTHX_ a,b)
 #define op_dump_cv(a,b)		Perl_op_dump_cv(aTHX_ a,b)
+#define op_gc_arenas()		Perl_op_gc_arenas(aTHX)
 #define op_lvalue_flags(a,b,c)	Perl_op_lvalue_flags(aTHX_ a,b,c)
 #define pad_find_outer(a,b)	Perl_pad_find_outer(aTHX_ a,b)
 #define pad_findmy_real(a,b)	Perl_pad_findmy_real(aTHX_ a,b)
 #define pad_findmy_realoffset(a,b)	Perl_pad_findmy_realoffset(aTHX_ a,b)
+#define prep_ffi_ret(a,b,c)	Perl_prep_ffi_ret(aTHX_ a,b,c)
+#define prep_ffi_sig(a,b,c,d)	Perl_prep_ffi_sig(aTHX_ a,b,c,d)
 #define pv_uni_normalize(a,b,c)	Perl_pv_uni_normalize(aTHX_ a,b,c)
 #define re_op_compile(a,b,c,d,e,f,g,h)	Perl_re_op_compile(aTHX_ a,b,c,d,e,f,g,h)
 #define re_study(a)		Perl_re_study(aTHX_ a)
@@ -1080,6 +1079,7 @@
 #define set_version(a,b,c,d,e)	Perl_set_version(aTHX_ a,b,c,d,e)
 #define share_hek(a,b,c)	Perl_share_hek(aTHX_ a,b,c)
 #define sv_clean_objs()		Perl_sv_clean_objs(aTHX)
+#define sv_gc_arenas()		Perl_sv_gc_arenas(aTHX)
 #define sv_gets(a,b,c)		Perl_sv_gets(aTHX_ a,b,c)
 #define sv_uncow(a,b)		Perl_sv_uncow(aTHX_ a,b)
 #define sv_vcatpvfn(a,b,c,d,e,f,g)	Perl_sv_vcatpvfn(aTHX_ a,b,c,d,e,f,g)
@@ -1860,7 +1860,6 @@
 #define opslab_force_free(a)	Perl_opslab_force_free(aTHX_ a)
 #define opslab_free(a)		Perl_opslab_free(aTHX_ a)
 #define opslab_free_nopad(a)	Perl_opslab_free_nopad(aTHX_ a)
-#define opslab_gc(a)		Perl_opslab_gc(aTHX_ a)
 #define parser_free_nexttoke_ops(a,b)	Perl_parser_free_nexttoke_ops(aTHX_ a,b)
 #define should_warn_nl		S_should_warn_nl
 #    if defined(PERL_DEBUG_READONLY_OPS)
@@ -1868,6 +1867,7 @@
 #define Slab_to_rw(a)		Perl_Slab_to_rw(aTHX_ a)
 #    endif
 #    if defined(USE_CPERL)
+#define opslab_gc(a)		Perl_opslab_gc(aTHX_ a)
 #define strip_spaces(a,b)	S_strip_spaces(aTHX_ a,b)
 #    endif
 #  endif
@@ -2261,6 +2261,7 @@
 #define utf8_mg_pos_cache_update(a,b,c,d,e)	S_utf8_mg_pos_cache_update(aTHX_ a,b,c,d,e)
 #    if defined(USE_CPERL)
 #define expect_number(a)	S_expect_number(aTHX_ a)
+#define in_arenas_freed(a)	S_in_arenas_freed(aTHX_ a)
 #define visit(a,b,c)		S_visit(aTHX_ a,b,c)
 #    endif
 #    if defined(USE_ITHREADS)
@@ -2356,7 +2357,9 @@
 #    endif
 #  endif
 #  if defined(PERL_IN_XSUTILS_C)
+#    if defined(USE_CPERL)
 #define prep_cif(a,b,c)		S_prep_cif(aTHX_ a,b,c)
+#    endif
 #  endif
 #  if defined(PERL_MEM_LOG)
 #define mem_log_alloc		Perl_mem_log_alloc
