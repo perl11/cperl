@@ -1611,7 +1611,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
                 /* Hang on to it for a bit. */
                 SvREFCNT_inc_simple_void_NN(sv_2mortal((SV *)gv));
             }
-            else if (klen == 3 && strEQc(key, "ISA") && GvAV(gv)) {
+            else if (memEQs(key, klen, "ISA") && GvAV(gv)) {
                 AV *isa = GvAV(gv);
                 MAGIC *mg = mg_find((SV*)isa, PERL_MAGIC_isa);
 

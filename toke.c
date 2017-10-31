@@ -2776,8 +2776,7 @@ S_get_and_check_backslash_N_name(pTHX_ const char* s, const char* const e)
         SvTYPE(rv) == SVt_PVCV) && ((stash = CvSTASH(rv)) != NULL))
     {
         const char * const name = HvNAME(stash);
-        if (HvNAMELEN(stash) == sizeof("_charnames")-1
-            && memEQc(name, "_charnames")) {
+        if (memEQs(name, HvNAMELEN(stash), "_charnames")) {
            return res;
        }
     }
@@ -4847,7 +4846,7 @@ S_find_in_my_stash(pTHX_ const char *pkgname, STRLEN len)
 
     PERL_ARGS_ASSERT_FIND_IN_MY_STASH;
 
-    if (len == 11 && *pkgname == '_' && memEQc(pkgname, "__PACKAGE__"))
+    if (memEQs(pkgname, len, "__PACKAGE__"))
         return PL_curstash;
 
     /* stash already */
@@ -8677,7 +8676,7 @@ Perl_yylex(pTHX)
             if (isIDFIRST_lazy_if_safe(s, PL_bufend, UTF)) {
                 int normalize;
 		s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len, &normalize);
-		if (len == 3 && memEQc(PL_tokenbuf, "sub")) {
+		if (memEQs(PL_tokenbuf, len, "sub")) {
 		    goto really_sub;
 		} else if (UNLIKELY(normalize)) {
                     d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
