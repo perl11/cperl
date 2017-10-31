@@ -4268,11 +4268,18 @@ Gid_t getegid (void);
 #  define DEBUG_c(a) if (DEBUG_c_TEST) a
 #  define DEBUG_P(a) if (DEBUG_P_TEST) a
 
-     /* Temporarily turn off memory debugging in case the a
-      * does memory allocation, either directly or indirectly. */
-#  define DEBUG_m(a)  \
-    STMT_START {							\
-        if (PERL_GET_INTERP) { dTHX; if (DEBUG_m_TEST) {PL_debug&=~DEBUG_m_FLAG; a; PL_debug|=DEBUG_m_FLAG;} } \
+  /* Temporarily turn off memory debugging in case the a
+   * does memory allocation, either directly or indirectly. */
+#  define DEBUG_m(a)            \
+    STMT_START {                \
+        if (PERL_GET_INTERP) {  \
+            dTHX;               \
+            if (DEBUG_m_TEST) { \
+                PL_debug &= ~DEBUG_m_FLAG; \
+                STMT_START {a;} STMT_END;  \
+                PL_debug |= DEBUG_m_FLAG;  \
+            }                   \
+         }                      \
     } STMT_END
 
 #  define DEBUG__(t, a) \
