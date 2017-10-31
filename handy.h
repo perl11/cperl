@@ -528,6 +528,13 @@ Returns zero if non-equal, or non-zero if equal.
 # define strNEc(s, c) memNE(s, ("" c ""), sizeof(c))
 #endif
 
+#define memBEGINs(s1, l, s2)                                                \
+            (   (l) >= sizeof(s2) - 1                                       \
+             && memEQ(s1, "" s2 "", sizeof(s2)-1))
+#define memENDs(s1, l, s2)                                                  \
+            (   (l) >= sizeof(s2) - 1                                       \
+             && memEQ(s1 + (l) - (sizeof(s2) - 1), "" s2 "", sizeof(s2)-1))
+
 #define memLT(s1,s2,l) (memcmp(s1,s2,l) < 0)
 #define memLE(s1,s2,l) (memcmp(s1,s2,l) <= 0)
 #define memGT(s1,s2,l) (memcmp(s1,s2,l) > 0)
