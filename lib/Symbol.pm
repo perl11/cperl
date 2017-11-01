@@ -36,17 +36,27 @@ Symbol - manipulate Perl symbols and their names
 
 =head1 DESCRIPTION
 
+=over
+
+=item gensym
+
 C<Symbol::gensym> creates an anonymous glob and returns a reference
 to it.  Such a glob reference can be used as a file or directory
 handle.
+
+=item ungensym SYM
 
 For backward compatibility with older implementations that didn't
 support anonymous globs, C<Symbol::ungensym> is also provided.
 But it doesn't do anything.
 
+=item geniosym
+
 C<Symbol::geniosym> creates an anonymous IO handle.  This can be
 assigned into an existing glob without affecting the non-IO portions
 of the glob.
+
+=item qualify SYM, PACKAGE
 
 C<Symbol::qualify> turns unqualified symbol names into qualified
 variable names (e.g. "myvar" -E<gt> "MyPackage::myvar").  If it is given a
@@ -59,13 +69,23 @@ Qualification applies only to symbol names (strings).  References are
 left unchanged under the assumption that they are glob references,
 which are qualified by their nature.
 
+=item qualify_to_ref SYM, PACKAGE
+
 C<Symbol::qualify_to_ref> is just like C<Symbol::qualify> except that it
 returns a glob ref rather than a symbol name, so you can use the result
 even if C<use strict 'refs'> is in effect.
 
-C<Symbol::delete_package> wipes out a whole package namespace.  Note
-this routine is not exported by default--you may want to import it
-explicitly.
+=item delete_package PACKAGE
+
+C<Symbol::delete_package> wipes out a whole package namespace, and in
+cperl if it's a XS package calls L<DynaLoader/dl_unload_file()> also.
+Note this routine is not exported by default, you may want to import
+it explicitly.
+
+With C<main> several protected core symbols are kept.
+With user-packages readonly symbols, like classes are deleted.
+
+=back
 
 =head1 BUGS
 
@@ -85,7 +105,7 @@ require Exporter;
 @EXPORT = qw(gensym ungensym qualify qualify_to_ref);
 @EXPORT_OK = qw(delete_package geniosym);
 
-$VERSION = '1.08_01';
+$VERSION = '1.08_02';
 
 my $genpkg = "Symbol::";
 my $genseq = 0;
@@ -154,6 +174,8 @@ sub delete_package ($) {
     return unless defined $stem_symtab and exists $stem_symtab->{$leaf};
 
     # clear all the symbols in the package
+    # but special-case READONLY symbols and internal core packages
+    # core protected symbols are kept. user readonly symbols, like classes are deleted.
 
     my $leaf_symtab = *{$stem_symtab->{$leaf}}{HASH};
     my $keep = qr/^(CORE|Internals|utf8|Error|UNIVERSAL|PerlIO|version|re)::$/;
@@ -179,6 +201,44 @@ sub delete_package ($) {
     else {
       foreach my $name (keys %$leaf_symtab) {
         my $sym = $pkg . $name;
+        # search in @DynaLoader::dl_modules to unload it
+        if (exists ${main::}{DynaLoader}) {
+          my $module = grep { $_ eq $sym } @DynaLoader::dl_modules;
+          if ($module) {
+            # search for the filename, load it again to return the libref handle
+            # to be able to unload it
+            my $Config_loaded = exists ${main::}{Config};
+            my $dlext;
+            if ($^O eq 'darwin') {
+              $dlext = 'dylib'; $Config_loaded++;
+            } elsif ($^O =~ /(MSWin32|cygwin|msys|dos)/) {
+              $dlext = 'dll'; $Config_loaded++;
+            } elsif ($^O =~ /(ux|ix|bsd|solaris|sunos)$/) {
+              $dlext = 'so'; $Config_loaded++;
+            } else {
+              require Config;
+              $dlext = $Config::Config{dlext};
+            }
+            my @modparts = split(/::/,$module);
+            my $modfname = $modparts[-1];
+            $modfname = &mod2fname(\@modparts) if defined &DynaLoader::mod2fname;
+            my $modpname = join('/',@modparts);
+            foreach (@INC) {
+              $dir = "$_/auto/$modpname";
+              next unless -d $dir; # skip over uninteresting directories
+              # check for common cases to avoid autoload of dl_findfile
+              my $try = "$dir/$modfname.$dlext";
+              last if $file = ($DynaLoader::do_expand)
+                ? dl_expandspec($try) : ((-f $try) && $try);
+              # no luck here, save dir for possible later dl_findfile search
+              push @dirs, $dir;
+            }
+            # last resort, let dl_findfile have a go in all known locations
+            $file = dl_findfile(map("-L$_",@dirs,@INC), $modfname) unless $file;
+            DynaLoader::dl_unload_file(DynaLoader::dl_load_file $file);
+            &delete_package('Config') unless $Config_loaded;
+          }
+        }
         Internals::SvREADONLY(${$sym}, 0) if Internals::SvREADONLY(${$sym});
         Internals::SvREADONLY(%{$sym}, 0) if Internals::SvREADONLY(%{$sym});
         Internals::SvREADONLY(@{$sym}, 0) if Internals::SvREADONLY(@{$sym});

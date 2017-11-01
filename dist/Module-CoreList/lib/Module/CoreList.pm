@@ -19021,6 +19021,7 @@ our %delta :const = (
             'PerlIO::encoding'      => '0.27_01',
             'Socket'                => '2.029_05',
             'Storable'              => '3.15_04',
+            'Symbol'                => '1.08_02',
             'threads::shared'       => '1.60',
             'Unicode'               => '12.1.0',
             'Unicode::Collate'      => '1.27_01',

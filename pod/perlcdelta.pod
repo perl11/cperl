@@ -1051,6 +1051,10 @@ It wrapped around previously. Fixes Coverity CID #187854.
 Move __Storable__.pm into Storable_pm.PL
 L<[cperl #374]|https://github.com/perl11/cperl/issues/374>
 
+=item L<Symbol> 1.08_02
+
+Calls DynaLoader::dl_unload_file on XS modules for gc() support.
+
 =item L<Term::ReadKey> 2.38_03
 
 Merge with 2.38

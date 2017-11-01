@@ -278,7 +278,7 @@ library references are stored in C<@dl_librefs> by C<DynaLoader::bootstrap> as i
 loads the libraries.  The files are unloaded in last-in, first-out order.
 
 This unloading is usually necessary when embedding a shared-object perl (e.g.
-one configured with -Duseshrplib) within a larger application, and the perl
+one configured with C<-Duseshrplib>) within a larger application, and the perl
 interpreter is created and destroyed several times within the lifetime of the
 application.  In this case it is possible that the system dynamic linker will
 unload and then subsequently reload the shared libperl without relocating any
