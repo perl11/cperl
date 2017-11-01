@@ -3115,14 +3115,14 @@ S__to_utf8_case(pTHX_ const UV uv1, const U8 *p, U8* ustrp, STRLEN *lenp,
          *swashp = _core_swash_init("utf8", normal, UNDEF, 4, 0, NULL, NULL);
 
     if (special) {
-         /* It might be "special" (sometimes, but not always,
-	  * a multicharacter mapping) */
-         HV *hv = NULL;
-	 SV **svp;
+        /* It might be "special" (sometimes, but not always,
+         * a multicharacter mapping) */
+        HV *hv = NULL;
+        SV **svp;
 
-	 /* If passed in the specials name, use that; otherwise use any
-	  * given in the swash */
-         if (*special != '\0') {
+        /* If passed in the specials name, use that; otherwise use any
+         * given in the swash */
+        if (*special != '\0') {
             hv = get_hv(special, 0);
         }
         else {
@@ -3132,29 +3132,29 @@ S__to_utf8_case(pTHX_ const UV uv1, const U8 *p, U8* ustrp, STRLEN *lenp,
             }
         }
 
-	 if (hv
-             && (svp = hv_fetch(hv, (const char*)p, UVCHR_SKIP(uv1), FALSE))
-             && (*svp))
-         {
-	     const char *s;
+        if (hv
+            && (svp = hv_fetch(hv, (const char*)p, UVCHR_SKIP(uv1), FALSE))
+            && (*svp))
+        {
+            const char *s;
 
-	      s = SvPV_const(*svp, len);
-	      if (len == 1)
-                  /* EIGHTBIT */
-		   len = uvchr_to_utf8(ustrp, *(U8*)s) - ustrp;
-	      else {
-		   Copy(s, ustrp, len, U8);
-	      }
-	 }
+            s = SvPV_const(*svp, len);
+            if (len == 1)
+                /* EIGHTBIT */
+                len = uvchr_to_utf8(ustrp, *(U8*)s) - ustrp;
+            else {
+                Copy(s, ustrp, len, U8);
+            }
+        }
     }
 
     if (!len && *swashp) {
 	const UV uv2 = swash_fetch(*swashp, p, TRUE /* => is UTF-8 */);
 
-	 if (uv2) {
-	      /* It was "normal" (a single character mapping). */
-	      len = uvchr_to_utf8(ustrp, uv2) - ustrp;
-	 }
+        if (uv2) {
+            /* It was "normal" (a single character mapping). */
+            len = uvchr_to_utf8(ustrp, uv2) - ustrp;
+        }
     }
 
     if (len) {
@@ -3537,114 +3537,115 @@ Perl__to_utf8_fold_flags(pTHX_ const U8 *p,
     assert(p != ustrp); /* Otherwise overwrites */
 
     CASE_CHANGE_BODY_START(FOLD_FLAGS_LOCALE, toFOLD_LC, _to_fold_latin1,
-                 ((flags) & (FOLD_FLAGS_FULL | FOLD_FLAGS_NOMIX_ASCII)));
+                           ((flags) & (FOLD_FLAGS_FULL | FOLD_FLAGS_NOMIX_ASCII)));
 
-	result = CALL_FOLD_CASE(result, p, ustrp, lenp, flags & FOLD_FLAGS_FULL);
+    result = CALL_FOLD_CASE(result, p, ustrp, lenp, flags & FOLD_FLAGS_FULL);
 
-	if (flags & FOLD_FLAGS_LOCALE) {
+    if (flags & FOLD_FLAGS_LOCALE) {
 
-#           define LONG_S_T      LATIN_SMALL_LIGATURE_LONG_S_T_UTF8
-            const unsigned int long_s_t_len    = sizeof(LONG_S_T) - 1;
+#define LONG_S_T      LATIN_SMALL_LIGATURE_LONG_S_T_UTF8
 
-#         ifdef LATIN_CAPITAL_LETTER_SHARP_S_UTF8
-#           define CAP_SHARP_S   LATIN_CAPITAL_LETTER_SHARP_S_UTF8
+        const unsigned int long_s_t_len    = sizeof(LONG_S_T) - 1;
 
-            const unsigned int cap_sharp_s_len = sizeof(CAP_SHARP_S) - 1;
+#ifdef LATIN_CAPITAL_LETTER_SHARP_S_UTF8
+#  define CAP_SHARP_S   LATIN_CAPITAL_LETTER_SHARP_S_UTF8
 
-            /* Special case these two characters, as what normally gets
-             * returned under locale doesn't work */
-            if (UTF8SKIP(p) == cap_sharp_s_len
-                && memEQ((char *) p, CAP_SHARP_S, cap_sharp_s_len))
-            {
-                /* diag_listed_as: Can't do %s("%s") on non-UTF-8 locale; resolved to "%s". */
-                Perl_ck_warner(aTHX_ packWARN(WARN_LOCALE),
+        const unsigned int cap_sharp_s_len = sizeof(CAP_SHARP_S) - 1;
+
+        /* Special case these two characters, as what normally gets
+         * returned under locale doesn't work */
+        if (UTF8SKIP(p) == cap_sharp_s_len
+            && memEQ((char *) p, CAP_SHARP_S, cap_sharp_s_len))
+        {
+            /* diag_listed_as: Can't do %s("%s") on non-UTF-8 locale; resolved to "%s". */
+            Perl_ck_warner(aTHX_ packWARN(WARN_LOCALE),
                               "Can't do fc(\"\\x{1E9E}\") on non-UTF-8 locale; "
                               "resolved to \"\\x{17F}\\x{17F}\".");
-                goto return_long_s;
-            }
-            else
+            goto return_long_s;
+        }
+        else
 #endif
-                 if (UTF8SKIP(p) == long_s_t_len
-                     && memEQ((char *) p, LONG_S_T, long_s_t_len))
-            {
-                /* diag_listed_as: Can't do %s("%s") on non-UTF-8 locale; resolved to "%s". */
-                Perl_ck_warner(aTHX_ packWARN(WARN_LOCALE),
+        if (UTF8SKIP(p) == long_s_t_len
+            && memEQ((char *) p, LONG_S_T, long_s_t_len))
+        {
+            /* diag_listed_as: Can't do %s("%s") on non-UTF-8 locale; resolved to "%s". */
+            Perl_ck_warner(aTHX_ packWARN(WARN_LOCALE),
                               "Can't do fc(\"\\x{FB05}\") on non-UTF-8 locale; "
                               "resolved to \"\\x{FB06}\".");
-                goto return_ligature_st;
-            }
+            goto return_ligature_st;
+        }
 
 #if    UNICODE_MAJOR_VERSION   == 3         \
     && UNICODE_DOT_VERSION     == 0         \
     && UNICODE_DOT_DOT_VERSION == 1
-#           define DOTTED_I   LATIN_CAPITAL_LETTER_I_WITH_DOT_ABOVE_UTF8
+#  define DOTTED_I   LATIN_CAPITAL_LETTER_I_WITH_DOT_ABOVE_UTF8
 
-            /* And special case this on this Unicode version only, for the same
-             * reaons the other two are special cased.  They would cross the
-             * 255/256 boundary which is forbidden under /l, and so the code
-             * wouldn't catch that they are equivalent (which they are only in
-             * this release) */
-            else if (UTF8SKIP(p) == sizeof(DOTTED_I) - 1
-                     && memEQ((char *) p, DOTTED_I, sizeof(DOTTED_I) - 1))
-            {
-                /* diag_listed_as: Can't do %s("%s") on non-UTF-8 locale; resolved to "%s". */
-                Perl_ck_warner(aTHX_ packWARN(WARN_LOCALE),
+        /* And special case this on this Unicode version only, for the same
+         * reasons the other two are special cased.  They would cross the
+         * 255/256 boundary which is forbidden under /l, and so the code
+         * wouldn't catch that they are equivalent (which they are only in
+         * this release) */
+        else if (UTF8SKIP(p) == sizeof(DOTTED_I) - 1
+                 && memEQ((char *) p, DOTTED_I, sizeof(DOTTED_I) - 1))
+        {
+            /* diag_listed_as: Can't do %s("%s") on non-UTF-8 locale; resolved to "%s". */
+            Perl_ck_warner(aTHX_ packWARN(WARN_LOCALE),
                               "Can't do fc(\"\\x{0130}\") on non-UTF-8 locale; "
                               "resolved to \"\\x{0131}\".");
-                goto return_dotless_i;
-            }
+            goto return_dotless_i;
+        }
 #endif
 
-	    return check_locale_boundary_crossing(p, result, ustrp, lenp);
-	}
-	else if (! (flags & FOLD_FLAGS_NOMIX_ASCII)) {
-	    return result;
-	}
-	else {
-	    /* This is called when changing the case of a UTF-8-encoded
-             * character above the ASCII range, and the result should not
-             * contain an ASCII character. */
+        return check_locale_boundary_crossing(p, result, ustrp, lenp);
+    }
+    else if (! (flags & FOLD_FLAGS_NOMIX_ASCII)) {
+        return result;
+    }
+    else {
+        /* This is called when changing the case of a UTF-8-encoded
+         * character above the ASCII range, and the result should not
+         * contain an ASCII character. */
 
-	    UV original;    /* To store the first code point of <p> */
+        UV original;    /* To store the first code point of <p> */
 
-	    /* Look at every character in the result; if any cross the
-	    * boundary, the whole thing is disallowed */
-	    U8* s = ustrp;
-	    U8* e = ustrp + *lenp;
-	    while (s < e) {
-		if (isASCII(*s)) {
-		    /* Crossed, have to return the original */
-		    original = valid_utf8_to_uvchr(p, lenp);
+        /* Look at every character in the result; if any cross the
+         * boundary, the whole thing is disallowed */
+        U8* s = ustrp;
+        U8* e = ustrp + *lenp;
+        while (s < e) {
+            if (isASCII(*s)) {
+                /* Crossed, have to return the original */
+                original = valid_utf8_to_uvchr(p, lenp);
 
-                    /* But in these instances, there is an alternative we can
-                     * return that is valid */
-                    if (original == LATIN_SMALL_LETTER_SHARP_S
+                /* But in these instances, there is an alternative we can
+                 * return that is valid */
+                if (original == LATIN_SMALL_LETTER_SHARP_S
 #ifdef LATIN_CAPITAL_LETTER_SHARP_S /* not defined in early Unicode releases */
-                        || original == LATIN_CAPITAL_LETTER_SHARP_S
+                    || original == LATIN_CAPITAL_LETTER_SHARP_S
 #endif
                     ) {
-                        goto return_long_s;
-                    }
-                    else if (original == LATIN_SMALL_LIGATURE_LONG_S_T) {
-                        goto return_ligature_st;
-                    }
+                    goto return_long_s;
+                }
+                else if (original == LATIN_SMALL_LIGATURE_LONG_S_T) {
+                    goto return_ligature_st;
+                }
 #if    UNICODE_MAJOR_VERSION   == 3         \
     && UNICODE_DOT_VERSION     == 0         \
     && UNICODE_DOT_DOT_VERSION == 1
 
-                    else if (original == LATIN_CAPITAL_LETTER_I_WITH_DOT_ABOVE) {
-                        goto return_dotless_i;
-                    }
+                else if (original == LATIN_CAPITAL_LETTER_I_WITH_DOT_ABOVE) {
+                    goto return_dotless_i;
+                }
 #endif
-		    Copy(p, ustrp, *lenp, char);
-		    return original;
-		}
-		s += UTF8SKIP(s);
-	    }
-
-	    /* Here, no characters crossed, result is ok as-is */
-	    return result;
-	}
+                Copy(p, ustrp, *lenp, char);
+                return original;
+            }
+            s += UTF8SKIP(s);
+        }
+        
+        /* Here, no characters crossed, result is ok as-is */
+        return result;
+      }
     }
 
     /* Here, used locale rules.  Convert back to UTF-8 */
@@ -3669,7 +3670,7 @@ Perl__to_utf8_fold_flags(pTHX_ const U8 *p,
 
     *lenp = 2 * sizeof(LATIN_SMALL_LETTER_LONG_S_UTF8) - 2;
     Copy(LATIN_SMALL_LETTER_LONG_S_UTF8 LATIN_SMALL_LETTER_LONG_S_UTF8,
-        ustrp, *lenp, U8);
+         ustrp, *lenp, U8);
     return LATIN_SMALL_LETTER_LONG_S;
 
   return_ligature_st:
@@ -3715,11 +3716,11 @@ SV*
 Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv, I32 minbits, I32 none, SV* invlist, U8* const flags_p)
 {
 
-    /*NOTE NOTE NOTE - If you want to use "return" in this routine you MUST
+    /* NOTE NOTE NOTE - If you want to use "return" in this routine you MUST
      * use the following define */
 
 #define CORE_SWASH_INIT_RETURN(x)   \
-    PL_curpm= old_PL_curpm;         \
+    PL_curpm = old_PL_curpm;        \
     return x
 
     /* Initialize and return a swash, creating it if necessary.  It does this
@@ -3766,7 +3767,7 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv, I32 m
      *
      * <invlist> is only valid for binary properties */
 
-    PMOP *old_PL_curpm= PL_curpm; /* save away the old PL_curpm */
+    PMOP *old_PL_curpm = PL_curpm; /* save away the old PL_curpm */
 
     SV* retval = UNDEF;
     HV* swash_hv = NULL;
@@ -3776,6 +3777,8 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv, I32 m
                     message */
         : -1;   /* Never return just an inversion list */
 
+    DEBUG_U(PerlIO_printf(Perl_debug_log, "swash init %s %s flags=0x%x\n", pkg, name,
+                          flags_p ? *flags_p : 0));
     assert(listsv != UNDEF || *name || invlist);
     assert(! invlist || minbits == 1);
 
@@ -3908,7 +3911,7 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv, I32 m
 	SV* swash_invlist = NULL;
 	bool invlist_in_swash_is_valid = FALSE;
 	bool swash_invlist_unclaimed = FALSE; /* whether swash_invlist has
-					    an unclaimed reference count */
+                                                 an unclaimed reference count */
 
         /* If this operation fetched a swash, get its already existing
          * inversion list, or create one for it */
@@ -3971,9 +3974,7 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv, I32 m
             && (int) _invlist_len(swash_invlist) > invlist_swash_boundary)
         {
 	    if (! hv_stores(MUTABLE_HV(SvRV(retval)), "V", swash_invlist))
-            {
 		Perl_croak(aTHX_ "panic: hv_store() unexpectedly failed");
-	    }
 	    /* We just stole a reference count. */
 	    if (swash_invlist_unclaimed) swash_invlist_unclaimed = FALSE;
 	    else SvREFCNT_inc_simple_void_NN(swash_invlist);
@@ -4202,14 +4203,15 @@ Perl_swash_fetch(pTHX_ SV *swash, const U8 *ptr, bool do_utf8)
  * 0053	0056	0073
  * where each number is hex.  The first two numbers form the minimum and
  * maximum of a range, and the third is the value associated with the range.
- * Not all swashes should have a third number
+ * Not all swashes should have a third number.
  *
- * On input: l	  points to the beginning of the line to be examined; it points
- *		  to somewhere in the string of the whole input text, and is
- *		  terminated by a \n or the null string terminator.
- *	     lend   points to the null terminator of that string
- *	     wants_value    is non-zero if the swash expects a third number
- *	     typestr is the name of the swash's mapping, like 'ToLower'
+ * On input: l            points to the beginning of the line to be examined; it
+ *		          points to somewhere in the string of the
+ *		          whole input text, and is terminated by a \n
+ *		          or the null string terminator.
+ *	     lend         points to the null terminator of that string
+ *	     wants_value  is non-zero if the swash expects a third number
+ *	     typestr      is the name of the swash's mapping, like 'ToLower'
  * On output: *min, *max, and *val are set to the values read from the line.
  *	      returns a pointer just beyond the line examined.  If there was no
  *	      valid min number on the line, returns lend+1
@@ -4400,7 +4402,7 @@ S_swatch_get(pTHX_ SV* swash, UV start, UV span)
     while (l < lend) {
 	UV min, max, val, upper;
 	l = swash_scan_list_line(l, lend, &min, &max, &val,
-                                                        cBOOL(octets), typestr);
+                                 cBOOL(octets), typestr);
 	if (l > lend) {
 	    break;
 	}
@@ -4648,7 +4650,7 @@ Perl__swash_inversion_hash(pTHX_ SV* const swash)
     *
     * Currently it ignores any additions or deletions from other swashes,
     * looking at just the main body of the swash, and if there are SPECIALS
-    * in the swash, at that hash
+    * in the swash, at that hash.
     *
     * The specials hash can be extra code points, and most likely consists of
     * maps from single code points to multiple ones (each expressed as a string
@@ -4846,7 +4848,7 @@ Perl__swash_inversion_hash(pTHX_ SV* const swash)
 	UV min, max, val;
 	UV inverse;
 	l = swash_scan_list_line(l, lend, &min, &max, &val,
-                                                     cBOOL(octets), typestr);
+                                 cBOOL(octets), typestr);
 	if (l > lend) {
 	    break;
 	}

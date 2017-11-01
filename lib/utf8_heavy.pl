@@ -62,7 +62,7 @@ sub _loose_name ($) {
         ##     op.c:pmtrans             -- for tr/// and y///
         ##     regexec.c:regclass_swash -- for /[]/, \p, and \P
         ##     utf8.c:is_utf8_common    -- for common Unicode properties
-        ##     utf8.c:S__to_utf8_case   -- for lc, uc, ucfirst, etc. and //i
+        ##     utf8.c:S__to_utf8_case   -- for lc, uc, ucfirst, fc etc. and //i
         ##     Unicode::UCD::prop_invlist
         ##     Unicode::UCD::prop_invmap
         ##
@@ -127,11 +127,8 @@ sub _loose_name ($) {
 
         GETFILE:
             {
-                ##
                 ## It could be a user-defined property.  Look in current
                 ## package if no package given
-                ##
-
 
                 my $caller0 = caller(0);
                 my $caller1 = $type =~ s/(.+):://
@@ -200,7 +197,6 @@ sub _loose_name ($) {
 
                 my $prefix;
                 if (! defined $table) {
-                        
                     # Here, is the single form.  The property becomes empty, and
                     # the whole value is the table.
                     $table = $property;
@@ -422,7 +418,9 @@ sub _loose_name ($) {
                     $invert_it = 0 + $file =~ s/!//;
 
                     if ($utf8::why_deprecated{$file}) {
-                        warnings::warnif('deprecated', "Use of '$type' in \\p{} or \\P{} is deprecated because: $utf8::why_deprecated{$file};");
+                        warnings::warnif('deprecated',
+                          "Use of '$type' in \\p{} or \\P{} is deprecated because:"
+                         ." $utf8::why_deprecated{$file};");
                     }
 
                     if ($caseless
@@ -492,10 +490,8 @@ sub _loose_name ($) {
                     }
                 }
 
-                ##
                 ## If we reach this line, it's because we couldn't figure
                 ## out what to do with $type. Ouch.
-                ##
 
                 pop @recursed if @recursed;
                 return $type;
@@ -523,7 +519,9 @@ sub _loose_name ($) {
                     # need to be inverted.
                     my $found = $Cache{$class, $file, $invert_it};
                     if ($found and ref($found) eq $class) {
-                        print STDERR __LINE__, ": Returning cached swash for '$class,$file,$invert_it' for \\p{$type}\n" if DEBUG;
+                        print STDERR __LINE__,
+                          ": Returning cached swash for '$class,$file,$invert_it'"
+                         ." for \\p{$type}\n" if DEBUG;
                         pop @recursed if @recursed;
                         return $found;
                     }
@@ -630,7 +628,8 @@ sub _loose_name ($) {
                         elsif ($c =~ /^([0-9a-fA-F]+)/) {
                             $subobj = utf8->SWASHNEW("", $c, $minbits, 0);
                         }
-                        print STDERR __LINE__, ": returned from getting sub object for $name\n" if DEBUG;
+                        print STDERR __LINE__,
+                          ": returned from getting sub object for $name\n" if DEBUG;
                         if (! ref $subobj) {
                             pop @recursed if @recursed && $type;
                             return $subobj;
@@ -645,8 +644,10 @@ sub _loose_name ($) {
         }
 
         if (DEBUG) {
-            print STDERR __LINE__, ": CLASS = $class, TYPE => $type, BITS => $bits, NONE => $none, INVERT_IT => $invert_it, USER_DEFINED => $user_defined";
-            print STDERR "\nLIST =>\n$list" if defined $list;
+            print STDERR __LINE__,
+              ": CLASS = $class, TYPE => $type, BITS => $bits, NONE => $none,"
+             ." INVERT_IT => $invert_it, USER_DEFINED => $user_defined";
+            print STDERR "\nLIST =>\n",substr($list,0,80),"..." if defined $list;
             print STDERR "\nEXTRAS =>\n$extras" if defined $extras;
             print STDERR "\n";
         }
