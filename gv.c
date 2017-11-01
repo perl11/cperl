@@ -275,7 +275,7 @@ Perl_cvgv_from_hek(pTHX_ CV *cv)
     /* This will fail with missing names from classes */
     svp = hv_fetchhek(CvSTASH(cv), CvNAME_HEK(cv), 0);
     gv = MUTABLE_GV(svp && *svp ? *svp : newSV(0));
-    if (!isGV(gv)) {
+    if (!isGV(gv) || SvIS_FREED(gv)) {
         const HEK *hek = CvNAME_HEK(cv);
 	gv_init_pvn(gv, CvSTASH(cv), HEK_KEY(hek),
                     HEK_LEN(hek), SVf_UTF8 * !!HEK_UTF8(hek));

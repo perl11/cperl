@@ -2060,8 +2060,10 @@ Perl_do_gvgv_dump(pTHX_ I32 level, PerlIO *file, const char *name, GV *sv)
     PERL_ARGS_ASSERT_DO_GVGV_DUMP;
 
     Perl_dump_indent(aTHX_ level, file, "%s = 0x%" UVxf, name, PTR2UV(sv));
-    if (sv && GvNAMELEN(sv)) {
-       SV *tmp = newSVpvs_flags("", SVs_TEMP);
+    if (sv && SvIS_FREED(sv)) {
+        PerlIO_printf(file, " FREED\n");
+    } else if (sv && GvNAMELEN(sv)) {
+        SV *tmp = newSVpvs_flags("", SVs_TEMP);
 	const char *hvname;
         HV * const stash = GvSTASH(sv);
 	PerlIO_printf(file, "\t");

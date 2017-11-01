@@ -644,7 +644,8 @@ REGEXP has too many ptrs to check, leading to stale ptrs.
 static bool
 S_in_body_arenas_freed(pTHX_ svtype type, void* xpv) {
     SSize_t i;
-    SSize_t const fill = AvFILLp(PL_body_freed[type]);
+    SSize_t const fill = SvANY(PL_body_freed[type])
+        ? AvFILLp(PL_body_freed[type]) : -1;
     PERL_ARGS_ASSERT_IN_BODY_ARENAS_FREED;
 
     if (fill < 0)
@@ -1947,6 +1948,8 @@ Perl_sv_gc_arenas(pTHX)
                      */
                     if (*(void**)adesc->arena == NULL) {
                         int i;
+                        AV* av = PL_body_freed[type];
+                        AV* avs = PL_body_freed_size[type];
                         yes++;
 #ifdef DEBUGGING
                         DEBUG_m(PerlIO_printf(Perl_debug_log,
@@ -1956,15 +1959,15 @@ Perl_sv_gc_arenas(pTHX)
                         /*if (type != SVt_PVHV)
                             PoisonFree(adesc->arena, adesc->size, char); */
 #endif
-                        if (!PL_body_freed[type])
-                            PL_body_freed[type] = newAV();
-                        if (!PL_body_freed_size[type])
-                            PL_body_freed_size[type] = newAV();
-                        i = AvFILLp(PL_body_freed[type])+1;
-                        av_extend(PL_body_freed[type], i);
+                        if (!av || !SvANY(av) || (SvSTASH(av) && !SvOBJECT(av)))
+                            av = PL_body_freed[type] = newAV();
+                        if (!avs || !SvANY(avs) || (SvSTASH(avs) && !SvOBJECT(avs)))
+                            avs = PL_body_freed_size[type] = newAV();
+                        i = AvFILLp(av)+1;
+                        av_extend(av, i);
                         av_extend(PL_body_freed_size[type], i);
-                        AvARRAY(PL_body_freed[type])[i] = (SV*)adesc->arena;
-                        AvARRAY(PL_body_freed_size[type])[i] = (SV*)adesc->size;
+                        AvARRAY(av)[i] = (SV*)adesc->arena;
+                        AvARRAY(avs)[i] = (SV*)adesc->size;
                         Safefree(adesc->arena);
                         adesc->arena = NULL;
                         adesc->size = 0;
@@ -6701,23 +6704,31 @@ Perl_sv_kill_backrefs(pTHX_ SV *const sv, AV *const av)
 		} else if (SvTYPE(referrer) == SVt_PVGV ||
 			   SvTYPE(referrer) == SVt_PVLV) {
 		    assert(SvTYPE(sv) == SVt_PVHV); /* stash backref */
-		    /* You lookin' at me?  */
-		    assert(GvSTASH(referrer));
-		    assert(GvSTASH(referrer) == (const HV *)sv);
+                    if (PL_phase != PERL_PHASE_DESTRUCT) {
+                        /* You lookin' at me?  */
+                        assert(GvSTASH(referrer));
+                        assert(GvSTASH(referrer) == (const HV *)sv);
+                    }
 		    GvSTASH(referrer) = 0;
 		} else if (SvTYPE(referrer) == SVt_PVCV ||
 			   SvTYPE(referrer) == SVt_PVFM) {
 		    if (SvTYPE(sv) == SVt_PVHV) { /* stash backref */
-			/* You lookin' at me?  */
-			assert(CvSTASH(referrer));
-			assert(CvSTASH(referrer) == (const HV *)sv);
+                        if (PL_phase != PERL_PHASE_DESTRUCT) {
+                            /* You lookin' at me?  */
+                            assert(CvSTASH(referrer));
+                            assert(CvSTASH(referrer) == (const HV *)sv);
+                        }
 			SvANY(MUTABLE_CV(referrer))->xcv_stash = 0;
 		    }
 		    else {
 			assert(SvTYPE(sv) == SVt_PVGV);
-			/* You lookin' at me?  */
-			assert(CvGV(referrer));
-			assert(CvGV(referrer) == (const GV *)sv);
+                        if (LIKELY(CvGV(referrer) != (const GV*)&PL_sv_freed)) {
+                            /* You lookin' at me?  */
+                            assert(CvGV(referrer));
+                            assert(CvGV(referrer) == (const GV *)sv);
+                        } else {
+                            SvANY(MUTABLE_CV(referrer))->xcv_gv_u.xcv_gv = (GV*)sv;
+                        }
 			anonymise_cv_maybe(MUTABLE_GV(sv),
                                            MUTABLE_CV(referrer));
 		    }
@@ -7147,9 +7158,9 @@ Perl_sv_clear(pTHX_ SV *const orig_sv)
             /* FALLTHROUGH */
 	case SVt_PVGV:
 	    if (isGV_with_GP(sv)) {
-		if (GvCVu((const GV *)sv)
-                    && (stash = GvSTASH(MUTABLE_GV(sv)))
-                    && HvENAME_get(stash))
+		if ( GvCVu((const GV *)sv)
+                     && (stash = GvSTASH(MUTABLE_GV(sv)))
+                     && HvENAME_get(stash) )
 		    mro_method_changed_in(stash);
 		gp_free(MUTABLE_GV(sv));
 		if (GvNAME_HEK(sv))
@@ -7158,7 +7169,7 @@ Perl_sv_clear(pTHX_ SV *const orig_sv)
 		 * However it does have a back reference to us, which
 		 * needs to be cleared.  */
 		if ((stash = GvSTASH(sv)))
-			sv_del_backref(MUTABLE_SV(stash), sv);
+                    sv_del_backref(MUTABLE_SV(stash), sv);
 	    }
 	    /* FIXME. There are probably more unreferenced pointers to SVs
 	     * in the interpreter struct that we should check and tidy in
@@ -7186,7 +7197,7 @@ Perl_sv_clear(pTHX_ SV *const orig_sv)
 		/* Don't even bother with turning off the OOK flag.  */
 	    }
 	    if (SvROK(sv)) {
-	    free_rv:
+	      free_rv:
 		{
 		    SV * const target = SvRV(sv);
 		    if (SvWEAKREF(sv))

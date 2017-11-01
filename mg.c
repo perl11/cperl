@@ -570,15 +570,18 @@ S_mg_free_struct(pTHX_ SV *sv, MAGIC *mg)
          * free even with mg_len == 0 */
         Safefree(mg->mg_ptr);
     else if (mg->mg_ptr && mg->mg_type != PERL_MAGIC_regex_global) {
-	if (mg->mg_len > 0 || mg->mg_type == PERL_MAGIC_utf8)
-	    Safefree(mg->mg_ptr);
+	if (mg->mg_len > 0 || mg->mg_type == PERL_MAGIC_utf8) {
+            if (LIKELY((SV*)mg->mg_ptr != &PL_sv_freed))
+                Safefree(mg->mg_ptr);
+        }
 	else if (mg->mg_len == HEf_SVKEY)
 	    SvREFCNT_dec(MUTABLE_SV(mg->mg_ptr));
     }
 
     if (mg->mg_flags & MGf_REFCOUNTED)
 	SvREFCNT_dec(mg->mg_obj);
-    Safefree(mg);
+    if (LIKELY((SV*)mg != &PL_sv_freed))
+        Safefree(mg);
 }
 
 /*

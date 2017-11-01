@@ -2171,6 +2171,8 @@ S_hv_free_ent_ret(pTHX_ HV *hv, HE *entry)
     PERL_ARGS_ASSERT_HV_FREE_ENT_RET;
 
     val = HeVAL(entry);
+    if (UNLIKELY(!hek)) /* only with cperl Internals::gc() */
+        goto nohek;
     if (HeKLEN(entry) == HEf_SVKEY) {
 	SvREFCNT_dec(*(SV**)HEK_KEY(hek));
 	Safefree(hek);
@@ -2184,7 +2186,7 @@ S_hv_free_ent_ret(pTHX_ HV *hv, HE *entry)
     }
     else if (!HEK_STATIC(hek))
 	Safefree(hek);
-
+ nohek:
     del_HE(entry);
     return val;
 }
