@@ -1874,6 +1874,8 @@ S_incline(pTHX_ const char *s, const char *end)
 
     PERL_ARGS_ASSERT_INCLINE;
 
+    assert(end >= s);
+
     COPLINE_INC_WITH_HERELINES;
     if (!PL_rsfp && !PL_parser->filtered
         && PL_lex_state == LEX_NORMAL
