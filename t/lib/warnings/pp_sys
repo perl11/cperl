@@ -913,3 +913,18 @@ close $fh;
 unlink $file;
 EXPECT
 syswrite() is deprecated on :utf8 handles. This will be a fatal error in Perl 5.30 at - line 5.
+########
+# NAME stat on name with \0
+use warnings;
+my @x = stat("./\0-");
+my @y = lstat("./\0-");
+-T ".\0-";
+-x ".\0-";
+-l ".\0-";
+EXPECT
+OPTION regex
+SECURITY: Invalid \\0 character in pathname for stat: \./\\0- from .+ at - line 2.
+SECURITY: Invalid \\0 character in pathname for lstat: \./\\0- from .+ at - line 3.
+SECURITY: Invalid \\0 character in pathname for fttext: \.\\0- from .+ at - line 4.
+SECURITY: Invalid \\0 character in pathname for fteexec: \.\\0- from .+ at - line 5.
+SECURITY: Invalid \\0 character in pathname for ftlink: \.\\0- from .+ at - line 6.
