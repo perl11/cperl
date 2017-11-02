@@ -185,29 +185,29 @@ STMT_START {						\
 STATIC SV *
 S_mul128(pTHX_ SV *sv, U8 m)
 {
-  STRLEN          len;
-  char           *s = SvPV(sv, len);
-  char           *t;
+    STRLEN          len;
+    char           *s = SvPV(sv, len);
+    char           *t;
 
-  PERL_ARGS_ASSERT_MUL128;
+    PERL_ARGS_ASSERT_MUL128;
 
-  if (! strBEGINs(s, "0000")) {  /* need to grow sv */
-    SV * const tmpNew = newSVpvs("0000000000");
+    if (! memBEGINs(s, len, "0000")) {  /* need to grow sv */
+        SV * const tmpNew = newSVpvs("0000000000");
 
-    sv_catsv(tmpNew, sv);
-    SvREFCNT_dec(sv);		/* free old sv */
-    sv = tmpNew;
-    s = SvPV(sv, len);
-  }
-  t = s + len - 1;
-  while (!*t)                   /* trailing '\0'? */
-    t--;
-  while (t > s) {
-    const U32 i = ((*t - '0') << 7) + m;
-    *(t--) = '0' + (char)(i % 10);
-    m = (char)(i / 10);
-  }
-  return (sv);
+        sv_catsv(tmpNew, sv);
+        SvREFCNT_dec(sv);		/* free old sv */
+        sv = tmpNew;
+        s = SvPV(sv, len);
+    }
+    t = s + len - 1;
+    while (!*t)                   /* trailing '\0'? */
+        t--;
+    while (t > s) {
+        const U32 i = ((*t - '0') << 7) + m;
+        *(t--) = '0' + (char)(i % 10);
+        m = (char)(i / 10);
+    }
+    return (sv);
 }
 
 /* Explosives and implosives. */

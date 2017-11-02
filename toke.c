@@ -5125,8 +5125,9 @@ Perl_yylex(pTHX)
 	    }
 	    else {
 		I32 tmp;
-                if (strBEGINs(s, "L\\u") || strBEGINs(s, "U\\l"))
+                if (memEQc(s, "L\\u") || memEQc(s, "U\\l")) {
                     tmp = *s, *s = s[2], s[2] = (char)tmp;	/* misordered... */
+                }
 		if ((*s == 'L' || *s == 'U' || *s == 'F')
                     && (strpbrk(PL_lex_casestack, "LUF")))
                 {
