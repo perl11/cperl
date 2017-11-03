@@ -487,15 +487,6 @@ Returns zero if non-equal, or non-zero if equal.
 #define strnNE(s1,s2,l) (strncmp(s1,s2,l) != 0)
 #define strnEQ(s1,s2,l) (strncmp(s1,s2,l) == 0)
 
-/* These names are controversial, so guarding against their being used in more
- * places than they already are. Previously called strEQs */
-#if defined(PERL_CORE) || defined(PERL_EXT)
-/* Whereever there's a strBEGINs you probably want memEQc. When the lhs is
- * guaranteed to be long enough use memEQc instead.
- */
-#define strBEGINs(s1,s2) (strncmp(s1,"" s2 "", sizeof(s2)-1) == 0)
-#endif
-
 #define memNE(s1,s2,l) (memcmp(s1,s2,l) != 0)
 #define memEQ(s1,s2,l) (memcmp(s1,s2,l) == 0)
 
@@ -522,7 +513,15 @@ Returns zero if non-equal, or non-zero if equal.
 # define strNEc(s, c) memNE(s, ("" c ""), sizeof(c))
 #endif
 
-#define memBEGINs(s1, l, s2)                                                \
+/* Keep these private until we decide it was a good idea */
+#if defined(PERL_CORE) || defined(PERL_EXT) || defined(PERL_EXT_POSIX)
+/* Whereever there's a strBEGINs you probably want memEQc. When the lhs is
+ * guaranteed to be long enough use memEQc instead.
+ * Previously called strEQs
+ */
+#define strBEGINs(s1,s2) (strncmp(s1,"" s2 "", sizeof(s2)-1) == 0)
+
+#define memBEGINs(s1, l, s2)                                            \
             (   (l) >= sizeof(s2) - 1                                       \
              && memEQ(s1, "" s2 "", sizeof(s2)-1))
 #define memBEGINPs(s1, l, s2)                                               \
@@ -534,6 +533,7 @@ Returns zero if non-equal, or non-zero if equal.
 #define memENDPs(s1, l, s2)                                                 \
             (   (l) > sizeof(s2)                                            \
              && memEQ(s1 + (l) - (sizeof(s2) - 1), "" s2 "", sizeof(s2)-1))
+#endif  /* End of making macros private */
 
 #define memLT(s1,s2,l) (memcmp(s1,s2,l) < 0)
 #define memLE(s1,s2,l) (memcmp(s1,s2,l) <= 0)
