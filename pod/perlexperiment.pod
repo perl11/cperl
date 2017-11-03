@@ -4,13 +4,14 @@ perlexperiment - A listing of experimental features in Perl
 
 =head1 DESCRIPTION
 
-This document lists the current and past experimental features in the perl
-core. Although all of these are documented with their appropriate topics,
-this succinct listing gives you an overview and basic facts about their
-status.
+This document lists the current and past experimental features in the
+perl core. Although all of these are documented with their appropriate
+topics, this succinct listing gives you an overview and basic facts
+about their status.
 
-So far we've merely tried to find and list the experimental features and infer
-their inception, versions, etc. There's a lot of speculation here.
+So far we've merely tried to find and list the experimental features
+and infer their inception, versions, etc. There's a lot of speculation
+here.
 
 =head2 Current experiments
 
@@ -27,16 +28,6 @@ C<experimental::smartmatch>.
 
 The ticket for this feature is
 L<[perl #119317]|https://rt.perl.org/rt3/Ticket/Display.html?id=119317>.
-
-=item Lexical C<$_>
-
-Introduced in Perl 5.10.0
-
-Using this feature triggers warnings in the category
-C<experimental::lexical_topic>.
-
-The ticket for this feature is
-L<[perl #119315]|https://rt.perl.org/rt3/Ticket/Display.html?id=119315>.
 
 =item Pluggable keywords
 
@@ -59,16 +50,6 @@ See also: L<perlrecharclass/Extended Bracketed Character Classes>
 Using this feature triggers warnings in the category
 C<experimental::regex_sets>.
 
-=item Subroutine signatures
-
-Introduced in Perl 5.20.0
-
-Using this feature triggers warnings in the category
-C<experimental::signatures>.
-
-The ticket for this feature is
-L<[perl #121481]|https://rt.perl.org/Ticket/Display.html?id=121481>.
-
 =item Aliasing via reference
 
 Introduced in Perl 5.22.0
@@ -80,18 +61,6 @@ The ticket for this feature is
 L<[perl #122947]|https://rt.perl.org/rt3/Ticket/Display.html?id=122947>.
 
 See also: L<perlref/Assigning to References>
-
-=item The "const" attribute
-
-Introduced in Perl 5.22.0
-
-Using this feature triggers warnings in the category
-C<experimental::const_attr>.
-
-The ticket for this feature is
-L<[perl #123630]|https://rt.perl.org/rt3/Ticket/Display.html?id=123630>.
-
-See also: L<perlsub/Constant Functions>
 
 =item use re 'strict';
 
@@ -144,10 +113,11 @@ L<[perl #116487]|https://rt.perl.org/rt3/Ticket/Display.html?id=116487>.
 
 =head2 Accepted features
 
-These features were so wildly successful and played so well with others that
-we decided to remove their experimental status and admit them as full, stable
-features in the world of Perl, lavishing all the benefits and luxuries thereof.
-They are also awarded +5 Stability and +3 Charisma.
+These features were so wildly successful and played so well with
+others that we decided to remove their experimental status and admit
+them as full, stable features in the world of Perl, lavishing all the
+benefits and luxuries thereof.  They are also awarded +5 Stability and
++3 Charisma.
 
 =over 8
 
@@ -213,8 +183,8 @@ See also L<perlre>
 
 Introduced in Perl 5.9.2
 
-Accepted before Perl 5.20.0.  The Socket library is now primarily maintained
-on CPAN, rather than in the perl core.
+Accepted before Perl 5.20.0.  The Socket library is now primarily
+maintained on CPAN, rather than in the perl core.
 
 See also L<Socket>
 
@@ -256,13 +226,36 @@ Introduced in Perl 5.18.0
 
 Accepted in Perl 5.26.0
 
+=item Lexical C<$_>
+
+Introduced in Perl 5.10.0
+
+Accepted in cperl 5.24.0, removed in Perl 5.24.0.
+
+=item Subroutine signatures
+
+Introduced in Perl 5.20.0
+
+Accepted in cperl 5.24.0, still experimental in Perl.
+
+See L<perlsub/Signatures>
+
+=item The "const" attribute
+
+Introduced in Perl 5.22.0 for subroutines only.
+
+Accepted in cperl 5.24.0 for all data.
+
+See L<perldata/Constant and typed lexical variables>
+
 =back
 
 =head2 Removed features
 
-These features are no longer considered experimental and their functionality
-has disappeared. It's your own fault if you wrote production programs using
-these features after we explicitly told you not to (see L<perlpolicy>).
+These features are no longer considered experimental and their
+functionality has disappeared. It's your own fault if you wrote
+production programs using these features after we explicitly told you
+not to (see L<perlpolicy>).
 
 =over 8
 
@@ -276,7 +269,7 @@ Removed in Perl 5.10
 
 Introduced in Perl 5.005
 
-Moved from Perl 5.9.0 to CPAN
+Moved from Perl 5.9.0 to CPAN, accepted in cperl 5.22.1
 
 =item The pseudo-hash data type
 
@@ -309,6 +302,34 @@ The experimental C<legacy> pragma was swallowed by the C<feature> pragma.
 Introduced in Perl 5.11.2
 
 Removed in Perl 5.11.3
+
+=item C<our> can have an experimental optional attribute C<unique>
+
+Introduced in Perl 5.8.0
+
+Deprecated in Perl 5.10.0
+
+Removed in Perl 5.28.0
+
+=item Lexical C<$_>
+
+Using this feature triggered warnings in the category
+C<experimental::lexical_topic>.
+
+Introduced in Perl 5.10.0
+
+Removed in Perl 5.24.0, but kept and fixed in cperl 5.24.0
+
+=item Array and hash container functions accept references
+
+Using this feature triggered warnings in the category
+C<experimental::autoderef>.
+
+Superseded by L</Postfix dereference syntax>.
+
+Introduced in Perl 5.14.0
+
+Removed in Perl 5.24.0
 
 =item C<our> can have an experimental optional attribute C<unique>
 
