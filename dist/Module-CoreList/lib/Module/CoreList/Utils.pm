@@ -5,7 +5,7 @@ use warnings;
 use vars qw[$VERSION %utilities];
 use Module::CoreList;
 
-$VERSION = '5.20170815c';
+$VERSION = '5.20171103c';
 $VERSION =~ s/c$//;
 
 sub utilities {
