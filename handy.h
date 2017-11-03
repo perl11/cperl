@@ -504,12 +504,6 @@ Returns zero if non-equal, or non-zero if equal.
         (((sizeof(s2)-1) == (l)) && memEQ((s1), ("" s2 ""), (sizeof(s2)-1)))
 #define memNEs(s1, l, s2) (! memEQs(s1, l, s2))
 
-/* memEQ and memNE where second comparand is a string constant
- * and we can assume the length of s1 is at least that of the string */
-#define _memEQs(s1, s2) \
-        (memEQ((s1), ("" s2 ""), (sizeof(s2)-1)))
-#define _memNEs(s1, s2) memNE((s1),("" s2 ""),(sizeof(s2)-1))
-
 /* cperl only, written a year earlier. if the buffer starts with the constant c.
    But the left side must be big enough, or valgrind/asan will fail. */
 #define memEQc(s, c) memEQ(s, ("" c ""), (sizeof(c)-1))
