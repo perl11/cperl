@@ -2885,9 +2885,13 @@ S_check_hash_fields_and_hekify(pTHX_ UNOP *rop, SVOP *key_op)
         {
             SSize_t keylen;
             const char * const key = SvPV_const(sv, *(STRLEN*)&keylen);
-            SV *nsv = newSVpvn_share(key, SvUTF8(sv) ? -keylen : keylen, 0);
-            SvREFCNT_dec_NN(sv);
-            *svp = nsv;
+            if (UNLIKELY(keylen > I32_MAX)) {
+                Perl_croak(aTHX_ "panic: hash key too long (%" UVuf ")", (UV) keylen);
+            } else {
+                SV *nsv = newSVpvn_share(key, SvUTF8(sv) ? -keylen : keylen, 0);
+                SvREFCNT_dec_NN(sv);
+                *svp = nsv;
+            }
         }
 
         if (   check_fields

@@ -488,9 +488,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	if (flags & HVhek_FREEKEY)
 	    Safefree(key);
 	key = SvPV_const(keysv, len);
-        assert(len <= I32_MAX);
         if (UNLIKELY(len > I32_MAX))
             Perl_croak(aTHX_ "panic: hash key too long (%" UVuf ")", (UV) len);
+        assert(len <= I32_MAX);
         klen = (I32)len; /* no silent truncation anymore */
 	is_utf8 = (SvUTF8(keysv) != 0);
 	if (SvIsCOW_shared_hash(keysv)) {

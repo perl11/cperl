@@ -5503,6 +5503,7 @@ t/base/rs.t			See if record-read works
 t/base/term.t			See if various terms work
 t/base/translate.t		See if character set translation works
 t/base/while.t			See if while work
+t/bigmem/hash.t			Check hashing too large strings throws an exception
 t/bigmem/index.t		Check that index() handles large offsets
 t/bigmem/pos.t			Check that pos() handles large offsets
 t/bigmem/read.t			Check read() handles large offsets
