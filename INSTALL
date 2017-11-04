@@ -354,11 +354,10 @@ but Perl source knows it as NV.  (This is not "long doubles".)
 
 =head3 Algorithmic Complexity Attacks on Hashes
 
-Perl 5.18 reworked the measures used to secure its hash function
-from algorithmic complexity attacks.  By default perl5 will build with
-all of these measures enabled along with support for controlling and
-disabling them via environment variables. cperl defaults to faster hash
-tables and relies so far on a proper random seed.
+cperl reworked the measures used to secure its hash tables from
+algorithmic complexity attacks.  By default perl5 will build with all
+of these measures enabled along with support for controlling and
+disabling them via environment variables.
 
 You can override various aspects of this feature by defining various
 symbols during configure. An example might be:
@@ -369,11 +368,8 @@ B<Unless stated otherwise these options are considered experimental or
 insecure and are not recommended for production use.>
 
 Perl 5.18 includes support for multiple hash functions, and changed
-the default (to ONE_AT_A_TIME_HARD), you can choose a different
-algorithm by defining one of the following symbols. Note that as of
-Perl 5.18 we can only recommend use of the default or SIPHASH. All
-the others are known to have security issues and are for research
-purposes only.
+the default, you can choose a different algorithm by defining one of
+the following symbols.
 
     PERL_HASH_FUNC_SIPHASH
     PERL_HASH_FUNC_SDBM
@@ -382,10 +378,9 @@ purposes only.
     PERL_HASH_FUNC_MURMUR3
     PERL_HASH_FUNC_ONE_AT_A_TIME
     PERL_HASH_FUNC_ONE_AT_A_TIME_HARD
-    PERL_HASH_FUNC_ONE_AT_A_TIME_OLD
 
-With cperl these additional hash functions can be used, here listed without the
-C<PERL_HASH_FUNC_> prefix:
+With cperl these additional hash functions can be used, here listed
+without the C<PERL_HASH_FUNC_> prefix:
 
     FNV1A (default)
     FNV1A_YOSHIMITSUTRIAD
@@ -399,6 +394,8 @@ C<PERL_HASH_FUNC_> prefix:
 
 See F<hv_func.h> and L<https://github.com/rurban/smhasher#smhasher>
 for an overview of the various qualities and problems.
+In short cperl secures its hash tables by collision counting, perl5
+by using a slow hash function and randomizing the buckets and iteration.
 
 Perl 5.18 randomizes the order returned by keys(), values(), and each(),
 and allows controlling this behavior by using of the C<PERL_PERTURB_KEYS>
@@ -415,25 +412,13 @@ key traversal randomization to be used by defining one of these:
 
 In Perl 5.18 the seed used for the hash function is randomly selected
 at process start which can be overridden by specifying a seed by setting
-the PERL_HASH_SEED environment variable.
-
-You can change this behavior by building perl with the
-
-   USE_HASH_SEED_EXPLICIT
-
-define, in which case one has to explicitly set the PERL_HASH_SEED
-environment variable to enable the security feature or by adding
-
-    NO_HASH_SEED
-
-to the compilation flags to completely disable the randomisation feature.
-Note these modes are poorly tested, insecure and not recommended.
+the C<PERL_HASH_SEED> environment variable.
 
 B<Perl has never guaranteed any ordering of the hash keys>, and the
 ordering has already changed several times during the lifetime of Perl
 5.  Also, the ordering of hash keys has always been, and continues to
 be, affected by the insertion order.  Note that because of this
-randomisation for example the Data::Dumper results will be different
+randomisation for example the L<Data::Dumper> results will be different
 between different runs of Perl, since Data::Dumper by default dumps
 hashes "unordered".  The use of the Data::Dumper C<Sortkeys> option is
 recommended.
@@ -442,9 +427,9 @@ See L<perlrun/PERL_HASH_SEED> and L<perlrun/PERL_PERTURB_KEYS> for
 details on the environment variables, and L<perlsec/Algorithmic
 Complexity Attacks> for further security details.
 
-The C<PERL_HASH_SEED> and PERL_PERTURB_KEYS> environment variables can
+The C<PERL_HASH_SEED> and C<PERL_PERTURB_KEYS> environment variables can
 be disabled by building configuring perl with
-C<-Accflags=-DNO_PERL_HASH_ENV>.
+C<-Accflags=-DNO_PERL_HASH_ENV> or C<-Accflags=-DNO_HASH_SEED>.
 
 The C<PERL_HASH_SEED_DEBUG> environment variable can be disabled by
 configuring perl with C<-Accflags=-DNO_PERL_HASH_SEED_DEBUG>.
