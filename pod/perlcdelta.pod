@@ -99,6 +99,13 @@ functions, the final rename step may fail.
 
 L<[perl #127663]|https://rt.perl.org/Public/Bug/Display.html?id=127663>
 
+
+=head2 Initialisation of aggregate state variables
+
+A persistent lexical array or hash variable can now be initialized,
+by an expression such as C<state @a = qw(x y z)>.  Initialization of a
+list of persistent lexical variables is still not possible.
+
 =head1 Security
 
 =head2 [CVE-2017-12837] Heap buffer overflow in regular expression compiler
@@ -701,6 +708,13 @@ XXX L<message|perldiag/"message">
 A false-positive warning that was issued when using a
 numerically-quantified sub-pattern in a recursive regex has been
 silenced. L<[perl #131868]|https://rt.perl.org/Public/Bug/Display.html?id=131868>
+
+=item *
+
+The diagnostic C<Initialization of state variables in list context
+currently forbidden> has changed to C<Initialization of state variables
+in list currently forbidden>, because list-context initialization of
+single aggregate state variables is now permitted.
 
 =back
 
