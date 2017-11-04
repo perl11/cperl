@@ -356,7 +356,7 @@ struct TM *Perl_gmtime64_r (const Time64_T *in_time, struct TM *p)
     assert(p != NULL);
 
     /* Use the system gmtime() if time_t is small enough */
-    if( SHOULD_USE_SYSTEM_GMTIME(*in_time) ) {
+    if (SHOULD_USE_SYSTEM_GMTIME(*in_time)) {
         time_t safe_time = (time_t)*in_time;
         struct tm safe_date;
         GMTIME_R(&safe_time, &safe_date);

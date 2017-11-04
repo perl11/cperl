@@ -12,7 +12,8 @@ use Carp;
 use B qw(main_root main_start main_cv svref_2object opnumber perlstring
 	 OPf_WANT OPf_WANT_VOID OPf_WANT_SCALAR OPf_WANT_LIST
 	 OPf_KIDS OPf_REF OPf_STACKED OPf_SPECIAL OPf_MOD OPf_PARENS
-	 OPpLVAL_INTRO OPpOUR_INTRO OPpENTERSUB_AMPER OPpSLICE OPpCONST_BARE
+	 OPpLVAL_INTRO OPpOUR_INTRO OPpENTERSUB_AMPER OPpSLICE OPpKVSLICE
+         OPpCONST_BARE
 	 OPpTRANS_SQUASH OPpTRANS_DELETE OPpTRANS_COMPLEMENT OPpTARGET_MY
 	 OPpEXISTS_SUB OPpSORT_NUMERIC OPpSORT_INTEGER OPpREPEAT_DOLIST
 	 OPpSORT_REVERSE OPpMULTIDEREF_EXISTS OPpMULTIDEREF_DELETE
@@ -386,6 +387,7 @@ BEGIN {
 
 BEGIN {
     for (qw[ const stringify rv2sv list glob pushmark null aelem aelemfast
+             kvaslice kvhslice
              nextstate dbstate rv2av rv2hv helem custom ]) {
         eval "sub OP_\U$_ () { " . opnumber($_) . "}"
     }
@@ -739,15 +741,17 @@ sub begin_is_use {
     return unless $self->const_sv($svop)->PV eq $module;
 
     # Pull out the arguments
-    for ($svop=$svop->sibling; index($svop->name, "method_") != 0;
-		$svop = $svop->sibling) {
+    for ($svop=$svop->sibling;
+         !null($svop) && index($svop->name, "method_") != 0;
+         $svop = $svop->sibling)
+    {
 	$args .= ", " if length($args);
 	$args .= $self->deparse($svop, 6);
     }
 
     my $use = 'use';
     my $method_named = $svop;
-    return if $method_named->name ne "method_named";
+    return if null($svop) or $method_named->name ne "method_named";
     my $method_name = $self->meth_sv($method_named)->PV;
 
     if ($method_name eq "unimport") {
@@ -2735,7 +2739,7 @@ sub pp_delete {
     my($op, $cx) = @_;
     my $arg;
     my $name = $self->keyword("delete");
-    if ($op->private & OPpSLICE) {
+    if ($op->private & (OPpSLICE|OPpKVSLICE)) {
 	if ($op->flags & OPf_SPECIAL) {
 	    # Deleting from an array, not a hash
 	    return $self->maybe_parens_func($name,
@@ -3058,9 +3062,9 @@ BEGIN {
 	      'subtract=' => 7, 'i_subtract=' => 7,
 	      'concat=' => 7,
 	      'left_shift=' => 7, 'right_shift=' => 7,
-	      'bit_and=' => 7, 'sbit_and=' => 7, 'nbit_and=' => 7,
-	      'nbit_or=' => 7, 'nbit_xor=' => 7,
-	      'sbit_or=' => 7, 'sbit_xor=' => 7,
+	      'bit_and=' => 7, 's_bit_and=' => 7, 'i_bit_and=' => 7,
+	      'i_bit_or=' => 7, 'i_bit_xor=' => 7,
+	      's_bit_or=' => 7, 's_bit_xor=' => 7,
 	      'andassign' => 7,
 	      'orassign' => 7,
 	     );
@@ -4590,8 +4594,9 @@ sub slice {
     } else {
 	$list = $self->elem_or_slice_single_index($kid);
     }
-    my $lead = '@';
-    $lead = '%' if $op->name =~ /^kv/i;
+    my $lead = (   _op_is_or_was($op, OP_KVHSLICE)
+                || _op_is_or_was($op, OP_KVASLICE))
+               ? '%' : '@';
     return $lead . $array . $left . $list . $right;
 }
 
