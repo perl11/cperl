@@ -101,7 +101,7 @@ PERL_CALLCONV bool	Perl__is_utf8_FOO(pTHX_ U8 classnum, const U8 * const p, cons
 #define PERL_ARGS_ASSERT__IS_UTF8_FOO	\
 	assert(p); assert(name); assert(alternative); assert(file)
 
-PERL_CALLCONV bool	Perl__is_utf8_FOO_with_len(pTHX_ const U8 classnum, const U8 *p, const U8 * const e)
+PERL_CALLCONV bool	Perl__is_utf8_FOO_with_len(pTHX_ const U8 classnum, const U8 * const p, const U8 * const e)
 			__attribute__global__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_2)

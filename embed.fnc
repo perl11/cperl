@@ -851,7 +851,7 @@ AMpR	|bool	|_is_utf8_FOO		|U8 classnum|NN const U8 * const p  \
 		|NN const char * const alternative			    \
 		|const bool use_utf8|const bool use_locale		    \
 		|NN const char * const file|const unsigned line
-AMpR	|bool	|_is_utf8_FOO_with_len	|const U8 classnum|NN const U8 *p   \
+AMpR	|bool	|_is_utf8_FOO_with_len	|const U8 classnum|NN const U8 * const p \
 		|NN const U8 * const e
 ADMpR	|bool	|is_utf8_alnum		|NN const U8 *p
 ADMpR	|bool	|is_utf8_alnumc		|NN const U8 *p
