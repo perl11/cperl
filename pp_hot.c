@@ -3057,6 +3057,7 @@ PP(pp_iter_lazyiv)
     cur = cx->blk_loop.state_u.lazyiv.cur;
     if (UNLIKELY(cur > cx->blk_loop.state_u.lazyiv.end)) {
         assert(PL_stack_sp < PL_stack_max);
+        EXTEND_SKIP(PL_stack_sp, 1);
         *++PL_stack_sp = SV_NO;
         return PL_op->op_next;
     }
@@ -3095,6 +3096,7 @@ PP(pp_iter_lazyiv)
 
     /* pp_enteriter should have pre-extended the stack */
     assert(PL_stack_sp < PL_stack_max);
+    EXTEND_SKIP(PL_stack_sp, 1);
     *++PL_stack_sp = SV_YES;
 
     return PL_op->op_next;
@@ -3122,6 +3124,7 @@ PP(pp_iter_ary)
                  : ix < 0))
     {
         assert(PL_stack_sp < PL_stack_max);
+        EXTEND_SKIP(PL_stack_sp, 1);
         *++PL_stack_sp = SV_NO;
         return PL_op->op_next;
     }
@@ -3169,6 +3172,7 @@ PP(pp_iter_ary)
 
  retyes:
     assert(PL_stack_sp < PL_stack_max);
+    EXTEND_SKIP(PL_stack_sp, 1);
     *++PL_stack_sp = SV_YES;
 
     return PL_op->op_next;
