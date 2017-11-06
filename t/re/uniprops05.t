@@ -6,6 +6,7 @@ if ($^O eq 'dec_osf') {
     print "1..0 # $^O cannot handle this test\n";
     exit(0);
 }
+BEGIN { chdir 't' if -e 'lib/unicore/TestProp.pl'; }
 
 # TODO: it would be good to have watchdog(5 * 60) in here
 # for slow machines, but unfortunately we cannot trivially
