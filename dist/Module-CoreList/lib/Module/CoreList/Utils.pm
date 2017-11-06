@@ -1386,6 +1386,41 @@ our %delta :const = (
         },
         removed => {}
     },
+    5.022004 => {
+        delta_from => 5.022003,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.024002 => {
+        delta_from => 5.024001,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.027002 => {
+        delta_from => 5.027001,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.024003 => {
+        delta_from => 5.024002,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.026001 => {
+        delta_from => 5.026000,
+        changed => {
+        },
+        removed => {
+        }
+    },
     '5.027002c' => {
         delta_from => '5.027001c',
         changed => {},
