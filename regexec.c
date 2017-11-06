@@ -1764,14 +1764,19 @@ REXEC_FBC_SCAN( /* Loops while (s < strend) */                 \
             FBC_UTF8_A(TEST_NON_UTF8, RXPLACEHOLDER, REXEC_FBC_TRYIT),           \
             TEST_NON_UTF8, RXPLACEHOLDER, REXEC_FBC_TRYIT)
 
-static Size_t
+#ifdef DEBUGGING
+static SSize_t
 S_get_break_val_cp_checked(SV* const invlist, const UV cp_in) {
   SSize_t cp_out = Perl__invlist_search(invlist, cp_in);
   assert(cp_out >= 0);
-  return cp_out >= 0 ? (Size_t)cp_out : (Size_t)(int)LB_EDGE;
+  return cp_out >= 0 ? cp_out : (SSize_t)LB_EDGE;
 }
 #define _generic_GET_BREAK_VAL_CP_CHECKED(invlist, invmap, cp) \
 	invmap[S_get_break_val_cp_checked(invlist, cp)]
+#else
+#  define _generic_GET_BREAK_VAL_CP_CHECKED(invlist, invmap, cp) \
+	invmap[_invlist_search(invlist, cp)]
+#endif
 
 /* Takes a pointer to an inversion list, a pointer to its corresponding
  * inversion map, and a code point, and returns the code point's value
@@ -2158,6 +2163,8 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                     }
                 }
 
+                /* And, since this is a bound, it can match after the final
+                 * character in the string */
                 if ((reginfo->intuit || regtry(reginfo, &s))) {
                     goto got_it;
                 }
@@ -4328,7 +4335,7 @@ S_setup_EXACTISH_ST_c1_c2(pTHX_ const regnode * const text_node, int *c1p,
 }
 
 STATIC bool
-S_isGCB(pTHX_ const GCB_enum before, const GCB_enum after, const U8 * const strbeg, const U8 * curpos, const bool utf8_target)
+S_isGCB(pTHX_ const GCB_enum before, const GCB_enum after, const U8 * const strbeg, const U8 * const curpos, const bool utf8_target)
 {
     /* returns a boolean indicating if there is a Grapheme Cluster Boundary
      * between the inputs.  See http://www.unicode.org/reports/tr29/. */

@@ -7813,6 +7813,18 @@ Perl_re_op_compile(pTHX_ SV ** const patternp, int pat_count,
 
     while ( RExC_recurse_count > 0 ) {
         const regnode *scan = RExC_recurse[ --RExC_recurse_count ];
+        /*
+         * This data structure is set up in study_chunk() and is used
+         * to calculate the distance between a GOSUB regopcode and
+         * the OPEN/CURLYM (CURLYM's are special and can act like OPEN's)
+         * it refers to.
+         *
+         * If for some reason someone writes code that optimises
+         * away a GOSUB opcode then the assert should be changed to
+         * an if(scan) to guard the ARG2L_SET() - Yves
+         *
+         */
+        assert(scan && OP(scan) == GOSUB);
         ARG2L_SET( scan, RExC_open_parens[ARG(scan)] - scan );
     }
 
@@ -9344,19 +9356,19 @@ Perl__invlist_intersection_maybe_complement_2nd(pTHX_ SV* const a, SV* const b,
     /* Special case if either one is empty */
     len_a = (a == NULL) ? 0 : _invlist_len(a);
     if ((len_a == 0) || ((len_b = _invlist_len(b)) == 0)) {
-
         if (len_a != 0 && complement_b) {
-
-            if (*i == NULL) {
-                *i = invlist_clone(a);
-                return;
-            }
 
             /* Here, 'a' is not empty, therefore from the enclosing 'if', 'b'
              * must be empty.  Here, also we are using 'b's complement, which
              * hence must be every possible code point.  Thus the intersection
              * is simply 'a'. */
+
             if (*i == a) {  /* No-op */
+                return;
+            }
+
+            if (*i == NULL) {
+                *i = invlist_clone(a);
                 return;
             }
 
@@ -18691,7 +18703,8 @@ S_reg2Lanode(pTHX_ RExC_state_t *pRExC_state, const U8 op, const U32 arg1, const
 * set up NEXT_OFF() of the inserted node if needed. Something like this:
 *
 * reginsert(pRExC, OPFAIL, orig_emit, depth+1);
-* NEXT_OFF(orig_emit)= regarglen[OPFAIL] + NODE_STEP_REGNODE;
+* if (PASS2)
+*     NEXT_OFF(orig_emit) = regarglen[OPFAIL] + NODE_STEP_REGNODE;
 *
 */
 STATIC void
