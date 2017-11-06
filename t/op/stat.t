@@ -62,10 +62,10 @@ my $tmpfile_link = tempfile();
 
 chmod 0666, $tmpfile;
 unlink_all $tmpfile;
-open(FOO, ">$tmpfile") || DIE("Can't open temp test file: $!");
+open(FOO, ">", $tmpfile) || DIE("Can't open temp test file: $!");
 close FOO;
 
-open(FOO, ">$tmpfile") || DIE("Can't open temp test file: $!");
+open(FOO, ">", $tmpfile) || DIE("Can't open temp test file: $!");
 
 my($nlink, $mtime, $ctime) = (stat(FOO))[$NLINK, $MTIME, $CTIME];
 
@@ -83,7 +83,7 @@ SKIP: {
 
 SKIP: {
   skip "mtime and ctime not reliable", 2
-    if $Is_MSWin32 or $Is_NetWare or $Is_Cygwin or $Is_Dos or $Is_Darwin;
+    if $Is_MSWin32 or $Is_NetWare or $Is_Cygwin or $Is_Dos;
 
   ok( $mtime,           'mtime' );
   is( $mtime, $ctime,   'mtime == ctime' );
@@ -114,9 +114,9 @@ SKIP: {
     my $lnk_result = eval { link $tmpfile, $tmpfile_link };
     skip "link() unimplemented", 6 if $@ =~ /unimplemented/;
 
-    is( $@, '',         'link() implemented' );
-    ok( $lnk_result,    'linked tmp testfile' );
-    ok( chmod(0644, $tmpfile),             'chmoded tmp testfile' );
+    is( $@, '',                'link() implemented' );
+    ok( $lnk_result,           'linked tmp testfile' );
+    ok( chmod(0644, $tmpfile), 'chmoded tmp testfile' );
 
     my($nlink, $mtime, $ctime) = (stat($tmpfile))[$NLINK, $MTIME, $CTIME];
 
@@ -172,7 +172,7 @@ open(F, ">$tmpfile") || DIE("Can't open temp test file: $!");
 print F "hi\n";
 close F;
 
-open(F, "<$tmpfile") || DIE("Can't open temp test file: $!");
+open(F, "<", $tmpfile) || DIE("Can't open temp test file: $!");
 ok(!-z *F,     '-z on empty filehandle');
 ok( -s *F,   '   and -s');
 close F;
@@ -311,21 +311,20 @@ SKIP: {
 	is($c1, $c2, "ls and $_[1] agreeing on /dev ($c1 $c2)");
     };
 
-{
-    $try->('b', '-b');
-    $try->('c', '-c');
-    $try->('s', '-S');
-}
+    {
+      $try->('b', '-b');
+      $try->('c', '-c');
+      $try->('s', '-S');
+    }
 
-ok(! -b $Curdir,    '!-b cwd');
-ok(! -c $Curdir,    '!-c cwd');
-ok(! -S $Curdir,    '!-S cwd');
+    ok(! -b $Curdir,    '!-b cwd');
+    ok(! -c $Curdir,    '!-c cwd');
+    ok(! -S $Curdir,    '!-S cwd');
 
 }
 
 SKIP: {
-    my($cnt, $uid);
-    $cnt = $uid = 0;
+    my ($cnt, $uid) = (0, 0);
 
     # Find a set of directories that's very likely to have setuid files
     # but not likely to be *all* setuid files.
