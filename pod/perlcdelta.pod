@@ -270,6 +270,14 @@ Unify stack reserve to 32 across all platforms.
 Improved Symbol::delete_package for readonly and protected symbols
 and classes.
 
+=item L<Time::Piece> 1.3202
+
+    - Fix AIX compile
+    - Fix compile errors on MS
+    - Use macro for buf sizes
+    - Remove some compile warnings
+    - SP off by 1 in _crt_localtime
+
 =item L<version> 0.9918_02c
 
 Add updates from 0.9918: Add LAX_DECIMAL_VERSION, LAX_DOTTED_DECIMAL_VERSION,

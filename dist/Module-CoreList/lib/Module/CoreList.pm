@@ -15313,6 +15313,7 @@ our %delta = (
             'Mu'                    => '0.02c',
             'Storable'              => '3.05_16',
             'Symbol'                => '1.08_01',
+            'Time::Piece'           => '1.3202',
             'version'               => '0.9918_02c',
         },
         removed => {

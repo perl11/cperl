@@ -32,7 +32,7 @@ cmp_ok($t->wdayname,    'eq',     'Tue');
 cmp_ok($t->day,         'eq',     'Tue');
 cmp_ok($t->fullday,     'eq', 'Tuesday');
 cmp_ok($t->yday,        '==',        59);
-cmp_ok($t->day_of_year, '==',        59);
+cmp_ok($t->day_of_year, '==',        59, 'doy');
 
 # In GMT there should be no daylight savings ever.
 cmp_ok($t->isdst, '==', 0);
@@ -46,7 +46,7 @@ cmp_ok($t->dmy,   'eq', '29-02-2000');
 cmp_ok($t->cdate, 'eq', 'Tue Feb 29 12:34:56 2000');
 cmp_ok("$t",      'eq', 'Tue Feb 29 12:34:56 2000');
 cmp_ok($t->datetime, 'eq','2000-02-29T12:34:56');
-cmp_ok($t->daylight_savings, '==', 0);
+cmp_ok($t->daylight_savings, '==', 0, 'dst');
 
 # ->tzoffset?
 my $is_pseudo_fork = 0;
@@ -59,8 +59,8 @@ SKIP: {
     local $ENV{TZ} = "EST5";
     Time::Piece::_tzset();  # register the environment change
     my $lt = localtime;
-    cmp_ok(scalar($lt->tzoffset), 'eq', '-18000');
-    cmp_ok($lt->strftime("%Z"), 'eq', 'EST');
+    cmp_ok(scalar($lt->tzoffset), 'eq', '-18000', 'tzoffset -5');
+    cmp_ok($lt->strftime("%Z"), 'eq', 'EST', 'EST');
 }
 
 cmp_ok(($t->julian_day / 2451604.0243 ) - 1, '<', 0.001);
