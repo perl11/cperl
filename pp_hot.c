@@ -2049,7 +2049,7 @@ PP(pp_aassign)
     else if (gimme == G_SCALAR) {
 	dTARGET;
 	SP = firstrelem;
-        EXTEND(SP,1);
+        EXTEND(SP, 1);
 	SETi(firstlelem - firstrelem);
     }
     else
@@ -2125,7 +2125,7 @@ PP(pp_match)
         else {
             TARG = DEFSV;
         }
-	EXTEND(SP,1);
+	EXTEND(SP, 1);
     }
 
     PUTBACK;				/* EVAL blocks need stack_sp. */
@@ -3163,7 +3163,7 @@ PP(pp_iter_ary)
     *itersvp = sv;
 #if 1
     /* RT #94682 op/switch.t reappeared. $_ has wrong refcnt */
-    if ((UNLIKELY(oldsv && SvIS_FREED(oldsv) && SvREFCNT(oldsv)==1))) {
+    if ((UNLIKELY(oldsv && SvIS_FREED(oldsv) && SvREFCNT(oldsv) == 1))) {
         DEBUG_v(Perl_deb(aTHX_ "iter: wrong refcount of freed itervar"));
         oldsv = NULL;
     } else
@@ -4380,7 +4380,6 @@ PP(pp_entersub)
                      && !CvNODEBUG(cv))) {
         /* dynamically bootstrapped XS. goto to the XS variant */
         OpTYPE_set(PL_op, OP_ENTERXSSUB);
-        ++sp; /* and fixup stack */
 #ifdef DEBUGGING
         if (DEBUG_t_TEST_) debop(PL_op);
 #else
@@ -4468,7 +4467,9 @@ PP(pp_entersub)
         /* A XS function can be redefined back to a normal sub */
         if (UNLIKELY(PL_op->op_type == OP_ENTERXSSUB)) {
             OpTYPE_set(PL_op, OP_ENTERSUB);
-            INCMARK; ++sp; /* and fixup stack */
+            INCMARK;
+            EXTEND(SP, 1);
+            ++SP; /* and fixup stack */
 #ifdef DEBUGGING
             if (DEBUG_v_TEST_) Perl_deb(aTHX_ "\nXS->PP %s\n", GvNAME(CvGV(cv)));
             if (DEBUG_t_TEST_) debop(PL_op);
@@ -4569,6 +4570,7 @@ PP(pp_entersub)
     }
     else { /* goto enterxssub */
         OpTYPE_set(PL_op, OP_ENTERXSSUB);
+        EXTEND(SP, 1);
         *(++sp) = (SV*)cv; /* and fixup arg */
 #ifdef DEBUGGING
         if (DEBUG_t_TEST_) debop(PL_op);
@@ -4610,6 +4612,7 @@ PP(pp_enterxssub)
             /* FALLTHROUGH */
         default:
             if (sv == SV_YES) {		/* unfound import, ignore */
+                EXTEND(SP, 1);
                 if (hasargs)
                     SP = PL_stack_base + POPMARK;
                 else
@@ -4666,6 +4669,7 @@ PP(pp_enterxssub)
        Yes there is, by dynamic sub redefinition. */
     if (!CvISXSUB(cv)) {
         OpTYPE_set(PL_op, OP_ENTERSUB);
+        EXTEND(SP, 1);
         *(++sp) = (SV*)cv; /* and fixup arg */
 #ifdef DEBUGGING
         if (DEBUG_t_TEST_) debop(PL_op);
@@ -4709,22 +4713,20 @@ PP(pp_enterxssub)
 		const bool m = cBOOL(SvRMAGICAL(av));
 		/* Mark is at the end of the stack. */
 		EXTEND(SP, items);
-		for (; i < items; ++i)
-		{
+		for (; i < items; ++i) {
 		    SV *sv;
 		    if (m) {
 			SV ** const svp = av_fetch(av, i, 0);
 			sv = svp ? *svp : NULL;
 		    }
-		    else sv = AvARRAY(av)[i];
-		    if (sv) SP[i+1] = sv;
 		    else {
-			SP[i+1] = newSVavdefelem(av, i, 1);
-		    }
+                        sv = AvARRAY(av)[i];
+                    }
+                    SP[i+1] = sv ? sv : newSVavdefelem(av, i, 1);
 		}
 		SP += items;
-		PUTBACK ;		
-	    }
+		PUTBACK;
+            }
 	}
 	else {
 	    SV **mark = PL_stack_base + markix;

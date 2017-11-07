@@ -2415,17 +2415,17 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
     if (xsinit)
 	(*xsinit)(aTHX);	/* in case linked C routines want magical variables */
 #ifndef PERL_MICRO
-#if defined(VMS) || defined(WIN32) || defined(DJGPP) || defined(__CYGWIN__) || defined(SYMBIAN)
+# if defined(VMS) || defined(WIN32) || defined(DJGPP) || defined(__CYGWIN__) || defined(SYMBIAN)
     init_os_extras();
-#endif
+# endif
 #endif
 
 #ifdef USE_SOCKS
-#   ifdef HAS_SOCKS5_INIT
+# ifdef HAS_SOCKS5_INIT
     socks5_init(argv[0]);
-#   else
+# else
     SOCKSinit(argv[0]);
-#   endif
+# endif
 #endif
 
     init_predump_symbols();

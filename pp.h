@@ -538,13 +538,13 @@ Does not use C<TARG>.  See also C<L</XPUSHu>>, C<L</mPUSHu>> and C<L</PUSHu>>.
 
 #define MAXARG		(PL_op->op_private & OPpARG4_MASK)
 
-#define SWITCHSTACK(f,t) \
+#define SWITCHSTACK(f, t) \
     STMT_START {							\
 	AvFILLp(f) = sp - PL_stack_base;				\
 	PL_stack_base = AvARRAY(t);					\
-	PL_stack_max = PL_stack_base + AvMAX(t);			\
 	sp = PL_stack_sp = PL_stack_base + AvFILLp(t);			\
-	PL_curstack = t;						\
+	PL_stack_max = PL_stack_base + AvMAX(t);			\
+	PL_curstack = (t);						\
     } STMT_END
 
 #define EXTEND_MORTAL(n) \

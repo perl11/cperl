@@ -199,11 +199,12 @@ print OUT line_prefix(__LINE__, <<'EOT');
     if (get_cvs("DynaLoader::boot_DynaLoader", 0)
         && !get_cvs("DynaLoader::dl_error", 0))
     {
+        EXTEND(SP, 1); /* for the arg and the XSRETURN_YES */
         PUSHMARK(SP);
-        XPUSHs(newSVpvs("DynaLoader"));
+        PUSHs(newSVpvs("DynaLoader"));
         PUTBACK;
         call_sv(MUTABLE_SV(get_cvs("boot_DynaLoader", GV_ADD)), G_DISCARD);
-        /* SP = PL_stack_base + POPMARK; */
+        /* SP = PL_stack_base + POPMARK; */ /* pop the YES? */
     }
 #ifdef DEBUGGING
     if (dl_debug) {

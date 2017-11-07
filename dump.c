@@ -2941,13 +2941,13 @@ Perl_runops_debug(pTHX)
         ++PL_op_exec_cnt[PL_op->op_type];
 #endif
 #if defined DEBUGGING && !defined DEBUGGING_RE_ONLY
-        if (PL_curstackinfo->si_stack_hwm < PL_stack_sp - PL_stack_base)
-            Perl_croak_nocontext(
-                "panic: previous op %s failed to extend arg stack: "
-                "base=%p, sp=%p, hwm=%p\n",
-                    prev_op ? OP_NAME(prev_op) : "",
-                    PL_stack_base, PL_stack_sp,
-                    PL_stack_base + PL_curstackinfo->si_stack_hwm);
+        if (UNLIKELY(PL_curstackinfo->si_stack_hwm < PL_stack_sp - PL_stack_base))
+            Perl_warn(aTHX_
+            /*Perl_croak_nocontext(*/
+                      "warning: previous op %s failed to extend arg stack: %ld < %ld\n",
+                      prev_op ? OP_NAME(prev_op) : "",
+                      (long)(PL_stack_sp - PL_stack_base),
+                      (long)PL_curstackinfo->si_stack_hwm);
         PL_curstackinfo->si_stack_hwm = PL_stack_sp - PL_stack_base;
 #endif
 	if (PL_debug) {
