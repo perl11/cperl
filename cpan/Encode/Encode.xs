@@ -135,7 +135,7 @@ do_bytes_fallback_cb(pTHX_ U8 *s, STRLEN slen, SV *fallback_cb)
     dSP;
     int argc;
     STRLEN i;
-    SV *retval = newSVpvn("",0);
+    SV *retval;
     ENTER;
     SAVETMPS;
     PUSHMARK(sp);
@@ -147,7 +147,8 @@ do_bytes_fallback_cb(pTHX_ U8 *s, STRLEN slen, SV *fallback_cb)
     if (argc != 1){
         croak("fallback sub must return scalar!");
     }
-    sv_catsv(retval, POPs);
+    retval = POPs;
+    SvREFCNT_inc(retval);
     PUTBACK;
     FREETMPS;
     LEAVE;
@@ -437,13 +438,13 @@ process_utf8(pTHX_ SV* dst, U8* s, U8* e, SV *check_sv,
              bool encode, bool strict, bool stop_at_partial)
 {
     UV uv;
-    STRLEN i;
     STRLEN ulen;
     SV *fallback_cb;
     int check;
     U8 *d;
     STRLEN dlen;
     char esc[UTF8_MAXLEN * 6 + 1];
+    STRLEN i;
 
     if (SvROK(check_sv)) {
 	/* croak("UTF-8 decoder doesn't support callback CHECK"); */

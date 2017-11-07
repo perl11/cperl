@@ -38,7 +38,7 @@ for my $i (0..$#c) {
   no warnings 'pack';
   my $file = filename("f$i");
   push @f, $file;
-  open(F, ">", $file) or die "$0: failed to open '$file' for writing: $!";
+  open(F, ">$file") or die "$0: failed to open '$file' for writing: $!";
   binmode(F, ":utf8");
   print F chr($c[$i]);
   print F pack("C" => $c[$i]);
@@ -49,7 +49,7 @@ my $t = 1;
 
 for my $i (0..$#c) {
   my $file = filename("f$i");
-  open(F, "<", $file) or die "$0: failed to open '$file' for reading: $!";
+  open(F, "<$file") or die "$0: failed to open '$file' for reading: $!";
   binmode(F, ":utf8");
   my $c = <F>;
   my $o = ord($c);
@@ -60,7 +60,7 @@ for my $i (0..$#c) {
 my $f = filename("f" . @f);
 
 push @f, $f;
-open(F, ">", $f) or die "$0: failed to open '$f' for writing: $!";
+open(F, ">$f") or die "$0: failed to open '$f' for writing: $!";
 binmode(F, ":raw"); # Output raw bytes.
 print F chr(128); # Output illegal UTF-8.
 close F;

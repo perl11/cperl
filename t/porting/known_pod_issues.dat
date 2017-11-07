@@ -444,6 +444,7 @@ pod/perl5271cdelta.pod	Apparent broken link	5
 pod/perl5271cdelta.pod	Verbatim line length including indents exceeds 79 by	2
 pod/perl5272cdelta.pod	Apparent broken link	2
 pod/perl5272cdelta.pod	Apparent internal link is missing its forward slash	3
+pod/perl5272cdelta.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlapi.pod	Verbatim line length including indents exceeds 79 by	9
 pod/perlbook.pod	Verbatim line length including indents exceeds 79 by	1

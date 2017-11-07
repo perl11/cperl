@@ -238,6 +238,21 @@ Improved the test a bit.
 
 Silence PERL_CORE make
 
+=item L<Encode> 2.93
+
+lib/Encode/MIME/Name.pm t/mime-name.t
+Pulled: Add "euc-cn" => "EUC-CN" alias to Encode::MIME::Name
+https://github.com/dankogai/p5-encode/pull/124
+
+lib/Encode/CN/HZ.pm lib/Encode/JP/JIS7.pm lib/Encode/MIME/Header.pm
+t/decode.t
+Pulled: Uninitialized value fixes #122
+https://github.com/dankogai/p5-encode/pull/122
+
+Makefile.PL
+Pulled: Fix -Werror=declaration-after-statement for gcc 4.1.2
+https://github.com/dankogai/p5-encode/pull/121
+
 =item L<fields> 2.26c
 
 Implemented L<Mu/fields> returning fields objects, as in perl6
