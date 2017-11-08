@@ -372,13 +372,19 @@ perl_construct(pTHXx)
         PL_hash_seed_set= TRUE;
     }
 
-    /* Note that strtab is a rather special HV.  Assumptions are made
-       about not iterating on it, and not adding tie magic to it.
-       It is properly deallocated in perl_destruct() */
-    PL_strtab = newHV();
+    /* Allow PL_strtab to be pre-initialized before calling perl_construct.
+     * can use a custom optimized PL_strtab hash before calling perl_construct */
+    if (!PL_strtab) {
+        /* Note that strtab is a rather special HV.  Assumptions are made
+         * about not iterating on it, and not adding tie magic to it.
+         * It is properly deallocated in perl_destruct() */
+        PL_strtab = newHV();
 
-    HvSHAREKEYS_off(PL_strtab);			/* mandatory */
-    hv_ksplit(PL_strtab, 512);
+        /* SHAREKEYS tells us that the hash has its keys shared with PL_strtab,
+         * which is not the case with PL_strtab itself */
+        HvSHAREKEYS_off(PL_strtab);			/* mandatory */
+        hv_ksplit(PL_strtab, 1 << 11);                  /* 2048 - half a page */
+    }
 
     Zero(PL_sv_consts, SV_CONSTS_COUNT, SV*);
 
