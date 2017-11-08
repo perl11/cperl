@@ -1,6 +1,7 @@
 #!perl -w
 use strict;
 use FindExt;
+use 5.008; # 3-arg open
 
 # take a semicolon separated path list and turn it into a quoted
 # list of paths that Text::Parsewords will grok
