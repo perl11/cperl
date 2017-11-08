@@ -10,6 +10,7 @@ sub mungepath {
     $p =~ s/^[ ;]+//;
     $p =~ s/[ ;]+$//;
     $p =~ s/'/"/g;
+    $p =~ s{(\w)\\\\}{$1\\}g;
     my @p = map { $_ = "\"$_\"" if /\s/ and !/^".*"$/; $_ } split /;/, $p;
     return join(' ', @p);
 }
