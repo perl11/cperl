@@ -706,8 +706,8 @@ S_missingterm(pTHX_ char *s, STRLEN len)
     sv = sv_2mortal(newSVpvn(s, len));
     if (uni)
 	SvUTF8_on(sv);
-    Perl_croak(aTHX_ "Can't find string terminator %c%" SVf
-		     "%c anywhere before EOF",q,SVfARG(sv),q);
+    Perl_croak(aTHX_ "Can't find string terminator %c%" SVf "%c"
+                     " anywhere before EOF", q, SVfARG(sv), q);
 }
 
 /*
