@@ -11,27 +11,26 @@ platform:
   - x86
 environment:
   matrix:
-    #- MINGW: 1
+    - MINGW: 1
+    - MSVC_VERSION: 10
+    - CYGWIN: 1
+    - MSVC_VERSION: 12
     - MSVC_VERSION: 14
-    #- CYGWIN: 1
+    #- MSVC_VERSION: 14
+    #  CFG: Debug
+    #- MSVC_VERSION: 12
+    #  CFG: Debug
     #- MINGW: 1
     #  CFG: Debug
-    - MSVC_VERSION: 14
+matrix:
+  exclude:
+    - platform: x64
+      MSVC_VERSION: 14
+    - platform: x64
+      MSVC_VERSION: 12
+  allow_failures:
+    - MINGW: 1
       CFG: Debug
-    - MSVC_VERSION: 12
-    - MSVC_VERSION: 12
-      CFG: Debug
-    - MSVC_VERSION: 10
-#matrix:
-#  exclude:
-#    - platform: x86
-#      MSVC_VERSION: 10
-#    - platform: x86
-#      MSVC_VERSION: 12
-#  allow_failures:
-#    - MINGW: 1
-#    - MINGW: 1
-#      CFG: Debug
 clone_depth: 1
 branches:
   only:
