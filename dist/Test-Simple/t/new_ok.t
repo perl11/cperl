@@ -37,5 +37,5 @@ use Test::More tests => 13;
 
 # And what if we give it nothing?
 eval q(new_ok(););
-like $@, qr/Not enough arguments for subroutine entry Test::More::new_ok\. Missing \$class at \(eval \d\) line 1, near "\(\)"\n/;
+like $@, qr/Not enough arguments for subroutine entry Test::More::new_ok\. Missing \$class at \(eval \d+\) line 1, near "\(\)"\n/;
 #is $@, sprintf "new_ok() must be given at least a class at %s line %d.\n", $0, __LINE__ - 2;
