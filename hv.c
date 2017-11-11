@@ -1307,7 +1307,7 @@ Perl_hv_bucket_ratio(pTHX_ HV *hv)
                 (long)HvFILL(hv), (long)HvMAX(hv) + 1);
     }
     else
-        sv = &PL_sv_zero;
+        sv = SV_ZERO;
     
     return sv;
 }

@@ -8,9 +8,10 @@
 #  define DEBUGGING_RE_ONLY
 #endif
 
-#define UNDEF  (0 + &PL_sv_undef)
-#define SV_YES (0 + &PL_sv_yes)
-#define SV_NO  (0 + &PL_sv_no)
+#define UNDEF   (0 + &PL_sv_undef)
+#define SV_YES  (0 + &PL_sv_yes)
+#define SV_NO   (0 + &PL_sv_no)
+#define SV_ZERO (0 + &PL_sv_zero)
 #define PLACEHOLDER  (0 + &PL_sv_placeholder)
 
 /* We *really* need to overwrite these symbols: */

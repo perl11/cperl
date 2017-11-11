@@ -153,17 +153,17 @@ This is the C<undef> SV.  Always refer to this as C<&PL_sv_undef>.
 
 =for apidoc Amn|SV|PL_sv_no
 This is the C<false> SV.  See C<L</PL_sv_yes>>.  Always refer to this as
-C<&PL_sv_no>.
+C<&PL_sv_no> or C<SV_NO>.
 
 =for apidoc Amn|SV|PL_sv_yes
 This is the C<true> SV.  See C<L</PL_sv_no>>.  Always refer to this as
-C<&PL_sv_yes>.
+C<&PL_sv_yes> or C<SV_YES>.
 
 =for apidoc Amn|SV|PL_sv_zero
 This readonly SV has a zero numeric value and a C<"0"> string value. It's
 similar to C<L</PL_sv_no>> except for its string value. Can be used as a
 cheap alternative to C<mXPUSHi(0)> for example.  Always refer to this as
-C<&PL_sv_zero>. Introduced in 5.28.
+C<&PL_sv_zero> or C<SV_ZERO>. Introduced in 5.28.
 
 =cut
 */

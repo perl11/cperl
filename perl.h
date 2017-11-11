@@ -1340,6 +1340,7 @@ EXTERN_C char *crypt(const char *, const char *);
 
 #define SV_YES (0 + &PL_sv_yes)
 #define SV_NO  (0 + &PL_sv_no)
+#define SV_ZERO  (0 + &PL_sv_zero)
 #ifdef PERL_CORE
 # define UNDEF  (0 + &PL_sv_undef)
 # define PLACEHOLDER  (0 + &PL_sv_placeholder)

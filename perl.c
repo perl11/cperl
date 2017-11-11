@@ -1318,10 +1318,10 @@ perl_destruct(pTHXx)
     SvANY(SV_NO) = NULL;
     SvFLAGS(SV_NO) = 0;
 
-    SvREFCNT(&PL_sv_zero) = 0;
-    sv_clear(&PL_sv_zero);
-    SvANY(&PL_sv_zero) = NULL;
-    SvFLAGS(&PL_sv_zero) = 0;
+    SvREFCNT(SV_ZERO) = 0;
+    sv_clear(SV_ZERO);
+    SvANY(SV_ZERO) = NULL;
+    SvFLAGS(SV_ZERO) = 0;
 
     {
         int i;

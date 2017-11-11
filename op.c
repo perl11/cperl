@@ -17999,8 +17999,8 @@ this op only returns its LH argument when that argument is false. In
 this case, as long as the op promises to return a false value which is
 valid in both boolean and scalar contexts, we can mark an op consumed
 by && with bool_flag rather than maybe_flag.
-For example as long as pp_padhv and pp_rv2hv return &PL_sv_zero rather
-than &PL_sv_no for a false result in boolean context, then it's safe. An
+For example as long as pp_padhv and pp_rv2hv return SV_ZERO rather
+than SV_NO for a false result in boolean context, then it's safe. An
 op which promises to handle this case is indicated by setting safe_and
 to true.
 

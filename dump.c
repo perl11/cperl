@@ -467,7 +467,7 @@ Perl_sv_peek(pTHX_ SV *sv)
 	goto finish;
     }
     else if (   sv == UNDEF || sv == SV_NO || sv == SV_YES || sv == PLACEHOLDER
-             || sv == &PL_sv_zero)
+             || sv == SV_ZERO)
     {
 	if (sv == UNDEF) {
 	    sv_catpv(t, "SV_UNDEF");
@@ -497,7 +497,7 @@ Perl_sv_peek(pTHX_ SV *sv)
 		SvNVX(sv) == 1.0)
 		goto finish;
 	}
-	else if (sv == &PL_sv_zero) {
+	else if (sv == SV_ZERO) {
 	    sv_catpv(t, "SV_ZERO");
 	    if (!(SvFLAGS(sv) & (SVf_ROK|SVf_OOK|SVs_OBJECT|
 				 SVs_GMG|SVs_SMG|SVs_RMG)) &&
