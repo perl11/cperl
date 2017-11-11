@@ -1,25 +1,12 @@
 package File::Spec::Unix;
 
 use strict;
+use Cwd ();
 
 our $VERSION = '4.78c'; # modernized
 our $XS_VERSION = $VERSION;
 #$VERSION =~ tr/_//;
 $VERSION =~ s/c$//;
-
-#dont try to load XSLoader and DynaLoader only to ultimately fail on miniperl
-if(!defined &canonpath && defined &DynaLoader::boot_DynaLoader) {
-  eval {#eval is questionable since we are handling potential errors like
-        #"Cwd object version 3.48 does not match bootstrap parameter 3.50
-        #at lib/DynaLoader.pm line 216." by having this eval
-    if ( $] >= 5.006 ) {
-	require XSLoader;
-	XSLoader::load("Cwd", $XS_VERSION);
-    } else {
-	require Cwd;
-    }
-  };
-}
 
 =head1 NAME
 
@@ -398,7 +385,7 @@ Based on code written by Shigio Yamaguchi.
 =cut
 
 sub abs2rel ($self, str $path, $base?) {
-    $base = $self->_cwd() unless defined $base and length $base;
+    $base = Cwd::getcwd() unless defined $base and length $base;
 
     ($path, $base) = map $self->canonpath($_), $path, $base;
 
@@ -425,7 +412,7 @@ sub abs2rel ($self, str $path, $base?) {
 	}
     }
     else {
-	my $wd= ($self->splitpath($self->_cwd(), 1))[1];
+	my $wd= ($self->splitpath(Cwd::getcwd(), 1))[1];
 	$path_directories = $self->catdir($wd, $path);
 	$base_directories = $self->catdir($wd, $base);
     }
@@ -507,7 +494,7 @@ sub rel2abs ($self, str $path, $base? ) {
     if ( ! $self->file_name_is_absolute( $path ) ) {
         # Figure out the effective $base and clean it up.
         if ( !defined( $base ) || $base eq '' ) {
-	    $base = $self->_cwd();
+	    $base = Cwd::getcwd();
         }
         elsif ( ! $self->file_name_is_absolute( $base ) ) {
             $base = $self->rel2abs( $base ) ;
@@ -539,15 +526,6 @@ Please submit bug reports and patches to perlbug@perl.org.
 L<File::Spec>
 
 =cut
-
-# Internal routine to File::Spec, no point in making this public since
-# it is the standard Cwd interface.  Most of the platform-specific
-# File::Spec subclasses use this.
-sub _cwd {
-    require Cwd;
-    Cwd::getcwd();
-}
-
 
 # Internal method to reduce xx\..\yy -> yy
 sub _collapse ($fs, str $path) {

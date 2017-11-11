@@ -1,9 +1,10 @@
 package File::Spec::VMS;
 
 use strict;
+use Cwd ();
 require File::Spec::Unix;
 
-our $VERSION = '3.78';
+our $VERSION = '4.78';
 $VERSION =~ tr/_//d;
 
 our @ISA = qw(File::Spec::Unix);
@@ -439,7 +440,7 @@ Attempt to convert an absolute file specification to a relative specification.
 
 sub abs2rel ($self, str $path, $base?) {
 
-    $base = $self->_cwd() unless defined $base and length $base;
+    $base = Cwd::getcwd() unless defined $base and length $base;
 
     # If there is no device or directory syntax on $base, make sure it
     # is treated as a directory.
@@ -511,7 +512,7 @@ sub rel2abs {
     if ( ! $self->file_name_is_absolute( $path ) ) {
         # Figure out the effective $base and clean it up.
         if ( !defined( $base ) || $base eq '' ) {
-            $base = $self->_cwd;
+            $base = Cwd::getcwd();
         }
         elsif ( ! $self->file_name_is_absolute( $base ) ) {
             $base = $self->rel2abs( $base ) ;

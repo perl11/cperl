@@ -1,6 +1,7 @@
 package File::Spec::Win32;
 
 use strict;
+use Cwd ();
 require File::Spec::Unix;
 
 our $VERSION = '4.78c'; # modernized
@@ -320,14 +321,13 @@ sub rel2abs ($self, str $path, $base?) {
 
     if ($is_abs) {
       # It's missing a volume, add one
-      my $vol = ($self->splitpath( $self->_cwd() ))[0];
+      my $vol = ($self->splitpath( Cwd::getcwd() ))[0];
       return $self->canonpath( $vol . $path );
     }
 
     if ( !defined( $base ) || $base eq '' ) {
-      require Cwd ;
       $base = Cwd::getdcwd( ($self->splitpath( $path ))[0] ) if defined &Cwd::getdcwd ;
-      $base = $self->_cwd() unless defined $base ;
+      $base = Cwd::getcwd() unless defined $base ;
     }
     elsif ( ! $self->file_name_is_absolute( $base ) ) {
       $base = $self->rel2abs( $base ) ;

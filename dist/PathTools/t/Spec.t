@@ -287,7 +287,7 @@ my @tests = (
 [ "Win32->canonpath('/..\\')",          '\\'                  ],
 [ "Win32->canonpath('d1/../foo')",      'foo'                 ],
 
-# FakeWin32 subclass (see below) just sets CWD to C:\one\two and getdcwd('D') to D:\alpha\beta
+# FakeWin32 subclass (see below) just sets getcwd() to C:\one\two and getdcwd('D') to D:\alpha\beta
 
 [ "FakeWin32->abs2rel('/t1/t2/t3','/t1/t2/t3')",     '.'                      ],
 [ "FakeWin32->abs2rel('/t1/t2/t4','/t1/t2/t3')",     '..\\t4'                 ],
@@ -800,14 +800,10 @@ my @tests = (
 
 ) ;
 
-can_ok('File::Spec::Win32', '_cwd');
-
 {
     package File::Spec::FakeWin32;
     use vars qw(@ISA);
     @ISA = qw(File::Spec::Win32);
-
-    sub _cwd { 'C:\\one\\two' }
 
     # Some funky stuff to override Cwd::getdcwd() for testing purposes,
     # in the limited scope of the rel2abs() method.
@@ -816,6 +812,8 @@ can_ok('File::Spec::Win32', '_cwd');
 	*rel2abs = sub {
 	    my $self = shift;
 	    local $^W;
+	    local *Cwd::getcwd = sub { 'C:\\one\\two' };
+	    *Cwd::getcwd = *Cwd::getcwd; # Avoid a 'used only once' warning
 	    local *Cwd::getdcwd = sub {
 	      return 'D:\alpha\beta' if $_[0] eq 'D:';
 	      return 'C:\one\two'    if $_[0] eq 'C:';
@@ -825,6 +823,14 @@ can_ok('File::Spec::Win32', '_cwd');
 	    return $self->SUPER::rel2abs(@_);
 	};
 	*rel2abs = *rel2abs; # Avoid a 'used only once' warning
+	*abs2rel = sub {
+	    my $self = shift;
+	    local $^W;
+	    local *Cwd::getcwd = sub { 'C:\\one\\two' };
+	    *Cwd::getcwd = *Cwd::getcwd; # Avoid a 'used only once' warning
+	    return $self->SUPER::abs2rel(@_);
+	};
+	*abs2rel = *abs2rel; # Avoid a 'used only once' warning
     }
 }
 
