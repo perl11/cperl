@@ -220,6 +220,10 @@ XXX
 
 =over 4
 
+=item L<base> 2.27c
+
+Limit dotless-INC effect on base.pm with guard
+
 =item C<coretypes> 0.03c
 
 Each coretype is now a class.

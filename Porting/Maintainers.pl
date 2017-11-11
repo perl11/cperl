@@ -230,8 +230,8 @@ use File::Glob qw(:case);
     },
 
     'base' => {
-        # better cperl variant 2.25c
-        'DISTRIBUTION' => 'RJBS/base-2.23.tar.gz',
+        # better cperl variant 2.27c
+        'DISTRIBUTION' => 'RJBS/base-2.26.tar.gz',
         'FILES'        => q[dist/base],
         'CUSTOMIZED'   => [ qw[ lib/base.pm lib/fields.pm
                             t/fields-5_6_0.t

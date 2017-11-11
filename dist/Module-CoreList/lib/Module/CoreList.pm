@@ -15304,6 +15304,7 @@ our %delta = (
             'B::Op_private'         => '5.027002',
             'Module::CoreList'      => '20170815c',
             'Module::CoreList::Utils'=> '20170815c',
+            'base'                  => '2.27c',
             'coretypes'             => '0.03c',
             'Cpanel::JSON::XS'      => '3.0239',
             'Devel::Peek'           => '1.26_03',
