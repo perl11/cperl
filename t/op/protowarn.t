@@ -11,7 +11,7 @@ use warnings;
 
 plan( tests => 6 );
 
-use vars qw{ @warnings $sub $warn };
+our (@warnings, $sub, $warn);
 
 BEGIN {
     $warn = q{Missing ']' in prototype};

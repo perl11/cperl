@@ -11,7 +11,7 @@ plan( tests => 18 );
 use strict; no strict 'hashpairs';
 use warnings;
 
-use vars qw{ @warnings };
+our @warnings;
 
 BEGIN {
     $SIG{'__WARN__'} = sub { push @warnings, @_ };
