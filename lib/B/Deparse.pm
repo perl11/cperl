@@ -75,7 +75,7 @@ use B qw(main_root main_start main_cv svref_2object opnumber perlstring
 $VERSION = '1.45_04c';
 $VERSION =~ s/c$//;
 use strict;
-use vars qw/$AUTOLOAD/;
+our $AUTOLOAD;
 use warnings ();
 require feature;
 
