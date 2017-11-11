@@ -224,6 +224,10 @@ XXX
 
 Limit dotless-INC effect on base.pm with guard
 
+=item L<B::C> 1.55_05
+
+Support POK/PVLV REGEXP for v5.27.3/v5.27.2c
+
 =item C<coretypes> 0.03c
 
 Each coretype is now a class.

@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.55_04';
+our $VERSION = '1.55_05';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -369,6 +369,8 @@ BEGIN {
              sub SVs_PADSTALE() { 0x0 }
             ]; # unused
     }
+    # used since 5.27.3/5.27.2c only
+    eval q[sub SVt_PVLV()  { 13 } ];
   } else {
     eval q[sub SVs_GMG()    { 0x00002000 }
            sub SVs_SMG()    { 0x00004000 }
@@ -3421,8 +3423,15 @@ sub B::REGEXP::save {
     # since 5.17.6 the SvLEN stores RX_WRAPPED(rx)
     $init->add(sprintf("SvCUR(&sv_list[%d]) = %d;", $ix, $cur),
                        "SvLEN(&sv_list[$ix]) = 0;");
-  } else {
+  } elsif ((!$CPERL51 and $] < 5.027003)
+        or ($CPERL51 and $] < 5.027002)) {
     $init->add("sv_list[$ix].sv_u.svu_rx = (struct regexp*)sv_list[$ix].sv_any;");
+  } else { # since df6b4bd56551f2d39f7c
+    if ($sv->FLAGS & SVt_PVLV) {
+      $init->add("{ struct regexp* rx = (struct regexp*)sv_list[$ix].sv_any;",
+                 "  rx->xpv_len_u.xpvlenu_rx = (struct regexp*)sv_list[$ix].sv_any;",
+                 "}");
+    }
   }
   $svsect->debug( $fullname, $sv->flagspv ) if $debug{flags};
   $sym = savesym( $sv, sprintf( "&sv_list[%d]", $ix ) );
