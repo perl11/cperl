@@ -838,10 +838,10 @@ Perl_re_intuit_start(pTHX_
 
     end_shift = prog->check_end_shift;
 
-#ifdef DEBUGGING	/* 7/99: reports of failure (with the older version) */
+#ifdef DEBUGGING  /* 7/99: reports of failure (with the older version) */
     if (end_shift < 0)
 	Perl_croak(aTHX_ "panic: end_shift: %" IVdf " pattern:\n%s\n ",
-		   (IV)end_shift, RX_PRECOMP(prog));
+		   (IV)end_shift, RX_PRECOMP(rx));
 #endif
 
   restart:
