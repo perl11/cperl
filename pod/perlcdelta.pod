@@ -47,6 +47,8 @@ Coverity CID #165302 Insecure chroot.
 
 =over 4
 
+=item L<Config|XSConfig> 6.23
+
 =item L<Storable> 3.05_14
 
 Try to fix readonly stacksize.h with perlbrew. [cperl #335]
