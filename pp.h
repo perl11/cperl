@@ -320,7 +320,7 @@ Does not use C<TARG>.  See also C<L</XPUSHu>>, C<L</mPUSHu>> and C<L</PUSHu>>.
  */
 
 #define _EXTEND_SAFE_N(n) \
-        (sizeof(n) > sizeof(SSize_t) && ((SSize_t)(n) != (n)) ? -1 : (n))
+        (sizeof(n) > sizeof(SSize_t) && ((SSize_t)(n) != (n)) ? -1 : (SSize_t)(n))
 
 #ifdef STRESS_REALLOC
 # define EXTEND_SKIP(p, n) EXTEND_HWM_SET(p, n)
@@ -329,6 +329,7 @@ Does not use C<TARG>.  See also C<L</XPUSHu>>, C<L</mPUSHu>> and C<L</PUSHu>>.
                            sp = stack_grow(sp,p,_EXTEND_SAFE_N(n));     \
                            PERL_UNUSED_VAR(sp);                         \
                        } STMT_END
+# define EXTEND_NNEG(p,n)   EXTEND(p,n)
 /* Same thing, but update mark register too. */
 # define MEXTEND(p,n)   STMT_START {                                    \
                             const SSize_t markoff = mark - PL_stack_base; \
@@ -355,6 +356,8 @@ Does not use C<TARG>.  See also C<L</XPUSHu>>, C<L</mPUSHu>> and C<L</PUSHu>>.
  */
 
 #  define _EXTEND_NEEDS_GROW(p,n) ( PL_stack_max - (p) < (n) || (n) < 0)
+/* cannot overflow to negative. e.g. U32 on 64bit. or const n */
+#  define _EXTEND_NEEDS_GROW_NNEG(p,n) ( PL_stack_max - (p) < (n) )
 
 
 /* EXTEND_SKIP(): used for where you would normally call EXTEND(), but
@@ -375,6 +378,13 @@ Does not use C<TARG>.  See also C<L</XPUSHu>>, C<L</mPUSHu>> and C<L</PUSHu>>.
                          EXTEND_HWM_SET(p, n);                          \
                          if (UNLIKELY(_EXTEND_NEEDS_GROW(p,n))) {       \
                            sp = stack_grow(sp,p,_EXTEND_SAFE_N(n));     \
+                           PERL_UNUSED_VAR(sp);                         \
+                         } } STMT_END
+/* cannot overflow to negative. e.g. U32 on 64bit. or const n */
+#  define EXTEND_NNEG(p,n)   STMT_START {                               \
+                         EXTEND_HWM_SET(p, n);                          \
+                         if (UNLIKELY(_EXTEND_NEEDS_GROW_NNEG(p,n))) {  \
+                           sp = stack_grow(sp,p,n);                     \
                            PERL_UNUSED_VAR(sp);                         \
                          } } STMT_END
 /* Same thing, but update mark register too. */

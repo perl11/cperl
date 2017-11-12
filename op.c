@@ -20091,7 +20091,7 @@ S_const_sv_xsub(pTHX_ CV* cv)
     if (!sv) {
 	XSRETURN(0);
     }
-    EXTEND(sp, 1);
+    EXTEND_NNEG(sp, 1);
     ST(0) = sv;
     XSRETURN(1);
 }
@@ -20119,7 +20119,7 @@ S_const_av_xsub(pTHX_ CV* cv)
     if (SvRMAGICAL(av))
 	Perl_croak(aTHX_ "Magical list constants are not supported");
     if (GIMME_V != G_ARRAY) {
-	EXTEND(SP, 1);
+	EXTEND_NNEG(SP, 1);
 	ST(0) = sv_2mortal(newSViv((IV)AvFILLp(av)+1));
 	XSRETURN(1);
     }
@@ -20212,7 +20212,11 @@ S_Mu_av_xsub(pTHX_ CV* cv)
         const U32 keys = HvKEYS(hv);
         U32 i = 0;
         if (keys > 0) {
-            EXTEND(SP, (SSize_t)(keys*2));
+#if LONGSIZE > 2
+            EXTEND_NNEG(SP, keys*2);
+#else
+            EXTEND(SP, keys*2);
+#endif
             (void)hv_iterinit(hv);
             while ((he = hv_iternext(hv))) {
                 ST(i++) = newSVhek(HeKEY_hek(he));
