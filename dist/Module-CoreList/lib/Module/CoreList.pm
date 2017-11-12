@@ -13327,6 +13327,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Module::CoreList::Utils'=> '5.20160807',
             'Archive::Tar'          => '2.26',
             'B::C'                  => '1.55_06',
+            'Config'                => '6.23',
             'ExtUtils::Liblist::Kid' => '8.04_06',
             'Internals::DumpArenas' => '0.12_04',
             'Socket'                => '2.24_02',

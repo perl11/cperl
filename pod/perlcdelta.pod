@@ -81,6 +81,11 @@ Fix !C99 precedence bug (e.g. MSVC).
 Minor refactor to simplify save_hek.
 Use the new get_svs, get_avs, get_hvs macros.
 
+=item L<Config>  6.23
+
+U32_MAX keys on 64bit. Better gperf and C++ support.
+Add --regen.
+
 =item L<ExtUtils::Liblist::Kid>  8.04_06
 
 Silence No library found errors on darwin for libSystem.dylib libs.
