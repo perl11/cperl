@@ -6828,10 +6828,12 @@ PROTOTYPES: DISABLE
 BOOT:
 {
   STATIC_ASSERT_STMT(sizeof (stringpool_contents) <= 1 << 15);
-#if PTRSIZE == 8
+#ifndef _MSC_VER /* MSVC packing?  Fails on my MSVC110FREE WIN64 box */
+# if PTRSIZE == 8
   STATIC_ASSERT_STMT(sizeof (struct Perl_Config) == 16);
-#else
+# else
   STATIC_ASSERT_STMT(sizeof (struct Perl_Config) == 8);
+# endif
 #endif
 #if BYTEORDER == 0x4321 || BYTEORDER == 0x87654321  /* big-endian */
 /* an inline string better be negative on BE */

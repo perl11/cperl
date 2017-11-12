@@ -50,6 +50,8 @@ Coverity CID #165302 Insecure chroot.
 
 =over 4
 
+=item L<Config|XSConfig> 6.23
+
 =item L<ExtUtils::MM_Unix>  8.04_04
 
 Support filehandles for C<<< MM->parse_version >>>.

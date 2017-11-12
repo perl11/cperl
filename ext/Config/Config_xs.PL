@@ -430,7 +430,7 @@ __inline
          {Config_lookup (register const char *str, register unsigned int len)};
 
         # fixup U16
-        s/\(int\)\(long\)\&/(U16)(long)&/g;
+        s/\(int\)\((long|size_t)\)\&/(U16)($1)&/g;
         s/\Qregister int o = wordlist[key].name\E/register U16 o = wordlist[key].name/;
         s/\Qif (o >= 0)\E\n/if (o != XCNAME_MAX)\n/;
 
