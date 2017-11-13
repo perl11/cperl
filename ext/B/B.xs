@@ -1309,10 +1309,10 @@ aux_list(o, cv=NULL)
                 PUSHs(sv_2mortal(newSViv(nargs)));
 
                 p   = aux[PERL_MULTICONCAT_IX_PLAIN_PV].pv;
-                len = aux[PERL_MULTICONCAT_IX_PLAIN_LEN].size;
+                len = aux[PERL_MULTICONCAT_IX_PLAIN_LEN].ssize;
                 if (!p) {
                     p   = aux[PERL_MULTICONCAT_IX_UTF8_PV].pv;
-                    len = aux[PERL_MULTICONCAT_IX_UTF8_LEN].size;
+                    len = aux[PERL_MULTICONCAT_IX_UTF8_LEN].ssize;
                     utf8 = SVf_UTF8;
                 }
                 sv = newSVpvn(p, len);
@@ -1324,7 +1324,7 @@ aux_list(o, cv=NULL)
                 if (utf8) {
                     U8 *p = (U8*)SvPVX(sv);
                     while (nargs--) {
-                        SSize_t bytes = lens->size;
+                        SSize_t bytes = lens->ssize;
                         SSize_t chars;
                         if (bytes <= 0)
                             chars = bytes;
@@ -1339,7 +1339,7 @@ aux_list(o, cv=NULL)
                 }
                 else {
                     while (nargs--) {
-                        PUSHs(sv_2mortal(newSViv(lens->size)));
+                        PUSHs(sv_2mortal(newSViv(lens->ssize)));
                         lens++;
                     }
                 }

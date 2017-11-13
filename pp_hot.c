@@ -585,8 +585,8 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
 
                     if (   svpv_end == svpv_buf + 1
                            /* no const string segments */
-                        && aux[PERL_MULTICONCAT_IX_LENGTHS].size     == -1
-                        && aux[PERL_MULTICONCAT_IX_LENGTHS + 1].size == -1
+                        && aux[PERL_MULTICONCAT_IX_LENGTHS].ssize     == -1
+                        && aux[PERL_MULTICONCAT_IX_LENGTHS + 1].ssize == -1
                     ) {
                         /* special case: if the overloaded sv is the
                          * second arg in the concat chain, stop at the
@@ -650,8 +650,8 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
                         && is_append
                         && nargs == 1
                         /* no const string segments */
-                        && aux[MCONCAT_LENGTHS].size   == -1
-                        && aux[MCONCAT_LENGTHS+1].size == -1)
+                        && aux[MCONCAT_LENGTHS].ssize   == -1
+                        && aux[MCONCAT_LENGTHS+1].ssize == -1)
                     {
                         /* special-case $tied .= $tied.
                          *
@@ -841,7 +841,7 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
     {
         SSize_t len;
         len = aux[dst_utf8 ? MCONCAT_U8LEN
-                           : MCONCAT_LEN].size;
+                           : MCONCAT_LEN].ssize;
         slow_concat = cBOOL(len);
         grow += len;
     }
@@ -963,7 +963,7 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
 
             UNOP_AUX_item *lens = const_lens;
                                 /* length of first const string segment */
-            STRLEN offset       = lens->size > 0 ? lens->size : 0;
+            STRLEN offset       = lens->ssize > 0 ? lens->ssize : 0;
 
             assert(targ_chain);
             svpv_p = svpv_base;
@@ -977,7 +977,7 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
                 if (len < 0)  /* variant args have this */
                     len = -len;
                 offset += (STRLEN)len;
-                len = (++lens)->size;
+                len = (++lens)->ssize;
                 offset += (len >= 0) ? (STRLEN)len : 0;
                 if (!offset) {
                     /* all args and consts so far are empty; update
@@ -1054,7 +1054,7 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
         svpv_p = svpv_base - 1;
 
         for (;;) {
-            SSize_t len = (const_lens++)->size;
+            SSize_t len = (const_lens++)->ssize;
 
             /* append next const string segment */
             if (len > 0) {
@@ -1130,8 +1130,8 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
                                 * (including constant strings), so would
                                 * form part of the first concat */
             bool first_concat = (    n == 0
-                                 || (n == 1 && const_lens[-2].size < 0
-                                            && const_lens[-1].size < 0));
+                                 || (n == 1 && const_lens[-2].ssize < 0
+                                            && const_lens[-1].ssize < 0));
             int  f_assign     = first_concat ? 0 : AMGf_assign;
 
             left = dsv;
@@ -1141,7 +1141,7 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
                 for (i = 0; i < 2; i++) {
                     if (i) {
                         /* append next const string segment */
-                        STRLEN len = (STRLEN)((const_lens++)->size);
+                        STRLEN len = (STRLEN)((const_lens++)->ssize);
                         /* a length of -1 implies no constant string
                          * rather than a zero-length one, e.g.
                          * ($a . $b) versus ($a . "" . $b)
@@ -1174,7 +1174,7 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
                              * before we broke from the loop earlier */
                             getmg = TRUE;
 
-                        if (first_concat && n == 0 && const_lens[-1].size < 0) {
+                        if (first_concat && n == 0 && const_lens[-1].ssize < 0) {
                             /* nothing before the current arg; repeat the
                              * loop to get a second arg */
                             left = right;
