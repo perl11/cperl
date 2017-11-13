@@ -132,7 +132,7 @@ if( $] >= 5.008 ) {
     # XXX This is a copy of the internal logic, so it's not a great test
     $archname .= "-$Config{PERL_REVISION}.$Config{PERL_VERSION}";
 }
-like( $ppd_html, qr{^\s*<ARCHITECTURE NAME="$archname" />}m,
+like( $ppd_html, qr{^\s*<ARCHITECTURE NAME="\Q$archname\E" />}m,
                                                            '  <ARCHITECTURE>');
 like( $ppd_html, qr{^\s*<CODEBASE HREF="" />}m,            '  <CODEBASE>');
 like( $ppd_html, qr{^\s*</IMPLEMENTATION>}m,           '  </IMPLEMENTATION>');
