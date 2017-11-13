@@ -1298,7 +1298,7 @@ aux_list(o, cv=NULL)
                 SV *sv;
                 UNOP_AUX_item *lens;
                 STRLEN len;
-                UV nargs = aux[0].uv;
+                SSize_t nargs = aux[PERL_MULTICONCAT_IX_NARGS].ssize;
                 U32 utf8 = 0;
 
                 /* return (nargs, const string, segment len 0, 1, 2, ...) */
@@ -1306,7 +1306,7 @@ aux_list(o, cv=NULL)
                 /* if this changes, this block of code probably needs fixing */
                 assert(PERL_MULTICONCAT_HEADER_SIZE == 5);
                 EXTEND(SP, ((SSize_t)(2 + (nargs+1))));
-                PUSHs(sv_2mortal(newSViv(nargs)));
+                PUSHs(sv_2mortal(newSViv((IV)nargs)));
 
                 p   = aux[PERL_MULTICONCAT_IX_PLAIN_PV].pv;
                 len = aux[PERL_MULTICONCAT_IX_PLAIN_LEN].ssize;

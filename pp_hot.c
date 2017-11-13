@@ -424,8 +424,8 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
     const char *const_pv;    /* the current segment of the const string buf */
     STRLEN targ_len;         /* SvCUR(targ) */
     STRLEN grow;             /* final size of destination string (dsv) */
-    UV nargs;                /* how many args were expected */
-    UV stack_adj;            /* how much to adjust SP on return */
+    SSize_t nargs;           /* how many args were expected */
+    SSize_t stack_adj;            /* how much to adjust SP on return */
     UV targ_count;           /* how many times targ has appeared on the RHS */
     U32  dst_utf8;           /* the result will be utf8 (indicate this with
                                 SVf_UTF8 in a U32, rather than using bool,
@@ -453,7 +453,7 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
         svpv_buf[PERL_MULTICONCAT_MAXARG]; /* buf for storing SvPV() results */
 
     aux       = cUNOP_AUXx(PL_op)->op_aux;
-    stack_adj = nargs = aux[MCONCAT_NARGS].uv;
+    stack_adj = nargs = aux[MCONCAT_NARGS].ssize;
     is_append = cBOOL(PL_op->op_private & OPpMULTICONCAT_APPEND);
 
     /* get targ from the stack or pad */
@@ -1124,7 +1124,7 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
             bool getmg = FALSE;
             SV *constsv = NULL;
                                /* number of args already concatted */
-            STRLEN n          = (nargs - 1) - (toparg - SP);
+            SSize_t n         = (nargs - 1) - (toparg - SP);
                                /* current arg is either the first
                                 * or second value to be concatted
                                 * (including constant strings), so would
