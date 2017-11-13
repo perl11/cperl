@@ -18033,9 +18033,7 @@ S_check_for_bool_cxt(OP*o, bool safe_and, U8 bool_flag, U8 maybe_flag)
          * and treat it as a boolean in the non linenumber case */
         case OP_FLIP:
         case OP_FLOP:
-            if (   ((lop->op_flags & OPf_WANT) == OPf_WANT_LIST)
-                || (lop->op_private & OPpFLIP_LINENUM))
-            {
+            if (OpWANT_LIST(lop) || (OpPRIVATE(lop) & OPpFLIP_LINENUM)) {
                 lop = NULL;
                 break;
             }
