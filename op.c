@@ -6858,7 +6858,9 @@ and, shifted up eight bits, the eight bits of C<op_private>, except that
 the bit with value 1 is automatically set.  C<dynamic_meth> supplies an
 op which evaluates method name; it is consumed by this function and
 become part of the constructed op tree.
-Supported optypes: C<OP_METHOD>.
+
+Supported optypes: METHOD, METHOD_NAMED, METHOD_SUPER, METHOD_REDIR,
+METHOD_REDIR_SUPER, CUSTOM.
 
 =cut
 */
