@@ -2514,10 +2514,8 @@ Perl_sv_2iv_flags(pTHX_ SV *const sv, const I32 flags)
 	assert(SvPOKp(sv));
 	{
 	    UV value;
-	    const char * const ptr =
-		isREGEXP(sv) ? RX_WRAPPED((REGEXP*)sv) : SvPVX_const(sv);
-	    const int numtype
-		= grok_number(ptr, SvCUR(sv), &value);
+	    const char * const ptr = SvPVX_const(sv);
+	    const int numtype = grok_number(ptr, SvCUR(sv), &value);
 
 	    if ((numtype & (IS_NUMBER_IN_UV | IS_NUMBER_NOT_INT))
 		== IS_NUMBER_IN_UV) {
@@ -2602,10 +2600,8 @@ Perl_sv_2uv_flags(pTHX_ SV *const sv, const I32 flags)
 	assert(SvPOKp(sv));
 	{
 	    UV value;
-	    const char * const ptr =
-		isREGEXP(sv) ? RX_WRAPPED((REGEXP*)sv) : SvPVX_const(sv);
-	    const int numtype
-		= grok_number(ptr, SvCUR(sv), &value);
+	    const char * const ptr = SvPVX_const(sv);
+	    const int numtype = grok_number(ptr, SvCUR(sv), &value);
 
 	    if ((numtype & (IS_NUMBER_IN_UV | IS_NUMBER_NOT_INT))
 		== IS_NUMBER_IN_UV) {
@@ -5412,7 +5408,7 @@ Perl_sv_force_normal_flags(pTHX_ SV *const sv, const U32 flags)
 	    sv->sv_u.svu_pv = 0;
 	}
 	else {
-	    sv->sv_u.svu_pv = savepvn(RX_WRAPPED((REGEXP *)sv), SvCUR(sv));
+	    sv->sv_u.svu_pv = savepvn(SvPVX(sv), SvCUR(sv));
 	    SvLEN_set(islv ? sv : temp, SvCUR(sv)+1);
 	    SvPOK_on(sv);
 	}

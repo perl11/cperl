@@ -1822,7 +1822,7 @@ Perl_do_magic_dump(pTHX_ I32 level, PerlIO *file, const MAGIC *mg, I32 nest,
 		REGEXP* const re = (REGEXP *)mg->mg_obj;
 		SV * const dsv = sv_newmortal();
                 const char * const s
-		    = pv_pretty(dsv, RX_WRAPPED(re), RX_WRAPLEN(re),
+		    = pv_pretty(dsv, SvPVX(re), SvCUR(re),
                     60, NULL, NULL,
                     ( PERL_PV_PRETTY_QUOTE | PERL_PV_ESCAPE_RE | PERL_PV_PRETTY_ELLIPSES |
                     (RX_UTF8(re) ? PERL_PV_ESCAPE_UNI : 0))
@@ -2247,11 +2247,10 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
 
     if ((type <= SVt_PVLV && !isGV_with_GP(sv))
      || (type == SVt_PVIO && IoFLAGS(sv) & IOf_FAKE_DIRP)) {
-	const bool re = isREGEXP(sv);
-	const char * const ptr =
-	    re ? RX_WRAPPED((REGEXP*)sv) : SvPVX_const(sv);
+	const char * const ptr = SvPVX_const(sv);
 	if (ptr) {
 	    STRLEN delta;
+            const bool is_re = isREGEXP(sv);
 	    if (SvOOK(sv)) {
 		SvOOK_offset(sv, delta);
 		Perl_dump_indent(aTHX_ level, file,"  OFFSET = %" UVuf "\n",
@@ -2273,7 +2272,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
             }
             else {
                 PerlIO_printf(file, "%s", pv_display(d, ptr, SvCUR(sv),
-                                                     re ? 0 : SvLEN(sv),
+                                                     is_re ? 0 : SvLEN(sv),
                                                      pvlim));
                 if (SvUTF8(sv)) /* the 6?  \x{....} */
                     PerlIO_printf(file, " [UTF8 \"%s\"]",
@@ -2282,7 +2281,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
                 PerlIO_printf(file, "\n");
             }
 	    Perl_dump_indent(aTHX_ level, file, "  CUR = %" IVdf "\n", (IV)SvCUR(sv));
-	    if (!re)
+	    if (!is_re)
 		Perl_dump_indent(aTHX_ level, file, "  LEN = %" IVdf "\n",
 				       (IV)SvLEN(sv));
 #ifdef PERL_COPY_ON_WRITE

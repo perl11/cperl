@@ -240,21 +240,21 @@
 
 #define CALLREGCOMP(sv, flags) Perl_pregcomp(aTHX_ (sv),(flags))
 
-#define CALLREGCOMP_ENG(prog, sv, flags) (prog)->comp(aTHX_ sv, flags)
-#define CALLREGEXEC(prog,stringarg,strend,strbeg,minend,sv,data,flags) \
-    RX_ENGINE(prog)->exec(aTHX_ (prog),(stringarg),(strend), \
+#define CALLREGCOMP_ENG(eng, sv, flags) (eng)->comp(aTHX_ sv, flags)
+#define CALLREGEXEC(rx_sv,stringarg,strend,strbeg,minend,sv,data,flags) \
+    RX_ENGINE(rx_sv)->exec(aTHX_ (rx_sv),(stringarg),(strend), \
         (strbeg),(minend),(sv),(data),(flags))
-#define CALLREG_INTUIT_START(prog,sv,strbeg,strpos,strend,flags,data) \
-    RX_ENGINE(prog)->intuit(aTHX_ (prog), (sv), (strbeg), (strpos), \
+#define CALLREG_INTUIT_START(rx_sv,sv,strbeg,strpos,strend,flags,data) \
+    RX_ENGINE(rx_sv)->intuit(aTHX_ (rx_sv), (sv), (strbeg), (strpos), \
         (strend),(flags),(data))
-#define CALLREG_INTUIT_STRING(prog) \
-    RX_ENGINE(prog)->checkstr(aTHX_ (prog))
+#define CALLREG_INTUIT_STRING(rx_sv) \
+    RX_ENGINE(rx_sv)->checkstr(aTHX_ (rx_sv))
 
-#define CALLREGFREE(prog) \
-    Perl_pregfree(aTHX_ (prog))
+#define CALLREGFREE(rx_sv) \
+    Perl_pregfree(aTHX_ (rx_sv))
 
-#define CALLREGFREE_PVT(prog) \
-    RX_ENGINE(prog)->rxfree(aTHX_ (prog))
+#define CALLREGFREE_PVT(rx_sv) \
+    RX_ENGINE(rx_sv)->rxfree(aTHX_ (rx_sv))
 
 #define CALLREG_NUMBUF_FETCH(rx,paren,usesv)                                \
     RX_ENGINE(rx)->numbered_buff_FETCH(aTHX_ (rx),(paren),(usesv))
@@ -299,14 +299,14 @@
     RX_ENGINE(rx)->qr_package(aTHX_ (rx))
 
 #if defined(USE_ITHREADS)
-#define CALLREGDUPE(prog,param) \
-    Perl_re_dup(aTHX_ (prog),(param))
+#define CALLREGDUPE(rx_sv,param) \
+    Perl_re_dup(aTHX_ (rx_sv),(param))
 
-#define CALLREGDUPE_PVT(prog,param) \
-    (prog ? RX_ENGINE(prog)->dupe(aTHX_ (prog),(param)) \
+#define CALLREGDUPE_PVT(rx_sv,param) \
+    (rx_sv ? RX_ENGINE(rx_sv)->dupe(aTHX_ (rx_sv),(param)) \
           : (REGEXP *)NULL)
-#define CALLREGDUPE_PVT_NN(prog,param) \
-    RX_ENGINE(prog)->dupe(aTHX_ (prog),(param))
+#define CALLREGDUPE_PVT_NN(rx_sv,param) \
+    RX_ENGINE(rx_sv)->dupe(aTHX_ (rx_sv),(param))
 #endif
 
 
@@ -5754,12 +5754,12 @@ struct perl_debug_pad {
 typedef void (*peep_t)(pTHX_ OP* o);
 typedef regexp* (*regcomp_t) (pTHX_ char* exp, char* xend, PMOP* pm);
 typedef I32     (*regexec_t) (pTHX_ regexp* prog, char* stringarg,
-				      char* strend, char* strbeg, I32 minend,
-				      SV* screamer, void* data, U32 flags);
+				    char* strend, char* strbeg, I32 minend,
+				    SV* screamer, void* data, U32 flags);
 typedef char*   (*re_intuit_start_t) (pTHX_ regexp *prog, SV *sv,
-						char *strpos, char *strend,
-						U32 flags,
-						re_scream_pos_data *d);
+                                            char *strpos, char *strend,
+                                            U32 flags,
+					    re_scream_pos_data *d);
 typedef SV*	(*re_intuit_string_t) (pTHX_ regexp *prog);
 typedef void	(*regfree_t) (pTHX_ struct regexp* r);
 typedef regexp* (*regdupe_t) (pTHX_ const regexp* r, CLONE_PARAMS *param);

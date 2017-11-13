@@ -19619,7 +19619,7 @@ Perl_pregfree2(pTHX_ REGEXP *rx)
         }
 	Safefree(r->substrs);
     }
-    RX_MATCH_COPY_FREE(rx);
+    RXp_MATCH_COPY_FREE(r);
 #ifdef PERL_ANY_COW
     SvREFCNT_dec(r->saved_copy);
 #endif
@@ -20406,9 +20406,9 @@ S_put_range(pTHX_ SV *sv, UV start, const UV end, const bool allow_literals)
 #else
         format = "\\x%02" UVXf "-\\x%02" UVXf;
 #endif
-        GCC_DIAG_IGNORE(-Wformat-nonliteral);
+        GCC_DIAG_IGNORE(-Wformat-nonliteral)
         Perl_sv_catpvf(aTHX_ sv, format, start, this_end);
-        GCC_DIAG_RESTORE;
+        GCC_DIAG_RESTORE
         break;
     }
 }

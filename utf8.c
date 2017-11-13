@@ -5595,8 +5595,7 @@ The pointer to the PV of the C<dsv> is returned.
 char *
 Perl_sv_uni_display(pTHX_ SV *dsv, SV *ssv, STRLEN pvlim, UV flags)
 {
-    const char * const ptr =
-        isREGEXP(ssv) ? RX_WRAPPED((REGEXP*)ssv) : SvPVX_const(ssv);
+    const char * const ptr = SvPVX_const(ssv);
 
     PERL_ARGS_ASSERT_SV_UNI_DISPLAY;
 
