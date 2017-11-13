@@ -547,7 +547,7 @@ and check for NULL.
 
 #ifdef PERL_ANY_COW
 #define RXp_MATCH_COPY_FREE(prog) \
-	STMT_START {if (RXp_SAVED_COPY(prog)) { \
+	STMT_START { if (RXp_SAVED_COPY(prog)) { \
 	    SV_CHECK_THINKFIRST_COW_DROP(RXp_SAVED_COPY(prog)); \
 	} \
 	if (RXp_MATCH_COPIED(prog)) { \
@@ -556,12 +556,12 @@ and check for NULL.
 	}} STMT_END
 #else
 #define RXp_MATCH_COPY_FREE(prog) \
-	STMT_START {if (RXp_MATCH_COPIED(prog)) { \
+	STMT_START { if (RXp_MATCH_COPIED(prog)) { \
 	    Safefree(RXp_SUBBEG(prog)); \
 	    RXp_MATCH_COPIED_off(prog); \
 	}} STMT_END
 #endif
-#define RX_MATCH_COPY_FREE(rx_sv)       (RXp_MATCH_COPY_FREE(ReANY(rx_sv)))
+#define RX_MATCH_COPY_FREE(rx_sv)       RXp_MATCH_COPY_FREE(ReANY(rx_sv))
 
 #define RXp_MATCH_UTF8(prog)            (RXp_EXTFLAGS(prog) & RXf_MATCH_UTF8)
 #define RX_MATCH_UTF8(rx_sv)            (RX_EXTFLAGS(rx_sv) & RXf_MATCH_UTF8)
@@ -615,7 +615,7 @@ and check for NULL.
 #  define ReREFCNT_dec(re)	SvREFCNT_dec(re)
 #  define ReREFCNT_inc(re)	((REGEXP *) SvREFCNT_inc(re))
 #endif
-#define ReANY(re)		S_ReANY((const REGEXP *)(re))
+#define ReANY(re)		S_ReANY((const REGEXP * const)(re))
 
 /* FIXME for plugins. */
 
