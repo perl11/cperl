@@ -4692,6 +4692,7 @@ I32
 Perl_filter_read(pTHX_ int idx, SV *buf_sv, int maxlen)
 {
     filter_t funcp;
+    I32 ret;
     SV *datasv = NULL;
     /* This API is bad. It should have been using unsigned int for maxlen.
        Not sure if we want to change the API, but if not we should sanity
@@ -4774,7 +4775,11 @@ Perl_filter_read(pTHX_ int idx, SV *buf_sv, int maxlen)
     /* Call function. The function is expected to 	*/
     /* call "FILTER_READ(idx+1, buf_sv)" first.		*/
     /* Return: <0:error, =0:eof, >0:not eof 		*/
-    return (*funcp)(aTHX_ idx, buf_sv, correct_length);
+    ENTER;
+    save_scalar(PL_errgv);
+    ret = (*funcp)(aTHX_ idx, buf_sv, correct_length);
+    LEAVE;
+    return ret;
 }
 
 STATIC char *
