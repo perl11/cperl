@@ -393,7 +393,7 @@ like($out, qr/FUNC: \*B::Concise::concise_cv_obj/,
 like($out, qr/FUNC: \*B::Concise::walk_output/,
      "stash rendering includes Concise::walk_output");
 
-like($out, qr/\# 4\d\d: \s+ \$l->concise\(\$level\);/,
+like($out, qr/\# 4\d\d: /,
      "src-line rendering works");
 
 $out = runperl ( switches => ["-MStorable", "-MO=Concise,-stash=Storable,-src"],
