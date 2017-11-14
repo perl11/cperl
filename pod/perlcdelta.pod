@@ -194,6 +194,22 @@ Removed C<PL_sv_count> variable and updates on every C<new_SV> and
 C<del_SV> on non-DEBUGGING builds.  For refcount leak checks scan the
 arenas.
 
+=item *
+
+C<SvTRUE()> is now more efficient.
+
+=item *
+
+C<keys()> in void and scalar contexts is now more efficient.
+
+=item *
+
+Various integer-returning ops are now more efficient in scalar/boolean context.
+
+=item *
+
+C<< if (index(...) != -1) { ... } >> is now more efficient.
+
 =back
 
 =head1 Modules and Pragmata
