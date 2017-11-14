@@ -1,5 +1,9 @@
 Revision history for Perl extension ExtUtils::ParseXS.
 
+3.36
+  - Make generated code avoid warnings about the "items" variable
+    being unused
+
 3.35_02 - 2017-08-05 16:11:23 rurban
   - Fix visibility declaration of XS_EXTERNAL for -flto and
     -fvisibility=hidden
