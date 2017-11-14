@@ -1090,7 +1090,7 @@ use File::Glob qw(:case);
     },
 
     'Net::Domain' => {
-        'DISTRIBUTION' => 'SHAY/libnet-3.10.tar.gz',
+        'DISTRIBUTION' => 'SHAY/libnet-3.11.tar.gz',
         'FILES'        => q[cpan/libnet],
         'EXCLUDED'     => [
             qw( Configure

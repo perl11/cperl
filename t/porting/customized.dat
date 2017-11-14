@@ -74,8 +74,8 @@ ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/pm_to_blib.t 568663f592d962dfae8c7
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/pod2man.t 11f73694a57ab199f8fe905559073744af3c14da
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/prereq.t 289100886bc698838a6f71cd8fa70348dac20b75
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/vstrings.t 62c50e82f1f7afa702773b61c1cbec80c4902210
-ExtUtils::ParseXS dist/ExtUtils-ParseXS/Changes 56ba1ad116c26dc025bb6e11537e3c421338c51a
-ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm f13746745b7bdbed84ed81b5dcce84ac8b38c536
+ExtUtils::ParseXS dist/ExtUtils-ParseXS/Changes 1873bd68dc48698bbd891b882bd891400f09754b
+ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm 06923e2c509a5a02c1da5b4db26496b527e21ab7
 File::Path cpan/File-Path/lib/File/Path.pm 9abce7ef6597df33fb0cbbd02bf7e34c12157330
 File::Path cpan/File-Path/t/Path_win32.t 46d09109b418a5ee9c3e2d84ee86449103f7a00d
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
@@ -114,8 +114,8 @@ Module::Load::Conditional cpan/Module-Load-Conditional/lib/Module/Load/Condition
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 NEXT cpan/NEXT/lib/NEXT.pm 2c83d03ee361816e53ccb931137d314ab878d19f
 NEXT cpan/NEXT/t/next.t 66fd60eb0f75b6f3eea95d1dee745f9a7a348146
-Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
-Net::Domain cpan/libnet/lib/Net/Domain.pm 73f78880a95de5372bb234f37c386f52e43795d9
+Net::Domain cpan/libnet/lib/Net/Cmd.pm f4e0450459e6de99bd5fe65068876a6198bdba46
+Net::Domain cpan/libnet/lib/Net/Domain.pm 9fd56bca53cceb0957472b6531edcf5a36a61e83
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 8ac11522808238b028b935fa94bf5ff319e68938
 Pod::Perldoc cpan/Pod-Perldoc/lib/Pod/Perldoc.pm 582be34c077c9ff44d99914724a0cc2140bcd48c
 Pod::Usage cpan/Pod-Usage/scripts/pod2usage.PL e78dee490d466191620821446d49794a4ec6254e
