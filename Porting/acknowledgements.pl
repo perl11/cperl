@@ -58,9 +58,8 @@ Excluding auto-generated files, documentation and release tools, there
 were approximately $formatted_code_changes lines of changes to
 $formatted_code_files .pm, .t, .c and .h files.
 
-Perl continues to flourish into its third decade thanks to a vibrant
-community of users and developers. The following people are known to
-have contributed the improvements that became Perl $next_version:
+The following people are known to have contributed the improvements
+that became Perl $next_version:
 
 $authors
 The list above is almost certainly incomplete as it is automatically

@@ -31,6 +31,7 @@ The slow GV lookup in entersub cannot be converted to a faster CVref lookup,
 as this would break dynamic method redefinitions.
 See L<http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html>.
 This is ~4% faster for each such method call.
+cperl-only.
 
 =head2 Dump more COP fields
 
@@ -38,6 +39,7 @@ Dump the values of a COP C<$^H>, C<%^H> and the lexical warnings via
 C<op_dump()> and it's XS module L<Devel::Peek>.
 Improve the display of cop SEQ values and ranges, and padnames.
 Added a DEBUGGING C<cop_dump()> helper, esp. useful for deleted C<PL_curcop>'s.
+cperl-only.
 
 =head2 More unicode ops
 
@@ -45,6 +47,7 @@ Added the strong unicode fraction op C</> U+2044, which binds stronger
 than all other arithmetic ops, and the two unicode multiplication ops
 C<⋅> U+022C5 (dot operator) and C<∙> U+2219 (multiplication dot),
 which binds the same as C<*>.
+cperl-only.
 
 =head2 L<C<delete>|perlfunc/delete EXPR> on key/value slices
 
@@ -182,17 +185,20 @@ as an updated module in the L</Modules and Pragmata> section.
 The L<fields> API refactor using a local L<perlapi/HvFIELDS> buffer
 and not globals C<%FIELDS> and C<@FIELDS> SVs anymore gained 25% speed
 and similar memory improvements.
+cperl-only.
 
 =item *
 
 Optimize field method calls to faster oelemfast OPs, accessing the
 field directly.
+cperl-only.
 
 =item *
 
 Removed C<PL_sv_count> variable and updates on every C<new_SV> and
 C<del_SV> on non-DEBUGGING builds.  For refcount leak checks scan the
 arenas.
+cperl-only.
 
 =item *
 
@@ -236,13 +242,50 @@ XXX
 
 =over 4
 
+=item L<arybase> 0.13
+
+Remove #ifdef USE_ITHREADS around MUTEX_* calls
+
+=item L<attributes> 1.13c
+
+Remove deprecated no-op attributes :unique, :locked
+
+=item L<Attribute::Handlers> 1.00
+
+Remove deprecated no-op attributes :unique, :locked
+
 =item L<base> 2.27c
 
 Limit dotless-INC effect on base.pm with guard
 
+=item L<B> 1.69_08
+
+Support PL_sv_zero
+
 =item L<B::C> 1.55_05
 
 Support POK/PVLV REGEXP for v5.27.3/v5.27.2c
+
+=item L<B::Concise> 1.002c
+
+Support PL_sv_zero
+
+=item L<B::Deparse> 1.42_04c
+
+Support boolean optims
+
+=item L<B::Terse> 1.09_01
+
+Remove internal links to B::Debug
+
+=item C<Carp> 1.43c
+
+Fix problems introduced by the partial EBCDIC support from version
+1.35
+
+=item C<charnames> 1.45
+
+Remove obsolete pod about NBSP
 
 =item C<coretypes> 0.03c
 
@@ -253,14 +296,24 @@ Each coretype is now a class.
 Fixed locale-insensitive numeric conversion on older perls.
 Fixed compilation under windows.
 
-=item L<Devel::Peek> 1.26_03
+=item L<Data::Dumper> 2.167_02
+
+Attempt to work around XS deparse issues on old perls.
+
+=item L<Devel::Peek> 1.27_03
 
 Dump the values of a COP $^H, %^H and lexical warnings.
 Improved the test a bit.
 
+use cv_set_call_checker_flags
+
 =item L<Devel::PPPort> 3.36_03
 
 Silence PERL_CORE make
+
+=item L<DirHandle> 1.05
+
+Document as obsolete
 
 =item L<Encode> 2.93
 
@@ -281,6 +334,8 @@ https://github.com/dankogai/p5-encode/pull/121
 
 Minor updates from p5p
 
+=item L<feature> 1.49_01
+
 =item L<fields> 2.26c
 
 Implemented L<Mu/fields> returning fields objects, as in perl6
@@ -289,6 +344,20 @@ Implemented L<Mu/fields> returning fields objects, as in perl6
 Revert the conversion of a fields package to class. Only close
 the ISA as with base.
 
+cperl-only.
+
+=item L<File::Glob> 1.29
+
+Skip a test when File::Glob not used
+
+=item L<GDBM_File> 1.16
+
+Add a pod link
+
+=item L<if> 0.0607
+
+Doc how to import when you want to 'use MODULE ()'
+
 =item L<Module::CoreList> 20170815c
 
 =item L<Module::Load::Conditional> 0.68_01
@@ -296,9 +365,34 @@ the ISA as with base.
 Improve CPANPLUS: Fix [cperl #331], checking for cperl builtins.
 With a slightly adjusted patch from @voegelas.
 
+=item L<mro> 1.21
+
+prevent mro.pm from loading DynaLoader
+
 =item L<Mu> 0.02c
 
 Implemented L<Mu/fields> returning fields objects.
+cperl-only.
+
+=item L<O> 1.02
+
+Improve error message for bogus -MO=… arguments
+
+=item L<PerlIO::scalar> 0.29
+
+check invariant at compile time.
+
+return EACCES on writing to a read-only scalar
+
+=item L<POSIX> 1.77_03
+
+internal cleanup of setlocale (unusable for cpan)
+
+=item L<re> 0.35_01
+
+Faster. add DEBUGGING_RE_ONLY define
+
+=item L<SelfLoader> 1.24
 
 =item L<Storable> 3.05_16
 
@@ -314,6 +408,10 @@ Unify stack reserve to 32 across all platforms.
 
 Improved Symbol::delete_package for readonly and protected symbols
 and classes.
+
+=item L<threads> 2.17_01
+
+Support PL_sv_zero
 
 =item L<Time::Piece> 1.3202
 
@@ -417,8 +515,8 @@ class, the method is not yet fixed up to the new indices. A
 temp. solution would be to change the ordering of the roles, or to use
 the C<< $self->field >> method syntax in the role method.  This should
 be fixed before 5.28. Currently we can only alias composed role
-methods and we don't change the ordering of the fields.  See L<[cperl
-#311]|https://github.com/perl11/cperl/issues/311>
+methods and we don't change the ordering of the fields.
+See L<[cperl #311]|https://github.com/perl11/cperl/issues/311>
 
 =back
 
@@ -465,20 +563,19 @@ XXX
 
 =head1 Configuration and Compilation
 
-XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
-go here.  Any other changes to the Perl build process should be listed here.
-However, any platform-specific changes should be listed in the
-L</Platform Support> section, instead.
-
-[ List changes as a =item entry ].
-
 =over 4
+
+=item *
+
+With GCC, C<-Werror=pointer-arith> is now enabled by default,
+disallowing arithmetic on void and function pointers.
 
 =item *
 
 Fixed C<d_builtin_arith_overflow> detection and usage for 32bit
 systems with C<use64bitint>. They do use the 'll' suffix, same as with
 WIN64.  Now we can use this optimization.
+cperl-only.
 
 =back
 
@@ -498,6 +595,7 @@ that they represent may be covered elsewhere.
 
 Added F<t/op/oelem.t> for classes with more than 256 fields, realloc
 fields for bigger padsize 2, and computed field names.
+cperl-only.
 
 =item *
 
@@ -583,9 +681,6 @@ See L<[cperl #322]|https://github.com/perl11/cperl/issues/322>
 
 =head1 Selected Bug Fixes
 
-XXX Important bug fixes in the core language are summarized here.  Bug fixes in
-files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
-
 =over 4
 
 =item *
@@ -593,6 +688,28 @@ files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 Fetching the name of a glob that was previously UTF-8 but wasn't any
 longer would return that name flagged as UTF-8.
 L<[perl #131263]|https://rt.perl.org/Ticket/Display.html?id=131263>
+
+=item *
+
+Fixed a duplicate symbol failure with C<-flto -mieee-fp> builds.
+F<pp.c> defined C<_LIB_VERSION> which C<-lieee> already defines.
+L<[perl #131786]|https://rt.perl.org/Ticket/Display.html?id=131786>
+
+=item *
+
+The tokenizer no longer consumes the exponent part of a floating
+point number if it's incomplete.
+L<[perl #131725]|https://rt.perl.org/Ticket/Display.html?id=131725>
+
+=item *
+
+On non-threaded builds, for C<m/$null/> where C<$null> is an empty
+string is no longer treated as if the C</o> flag was present when the
+previous matching match operator included the C</o> flag.  The
+rewriting used to implement this behavior could confuse the
+interpreter.  This matches the behaviour of threaded builds.
+L<[perl #124368]|https://rt.perl.org/Ticket/Display.html?id=124368>
+
 
 =back
 
@@ -630,9 +747,40 @@ here.
 
 =head1 Acknowledgements
 
-XXX Generate this with:
+cperl 5.27.2 represents approximately 3 months of development since cperl
+5.27.1c and contains approximately 62,000 lines of changes across 500 files
+from 37 authors.
 
-    cperl Porting/acknowledgements.pl cperl-5.27.1..HEAD
+Excluding auto-generated files, documentation and release tools, there were
+approximately 39,000 lines of changes to 290 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements that became
+cperl 5.27.2:
+
+David Mitchell, Karl Williamson, Reini Urban, Dagfinn Ilmari Mannsåker, Tony
+Cook, Yves Orton, Steve Hay, Lukas Mai, Zefram, James E Keenan, Father
+Chrysostomos, Abigail, Aaron Crane, Craig A. Berry, Sawyer X, Chris 'BinGOs'
+Williams, Aristotle Pagaltzis, H.Merijn Brand, Steffen Müller, Matthew
+Horsfall, Eric Herman, Ricardo Signes, Andy Lester, Nicholas Clark, Jacques
+Germishuys, Daniel Dragan, Dan Collins, Andy Dougherty, John Peacock, Vitali
+Peil, Thomas Sibley, Eugen Konkov, Graham Knop, E. Choroba, David H.
+Gutteridge, Jarkko Hietaniemi, Ken Cotterill.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history including the perl and cperl repos. In particular,
+it does not include the names of the (very much appreciated) contributors who
+reported issues to the Perl bug tracker and the cperl github issues.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+Generated with:
+
+    cperl Porting/acknowledgements.pl cperl-5.27.1..HEAD -c
 
 =head1 Reporting Bugs
 
