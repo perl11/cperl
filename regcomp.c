@@ -19194,7 +19194,9 @@ static const char * const anyofs[] = {
 #endif
 
 /*
-- regprop - printable representation of opcode, with run time support
+=for apidoc regprop
+printable representation of opcode, with run time support
+=cut
 */
 
 void
@@ -19579,16 +19581,17 @@ Perl_re_intuit_string(pTHX_ REGEXP * const r)
 }
 
 /*
-   pregfree()
+=for apidoc pregfree
 
-   handles refcounting and freeing the perl core regexp structure. When
-   it is necessary to actually free the structure the first thing it
-   does is call the 'free' method of the regexp_engine associated to
-   the regexp, allowing the handling of the void *pprivate; member
-   first. (This routine is not overridable by extensions, which is why
-   the extensions free is called first.)
+handles refcounting and freeing the perl core regexp structure. When
+it is necessary to actually free the structure the first thing it
+does is call the 'free' method of the regexp_engine associated to
+the regexp, allowing the handling of the C<void *pprivate> member
+first. (This routine is not overridable by extensions, which is why
+the extensions free is called first.)
 
-   See regdupe and regdupe_internal if you change anything here.
+See C<regdupe> and L</regdupe_internal> if you change anything here.
+=cut
 */
 #ifndef PERL_IN_XSUB_RE
 void
@@ -19646,27 +19649,29 @@ Perl_re_study(pTHX_ REGEXP *rx)
     NOOP;
 }
 
-/*  reg_temp_copy()
+/*
+=for apidoc EXp	|REGEXP*|reg_temp_copy	|NULLOK REGEXP* dsv|NN REGEXP* ssv
 
-    Copy ssv to dsv, both of which should of type SVt_REGEXP or SVt_PVLV,
-    except that dsv will be created if NULL.
+Copy ssv to dsv, both of which should of type SVt_REGEXP or SVt_PVLV,
+except that dsv will be created if NULL.
 
-    This function is used in two main ways. First to implement
-        $r = qr/....; $s = $$r;
+This function is used in two main ways. First to implement
 
-    Secondly, it is used as a hacky workaround to the structural issue of
-    match results
-    being stored in the regexp structure which is in turn stored in
-    PL_curpm/PL_reg_curpm. The problem is that due to qr// the pattern
-    could be PL_curpm in multiple contexts, and could require multiple
-    result sets being associated with the pattern simultaneously, such
-    as when doing a recursive match with (??{$qr})
+    $r = qr/....; $s = $$r;
 
-    The solution is to make a lightweight copy of the regexp structure
-    when a qr// is returned from the code executed by (??{$qr}) this
-    lightweight copy doesn't actually own any of its data except for
-    the starp/end and the actual regexp structure itself.
+Secondly, it is used as a hacky workaround to the structural issue of
+match results being stored in the regexp structure which is in turn
+stored in C<PL_curpm>/C<PL_reg_curpm>. The problem is that due to C<qr//> the
+pattern could be C<PL_curpm> in multiple contexts, and could require
+multiple result sets being associated with the pattern simultaneously,
+such as when doing a recursive match with C<(??{$qr})>
 
+The solution is to make a lightweight copy of the regexp structure
+when a C<qr//> is returned from the code executed by C<(??{$qr})> this
+lightweight copy doesn't actually own any of its data except for
+the starp/end and the actual regexp structure itself.
+
+=cut
 */
 
 REGEXP *
@@ -19744,17 +19749,17 @@ Perl_reg_temp_copy(pTHX_ REGEXP *dsv, REGEXP *ssv)
 #endif
 
 
-/* regfree_internal()
+/*
+=for apidoc Ap	|void	|regfree_internal|NN REGEXP *const rx
 
-   Free the private data in a regexp. This is overloadable by
-   extensions. Perl takes care of the regexp structure in pregfree(),
-   this covers the *pprivate pointer which technically perl doesn't
-   know about, however of course we have to handle the
-   regexp_internal structure when no extension is in use.
+Free the private data in a regexp. This is overloadable by
+extensions. Perl takes care of the regexp structure in L</pregfree>,
+this covers the C<*pprivate> pointer which technically perl doesn't
+know about, however of course we have to handle the
+C<regexp_internal> structure when no extension is in use.
 
-   Note this is called before freeing anything in the regexp
-   structure.
- */
+=cut
+*/
 
 void
 Perl_regfree_internal(pTHX_ REGEXP * const rx)
@@ -19873,17 +19878,21 @@ Perl_regfree_internal(pTHX_ REGEXP * const rx)
 #define SAVEPVN(p,n)	((p) ? savepvn(p,n) : NULL)
 
 /*
-   re_dup_guts - duplicate a regexp.
+=for apidoc Ap	|void	|re_dup_guts	|NN const REGEXP *sstr|NN REGEXP *dstr \
+					|NN CLONE_PARAMS* param
 
-   This routine is expected to clone a given regexp structure. It is only
-   compiled under USE_ITHREADS.
+duplicate a regexp.
 
-   After all of the core data stored in struct regexp is duplicated
-   the regexp_engine.dupe method is used to copy any private data
-   stored in the *pprivate pointer. This allows extensions to handle
-   any duplication it needs to do.
+This routine is expected to clone a given regexp structure. It is only
+compiled under USE_ITHREADS.
 
-   See pregfree() and regfree_internal() if you change anything here.
+After all of the core data stored in struct regexp is duplicated
+the C<< regexp_engine->dupe >> method is used to copy any private data
+stored in the C<*pprivate> pointer. This allows extensions to handle
+any duplication it needs to do.
+
+See L</pregfree> and L</regfree_internal> if you change anything here.
+=cut
 */
 #if defined(USE_ITHREADS)
 #ifndef PERL_IN_XSUB_RE
@@ -19972,17 +19981,18 @@ Perl_re_dup_guts(pTHX_ const REGEXP *sstr, REGEXP *dstr, CLONE_PARAMS *param)
 #endif /* PERL_IN_XSUB_RE */
 
 /*
-   regdupe_internal()
+=for apidoc Ap|void*|regdupe_internal|NN REGEXP * const r|NN CLONE_PARAMS* param
 
-   This is the internal complement to regdupe() which is used to copy
-   the structure pointed to by the *pprivate pointer in the regexp.
-   This is the core version of the extension overridable cloning hook.
-   The regexp structure being duplicated will be copied by perl prior
-   to this and will be provided as the regexp *r argument, however
-   with the /old/ structures pprivate pointer value. Thus this routine
-   may override any copying normally done by perl.
+This is the internal complement to C<regdupe> which is used to copy
+the structure pointed to by the C<*pprivate> pointer in the regexp.
+This is the core version of the extension overridable cloning hook.
+The regexp structure being duplicated will be copied by perl prior
+to this and will be provided as the regexp *r argument, however
+with the /old/ structures C<pprivate> pointer value. Thus this routine
+may override any copying normally done by perl.
 
-   It returns a pointer to the new regexp_internal structure.
+It returns a pointer to the new C<regexp_internal> structure.
+=cut
 */
 
 void *
@@ -20108,8 +20118,10 @@ Perl_regdupe_internal(pTHX_ REGEXP * const rx, CLONE_PARAMS *param)
 #ifndef PERL_IN_XSUB_RE
 
 /*
- - regnext - dig the "next" pointer out of a node
- */
+=for apidoc regnext
+dig the "next" pointer out of a node
+=cut
+*/
 regnode *
 Perl_regnext(pTHX_ regnode *p)
 {
