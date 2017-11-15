@@ -7,12 +7,11 @@ BEGIN {
     *bar::is = *is;
     *bar::like = *like;
 }
-plan 152;
+plan 153;
 
 # -------------------- Errors with feature disabled -------------------- #
 
-use Config ();
-if (!$Config::Config{usecperl}) {
+if ($^V !~ /c$/) {
   eval "#line 8 foo\nmy sub foo";
   is $@, qq 'Experimental "my" subs not enabled at foo line 8.\n',
   'my sub unexperimental error';
@@ -986,3 +985,6 @@ like runperl(
 {
   my sub h; sub{my $x; sub{h}}
 }
+
+is join("-", qw(aa bb), do { my sub lleexx; 123 }, qw(cc dd)),
+  "aa-bb-123-cc-dd", 'do { my sub...} in a list [perl #132442]';
