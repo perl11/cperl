@@ -9,7 +9,7 @@ BEGIN {
     keys(%warnings::) = 64; # pre-extend the stash
 }
 
-our $VERSION = "1.37";
+our $VERSION = "1.38";
 
 # Verify that we're called correctly so that warnings will work.
 # Can't use Carp, since Carp uses us!
@@ -108,7 +108,7 @@ our %Offsets = (
 );
 
 our %Bits = (
-    'all'				=> "\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x05", # [0..69]
+    'all'				=> "\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55", # [0..71]
     'ambiguous'				=> "\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", # [29]
     'bareword'				=> "\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", # [30]
     'closed'				=> "\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", # [6]
@@ -181,7 +181,7 @@ our %Bits = (
 );
 
 our %DeadBits = (
-    'all'				=> "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\x0a", # [0..69]
+    'all'				=> "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa", # [0..71]
     'ambiguous'				=> "\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", # [29]
     'bareword'				=> "\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", # [30]
     'closed'				=> "\x00\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", # [6]
@@ -259,8 +259,6 @@ our $DEFAULT				=  "\x10\x01\x00\x00\x00\x50\x04\x00\x00\x00\x00\x00\x00\x54\x51
 our $LAST_BIT				=  140 ;
 our $BYTES				=  18 ;
 
-our $All = "" ; vec($All, $Offsets{'all'}, 2) = 3 ;
-
 sub Croaker
 {
     require Carp; # this initializes %CarpInternal
@@ -269,12 +267,32 @@ sub Croaker
     Carp::croak(@_);
 }
 
+sub _expand_bits {
+    my $bits = shift;
+    my $want_len = ($LAST_BIT + 7) >> 3;
+    my $len = length($bits);
+    if ($len != $want_len) {
+	if ($bits eq "") {
+	    $bits = "\x00" x $want_len;
+	} elsif ($len > $want_len) {
+	    substr $bits, $want_len, $len-$want_len, "";
+	} else {
+	    my $a = vec($bits, $Offsets{all} >> 1, 2);
+	    $a |= $a << 2;
+	    $a |= $a << 4;
+	    $bits .= chr($a) x ($want_len - $len);
+	}
+    }
+    return $bits;
+}
+
 sub _bits {
     my $mask = shift ;
     my $catmask ;
     my $fatal = 0 ;
     my $no_fatal = 0 ;
 
+    $mask = _expand_bits($mask);
     foreach my $word ( @_ ) {
 	if ($word eq 'FATAL') {
 	    $fatal = 1;
@@ -287,7 +305,7 @@ sub _bits {
 	elsif ($catmask = $Bits{$word}) {
 	    $mask |= $catmask ;
 	    $mask |= $DeadBits{$word} if $fatal ;
-	    $mask &= ~($DeadBits{$word}|$All) if $no_fatal ;
+	    $mask = ~(~$mask | $DeadBits{$word}) if $no_fatal ;
 	}
 	else
 	  { Croaker("Unknown warnings category '$word'")}
@@ -300,7 +318,7 @@ sub bits
 {
     # called from B::Deparse.pm
     push @_, 'all' unless @_ ;
-    return _bits(undef, @_) ;
+    return _bits("", @_) ;
 }
 
 sub import
@@ -309,16 +327,12 @@ sub import
 
     my $mask = ${^WARNING_BITS} // ($^W ? $Bits{all} : $DEFAULT) ;
 
-    if (vec($mask, $Offsets{'all'}, 1)) {
-	$mask |= $Bits{'all'} ;
-	$mask |= $DeadBits{'all'} if vec($mask, $Offsets{'all'}+1, 1);
-    }
+    # append 'all' when implied (empty import list or after a lone
+    # "FATAL" or "NONFATAL")
+    push @_, 'all'
+	if !@_ || (@_==1 && ($_[0] eq 'FATAL' || $_[0] eq 'NONFATAL'));
 
-    # append 'all' when implied (after a lone "FATAL" or "NONFATAL")
-    push @_, 'all' if @_==1 && ( $_[0] eq 'FATAL' || $_[0] eq 'NONFATAL' );
-
-    # Empty @_ is equivalent to @_ = 'all' ;
-    ${^WARNING_BITS} = @_ ? _bits($mask, @_) : $mask | $Bits{all} ;
+    ${^WARNING_BITS} = _bits($mask, @_);
 }
 
 sub unimport
@@ -328,20 +342,16 @@ sub unimport
     my $catmask ;
     my $mask = ${^WARNING_BITS} // ($^W ? $Bits{all} : $DEFAULT) ;
 
-    if (vec($mask, $Offsets{'all'}, 1)) {
-	$mask |= $Bits{'all'} ;
-	$mask |= $DeadBits{'all'} if vec($mask, $Offsets{'all'}+1, 1);
-    }
-
     # append 'all' when implied (empty import list or after a lone "FATAL")
     push @_, 'all' if !@_ || @_==1 && $_[0] eq 'FATAL';
 
+    $mask = _expand_bits($mask);
     foreach my $word ( @_ ) {
 	if ($word eq 'FATAL') {
 	    next;
 	}
 	elsif ($catmask = $Bits{$word}) {
-	    $mask &= ~($catmask | $DeadBits{$word} | $All);
+	    $mask = ~(~$mask | $catmask | $DeadBits{$word});
 	}
 	else
 	  { Croaker("Unknown warnings category '$word'")}
@@ -411,13 +421,13 @@ sub __chk
     my(@callers_bitmask) = (caller($i))[9] ;
     my $callers_bitmask =
 	 @callers_bitmask ? $callers_bitmask[0] // $DEFAULT : 0 ;
+    length($callers_bitmask) > ($offset >> 3) or $offset = $Offsets{all};
 
     my @results;
     foreach my $type (FATAL, NORMAL) {
 	next unless $wanted & $type;
 
-	push @results, (vec($callers_bitmask, $offset + $type - 1, 1) ||
-			vec($callers_bitmask, $Offsets{'all'} + $type - 1, 1));
+	push @results, vec($callers_bitmask, $offset + $type - 1, 1);
     }
 
     # &enabled and &fatal_enabled
@@ -449,14 +459,13 @@ sub register_categories
 
     for my $name (@names) {
 	if (! defined $Bits{$name}) {
-	    $Bits{$name}     = _mkMask($LAST_BIT);
-	    vec($Bits{'all'}, $LAST_BIT, 1) = 1;
-	    $Offsets{$name}  = $LAST_BIT ++;
-	    foreach my $k (keys %Bits) {
-		vec($Bits{$k}, $LAST_BIT, 1) = 0;
+	    $Offsets{$name}  = $LAST_BIT;
+	    $Bits{$name}     = _mkMask($LAST_BIT++);
+	    $DeadBits{$name} = _mkMask($LAST_BIT++);
+	    if (length($Bits{$name}) > length($Bits{all})) {
+		$Bits{all} .= "\x55";
+		$DeadBits{all} .= "\xaa";
 	    }
-	    $DeadBits{$name} = _mkMask($LAST_BIT);
-	    vec($DeadBits{'all'}, $LAST_BIT++, 1) = 1;
 	}
     }
 }

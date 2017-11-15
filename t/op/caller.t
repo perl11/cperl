@@ -1,14 +1,13 @@
 #!./perl
 # Tests for caller()
 
+my @tests;
 BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
     set_up_inc('../lib');
+    plan( tests => 97 ); # some tests are run in a BEGIN block
 }
-
-my @tests;
-plan( tests => 100 );
 
 print "# Tests with caller(0)\n";
 
@@ -119,38 +118,13 @@ sub get_caller_0_9 {
 
 {
     no warnings;
-    # Build the warnings mask dynamically
-    my ($default, $registered);
-    BEGIN {
-	for my $i (0..$warnings::LAST_BIT/2 - 1) {
-	    vec($default, $i, 2) = 1;
-	}
-	$registered = $default;
-	vec($registered, $warnings::LAST_BIT/2, 2) = 1;
-    }
-
-    BEGIN {
-        push @tests, { type => 'check_bits', args => [ ${^WARNING_BITS}, "\0" x $warnings::BYTES ],
-        txt =>  'all bits off via "no warnings"' };
-    }
+    BEGIN { check_bits( ${^WARNING_BITS}, "\0" x $warnings::BYTES, 'all bits off via "no warnings"' ) }
     testwarn("\0" x $warnings::BYTES, 'no bits');
 
     use warnings;
-    BEGIN {
-        push @tests, { type => 'check_bits', args => [ ${^WARNING_BITS}, $default ], txt => 'default bits on via "use warnings"' };
-    }
-    BEGIN {
-        push @tests, { type => 'check_bits', args => [ get_caller_0_9(), $default ], txt => 'warnings match caller' };
-    }
-    # run-time :
-    # the warning mask has been extended by warnings::register
-    testwarn($registered, 'ahead of w::r');
-
-    use warnings::register;
-    BEGIN {
-        push @tests, { type => 'check_bits', args => [ ${^WARNING_BITS}, $registered ], txt => 'warning bits on via "use warnings::register"' };
-    }
-    testwarn($registered, 'following w::r');
+    BEGIN { check_bits( ${^WARNING_BITS}, "\x55" x $warnings::BYTES,
+			'default bits on via "use warnings"' ); }
+    testwarn("\x55" x $warnings::BYTES, 'all');
 }
 
 
