@@ -289,6 +289,8 @@ Implemented L<Mu/fields> returning fields objects, as in perl6
 Revert the conversion of a fields package to class. Only close
 the ISA as with base.
 
+=item L<Module::CoreList> 20170815c
+
 =item L<Module::Load::Conditional> 0.68_01
 
 Improve CPANPLUS: Fix [cperl #331], checking for cperl builtins.

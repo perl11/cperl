@@ -454,11 +454,13 @@ sub do_check {
 
       $item = { name => $mod, text => "=item *\n" };
       if ( $title eq 'new' ) {
+        $item = { name => $mod, text => "=item L<$mod> $new_v\n" };
         $text = "L<$mod> $new_v has been added to the Perl core.\n";
       }
 
       elsif ( $title eq 'updated' ) {
-        $text = "L<$mod> has been upgraded from version $old_v to $new_v.\n";
+        $item = { name => $mod, text => "=item L<$mod> $new_v\n" };
+        $text = "";
         if ( $deprecated->{$mod} ) {
           $text .= "NOTE: L<$mod> is deprecated and may be removed from a future version of Perl.\n";
         }
