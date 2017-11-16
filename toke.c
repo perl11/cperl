@@ -1719,7 +1719,6 @@ Perl_lex_read_space(pTHX_ U32 flags)
 }
 
 /*
-
 =for apidoc EXMp|bool|validate_proto|SV *name|SV *proto|bool warn
 
 This function performs syntax checking on a prototype, C<proto>.
@@ -1733,9 +1732,11 @@ C<false>.
 
 Note that C<NULL> is a valid C<proto> and will always return C<true>.
 
-=cut
+In cperl this also detects if it's a signature, and returns FALSE then.
+Thus the illegalproto warnings are relaxed.
 
- */
+=cut
+*/
 
 bool
 Perl_validate_proto(pTHX_ SV *name, SV *proto, bool warn)
@@ -1767,7 +1768,11 @@ Perl_validate_proto(pTHX_ SV *name, SV *proto, bool warn)
 		    bad_proto_after_underscore = TRUE;
 		underscore = FALSE;
 	    }
+            /* illegal prototype char => signature */
 	    if (!strchr("$@%*;[]&\\_+", *p) || *p == '\0') {
+                /* cperl logic: either proto or signature */
+                if (*p)
+                    return FALSE;
 		bad_proto = TRUE;
 	    }
 	    else {
@@ -1793,29 +1798,30 @@ Perl_validate_proto(pTHX_ SV *name, SV *proto, bool warn)
     }
 
     if (warn) {
-	SV *tmpsv = newSVpvs_flags("", SVs_TEMP);
+        SV *tmpsv = newSVpvs_flags("", SVs_TEMP);
 	p -= origlen;
 	p = SvUTF8(proto)
 	    ? sv_uni_display(tmpsv, newSVpvn_flags(p, origlen, SVs_TEMP | SVf_UTF8),
 	                     origlen, UNI_DISPLAY_ISPRINT)
 	    : pv_pretty(tmpsv, p, origlen, 60, NULL, NULL, PERL_PV_ESCAPE_NONASCII);
-
-	if (proto_after_greedy_proto)
-	    Perl_warner(aTHX_ packWARN(WARN_ILLEGALPROTO),
-			"Prototype after '%c' for %" SVf " : %s",
-			greedy_proto, SVfARG(name), p);
+        /* cperl switches on proto_after_greedy_proto || bad_proto
+           automatically to signatures */
 	if (in_brackets)
 	    Perl_warner(aTHX_ packWARN(WARN_ILLEGALPROTO),
 			"Missing ']' in prototype for %" SVf " : %s",
 			SVfARG(name), p);
-	if (bad_proto)
-	    Perl_warner(aTHX_ packWARN(WARN_ILLEGALPROTO),
-			"Illegal character in prototype for %" SVf " : %s",
-			SVfARG(name), p);
-	if (bad_proto_after_underscore)
-	    Perl_warner(aTHX_ packWARN(WARN_ILLEGALPROTO),
-			"Illegal character after '_' in prototype for %" SVf " : %s",
-			SVfARG(name), p);
+        if (proto_after_greedy_proto)
+            Perl_warner(aTHX_ packWARN(WARN_ILLEGALPROTO),
+                        "Prototype after '%c' for %" SVf " : %s",
+                        greedy_proto, SVfARG(name), p);
+        if (bad_proto)
+            Perl_warner(aTHX_ packWARN(WARN_ILLEGALPROTO),
+                        "Illegal character in prototype for %" SVf " : %s",
+                        SVfARG(name), p);
+        if (bad_proto_after_underscore)
+            Perl_warner(aTHX_ packWARN(WARN_ILLEGALPROTO),
+                        "Illegal character after '_' in prototype for %" SVf " : %s",
+                        SVfARG(name), p);
     }
 
     return (! (proto_after_greedy_proto || bad_proto) );
@@ -9263,7 +9269,7 @@ Perl_yylex(pTHX)
 		    PREBLOCK(FORMAT);
 		}
 
-		/* Look for a prototype. signatures are backcompat */
+		/* Look for a prototype or sig. signatures are backcompat */
                 if (*s == '('
 #if !defined(USE_CPERL)
                     && !FEATURE_SIGNATURES_IS_ENABLED
@@ -9271,20 +9277,16 @@ Perl_yylex(pTHX)
                     ) {
                     d = s;
                     /*DEBUG_T(printbuf("### Looks like prototype? %s\n", s));*/
-                    if (!strchr(s, /*(*/ ')')) /* prototypes cannot span lines */
+                    /* prototypes cannot span lines, but can now contain \0 */
+                    if (!memchr(s, /*(*/ ')', PL_bufend-s))
                         have_proto = FALSE;
                     else {
                         s = scan_str(s,FALSE,FALSE,FALSE,NULL);
                         COPLINE_SET_FROM_MULTI_END;
                         if (!s)
                             Perl_croak(aTHX_ "Prototype not terminated");
-#ifdef USE_CPERL
-#define VALIDATE_PROTO_WARN FALSE
-#else
-#define VALIDATE_PROTO_WARN ckWARN(WARN_ILLEGALPROTO)
-#endif
                         have_proto = validate_proto(PL_subname, PL_lex_stuff,
-                                                    VALIDATE_PROTO_WARN);
+                                                    ckWARN(WARN_ILLEGALPROTO));
                     }
                     if (have_proto) {
                         if (PL_parser->in_class && cvflags & CVf_METHOD && !SvCUR(PL_lex_stuff)) {

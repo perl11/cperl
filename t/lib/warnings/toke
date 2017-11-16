@@ -2,8 +2,11 @@ toke.c	AOK
 
     we seem to have lost a few ambiguous warnings!!
 
- 
- 		$a = <<;
+     Prototype after '@' for main::foo
+	sub foo (@$)
+
+     Illegal character in prototype for main::foo
+	sub foo (\0)
 
      \1 better written as $1 
  	use warnings 'syntax' ;
@@ -123,6 +126,31 @@ toke.c	AOK
         *foo *foo
 
 __END__
+use utf8;
+use open qw( :utf8 :std );
+use warnings;
+eval "sub fòò (@\$\0) {}";
+EXPECT
+Prototype after '@' for main::fòò : @$\0 at (eval 1) line 1.
+Illegal character in prototype for main::fòò : @$\0 at (eval 1) line 1.
+########
+use utf8;
+use warnings;
+eval "sub foo (@\0) {}";
+EXPECT
+Prototype after '@' for main::foo : @\0 at (eval 1) line 1.
+Illegal character in prototype for main::foo : @\0 at (eval 1) line 1.
+########
+use warnings;
+eval "sub foo (@\$) {}";
+EXPECT
+Prototype after '@' for main::foo : @$ at (eval 1) line 1.
+########
+use warnings;
+sub foo (_$) {}
+EXPECT
+Illegal character after '_' in prototype for main::foo : _$ at - line 2.
+########
 # toke.c
 $a =~ m/$foo/eq;
 $a =~ s/$foo/fool/seq;
