@@ -2698,9 +2698,12 @@ this support.  Talk to your Perl administrator.
 
 (W illegalproto) An illegal character was found in a prototype declaration.
 Legal characters in prototypes are $, @, %, *, ;, [, ], &, \, and +.
-Perhaps you were trying to write a subroutine signature but didn't enable
-that feature first (C<use feature 'signatures'>), so your signature was
-instead interpreted as a bad prototype.
+
+With perl5 perhaps you were trying to write a subroutine signature but
+didn't enable that feature first (C<use feature 'signatures'>), so
+your signature was instead interpreted as a bad prototype. With cperl
+this error can only happen with C<\0> or with an explicit illegal
+prototype in a C<:prototype()> attribute.
 
 =item Illegal declaration of anonymous subroutine
 

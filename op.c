@@ -4662,6 +4662,8 @@ Perl_apply_attrs_string(pTHX_ const char *stashpv, CV *cv,
 
 /*
 =for apidoc move_proto_attr
+Move a run-time attribute to a compile-time prototype handling,
+as with :prototype(...)
 =cut
 */
 static void
@@ -4738,8 +4740,10 @@ S_move_proto_attr(pTHX_ OP **proto, OP **attrs, const GV * name)
             svname = newSVpvn_flags(SvPVX((SV *)name)+1, SvCUR(name)-1, SvUTF8(name)|SVs_TEMP);
         else
             svname = (SV *)name;
-        if (ckWARN(WARN_ILLEGALPROTO))
-            (void)validate_proto(svname, cSVOPx_sv(new_proto), TRUE);
+        if (ckWARN(WARN_ILLEGALPROTO)) {
+            if (!validate_proto(svname, cSVOPx_sv(new_proto), TRUE, FALSE))
+                return;
+        }
         if (*proto && ckWARN(WARN_PROTOTYPE)) {
             STRLEN old_len, new_len;
             const char * oldp = SvPV(cSVOPx_sv(*proto), old_len);

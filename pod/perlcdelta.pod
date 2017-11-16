@@ -60,6 +60,11 @@ L<[perl #131328]|https://rt.perl.org/Ticket/Display.html?id=131328>
 A list of changes is at
 L<http://www.unicode.org/versions/Unicode10.0.0>.
 
+=head2 Re-enable warnings illegalproto
+
+Parse prototypes for errors again. Either with C<:prototype()> or as signature.
+Illegal prototypes are not stored.
+
 =head1 Security
 
 XXX Any security-related notices go here.  In particular, any security
@@ -676,6 +681,10 @@ Refactored the L<fields> API from global data into methods.
 Added a L<perlapi/HvFIELDS> field to HvAUX as linear buffer
 of "name\0pad...\0" fields, no class C<%FIELDS> and C<@FIELDS> anymore.
 See L<[cperl #322]|https://github.com/perl11/cperl/issues/322>
+
+=item *
+
+L<perlintern/validate_proto> got an additional cperl-only bool argument C<maybe_sig>.
 
 =back
 

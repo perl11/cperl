@@ -720,7 +720,7 @@ for my $p ( "", qw{ () ($) ($@) ($%) ($;$) (&) (&\@) (&@) (%) (\%) (\@) } ) {
   
   eval 'sub badproto (@bar) :prototype(@bar) { 1; }';
   print "not " unless $warn =~ /Illegal character in prototype for badproto : \@bar/;
-  print "ok ", $i++, " checking badproto - (\@bar)\n";
+  print "ok ", $i++, " checking badproto - (\@bar) $warn\n";
 
   eval 'sub badproto2 () :prototype(bar) { 1; }';
   print "not " unless $warn =~ /Illegal character in prototype for badproto2 : bar/;

@@ -536,14 +536,13 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 		    if (hek)
 			subname = sv_2mortal(newSVhek(hek));
 		    else
-			subname=(SV *)CvGV((const CV *)sv);
-		    if (ckWARN(WARN_ILLEGALPROTO))
-			Perl_validate_proto(aTHX_ subname, proto, TRUE);
-		    Perl_cv_ckproto_len_flags(aTHX_ (const CV *)sv,
-		                                    (const GV *)subname,
-		                                    name+10,
-		                                    len-11,
-		                                    SvUTF8(attr));
+			subname = (SV*)CvGV((const CV *)sv);
+		    if (ckWARN(WARN_ILLEGALPROTO)) {
+			if (!validate_proto(subname, proto, TRUE, FALSE))
+                            goto next_attr;
+                    }
+		    cv_ckproto_len_flags((const CV *)sv, (const GV *)subname,
+                                         name+10, len-11, SvUTF8(attr));
 		    sv_setpvn(MUTABLE_SV(sv), name+10, len-11);
 		    if (SvUTF8(attr)) SvUTF8_on(MUTABLE_SV(sv));
 		    goto next_attr;
