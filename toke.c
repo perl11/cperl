@@ -1719,7 +1719,7 @@ Perl_lex_read_space(pTHX_ U32 flags)
 }
 
 /*
-=for apidoc EXMp|bool|validate_proto|SV *name|SV *proto|bool warn
+=for apidoc EXMp|bool|validate_proto|SV *name|SV *proto|bool dowarn
 
 This function performs syntax checking on a prototype, C<proto>.
 If C<warn> is true, any illegal characters or mismatched brackets
@@ -1739,26 +1739,37 @@ Thus the illegalproto warnings are relaxed.
 */
 
 bool
-Perl_validate_proto(pTHX_ SV *name, SV *proto, bool warn)
+Perl_validate_proto(pTHX_ SV *name, SV *proto, bool dowarn)
 {
     STRLEN len, origlen;
     char *p;
-    bool bad_proto = FALSE;
-    bool in_brackets = FALSE;
-    bool after_slash = FALSE;
-    char greedy_proto = ' ';
-    bool proto_after_greedy_proto = FALSE;
-    bool must_be_last = FALSE;
-    bool underscore = FALSE;
-    bool bad_proto_after_underscore = FALSE;
+    bool bad_proto;
+    bool in_brackets;
+    bool after_slash;
+    char greedy_proto;
+    bool proto_after_greedy_proto;
+    bool must_be_last;
+    bool underscore;
+    bool bad_proto_after_underscore;
 
     PERL_ARGS_ASSERT_VALIDATE_PROTO;
 
     if (!proto)
 	return TRUE;
-
     p = SvPV(proto, len);
+    if (!len)
+	return TRUE;
+    
+    bad_proto = FALSE;
+    in_brackets = FALSE;
+    after_slash = FALSE;
+    greedy_proto = ' ';
+    proto_after_greedy_proto = FALSE;
+    must_be_last = FALSE;
+    underscore = FALSE;
+    bad_proto_after_underscore = FALSE;
     origlen = len;
+
     for (; len--; p++) {
 	if (!isSPACE(*p)) {
 	    if (must_be_last)
@@ -1797,15 +1808,14 @@ Perl_validate_proto(pTHX_ SV *name, SV *proto, bool warn)
 	}
     }
 
-    if (warn) {
+    if (dowarn && (in_brackets || proto_after_greedy_proto ||
+                   bad_proto   || bad_proto_after_underscore)) {
         SV *tmpsv = newSVpvs_flags("", SVs_TEMP);
-	p -= origlen;
-	p = SvUTF8(proto)
-	    ? sv_uni_display(tmpsv, newSVpvn_flags(p, origlen, SVs_TEMP | SVf_UTF8),
-	                     origlen, UNI_DISPLAY_ISPRINT)
-	    : pv_pretty(tmpsv, p, origlen, 60, NULL, NULL, PERL_PV_ESCAPE_NONASCII);
-        /* cperl switches on proto_after_greedy_proto || bad_proto
-           automatically to signatures */
+        p -= origlen;
+        p = SvUTF8(proto)
+            ? sv_uni_display(tmpsv, newSVpvn_flags(p, origlen, SVs_TEMP | SVf_UTF8),
+                             origlen, UNI_DISPLAY_ISPRINT)
+            : pv_pretty(tmpsv, p, origlen, 60, NULL, NULL, PERL_PV_ESCAPE_NONASCII);
 	if (in_brackets)
 	    Perl_warner(aTHX_ packWARN(WARN_ILLEGALPROTO),
 			"Missing ']' in prototype for %" SVf " : %s",
