@@ -17116,7 +17116,7 @@ Perl_ck_substr(pTHX_ OP *o)
 	if (IS_NULL_OP(kid))
 	    kid = OpSIBLING(kid);
 	if (kid)
-	    kid->op_flags |= OPf_MOD;
+	    op_lvalue(kid, o->op_type);
 
     }
     return o;
