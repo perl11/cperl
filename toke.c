@@ -1774,13 +1774,6 @@ Perl_validate_proto(pTHX_ SV *name, SV *proto, bool dowarn, bool curstash,
 
     for (; len--; p++) {
 	if (!isSPACE(*p)) {
-	    if (must_be_last)
-		proto_after_greedy_proto = TRUE;
-	    if (underscore) {
-		if (!strchr(";@%", *p))
-		    bad_proto_after_underscore = TRUE;
-		underscore = FALSE;
-	    }
             /* illegal prototype char => signature */
 	    if (!strchr("$@%*;[]&\\_+", *p) || *p == '\0') {
                 /* cperl logic: either proto or signature */
@@ -1789,6 +1782,13 @@ Perl_validate_proto(pTHX_ SV *name, SV *proto, bool dowarn, bool curstash,
 		bad_proto = TRUE;
 	    }
 	    else {
+                if (must_be_last)
+                    proto_after_greedy_proto = TRUE;
+                if (underscore) {
+                    if (!strchr(";@%", *p))
+                        bad_proto_after_underscore = TRUE;
+                    underscore = FALSE;
+                }
 		if (*p == '[')
 		    in_brackets = TRUE;
 		else if (*p == ']')
@@ -1827,7 +1827,7 @@ Perl_validate_proto(pTHX_ SV *name, SV *proto, bool dowarn, bool curstash,
 	}
 
 	if (proto_after_greedy_proto)
-	    Perl_warner(aTHX_ packWARN(WARN_ILLEGALPROTO),
+	    Perl_warner(aTHX_ TRUE,
 			"Prototype after '%c' for %" SVf " : %s",
 			greedy_proto, SVfARG(name), p);
 	if (in_brackets)
