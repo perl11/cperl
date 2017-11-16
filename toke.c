@@ -10203,7 +10203,6 @@ S_pmflag(pTHX_ const char* const valid_flags, U32 * pmfl, char** s, char* charse
 
     if ( charlen != 1 || ! strchr(valid_flags, c) ) {
         if (isWORDCHAR_lazy_if_safe( *s, PL_bufend, UTF)) {
-            /* diag_listed_as: Unknown regex modifier "%s" */
             yyerror_pv(Perl_form(aTHX_ "Unknown regexp modifier \"/%.*s\"",
                                     (int)charlen, *s), UTF ? SVf_UTF8 : 0);
             (*s) += charlen;
