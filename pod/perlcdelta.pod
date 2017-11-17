@@ -546,6 +546,13 @@ L</Modules and Pragmata> section.
 
 =over 4
 
+=item Windows
+
+File test operators for Unix permission bits that don't exist on a
+particular platform, such as C<-k> (sticky bit) on Windows, now check that
+the file being tested exists before returning the blanket false result,
+and yield the appropriate errors if the argument doesn't refer to a file.
+
 =item cygwin
 
 threads became unstable with some upstream merges.
