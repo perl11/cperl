@@ -28,31 +28,6 @@
  */
 /*#define HAS_ALARM		/ **/
 
-/* HAS_OPENAT:
- *	This symbol is defined if the openat() routine is available.
- */
-/*#define HAS_OPENAT	/ **/
-
-/* HAS_UNLINKAT:
- *	This symbol is defined if the unlinkat() routine is available.
- */
-/*#define HAS_UNLINKAT	/ **/
-
-/* HAS_RENAMEAT:
- *	This symbol is defined if the renameat() routine is available.
- */
-/*#define HAS_RENAMEAT	/ **/
-
-/* HAS_LINKAT:
- *	This symbol is defined if the linkat() routine is available.
- */
-/*#define HAS_LINKAT	/ **/
-
-/* HAS_FCHMODAT:
- *	This symbol is defined if the fchmodat() routine is available.
- */
-/*#define HAS_FCHMODAT	/ **/
-
 /* HAS_BCMP:
  *	This symbol is defined if the bcmp() routine is available to
  *	compare blocks of memory.
@@ -567,6 +542,13 @@
  *	available to compare strings using collating information.
  */
 /*#define HAS_STRCOLL	/ **/
+
+/* USE_STRUCT_COPY:
+ *	This symbol, if defined, indicates that this C compiler knows how
+ *	to copy structures.  If undefined, you'll need to use a block copy
+ *	routine of some sort instead.
+ */
+/*#define	USE_STRUCT_COPY	/ **/
 
 /* HAS_STRTOD:
  *	This symbol, if defined, indicates that the strtod routine is
@@ -2602,13 +2584,6 @@
 #define FILE_bufsiz(fp)	((fp)->_IO_read_end - (fp)->_IO_read_base)
 #endif
 
-/* USE_STRUCT_COPY:
- *	This symbol, if defined, indicates that this C compiler knows how
- *	to copy structures.  If undefined, you'll need to use a block copy
- *	routine of some sort instead.
- */
-/*#define	USE_STRUCT_COPY	/ **/
-
 /* HAS_STRERROR:
  *	This symbol, if defined, indicates that the strerror routine is
  *	available to translate error numbers to strings. See the writeup
@@ -3821,6 +3796,27 @@
  *	to do statfs() is supported.
  */
 /*#define HAS_STRUCT_FS_DATA	/ **/
+
+/* HAS_FCHMODAT:
+ *	This symbol is defined if the fchmodat() routine is available.
+ */
+/* HAS_LINKAT:
+ *	This symbol is defined if the linkat() routine is available.
+ */
+/* HAS_OPENAT:
+ *	This symbol is defined if the openat() routine is available.
+ */
+/* HAS_RENAMEAT:
+ *	This symbol is defined if the renameat() routine is available.
+ */
+/* HAS_UNLINKAT:
+ *	This symbol is defined if the unlinkat() routine is available.
+ */
+/*#define	HAS_FCHMODAT	/ **/
+/*#define	HAS_LINKAT	/ **/
+/*#define	HAS_OPENAT	/ **/
+/*#define	HAS_RENAMEAT	/ **/
+/*#define	HAS_UNLINKAT	/ **/
 
 /* HAS_FSEEKO:
  *	This symbol, if defined, indicates that the fseeko routine is
@@ -5546,6 +5542,6 @@
 #endif
 
 /* Generated from:
- * a018e531335ca076bbf2c3d3dcd5a51851bd72adbb277e67d68f616c774867e7 config_h.SH
+ * ace0eaff5cb7f36e39eec668d8a3ba9fb5126f74452cf0c8c595985d5c418964 config_h.SH
  * d8d8f917495b5e9a48e87f196a33f9789898ae36ce6e9b27ab44372dd9127b0e uconfig.sh
  * ex: set ro: */
