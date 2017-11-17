@@ -78,26 +78,24 @@ is( $r, "(\066)[\066]", '$/ set at compile-time' );
 # Tests for -c
 
 my $filename = tempfile();
-SKIP: {
-    local $TODO = '';   # this one works on VMS
 
-    open my $f, ">", $filename or skip( "Can't write temp file $filename: $!" );
-    print $f <<'SWTEST';
+open my $f, ">", $filename or skip( "Can't write temp file $filename: $!" );
+print $f <<'SWTEST';
 BEGIN { print "block 1\n"; }
 CHECK { print "block 2\n"; }
 INIT  { print "block 3\n"; }
 	print "block 4\n";
 END   { print "block 5\n"; }
 SWTEST
-    close $f or die "Could not close: $!";
-    $r = runperl(
+close $f or die "Could not close: $!";
+$r = runperl(
 	switches	=> [ '-c' ],
 	progfile	=> $filename,
 	stderr		=> 1,
-    );
-    # Because of the stderr redirection, we can't tell reliably the order
-    # in which the output is given
-    ok(
+  );
+# Because of the stderr redirection, we can't tell reliably the order
+# in which the output is given
+ok(
 	$r =~ /$filename syntax OK/
 	&& $r =~ /\bblock 1\b/
 	&& $r =~ /\bblock 2\b/
@@ -105,7 +103,10 @@ SWTEST
 	&& $r !~ /\bblock 4\b/
 	&& $r !~ /\bblock 5\b/,
 	'-c'
-    );
+  );
+
+SKIP: {
+    skip '-c:s on miniperl', 2 if is_miniperl();
 
     $r = runperl(
 	switches	=> [ '-c:s' ],
