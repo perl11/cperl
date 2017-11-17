@@ -5,15 +5,15 @@
 [ this is a template for a new perldelta file.  Any text flagged as XXX needs
 to be processed before release. ]
 
-perldelta - what is new for perl v5.27.3
+perldelta - what is new for perl v5.27.4
 
 =head1 DESCRIPTION
 
-This document describes differences between the 5.27.2 release and the 5.27.3
+This document describes differences between the 5.27.3 release and the 5.27.4
 release.
 
-If you are upgrading from an earlier release such as 5.27.1, first read
-L<perl5272delta>, which describes differences between 5.27.1 and 5.27.2.
+If you are upgrading from an earlier release such as 5.27.2, first read
+L<perl5273delta>, which describes differences between 5.27.2 and 5.27.3.
 
 =head1 Notice
 
@@ -27,6 +27,40 @@ here, but most should go in the L</Performance Enhancements> section.
 
 [ List each enhancement as a =head2 entry ]
 
+=head2 In-place editing is now safer
+
+Previously in-place editing would delete or rename the input file
+as soon as you started working on a new file.
+
+Without backups this would result in loss of data if there was an
+error, such as a full disk, when writing to the output file.
+
+This has changed so that the input file isn't replaced until the
+output file has been completely written and successfully closed.
+
+This works by creating a work file in the same directory, which is
+renamed over the input file once the output file is complete.
+
+Incompatibilities:
+
+=over
+
+=item *
+
+Since this renaming needs to only happen once, if you create a thread
+or child process, that renaming will only happen in the original
+thread or process.
+
+=item *
+
+If you change directories while processing a file, and your operating
+system doesn't provide the unlinkat(), renameat() and fchmodat()
+functions, the final rename step may fail.
+
+=back
+
+[perl #127663]
+
 =head1 Security
 
 XXX Any security-related notices go here.  In particular, any security
@@ -34,6 +68,26 @@ vulnerabilities closed should be noted here rather than in the
 L</Selected Bug Fixes> section.
 
 [ List each security issue as a =head2 entry ]
+
+=head2 [CVE-2017-12837] Heap buffer overflow in regular expression compiler
+
+Compiling certain regular expression patterns with the case-insensitive
+modifier could cause a heap buffer overflow and crash perl.  This has now been
+fixed.
+L<[perl #131582]|https://rt.perl.org/Public/Bug/Display.html?id=131582>
+
+=head2 [CVE-2017-12883] Buffer over-read in regular expression parser
+
+For certain types of syntax error in a regular expression pattern, the error
+message could either contain the contents of a random, possibly large, chunk of
+memory, or could crash perl.  This has now been fixed.
+L<[perl #131598]|https://rt.perl.org/Public/Bug/Display.html?id=131598>
+
+=head2 [CVE-2017-12814] C<$ENV{$key}> stack buffer overflow on Windows
+
+A possible stack buffer overflow in the C<%ENV> code on Windows has been fixed
+by removing the buffer completely since it was superfluous anyway.
+L<[perl #131665]|https://rt.perl.org/Public/Bug/Display.html?id=131665>
 
 =head1 Incompatible Changes
 
@@ -45,88 +99,9 @@ XXX For a release on a stable branch, this section aspires to be:
 
 [ List each incompatible change as a =head2 entry ]
 
-=head2 Comma-less variable lists in formats are no longer allowed
-
-Omitting the commas between variables passed to formats is no longer
-allowed.  This has been deprecated since perl 5.000.
-
-=head2 The C<:locked> and C<:unique> attributes have been removed
-
-These have been no-ops and deprecated since perl 5.12 and 5.10,
-respectively.
-
-=head2 C<\N{}> with nothing between the braces is now illegal.
-
-This has been deprecated since Perl 5.24.
-
-=head2 Opening the same symbol as both a file and directory handle is no longer allowed
-
-Using open() and opendir() to associate both a filehandle and a dirhandle
-to the same symbol (glob or scalar) has been deprecated since Perl 5.10.
-
-=head2 Use of bare C<< << >> to mean C<< <<"" >> is no longer allowed
-
-Use of a bare terminator has been deprecated since Perl 5.000.
-
-=head2 Setting $/ to a reference to a non-positive integer no longer allowed
-
-This used to work like setting it to C<undef>, but has been deprecated
-since Perl 5.20.
-
-=head2 Unicode code points with values exceeding C<IV_MAX> are now fatal.
-
-This was deprecated since Perl 5.24.
-
-=head2 C<B::OP::terse> no longer exists.
-
-Use C<B::Concise::b_terse> instead.
-
-=head2 Use of inherited AUTOLOAD for non-methods is no longer allowed.
-
-This was deprecated in Perl 5.004.
-
-=head2 Use of strings with code points over 0xFF is not allowed for
-bitwise string operators
-
-Code points over 0xFF do not make sense for bitwise operators.
-
-=head2 Setting C<${^ENCODING}> to a defined value is now illegal
-
-This has been deprecated since Perl 5.22 and a no-op since Perl 5.26.
-
-=head2 Backslash no longer escapes colon in PATH for the -S switch
-
-Previously the C<-S> switch incorrectly treated backslash ("\") as an
-escape for colon when traversing the C<PATH> environment variable.
-[perl #129183]
-
 =head1 Deprecations
 
 XXX Any deprecated features, syntax, modules etc. should be listed here.
-
-=head2 Use of L<C<vec>|perlfunc/vec EXPR,OFFSET,BITS> on strings with code
-points above 0xFF is deprecated.
-
-Use of these is nonsensical, as C<vec> is a bit-oriented operation,
-which operates on the underlying UTF-8 representation these strings must
-be in, and will likely give unexpected results.
-
-=head2 Some uses of unescaped C<"{"> are no longer fatal
-
-Perl 5.26.0 fatalized some uses of an unescaped left brace, but an
-exception was made at the last minute, specifically crafted to be a
-minimal change to allow GNU Autoconf to work.  This code is heavily
-depended upon, and continues to use the deprecated usage.  Its use of an
-unescaped left brace is one where we have no intention of repurposing
-C<"{"> to be something other than itself.
-
-That exception is now generalized to include various other such cases
-where the C<"{"> will not be repurposed.  This is to get real experience
-with this more complicated change now, in case we need to issue a dot
-release if we find other things like Autoconf that are important to work
-around.
-
-Note that these uses continue to raise a deprecation message.
 
 =head2 Module removals
 
@@ -168,7 +143,7 @@ There may well be none in a stable release.
 
 =item *
 
-XXX
+Slightly improved performance when parsing stash names.  [perl #129990]
 
 =back
 
@@ -208,10 +183,6 @@ L<I18N::Langinfo> has been upgraded from version 0.13 to 0.13.
 This fixes a bug in which the underlying locale was ignored for the
 C<RADIXCHAR> (always was returned as a dot, and the C<THOUSEP> (always
 empty).  Now the locale-appropriate values are returned.
-
-=item *
-
-L<ExtUtils::CBuilder> has been upgraded from version 0.280225 to 0.280226.
 
 =back
 
@@ -399,16 +370,9 @@ XXX List any platforms that this version of perl no longer compiles on.
 
 =over 4
 
-=item Windows
+=item XXX-some-platform
 
-=over 4
-
-=item *
-
-Support for compiling perl on Windows using Microsoft Visual Studio 2017
-(containing Visual C++ 14.1) has been added.
-
-=back
+XXX
 
 =back
 
@@ -447,6 +411,12 @@ from the caller.  Code that uses this, needn't use L<C<localeconv(3)>>
 (and be affected by the gotchas) to find the decimal point, thousands
 separator, or currency symbol.  See L<perlapi/Perl_langinfo>.
 
+=item *
+
+A new API function L<C<sv_rvunweaken()>|perlapi/sv_rvunweaken> has
+been added to complement L<C<sv_rvweaken()>|perlapi/sv_rvweaken>.
+The implementation was taken from L<Scalar::Util/unweaken>.
+
 =back
 
 =head1 Selected Bug Fixes
@@ -460,18 +430,41 @@ files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 
 =item *
 
-Fixed a duplicate symbol failure with C<-flto -mieee-fp> builds.
-F<pp.c> defined C<_LIB_VERSION> which C<-lieee> already defines. [perl
-#131786]
+The internal stack usage checks introduced in 5.27.2 is now also done
+by the C<entersub> operator when calling XSUBs.  This means we can
+report which XSUB failed to allocate enough stack space.  [perl
+#131975]
 
 =item *
 
-C<split ' '> now correctly handles the argument being split when in the
-scope of the L<< C<unicode_strings>|feature/"The 'unicode_strings' feature"
->> feature. Previously, when a string using the single-byte internal
-representation contained characters that are whitespace by Unicode rules but
-not by ASCII rules, it treated those characters as part of fields rather
-than as field separators.  [perl #130907]
+Parsing a C<sub> definition could cause a use after free if the C<sub>
+keyword was followed by whitespace including newlines (and comments.)
+[perl #131836]
+
+=item *
+
+The tokenizer now correctly adjusts a parse pointer when skipping
+whitespace in a C< ${identifier} > construct.  [perl #131949]
+
+=item *
+
+Accesses to C<${^LAST_FH}> no longer assert after using any of a
+variety of I/O operations on a non-glob.  [perl #128263]
+
+=item *
+
+The C<Copy()>, C<Move()>, C<Zero()> macros and their variants now
+assert if the pointers supplied are C<NULL>.  ISO C considers
+supplying NULL pointers to the functions these macros are built upon
+as undefined behaviour even when their count parameters are zero.
+Based on these assertions and the original bug report three macro
+calls were made conditional. [perl #131746][perl #131892]
+
+=item *
+
+The in-place sort optimisation now correctly strengthens weak
+references using the new L<C<sv_rvunweaken()>|perlapi/sv_rvunweaken>
+API function.
 
 =back
 

@@ -11,6 +11,8 @@ release schedules for the next, current and previous stable versions
 of Perl.  Dates with two or more question marks will only be releases if
 deemed necessary by the Pumpking.
 
+=head2 Perl 5.28
+
 Code freezes (which happen in the 5.27.X series)
 
   2017-12-20  5.27.8          Contentious changes freeze
@@ -37,7 +39,7 @@ Code freezes (which happen in the 5.27.X series)
   2015-12-13  5.22.1 ✓        Steve Hay
   2016-04-29  5.22.2 ✓        Steve Hay
   2017-01-14  5.22.3 ✓        Steve Hay
-  2017-07-??  5.22.4          Steve Hay
+  2017-07-15  5.22.4 ✓        Steve Hay
 
 =head1 DEVELOPMENT RELEASE SCHEDULE
 
@@ -56,13 +58,13 @@ you should reset the version numbers to the next blead series.
 =head2 Perl 5.27
 
   2017-05-31  5.27.0 ✓        Sawyer X
-  2017-06-20  5.27.1          Eric Herman
-  2017-07-20  5.27.2          Aaron Crane
-  2017-08-20  5.27.3          Matthew Horsfall
+  2017-06-20  5.27.1 ✓        Eric Herman
+  2017-07-20  5.27.2 ✓        Aaron Crane
+  2017-08-20  5.27.3 ✓        Matthew Horsfall
   2017-09-20  5.27.4          John Anderson
   2017-10-20  5.27.5          Steve Hay
   2017-11-20  5.27.6          Karen Etheridge
-  2017-12-20  5.27.7          ?
+  2017-12-20  5.27.7          BinGOs
   2018-01-20  5.27.8          Abigail
   2018-02-20  5.27.9          ?
   2018-03-20  5.27.10         ?
