@@ -327,7 +327,7 @@ is ($err, '', 'No errors when determining @INC');
 my @default_inc = split /\n/, $out;
 
 SKIP: {
-  if (!$Config{default_inc_excludes_dot}) {
+  if (is_miniperl() or !$Config{default_inc_excludes_dot}) {
     is ($default_inc[-1], '.', '. is last in @INC');
     skip('Not testing unsafe @INC when it includes . by default', 2);
   } else {

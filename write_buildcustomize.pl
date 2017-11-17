@@ -100,7 +100,7 @@ if ($error) {
         or warn "Can't unlink $file after error: $!";
 } else {
     if (close $fh) {
-        do $file and exit;
+        do "./$file" and exit;
         $error = "Can't load generated $file: $@";
     } else {
         $error = "Can't close $file: $!";

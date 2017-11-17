@@ -2326,11 +2326,11 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
             /* if lib/buildcustomize.pl exists, it should not fail. If it does,
                it should be reported immediately as a build failure.  */
 	    (void)Perl_av_create_and_unshift_one(aTHX_ &PL_preambleav,
-						 Perl_newSVpvf(aTHX_
-		"BEGIN { my $f = q%c%s%" SVf "/buildcustomize.pl%c; "
-			"do {local $!; -f $f }"
+	        Perl_newSVpvf(aTHX_
+		"BEGIN { my $f = q%c./%" SVf "/buildcustomize.pl%c; "
+			"do { local $!; -f $f }"
 			" and do $f || die $@ || qq '$f: $!' }",
-                                0, (TAINTING_get ? "./" : ""), SVfARG(*inc0), 0));
+                                0, SVfARG(*inc0), 0));
 	}
 #  else
 	/* SITELIB_EXP is a function call on Win32.  */
@@ -2341,10 +2341,11 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
 					   INCPUSH_CAN_RELOCATE);
 	    const char *const sitelib = SvPVX(sitelib_sv);
 	    (void)Perl_av_create_and_unshift_one(aTHX_ &PL_preambleav,
-						 Perl_newSVpvf(aTHX_
-							       "BEGIN { do {local $!; -f q%c%s/sitecustomize.pl%c} && do q%c%s/sitecustomize.pl%c }",
-							       0, SVfARG(sitelib), 0,
-							       0, SVfARG(sitelib), 0));
+	        Perl_newSVpvf(aTHX_
+                    "BEGIN { do {local $!; -f q%c%s/sitecustomize.pl%c} && "
+                    "do q%c%s/sitecustomize.pl%c }",
+                              0, SVfARG(sitelib), 0,
+                              0, SVfARG(sitelib), 0));
 	    assert (SvREFCNT(sitelib_sv) == 1);
 	    SvREFCNT_dec(sitelib_sv);
 	}
@@ -4902,14 +4903,11 @@ S_init_perllib(pTHX)
 #endif /* !PERL_IS_MINIPERL */
 
     if (!TAINTING_get) {
-        /* cperl and cpanel perl proper does not add . to @INC */
+#if !defined(PERL_IS_MINIPERL) && defined(DEFAULT_INC_EXCLUDES_DOT)
         const char * const unsafe = PerlEnv_getenv("PERL_USE_UNSAFE_INC");
         if (unsafe && strEQc(unsafe, "1"))
-            S_incpush(aTHX_ STR_WITH_LEN("."), 0);
-#ifdef PERL_IS_MINIPERL
-        else
-            S_incpush(aTHX_ STR_WITH_LEN("."), 0);
 #endif
+            S_incpush(aTHX_ STR_WITH_LEN("."), 0);
     }
 }
 
