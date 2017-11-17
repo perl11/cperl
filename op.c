@@ -12891,8 +12891,12 @@ Perl_ck_concat(pTHX_ OP *o)
     /* reuse the padtmp returned by the concat child */
     if (IS_TYPE(kid, CONCAT) && !(kid->op_private & OPpTARGET_MY)
         && !(OpFIRST(kid)->op_flags & OPf_MOD))
+    {
         o->op_flags |= OPf_STACKED;
-    return fold_constants(op_std_init(o));
+        o->op_private |= OPpCONCAT_NESTED;
+        return fold_constants(op_std_init(o));
+    }
+    return o;
 }
 
 /*
