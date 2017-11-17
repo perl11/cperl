@@ -422,3 +422,10 @@ Number found where operator expected at - line 1, near "--5"
 	(Missing operator before 5?)
 syntax error at - line 1, near "1e"
 Execution of - aborted due to compilation errors.
+########
+# NAME signature with non-"=" assignop #131777
+sub foo ($a += 1)
+EXPECT
+syntax error at - line 1.
+syntax error at - line 1, near "$a +"
+Execution of - aborted due to compilation errors.
