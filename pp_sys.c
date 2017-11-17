@@ -3362,24 +3362,6 @@ PP(pp_ftrowned)
     }
     tryAMAGICftest_MG(opchar);
 
-    /* I believe that all these three are likely to be defined on most every
-       system these days.  */
-#ifndef S_ISUID
-    if (op_type == OP_FTSUID) {
-	FT_RETURNNO;
-    }
-#endif
-#ifndef S_ISGID
-    if (op_type == OP_FTSGID) {
-	FT_RETURNNO;
-    }
-#endif
-#ifndef S_ISVTX
-    if (op_type == OP_FTSVTX) {
-	FT_RETURNNO;
-    }
-#endif
-
     result = my_stat_flags(0);
     if (result < 0)
 	FT_RETURNUNDEF;
