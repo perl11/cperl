@@ -250,16 +250,16 @@ EOT
 
 {
     # Right. We really really need Config here.
-    require Config;
+    require Config; Config->import;
     die "Failed to load Config for some reason"
-	unless $Config::Config{version};
+	unless $Config{version};
 
     my $simple = ++$i;
     my $pmc_older = ++$i;
     my $pmc_dies = ++$i;
     my $no_pmc;
-    foreach(Config::non_bincompat_options()) {
-	if($_ eq "PERL_DISABLE_PMC"){
+    foreach (Config::non_bincompat_options()) {
+	if ($_ eq "PERL_DISABLE_PMC"){
 	    $no_pmc = 1;
 	    last;
 	}

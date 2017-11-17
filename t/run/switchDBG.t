@@ -6,13 +6,12 @@ BEGIN {
     chdir 't' if -d 't';
     @INC = '../lib';
     require "./test.pl";
-    require Config;
-    skip_all('no DEBUGGING') if $Config::Config{ccflags} !~ /DDEBUGGING/;
+    require Config; Config->import;
+    skip_all('no DEBUGGING') if $Config{ccflags} !~ /DDEBUGGING/;
 }
 
 plan(tests => 36);
 
-use Config;
 BEGIN {
     eval 'use POSIX qw(setlocale LC_ALL)';
     $ENV{LC_ALL} = 'C';

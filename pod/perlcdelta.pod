@@ -586,14 +586,6 @@ cperl-only.
 
 =head1 Testing
 
-XXX Any significant changes to the testing of a freshly built perl should be
-listed here.  Changes which create B<new> files in F<t/> go here as do any
-large changes to the testing harness (e.g. when parallel testing was added).
-Changes to existing files in F<t/> aren't worth summarizing, although the bugs
-that they represent may be covered elsewhere.
-
-[ List each test improvement as a =item entry ]
-
 =over 4
 
 =item *
@@ -609,6 +601,10 @@ L<static method optimizations|/"Optimize static methods to subs">.
 When you redefine a method, you need to clear the old method GV, to be able
 to call the new redefined one, as the static method optimization binds to
 the GV.
+
+=item *
+
+Many fixes for C<make minitest>, for cperl/XSConfig.
 
 =back
 

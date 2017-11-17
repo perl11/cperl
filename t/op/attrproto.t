@@ -2,12 +2,12 @@
 
 # Testing the : prototype(..) attribute
 
-use Config ();
+use Config;
 BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
     set_up_inc('../lib');
-    if ($Config::Config{usecperl}) {
+    if ($Config{usecperl}) {
       skip_all("cperl does not store illegal prototypes");
     } else {
       skip_all_if_miniperl("miniperl can't load attributes");
