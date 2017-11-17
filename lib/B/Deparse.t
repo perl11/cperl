@@ -2886,3 +2886,109 @@ $r = qr/abc\Q$a-$b\Exyz/;
 my $str;
 $str = 'foo';
 $str =~ tr/\cA//;
+####
+# CORE::foo special case in bareword parsing
+print $CORE::foo, $CORE::foo::bar;
+print @CORE::foo, @CORE::foo::bar;
+print %CORE::foo, %CORE::foo::bar;
+print $CORE::foo{'a'}, $CORE::foo::bar{'a'};
+print &CORE::foo, &CORE::foo::bar;
+print &CORE::foo(), &CORE::foo::bar();
+print \&CORE::foo, \&CORE::foo::bar;
+print *CORE::foo, *CORE::foo::bar;
+print stat CORE::foo::, stat CORE::foo::bar;
+print CORE::foo:: 1;
+print CORE::foo::bar 2;
+####
+# trailing colons on glob names
+no strict 'vars';
+$Foo::::baz = 1;
+print $foo, $foo::, $foo::::;
+print @foo, @foo::, @foo::::;
+print %foo, %foo::, %foo::::;
+print $foo{'a'}, $foo::{'a'}, $foo::::{'a'};
+print &foo, &foo::, &foo::::;
+print &foo(), &foo::(), &foo::::();
+print \&foo, \&foo::, \&foo::::;
+print *foo, *foo::, *foo::::;
+print stat Foo, stat Foo::::;
+print Foo 1;
+print Foo:::: 2;
+####
+# trailing colons mixed with CORE
+no strict 'vars';
+print $CORE, $CORE::, $CORE::::;
+print @CORE, @CORE::, @CORE::::;
+print %CORE, %CORE::, %CORE::::;
+print $CORE{'a'}, $CORE::{'a'}, $CORE::::{'a'};
+print &CORE, &CORE::, &CORE::::;
+print &CORE(), &CORE::(), &CORE::::();
+print \&CORE, \&CORE::, \&CORE::::;
+print *CORE, *CORE::, *CORE::::;
+print stat CORE, stat CORE::::;
+print CORE 1;
+print CORE:::: 2;
+print $CORE::foo, $CORE::foo::, $CORE::foo::::;
+print @CORE::foo, @CORE::foo::, @CORE::foo::::;
+print %CORE::foo, %CORE::foo::, %CORE::foo::::;
+print $CORE::foo{'a'}, $CORE::foo::{'a'}, $CORE::foo::::{'a'};
+print &CORE::foo, &CORE::foo::, &CORE::foo::::;
+print &CORE::foo(), &CORE::foo::(), &CORE::foo::::();
+print \&CORE::foo, \&CORE::foo::, \&CORE::foo::::;
+print *CORE::foo, *CORE::foo::, *CORE::foo::::;
+print stat CORE::foo::, stat CORE::foo::::;
+print CORE::foo:: 1;
+print CORE::foo:::: 2;
+####
+# \&foo
+my sub foo {
+    1;
+}
+no strict 'vars';
+print \&main::foo;
+print \&{foo};
+print \&bar;
+use strict 'vars';
+print \&main::foo;
+print \&{foo};
+print \&main::bar;
+####
+# exists(&foo)
+my sub foo {
+    1;
+}
+no strict 'vars';
+print exists &main::foo;
+print exists &{foo};
+print exists &bar;
+use strict 'vars';
+print exists &main::foo;
+print exists &{foo};
+print exists &main::bar;
+# precedence of optimised-away 'keys' (OPpPADHV_ISKEYS/OPpRV2HV_ISKEYS)
+my($r1, %h1, $res);
+our($r2, %h2);
+$res = keys %h1;
+$res = keys %h2;
+$res = keys %$r1;
+$res = keys %$r2;
+$res = keys(%h1) / 2 - 1;
+$res = keys(%h2) / 2 - 1;
+$res = keys(%$r1) / 2 - 1;
+$res = keys(%$r2) / 2 - 1;
+####
+# ditto in presence of sub keys {}
+# CONTEXT sub keys {}
+no warnings;
+my($r1, %h1, $res);
+our($r2, %h2);
+CORE::keys %h1;
+CORE::keys(%h1) / 2;
+$res = CORE::keys %h1;
+$res = CORE::keys %h2;
+$res = CORE::keys %$r1;
+$res = CORE::keys %$r2;
+$res = CORE::keys(%h1) / 2 - 1;
+$res = CORE::keys(%h2) / 2 - 1;
+$res = CORE::keys(%$r1) / 2 - 1;
+$res = CORE::keys(%$r2) / 2 - 1;
