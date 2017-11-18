@@ -7822,6 +7822,14 @@ PERL_CALLCONV void	Perl_Slab_to_rw(pTHX_ OPSLAB *const slab)
 #endif
 #if defined(PERL_CORE) || defined (PERL_EXT)
 #ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE bool	S_is_utf8_non_invariant_string(const U8* const s, STRLEN len)
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(1);
+#define PERL_ARGS_ASSERT_IS_UTF8_NON_INVARIANT_STRING	\
+	assert(s)
+#endif
+
+#ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE STRLEN	S_sv_or_pv_pos_u2b(pTHX_ SV *sv, const char *pv, STRLEN pos, STRLEN *lenp)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
