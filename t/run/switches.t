@@ -421,7 +421,9 @@ __EOF__
         $out1,
         "-i used with no filenames on the command line, reading from STDIN.\n",
         "warning when no files given"
-    );
+      );
+    # XXX cperl: left tmpfile. $ cperl -i.bak -p -e'exit' file
+    # because PL_sv_objcount was zero, sv_clean_objs() never called.
     my $out2 = runperl(
         switches => ['-i.bak -p'],
         prog     => 'exit',
@@ -600,11 +602,8 @@ CODE
     opendir my $d, "inplacetmp" or die "Cannot opendir inplacetmp: $!";
     my @names = grep !/^\.\.?$/ && $_ ne 'foo', readdir $d;
     closedir $d;
-  TODO: {
-      local $TODO = 'not yet';
-      is(scalar(@names), 0, "no extra files")
-        or diag "Found @names, expected none";
-    }
+    is(scalar(@names), 0, "no extra files")
+      or diag "Found @names, expected none";
 
     # the following tests might leave work files behind
 

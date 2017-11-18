@@ -1120,6 +1120,8 @@ Perl_nextargv(pTHX_ GV *gv, bool nomagicopen)
                     SvREFCNT_dec(magic_av);
                     continue;
 		}
+                PL_sv_objcount++; /* force sv_clean_objs() */
+                av_extend(magic_av, 5);
                 av_store(magic_av, ARGVMG_TEMP_NAME, temp_name_sv);
                 av_store(magic_av, ARGVMG_ORIG_NAME, newSVsv(sv));
                 av_store(magic_av, ARGVMG_ORIG_MODE, newSVuv(PL_filemode));
