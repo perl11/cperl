@@ -627,7 +627,7 @@ S_maybe_add_coresub(pTHX_ HV * const stash, GV *gv,
     }
     if (cv) {
 	SV *opnumsv = newSViv(
-	    (opnum == OP_ENTEREVAL && len == 9 && memEQ(name, "evalbytes", 9)) ?
+	    (opnum == OP_ENTEREVAL && len == 9 && memEQc(name, "evalbytes")) ?
 		(OP_ENTEREVAL | (1<<16))
 	    : opnum ? opnum : (((I32)name[2]) << 16));
         cv_set_call_checker_flags(cv, Perl_ck_entersub_args_core, opnumsv, 0);
@@ -656,12 +656,12 @@ Perl_gv_fetchmeth_sv(pTHX_ HV *stash, SV *namesv, I32 level, U32 flags)
     char *namepv;
     STRLEN namelen;
     PERL_ARGS_ASSERT_GV_FETCHMETH_SV;
+    if (UNLIKELY(SvUTF8(namesv))) flags |= SVf_UTF8;
     if (LIKELY(SvPOK_nog(namesv))) /* common case */
-        return gv_fetchmeth_internal(stash, namesv, NULL, 0, level,
-                                     flags | SvUTF8(namesv));
+        return gv_fetchmeth_internal(stash, namesv, NULL, 0, level, flags);
+    /* do the get magic */
     namepv = SvPV(namesv, namelen);
-    if (SvUTF8(namesv)) flags |= SVf_UTF8;
-    return gv_fetchmeth_pvn(stash, namepv, namelen, level, flags);
+    return gv_fetchmeth_internal(stash, NULL, namepv, namelen, level, flags);
 }
 
 /*
@@ -859,13 +859,14 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
     }
 
     /* Check UNIVERSAL without caching */
-    if(level == 0 || level == -1) {
+    if (level == 0 || level == -1) {
         candidate = gv_fetchmeth_internal(NULL, meth, name, len, 1,
-                                          flags &~GV_SUPER);
-        if(candidate) {
+                                          flags & ~GV_SUPER);
+        if (candidate) {
             cand_cv = GvCV(candidate);
-            if (topgv && (GvREFCNT(topgv) == 1) &&
-                (CvROOT(cand_cv) || CvXSUB(cand_cv))) {
+            if (topgv && (GvREFCNT(topgv) == 1)
+                && (CvROOT(cand_cv) || CvXSUB(cand_cv)))
+            {
                   CV *old_cv = GvCV(topgv);
                   SvREFCNT_dec(old_cv);
                   SvREFCNT_inc_simple_void_NN(cand_cv);
