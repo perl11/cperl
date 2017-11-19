@@ -1163,11 +1163,15 @@ Unimplemented, so returns C<"">.
 
 =item C<YESEXPR>
 
+=item C<YESSTR>
+
 =item C<NOEXPR>
 
-Only the values for English are returned.  Earlier POSIX standards also
-specified C<YESSTR> and C<NOSTR>, but these have been removed from POSIX 2008,
-and aren't supported by C<Perl_langinfo>.
+=item C<NOSTR>
+
+Only the values for English are returned.  C<YESSTR> and C<NOSTR> have been
+removed from POSIX 2008, and are retained for backwards compatibility.  Your
+platform's C<nl_langinfo> may not support them.
 
 =item C<D_FMT>
 
@@ -1297,8 +1301,6 @@ S_my_nl_langinfo(const int item, bool toggle)
 
     LOCALE_UNLOCK;
 
-    return PL_langinfo_buf;
-
 #  else /* Use nl_langinfo_l(), avoiding both a mutex and changing the locale */
 
     bool do_free = FALSE;
@@ -1322,9 +1324,19 @@ S_my_nl_langinfo(const int item, bool toggle)
         freelocale(cur);
     }
 
+#  endif
+
+    if (strEQ(PL_langinfo_buf, "")) {
+        if (item == PERL_YESSTR) {
+            return "yes";
+        }
+        if (item == PERL_NOSTR) {
+            return "no";
+        }
+    }
+
     return PL_langinfo_buf;
 
-#    endif
 #else   /* Below, emulate nl_langinfo as best we can */
 #  ifdef HAS_LOCALECONV
 
@@ -1360,7 +1372,9 @@ S_my_nl_langinfo(const int item, bool toggle)
 
         /* We use only an English set, since we don't know any more */
         case PERL_YESEXPR:   return "^[+1yY]";
+        case PERL_YESSTR:    return "yes";
         case PERL_NOEXPR:    return "^[-0nN]";
+        case PERL_NOSTR:     return "no";
 
 #  ifdef HAS_LOCALECONV
 
