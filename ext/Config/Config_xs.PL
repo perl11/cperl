@@ -160,7 +160,7 @@ if ($gperf_ok) {
     my @cannedkeys = qw(
 
 arflags bin_ELF bootstrap_charset   canned_gperf    ccstdflags  ccwarnflags charsize
-config_argc config_args d_re_comp   d_regcmp    dlltool dtraceobject
+config_argc config_args d_memrchr   d_re_comp   d_regcmp    dlltool dtraceobject
 git_ancestor    git_commit_date git_remote_branch   git_unpushed
 hostgenerate    hostosname  hostperl    incpth  installhtmldir
 installhtmlhelpdir  ld_can_script   libdb_needs_pthread mad malloc_cflags
