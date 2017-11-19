@@ -65,13 +65,61 @@ L<http://www.unicode.org/versions/Unicode10.0.0>.
 Parse prototypes for errors again. Either with C<:prototype()> or as signature.
 Illegal prototypes are not stored.
 
+=head2 In-place editing is now safer
+
+Previously in-place editing would delete or rename the input file
+as soon as you started working on a new file.
+
+Without backups this would result in loss of data if there was an
+error, such as a full disk, when writing to the output file.
+
+This has changed so that the input file isn't replaced until the
+output file has been completely written and successfully closed.
+
+This works by creating a work file in the same directory, which is
+renamed over the input file once the output file is complete.
+
+Incompatibilities:
+
+=over
+
+=item *
+
+Since this renaming needs to only happen once, if you create a thread
+or child process, that renaming will only happen in the original
+thread or process.
+
+=item *
+
+If you change directories while processing a file, and your operating
+system doesn't provide the C<unlinkat()>, C<renameat()> and C<fchmodat()>
+functions, the final rename step may fail.
+
+=back
+
+L<[perl #127663]|https://rt.perl.org/Public/Bug/Display.html?id=127663>
+
 =head1 Security
 
-XXX Any security-related notices go here.  In particular, any security
-vulnerabilities closed should be noted here rather than in the
-L</Selected Bug Fixes> section.
+=head2 [CVE-2017-12837] Heap buffer overflow in regular expression compiler
 
-[ List each security issue as a =head2 entry ]
+Compiling certain regular expression patterns with the case-insensitive
+modifier could cause a heap buffer overflow and crash perl.  This has now been
+fixed.
+L<[perl #131582]|https://rt.perl.org/Public/Bug/Display.html?id=131582>
+
+=head2 [CVE-2017-12883] Buffer over-read in regular expression parser
+
+For certain types of syntax error in a regular expression pattern, the error
+message could either contain the contents of a random, possibly large, chunk of
+memory, or could crash perl.  This has now been fixed.
+L<[perl #131598]|https://rt.perl.org/Public/Bug/Display.html?id=131598>
+
+=head2 [CVE-2017-12814] C<$ENV{$key}> stack buffer overflow on Windows
+
+A possible stack buffer overflow in the C<%ENV> code on Windows has been fixed
+by removing the buffer completely since it was superfluous anyway.
+L<[perl #131665]|https://rt.perl.org/Public/Bug/Display.html?id=131665>
 
 =head1 Incompatible Changes
 
@@ -221,6 +269,16 @@ Various integer-returning ops are now more efficient in scalar/boolean context.
 
 C<< if (index(...) != -1) { ... } >> is now more efficient.
 
+=item *
+
+Slightly improved performance when parsing stash names.
+L<[perl #129990]|https://rt.perl.org/Public/Bug/Display.html?id=129990>
+
+=item *
+
+Calls to C<require> for an already loaded module are now slightly faster.
+L<[perl #132171]|https://rt.perl.org/Public/Bug/Display.html?id=132171>
+
 =back
 
 =head1 Modules and Pragmata
@@ -247,13 +305,14 @@ XXX
 
 =over 4
 
-=item L<arybase> 0.13
+=item L<arybase> 0.14
 
 Remove #ifdef USE_ITHREADS around MUTEX_* calls
 
-=item L<attributes> 1.13c
+=item L<attributes> 1.14c
 
-Remove deprecated no-op attributes :unique, :locked
+Remove deprecated no-op attributes :unique, :locked.
+Added another param to validate_proto.
 
 =item L<Attribute::Handlers> 1.00
 
@@ -275,13 +334,18 @@ Support POK/PVLV REGEXP for v5.27.3/v5.27.2c
 
 Support PL_sv_zero
 
-=item L<B::Deparse> 1.42_04c
+=item L<B::Deparse> 1.43_04c
 
-Support boolean optims
+Support boolean optims.
+Better constant-dumping heuristics.
 
 =item L<B::Terse> 1.09_01
 
 Remove internal links to B::Debug
+
+=item L<B::Xref> 1.07_01
+
+Support sub refs
 
 =item C<Carp> 1.43c
 
@@ -351,13 +415,22 @@ the ISA as with base.
 
 cperl-only.
 
-=item L<File::Glob> 1.29
+=item L<File::Fetch> 0.54
 
-Skip a test when File::Glob not used
+Switch test URL from www.cpan.org to httpbin.org
+
+=item L<File::Glob> 1.30
+
+Skip a test when File::Glob not used.
+Avoid undefined behaviour in Copy() [perl #131746]
 
 =item L<GDBM_File> 1.16
 
 Add a pod link
+
+=item L<I18N::Langinfo> 0.14
+
+Use new fcn Perl_langinfo()
 
 =item L<if> 0.0607
 
@@ -379,9 +452,17 @@ prevent mro.pm from loading DynaLoader
 Implemented L<Mu/fields> returning fields objects.
 cperl-only.
 
+=item L<NEXT> 0.67_01
+
+Fix for GLOB stubs [cpan #123002].
+
 =item L<O> 1.02
 
 Improve error message for bogus -MO=… arguments
+
+=item L<perl5db> 1.52_01c
+
+Support debugger cmds not requiring spaces
 
 =item L<PerlIO::scalar> 0.29
 
@@ -389,15 +470,24 @@ check invariant at compile time.
 
 return EACCES on writing to a read-only scalar
 
-=item L<POSIX> 1.77_03
+=item L<Pod::Perldoc> 3.2801
 
-internal cleanup of setlocale (unusable for cpan)
+customize to fix formatters and pager misbehaviour
+
+=item L<POSIX> 1.78_03
+
+internal cleanup of setlocale (unusable for cpan).
+get/setpriority constants
 
 =item L<re> 0.35_01
 
 Faster. add DEBUGGING_RE_ONLY define
 
 =item L<SelfLoader> 1.24
+
+=item L<sort> 2.03
+
+no sort stable; SORTf_UNSTABLE flag
 
 =item L<Storable> 3.05_16
 
@@ -414,9 +504,14 @@ Unify stack reserve to 32 across all platforms.
 Improved Symbol::delete_package for readonly and protected symbols
 and classes.
 
-=item L<threads> 2.17_01
+=item L<Term::ReadLine> 1.17
 
-Support PL_sv_zero
+fix for empty &STDERR files RT #132008
+
+=item L<threads> 2.18_01
+
+Support PL_sv_zero.
+Don't Copy() null pointer
 
 =item L<Time::Piece> 1.3202
 
@@ -426,6 +521,10 @@ Support PL_sv_zero
     - Remove some compile warnings
     - SP off by 1 in _crt_localtime
 
+=item L<utf8> 2.02c
+
+Improved function documentation
+
 =item L<version> 0.9918_02c
 
 Add updates from 0.9918: Add LAX_DECIMAL_VERSION, LAX_DOTTED_DECIMAL_VERSION,
@@ -433,9 +532,11 @@ STRICT_DECIMAL_VERSION, STRICT_DOTTED_DECIMAL_VERSION regexes.
 
 Add F<t/11_taint.t>
 
-=item L<utf8> 2.02c
+=item L<VMS::Stdio> 2.42_01
 
-Improved function documentation
+Drop VMS::stdio compatibility shim
+
+=item L<XS::APITest> 0.92_02
 
 =back
 
@@ -537,13 +638,13 @@ XXX L<message|perldiag/"message">
 
 =head2 Changes to Existing Diagnostics
 
-XXX Changes (i.e. rewording) of diagnostic messages go here
-
 =over 4
 
 =item *
 
-XXX Describe change here
+A false-positive warning that was issued when using a
+numerically-quantified sub-pattern in a recursive regex has been
+silenced. L<[perl #131868]|https://rt.perl.org/Public/Bug/Display.html?id=131868>
 
 =back
 
@@ -651,9 +752,14 @@ L</Modules and Pragmata> section.
 
 =over 4
 
-=item XXX-some-platform
+=item Darwin
 
-XXX
+Perl now correctly uses reentrant functions, like C<asctime_r>, on
+versions of Darwin that have support for them.
+
+=item CentOS
+
+Compilation on CentOS 5 is now fixed.
 
 =back
 
@@ -685,6 +791,19 @@ being more thread-safe, and hiding some gotchas with locale handling
 from the caller.  Code that uses this, needn't use L<C<localeconv(3)>>
 (and be affected by the gotchas) to find the decimal point, thousands
 separator, or currency symbol.  See L<perlapi/Perl_langinfo>.
+
+=item *
+
+A new API function L<C<sv_rvunweaken()>|perlapi/sv_rvunweaken> has
+been added to complement L<C<sv_rvweaken()>|perlapi/sv_rvweaken>.
+The implementation was taken from L<Scalar::Util/unweaken>.
+
+=item *
+
+A new flag, C<SORTf_UNSTABLE>, has been added. This will allow a
+future commit to make mergesort unstable when the user specifies ‘no
+sort stable’, since it has been decided that mergesort should remain
+stable by default.
 
 =back
 
@@ -719,6 +838,94 @@ rewriting used to implement this behavior could confuse the
 interpreter.  This matches the behaviour of threaded builds.
 L<[perl #124368]|https://rt.perl.org/Ticket/Display.html?id=124368>
 
+=item *
+
+The tokenizer now correctly adjusts a parse pointer when skipping
+whitespace in a C< ${identifier} > construct.
+L<[perl #131949]|https://rt.perl.org/Public/Bug/Display.html?id=131949>
+
+=item *
+
+Accesses to C<${^LAST_FH}> no longer assert after using any of a
+variety of I/O operations on a non-glob.
+L<[perl #128263]|https://rt.perl.org/Public/Bug/Display.html?id=128263>
+
+=item *
+
+The C<Copy()>, C<Move()>, C<Zero()> macros and their variants now
+assert if the pointers supplied are C<NULL>.  ISO C considers
+supplying NULL pointers to the functions these macros are built upon
+as undefined behaviour even when their count parameters are zero.
+Based on these assertions and the original bug report three macro
+calls were made conditional.
+L<[perl #131746]|https://rt.perl.org/Public/Bug/Display.html?id=131746>
+L<[perl #131892]|https://rt.perl.org/Public/Bug/Display.html?id=131892>
+
+=item *
+
+The in-place sort optimisation now correctly strengthens weak
+references using the new L<sv_rvunweaken()|perlapi/sv_rvunweaken>
+API function.
+
+=item *
+
+Package names are now always included in C<:prototype> warnings
+L<[perl #131833]|https://rt.perl.org/Public/Bug/Display.html?id=131833>
+
+=item *
+
+Creating a thread with no parameters no longer tries to C<Copy()> a
+null pointer. This fixes an assertion failure and allows threaded
+builds to work again.
+
+=item *
+
+The C<je_old_stack_hwm> field, previously only found in the C<jmpenv>
+structure on debugging builds, has been added to non-debug builds as
+well. This fixes an issue with some CPAN modules caused by the size of
+this structure varying between debugging and non-debugging builds.
+L<[perl #131942]|https://rt.perl.org/Public/Bug/Display.html?id=131942>
+
+=item *
+
+The arguments to the C<ninstr()> macro are now correctly parenthesized.
+
+=item *
+
+A NULL pointer dereference in the C<S_regmatch()> function has been
+fixed.
+L<[perl #132017]|https://rt.perl.org/Public/Bug/Display.html?id=132017>
+
+=item *
+
+Calling L<exec PROGRAM LIST|perlfunc/exec PROGRAM LIST> with an empty C<LIST>
+has been fixed.  This should call C<execvp()> with an empty C<argv> array
+(containing only the terminating C<NULL> pointer), but was instead just
+returning false (and not setting L<C<$!>|perlvar/$!>).
+L<[perl #131730]|https://rt.perl.org/Public/Bug/Display.html?id=131730>
+
+=item *
+
+The C<gv_fetchmeth_sv> C function stopped working properly in Perl 5.22 when
+fetching a constant with a UTF-8 name if that constant subroutine was stored in
+the stash as a simple scalar reference, rather than a full typeglob.  This has
+been fixed.
+
+=item *
+
+Single-letter debugger commands followed by an argument which starts with
+punctuation  (e.g. C<p$^V> and C<x@ARGV>) now work again.  They had been
+wrongly requiring a space between the command and the argument.
+L<[perl #120174]|https://rt.perl.org/Public/Bug/Display.html?id=120174>
+
+=item *
+
+L<splice|perlfunc/splice ARRAY,OFFSET,LENGTH,LIST> now throws an exception
+("Modification of a read-only value attempted") when modifying a read-only
+array.  Until now it had been silently modifying the array.  The new behaviour
+is consistent with the behaviour of L<push|perlfunc/push ARRAY,LIST> and
+L<unshift|perlfunc/unshift ARRAY,LIST>.
+L<[perl #131000]|https://rt.perl.org/Public/Bug/Display.html?id=131000>
 
 =back
 
