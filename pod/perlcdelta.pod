@@ -329,6 +329,7 @@ Support PL_sv_zero
 =item L<B::C> 1.55_05
 
 Support POK/PVLV REGEXP for v5.27.3/v5.27.2c
+VOL => volatile for  v5.27.6/v5.27.2c
 
 =item L<B::Concise> 1.002c
 

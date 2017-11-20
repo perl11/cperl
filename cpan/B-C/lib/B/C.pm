@@ -7045,7 +7045,7 @@ my_curse( pTHX_ SV* const sv ) {
 
 static int fast_perl_destruct( PerlInterpreter *my_perl ) {
     dVAR;
-    VOL signed char destruct_level;  /* see possible values in intrpvar.h */
+    volatile signed char destruct_level;  /* see possible values in intrpvar.h */
     HV *hv;
 #ifdef DEBUG_LEAKING_SCALARS_FORK_DUMP
     pid_t child;
@@ -7220,7 +7220,7 @@ _EOT9
   else {
     print <<'_EOT7';
 int my_perl_destruct( PerlInterpreter *my_perl ) {
-    VOL signed char destruct_level = PL_perl_destruct_level;
+    volatile signed char destruct_level = PL_perl_destruct_level;
     const char * const s = PerlEnv_getenv("PERL_DESTRUCT_LEVEL");
 
     /* set all our static pv and hek to &PL_sv_undef for perl_destruct() */
