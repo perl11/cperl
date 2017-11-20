@@ -1727,6 +1727,9 @@ d_memmove (d_memmove.U):
 	indicates to the C program that the memmove() routine is available
 	to copy potentially overlapping blocks of memory.
 
+d_memset (d_memset.U):
+	This variable was deleted with 5.28. HAS_MEMSET is now always defined.
+
 d_memrchr (d_memrchr.U):
 	This variable conditionally defines the HAS_MEMRCHR symbol, which
 	indicates to the C program that the memrchr() routine is available

@@ -318,6 +318,11 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$d_memmove HAS_MEMMOVE	/**/
 
+/* HAS_MEMSET:
+ *     This symbol is always defined and kept for backcompt with extensions.
+ */
+#define HAS_MEMSET
+
 /* HAS_MKDIR:
  *	This symbol, if defined, indicates that the mkdir routine is available
  *	to create directories.  Otherwise you should fork off a new process to

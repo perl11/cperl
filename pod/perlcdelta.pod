@@ -719,8 +719,10 @@ years already.
 
 =item d_memset
 
-Beware: HAS_MEMSET now undefined, but always considered to be
-defined. (Because of C89)
+Beware: HAS_MEMSET is undefined since v5.28, but always considered to be
+defined. Because of C89.
+cperl kept the HAS_MEMSET preprocessor definition for backcompat with
+extensions which do use it. It is used in all ppport.h files to use memzero().
 
 =back
 
