@@ -693,21 +693,39 @@ years already.
 
 =item HAS_THREAD_SAFE_NL_LANGINFO_L
 
+d_thread_safe_nl_langinfo_l
+
 =item HAS_LOCALECONV_L
+
+d_localeconv_l
 
 =item HAS_MBRLEN
 
+d_mbrlen
+
 =item HAS_MBRTOWC
+
+d_mbrtowc
 
 =item HAS_MEMRCHR
 
+d_memrchr
+
 =item HAS_NANOSLEEP
+
+d_nanosleep
 
 =item HAS_STRNLEN
 
+d_strnlen
+
 =item HAS_STRTOLD_L
 
+d_strtold_l
+
 =item I_WCHAR
+
+i_wchar
 
 =back
 
@@ -715,7 +733,19 @@ years already.
 
 =over 2
 
+=item d_bcmp
+
+=item d_bcopy
+
 =item d_bzero
+
+=item d_safebcpy
+
+=item d_safemcpy
+
+=item d_sanemcmp
+
+=item d_strctcpy
 
 =item d_memset
 
@@ -723,6 +753,22 @@ Beware: HAS_MEMSET is undefined since v5.28, but always considered to be
 defined. Because of C89.
 cperl kept the HAS_MEMSET preprocessor definition for backcompat with
 extensions which do use it. It is used in all ppport.h files to use memzero().
+
+=item d_memchr
+
+Ditto: Keep HAS_MEMCHR
+
+=item d_memcmp
+
+Ditto: Keep HAS_MEMCMP
+
+=item d_memcpy
+
+Ditto: Keep HAS_MEMCPY
+
+=item d_memmove
+
+Ditto: Keep HAS_MEMMOVE
 
 =back
 
