@@ -17,6 +17,68 @@ Consult your favorite dictionary for details.
 
 =head1 EPIGRAPHS
 
+=head2 v5.27.6 - Ogden Nash, "Behold the Duck"
+
+  Behold the duck,
+  it does not cluck;
+  a cluck it lacks,
+  it quacks!
+
+  It is 'specially fond
+  of puddles or ponds;
+  when it dines or sups
+  it bottoms ups.
+
+
+=head2 v5.27.5 - Frank Birch, Dilly Knox & G. P. Mackeson, "Alice in I.D.25"
+
+L<Announced on 2017-10-20 by Steve Hay|https://www.nntp.perl.org/group/perl.perl5.porters/2017/10/msg246785.html>
+
+  'Can I do anything?' Alice suggested timidly, thinking that something
+dreadful must have happened.
+  The Waterflap jumped as if it had been shot. 'What are you doing
+here?' it snapped. 'Take this at once into the Directional room,' and it
+thrust the paper which had caused all the fuss into her hands.
+  'But where is the Directional room?' she inquired, bewildered.
+  'Why, there of course,' howled the Waterflap, pointing to a door.
+  'How could I possibly know that!' Alice exclaimed, angered by his
+rudeness.
+  'Silly girl,' it hissed. 'Why, it's called the Directional room
+because it's in that direction,' and it pushed her roughly through the
+doorway.
+
+=head2 v5.27.4 - Richard Brautigan, "All Watched Over By Machines Of Loving Grace"
+
+L<Announced on 2017-09-20 by John SJ Anderson|https://www.nntp.perl.org/group/perl.perl5.porters/2017/09/msg246371.html>
+
+  I like to think (and
+  the sooner the better!)
+  of a cybernetic meadow
+  where mammals and computers
+  live together in mutually
+  programming harmony
+  like pure water
+  touching clear sky.
+
+  I like to think
+  (right now, please!)
+  of a cybernetic forest
+  filled with pines and electronics
+  where deer stroll peacefully
+  past computers
+  as if they were flowers
+  with spinning blossoms.
+
+  I like to think
+  (it has to be!)
+  of a cybernetic ecology
+  where we are free of our labors
+  and joined back to nature,
+  returned to our mammal
+  brothers and sisters,
+  and all watched over
+  by machines of loving grace.
+
 =head2 v5.27.3 - Rodgers and Hammerstein, "You'll Never Walk Alone"
 
 L<Announced on 2017-07-20 by Matthew Horsfall|http://www.nntp.perl.org/group/perl.perl5.porters/2017/08/msg245988.html>
