@@ -62,9 +62,9 @@ init:
   - if "%PLATFORM%"=="x86" set WIN64=undef
   - if "%CYGWIN%"=="1" set CYGR=c:\cygwin
   - if "%PLATFORM%"=="x64" set CYGR=c:\cygwin64
-  - if "%CYGWIN%"=="1" set PATH=%CYGR%\bin;c:\Windows\system32;c:\Windows;c:\Windows\system32\Wbem
 
 build_script:
+  - if "%CYGWIN%"=="1" set PATH=%CYGR%\bin;c:\Windows\system32;c:\Windows;c:\Windows\system32\Wbem
   - if "%MINGW%"=="1"  gmake -s -C win32 %MKOPT%
   - if "%CFG%"=="Debug" type config.sh
   - if "%CYGWIN%"=="1" sh ./Configure -des -Dusedevel & make
