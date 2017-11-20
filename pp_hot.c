@@ -1122,7 +1122,6 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
             SV *left, *right, *res;
             int i;
             bool getmg = FALSE;
-            SV *constsv = NULL;
                                /* number of args already concatted */
             SSize_t n         = (nargs - 1) - (toparg - SP);
                                /* current arg is either the first
@@ -1149,19 +1148,9 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
                         if ((SSize_t)len < 0)
                             continue;
 
-                        /* set constsv to the next constant string segment */
-                        if (constsv) {
-                            sv_setpvn(constsv, const_pv, len);
-                            if (dst_utf8)
-                                SvUTF8_on(constsv);
-                            else
-                                SvUTF8_off(constsv);
-                        }
-                        else
-                            constsv = newSVpvn_flags(const_pv, len,
+                        /* set right to the next constant string segment */
+                        right = newSVpvn_flags(const_pv, len,
                                                     (dst_utf8 | SVs_TEMP));
-
-                        right = constsv;
                         const_pv += len;
                     }
                     else {
