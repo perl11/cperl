@@ -27,6 +27,8 @@ addons:
 # disable the default submodule logic, no .git-rr-cache
 git:
   submodules: false
+# testing the new default image
+osx_image: xcode8.3
 os:
 - linux
 - osx
