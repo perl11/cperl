@@ -24,7 +24,6 @@ case "$cc" in
 	#       ------------------------------------------^
 	# ccom: Error: ./mg.h, line 12: redeclaration of formal parameter, mg
 	# This is probably a result of incomplete prototype support.
-	prototype=undef
 	;;
 esac
 

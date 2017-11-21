@@ -799,7 +799,6 @@ pidtype=int
 privlib='/usr/local/lib/perl5/5.27'
 privlibexp='/usr/local/lib/perl5/5.27'
 procselfexe=''
-prototype='undef'
 ptrsize='8'
 quadkind='2'
 quadtype='long'

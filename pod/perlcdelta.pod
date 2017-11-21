@@ -895,6 +895,18 @@ versions of Darwin that have support for them.
 
 Compilation on CentOS 5 is now fixed.
 
+=item UMIPS
+
+CAN_PROTOTYPE is now always defined, which might cause problems with
+the system cc compiler.
+C<ccom: Error: ./mg.h, line 12: redeclaration of formal parameter, sv>
+
+=item ULTRIX 4
+
+
+CAN_PROTOTYPE is now always defined, which might cause problems with
+the gcc-4.2 compiler.
+
 =back
 
 =head1 Internal Changes

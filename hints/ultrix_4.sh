@@ -34,12 +34,10 @@ case "$cc" in
 *gcc*) ;;
 *)
     case "$osvers" in
-    *4.1*)	ccflags="$ccflags -DLANGUAGE_C -Olimit 3800" ;;
-    *4.2*)	ccflags="$ccflags -DLANGUAGE_C -Olimit 3800"
+    *4.[12]*)	ccflags="$ccflags -DLANGUAGE_C -Olimit 3800" ;;
 		# Prototypes sometimes cause compilation errors in 4.2.
-		prototype=undef   
     *4.3*)	ccflags="$ccflags -std1 -DLANGUAGE_C -Olimit 3800" ;;
-    *)	ccflags="$ccflags -std -Olimit 3800" ;;
+    *)	        ccflags="$ccflags -std -Olimit 3800" ;;
     esac
     ;;
 esac
