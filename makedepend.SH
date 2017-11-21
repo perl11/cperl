@@ -208,6 +208,7 @@ for file in `$cat .clist`; do
 	    -e '/^#.*"-"/d' \
 	    -e '/^#.*"\/.*\/"/d' \
 	    -e '/: file path prefix .* never used$/d' \
+	    -e '/^#.*_flymake\.[ch]$/d' \
 	    -e '/^#.*git_version\.h/d' \
 	    -e 's#\.[0-9][0-9]*\.c#'"$file.c#" \
 	    -e 's/^[	 ]*#[	 ]*line/#/' \
