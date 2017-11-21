@@ -16,7 +16,6 @@ test -d /usr/local/man || mansrc='none'
 # Do we really need to tell cc to look in /usr/include?
 ccflags="$ccflags -I/usr/include -I/usr/ucbinclude"
 libswanted=`echo " $libswanted " | sed -e 's/ malloc / /' `
-d_index='undef'
 d_suidsafe=define
 usevfork='false'
 if test "$osvers" = "3.0"; then
