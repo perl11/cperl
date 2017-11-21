@@ -117,7 +117,7 @@ BEGIN {
 	;
 }
 
-our $VERSION = '1.44c';
+our $VERSION = '1.45c';
 $VERSION =~ tr/_//d;
 $VERSION =~ tr/_c//d;
 
