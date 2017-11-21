@@ -26,7 +26,7 @@ use Text::Wrap;
 use Time::Piece;
 use Time::Seconds;
 use version;
-$Text::Wrap::columns = 80;
+$Text::Wrap::columns = 77;
 
 my $since_until = shift;
 
