@@ -492,6 +492,7 @@ use File::Glob qw(:case);
         'CUSTOMIZED'   => [ qw( Makefile.PL
                                 MemoryProfiling.pod
                                 FileHandle.xs
+                                NYTProf.xs
                                 lib/Devel/NYTProf/FileInfo.pm
                                 t/lib/NYTProfTest.pm
                                 t/00-load.t

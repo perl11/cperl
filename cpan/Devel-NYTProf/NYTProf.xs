@@ -244,7 +244,7 @@ static const char *nytp_panic_overflow_msg_fmt = "panic: buffer overflow of %s o
 
 struct NYTP_options_t {
     const char *option_name;
-    IV    option_iv;
+    long  option_iv;
     char *option_pv;    /* strdup'd */
 };
 
@@ -310,7 +310,7 @@ and write the options to the stream when profiling starts.
 #  define HAS_QPC
 #endif /* WIN32 */
 
-#ifdef HAS_CLOCK_GETTIME
+#if defined(HAS_CLOCK_GETTIME)
 
 /* http://www.freebsd.org/cgi/man.cgi?query=clock_gettime
  * http://webnews.giga.net.tw/article//mailing.freebsd.performance/710
@@ -319,7 +319,11 @@ and write the options to the stream when profiling starts.
  * https://groups.google.com/forum/#!topic/comp.os.linux.development.apps/3CkHHyQX918
  */
 typedef struct timespec time_of_day_t;
-#  define CLOCK_GETTIME(ts) clock_gettime(profile_clock, ts)
+#  ifdef __cplusplus
+#    define CLOCK_GETTIME(ts) clock_gettime((clockid_t)profile_clock, ts)
+#  else
+#    define CLOCK_GETTIME(ts) clock_gettime(profile_clock, ts)
+#  endif
 #  define TICKS_PER_SEC 10000000                /* 10 million - 100ns */
 #  define get_time_of_day(into) CLOCK_GETTIME(&into)
 #  define get_ticks_between(typ, s, e, ticks, overflow) STMT_START { \
@@ -3119,19 +3123,18 @@ _init_profiler_clock(pTHX)
 #  endif
     }
     /* downgrade to CLOCK_REALTIME if desired clock not available */
-    if (clock_gettime(profile_clock, &start_time) != 0) {
+    if (CLOCK_GETTIME(&start_time) != 0) {
         if (trace_level)
             logwarn("~ clock_gettime clock %ld not available (%s) using CLOCK_REALTIME instead\n",
-                (long)profile_clock, strerror(errno));
+                profile_clock, strerror(errno));
         profile_clock = CLOCK_REALTIME;
-        /* check CLOCK_REALTIME as well, just in case */
-        if (clock_gettime(profile_clock, &start_time) != 0)
+        if (CLOCK_GETTIME(&start_time) != 0)
             croak("clock_gettime CLOCK_REALTIME not available (%s), aborting",
                 strerror(errno));
     }
 #else
     if (profile_clock != -1) {  /* user tried to select different clock */
-        logwarn("clock %ld not available (clock_gettime not supported on this system)\n", (long)profile_clock);
+        logwarn("clock %ld not available (clock_gettime not supported on this system)\n", profile_clock);
         profile_clock = -1;
     }
 #endif
@@ -3210,7 +3213,7 @@ init_profiler(pTHX)
 
     if (trace_level)
         logwarn("~ init_profiler for pid %d, clock %ld, tps %d, start %d, perldb 0x%lx, exitf 0x%lx\n",
-            last_pid, (long)profile_clock, ticks_per_sec, profile_start,
+            last_pid, profile_clock, ticks_per_sec, profile_start,
             (long unsigned)PL_perldb, (long unsigned)PL_exit_flags);
 
     if (get_hv("DB::sub", 0) == NULL) {
@@ -3717,7 +3720,7 @@ write_sub_callers(pTHX)
     }
     if (negative_time_calls) {
         logwarn("Warning: %d subroutine calls had negative time! See TROUBLESHOOTING in the documentation. (Clock %ld)\n",
-            negative_time_calls, (long)profile_clock);
+            negative_time_calls, profile_clock);
     }
 }
 
@@ -5330,7 +5333,7 @@ ticks_for_usleep(long u_seconds)
     PUSHs(sv_2mortal(newSVnv(elapsed)));
     PUSHs(sv_2mortal(newSVnv(overflow)));
     PUSHs(sv_2mortal(newSVnv(ticks_per_sec)));
-    PUSHs(sv_2mortal(newSViv(profile_clock)));
+    PUSHs(sv_2mortal(newSViv((IV)profile_clock)));
 
 
 MODULE = Devel::NYTProf     PACKAGE = DB
