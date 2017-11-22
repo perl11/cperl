@@ -117,7 +117,8 @@ sub testit {
 	}
 
 	my $got_expr = $1;
-	is $got_expr, $expected_expr, $desc;
+	is $got_expr, $expected_expr, $desc
+            or ::diag("ORIGINAL CODE:\n$code");;
     }
 }
 
@@ -652,7 +653,7 @@ sprintf          123   p
 sqrt             01    $
 srand            01    -
 stat             01    $
-state            123   p+ # skip with 0 args, as state() => ()
+state            123   p1+ # skip with 0 args, as state() => ()
 study            01    $+
 # sub handled specially
 substr           234   p
