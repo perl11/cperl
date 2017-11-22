@@ -251,10 +251,6 @@ uni/write.t
 ../dist/Data-Dumper/t/trailing_comma.t
 ../dist/Exporter/t/Exporter.t
 ../dist/Filter-Simple/t/data.t
-../dist/IO/t/io_sel.t
-../dist/Net-Ping/t/000_load.t
-../dist/PathTools/t/cwd.t
-../dist/Storable/t/blessed.t
 ../dist/Storable/t/croak.t
 ../dist/Test-Simple/t/Builder/carp.t
 ../dist/Test-Simple/t/fail-more.t
@@ -302,7 +298,6 @@ uni/write.t
 ../ext/B/t/b.t
 ../ext/B/t/optree_constants.t
 ../ext/B/t/optree_samples.t
-../ext/B/t/xref.t
 ../ext/Devel-Peek/t/Peek.t
 ../ext/IPC-Open3/t/IPC-Open2.t
 ../ext/IPC-Open3/t/IPC-Open3.t
@@ -313,8 +308,6 @@ uni/write.t
 ../ext/XS-APItest/t/fetch_pad_names.t
 ../ext/XS-APItest/t/svpeek.t
 ../ext/XS-APItest/t/synthetic_scope.t
-../lib/Benchmark.t
-../lib/English.t
 ../lib/charnames.t
 ../lib/dumpvar.t
 ../lib/overload.t
