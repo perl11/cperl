@@ -13,19 +13,25 @@ BEGIN {
     @dtrace = ($Config::Config{dtrace});
     $Perl = which_perl();
 
-    `@dtrace -V` or skip_all("@dtrace unavailable");
+    my $result = `@dtrace -V` or skip_all("@dtrace unavailable");
     #if ($ENV{TEST_JOBS} and int($ENV{TEST_JOBS}) > 1 and $^O eq 'darwin') {
       # interferes with fresh_perl => SEGV
       # skip_all("dtrace darwin with parallel testing. unset TEST_JOBS");
     #}
 
-    my $result = `@dtrace -qZnBEGIN -c'$Perl -e 1' 2>&1`;
+    $result = `@dtrace -qZnBEGIN -c'$Perl -e 1' 2>&1`;
     if ($? and $^O eq 'darwin') {
+        if ($result =~ /dtrace: system integrity protection is on/) {
+            skip_all("Workaround: csrutil disable; csrutil enable --without dtrace");
+        }
         @dtrace = ('sudo','-n',@dtrace);
         $result = `@dtrace -qZnBEGIN -c'$Perl -e 1' 2>&1`;
     }
     $? &&
       skip_all("Apparently can't probe using @dtrace (perhaps you need root?): $result");
+    if ($result =~ /dtrace: system integrity protection is on/) {
+        skip_all("Workaround: csrutil disable; csrutil enable --without dtrace");
+    }
 
     $lockfile = "dtrace.lock";
     -f $lockfile && sleep(5+rand()) &&
