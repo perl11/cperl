@@ -645,9 +645,7 @@ d_cuserid (d_cuserid.U):
 	to get character login names.
 
 d_dbl_dig (d_dbl_dig.U):
-	This variable conditionally defines d_dbl_dig if this system's
-	header files provide DBL_DIG, which is the number of significant
-	digits in a double precision number.
+	This variable was deleted with 5.28. DBL_DIG is now defined by float.h
 
 d_dbminitproto (d_dbminitproto.U):
 	This variable conditionally defines the HAS_DBMINIT_PROTO symbol,
