@@ -3013,3 +3013,8 @@ $res = CORE::keys(%$r2) / 2 - 1;
 my($a, $b);
 $b = $a . $a . $a;
 (($a .= $a) .= $a) .= $a;
+####
+# multiconcat: $$ within string
+my($a, $x);
+$x = "${$}abc";
+$x = "\$$a";
