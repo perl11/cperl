@@ -3904,8 +3904,13 @@ Perl_pn_peek(pTHX_ PADNAME * pn)
     SV *s;
     SV* flags;
     long lo, hi;
+#if defined(__cplusplus)
+    flags = newSVpvs_flags("", SVs_TEMP);
+    if (!pn) return SvPVX(flags);
+#else
     if (!pn) return "";
     flags = newSVpvs_flags("", SVs_TEMP);
+#endif
     SV_SET_STRINGIFY_FLAGS(flags,PadnameFLAGS(pn),pn_flags_names);
     /* TODO: identify undef (!PadnamePV(name)) and const names
        (PadnamePV(name) && !PadnameLEN(name)).
@@ -3942,8 +3947,13 @@ char *
 Perl_pn_peek_short(pTHX_ PADNAME * pn)
 {
     SV *s;
+#if defined(__cplusplus)
+    s = newSVpvs_flags("",SVs_TEMP);
+    if (!pn) return SvPVX(s);
+#else
     if (!pn) return "";
-    s = newSVpvn_flags("",0,SVs_TEMP);
+    s = newSVpvs_flags("",SVs_TEMP);
+#endif
     if (PadnameOURSTASH(pn)) {
         sv_catpvs(s, "our ");
         sv_catpv(s, HvNAME(PadnameOURSTASH(pn)));
