@@ -24,6 +24,7 @@
          "dist/CPAN-Meta",
          "dist/CPAN-Meta-Requirements",
          "dist/Data-Dumper",
+         "dist/Devel-PPPort",
          "dist/Devel-SelfStubber",
          "dist/Dumpvalue",
          "dist/encoding-warnings",

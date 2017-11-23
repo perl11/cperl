@@ -502,9 +502,7 @@ use File::Glob qw(:case);
 
     'Devel::PPPort' => {
         'DISTRIBUTION' => 'WOLFSAGE/Devel-PPPort-3.36.tar.gz',
-        # RJBS has asked MHX to have UPSTREAM be 'blead'
-        # (i.e. move this from cpan/ to dist/)
-        'FILES'        => q[cpan/Devel-PPPort],
+        'FILES'        => q[dist/Devel-PPPort],
         'EXCLUDED'     => [
             'PPPort.pm',    # we use PPPort_pm.PL instead
         ],
@@ -519,6 +517,7 @@ use File::Glob qw(:case);
 				parts/embed.fnc
 				parts/inc/HvNAME
 				parts/inc/gv
+				parts/inc/magic_defs
 				parts/inc/misc
 				parts/todo/5013007
 				parts/todo/5015004
