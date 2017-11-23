@@ -28,7 +28,7 @@ addons:
 git:
   submodules: false
 # testing the new default image
-osx_image: xcode8.3
+# osx_image: xcode8.3
 os:
 - linux
 - osx
