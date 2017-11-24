@@ -11,7 +11,7 @@ plan(tests => 2*11*29);
 
 use Errno qw(EBADF ENOENT);
 
-open(SCALARFILE, "<", \"wibble") or die $!;
+open(SCALARFILE, "<", \"wibble") or die $!; # needs PerlIO::scalar
 open(CLOSEDFILE, "<", "./test.pl") or die $!;
 close(CLOSEDFILE) or die $!;
 opendir(CLOSEDDIR, "../lib") or die $!;
