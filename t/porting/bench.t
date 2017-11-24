@@ -4,7 +4,7 @@
 # in particular, its argument handling and its ability to produce
 # the expected output for particular arguments.
 #
-# See also t/porting/bench_selftest.pl
+# See also t/porting/bench_selftest.t
 
 BEGIN {
     chdir '..' if -f 'test.pl' && -f 'thread_it.pl';
@@ -23,8 +23,11 @@ use Config;
 # etc.  Add other platforms if you think they're safe.
 
 skip_all "not devel"   unless -d ".git";
-skip_all "not linux"   unless $^O eq 'linux';
-skip_all "no valgrind" unless -x '/bin/valgrind' || -x '/usr/bin/valgrind';
+skip_all "not linux"   unless $^O eq 'linux'; # works mostly ok with macports or bsd's
+skip_all "no valgrind" unless -x '/bin/valgrind'
+  || -x '/usr/bin/valgrind'
+  || -x '/usr/local/bin/valgrind'
+  || -x '/opt/local/bin/valgrind';
 # Address sanitizer clashes horribly with cachegrind
 skip_all "not with ASAN" if $Config{ccflags} =~ /sanitize=address/;
 skip_all "cachegrind broken" if system "( ulimit -c 0; valgrind -q --tool=cachegrind --cachegrind-out-file=/dev/null $^X -e0 ) 2>/dev/null";
