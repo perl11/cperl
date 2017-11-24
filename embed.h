@@ -1776,6 +1776,7 @@
 #define match_type1		S_match_type1
 #define match_type2		S_match_type2
 #define match_user_type(a,b,c)	S_match_user_type(aTHX_ a,b,c)
+#define maybe_multiconcat(a)	S_maybe_multiconcat(aTHX_ a)
 #define maybe_multideref(a,b,c,d)	S_maybe_multideref(aTHX_ a,b,c,d)
 #define maybe_targlex(a)	S_maybe_targlex(aTHX_ a)
 #define mderef_uoob_targ(a,b)	S_mderef_uoob_targ(aTHX_ a,b)

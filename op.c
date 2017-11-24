@@ -3147,6 +3147,7 @@ S_maybe_multiconcat(pTHX_ OP *o)
     U8 private_flags  = 0;   /* ... op_private of the multiconcat op */
     bool is_sprintf = FALSE; /* we're optimising an sprintf */
     bool is_targable  = FALSE; /* targetop is an OPpTARGET_MY candidate */
+    PERL_ARGS_ASSERT_MAYBE_MULTICONCAT;
 
     /* -----------------------------------------------------------------
      * Phase 1:
@@ -4235,7 +4236,7 @@ S_optimize_op(pTHX_ OP* o)
     case OP_SASSIGN:
     case OP_STRINGIFY:
     case OP_SPRINTF:
-        S_maybe_multiconcat(aTHX_ o);
+        maybe_multiconcat(o);
         break;
 
     case OP_SUBST:

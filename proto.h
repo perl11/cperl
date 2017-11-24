@@ -8649,6 +8649,11 @@ STATIC int	S_match_user_type(pTHX_ const HV* const dstash, const char* aname, bo
 #define PERL_ARGS_ASSERT_MATCH_USER_TYPE	\
 	assert(dstash); assert(aname)
 
+STATIC void	S_maybe_multiconcat(pTHX_ OP *o)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_MAYBE_MULTICONCAT	\
+	assert(o)
+
 STATIC void	S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);

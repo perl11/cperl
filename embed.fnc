@@ -2299,8 +2299,9 @@ s	|OP*	|op_sibling_newUNOP	|NULLOK OP *parent|NULLOK OP *start|I32 type|I32 flag
 sM	|void	|process_optree	|NULLOK CV *cv|NN OP *root|NN OP *start
 s	|void	|check_hash_fields_and_hekify	|NULLOK UNOP *rop|NN SVOP *key_op
 #ifdef PERL_FAKE_SIGNATURE
-s	|void	|maybe_op_signature|NN CV *cv|NN OP *o
+s	|void	|maybe_op_signature	|NN CV *cv|NN OP *o
 #endif
+sM	|void	|maybe_multiconcat	|NN OP *o
 s	|bool	|aassign_padcheck|NN OP* o|bool rhs
 s	|int	|aassign_scan	|NN OP* o|bool rhs|bool top|NN int *scalars_p
 sn	|void	|check_for_bool_cxt |NN OP* o|bool safe_and|U8 bool_flag|U8 maybe_flag
