@@ -2997,7 +2997,7 @@ S_sprintf_is_multiconcatable(pTHX_ OP *o,struct sprintf_ismc_info *info)
      * can decide whether to enhance this function or skip optimising
      * under those new circumstances */
     assert(!OpSTACKED(o));
-    assert(!(PL_opargs[OP_SPRINTF] & OA_TARGLEX));
+    /*assert(!(PL_opargs[OP_SPRINTF] & OA_TARGLEX));*/
     assert(!(o->op_private & ~OPpARG4_MASK));
 
     pm = OpFIRST(o);
@@ -3229,7 +3229,7 @@ S_maybe_multiconcat(pTHX_ OP *o)
         /* barf on unknown flags */
         assert(!(o->op_private & ~(OPpARG4_MASK|OPpTARGET_MY)));
 
-        if ((topop->op_private & OPpTARGET_MY)) {
+        if (OpPRIVATE(topop) & OPpTARGET_MY) {
             if (IS_TYPE(o, SASSIGN))
                 return; /* can't have two assigns */
             targmyop = topop;
@@ -3245,6 +3245,11 @@ S_maybe_multiconcat(pTHX_ OP *o)
     if (IS_TYPE(topop, SPRINTF)) {
         if (topop->op_ppaddr != PL_ppaddr[OP_SPRINTF])
             return;
+        if (OpPRIVATE(topop) & OPpTARGET_MY) {
+            if (IS_TYPE(o, SASSIGN))
+                return; /* can't have two assigns */
+            targmyop = topop;
+        }
         if (S_sprintf_is_multiconcatable(aTHX_ topop, &sprintf_info)) {
             nargs     = sprintf_info.nargs;
             total_len = sprintf_info.total_len;
@@ -3271,7 +3276,7 @@ S_maybe_multiconcat(pTHX_ OP *o)
         if (topop->op_ppaddr != PL_ppaddr[OP_CONCAT])
             return;
 
-        if ((topop->op_private & OPpTARGET_MY)) {
+        if (OpPRIVATE(topop) & OPpTARGET_MY) {
             if (IS_TYPE(o, SASSIGN) || targmyop)
                 return; /* can't have two assigns */
             targmyop = topop;
