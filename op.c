@@ -2996,15 +2996,15 @@ S_sprintf_is_multiconcatable(pTHX_ OP *o,struct sprintf_ismc_info *info)
     /* if sprintf's behaviour changes, die here so that someone
      * can decide whether to enhance this function or skip optimising
      * under those new circumstances */
-    assert(!(o->op_flags & OPf_STACKED));
+    assert(!OpSTACKED(o));
     assert(!(PL_opargs[OP_SPRINTF] & OA_TARGLEX));
     assert(!(o->op_private & ~OPpARG4_MASK));
 
-    pm = cUNOPo->op_first;
-    if (pm->op_type != OP_PUSHMARK) /* weird coreargs stuff */
+    pm = OpFIRST(o);
+    if (ISNT_TYPE(pm, PUSHMARK)) /* weird coreargs stuff */
         return FALSE;
     constop = OpSIBLING(pm);
-    if (!constop || constop->op_type != OP_CONST)
+    if (!constop || !(IS_CONST_OP(constop)))
         return FALSE;
     sv = cSVOPx_sv(constop);
     if (SvMAGICAL(sv) || !SvPOK(sv))
@@ -3052,7 +3052,7 @@ S_sprintf_is_multiconcatable(pTHX_ OP *o,struct sprintf_ismc_info *info)
     kid = OpSIBLING(constop);
 
     while (kid) {
-        if ((kid->op_flags & OPf_WANT) != OPf_WANT_SCALAR)
+        if (!(OpWANT_SCALAR(kid)))
             return FALSE;
         nargs++;
         kid = OpSIBLING(kid);
@@ -3060,7 +3060,6 @@ S_sprintf_is_multiconcatable(pTHX_ OP *o,struct sprintf_ismc_info *info)
 
     if (nargs != nformats)
         return FALSE; /* e.g. sprintf("%s%s", $a); */
-
 
     info->nargs      = nargs;
     info->start      = s;
@@ -3172,7 +3171,7 @@ S_maybe_multiconcat(pTHX_ OP *o)
     /* first see if, at the top of the tree, there is an assign,
      * append and/or stringify */
 
-    if (topop->op_type == OP_SASSIGN) {
+    if (IS_TYPE(topop, SASSIGN)) {
         /* expr = ..... */
         if (o->op_ppaddr != PL_ppaddr[OP_SASSIGN])
             return;
@@ -3181,14 +3180,14 @@ S_maybe_multiconcat(pTHX_ OP *o)
         assert(!(o->op_private & ~OPpARG2_MASK)); /* barf on unknown flags */
 
         parentop = topop;
-        topop = cBINOPo->op_first;
+        topop = OpFIRST(o);
         targetop = OpSIBLING(topop);
         if (!targetop) /* probably some sort of syntax error */
             return;
     }
-    else if (   topop->op_type == OP_CONCAT
-             && (topop->op_flags & OPf_STACKED)
-             && (cUNOPo->op_first->op_flags & OPf_MOD))
+    else if (IS_TYPE(topop, CONCAT) &&
+             OpSTACKED(topop) &&
+             (OpFLAGS(OpFIRST(o)) & OPf_MOD))
     {
         /* expr .= ..... */
 
@@ -3199,7 +3198,7 @@ S_maybe_multiconcat(pTHX_ OP *o)
         /* barf on unknown flags */
         assert(!(o->op_private & ~(OPpARG2_MASK|OPpTARGET_MY)));
         private_flags |= OPpMULTICONCAT_APPEND;
-        targetop = cBINOPo->op_first;
+        targetop = OpFIRST(o);
         parentop = topop;
         topop    = OpSIBLING(targetop);
 
@@ -3212,17 +3211,17 @@ S_maybe_multiconcat(pTHX_ OP *o)
         /* Can targetop (the LHS) if it's a padsv, be be optimised
          * away and use OPpTARGET_MY instead?
          */
-        if (    (targetop->op_type == OP_PADSV)
+        if (    IS_TYPE(targetop, PADSV)
             && !(targetop->op_private & OPpDEREF)
             && !(targetop->op_private & OPpPAD_STATE)
                /* we don't support 'my $x .= ...' */
-            && (   o->op_type == OP_SASSIGN
+                && (   IS_TYPE(o, SASSIGN)
                 || !(targetop->op_private & OPpLVAL_INTRO))
         )
             is_targable = TRUE;
     }
 
-    if (topop->op_type == OP_STRINGIFY) {
+    if (IS_TYPE(topop, STRINGIFY)) {
         if (topop->op_ppaddr != PL_ppaddr[OP_STRINGIFY])
             return;
         stringop = topop;
@@ -3231,19 +3230,19 @@ S_maybe_multiconcat(pTHX_ OP *o)
         assert(!(o->op_private & ~(OPpARG4_MASK|OPpTARGET_MY)));
 
         if ((topop->op_private & OPpTARGET_MY)) {
-            if (o->op_type == OP_SASSIGN)
+            if (IS_TYPE(o, SASSIGN))
                 return; /* can't have two assigns */
             targmyop = topop;
         }
 
         private_flags |= OPpMULTICONCAT_STRINGIFY;
         parentop = topop;
-        topop = cBINOPx(topop)->op_first;
+        topop = OpFIRST(topop);
         assert(OP_TYPE_IS_OR_WAS_NN(topop, OP_PUSHMARK));
         topop = OpSIBLING(topop);
     }
 
-    if (topop->op_type == OP_SPRINTF) {
+    if (IS_TYPE(topop, SPRINTF)) {
         if (topop->op_ppaddr != PL_ppaddr[OP_SPRINTF])
             return;
         if (S_sprintf_is_multiconcatable(aTHX_ topop, &sprintf_info)) {
@@ -3268,12 +3267,12 @@ S_maybe_multiconcat(pTHX_ OP *o)
          * be upgraded to multiconcat
          */
     }
-    else if (topop->op_type == OP_CONCAT) {
+    else if (IS_TYPE(topop, CONCAT)) {
         if (topop->op_ppaddr != PL_ppaddr[OP_CONCAT])
             return;
 
         if ((topop->op_private & OPpTARGET_MY)) {
-            if (o->op_type == OP_SASSIGN || targmyop)
+            if (IS_TYPE(o, SASSIGN) || targmyop)
                 return; /* can't have two assigns */
             targmyop = topop;
         }
@@ -3334,11 +3333,11 @@ S_maybe_multiconcat(pTHX_ OP *o)
         SV *sv;
         bool last = FALSE;
 
-        if (    kid->op_type == OP_CONCAT
+        if (    IS_TYPE(kid, CONCAT)
             && !kid_is_last
         ) {
             OP *k1, *k2;
-            k1 = cUNOPx(kid)->op_first;
+            k1 = OpFIRST(kid);
             k2 = OpSIBLING(k1);
             /* shouldn't happen except maybe after compile err? */
             if (!k2)
@@ -3348,7 +3347,7 @@ S_maybe_multiconcat(pTHX_ OP *o)
             if (kid->op_private & OPpTARGET_MY)
                 kid_is_last = TRUE;
 
-            stacked_last = (kid->op_flags & OPf_STACKED);
+            stacked_last = OpSTACKED(kid);
             if (!stacked_last)
                 kid_is_last = TRUE;
 
@@ -3380,7 +3379,7 @@ S_maybe_multiconcat(pTHX_ OP *o)
                 nargs++;
             }
         }
-        else if (   argop->op_type == OP_CONST
+        else if (   IS_CONST_OP(argop)
             && ((sv = cSVOPx_sv(argop)))
             /* defer stringification until runtime of 'constant'
              * things that might stringify variantly, e.g. the radix
@@ -3455,14 +3454,14 @@ S_maybe_multiconcat(pTHX_ OP *o)
     if (   nconst == 0
          && nargs == 2
          && targmyop
-         && topop->op_type == OP_CONCAT
+         && IS_TYPE(topop, CONCAT)
     ) {
         PADOFFSET t = targmyop->op_targ;
-        OP *k1 = cBINOPx(topop)->op_first;
-        OP *k2 = cBINOPx(topop)->op_last;
-        if (   k2->op_type == OP_PADSV
+        OP *k1 = OpFIRST(topop);
+        OP *k2 = OpLAST(topop);
+        if (   IS_TYPE(k2, PADSV)
             && k2->op_targ == t
-            && (   k1->op_type != OP_PADSV
+               && (ISNT_TYPE(k1, PADSV)
                 || k1->op_targ != t)
         )
             goto optimise;
@@ -3584,10 +3583,11 @@ S_maybe_multiconcat(pTHX_ OP *o)
          * may or may not be topop) The pushmark and const ops need to be
          * kept in case they're an op_next entry point.
          */
-        lastkidop = cLISTOPx(topop)->op_last;
-        kid = cUNOPx(topop)->op_first; /* pushmark */
+        lastkidop = OpLAST(topop);
+        kid = OpFIRST(topop); /* pushmark */
         op_null(kid);
-        op_null(OpSIBLING(kid));       /* const */
+        assert(OpSIBLING(kid));
+        op_null(kid->_OP_SIBPARENT_FIELDNAME); /* const, NN */
         if (o != topop) {
             kid = op_sibling_splice(topop, NULL, -1, NULL); /* cut all args */
             op_sibling_splice(o, NULL, 0, kid); /* and attach to o */
@@ -3642,14 +3642,14 @@ S_maybe_multiconcat(pTHX_ OP *o)
              * prev= CONST -- EXPR
              *         |
              */
-            if (argp == args && kid->op_type != OP_CONCAT) {
+            if (argp == args && ISNT_TYPE(kid, CONCAT)) {
                 /* in e.g. '$x . = f(1)' there's no RHS concat tree
                  * so the expression to be cut isn't kid->op_last but
                  * kid itself */
                 OP *o1, *o2;
                 /* find the op before kid */
                 o1 = NULL;
-                o2 = cUNOPx(parentop)->op_first;
+                o2 = OpFIRST(parentop);
                 while (o2 && o2 != kid) {
                     o1 = o2;
                     o2 = OpSIBLING(o2);
@@ -3661,7 +3661,7 @@ S_maybe_multiconcat(pTHX_ OP *o)
             else if (kid == o && lastkidop)
                 prev = last ? lastkidop : OpSIBLING(lastkidop);
             else
-                prev = last ? NULL : cUNOPx(kid)->op_first;
+                prev = last ? NULL : OpFIRST(kid);
 
             if (!argp->p || last) {
                 /* cut RH op */
@@ -3752,7 +3752,7 @@ S_maybe_multiconcat(pTHX_ OP *o)
     if (targetop) {
         assert(!targmyop);
 
-        if (o->op_type == OP_SASSIGN) {
+        if (IS_TYPE(o, SASSIGN)) {
             /* Move the target subtree from being the last of o's children
              * to being the last of o's preserved children.
              * Note the difference between 'target = ...' and 'target .= ...':
@@ -3783,11 +3783,11 @@ S_maybe_multiconcat(pTHX_ OP *o)
                      * from being a child of OP_STRINGIFY to being the
                      * second child of the OP_CONCAT
                      */
-                    assert(cUNOPx(stringop)->op_first == topop);
+                    assert(OpFIRST(stringop) == topop);
                     op_sibling_splice(stringop, NULL, 1, NULL);
-                    op_sibling_splice(o, cUNOPo->op_first, 0, topop);
+                    op_sibling_splice(o, OpFIRST(o), 0, topop);
                 }
-                assert(topop == OpSIBLING(cBINOPo->op_first));
+                assert(topop == OpSIBLING(OpFIRST(o)));
                 if (toparg->p)
                     op_null(topop);
                 lastkidop = topop;
@@ -4245,7 +4245,7 @@ S_optimize_op(pTHX_ OP* o)
     if (!(o->op_flags & OPf_KIDS))
         return;
 
-    for (kid = cUNOPo->op_first; kid; kid = OpSIBLING(kid))
+    for (kid = OpFIRST(o); kid; kid = OpSIBLING(kid))
         optimize_op(kid);
 }
 
@@ -21699,7 +21699,7 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
     }
     else if (OpKIDS(o)) {
 	OP *kid;
-	for (kid = cUNOPo->op_first; kid; kid = OpSIBLING(kid)) {
+	for (kid = OpFIRST(o); kid; kid = OpSIBLING(kid)) {
             if (IS_PADxV_OP(kid) || OpKIDS(kid))
                 S_do_method_finalize(aTHX_ klass, cv, kid, self);
         }
@@ -21749,7 +21749,7 @@ S_role_field_fixup(pTHX_ OP* o, CV* cv, U16 ix, U16 nix, bool doit)
     }
     if (OpKIDS(o)) {
 	OP *kid;
-	for (kid = cUNOPo->op_first; kid; kid = OpSIBLING(kid)) {
+	for (kid = OpFIRST(o); kid; kid = OpSIBLING(kid)) {
             if (IS_TYPE(kid, OELEMFAST) || OpKIDS(kid))
                 fixedup |= S_role_field_fixup(aTHX_ kid, cv, ix, nix, doit);
         }

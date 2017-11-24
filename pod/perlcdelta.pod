@@ -279,6 +279,40 @@ L<[perl #129990]|https://rt.perl.org/Public/Bug/Display.html?id=129990>
 Calls to C<require> for an already loaded module are now slightly faster.
 L<[perl #132171]|https://rt.perl.org/Public/Bug/Display.html?id=132171>
 
+=item *
+
+Many string concatenation expressions are now considerably faster, due
+to the introduction internally of a C<multiconcat> opcode which combines
+multiple concatenations, and optionally a C<=> or C<.=>, into a single
+action. For example, apart from retrieving C<$s>, C<$a> and C<$b>, this
+whole expression is now handled as a single op:
+
+    $s .= "a=$a b=$b\n"
+
+As a special case, if the LHS of an assign is a lexical variable or
+C<my $s>, the op itself handles retrieving the lexical variable, which
+is faster.
+
+In general, the more the expression includes a mix of constant strings and
+variable expressions, the longer the expression, and the more it mixes
+together non-utf8 and utf8 strings, the more marked the performance
+improvement. For example on a C<x86_64> system, this code has been
+benchmarked running four times faster:
+
+    my $s;
+    my $a = "ab\x{100}cde";
+    my $b = "fghij";
+    my $c = "\x{101}klmn";
+
+    for my $i (1..10_000_000) {
+        $s = "\x{100}wxyz";
+        $s .= "foo=$a bar=$b baz=$c";
+    }
+
+In addition, C<sprintf> expressions which have a constant format
+containing only C<%s> and C<%%> format elements, and which have a fixed
+number of arguments, are now also optimised into a C<multiconcat> op.
+
 =back
 
 =head1 Modules and Pragmata

@@ -353,7 +353,7 @@ PPt(pp_concat, "(:Any,:Any):Str")
 }
 
 
-/* pp_multiconcat()
+/* pp_multiconcat(:List)
 
 Concatenate one or more args, possibly interleaved with constant string
 segments. The result may be assigned to, or appended to, a variable or
@@ -412,26 +412,26 @@ have differing overloading behaviour.
 
 */
 
-PP(pp_multiconcat)
+PPt(pp_multiconcat, "(:List(:Str)):Str")
 {
     dSP;
     SV *targ;                /* The SV to be assigned or appended to */
     SV *dsv;                 /* the SV to concat args to (often == targ) */
     char *dsv_pv;            /* where within SvPVX(dsv) we're writing to */
-    STRLEN targ_len;         /* SvCUR(targ) */
     SV **toparg;             /* the highest arg position on the stack */
     UNOP_AUX_item *aux;      /* PL_op->op_aux buffer */
     UNOP_AUX_item *const_lens; /* the segment length array part of aux */
     const char *const_pv;    /* the current segment of the const string buf */
+    STRLEN targ_len;         /* SvCUR(targ) */
+    STRLEN grow;             /* final size of destination string (dsv) */
     UV nargs;                /* how many args were expected */
     UV stack_adj;            /* how much to adjust SP on return */
-    STRLEN grow;             /* final size of destination string (dsv) */
     UV targ_count;           /* how many times targ has appeared on the RHS */
-    bool is_append;          /* OPpMULTICONCAT_APPEND flag is set */
-    bool slow_concat;        /* args too complex for quick concat */
     U32  dst_utf8;           /* the result will be utf8 (indicate this with
                                 SVf_UTF8 in a U32, rather than using bool,
                                 for ease of testing and setting) */
+    bool is_append;          /* OPpMULTICONCAT_APPEND flag is set */
+    bool slow_concat;        /* args too complex for quick concat */
     /* for each arg, holds the result of an SvPV() call */
     struct multiconcat_svpv {
         char          *pv;
@@ -443,13 +443,13 @@ PP(pp_multiconcat)
         *svpv_end,           /* and slot after highest result so far, of: */
         svpv_buf[PERL_MULTICONCAT_MAXARG]; /* buf for storing SvPV() results */
 
-    aux   = cUNOP_AUXx(PL_op)->op_aux;
+    aux       = cUNOP_AUXx(PL_op)->op_aux;
     stack_adj = nargs = aux[PERL_MULTICONCAT_IX_NARGS].uv;
     is_append = cBOOL(PL_op->op_private & OPpMULTICONCAT_APPEND);
 
     /* get targ from the stack or pad */
 
-    if (PL_op->op_flags & OPf_STACKED) {
+    if (OpSTACKED(PL_op)) {
         if (is_append) {
             /* for 'expr .= ...', expr is the bottom item on the stack */
             targ = SP[-nargs];
@@ -657,7 +657,7 @@ PP(pp_multiconcat)
                  * then append tmp to targ at the end using overload
                  */
                 assert(!targ_chain);
-                dsv = newSVpvn_flags("", 0, SVs_TEMP);
+                dsv = newSVpvs_flags("", SVs_TEMP);
                 goto phase3;
             }
         }

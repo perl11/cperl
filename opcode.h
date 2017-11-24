@@ -1040,7 +1040,7 @@ PL_op_type_str[] = {
 	"(:Int,:Int):Int",	/* 45: i_subtract */
 	"(:Int,:Int):Numeric",	/* 46: u_subtract */
 	"(:Any,:Any):Str",	/* 47: concat */
-	"(:Any):Str",	/* 48: multiconcat */
+	"(:List(:Str)):Str",	/* 48: multiconcat */
 	"(:Scalar):Str",	/* 49: stringify */
 	"(:Numeric,:Numeric):Numeric",	/* 50: pow */
 	"(:Int,:UInt):UInt",	/* 51: i_pow */
@@ -1466,7 +1466,7 @@ EXTCONST U32 PL_op_type[] = {
 	0x0505ff05,	/* 45: i_subtract "(:Int,:Int):Int" */
 	0x0505ff0a,	/* 46: u_subtract "(:Int,:Int):Numeric" */
 	0x1313ff08,	/* 47: concat "(:Any,:Any):Str" */
-	0x13ffff08,	/* 48: multiconcat "(:Any):Str" */
+	0xa8ffff08,	/* 48: multiconcat "(:List(:Str)):Str" */
 	0x0bffff08,	/* 49: stringify "(:Scalar):Str" */
 	0x0a0aff0a,	/* 50: pow "(:Numeric,:Numeric):Numeric" */
 	0x0506ff06,	/* 51: i_pow "(:Int,:UInt):UInt" */
