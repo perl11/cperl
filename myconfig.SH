@@ -14,6 +14,9 @@ case $PERL_CONFIG_SH in
 	. $TOP/config.sh
 	;;
 esac
+if test -e $TOP/git_version.sh; then
+    . $TOP/git_version.sh
+fi
 : This forces SH files to create target in same directory as SH file.
 : This is so that make depend always knows where to find SH derivatives.
 case "$0" in
@@ -30,7 +33,8 @@ $startsh
 # Note that the text lines /^Summary of/ .. /^\s*$/ are copied into Config.pm.
 cat <<'!NO!SUBS!'
 Summary of my $package (revision $revision $version_patchlevel_string) configuration:
-  $git_commit_id_title $git_commit_id$git_ancestor_line
+  $git_commit_id_title $git_commit_id$git_ancestor_line $git_describe
+    git_branch=$git_branch
   Platform:
     osname=$osname, osvers=$osvers, archname=$archname
     uname='$myuname'
