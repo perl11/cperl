@@ -769,7 +769,7 @@ sub cc_harness {
 }
 
 sub tests {
-    my $in = shift || "t/TESTS";
+    my $in = shift @ARGV || "t/TESTS";
     $in = "TESTS" unless -f $in;
     undef $/;
     open TEST, "< $in" or die "Cannot open $in";

@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.55_05';
+our $VERSION = '1.55_06';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -1730,6 +1730,7 @@ sub B::UNOP_AUX::save {
     ? $op->aux_list_thr # our own version. GH#283, GH#341
     : $op->aux_list;
   my $auxlen = scalar @aux_list;
+  $auxlen = $aux_list[0] + 6 if $op->name eq 'multiconcat';
   $unopauxsect->comment("$opsect_common, first, aux");
   my $ix = $unopauxsect->index + 1;
   $unopauxsect->add(
@@ -1741,27 +1742,61 @@ sub B::UNOP_AUX::save {
   my $s = "Static UNOP_AUX_item unopaux_item".$ix."[] = { /* ".$op->name." */\n\t"
     .($C99?"{.uv=$auxlen}":$auxlen). " \t/* length prefix */\n";
   my $action = 0;
+  my ($nargs);
   for my $item (@aux_list) {
     unless (ref $item) {
-      # symbolize MDEREF and SIGNATURE actions and flags, just for the comments
+      # symbolize MDEREF, SIGNATURE, MCONCAT actions and flags, just for the comments
       my $cmt = 'action';
+      if ($op->name eq 'multiconcat') {
+        # nargs, consts, len 0, 1, ...
+        if ($i == 1) {
+          $nargs = $item;
+        }
+        elsif ($i == 2) {
+          my ($pv,$len,$utf8) = strlen_flags($item);
+          if ($utf8) {
+            $s .= ($C99 ? sprintf("\t,{.pv=NULL} \t/* plain_pv */\n")
+                   : sprintf("\t,NULL \t/* plain_pv */\n"));
+            $s .= ($C99 ? sprintf("\t,{.uv=0} \t/* plain_len */\n")
+                   : sprintf("\t,0 \t/* plain_len */\n"));
+            $s .= ($C99 ? sprintf("\t,{.pv=%s} \t/* utf8_pv */\n", $pv)
+                   : sprintf("\t,%s \t/* utf8_pv */\n", $pv));
+            $s .= ($C99 ? sprintf("\t,{.uv=%u} \t/* utf8_len */\n", $len)
+                   : sprintf("\t,%u \t/* utf8_len */\n", $len));
+          } else {
+            $s .= ($C99 ? sprintf("\t,{.pv=%s} \t/* plain_pv */\n", $pv)
+                   : sprintf("\t,%s \t/* plain_pv */\n", $pv));
+            $s .= ($C99 ? sprintf("\t,{.uv=%u} \t/* plain_len */\n", $len)
+                   : sprintf("\t,%u \t/* plain_len */\n", $len));
+            $s .= ($C99 ? sprintf("\t,{.pv=NULL} \t/* utf8_pv */\n")
+                   : sprintf("\t,NULL \t/* utf8_pv */\n"));
+            $s .= ($C99 ? sprintf("\t,{.uv=0} \t/* utf8_len */\n")
+                   : sprintf("\t,0 \t/* utf8_len */\n"));
+          }
+          $i++;
+          next;
+        }
+        elsif ($i > 2) {
+          die "Overflow multiconcat nargs $nargs" if $i-3 > $nargs;
+        }
+      }
       if ($verbose) {
         if ($op->name eq 'multideref') {
           my $act = $item & 0xf;  # MDEREF_ACTION_MASK
-          $cmt = 'AV_pop_rv2av_aelem' 		if $act == 1;
-          $cmt = 'AV_gvsv_vivify_rv2av_aelem' 	if $act == 2;
-          $cmt = 'AV_padsv_vivify_rv2av_aelem' 	if $act == 3;
-          $cmt = 'AV_vivify_rv2av_aelem'  	if $act == 4;
-          $cmt = 'AV_padav_aelem' 		if $act == 5;
-          $cmt = 'AV_gvav_aelem' 			if $act == 6;
-          $cmt = 'HV_pop_rv2hv_helem' 		if $act == 8;
-          $cmt = 'HV_gvsv_vivify_rv2hv_helem' 	if $act == 9;
-          $cmt = 'HV_padsv_vivify_rv2hv_helem' 	if $act == 10;
-          $cmt = 'HV_vivify_rv2hv_helem' 		if $act == 11;
-          $cmt = 'HV_padhv_helem' 		if $act == 12;
-          $cmt = 'HV_gvhv_helem' 			if $act == 13;
+          $cmt = 'AV_pop_rv2av_aelem'          if $act == 1;
+          $cmt = 'AV_gvsv_vivify_rv2av_aelem'  if $act == 2;
+          $cmt = 'AV_padsv_vivify_rv2av_aelem' if $act == 3;
+          $cmt = 'AV_vivify_rv2av_aelem'       if $act == 4;
+          $cmt = 'AV_padav_aelem'              if $act == 5;
+          $cmt = 'AV_gvav_aelem'               if $act == 6;
+          $cmt = 'HV_pop_rv2hv_helem'          if $act == 8;
+          $cmt = 'HV_gvsv_vivify_rv2hv_helem'  if $act == 9;
+          $cmt = 'HV_padsv_vivify_rv2hv_helem' if $act == 10;
+          $cmt = 'HV_vivify_rv2hv_helem'       if $act == 11;
+          $cmt = 'HV_padhv_helem'              if $act == 12;
+          $cmt = 'HV_gvhv_helem'               if $act == 13;
           my $idx = $item & 0x30; # MDEREF_INDEX_MASK
-          $cmt .= '' 		if $idx == 0x0;
+          #$cmt .= ''             if $idx == 0x0;
           $cmt .= ' INDEX_const'  if $idx == 0x10;
           $cmt .= ' INDEX_padsv'  if $idx == 0x20;
           $cmt .= ' INDEX_gvsv'   if $idx == 0x30;
@@ -1787,14 +1822,23 @@ sub B::UNOP_AUX::save {
           $cmt .= '' 		if $idx == 0x0;
           $cmt .= ' flag skip'  if $idx == 0x10;
           $cmt .= ' flag ref'   if $idx == 0x20;
+        }
+        elsif ($op->name eq 'multiconcat') {
+          # nargs, consts, len 0, 1, ...
+          if ($i == 1) {
+            $cmt = 'nargs';
+          }
+          elsif ($i > 2) {
+            $cmt = sprintf "lengths[%d]", $i-3;
+          }
         } else {
-          die "Unknown UNOP_AUX op {$op->name}";
+          die "Unknown UNOP_AUX op ".$op->name;
         }
       }
       $action = $item;
       warn "{$op->name} action $action $cmt\n" if $debug{hv};
-      $s .= ($C99 ? sprintf("\t,{.uv=0x%x} \t/* %s: %u */\n", $item, $cmt, $item)
-                  : sprintf("\t,0x%x \t/* %s: %u */\n", $item, $cmt, $item));
+      $s .= ($C99 ? sprintf("\t,{.uv=0x%x} \t/* %s: %d */\n", $item, $cmt, $item)
+                  : sprintf("\t,0x%x \t/* %s: %d */\n", $item, $cmt, $item));
     } else {
       # const and sv already at compile-time, gv deferred to init-time.
       # testcase: $a[-1] -1 as B::IV not as -1
@@ -5987,11 +6031,11 @@ sub B::HV::save {
     $flags &= ~SVf_PROTECT if $PERL522;
     if ($PERL514) { # fill removed with 5.13.1
       $xpvhvsect->comment( "stash mgu max keys" );
-      $xpvhvsect->add(sprintf( "Nullhv, {0}, %d, %d",
+      $xpvhvsect->add(sprintf( "Nullhv, {0}, %u, %d",
 			       $hv->MAX, 0 ));
     } else {
       $xpvhvsect->comment( "GVSTASH fill max keys MG STASH" );
-      $xpvhvsect->add(sprintf( "{0}, %d, %d, {%d}, {0}, Nullhv",
+      $xpvhvsect->add(sprintf( "{0}, %d, %u, {%d}, {0}, Nullhv",
 			       0, $hv->MAX, 0 ));
     }
     $svsect->add(sprintf("&xpvhv_list[%d], $u32fmt, 0x%x, {0}",
@@ -6001,6 +6045,7 @@ sub B::HV::save {
       $sym = sprintf("&sv_list[%d]", $svsect->index);
       my $hv_max = $hv->MAX + 1;
       # riter required, new _aux struct at the end of the HvARRAY. allocate ARRAY also.
+      my $riter = ivx($hv->RITER);
       $init->add("{\tHE **a;",
                  "#ifdef PERL_USE_LARGE_HV_ALLOC",
                  sprintf("\tNewxz(a, PERL_HV_ARRAY_ALLOC_BYTES(%d) + sizeof(struct xpvhv_aux), HE*);",
@@ -6009,12 +6054,12 @@ sub B::HV::save {
                  sprintf("\tNewxz(a, %d + sizeof(struct xpvhv_aux), HE*);", $hv_max),
                  "#endif",
 		 "\tHvARRAY($sym) = a;",
-		 sprintf("\tHvRITER_set($sym, %d);", $hv->RITER),"}");
+		 sprintf("\tHvRITER_set($sym, %s);", $riter),"}");
     }
   } # !5.10
   else {
     $xpvhvsect->comment( "array fill max keys nv mg stash riter eiter pmroot name" );
-    $xpvhvsect->add(sprintf( "0, 0, %d, 0, 0.0, 0, Nullhv, %d, 0, 0, 0",
+    $xpvhvsect->add(sprintf( "0, 0, %d, 0, 0.0, 0, Nullhv, %u, 0, 0, 0",
 			     $hv->MAX, $hv->RITER));
     $svsect->add(sprintf( "&xpvhv_list[%d], $u32fmt, 0x%x",
 			  $xpvhvsect->index, $hv->REFCNT, $hv->FLAGS));
