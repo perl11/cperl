@@ -1872,22 +1872,14 @@ Perl_foldEQ_locale(const char *s1, const char *s2, I32 len)
 
 #if ! defined (HAS_MEMRCHR) && (defined(PERL_CORE) || defined(PERL_EXT))
 
-PERL_STATIC_INLINE void *
-S_my_memrchr(const char * s, const char c, const STRLEN len)
+PERL_STATIC_INLINE void*
+S_my_memrchr(const void* m, int c, size_t n)
 {
-    /* memrchr(), since many platforms lack it */
-
-    const char * t = s + len - 1;
-
+    /* memrchr(), since many platforms lack it. Note the broken API in perl5. */
+    const unsigned char *s = (const unsigned char *)m;
     PERL_ARGS_ASSERT_MY_MEMRCHR;
-
-    while (t >= s) {
-        if (*t == c) {
-            return (void *) t;
-        }
-        t--;
-    }
-
+    c = (unsigned char)c;
+    while (n--) if (s[n]==c) return (void *)(s+n);
     return NULL;
 }
 

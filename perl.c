@@ -4997,7 +4997,7 @@ S_mayberelocate(pTHX_ const char *const dir, STRLEN len, U32 flags)
 		SV *prefix_sv;
 		char *prefix;
 		char *lastslash;
-                long libsize;
+                size_t libsize;
 
 		/* $^X is *the* source of taint if tainting is on, hence
 		   SvPOK() won't be true.  */
@@ -5009,7 +5009,7 @@ S_mayberelocate(pTHX_ const char *const dir, STRLEN len, U32 flags)
 		   If all else fail we'll do the paths relative to the current
 		   directory.  */
 		sv_chop(libdir, libpath + 4);
-		/* Don't use SvPV as we're intentionally bypassing taining,
+		/* Don't use SvPV as we're intentionally bypassing tainting,
 		   mortal copies that the mg_get of tainting creates, and
 		   corruption that seems to come via the save stack.
 		   I guess that the save stack isn't correctly set up yet.  */

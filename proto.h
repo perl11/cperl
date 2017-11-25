@@ -6933,10 +6933,12 @@ PERL_CALLCONV void	Perl_yyquit(pTHX);
 PERL_CALLCONV void	Perl_yyunlex(pTHX);
 #if ! defined(HAS_MEMRCHR) && (defined(PERL_CORE) || defined(PERL_EXT))
 #ifndef PERL_NO_INLINE_FUNCTIONS
-PERL_STATIC_INLINE void *	S_my_memrchr(const char * s, const char c, const STRLEN len);
+PERL_STATIC_INLINE void *	S_my_memrchr(const void* m, int c, size_t len)
+			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_MY_MEMRCHR	\
-	assert(s)
+	assert(m)
 #endif
+
 #endif
 #if !(defined(DEBUGGING))
 #  if !defined(NV_PRESERVES_UV)
