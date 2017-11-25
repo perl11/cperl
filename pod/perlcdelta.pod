@@ -382,10 +382,10 @@ Remove internal links to B::Debug
 
 Support sub refs
 
-=item C<Carp> 1.43c
+=item C<Carp> 1.44c
 
 Fix problems introduced by the partial EBCDIC support from version
-1.35
+1.35, and ISA constants. Not all stash elements are globs.
 
 =item C<charnames> 1.45
 
