@@ -15541,6 +15541,7 @@ our %delta = (
             'Carp'                  => '1.43c',
             'charnames'             => '1.45',
             '_charnames'            => '1.45',
+            'Compress::Raw::Zlib'   => '2.076',
             'coretypes'             => '0.03c',
             'Cpanel::JSON::XS'      => '3.0239',
             'Data::Dumper'          => '2.167_02',

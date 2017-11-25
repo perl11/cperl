@@ -391,6 +391,27 @@ Fix problems introduced by the partial EBCDIC support from version
 
 Remove obsolete pod about NBSP
 
+=item L<Compress::Raw::Zlib> 2.076
+
+Silence gcc compiler warnings when -Wsign-compare is enabled
+#123688: Compilation warnings with clang
+
+Silence gcc compiler warnings when -Wimplicit-fallthrough is enabled
+#123358: Compilation warnings with gcc-7.*
+
+Windows uses -lzlib. Linux uses -lz
+#123699: wrong external zlib name used on Windows
+
+Update zlib-src directory to use zlib 1.2.11
+#123245: perl 5.26.1 is vulnerable to CVE-2016-9843, CVE-2016-9841, CVE-2016-9840, CVE-2016-9842
+
+Don't allow offset to be greater than length of buffer in crc32.
+
+Change my_zcalloc to use safecalloc.
+The link, https://github.com/madler/zlib/issues/253, is the upstream report for the remaining 
+valgrind errors not already dealt with by 1.2.11. Using calloc in Zlib.xs for now as a workaround.
+#121074: valgrind errors in the test suite
+
 =item C<coretypes> 0.03c
 
 Each coretype is now a class.
