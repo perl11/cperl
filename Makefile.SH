@@ -1106,10 +1106,8 @@ $(PERL_EXE): $& $(perlmain_dep) $(LIBPERL) $(static_ext) ext.libs $(PERLEXPORT) 
 
 	$spitshell >>$Makefile <<'!NO!SUBS!'
 
-# perl.devel: skip checking exts and rebuilding miniperl.
-# perl.o always builds miniperl to call make_patchnum.pl for git_version.h
-# perlmain.c ditto
-perl.devel: $(subst $perllib_objs, perl.o,)
+# perl.devel: skip checking exts
+perl.devel: $(MINIPERL_EXE) $(perllib_objs)
 	`sh $(shellflags) cflags "optimize='$(OPTIMIZE)'" perlmain.o` $(PLDLFLAGS) perlmain.c
 	$(SHRPENV) $(LD) -o $@ $(CLDFLAGS) $(CCDLFLAGS) $(perlmain_objs) \
             $(perllib_objs) $(DYNALOADER) `cat ext.libs` $(libs)
