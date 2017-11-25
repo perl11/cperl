@@ -432,6 +432,15 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
                                 for ease of testing and setting) */
     bool is_append;          /* OPpMULTICONCAT_APPEND flag is set */
     bool slow_concat;        /* args too complex for quick concat */
+
+    /* abbrevations */
+#define MCONCAT_NARGS   PERL_MULTICONCAT_IX_NARGS
+#define MCONCAT_PV      PERL_MULTICONCAT_IX_PLAIN_PV
+#define MCONCAT_LEN     PERL_MULTICONCAT_IX_PLAIN_LEN
+#define MCONCAT_U8PV    PERL_MULTICONCAT_IX_UTF8_PV
+#define MCONCAT_U8LEN   PERL_MULTICONCAT_IX_UTF8_LEN
+#define MCONCAT_LENGTHS PERL_MULTICONCAT_IX_LENGTHS
+
     /* for each arg, holds the result of an SvPV() call */
     struct multiconcat_svpv {
         char          *pv;
@@ -444,7 +453,7 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
         svpv_buf[PERL_MULTICONCAT_MAXARG]; /* buf for storing SvPV() results */
 
     aux       = cUNOP_AUXx(PL_op)->op_aux;
-    stack_adj = nargs = aux[PERL_MULTICONCAT_IX_NARGS].uv;
+    stack_adj = nargs = aux[MCONCAT_NARGS].uv;
     is_append = cBOOL(PL_op->op_private & OPpMULTICONCAT_APPEND);
 
     /* get targ from the stack or pad */
@@ -482,10 +491,31 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
     targ_chain    = NULL;
     targ_len      = 0;
     svpv_end      = svpv_buf;
-                    /* only utf8 variants of the const strings? */
-    dst_utf8      = aux[PERL_MULTICONCAT_IX_PLAIN_PV].pv ? 0 : SVf_UTF8;
-
-
+                  /* only utf8 variants of the const strings? */
+    dst_utf8      = aux[MCONCAT_PV].pv ? 0 : SVf_UTF8;
+#if 0
+    /* Convert pv if under encoding */
+    /* XXX This should be downgraded to bytes before */
+    if (UNLIKELY(0 && dst_utf8 && IN_ENCODING)) {
+        STRLEN len;
+        targ_len = aux[MCONCAT_U8LEN].uv;
+        /* without the utf8 flag for sv_recode_to_utf8 */
+        dsv = newSVpvn_flags(aux[MCONCAT_U8PV].pv, targ_len, SVs_TEMP);
+        sv_recode_to_utf8(dsv, _get_encoding());
+        len = SvCUR(dsv);
+        if (targ_len != len
+         || memNE(aux[MCONCAT_U8PV].pv, SvPVX(dsv), targ_len)) {
+            aux[MCONCAT_U8LEN].uv = len;
+            if (targ_len < len) {
+                aux[MCONCAT_U8PV].pv = (char*)PerlMemShared_realloc(
+                                           aux[MCONCAT_U8PV].pv, len);
+            }
+            Copy(SvPVX(dsv), aux[MCONCAT_U8PV].pv, len, char);
+        }
+        dsv = targ;
+        targ_len = 0;
+    }
+#endif
     /* --------------------------------------------------------------
      * Phase 1:
      *
@@ -585,8 +615,8 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
                         && is_append
                         && nargs == 1
                         /* no const string segments */
-                        && aux[PERL_MULTICONCAT_IX_LENGTHS].size   == -1
-                        && aux[PERL_MULTICONCAT_IX_LENGTHS+1].size == -1)
+                        && aux[MCONCAT_LENGTHS].size   == -1
+                        && aux[MCONCAT_LENGTHS+1].size == -1)
                     {
                         /* special-case $tied .= $tied.
                          *
@@ -668,7 +698,7 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
             SvPV_force_nomg_nolen(targ);
             targ_utf8 = SvFLAGS(targ) & SVf_UTF8;
             if (UNLIKELY(dst_utf8 & ~targ_utf8)) {
-                 if (LIKELY(!IN_BYTES))
+                if (LIKELY(!IN_BYTES))
                     sv_utf8_upgrade_nomg(targ);
             }
             else
@@ -738,17 +768,17 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
      * Note that there are 3 permutations:
      *
      * * If the constant string is invariant whether utf8 or not (e.g. "abc"),
-     *   then aux[PERL_MULTICONCAT_IX_PLAIN_PV/LEN] are the same as
-     *        aux[PERL_MULTICONCAT_IX_UTF8_PV/LEN] and there is one set of
+     *   then aux[MCONCAT_PV/LEN] are the same as
+     *        aux[MCONCAT_U8PV/LEN] and there is one set of
      *   segment lengths.
      *
      * * If the string is fully utf8, e.g. "\x{100}", then
-     *   aux[PERL_MULTICONCAT_IX_PLAIN_PV/LEN] == (NULL,0) and there is
+     *   aux[MCONCAT_PV/LEN] == (NULL,0) and there is
      *   one set of segment lengths.
      *
      * * If the string has different plain and utf8 representations
-     *   (e.g. "\x80"), then then aux[PERL_MULTICONCAT_IX_PLAIN_PV/LEN]]
-     *   holds the plain rep, while aux[PERL_MULTICONCAT_IX_UTF8_PV/LEN]
+     *   (e.g. "\x80"), then then aux[MCONCAT_PV/LEN]]
+     *   holds the plain rep, while aux[MCONCAT_U8PV/LEN]
      *   holds the utf8 rep, and there are 2 sets of segment lengths,
      *   with the utf8 set following after the plain set.
      *
@@ -775,18 +805,18 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
     /* grow += total of lengths of constant string segments */
     {
         SSize_t len;
-        len = aux[dst_utf8 ? PERL_MULTICONCAT_IX_UTF8_LEN
-                           : PERL_MULTICONCAT_IX_PLAIN_LEN].size;
+        len = aux[dst_utf8 ? MCONCAT_U8LEN
+                           : MCONCAT_LEN].size;
         slow_concat = cBOOL(len);
         grow += len;
     }
 
-    const_lens = aux + PERL_MULTICONCAT_IX_LENGTHS;
+    const_lens = aux + MCONCAT_LENGTHS;
 
     if (dst_utf8) {
-        const_pv = aux[PERL_MULTICONCAT_IX_UTF8_PV].pv;
-        if (   aux[PERL_MULTICONCAT_IX_PLAIN_PV].pv
-            && const_pv != aux[PERL_MULTICONCAT_IX_PLAIN_PV].pv)
+        const_pv = aux[MCONCAT_U8PV].pv;
+        if (   aux[MCONCAT_PV].pv
+            && const_pv != aux[MCONCAT_PV].pv)
             /* separate sets of lengths for plain and utf8 */
             const_lens += nargs + 1;
 
@@ -807,11 +837,24 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
                 continue;
             }
 
-            p = svpv_p->pv;
             extra = 0;
-            l = len;
-            while (l--)
-                extra += !UTF8_IS_INVARIANT(*p++);
+            if (UNLIKELY(IN_ENCODING)) {
+                /* without the utf8 flag for recode_to_utf8*/
+                SV *sv = newSVpvn_flags(svpv_p->pv, len, SVs_TEMP);
+                sv_recode_to_utf8(sv, _get_encoding());
+                l = SvCUR(sv);
+                if (len != l || memNE(svpv_p->pv, SvPVX(sv), l)) {
+                    grow += (l - len);
+                    svpv_p->len = l;
+                    svpv_p->pv = SvPVX(sv);
+                    slow_concat = TRUE;
+                }
+            } else {
+                p = svpv_p->pv;
+                l = len;
+                while (l--)
+                    extra += !UTF8_IS_INVARIANT(*p++);
+            }
             if (UNLIKELY(extra)) {
                 grow       += extra;
                               /* -ve len indicates special handling */
@@ -821,7 +864,7 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
         }
     }
     else
-        const_pv = aux[PERL_MULTICONCAT_IX_PLAIN_PV].pv;
+        const_pv = aux[MCONCAT_PV].pv;
 
     /* unrolled SvGROW(), except don't check for SVf_IsCOW, which should
      * already have been dropped */

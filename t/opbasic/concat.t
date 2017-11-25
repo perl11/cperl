@@ -39,7 +39,7 @@ sub is {
     return $ok;
 }
 
-print "1..251\n";
+print "1..252\n";
 
 ($a, $b, $c) = qw(foo bar);
 
@@ -809,4 +809,14 @@ ok(ref(CORE::state $y = "a $o b") eq 'o',
         my $expected = join $empty, @a[0..$i];
         is($got, $expected, "long concat chain $i");
     }
+}
+
+{
+  #only fails under ENCODING
+  #use Encode;
+  #local ${^ENCODING} = find_encoding('big-5');
+  local $/="\x{4e00}";
+  my ($start, $end) = ("\x{a4}","\x{40}");
+  my $string = $start.$end;
+  is (chomp($string), 0);
 }

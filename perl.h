@@ -940,7 +940,7 @@ EXTERN_C int usleep(unsigned int);
 #define PERL_MULTICONCAT_IX_UTF8_PV   3 /* utf8 constant string */
 #define PERL_MULTICONCAT_IX_UTF8_LEN  4 /* utf8 constant string length */
 #define PERL_MULTICONCAT_IX_LENGTHS   5 /* first of nargs+1 const segment lens */
-#define PERL_MULTICONCAT_HEADER_SIZE 5 /* The number of fields of a
+#define PERL_MULTICONCAT_HEADER_SIZE  5 /* The number of fields of a
                                            multiconcat header */
 
 /* We no longer default to creating a new SV for GvSV.

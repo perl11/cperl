@@ -3172,6 +3172,8 @@ S_maybe_multiconcat(pTHX_ OP *o)
     /* first see if, at the top of the tree, there is an assign,
      * append and/or stringify */
 
+    if (IN_ENCODING)
+        return;
     if (IS_TYPE(topop, SASSIGN)) {
         /* expr = ..... */
         if (o->op_ppaddr != PL_ppaddr[OP_SASSIGN])

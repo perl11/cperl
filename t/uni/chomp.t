@@ -43,19 +43,19 @@ for my $enc (sort keys %mbchars) {
 	local $/ = $rs;
 	for my $start (@char) {
 	    for my $end (@char) {
-		my $string = $start.$end;
-		my ($expect, $return);
+                my ($string, $return) = ($start.$end, 0);
+                my $expect = $string;
 		if ($end eq $rs) {
 		    $expect = $start;
 		    # The answer will always be a length in utf8, even if the
 		    # scalar was encoded with a different length
 		    $return = length ($end . "\x{100}") - 1;
-		} else {
-		    $expect = $string;
-		    $return = 0;
 		}
-		is (chomp ($string), $return);
-		is ($string, $expect); # "$enc \$/=$rs $start $end"
+		is (chomp($string), $return, unpack('U',$start)." ".unpack('U',$end));
+                # "$enc \$/=$rs $start $end"
+		is ($string, $expect,
+                    sprintf("%s rs=\\x{%x} \\x{%x}\\x{%x}", $enc, unpack('U',$rs),
+                            unpack('U',$start),unpack('U',$end)));
 	    }
 	}
 	# chomp should not stringify references unless it decides to modify
