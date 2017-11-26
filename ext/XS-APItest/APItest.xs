@@ -646,7 +646,7 @@ THX_pp_establish_cleanup(pTHX)
     cleanup_code_ref = newSVsv(POPs);
     SAVEFREESV(cleanup_code_ref);
     SAVEDESTRUCTOR_X(THX_run_cleanup, cleanup_code_ref);
-    if(GIMME_V != G_VOID) PUSHs(&PL_sv_undef);
+    if (GIMME_V != G_VOID) PUSHs(&PL_sv_undef);
     RETURN;
 }
 
@@ -657,7 +657,7 @@ THX_ck_entersub_establish_cleanup(pTHX_ OP *entersubop, GV *namegv, SV *ckobj)
     ck_entersub_args_proto(entersubop, namegv, ckobj);
     parent = entersubop;
     pushop = cUNOPx(entersubop)->op_first;
-    if(!OpHAS_SIBLING(pushop)) {
+    if (!OpHAS_SIBLING(pushop)) {
         parent = pushop;
         pushop = cUNOPx(pushop)->op_first;
     }
@@ -679,7 +679,7 @@ THX_ck_entersub_postinc(pTHX_ OP *entersubop, GV *namegv, SV *ckobj)
     ck_entersub_args_proto(entersubop, namegv, ckobj);
     parent = entersubop;
     pushop = cUNOPx(entersubop)->op_first;
-    if(!OpHAS_SIBLING(pushop)) {
+    if (!OpHAS_SIBLING(pushop)) {
         parent = pushop;
         pushop = cUNOPx(pushop)->op_first;
     }
@@ -698,10 +698,10 @@ THX_ck_entersub_pad_scalar(pTHX_ OP *entersubop, GV *namegv, SV *ckobj)
     SV *a0, *a1;
     ck_entersub_args_proto(entersubop, namegv, ckobj);
     pushop = cUNOPx(entersubop)->op_first;
-    if(!OpHAS_SIBLING(pushop))
+    if (!OpHAS_SIBLING(pushop))
         pushop = cUNOPx(pushop)->op_first;
     argop = OpSIBLING(pushop);
-    if(argop->op_type != OP_CONST || OpSIBLING(argop)->op_type != OP_CONST)
+    if (argop->op_type != OP_CONST || OpSIBLING(argop)->op_type != OP_CONST)
 	croak("bad argument expression type for pad_scalar()");
     a0 = cSVOPx_sv(argop);
     a1 = cSVOPx_sv(OpSIBLING(argop));
@@ -732,9 +732,9 @@ THX_ck_entersub_pad_scalar(pTHX_ OP *entersubop, GV *namegv, SV *ckobj)
 	default: croak("bad type value for pad_scalar()");
     }
     op_free(entersubop);
-    if(padoff == NOT_IN_PAD) {
+    if (padoff == NOT_IN_PAD) {
 	return newSVOP(OP_CONST, 0, newSVpvs("NOT_IN_PAD"));
-    } else if(PAD_COMPNAME_FLAGS_isOUR(padoff)) {
+    } else if (PAD_COMPNAME_FLAGS_isOUR(padoff)) {
 	return newSVOP(OP_CONST, 0, newSVpvs("NOT_MY"));
     } else {
 	OP *padop = newOP(OP_PADSV, 0);
@@ -779,15 +779,15 @@ static OP *THX_parse_var(pTHX)
     char *start = s;
     PADOFFSET varpos;
     OP *padop;
-    if(*s != '$') croak("RPN syntax error");
-    while(1) {
+    if (*s != '$') croak("RPN syntax error");
+    while (1) {
 	char c = *++s;
-	if(!isALNUM(c)) break;
+	if (!isALNUM(c)) break;
     }
-    if(s-start < 2) croak("RPN syntax error");
+    if (s-start < 2) croak("RPN syntax error");
     lex_read_to(s);
     varpos = pad_findmy_pvn(start, s-start, 0);
-    if(varpos == NOT_IN_PAD || PAD_COMPNAME_FLAGS_isOUR(varpos))
+    if (varpos == NOT_IN_PAD || PAD_COMPNAME_FLAGS_isOUR(varpos))
 	croak("RPN only supports \"my\" variables");
     padop = newOP(OP_PADSV, 0);
     padop->op_targ = varpos;
@@ -807,14 +807,14 @@ static OP *THX_parse_rpn_expr(pTHX)
     /* fake parent for splice to mess with */
     OP *parent = mkBINOP(OP_NULL, NULL, NULL);
 
-    while(1) {
+    while (1) {
 	I32 c;
 	lex_read_space(0);
 	c = lex_peek_unichar(0);
 	switch(c) {
 	    case /*(*/')': case /*{*/'}': {
 		OP *result = pop_rpn_item();
-		if(cLISTOPx(parent)->op_first)
+		if (cLISTOPx(parent)->op_first)
                     croak("RPN expression must return a single value");
                 op_free(parent);
 		return result;
@@ -826,7 +826,7 @@ static OP *THX_parse_rpn_expr(pTHX)
 		    lex_read_unichar(0);
 		    val = 10*val + (c - '0');
 		    c = lex_peek_unichar(0);
-		} while(c >= '0' && c <= '9');
+		} while (c >= '0' && c <= '9');
 		push_rpn_item(newSVOP(OP_CONST, 0, newSVuv(val)));
 	    } break;
 	    case '$': {
@@ -874,11 +874,11 @@ static OP *THX_parse_keyword_rpn(pTHX)
 {
     OP *op;
     lex_read_space(0);
-    if(lex_peek_unichar(0) != '('/*)*/)
+    if (lex_peek_unichar(0) != '('/*)*/)
 	croak("RPN expression must be parenthesised");
     lex_read_unichar(0);
     op = parse_rpn_expr();
-    if(lex_peek_unichar(0) != /*(*/')')
+    if (lex_peek_unichar(0) != /*(*/')')
 	croak("RPN expression must be parenthesised");
     lex_read_unichar(0);
     return op;
@@ -891,11 +891,11 @@ static OP *THX_parse_keyword_calcrpn(pTHX)
     lex_read_space(0);
     varop = parse_var();
     lex_read_space(0);
-    if(lex_peek_unichar(0) != '{'/*}*/)
+    if (lex_peek_unichar(0) != '{'/*}*/)
 	croak("RPN expression must be braced");
     lex_read_unichar(0);
     exprop = parse_rpn_expr();
-    if(lex_peek_unichar(0) != /*{*/'}')
+    if (lex_peek_unichar(0) != /*{*/'}')
 	croak("RPN expression must be braced");
     lex_read_unichar(0);
     return newASSIGNOP(OPf_STACKED, varop, 0, exprop);
@@ -908,17 +908,17 @@ static OP *THX_parse_keyword_stufftest(pTHX)
     bool do_stuff;
     lex_read_space(0);
     do_stuff = lex_peek_unichar(0) == '+';
-    if(do_stuff) {
+    if (do_stuff) {
 	lex_read_unichar(0);
 	lex_read_space(0);
     }
     c = lex_peek_unichar(0);
-    if(c == ';') {
+    if (c == ';') {
 	lex_read_unichar(0);
-    } else if(c != /*{*/'}') {
+    } else if (c != /*{*/'}') {
 	croak("syntax error");
     }
-    if(do_stuff) lex_stuff_pvs(" ", 0);
+    if (do_stuff) lex_stuff_pvs(" ", 0);
     return newOP(OP_NULL, 0);
 }
 
@@ -928,7 +928,7 @@ static OP *THX_parse_keyword_swaptwostmts(pTHX)
     OP *a, *b;
     a = parse_fullstmt(0);
     b = parse_fullstmt(0);
-    if(a && b)
+    if (a && b)
 	PL_hints |= HINT_BLOCK_SCOPE;
     return op_append_list(OP_LINESEQ, b, a);
 }
@@ -946,11 +946,11 @@ static OP *THX_parse_keyword_scopelessblock(pTHX)
     I32 c;
     OP *body;
     lex_read_space(0);
-    if(lex_peek_unichar(0) != '{'/*}*/) croak("syntax error");
+    if (lex_peek_unichar(0) != '{'/*}*/) croak("syntax error");
     lex_read_unichar(0);
     body = parse_stmtseq(0);
     c = lex_peek_unichar(0);
-    if(c != /*{*/'}' && c != /*[*/']' && c != /*(*/')') croak("syntax error");
+    if (c != /*{*/'}' && c != /*[*/']' && c != /*(*/')') croak("syntax error");
     lex_read_unichar(0);
     return body;
 }
@@ -969,11 +969,11 @@ static OP *THX_parse_keyword_stmtsasexpr(pTHX)
 {
     OP *o;
     lex_read_space(0);
-    if(lex_peek_unichar(0) != '{'/*}*/) croak("syntax error");
+    if (lex_peek_unichar(0) != '{'/*}*/) croak("syntax error");
     lex_read_unichar(0);
     o = parse_stmtseq(0);
     lex_read_space(0);
-    if(lex_peek_unichar(0) != /*{*/'}') croak("syntax error");
+    if (lex_peek_unichar(0) != /*{*/'}') croak("syntax error");
     lex_read_unichar(0);
     if (!o) o = newOP(OP_STUB, 0);
     if (PL_hints & HINT_BLOCK_SCOPE) o->op_flags |= OPf_PARENS;
@@ -1158,7 +1158,7 @@ static OP *THX_parse_join_with_space(pTHX)
 static int THX_keyword_active(pTHX_ SV *hintkey_sv)
 {
     HE *he;
-    if(!GvHV(PL_hintgv)) return 0;
+    if (!GvHV(PL_hintgv)) return 0;
     he = hv_fetch_ent(GvHV(PL_hintgv), hintkey_sv, 0,
 		SvSHARED_HASH(hintkey_sv));
     return he && SvTRUE(HeVAL(he));
@@ -2377,7 +2377,7 @@ CODE:
     SP -= retcnt;
     errsv = ERRSV;
     errstr = SvPV(errsv, errlen);
-    if(memBEGINs(errstr, errlen, "Undefined subroutine &main:: called at")) {
+    if (memBEGINs(errstr, errlen, "Undefined subroutine &main:: called at")) {
         PUSHMARK(SP);
         retcnt = call_sv((SV*)i_sub, 0); /* call again to increase counter */
         SPAGAIN;
@@ -2389,7 +2389,7 @@ CODE:
     SP -= retcnt;
     errsv = ERRSV;
     errstr = SvPV(errsv, errlen);
-    if(memBEGINs(errstr, errlen, "Can't use an undefined value as a subroutine reference at")) {
+    if (memBEGINs(errstr, errlen, "Can't use an undefined value as a subroutine reference at")) {
         PUSHMARK(SP);
         retcnt = call_sv((SV*)i_sub, 0); /* call again to increase counter */
         SPAGAIN;
@@ -2401,7 +2401,7 @@ CODE:
     SP -= retcnt;
     errsv = ERRSV;
     errstr = SvPV(errsv, errlen);
-    if(memBEGINs(errstr, errlen, "Not a CODE reference at")) {
+    if (memBEGINs(errstr, errlen, "Not a CODE reference at")) {
         PUSHMARK(SP);
         retcnt = call_sv((SV*)i_sub, 0); /* call again to increase counter */
         SPAGAIN;
@@ -3152,7 +3152,7 @@ test_cv_getset_call_checker()
 	if (ckfun != (xckfun)) croak_fail_nep(FPTR2DPTR(void *, ckfun), xckfun); \
 	if (ckobj != (xckobj)) croak_fail_nep(FPTR2DPTR(void *, ckobj), xckobj); \
 	if (ckflags != (xckflags)) croak_fail_nei(ckflags, (xckflags)); \
-    } while(0)
+    } while (0)
 	troc_cv = get_cv("XS::APItest::test_rv2cv_op_cv", 0);
 	tsh_cv = get_cv("XS::APItest::test_savehints", 0);
 	check_cc(troc_cv, Perl_ck_entersub_args_proto_or_list, (SV*)troc_cv, 0);
@@ -3233,9 +3233,9 @@ test_cophh()
 #endif
     CODE:
 #define check_ph(EXPR) \
-    	    do { if((EXPR) != &PL_sv_placeholder) croak("fail"); } while(0)
+    	    do { if ((EXPR) != &PL_sv_placeholder) croak("fail"); } while (0)
 #define check_iv(EXPR, EXPECT) \
-    	    do { if(SvIV(EXPR) != (EXPECT)) croak("fail"); } while(0)
+    	    do { if (SvIV(EXPR) != (EXPECT)) croak("fail"); } while (0)
 #define msvpvs(STR) sv_2mortal(newSVpvs(STR))
 #define msviv(VALUE) sv_2mortal(newSViv(VALUE))
 	a = cophh_new_empty();
@@ -3459,7 +3459,7 @@ test_savehints()
 		    (sv = cop_hints_fetch_pvs(&PL_compiling, KEY, 0)) && \
 		    SvIV(sv) == (EXPECT))
 #define check_hint(KEY, EXPECT) \
-		do { if (!hint_ok(KEY, EXPECT)) croak_fail(); } while(0)
+		do { if (!hint_ok(KEY, EXPECT)) croak_fail(); } while (0)
 	PL_hints |= HINT_LOCALIZE_HH;
 	ENTER;
 	SAVEHINTS();
@@ -3527,7 +3527,7 @@ test_op_list()
     do { \
 	if (strNE(test_op_list_describe(o), (expect))) \
 	    croak("fail %s %s", test_op_list_describe(o), (expect)); \
-    } while(0)
+    } while (0)
 	a = op_append_elem(OP_LIST, NULL, NULL);
 	check_op(a, "");
 	a = op_append_elem(OP_LIST, iv_op(1), a);
@@ -3741,7 +3741,7 @@ CODE:
     SV **args = &PL_stack_base[ax];
     CV *cv;
 
-    if(items <= 1) {
+    if (items <= 1) {
 	XSRETURN_UNDEF;
     }
     cv = sv_2cv(block, &stash, &gv, 0);
@@ -6660,11 +6660,11 @@ Comctl32Version()
         void * vercopy;
     PPCODE:
         dll = GetModuleHandle("comctl32.dll"); /* must already be in proc */
-        if(!dll)
+        if (!dll)
             croak("Comctl32Version: comctl32.dll not in process???");
         hrsc = FindResource(dll,    MAKEINTRESOURCE(VS_VERSION_INFO),
                                     MAKEINTRESOURCE(VS_FILE_INFO));
-        if(!hrsc)
+        if (!hrsc)
             croak("Comctl32Version: comctl32.dll no version???");
         ver = LoadResource(dll, hrsc);
         len = SizeofResource(dll, hrsc);
