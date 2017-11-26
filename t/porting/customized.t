@@ -3,13 +3,8 @@
 # Test that CUSTOMIZED files in Maintainers.pl have not been overwritten.
 
 BEGIN {
-        # This test script uses a slightly atypical invocation of the 'standard'
-        # core testing setup stanza.
-        # The existing porting tools which manage the Maintainers file all
-        # expect to be run from the root
-        # XXX that should be fixed
-
-    chdir '..' unless -d 't';
+    chdir '..'    if -e 'porting/customized.t';
+    chdir '../..' if -e 'customized.t';
     @INC = qw(lib Porting t);
     require 'test.pl';
     skip_all("pre-computed SHA1 won't match under EBCDIC") if $::IS_EBCDIC;
@@ -75,8 +70,7 @@ if ( $regen ) {
   open $data_fh, '>:raw', $customised or die "Can't open $customised";
   print $data_fh <<'#';
 # Regenerate this file using:
-#     cd t
-#     ./perl -I../lib porting/customized.t --regen
+#     ./perl -Ilib t/porting/customized.t --regen
 #
 }
 else {
@@ -113,7 +107,7 @@ foreach my $module ( sort keys %Modules ) {
 }
 
 if ( $regen ) {
-  pass( "regenerated data file" );
+  pass( "regenerated t/porting/customized.dat" );
   close $data_fh;
 }
 
@@ -127,13 +121,13 @@ customized.t - Test that CUSTOMIZED files in Maintainers.pl have not been overwr
 
 =head1 SYNOPSIS
 
- cd t
- ./perl -I../lib porting/customized.t --regen
+ ./perl -Ilib t/porting/customized.t --regen
 
 =head1 DESCRIPTION
 
-customized.t checks that files listed in C<Maintainers.pl> that have been C<CUSTOMIZED>
-are not accidentally overwritten by CPAN module updates.
+F<customized.t> checks that files listed in F<Maintainers.pl> that
+have been C<CUSTOMIZED> are not accidentally overwritten by CPAN
+module updates.
 
 =head1 OPTIONS
 
@@ -141,7 +135,7 @@ are not accidentally overwritten by CPAN module updates.
 
 =item C<--regen>
 
-Use this command line option to regenerate the C<customized.dat> file.
+Use this command line option to regenerate the F<customized.dat> file.
 
 =back
 

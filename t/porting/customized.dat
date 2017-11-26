@@ -1,6 +1,5 @@
 # Regenerate this file using:
-#     cd t
-#     ./perl -I../lib porting/customized.t --regen
+#     ./perl -Ilib t/porting/customized.t --regen
 Archive::Tar cpan/Archive-Tar/t/90_symlink.t 66a29edeff869c6569051aaecfc59b6624477be9
 B::C cpan/B-C/t/test10 0b3ab672868ee49e8539649aad1ad8c940c4c420
 CPAN cpan/CPAN/lib/App/Cpan.pm fcfc8800fa3dbff061da3688ad6a6fdd3716fbc8
