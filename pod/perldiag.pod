@@ -1341,15 +1341,15 @@ loops once.  See L<perlfunc/redo>.
 file.  Perl was unable to remove the original file to replace it with
 the modified file.  The file was left unmodified.
 
-=item Can't rename %s to %s: %s, skipping file
-
-(F) The rename done by the B<-i> switch failed for some reason,
-probably because you don't have write permission to the directory.
-
 =item Can't rename in-place work file '%s' to '%s': %s
 
 (F) When closed implicitly, the temporary file for in-place editing
 couldn't be renamed to the original filename.
+
+=item Can't rename %s to %s: %s, skipping file
+
+(F) The rename done by the B<-i> switch failed for some reason,
+probably because you don't have write permission to the directory.
 
 =item Can't reopen input pipe (name: %s) in binary mode
 
@@ -1418,6 +1418,11 @@ with Perl, though, if you really want to do that.
 (F) You can't undefine a routine that's currently running.  You can,
 however, redefine it while it's running, and you can even undef the
 redefined subroutine while the old routine is running.  Go figure.
+
+=item Can't unweaken a nonreference
+
+(F) You attempted to unweaken something that was not a reference.  Only
+references can be unweakened.
 
 =item Can't upgrade %s (%d) to %d
 
@@ -1572,11 +1577,6 @@ backreference to a matched substring is valid only as part of a regular
 expression pattern.  Trying to do this in ordinary Perl code produces a
 value that prints out looking like SCALAR(0xdecaf).  Use the $1 form
 instead.
-
-=item Can't unweaken a nonreference
-
-(F) You attempted to unweaken something that was not a reference.  Only
-references can be unweakened.
 
 =item Can't weaken a nonreference
 
