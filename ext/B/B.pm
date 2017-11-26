@@ -113,7 +113,9 @@ sub B::IV::int_value {
 }
 
 sub B::NULL::as_string() {""}
+# All artificial these assignments are against use once warnings.
 *B::IV::as_string = *B::IV::as_string = \*B::IV::int_value;
+*B::PV::PV = *B::PV::PV;
 *B::PV::as_string = *B::PV::as_string = \*B::PV::PV;
 
 #  The input typemap checking makes no distinction between different SV types,
@@ -122,8 +124,10 @@ sub B::NULL::as_string() {""}
 #  compared with the old approach of having a (near) duplicate XS body.
 #  We should fix the typemap checking.
 
-#  Since perl 5.12.0
-*B::IV::RV = *B::IV::RV = \*B::PV::RV;
+if ($] >= 5.012) {
+  *B::PV::RV = *B::PV::RV;
+  *B::IV::RV = *B::IV::RV = \*B::PV::RV;
+}
 
 my $debug;
 my $op_count = 0;
