@@ -46,10 +46,11 @@ foreach my $op (
 		# The op doesn't operate on filenames.
 		skip "-t on filename", 2;
 	    }
-	    elsif ($op eq "-k" && $^O eq 'MSWin32') {
-                # Windows has no sticky bit S_ISVTX
-                $error = 0; # and returns NO w/o any error
-	    }
+	    #elsif ($op eq "-k" && $^O eq 'MSWin32') {
+	    #	# Windows has no sticky bit S_ISVTX
+	    #	$result = undef;
+	    #	$error = 0; # and returns NO w/o any error
+	    #}
 	    elsif ($op =~ /\A-/) {
 		$result = undef;
 	    }
