@@ -671,7 +671,7 @@ VER_NV:
 	     * a standard one, we should be expecting a non-standard one, the same
 	     * one that we have recorded as the underlying locale.  If not, update
 	     * our records. */
-	    if (strEQ(cur_numeric, "C") || strEQ(cur_numeric, "POSIX")) {
+	    if (strEQc(cur_numeric, "C") || strEQc(cur_numeric, "POSIX")) {
 		if (! PL_numeric_standard) {
 		    new_numeric(cur_numeric);
 		}

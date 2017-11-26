@@ -561,7 +561,7 @@ S_def_coretype(pTHX_ SV *sv, const char *t1, int len)
         av_push(isa, newSVpvn(t1, len));
     mg_set(MUTABLE_SV(isa));
     SvREADONLY_on(MUTABLE_SV(isa));
-    if (strNE(SvPVX(sv), "Scalar::"))
+    if (strNEc(SvPVX(sv), "Scalar::"))
         SvREADONLY_on(MUTABLE_SV(stash));
     return stash;
 }
@@ -10140,7 +10140,7 @@ S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni, int *normali
 	    if ((*s == '[' || (*s == '{' && memNEc(dest, "sub")))) {
                 /* ${foo[0]} and ${foo{bar}} and ${^CAPTURE[0]} notation.  */
 		if (ckWARN(WARN_AMBIGUOUS) && keyword(dest, d - dest, 0)
-                    && strNE(dest, "class"))
+                    && strNEc(dest, "class"))
                 {
 		    const char * const brack =
 			(const char *)
@@ -10185,7 +10185,7 @@ S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni, int *normali
 	    }
 	    if (PL_lex_state == LEX_NORMAL) {
 		if (ckWARN(WARN_AMBIGUOUS)
-                    && strNE(dest, "class")
+                    && strNEc(dest, "class")
                     && (keyword(dest, d - dest, 0)
 		        || get_cvn_flags(dest, d - dest, is_utf8
                            ? SVf_UTF8

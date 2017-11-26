@@ -6554,8 +6554,8 @@ S_utf8_error_script(pTHX_ const U8 *s, const char* script, UV uv) {
             hv_iterinit(allowed);
             while ((entry = hv_iternext(allowed))) {
 		const char * const key = hv_iterkey(entry, &l);
-                if (strNE(key, "Latin") && strNE(key, "Common")
-                    && strNE(key, "Inherited")) {
+                if (strNEc(key, "Latin") && strNEc(key, "Common")
+                    && strNEc(key, "Inherited")) {
                     Perl_sv_catpvf(aTHX_ tmp, "%s %.*s", i++?",":"", (int)l, key);
                 }
             }
