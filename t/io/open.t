@@ -487,12 +487,16 @@ pass("no crash when open autovivifies glob in freed package");
 }
 
 # [perl #63244] Survive dup of empty filehandle
-{
+SKIP: {
     local $ENV{PERLIO} = 'stdio';
-    my $runperl = _create_runperl(prog => 'open(F, q{<&STDOUT});',
-                                  stdin => undef);
-    $runperl =~ s/ </ 1</;
-    ok(system($runperl)==0, 'stdio dup on empty filehandle [perl #63244]');
+    if (is_miniperl) {
+      skip("miniperl stdio dup on empty filehandle", 1);
+    } else {
+      my $runperl = _create_runperl(prog => 'open(F, q{<&STDOUT});',
+                                    stdin => undef);
+      $runperl =~ s/ </ 1</;
+      ok(system($runperl)==0, 'stdio dup on empty filehandle [perl #63244]');
+    }
 }
 
 package OverloadTest;
