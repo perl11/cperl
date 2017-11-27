@@ -3611,9 +3611,36 @@ Perl_my_strerror(pTHX_ const int errnum)
         DEBUG_Lv(PerlIO_printf(Perl_debug_log,
                     "%s: %d: not within locale scope, restoring the locale\n",
                     __FILE__, __LINE__));
-        if (save_locale && ! uselocale(save_locale)) {
-            DEBUG_L(PerlIO_printf(Perl_debug_log,
-                          "uselocale restore failed, errno=%d\n", errno));
+        if (save_locale) {
+            UV thr_run = 0;
+            /* Dont restore the global locale in threads on darwin */
+#if defined(__APPLE__) && defined(USE_ITHREADS)
+            if (save_locale == LC_GLOBAL_LOCALE) {
+                SV** require = hv_fetchs(GvHVn(PL_incgv), "threads.pm", 0);
+                if ( require && *require != UNDEF ) {
+                    SV* thr;
+                    UV tid;
+                    dSP;
+                    ENTER; PUSHMARK(SP);
+                    EXTEND(SP, 1);
+                    mPUSHp("threads", 7);
+                    PUTBACK;
+                    call_sv(MUTABLE_SV(get_cvs("threads::self",0)), G_SCALAR);
+                    thr = *PL_stack_sp; /* avoid the local SP <-> global copying */
+                    if (thr && thr != UNDEF) {
+                        INCMARK;
+                        call_sv(MUTABLE_SV(get_cvs("threads::tid",0)), G_SCALAR);
+                        tid = SvIVx(*PL_stack_sp);
+                    }
+                    LEAVE;
+                    if (tid) thr_run++;
+                }
+            }
+#endif
+            if (!thr_run && !uselocale(save_locale)) {
+                DEBUG_L(PerlIO_printf(Perl_debug_log,
+                                      "uselocale restore failed, errno=%d\n", errno));
+            }
         }
     }
 

@@ -17,7 +17,8 @@ print "1..1\n";
 SKIP: { # perl #127708
     my @locales = grep { $_ !~ / ^ C \b | POSIX /x } find_locales('LC_MESSAGES');
     skip("No valid locale to test with", 1) unless @locales;
-    skip('darwin not-threadsafe uselocale', 1) if $^O eq 'darwin';
+    # Fixed with [cperl #341]
+    # skip('darwin not-threadsafe uselocale', 1) if $^O eq 'darwin';
 
     # reset the locale environment
     local @ENV{'LANG', (grep /^LC_/, keys %ENV)};

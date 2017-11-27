@@ -95,7 +95,7 @@ For all versions see [bench-all/](bench-all/index.html)
   public services.
 * seperate XS and PP XS calls dynamically with a new enterxssub op
 * -DI and -Dk
-* add some unicode ops
+* added many unicode ops
 * improved build system (make -s, faster, CC vs LD confusion)
 * hash keys keep the tainted info. see [perlsec](http://perldoc.perl.org/perlsec.html#Taint-mode)
   There are no known taint loopholes anymore.
@@ -146,6 +146,7 @@ For all versions see [bench-all/](bench-all/index.html)
 * support for unicode BOMs, setting the unicode hints
 * Fast and proper object orientation. User facing classes. class, role, method,
   multi, has, is, does keywords, proper fields, Mu superclass.
+* thread-safety on darwin for uselocale
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.

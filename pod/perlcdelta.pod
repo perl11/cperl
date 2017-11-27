@@ -990,6 +990,9 @@ L</Modules and Pragmata> section.
 Perl now correctly uses reentrant functions, like C<asctime_r>, on
 versions of Darwin that have support for them.
 
+locale specific error messages are now thread-safe.
+cperl-only, L<[cperl #341]|https://github.com/perl11/cperl/issues/341>
+
 =item CentOS
 
 Compilation on CentOS 5 is now fixed.
@@ -1001,7 +1004,6 @@ the system cc compiler.
 C<ccom: Error: ./mg.h, line 12: redeclaration of formal parameter, sv>
 
 =item ULTRIX 4
-
 
 CAN_PROTOTYPE is now always defined, which might cause problems with
 the gcc-4.2 compiler.
@@ -1055,6 +1057,13 @@ stable by default.
 =head1 Selected Bug Fixes
 
 =over 4
+
+=item *
+
+Fixed thread-safety with locale-specific error messages on darwin.
+C<uselocal()> on darwin is not thread-safe, so we disable the local
+restauration to C<uselocal(LC_GLOBAL_LOCALE)> in child threads.
+cperl-only, L<[cperl #341]|https://github.com/perl11/cperl/issues/341>
 
 =item *
 
