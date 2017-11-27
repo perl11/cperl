@@ -7,7 +7,7 @@
 
 BEGIN { @INC = grep { $_ ne "blib/arch" and $_ ne "blib/lib" } @INC }
 
-require 5.005;
+require 5.006;
 use ExtUtils::MakeMaker;
 
 my @extra;
