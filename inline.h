@@ -692,8 +692,7 @@ C<L</is_c9strict_utf8_string_loclen>>.
 PERL_STATIC_INLINE bool
 S_is_utf8_string_flags(const U8 *s, STRLEN len, const U32 flags)
 {
-    const U8* send;
-    const U8* x = s;
+    const U8 * first_variant;
 
     PERL_ARGS_ASSERT_IS_UTF8_STRING_FLAGS;
     assert(0 == (flags & ~(UTF8_DISALLOW_ILLEGAL_INTERCHANGE
@@ -719,13 +718,17 @@ S_is_utf8_string_flags(const U8 *s, STRLEN len, const U32 flags)
         return is_c9strict_utf8_string(s, len);
     }
 
-    send = s + len;
+    if (! is_utf8_invariant_string_loc(s, len, &first_variant)) {
+        const U8* const send = s + len;
+        const U8* x = first_variant;
+
     while (x < send) {
         STRLEN cur_len = isUTF8_CHAR_flags(x, send, flags);
         if (UNLIKELY(! cur_len)) {
             return FALSE;
         }
         x += cur_len;
+    }
     }
 
     return TRUE;
@@ -761,13 +764,31 @@ See also C<L</is_utf8_string_loc>>.
 */
 
 PERL_STATIC_INLINE bool
-Perl_is_utf8_string_loclen(const U8 *s, const STRLEN len, const U8 **ep, STRLEN *el)
+Perl_is_utf8_string_loclen(const U8 *s, STRLEN len, const U8 **ep, STRLEN *el)
 {
-    const U8* const send = s + (len ? len : strlen((const char *)s));
-    const U8* x = s;
-    STRLEN outlen = 0;
+    const U8 * first_variant;
 
     PERL_ARGS_ASSERT_IS_UTF8_STRING_LOCLEN;
+
+    if (len == 0) {
+        len = strlen((const char *) s);
+    }
+
+    if (is_utf8_invariant_string_loc(s, len, &first_variant)) {
+        if (el)
+            *el = len;
+
+        if (ep) {
+            *ep = s + len;
+        }
+
+        return TRUE;
+    }
+
+    {
+        const U8* const send = s + len;
+        const U8* x = first_variant;
+        STRLEN outlen = first_variant - s;
 
     while (x < send) {
         const STRLEN cur_len = isUTF8_CHAR(x, send);
@@ -786,6 +807,7 @@ Perl_is_utf8_string_loclen(const U8 *s, const STRLEN len, const U8 **ep, STRLEN 
     }
 
     return (x == send);
+    }
 }
 
 /*
@@ -819,13 +841,31 @@ See also C<L</is_strict_utf8_string_loc>>.
 */
 
 PERL_STATIC_INLINE bool
-S_is_strict_utf8_string_loclen(const U8 *s, const STRLEN len, const U8 **ep, STRLEN *el)
+S_is_strict_utf8_string_loclen(const U8 *s, STRLEN len, const U8 **ep, STRLEN *el)
 {
-    const U8* const send = s + (len ? len : strlen((const char *)s));
-    const U8* x = s;
-    STRLEN outlen = 0;
+    const U8 * first_variant;
 
     PERL_ARGS_ASSERT_IS_STRICT_UTF8_STRING_LOCLEN;
+
+    if (len == 0) {
+        len = strlen((const char *) s);
+    }
+
+    if (is_utf8_invariant_string_loc(s, len, &first_variant)) {
+        if (el)
+            *el = len;
+
+        if (ep) {
+            *ep = s + len;
+        }
+
+        return TRUE;
+    }
+
+    {
+        const U8* const send = s + len;
+        const U8* x = first_variant;
+        STRLEN outlen = first_variant - s;
 
     while (x < send) {
         const STRLEN cur_len = isSTRICT_UTF8_CHAR(x, send);
@@ -844,6 +884,7 @@ S_is_strict_utf8_string_loclen(const U8 *s, const STRLEN len, const U8 **ep, STR
     }
 
     return (x == send);
+    }
 }
 
 /*
@@ -877,13 +918,31 @@ See also C<L</is_c9strict_utf8_string_loc>>.
 */
 
 PERL_STATIC_INLINE bool
-S_is_c9strict_utf8_string_loclen(const U8 *s, const STRLEN len, const U8 **ep, STRLEN *el)
+S_is_c9strict_utf8_string_loclen(const U8 *s, STRLEN len, const U8 **ep, STRLEN *el)
 {
-    const U8* const send = s + (len ? len : strlen((const char *)s));
-    const U8* x = s;
-    STRLEN outlen = 0;
+    const U8 * first_variant;
 
     PERL_ARGS_ASSERT_IS_C9STRICT_UTF8_STRING_LOCLEN;
+
+    if (len == 0) {
+        len = strlen((const char *) s);
+    }
+
+    if (is_utf8_invariant_string_loc(s, len, &first_variant)) {
+        if (el)
+            *el = len;
+
+        if (ep) {
+            *ep = s + len;
+        }
+
+        return TRUE;
+    }
+
+    {
+        const U8* const send = s + len;
+        const U8* x = first_variant;
+        STRLEN outlen = first_variant - s;
 
     while (x < send) {
         const STRLEN cur_len = isC9_STRICT_UTF8_CHAR(x, send);
@@ -902,6 +961,7 @@ S_is_c9strict_utf8_string_loclen(const U8 *s, const STRLEN len, const U8 **ep, S
     }
 
     return (x == send);
+    }
 }
 
 /*
@@ -942,9 +1002,7 @@ See also C<L</is_utf8_string_loc_flags>>.
 PERL_STATIC_INLINE bool
 S_is_utf8_string_loclen_flags(const U8 *s, STRLEN len, const U8 **ep, STRLEN *el, const U32 flags)
 {
-    const U8* send;
-    const U8* x = s;
-    STRLEN outlen = 0;
+    const U8 * first_variant;
 
     PERL_ARGS_ASSERT_IS_UTF8_STRING_LOCLEN_FLAGS;
     assert(0 == (flags & ~(UTF8_DISALLOW_ILLEGAL_INTERCHANGE
@@ -970,7 +1028,22 @@ S_is_utf8_string_loclen_flags(const U8 *s, STRLEN len, const U8 **ep, STRLEN *el
         return is_c9strict_utf8_string_loclen(s, len, ep, el);
     }
 
-    send = s + len;
+    if (is_utf8_invariant_string_loc(s, len, &first_variant)) {
+        if (el)
+            *el = len;
+
+        if (ep) {
+            *ep = s + len;
+        }
+
+        return TRUE;
+    }
+
+    {
+        const U8* send = s + len;
+        const U8* x = first_variant;
+        STRLEN outlen = first_variant - s;
+
     while (x < send) {
         const STRLEN cur_len = isUTF8_CHAR_flags(x, send, flags);
         if (UNLIKELY(! cur_len)) {
@@ -988,6 +1061,7 @@ S_is_utf8_string_loclen_flags(const U8 *s, STRLEN len, const U8 **ep, STRLEN *el
     }
 
     return (x == send);
+    }
 }
 
 /*
@@ -1276,7 +1350,7 @@ complete, valid characters found in the C<el> pointer.
 
 PERL_STATIC_INLINE bool
 S_is_utf8_fixed_width_buf_loclen_flags(const U8 * const s,
-                                       const STRLEN len,
+                                       STRLEN len,
                                        const U8 **ep,
                                        STRLEN *el,
                                        const U32 flags)
