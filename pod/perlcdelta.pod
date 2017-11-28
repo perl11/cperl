@@ -777,6 +777,16 @@ WIDTH NON-JOINER) and U+200D (ZERO WIDTH JOINER).
 
 =back
 
+=head3 L<perlintern>
+
+=over 4
+
+=item *
+
+Added API docs for most toke.c lexer functions.
+
+=back
+
 =head3 L<POSIX>
 
 =over 4

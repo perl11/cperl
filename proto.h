@@ -10499,6 +10499,7 @@ STATIC void	S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_pa
 	assert(s); assert(d); assert(e); assert(normalize)
 
 STATIC int	S_pending_ident(pTHX);
+STATIC int	S_postderef(pTHX_ int const funny, char const next);
 STATIC char*	S_scan_const(pTHX_ char *start)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);

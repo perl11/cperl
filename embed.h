@@ -1997,6 +1997,7 @@
 #define no_op(a,b)		S_no_op(aTHX_ a,b)
 #define parse_ident(a,b,c,d,e,f,g)	S_parse_ident(aTHX_ a,b,c,d,e,f,g)
 #define pending_ident()		S_pending_ident(aTHX)
+#define postderef(a,b)		S_postderef(aTHX_ a,b)
 #define scan_const(a)		S_scan_const(aTHX_ a)
 #define scan_formline(a)	S_scan_formline(aTHX_ a)
 #define scan_heredoc(a)		S_scan_heredoc(aTHX_ a)

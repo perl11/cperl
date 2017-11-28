@@ -2844,6 +2844,7 @@ EXMpR	|HV *	|find_in_coretypes|NN const char *pkgname|STRLEN len
 #if defined(PERL_IN_TOKE_C)
 s	|void	|check_uni
 s	|void	|force_next	|I32 type
+s	|int	|postderef	|int const funny|char const next
 s	|char*	|force_version	|NN char *s|int guessing
 s	|char*	|force_strict_version	|NN char *s
 s	|char*	|force_word	|NN char *start|int token|int check_keyword \
@@ -2895,8 +2896,8 @@ so	|SV*	|new_constant	|NULLOK const char *s|STRLEN len \
 				|NULLOK SV *pv|NULLOK const char *type \
 				|STRLEN typelen
 s	|int	|ao		|int toketype
-s	|void|parse_ident|NN char **s|NN char **d \
-                     |NN char * const e|int allow_package \
+s	|void	|parse_ident	|NN char **s|NN char **d \
+                     		|NN char * const e|int allow_package \
 				|bool is_utf8|bool check_dollar|NN int *normalize
 #  if defined(PERL_CR_FILTER)
 s	|I32	|cr_textfilter	|int idx|NULLOK SV *sv|int maxlen
