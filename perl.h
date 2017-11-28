@@ -1496,14 +1496,22 @@ EXTERN_C char *crypt(const char *, const char *);
  * that should be true only if the snprintf()/vsnprintf() are true
  * to the standard. */
 
-#define PERL_SNPRINTF_CHECK(len, max, api) STMT_START { if ((max) > 0 && (Size_t)len > (max)) Perl_croak_nocontext("panic: %s buffer overflow", STRINGIFY(api)); } STMT_END
+#define PERL_SNPRINTF_CHECK(len, max, api) \
+    STMT_START {                                                        \
+        if (UNLIKELY((max) > 0 && (Size_t)len > (max)))                 \
+            Perl_croak_nocontext("panic: %s buffer overflow", STRINGIFY(api)); \
+    } STMT_END
 
 #ifdef USE_QUADMATH
 #  define my_snprintf Perl_my_snprintf
 #  define PERL_MY_SNPRINTF_GUARDED
-#elif defined(HAS_SNPRINTF) && defined(HAS_C99_VARIADIC_MACROS) && !(defined(DEBUGGING) && !defined(PERL_USE_GCC_BRACE_GROUPS)) && !defined(PERL_GCC_PEDANTIC)
+#elif defined(HAS_SNPRINTF) && defined(HAS_C99_VARIADIC_MACROS) && \
+    !(defined(DEBUGGING) && !defined(PERL_USE_GCC_BRACE_GROUPS)) && \
+    !defined(PERL_GCC_PEDANTIC)
 #  ifdef PERL_USE_GCC_BRACE_GROUPS
-#      define my_snprintf(buffer, max, ...) ({ int len = snprintf(buffer, max, __VA_ARGS__); PERL_SNPRINTF_CHECK(len, max, snprintf); len; })
+#      define my_snprintf(buffer, max, ...) ({ \
+            int len = snprintf(buffer, max, __VA_ARGS__); \
+            PERL_SNPRINTF_CHECK(len, max, snprintf); len; })
 #      define PERL_MY_SNPRINTF_GUARDED
 #  else
 #    define my_snprintf(buffer, max, ...) snprintf(buffer, max, __VA_ARGS__)
@@ -1515,9 +1523,13 @@ EXTERN_C char *crypt(const char *, const char *);
 
 /* There is no quadmath_vsnprintf, and therefore my_vsnprintf()
  * dies if called under USE_QUADMATH. */
-#if defined(HAS_VSNPRINTF) && defined(HAS_C99_VARIADIC_MACROS) && !(defined(DEBUGGING) && !defined(PERL_USE_GCC_BRACE_GROUPS)) && !defined(PERL_GCC_PEDANTIC)
+#if defined(HAS_VSNPRINTF) && defined(HAS_C99_VARIADIC_MACROS) && \
+    !(defined(DEBUGGING) && !defined(PERL_USE_GCC_BRACE_GROUPS)) && \
+    !defined(PERL_GCC_PEDANTIC)
 #  ifdef PERL_USE_GCC_BRACE_GROUPS
-#      define my_vsnprintf(buffer, max, ...) ({ int len = vsnprintf(buffer, max, __VA_ARGS__); PERL_SNPRINTF_CHECK(len, max, vsnprintf); len; })
+#      define my_vsnprintf(buffer, max, ...) ({                 \
+            int len = vsnprintf(buffer, max, __VA_ARGS__);      \
+            PERL_SNPRINTF_CHECK(len, max, vsnprintf); len; })
 #      define PERL_MY_VSNPRINTF_GUARDED
 #  else
 #    define my_vsnprintf(buffer, max, ...) vsnprintf(buffer, max, __VA_ARGS__)

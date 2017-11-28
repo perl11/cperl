@@ -274,8 +274,8 @@ S_sv_or_pv_pos_u2b(pTHX_ SV *sv, const char *pv, STRLEN pos, STRLEN *lenp)
     PERL_ARGS_ASSERT_SV_OR_PV_POS_U2B;
     if (SvGAMAGIC(sv)) {
 	U8 *hopped = utf8_hop((U8 *)pv, pos);
-	if (lenp) *lenp = (STRLEN)(utf8_hop(hopped, *lenp) - hopped);
-	return (STRLEN)(hopped - (U8 *)pv);
+        if (lenp) *lenp = (STRLEN)(utf8_hop(hopped, *lenp) - hopped);
+        return (STRLEN)(hopped - (U8 *)pv);
     }
     return sv_pos_u2b_flags(sv,pos,lenp,SV_CONST_RETURN);
 }
