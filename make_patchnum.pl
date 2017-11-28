@@ -162,14 +162,23 @@ elsif (-d "$srcdir/.git") {
 
     if (length $branch && length $remote) {
         # git cherry $remote/$branch | awk 'BEGIN{ORS=","} /\+/ {print $2}' | sed -e 's/,$//'
-        my $unpushed_commit_list =
-            join ",", map { (split /\s/, $_)[1] }
+        my @unpushed_commit_list =
+            map { (split /\s/, $_)[1] }
             grep {/\+/} backtick("git cherry $remote/$merge");
+        if (@unpushed_commit_list > 100) { # 200 -> 8203 byte Config key
+            warn 'git_unpushed commit list too long. stripped';
+            @unpushed_commit_list = (@unpushed_commit_list[0..199], "...");
+        }
+        my $unpushed_commit_list = join ",", @unpushed_commit_list;
         # git cherry $remote/$branch | awk 'BEGIN{ORS="\t\\\\\n"} /\+/ {print ",\"" $2 "\""}'
-        $unpushed_commits =
-            join "", map { ',"'.(split /\s/, $_)[1]."\"\t\\\n" }
+        my @unpushed_commits =
+            map { ',"'.(split /\s/, $_)[1]."\"\t\\\n" }
             grep {/\+/} backtick("git cherry $remote/$merge");
-        if (length $unpushed_commits) {
+        if (@unpushed_commits > 100) {
+            @unpushed_commits = (@unpushed_commits[0..199], '"..."');
+        }
+        if (@unpushed_commits) {
+            $unpushed_commits = join "", @unpushed_commits;
             $commit_title = "Local Commit:";
             my $ancestor = backtick("git rev-parse $remote/$merge");
             $extra_info = "$extra_info
