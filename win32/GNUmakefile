@@ -1676,7 +1676,7 @@ utils: $(HAVEMINIPERL) ..\utils\Makefile
 	copy ..\README.vos      ..\pod\perlvos.pod
 	copy ..\README.win32    ..\pod\perlwin32.pod
 	copy ..\pod\perlcdelta.pod ..\pod\perl5272cdelta.pod
-	copy ..\pod\perldelta.pod ..\pod\perl5276delta.pod
+	copy ..\pod\perldelta.pod ..\pod\perl5277delta.pod
 	$(MINIPERL) -I..\lib $(PL2BAT) $(UTILS)
 	$(MINIPERL) -I..\lib ..\autodoc.pl ..
 	$(MINIPERL) -I..\lib ..\pod\perlmodlib.PL -q ..

@@ -5,15 +5,15 @@
 [ this is a template for a new perldelta file.  Any text flagged as XXX needs
 to be processed before release. ]
 
-perldelta - what is new for perl v5.27.6
+perldelta - what is new for perl v5.27.7
 
 =head1 DESCRIPTION
 
-This document describes differences between the 5.27.5 release and the 5.27.6
+This document describes differences between the 5.27.6 release and the 5.27.7
 release.
 
-If you are upgrading from an earlier release such as 5.27.4, first read
-L<perl5275delta>, which describes differences between 5.27.4 and 5.27.5.
+If you are upgrading from an earlier release such as 5.27.5, first read
+L<perl5276delta>, which describes differences between 5.27.5 and 5.27.6.
 
 =head1 Notice
 
@@ -26,24 +26,6 @@ enhancements.  Particularly prominent performance optimisations could go
 here, but most should go in the L</Performance Enhancements> section.
 
 [ List each enhancement as a =head2 entry ]
-
-=head2 Initialisation of aggregate state variables
-
-A persistent lexical array or hash variable can now be initialized,
-by an expression such as C<state @a = qw(x y z)>.  Initialization of a
-list of persistent lexical variables is still not possible.
-
-=head2 Full-size inode numbers
-
-On platforms where inode numbers are of a type larger than perl's native
-integer numerical types, L<stat|perlfunc/stat> will preserve the full
-content of large inode numbers by returning them in the form of strings of
-decimal digits.  Exact comparison of inode numbers can thus be achieved by
-comparing with C<eq> rather than C<==>.  Comparison with C<==>, and other
-numerical operations (which are usually meaningless on inode numbers),
-work as well as they did before, which is to say they fall back to
-floating point, and ultimately operate on a fairly useless rounded inode
-number if the real inode number is too big for the floating point format.
 
 =head1 Security
 
@@ -69,7 +51,7 @@ XXX Any deprecated features, syntax, modules etc. should be listed here.
 
 =head2 Module removals
 
-XXX Remove this section if inapplicable.
+XXX Remove this section if not applicable.
 
 The following modules will be removed from the core distribution in a
 future release, and will at that time need to be installed from CPAN.
@@ -87,7 +69,7 @@ not usually on concerns over their design.
 
 =over
 
-=item XXX
+=item L<Locale::Codes> and its associated Country, Currency and Language modules
 
 XXX Note that deprecated modules should be listed here even if they are listed
 as an updated module in the L</Modules and Pragmata> section.
@@ -127,25 +109,13 @@ release manager will have to investigate the situation carefully.)
 
 [ Within each section, list entries as an =item entry ]
 
-=head2 Removal of use vars
-
-=over 4
-
-The usage of "use vars" has been discouraged since the introduction of our in
-Perl 5.6.0. Where possible the usage of this pragma has now been removed from
-the Perl source code.
-
-This had a slight effect (for the better) on the output of WARNING_BITS in B::Deparse.
-
-=back
-
 =head2 New Modules and Pragmata
 
 =over 4
 
 =item *
 
-XXX
+XXX Remove this section if not applicable.
 
 =back
 
@@ -155,7 +125,10 @@ XXX
 
 =item *
 
-L<XXX> has been upgraded from version A.xx to B.yy.
+L<Locale::Codes> has been upgraded from version 3.54 to 3.55
+
+B<NOTE>: L<Locale::Codes> is deprecated in core and will be removed
+from Perl 5.30.
 
 =back
 
@@ -194,15 +167,7 @@ section.
 
 Additionally, the following selected changes have been made:
 
-=head3 L<perldiag/Variable length lookbehind not implemented in regex m/%s/>
-
-This now gives more ideas as to workarounds to the issue that was
-introduced in Perl 5.18 (but not documented explicitly in its perldelta)
-for the fact that some Unicode C</i> rules cause a few sequences such as
-
- (?<!st)
-
-to be considered variable length, and hence disallowed.
+=head3 L<XXX>
 
 =over 4
 
@@ -254,13 +219,6 @@ XXX Changes (i.e. rewording) of diagnostic messages go here
 
 =item *
 
-The diagnostic C<Initialization of state variables in list context
-currently forbidden> has changed to C<Initialization of state variables
-in list currently forbidden>, because list-context initialization of
-single aggregate state variables is now permitted.
-
-=item *
-
 XXX Describe change here
 
 =back
@@ -295,35 +253,9 @@ L</Platform Support> section, instead.
 
 =over 4
 
-=item New probes
+=item *
 
-=over 2
-
-=item HAS_BUILTIN_ADD_OVERFLOW
-
-=item HAS_BUILTIN_MUL_OVERFLOW
-
-=item HAS_BUILTIN_SUB_OVERFLOW
-
-=item HAS_THREAD_SAFE_NL_LANGINFO_L
-
-=item HAS_LOCALECONV_L
-
-=item HAS_MBRLEN
-
-=item HAS_MBRTOWC
-
-=item HAS_MEMRCHR
-
-=item HAS_NANOSLEEP
-
-=item HAS_STRNLEN
-
-=item HAS_STRTOLD_L
-
-=item I_WCHAR
-
-=back
+XXX
 
 =back
 
@@ -432,31 +364,7 @@ files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 
 =item *
 
-C<stat()>, C<lstat()>, and file test operators now fail if given a
-filename containing a nul character, in the same way that C<open()>
-already fails.
-
-=item *
-
-The in-place reverse optimisation now correctly strengthens weak
-references using the L<C<sv_rvunweaken()>|perlapi/sv_rvunweaken>
-API function.
-
-=item *
-
-Fixed a read before buffer when parsing a range starting with C<\N{}>
-at the beginning of the character set for the transliteration
-operator.  [perl #132245]
-
-=item *
-
-Fixed a leaked SV when parsing an empty C<\N{}> at compile-time.
-[perl #132245]
-
-=item *
-
-Calling C<do $path> on a directory or block device now yields a meaningful
-error code in C<$!>.  [perl #125774]
+XXX
 
 =back
 
@@ -489,14 +397,14 @@ the perldelta of a previous release.
 
 =head1 Obituary
 
-XXX If any significant core contributor has died, we've added a short obituary
-here.
+XXX If any significant core contributor or member of the CPAN community has
+died, add a short obituary here.
 
 =head1 Acknowledgements
 
 XXX Generate this with:
 
-  perl Porting/acknowledgements.pl v5.27.5..HEAD
+  perl Porting/acknowledgements.pl v5.27.6..HEAD
 
 =head1 Reporting Bugs
 

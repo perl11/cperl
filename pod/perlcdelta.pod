@@ -106,6 +106,56 @@ A persistent lexical array or hash variable can now be initialized,
 by an expression such as C<state @a = qw(x y z)>.  Initialization of a
 list of persistent lexical variables is still not possible.
 
+=head2 Full-size inode numbers
+
+On platforms where inode numbers are of a type larger than perl's native
+integer numerical types, L<stat|perlfunc/stat> will preserve the full
+content of large inode numbers by returning them in the form of strings of
+decimal digits.  Exact comparison of inode numbers can thus be achieved by
+comparing with C<eq> rather than C<==>.  Comparison with C<==>, and other
+numerical operations (which are usually meaningless on inode numbers),
+work as well as they did before, which is to say they fall back to
+floating point, and ultimately operate on a fairly useless rounded inode
+number if the real inode number is too big for the floating point format.
+
+=head2 Changed warnings::register handling of all
+
+
+If a scope used "use warnings 'all'" to turn on all warnings and then
+turned off some specific warnings, then that scope wouldn't get
+warnings for subsequently-registered warning categories, because
+its bitset doesn't extend to the bit controlling the new category.
+
+Unlike all other warning categories, the bits for "all" used to be set
+only when there were no warning categories disabled; disabling any
+would also clear the "all" bits.  That was supporting the dynamic
+nature of warnings::register extending the all-warnings bitset for
+new categories.  This exception is now removed, so the meaning of the
+"all" bits is now the more obvious meaning, of indicating the default
+treatment that the scope wants for warnings not falling into any
+category known to the bitset.  In C<warnings::warnif()> et al, if the
+caller's bitset is found to be too short to have a bit for the
+relevant category, then the setting for the "all" category is used
+instead.
+
+Because the length of a bitset is an integral number of bytes, but
+only two bits are used per category, the length of a bitset doesn't
+precisely indicate which categories had been registered by the time it
+was constructed.  So the standard bitsets for the "all" category are
+now always filled to their byte length, with bits set preemptively for
+categories not yet registered that fall within the current bitset length.
+
+When a warnings pragma operates on a bitset, it first expands it to the
+preferred length, by duplicating the "all" bits for the categories covered
+by the new length.  It is careful to maintain the length when combining
+the bitset with the standard bitsets for categories.  When a bitset is
+read from C<${^WARNING_BITS}> or from C<caller()>, the standard C<pWARN_ALL>
+setting is no longer expanded by the core to C<$warnings::Bits{all}>,
+because the core's short C<WARN_ALLstring> will now be expanded correctly
+just like any other bitset.
+
+Fixes L<[perl #108778]|https://rt.perl.org/Public/Bug/Display.html?id=108778>
+
 =head1 Security
 
 =head2 [CVE-2017-12837] Heap buffer overflow in regular expression compiler
@@ -180,6 +230,36 @@ Code points over 0xFF do not make sense for bitwise operators.
 Previously the C<-S> switch incorrectly treated backslash ("\") as an
 escape for colon when traversing the C<PATH> environment variable.
 L<[perl #129183]|https://rt.perl.org/Ticket/Display.html?id=129183>
+
+=head2 Subroutines no longer need typeglobs
+
+Perl 5.22.0 introduced an optimization allowing subroutines to be stored in
+packages as simple sub refs, not requiring a full typeglob (thus
+potentially saving large amounts of memeory).  However, the optimization
+was flawed: it only applied to the main package.
+
+This optimization has now been extended to all packages.  This may break
+compatibility with introspection code that looks inside stashes and expects
+everything in them to be a typeglob.
+
+When this optimization happens, the typeglob still notionally exists, so
+accessing it will cause the stash entry to be upgraded to a typeglob.  The
+optimization does not apply to XSUBs or exported subroutines, and calling a
+method will undo it, since method calls cache things in typeglobs.
+
+=head2 ... is a term in cperl, not a statement
+
+perl5.27.6 restricted C<...>, the yada-yada operator, to be a
+statement only.  cperl reserved C<...> for the ellipsis,
+i.e. unassigned varargs in signatures to be passed through. Which is
+not a statement, but a term.  In cperl C<...> is a TERM. Before C<...>
+was parsed as an operator, also used for ranges.
+
+This affects illegal code like:
+
+    ... . "foo";
+    ... if $a < $b;
+    do{...}
 
 =head1 Deprecations
 
@@ -320,6 +400,12 @@ In addition, C<sprintf> expressions which have a constant format
 containing only C<%s> and C<%%> format elements, and which have a fixed
 number of arguments, are now also optimised into a C<multiconcat> op.
 
+=item *
+
+Subroutines in packages no longer need to be stored in typeglobs, saving
+large amounts of memory.  See L</Subroutines no longer need typeglobs>
+under L</Incompatible Changes>, above.
+
 =back
 
 =head1 Modules and Pragmata
@@ -331,6 +417,18 @@ for important changes should then be added by hand.  In an ideal world,
 dual-life modules would have a F<Changes> file that could be cribbed.
 
 [ Within each section, list entries as a =item entry ]
+
+=head2 Removal of use vars
+
+The usage of C<use vars> has been discouraged since the introduction of C<our> in
+Perl 5.6.0. Where possible the usage of this pragma has now been removed from
+the Perl source code.
+
+This had a slight effect (for the better) on the output of
+C<WARNING_BITS> in L<B::Deparse>.
+
+Several core modules released on CPAN will not work anymore with perl
+versions prior to 5.6.
 
 =head2 New Modules and Pragmata
 
@@ -621,11 +719,9 @@ file and be sure to link to the appropriate page, e.g. L<perlfunc>.
 
 =head2 New Documentation
 
-XXX Changes which create B<new> files in F<pod/> go here.
+=head3 L<PACKAGING>
 
-=head3 L<XXX>
-
-XXX Description of the purpose of the new file here
+Notes and best practice for packaging perl 5
 
 =head2 Changes to Existing Documentation
 
@@ -647,6 +743,48 @@ Added API docs for most hash macros.
 
 Added the missing operator precedences and documentation for the cperl
 unicode operators.
+
+=item *
+
+L<perlop> has been updated to note that C<qw>'s whitespace rules differ from that of
+C<split>'s in that only ASCII whitespace is used.
+
+=back
+
+=head3 L<perldata>
+
+=over 4
+
+=item *
+
+The section "Truth and Falsehood" in L<perlsyn> has been removed from
+that document, where it didn't belong, and merged into the existing
+paragraph on the same topic in L<perldata>.
+
+=back
+
+=head3 L<perluniprops>
+
+=over 4
+
+=item *
+
+L<perluniprops> has been updated to note that C<\p{Word}> now includes
+code points matching the C<\p{Join_Control}> property.  The change to
+the property was made in Perl 5.18, but not documented until now.  There
+are currently only two code points that match this property U+200C (ZERO
+WIDTH NON-JOINER) and U+200D (ZERO WIDTH JOINER).
+
+=back
+
+=head3 L<POSIX>
+
+=over 4
+
+=item *
+
+L<POSIX> has been updated with some more cautions about using locale-specific
+functions in threaded applications.
 
 =back
 
@@ -740,6 +878,14 @@ XXX
 =head1 Configuration and Compilation
 
 =over 4
+
+=item C89 requirement
+
+Perl has been documented as requiring a C89 compiler to build since October
+1998.  A variety of simplifications have now been made to Perl's internals to
+rely on the features specified by the C89 standard. We believe that this
+internal change hasn't altered the set of platforms that Perl builds on, but
+please report a bug if Perl now has new problems building on your platform.
 
 =item -Werror=pointer-arith
 
@@ -966,13 +1112,11 @@ XXX
 
 =head2 Discontinued Platforms
 
-XXX List any platforms that this version of perl no longer compiles on.
-
 =over 4
 
-=item XXX-some-platform
+=item PowerUX / Power MAX OS
 
-XXX
+Compiler hints and other support for these apparently long-defunct platforms has been removed.
 
 =back
 
@@ -1007,6 +1151,11 @@ C<ccom: Error: ./mg.h, line 12: redeclaration of formal parameter, sv>
 
 CAN_PROTOTYPE is now always defined, which might cause problems with
 the gcc-4.2 compiler.
+
+=item Windows
+
+Visual C++ compiler version detection has been improved to work on non-English
+language systems.
 
 =back
 
@@ -1051,6 +1200,40 @@ A new flag, C<SORTf_UNSTABLE>, has been added. This will allow a
 future commit to make mergesort unstable when the user specifies ‘no
 sort stable’, since it has been decided that mergesort should remain
 stable by default.
+
+=item *
+
+A new optimisation phase has been added to the compiler,
+C<optimize_optree()>, which does a top-down scan of a complete optree
+just before the peephole optimiser is run. This phase is not currently
+hookable.
+This phase was previously in cperl named C<prefinalize_op> and
+C<postprocess_optree>.
+
+=item *
+
+An C<OP_MULTICONCAT> op has been added. At C<optimize_optree()> time, a
+chain of C<OP_CONCAT> and C<OP_CONST> ops, together optionally with an
+C<OP_STRINGIFY> and/or C<OP_SASSIGN>, are combined into a single
+C<OP_MULTICONCAT> op. The op is of type C<UNOP_AUX>, and the aux array
+contains the argument count, plus a pointer to a constant string and a set
+of segment lengths. For example with
+
+    my $x = "foo=$foo, bar=$bar\n";
+
+the constant string would be C<"foo=, bar=\n"> and the segment lengths
+would be (4,6,1). If the string contains characters such as C<\x80>, whose
+representation changes under utf8, two sets of strings plus lengths are
+precomputed and stored.
+
+=item *
+
+Direct access to L<C<PL_keyword_plugin>|perlapi/PL_keyword_plugin> is not
+safe in the presence of multithreading. A new
+L<C<wrap_keyword_plugin>|perlapi/wrap_keyword_plugin> function has been
+added to allow XS modules to safely define custom keywords even when
+loaded from a thread, analogous to L<C<PL_check>|perlapi/PL_check> /
+L<C<wrap_op_checker>|perlapi/wrap_op_checker>.
 
 =back
 
@@ -1189,6 +1372,18 @@ already fails.
 
 =item *
 
+C<stat()>, C<lstat()>, and file test operators now reliably set C<$!> when
+failing due to being applied to a closed or otherwise invalid file handle.
+
+=item *
+
+File test operators for Unix permission bits that don't exist on a
+particular platform, such as C<-k> (sticky bit) on Windows, now check that
+the file being tested exists before returning the blanket false result,
+and yield the appropriate errors if the argument doesn't refer to a file.
+
+=item *
+
 The in-place reverse optimisation now correctly strengthens weak
 references using the L<C<sv_rvunweaken()>|perlapi/sv_rvunweaken>
 API function.
@@ -1211,15 +1406,22 @@ Calling C<do $path> on a directory or block device now yields a meaningful
 error code in C<$!>.
 L<[perl #125774]|https://rt.perl.org/Public/Bug/Display.html?id=125774>
 
+=item *
+
+Regexp substitution using an overloaded replacement value that provides
+a tainted stringification now correctly taints the resulting string.
+L<[perl #115266]|https://rt.perl.org/Public/Bug/Display.html?id=115266>
+
+=item *
+
+Lexical sub declarations in C<do> blocks such as C<do { my sub lex; 123 }>
+could corrupt the stack, erasing items already on the stack in the
+enclosing statement.  This has been fixed.
+L<[perl #132442]|https://rt.perl.org/Public/Bug/Display.html?id=132442>
+
 =back
 
 =head1 Known Problems
-
-XXX Descriptions of platform agnostic bugs we know we can't fix go here.  Any
-tests that had to be C<TODO>ed for the release would be noted here.  Unfixed
-platform specific bugs also go here.
-
-[ List each fix as a =item entry ]
 
 =over 4
 
