@@ -3083,8 +3083,8 @@ S_scan_const(pTHX_ char *start)
     char *s = start;                    /* start of the constant */
     char *d = SvPVX(sv);                /* destination for copies */
     SV *res;                            /* result from charnames */
-    STRLEN offset_to_max;   /* The offset in the output to where the range
-                               high-end character is temporarily placed */
+    STRLEN offset_to_max = 0;   /* The offset in the output to where the range
+                                   high-end character is temporarily placed */
     STRLEN utf8_variant_count = 0;      /* When not in UTF-8, this counts the
                                            number of characters found so far
                                            that will expand (into 2 bytes)
