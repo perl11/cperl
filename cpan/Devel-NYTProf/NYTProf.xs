@@ -1925,7 +1925,8 @@ reinit_if_forked(pTHX)
 
     /* we're now the child process */
     if (trace_level >= 1)
-        logwarn("~ new pid %d (was %d) forkdepth %" IVdf "\n", getpid(), last_pid, profile_forkdepth);
+      logwarn("~ new pid %d (was %d) forkdepth %ld\n", getpid(), (int)last_pid,
+              profile_forkdepth);
 
     /* reset state */
     last_pid = getpid();
