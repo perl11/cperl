@@ -723,6 +723,19 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
                  */
                 assert(!targ_chain);
                 dsv = newSVpvs_flags("", SVs_TEMP);
+
+                if (   svpv_end == svpv_buf + 1
+                       /* no const string segments */
+                    && aux[PERL_MULTICONCAT_IX_LENGTHS].ssize == -1
+                ) {
+                    /* special case $overloaded .= $arg1:
+                     * avoid stringifying $arg1.
+                     * Similar to the $arg1 . $arg2 case in phase1
+                     */
+                    svpv_end--;
+                    SP--;
+                }
+
                 goto phase3;
             }
         }
