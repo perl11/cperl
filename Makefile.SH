@@ -651,10 +651,10 @@ $(MANIFEST_SRT):	MANIFEST $(PERL_EXE)
 
 .PHONY: all utilities
 
-# Both git_version.h and lib/Config_git.pl are built
+# Both git_version{sh,h} and lib/Config_git.pl are built
 # by make_patchnum.pl.
 git_version.h: lib/Config_git.pl
-
+git_version.sh: lib/Config_git.pl
 lib/Config_git.pl: $(MINIPERL_EXE) make_patchnum.pl
 	$(MINIPERL) make_patchnum.pl
 
