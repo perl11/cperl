@@ -862,7 +862,11 @@ S_openindirtemp(pTHX_ GV *gv, SV *orig_name, SV *temp_out_name) {
     mode_mask = umask (S_IXUSR | S_IRWXG | S_IRWXO);
 #endif
 
-    fd = Perl_my_mkstemp(SvPVX(temp_out_name));
+    {
+      int old_umask = umask(0177);
+      fd = Perl_my_mkstemp(SvPVX(temp_out_name));
+      umask(old_umask);
+    }
 
 #ifdef HAS_UMASK
     (void)umask(mode_mask);
