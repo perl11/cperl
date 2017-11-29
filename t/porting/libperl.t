@@ -278,6 +278,9 @@ sub nm_parse_darwin {
             } elsif (/^\(__TEXT,__text\) ((?:non-)?external) _(\w+)$/) {
                 my ($exp, $sym) = ($1, $2);
                 $symbols->{text}{$sym}{$symbols->{o}}{$exp =~ /^non/ ? 't' : 'T'}++;
+            } elsif (/^\(__DATA,__asan_globals\) ((?:non-)?external) ___asan_global_(\w+)$/) {
+                my ($exp, $sym) = ($1, $2);
+                $symbols->{data}{const}{$sym}{$symbols->{o}}++;
             } elsif (/^\(__DATA,__\w*?(const|data|pu_bss|bss|common)\w*\) (?:non-)?external _?(\w+)(\.\w+)?$/) {
                 my ($dtype, $symbol, $suffix) = ($1, $2, $3);
                 # Ignore function-local constants like
@@ -294,6 +297,11 @@ sub nm_parse_darwin {
                 # Skip these optimized darwin libc variants
             } elsif (/^\(__TEXT,__eh_frame/) {
                 # Skip the eh_frame (exception handling) symbols.
+                return;
+            } elsif (/^\(__(TEXT|DATA),__asan_/
+                     or /^\(__TEXT,__(?:const|text)\) (?:non-)?external _(\.str\.\d|asan|switch).*/
+                     or /^\(__DATA,__(?:const|bss)\) (?:non-)?external _(switch\.table|\w+\.buf\.\d).*/) {
+                # Skip the other asan symbols
                 return;
             } elsif (/^\(__\w+,__\w+\) /) {
                 # Skip the unknown types.
