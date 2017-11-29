@@ -190,9 +190,10 @@ Intel*) ;; # # Is that you, Intel C++?
 	       -Werror=pointer-arith \
 	       -Wextra -W \
 	       -Wc++-compat -Wwrite-strings \
-               -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers \
                -Wlogical-op -Wpacked -Wdisabled-optimization -Wno-null-conversion \
-               -Wno-implicit-fallthrough -Wno-unused-local-typedef
+               -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers \
+               -Wno-implicit-fallthrough -Wno-unused-local-typedef \
+               -Wno-null-pointer-arithmetic
     do
        case " $ccflags " in
        *" $opt "*) ;; # Skip if already there.
