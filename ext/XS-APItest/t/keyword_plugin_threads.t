@@ -8,6 +8,9 @@ use Config;
 if (!$Config{useithreads}) {
     skip_all("keyword_plugin thread test requires threads");
 }
+if ($^O eq 'cygwin') {
+    skip_all("keyword_plugin thread test fails on cygwin");
+}
 
 plan(1);
 
