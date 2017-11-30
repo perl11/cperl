@@ -16,6 +16,7 @@
 #define  WIN32_LEAN_AND_MEAN	/* Tell windows.h to skip much */
 #include <windows.h>
 #include <winioctl.h>
+#include <wchar.h>
 
 /*CONSTS_DEFINED*/
 
@@ -29,7 +30,9 @@
 # define win32_get_osfhandle _get_osfhandle
 # ifdef __CYGWIN__
 #  define win32_open_osfhandle(handle,mode) \
-	(Perl_croak(aTHX_ "_open_osfhandle not implemented on Cygwin!"), -1)
+       (PERL_UNUSED_ARG(handle),            \
+        PERL_UNUSED_ARG(mode),              \
+	Perl_croak(aTHX_ "_open_osfhandle not implemented on Cygwin!"), -1)
 # else
 #  define win32_open_osfhandle _open_osfhandle
 # endif
