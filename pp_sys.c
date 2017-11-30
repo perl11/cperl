@@ -1688,9 +1688,10 @@ PP(pp_sysread)
     int fp_utf8;
     int buffer_utf8;
     int fd;
+    const OPCODE op_type = PL_op->op_type;
     bool charstart = FALSE;
 
-    if ((PL_op->op_type == OP_READ || PL_op->op_type == OP_SYSREAD)
+    if ((op_type == OP_READ || op_type == OP_SYSREAD)
 	&& gv && (io = GvIO(gv)) )
     {
 	const MAGIC *const mg = SvTIED_mg((const SV *)io, PERL_MAGIC_tiedscalar);
@@ -1725,7 +1726,7 @@ PP(pp_sysread)
     fd = PerlIO_fileno(IoIFP(io));
 
     if ((fp_utf8 = PerlIO_isutf8(IoIFP(io))) && !IN_BYTES) {
-        if (PL_op->op_type == OP_SYSREAD || PL_op->op_type == OP_RECV) {
+        if (op_type == OP_SYSREAD || op_type == OP_RECV) {
             Perl_ck_warner_d(aTHX_ packWARN(WARN_DEPRECATED),
                              "%s() is deprecated on :utf8 handles. "
                              "This will be a fatal error in Perl 5.30",
@@ -1750,7 +1751,7 @@ PP(pp_sysread)
     wanted = length;
 
 #ifdef HAS_SOCKET
-    if (PL_op->op_type == OP_RECV) {
+    if (op_type == OP_RECV) {
 	Sock_size_t bufsize;
 	char namebuf[MAXPATHLEN];
         if (fd < 0) {
@@ -1841,7 +1842,7 @@ PP(pp_sysread)
 	buffer = SvGROW(read_target, (STRLEN)(length + 1));
     }
 
-    if (PL_op->op_type == OP_SYSREAD) {
+    if (op_type == OP_SYSREAD) {
 #ifdef PERL_SOCK_SYSREAD_IS_RECV
 	if (IoTYPE(io) == IoTYPE_SOCKET) {
             if (fd < 0) {
@@ -1945,7 +1946,7 @@ PP(pp_syswrite)
     STRLEN blen;
     STRLEN orig_blen_bytes;
     int fd;
-    const int op_type = PL_op->op_type;
+    const OPCODE op_type = PL_op->op_type;
     bool doing_utf8;
 
     if (op_type == OP_SYSWRITE && io) {
@@ -2404,7 +2405,7 @@ PP(pp_ioctl)
     IO * const io = GvIOn(gv);
     char *s;
     IV retval;
-    int optype;
+    const OPCODE op_type = PL_op->op_type;
 
     if (!IoIFP(io)) {
 	report_evil_fh(gv);
@@ -2429,10 +2430,9 @@ PP(pp_ioctl)
 	s = INT2PTR(char*,retval);		/* ouch */
     }
 
-    optype = PL_op->op_type;
-    TAINT_PROPER(PL_op_desc[optype]);
+    TAINT_PROPER(PL_op_desc[op_type]);
 
-    if (optype == OP_IOCTL)
+    if (op_type == OP_IOCTL)
 #ifdef HAS_IOCTL
 	retval = PerlLIO_ioctl(PerlIO_fileno(IoIFP(io)), func, s);
 #else
@@ -2599,7 +2599,7 @@ PP(pp_bind)
     GV * const gv = MUTABLE_GV(POPs);
     IO * const io = GvIOn(gv);
     STRLEN len;
-    int op_type;
+    OPCODE op_type;
     int fd;
 
     if (!IoIFP(io))
@@ -2737,8 +2737,8 @@ PP(pp_shutdown)
 PP(pp_ssockopt)
 {
     dSP;
-    const int optype = PL_op->op_type;
-    SV * const sv = (optype == OP_GSOCKOPT) ? sv_2mortal(newSV(257)) : POPs;
+    const OPCODE op_type = PL_op->op_type;
+    SV * const sv = (op_type == OP_GSOCKOPT) ? sv_2mortal(newSV(257)) : POPs;
     const unsigned int optname = (unsigned int) POPi;
     const unsigned int lvl = (unsigned int) POPi;
     GV * const gv = MUTABLE_GV(POPs);
@@ -2752,7 +2752,7 @@ PP(pp_ssockopt)
     fd = PerlIO_fileno(IoIFP(io));
     if (fd < 0)
         goto nuts;
-    switch (optype) {
+    switch (op_type) {
     case OP_GSOCKOPT:
 	SvGROW(sv, 257);
 	(void)SvPOK_only(sv);
@@ -2819,7 +2819,7 @@ PP(pp_ssockopt)
 PP(pp_getpeername)
 {
     dSP;
-    const int optype = PL_op->op_type;
+    const OPCODE op_type = PL_op->op_type;
     GV * const gv = MUTABLE_GV(POPs);
     IO * const io = GvIOn(gv);
     SV *sv;
@@ -2837,7 +2837,7 @@ PP(pp_getpeername)
     fd = PerlIO_fileno(IoIFP(io));
     if (fd < 0)
         goto nuts;
-    switch (optype) {
+    switch (op_type) {
     case OP_GETSOCKNAME:
 	if (PerlSock_getsockname(fd, (struct sockaddr *)SvPVX(sv), &len) < 0)
 	    goto nuts2;
@@ -3130,12 +3130,12 @@ S_ft_return_true(pTHX_ SV *ret) {
 #define FT_RETURNUNDEF	return S_ft_return_false(aTHX_ UNDEF)
 #define FT_RETURNYES	return S_ft_return_true(aTHX_ SV_YES)
 
-#define tryAMAGICftest_MG(chr) STMT_START { \
+#define tryAMAGICftest_MG(chr) STMT_START {              \
 	if ( (SvFLAGS(*PL_stack_sp) & (SVf_ROK|SVs_GMG)) \
-		&& PL_op->op_flags & OPf_KIDS) {     \
-	    OP *next = S_try_amagic_ftest(aTHX_ chr);	\
-	    if (next) return next;			  \
-	}						   \
+             && OpKIDS(PL_op)) {                         \
+	    OP *next = S_try_amagic_ftest(aTHX_ chr);	 \
+	    if (next) return next;                       \
+	}						 \
     } STMT_END
 
 STATIC OP *
@@ -3145,8 +3145,7 @@ S_try_amagic_ftest(pTHX_ char chr) {
     assert(chr != '?');
     if (!(PL_op->op_private & OPpFT_STACKING)) SvGETMAGIC(arg);
 
-    if (SvAMAGIC(arg))
-    {
+    if (SvAMAGIC(arg)) {
 	const char tmpchr = chr;
 	SV * const tmpsv = amagic_call(arg,
 				newSVpvn_flags(&tmpchr, 1, SVs_TEMP),
@@ -3184,10 +3183,11 @@ PP(pp_ftrread)
 #endif
     Mode_t stat_mode = S_IRUSR;
     I32 result;
-    bool effective = FALSE;
     char opchar = '?';
+    const OPCODE type = PL_op->op_type;
+    bool effective = FALSE;
 
-    switch (PL_op->op_type) {
+    switch (type) {
     case OP_FTRREAD:	opchar = 'R'; break;
     case OP_FTRWRITE:	opchar = 'W'; break;
     case OP_FTREXEC:	opchar = 'X'; break;
@@ -3197,7 +3197,7 @@ PP(pp_ftrread)
     }
     tryAMAGICftest_MG(opchar);
 
-    switch (PL_op->op_type) {
+    switch (type) {
     case OP_FTRREAD:
 #if !(defined(HAS_ACCESS) && defined(R_OK))
 	use_access = 0;
@@ -3291,7 +3291,7 @@ PP(pp_ftrread)
 PP(pp_ftis)
 {
     I32 result;
-    const int op_type = PL_op->op_type;
+    const OPCODE op_type = PL_op->op_type;
     char opchar = '?';
 
     switch (op_type) {
@@ -3348,8 +3348,9 @@ PP(pp_ftrowned)
 {
     I32 result;
     char opchar = '?';
+    const OPCODE op_type = PL_op->op_type;
 
-    switch (PL_op->op_type) {
+    switch (op_type) {
     case OP_FTROWNED:	opchar = 'O'; break;
     case OP_FTEOWNED:	opchar = 'o'; break;
     case OP_FTZERO:	opchar = 'z'; break;
@@ -3368,17 +3369,17 @@ PP(pp_ftrowned)
     /* I believe that all these three are likely to be defined on most every
        system these days.  */
 #ifndef S_ISUID
-    if(PL_op->op_type == OP_FTSUID) {
+    if (op_type == OP_FTSUID) {
 	FT_RETURNNO;
     }
 #endif
 #ifndef S_ISGID
-    if(PL_op->op_type == OP_FTSGID) {
+    if (op_type == OP_FTSGID) {
 	FT_RETURNNO;
     }
 #endif
 #ifndef S_ISVTX
-    if(PL_op->op_type == OP_FTSVTX) {
+    if (op_type == OP_FTSVTX) {
 	FT_RETURNNO;
     }
 #endif
@@ -3386,7 +3387,7 @@ PP(pp_ftrowned)
     result = my_stat_flags(0);
     if (result < 0)
 	FT_RETURNUNDEF;
-    switch (PL_op->op_type) {
+    switch (op_type) {
     case OP_FTROWNED:
 	if (PL_statcache.st_uid == PerlProc_getuid())
 	    FT_RETURNYES;
@@ -3508,8 +3509,9 @@ PP(pp_fttext)
     SSize_t len;
     I32 odd = 0;
     I32 i;
+    const OPCODE op_type = PL_op->op_type;
 
-    tryAMAGICftest_MG(PL_op->op_type == OP_FTTEXT ? 'T' : 'B');
+    tryAMAGICftest_MG(op_type == OP_FTTEXT ? 'T' : 'B');
 
     if (PL_op->op_flags & OPf_REF)
 	gv = cGVOP_gv;
@@ -3551,7 +3553,7 @@ PP(pp_fttext)
 	    if (PL_laststatval < 0)
 		FT_RETURNUNDEF;
 	    if (S_ISDIR(PL_statcache.st_mode)) { /* handle NFS glitch */
-		if (PL_op->op_type == OP_FTTEXT)
+		if (op_type == OP_FTTEXT)
 		    FT_RETURNNO;
 		else
 		    FT_RETURNYES;
@@ -3625,7 +3627,7 @@ PP(pp_fttext)
 	len = PerlIO_read(fp, tbuf, sizeof(tbuf));
 	(void)PerlIO_close(fp);
 	if (len <= 0) {
-	    if (S_ISDIR(PL_statcache.st_mode) && PL_op->op_type == OP_FTTEXT)
+	    if (S_ISDIR(PL_statcache.st_mode) && op_type == OP_FTTEXT)
 		FT_RETURNNO;		/* special case NFS directories */
 	    FT_RETURNYES;		/* null file is anything */
 	}
@@ -3646,7 +3648,7 @@ PP(pp_fttext)
         /* Here contains a variant under UTF-8 .  See if the entire string is
          * UTF-8. */
         if (is_utf8_fixed_width_buf_flags((U8 *) s, len, 0)) {
-            if (PL_op->op_type == OP_FTTEXT) {
+            if (op_type == OP_FTTEXT) {
                 FT_RETURNYES;
             }
             else {
@@ -3685,7 +3687,7 @@ PP(pp_fttext)
         odd++;
     }
 
-    if ((odd * 3 > len) == (PL_op->op_type == OP_FTTEXT)) /* allow 1/3 odd */
+    if ((odd * 3 > len) == (op_type == OP_FTTEXT)) /* allow 1/3 odd */
 	FT_RETURNNO;
     else
 	FT_RETURNYES;
@@ -3843,7 +3845,7 @@ PP(pp_rename)
 PP(pp_link)
 {
     dSP; dTARGET;
-    const int op_type = PL_op->op_type;
+    const OPCODE op_type = PL_op->op_type;
     int result;
 
 #  ifndef HAS_LINK
@@ -4349,21 +4351,21 @@ PP(pp_waitpid)
 {
 #if (!defined(DOSISH) || defined(OS2) || defined(WIN32)) && !defined(__LIBCATAMOUNT__)
     dSP; dTARGET;
-    const int optype = POPi;
+    const OPCODE op_type = POPi;
     const Pid_t pid = TOPi;
     Pid_t result;
 #ifdef __amigaos4__
     int argflags = 0;
-    result = amigaos_waitpid(aTHX_ optype, pid, &argflags);
+    result = amigaos_waitpid(aTHX_ op_type, pid, &argflags);
     STATUS_NATIVE_CHILD_SET((result >= 0) ? argflags : -1);
     result = result == 0 ? pid : -1;
 #else
     int argflags;
 
     if (PL_signals & PERL_SIGNALS_UNSAFE_FLAG)
-        result = wait4pid(pid, &argflags, optype);
+        result = wait4pid(pid, &argflags, op_type);
     else {
-        while ((result = wait4pid(pid, &argflags, optype)) == -1 &&
+        while ((result = wait4pid(pid, &argflags, op_type)) == -1 &&
 	       errno == EINTR) {
 	  PERL_ASYNC_CHECK();
 	}
@@ -4938,7 +4940,7 @@ PP(pp_shmwrite)
 {
 #if defined(HAS_MSG) || defined(HAS_SEM) || defined(HAS_SHM)
     dSP; dMARK; dTARGET;
-    const int op_type = PL_op->op_type;
+    const OPCODE op_type = PL_op->op_type;
     I32 value;
 
     switch (op_type) {
@@ -5034,7 +5036,7 @@ PP(pp_ghostent)
 {
 #if defined(HAS_GETHOSTBYNAME) || defined(HAS_GETHOSTBYADDR) || defined(HAS_GETHOSTENT)
     dSP;
-    I32 which = PL_op->op_type;
+    const OPCODE op_type = PL_op->op_type;
     char **elem;
     SV *sv;
 #ifndef HAS_GETHOST_PROTOS /* XXX Do we need individual probes? */
@@ -5046,7 +5048,7 @@ PP(pp_ghostent)
     unsigned long len;
 
     EXTEND(SP, 10);
-    if (which == OP_GHBYNAME) {
+    if (op_type == OP_GHBYNAME) {
 #ifdef HAS_GETHOSTBYNAME
 	const char* const name = POPpbytex;
 	hent = PerlSock_gethostbyname(name);
@@ -5054,7 +5056,7 @@ PP(pp_ghostent)
 	DIE(aTHX_ PL_no_sock_func, "gethostbyname");
 #endif
     }
-    else if (which == OP_GHBYADDR) {
+    else if (op_type == OP_GHBYADDR) {
 #ifdef HAS_GETHOSTBYADDR
 	const int addrtype = POPi;
 	SV * const addrsv = POPs;
@@ -5087,7 +5089,7 @@ PP(pp_ghostent)
     if (GIMME_V != G_ARRAY) {
 	PUSHs(sv = sv_newmortal());
 	if (hent) {
-	    if (which == OP_GHBYNAME) {
+	    if (op_type == OP_GHBYNAME) {
 		if (hent->h_addr)
 		    sv_setpvn(sv, hent->h_addr, hent->h_length);
 	    }
@@ -5126,7 +5128,7 @@ PP(pp_gnetent)
 {
 #if defined(HAS_GETNETBYNAME) || defined(HAS_GETNETBYADDR) || defined(HAS_GETNETENT)
     dSP;
-    I32 which = PL_op->op_type;
+    I32 op_type = PL_op->op_type;
     SV *sv;
 #ifndef HAS_GETNET_PROTOS /* XXX Do we need individual probes? */
     struct netent *getnetbyaddr(Netdb_net_t, int);
@@ -5135,7 +5137,7 @@ PP(pp_gnetent)
 #endif
     struct netent *nent;
 
-    if (which == OP_GNBYNAME){
+    if (op_type == OP_GNBYNAME){
 #ifdef HAS_GETNETBYNAME
 	const char * const name = POPpbytex;
 	nent = PerlSock_getnetbyname(name);
@@ -5143,7 +5145,7 @@ PP(pp_gnetent)
         DIE(aTHX_ PL_no_sock_func, "getnetbyname");
 #endif
     }
-    else if (which == OP_GNBYADDR) {
+    else if (op_type == OP_GNBYADDR) {
 #ifdef HAS_GETNETBYADDR
 	const int addrtype = POPi;
 	const Netdb_net_t addr = (Netdb_net_t) (U32)POPu;
@@ -5174,7 +5176,7 @@ PP(pp_gnetent)
     if (GIMME_V != G_ARRAY) {
 	PUSHs(sv = sv_newmortal());
 	if (nent) {
-	    if (which == OP_GNBYNAME)
+	    if (op_type == OP_GNBYNAME)
 		sv_setiv(sv, (IV)nent->n_net);
 	    else
 		sv_setpv(sv, nent->n_name);
@@ -5202,7 +5204,7 @@ PP(pp_gprotoent)
 {
 #if defined(HAS_GETPROTOBYNAME) || defined(HAS_GETPROTOBYNUMBER) || defined(HAS_GETPROTOENT)
     dSP;
-    I32 which = PL_op->op_type;
+    I32 op_type = PL_op->op_type;
     SV *sv;
 #ifndef HAS_GETPROTO_PROTOS /* XXX Do we need individual probes? */
     struct protoent *getprotobyname(Netdb_name_t);
@@ -5211,7 +5213,7 @@ PP(pp_gprotoent)
 #endif
     struct protoent *pent;
 
-    if (which == OP_GPBYNAME) {
+    if (op_type == OP_GPBYNAME) {
 #ifdef HAS_GETPROTOBYNAME
 	const char* const name = POPpbytex;
 	pent = PerlSock_getprotobyname(name);
@@ -5219,7 +5221,7 @@ PP(pp_gprotoent)
 	DIE(aTHX_ PL_no_sock_func, "getprotobyname");
 #endif
     }
-    else if (which == OP_GPBYNUMBER) {
+    else if (op_type == OP_GPBYNUMBER) {
 #ifdef HAS_GETPROTOBYNUMBER
 	const int number = POPi;
 	pent = PerlSock_getprotobynumber(number);
@@ -5238,7 +5240,7 @@ PP(pp_gprotoent)
     if (GIMME_V != G_ARRAY) {
 	PUSHs(sv = sv_newmortal());
 	if (pent) {
-	    if (which == OP_GPBYNAME)
+	    if (op_type == OP_GPBYNAME)
 		sv_setiv(sv, (IV)pent->p_proto);
 	    else
 		sv_setpv(sv, pent->p_name);
@@ -5265,7 +5267,7 @@ PP(pp_gservent)
 {
 #if defined(HAS_GETSERVBYNAME) || defined(HAS_GETSERVBYPORT) || defined(HAS_GETSERVENT)
     dSP;
-    I32 which = PL_op->op_type;
+    I32 op_type = PL_op->op_type;
     SV *sv;
 #ifndef HAS_GETSERV_PROTOS /* XXX Do we need individual probes? */
     struct servent *getservbyname(Netdb_name_t, Netdb_name_t);
@@ -5274,7 +5276,7 @@ PP(pp_gservent)
 #endif
     struct servent *sent;
 
-    if (which == OP_GSBYNAME) {
+    if (op_type == OP_GSBYNAME) {
 #ifdef HAS_GETSERVBYNAME
 	const char * const proto = POPpbytex;
 	const char * const name = POPpbytex;
@@ -5283,7 +5285,7 @@ PP(pp_gservent)
 	DIE(aTHX_ PL_no_sock_func, "getservbyname");
 #endif
     }
-    else if (which == OP_GSBYPORT) {
+    else if (op_type == OP_GSBYPORT) {
 #ifdef HAS_GETSERVBYPORT
 	const char * const proto = POPpbytex;
 	unsigned short port = (unsigned short)POPu;
@@ -5304,7 +5306,7 @@ PP(pp_gservent)
     if (GIMME_V != G_ARRAY) {
 	PUSHs(sv = sv_newmortal());
 	if (sent) {
-	    if (which == OP_GSBYNAME) {
+	    if (op_type == OP_GSBYNAME) {
 		sv_setiv(sv, (IV)PerlSock_ntohs(sent->s_port));
 	    }
 	    else
@@ -5442,7 +5444,7 @@ PP(pp_gpwent)
 {
 #ifdef HAS_PASSWD
     dSP;
-    I32 which = PL_op->op_type;
+    I32 op_type = PL_op->op_type;
     SV *sv;
     struct passwd *pwent  = NULL;
     /*
@@ -5511,7 +5513,7 @@ PP(pp_gpwent)
     PL_reentrant_buffer->_pwent_struct.pw_comment = NULL;
 #   endif
 
-    switch (which) {
+    switch (op_type) {
     case OP_GPWNAM:
       {
 	const char* const name = POPpbytex;
@@ -5540,7 +5542,7 @@ PP(pp_gpwent)
     if (GIMME_V != G_ARRAY) {
 	PUSHs(sv = sv_newmortal());
 	if (pwent) {
-	    if (which == OP_GPWNAM)
+	    if (op_type == OP_GPWNAM)
 	        sv_setuid(sv, pwent->pw_uid);
 	    else
 		sv_setpv(sv, pwent->pw_name);
@@ -5654,14 +5656,14 @@ PP(pp_ggrent)
 {
 #ifdef HAS_GROUP
     dSP;
-    const I32 which = PL_op->op_type;
+    const OPCODE op_type = PL_op->op_type;
     const struct group *grent;
 
-    if (which == OP_GGRNAM) {
+    if (op_type == OP_GGRNAM) {
 	const char* const name = POPpbytex;
 	grent = (const struct group *)getgrnam(name);
     }
-    else if (which == OP_GGRGID) {
+    else if (op_type == OP_GGRGID) {
 #if Gid_t_sign == 1
 	const Gid_t gid = POPu;
 #elif Gid_t_sign == -1
@@ -5684,7 +5686,7 @@ PP(pp_ggrent)
 
 	PUSHs(sv);
 	if (grent) {
-	    if (which == OP_GGRNAM)
+	    if (op_type == OP_GGRNAM)
 		sv_setgid(sv, grent->gr_gid);
 	    else
 		sv_setpv(sv, grent->gr_name);

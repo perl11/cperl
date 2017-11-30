@@ -1753,7 +1753,7 @@ Perl_do_print(pTHX_ SV *sv, PerlIO *fp)
 		assert((char *)result == tmps);
 		Perl_ck_warner_d(aTHX_ packWARN(WARN_UTF8),
 				 "Wide character in %s",
-				   PL_op ? OP_DESC(PL_op) : "print"
+                                 PL_op ? OP_DESC(PL_op) : "print"
 				);
 		    /* Could also check that isn't one of the things to avoid
 		     * in utf8 by using check_utf8_print(), but not doing so,
@@ -1789,7 +1789,7 @@ Perl_my_stat_flags(pTHX_ const U32 flags)
             return PL_laststatval;
 	}
 	io = GvIO(gv);
-        do_fstat_have_io:
+      do_fstat_have_io:
         PL_laststype = OP_STAT;
         PL_statgv = gv ? gv : (GV *)io;
         SvPVCLEAR(PL_statname);
@@ -1804,7 +1804,8 @@ Perl_my_stat_flags(pTHX_ const U32 flags)
                     return (PL_laststatval = PerlLIO_fstat(fd, &PL_statcache));
                 }
             } else if (IoDIRP(io)) {
-                return (PL_laststatval = PerlLIO_fstat(my_dirfd(IoDIRP(io)), &PL_statcache));
+                return (PL_laststatval = PerlLIO_fstat(my_dirfd(IoDIRP(io)),
+                                                       &PL_statcache));
             }
         }
 	PL_laststatval = -1;
@@ -1812,8 +1813,8 @@ Perl_my_stat_flags(pTHX_ const U32 flags)
 	SETERRNO(EBADF,RMS_IFI);
 	return -1;
     }
-    else if ((PL_op->op_private & (OPpFT_STACKED|OPpFT_AFTER_t))
-	     == OPpFT_STACKED)
+    else
+    if ((PL_op->op_private & (OPpFT_STACKED|OPpFT_AFTER_t)) == OPpFT_STACKED)
 	return PL_laststatval;
     else {
 	SV* const sv = TOPs;
