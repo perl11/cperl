@@ -5298,7 +5298,7 @@
  *	This symbol, if defined, indicates that Perl is the cperl variant.
  */
 #ifndef USE_CPERL
-/*#define	USE_CPERL		/ **/
+#define	USE_CPERL		/**/
 #endif
 
 /* PERL_HASH_FUNC_*:
@@ -5313,5 +5313,5 @@
 
 /* Generated from:
  * ce479b2b0601957032da31f6d7b4dde4a62c5efd9f851fb35cda8e50ae18a05f config_h.SH
- * b08702a6af5e07dd8de37e15d3af0f047418c7cdebf0d80b1ca1da78ff6ea047 uconfig.sh
+ * ca03e61155c44073571f11e4fb65954d3b088990702e63ca26716fd5131fef9a uconfig.sh
  * ex: set ro: */
