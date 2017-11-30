@@ -5337,7 +5337,7 @@
  *	This symbol, if defined, indicates that Perl is the cperl variant.
  */
 #ifndef USE_CPERL
-/*#define	USE_CPERL		/ **/
+#define	USE_CPERL		/**/
 #endif
 
 /* USE_SANITIZE_ADDRESS:
@@ -5359,5 +5359,5 @@
 
 /* Generated from:
  * db334eede001426213e6b3b9e5a212677a78ac10e4af96a1baf8c883bae46173 config_h.SH
- * 436de01a383a0c78d735e8e3e78800786d30490cf293f4d6af8155a7840a8ecb uconfig.sh
+ * a918a24aad831de81ad9cdf36f81742f9452c0926cc2da9acdd191dd4df03a6e uconfig.sh
  * ex: set ro: */
