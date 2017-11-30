@@ -1764,7 +1764,7 @@ PROTOTYPES: DISABLE
 
 BOOT:
 {
-    char *file = __FILE__;
+    const char *file = __FILE__;
 
     if (g_osver.dwOSVersionInfoSize == 0) {
         g_osver.dwOSVersionInfoSize = sizeof(g_osver);
