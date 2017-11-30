@@ -5331,7 +5331,7 @@
  *	This symbol, if defined, indicates that Perl is the cperl variant.
  */
 #ifndef USE_CPERL
-/*#define	USE_CPERL		/ **/
+#define	USE_CPERL		/**/
 #endif
 
 /* PERL_FAKE_SIGNATURE:
@@ -5370,5 +5370,5 @@
 
 /* Generated from:
  * 616505b28688242e23e2975772665cfcf4d2bf117587405c00d59e3a829915ed config_h.SH
- * 8bc96bdf88c7180a0009080045c90a639ed07ed43d15c97905b8806b74611c34 uconfig.sh
+ * 5853d893a1e07c13469c06331a06a68a66b570c343f9f75d1983ce12c1663c99 uconfig.sh
  * ex: set ro: */
