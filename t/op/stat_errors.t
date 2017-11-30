@@ -4,6 +4,7 @@ BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
     set_up_inc('../lib');
+    skip_all_if_miniperl("PerlIO::Scalar XS needed"); # line 14
 }
 
 plan(tests => 2*11*29);
@@ -31,6 +32,9 @@ foreach my $op (
 	    $argdesc .= " with prior stat fail";
 	}
 	SKIP: {
+            my $result = !!0;
+            my $error = $arg eq "\"tmpnotexist\"" ||
+		    ($op =~ /\A-[TB]\z/ && $arg =~ /_\z/) ? ENOENT : EBADF;
 	    if ($op eq "-l" && $arg =~ /\A\\/) {
 		# The op weirdly stringifies the globref and uses it as
 		# a filename, rather than treating it as a file handle.
@@ -38,18 +42,22 @@ foreach my $op (
 		# needs to be exempted from these tests.
 		skip "-l on globref", 2;
 	    }
-	    if ($op eq "-t" && $arg eq "\"tmpnotexist\"") {
+	    elsif ($op eq "-t" && $arg eq "\"tmpnotexist\"") {
 		# The op doesn't operate on filenames.
 		skip "-t on filename", 2;
+	    }
+	    elsif ($op eq "-k" && $^O eq 'MSWin32') {
+                # Windows has no sticky bit S_ISVTX
+                $error = 0; # and returns NO w/o any error
+	    }
+	    elsif ($op =~ /\A-/) {
+		$result = undef;
 	    }
 	    $! = 0;
 	    my $res = eval "$op $arg";
 	    my $err = $!;
-	    is $res, $op =~ /\A-/ ? undef : !!0, "result of $op $arg";
-	    is 0+$err,
-		$arg eq "\"tmpnotexist\"" ||
-		    ($op =~ /\A-[TB]\z/ && $arg =~ /_\z/) ? ENOENT : EBADF,
-		"error from $op $arg";
+	    is $res, $result, "result of $op $arg";
+	    is 0+$err, $error, "error from $op $arg";
 	}
     }
 }
