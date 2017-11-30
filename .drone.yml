@@ -4,24 +4,41 @@
 matrix:
   sys:
     - msys
+    - cygwin
   arch:
     - 64
     - 32
+  shell:
+    - cygwin$${arch}
+    - msys$${arch}
+    - mingw$${arch}
+
+clone:
+  depth: 2
+  recursive: false
 
 build:
-  image: teaci/msys$${arch}
-  shell: msys$$arch
+  image: teaci/$${sys}$${arch}
   pull: true
   commands:
     #- if [ $$arch = 32 ]; then target=i686;   fi
     #- if [ $$arch = 64 ]; then target=x86_64; fi
     #- pacman -S --needed --noconfirm --noprogressbar findutils gdbm perl make
-    - cd win32; make CCHOME=c:\\msys$$arch test > test.log &&
-    cat test.log &&
-    make CCHOME=c:\\msys$$arch install >install.log &&
-    cat install.log &&
-    cd /c/cperl && ls && tar cfJ cperl-$${sys}$${arch}.tar.xz * && cd - &&
-    cp /c/cperl/cperl-$${sys}$${arch}.tar.xz ../
+    - if [ $$sys = cygwin ]; then
+        [ $$shell = msys32 ] && exit 0;
+        [ $$shell = msys64 ] && exit 0;
+        [ $$shell = mingw32 ] && exit 0;
+        [ $$shell = mingw64 ] && exit 0;
+        ./Configure -des && make && make test && make install DESTDIR=/cygdrive/c/cperl &&
+          tar cfJ cperl-cygwin$${arch}.tar.xz -C /cygdrive/c/cperl bin lib site ;
+      else
+        [ $$shell = cygwin32 ] && exit 0;
+        [ $$shell = cygwin64 ] && exit 0;
+        export CCHOME=c:\\mingw$${arch} ;
+        cd win32 ;
+        make && make test && make install ;
+        tar cfJ cperl-$${shell}.tar.xz -C /c/ cperl ;
+      fi
 
 branches:
   - master
