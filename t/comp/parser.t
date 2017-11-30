@@ -460,7 +460,7 @@ if ($] < 5.025002) {
   eval q(sub 'Hello'_he_said (_););
   is prototype "Hello::_he_said", '_', 'initial tick in sub declaration';
 } else {
-    print "ok ", ++$test, " - SKIP sub 'Hello'_he_said; disabled\n";
+  print "ok ", ++$test, " - SKIP sub 'Hello'_he_said; disabled\n";
 }
 
 {
@@ -664,10 +664,15 @@ my $r = eval 'use utf8; sub café {1} café()';
 #was qr/^Undefined subroutine &main::caf. called at /,
 is($r, 1, "normalized unicode spoofed identifier #228 $@");
 
-eval 'use utf8; my $Γ=1; if ($Г) { print "no" }';
-like($@, qr/^Invalid script/, "Invalid mixed-scripts");
-eval 'use utf8 qw(Greek Cyrillic); my $Γ=1; if ($Г) { print "no" }';
-is($@, '', "declared mixed scripts #229");
+if (is_miniperl and (!-f "../lib/unicore/Name.pm" or !-f "../lib/re.pm")) {
+  is 1, 1, "SKIP miniperl";
+  is 1, 1, "SKIP miniperl";
+} else {
+  eval 'use utf8; my $Γ=1; if ($Г) { print "no" }';
+  like($@, qr/^Invalid script/, "Invalid mixed-scripts");
+  eval 'use utf8 qw(Greek Cyrillic); my $Γ=1; if ($Г) { print "no" }';
+  is($@, '', "declared mixed scripts #229");
+}
 
 # And now some unicode bugs: https://github.com/jagracey/Awesome-Unicode#user-content-variable-identifiers-can-effectively-include-whitespace
 # Not a space nor whitespace char, but ID_Start + ID_Continue!
