@@ -793,12 +793,12 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	unsigned long len;
 	const char * const env = PerlEnv_ENVgetenv_len(key,&len);
 	if (env) {
-	    const SV* sv = newSVpvn(env,len);
+	    SV *const sv = newSVpvn(env,len);
 	    SvTAINTED_on(sv);
             PERL_DTRACE_PROBE_HASH_RETURN(dtrace_mode, key);
 	    return hv_common(hv, keysv, key, klen, flags,
 			     HV_FETCH_ISSTORE|HV_DISABLE_UVAR_XKEY|return_svp,
-			     sv, hash);
+			     (SV*)sv, hash);
 	}
     }
 #endif
