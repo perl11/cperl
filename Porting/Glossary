@@ -3336,7 +3336,7 @@ h_sysfile (h_sysfile.U):
 hash_func (hash_func.U):
 	This variable, if not empty, defines the name of the configured hash
 	function, defined by the symbol PERL_HASH_FUNC_${hash_func}.
-        Default: MURMUR3
+        Default: FNV1A with cperl
         Valid hash_func names: FNV1A SIPHASH SUPERFAST DJB2 SDBM
         OAAT OAAT_HARD OAAT_OLD ONE_AT_A_TIME_HARD ONE_AT_A_TIME ONE_AT_A_TIME_OLD
         MURMUR3 MURMUR64A MURMUR64B MURMUR_HASH_64A MURMUR_HASH_64B CRC32 METRO64CRC
