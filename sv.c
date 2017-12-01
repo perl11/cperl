@@ -11173,7 +11173,7 @@ Usually used via one of its frontends C<sv_vsetpvf> and C<sv_vsetpvf_mg>.
 
 void
 Perl_sv_vsetpvfn(pTHX_ SV *const sv, const char *const pat, const STRLEN patlen,
-                 va_list *const args, SV **const svargs, const Size_t sv_count, bool *const maybe_tainted)
+                 va_list *const args, SV **const svargs, const int sv_count, bool *const maybe_tainted)
 {
     PERL_ARGS_ASSERT_SV_VSETPVFN;
 
@@ -11281,19 +11281,14 @@ S_sprintf_arg_num_val(pTHX_ va_list *const args, int i, SV *sv, bool *neg)
  */
 #define IS_1_TO_9(c) ((U8)(c - '1') <= 8)
 
-/* Read in and return a number. Updates *pattern to point to the char
+/* read and return a positive number. Updates *pattern to point to the char
  * following the number. Expects the first char to 1..9.
- * Croaks if the number exceeds 1/4 of the maximum value of STRLEN.
- * This is a belt-and-braces safety measure to complement any
- * overflow/wrap checks done in the main body of sv_vcatpvfn_flags.
- * It means that e.g. on a 32-bit system the width/precision can't be more
- * than 1G, which seems reasonable.
  */
 
-STATIC STRLEN
+STATIC int
 S_expect_number(pTHX_ const char **const pattern)
 {
-    STRLEN var;
+    int var;
 
     PERL_ARGS_ASSERT_EXPECT_NUMBER;
 
@@ -11301,11 +11296,13 @@ S_expect_number(pTHX_ const char **const pattern)
 
     var = *(*pattern)++ - '0';
     while (isDIGIT(**pattern)) {
-        /* if var * 10 + 9 would exceed 1/4 max strlen, croak */
-        if (var > ((((STRLEN)~0) / 4 - 9) / 10))
+        const long tmp = var * 10 + (*(*pattern)++ - '0');
+        if (UNLIKELY(tmp < (long)var))
             S_croak_overflow();
-        var = var * 10 + (*(*pattern)++ - '0');
+        var = tmp;
     }
+    if (UNLIKELY(var < 0))
+        S_croak_overflow();
     return var;
 }
 
@@ -11349,7 +11346,7 @@ S_F0convert(NV nv, char *const endbuf, STRLEN *const len)
 
 void
 Perl_sv_vcatpvfn(pTHX_ SV *const sv, const char *const pat, const STRLEN patlen,
-                 va_list *const args, SV **const svargs, const Size_t sv_count, bool *const maybe_tainted)
+                 va_list *const args, SV **const svargs, const int sv_count, bool *const maybe_tainted)
 {
     PERL_ARGS_ASSERT_SV_VCATPVFN;
 
@@ -12073,14 +12070,14 @@ Usually used via one of its frontends C<sv_vcatpvf> and C<sv_vcatpvf_mg>.
 
 void
 Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN patlen,
-                       va_list *const args, SV **const svargs, const Size_t sv_count, bool *const maybe_tainted,
+                       va_list *const args, SV **const svargs, const int sv_count, bool *const maybe_tainted,
                        const U32 flags)
 {
     const char *fmtstart; /* character following the current '%' */
     const char *q;        /* current position within format */
     const char *patend;
     STRLEN origlen;
-    Size_t svix = 0;
+    int svix = 0;
     static const char nullstr[] = "(null)";
     SV *argsv = NULL;
     bool has_utf8 = DO_UTF8(sv);    /* has the result utf8? */
@@ -12171,9 +12168,9 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 	bool left        = FALSE;     /* has      "%-..."    */
 	bool fill        = FALSE;     /* has      "%0..."    */
 	char plus        = 0;         /* has      "%+..."    */
-	STRLEN width     = 0;         /* value of "%NNN..."  */
+	int  width       = 0;         /* value of "%NNN..."  */
 	bool has_precis  = FALSE;     /* has      "%.NNN..." */
-	STRLEN precis    = 0;         /* value of "%.NNN..." */
+	int  precis      = 0;         /* value of "%.NNN..." */
 	int base         = 0;         /* base to print in, e.g. 8 for %o */
 	UV uv            = 0;         /* the value to print of int-ish args */
 
@@ -12184,14 +12181,14 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 	const char *dotstr = NULL;    /* separator string for %v */
 	STRLEN dotstrlen;             /* length of separator string for %v */
 
-	Size_t efix      = 0;         /* explicit format parameter index */
-	const Size_t osvix  = svix;   /* original index in case of bad fmt */
+	int efix         = 0;         /* explicit format parameter index */
+	const int osvix  = svix;      /* original index in case of bad fmt */
 
 	bool is_utf8     = FALSE;     /* is this item utf8?   */
         bool arg_missing = FALSE;     /* give "Missing argument" warning */
 	char esignbuf[4];             /* holds sign prefix, e.g. "-0x" */
-	STRLEN esignlen  = 0;         /* length of e.g. "-0x" */
-	STRLEN zeros     = 0;         /* how many '0' to prepend */
+	int esignlen     = 0;         /* length of e.g. "-0x", max 2G */
+	int zeros        = 0;         /* how many '0' to prepend, max 2G */
 
 	const char *eptr = NULL;      /* the address of the element string */
 	STRLEN elen      = 0;         /* the length  of the element string */
@@ -12308,7 +12305,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 
       tryasterisk:
 	if (*q == '*') {
-            STRLEN ix; /* explicit width/vector separator index */
+            int ix; /* explicit width/vector separator index */
 	    q++;
 	    if (IS_1_TO_9(*q)) {
                 ix = expect_number(&q);
@@ -12393,7 +12390,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 	if (*q == '.') {
 	    q++;
 	    if (*q == '*') {
-                STRLEN ix; /* explicit precision index */
+                int ix; /* explicit precision index */
 		q++;
                 if (IS_1_TO_9(*q)) {
                     ix = expect_number(&q);
@@ -12530,7 +12527,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
         if (!args) {
             efix = efix ? efix - 1 : svix++;
             argsv = efix < sv_count ? svargs[efix]
-                                 : (arg_missing = TRUE, &PL_sv_no);
+                                    : (arg_missing = TRUE, &PL_sv_no);
 	}
 
 
@@ -12554,27 +12551,29 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 	    else {
 		eptr = SvPV_const(argsv, elen);
 		if (DO_UTF8(argsv)) {
-		    STRLEN old_precis = precis;
-		    if (has_precis && precis < elen) {
+		    int old_precis = precis;
+                    const STRLEN lprecis = precis;
+		    if (has_precis && lprecis < elen) {
 			STRLEN ulen = sv_or_pv_len_utf8(argsv, eptr, elen);
-			STRLEN p = precis > ulen ? ulen : precis;
+			STRLEN p = lprecis > ulen ? ulen : lprecis;
 			precis = sv_or_pv_pos_u2b(argsv, eptr, p, 0);
 							/* sticks at end */
 		    }
 		    if (width) { /* fudge width (can't fudge elen) */
-			if (has_precis && precis < elen)
+			if (has_precis && (STRLEN)precis < elen)
 			    width += precis - old_precis;
 			else
-			    width +=
-				elen - sv_or_pv_len_utf8(argsv,eptr,elen);
+			    width += elen - sv_or_pv_len_utf8(argsv,eptr,elen);
+                        if (UNLIKELY(width < 0))
+                            S_croak_overflow();
 		    }
 		    is_utf8 = TRUE;
 		}
 	    }
 
 	string:
-	    if (has_precis && precis < elen)
-		elen = precis;
+	    if (has_precis && (STRLEN)precis < elen)
+		elen = (STRLEN)precis;
 	    break;
 
 	    /* INTEGERS */
@@ -12988,7 +12987,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 		elen = (ebuf + sizeof ebuf) - ptr;
 		eptr = ptr;
 		if (has_precis) {
-		    if (precis > elen)
+		    if ((STRLEN)precis > elen)
 			zeros = precis - elen;
 		    else if (precis == 0 && elen == 1 && *eptr == '0'
 			     && !(base == 8 && alt)) /* "%#.0o" prints "0" */
@@ -13011,7 +13010,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 	case 'a': case 'A':
 
         {
-            STRLEN float_need; /* what PL_efloatsize needs to become */
+            int  float_need;   /* what PL_efloatsize needs to become */
             bool hexfp;        /* hexadecimal floating point? */
 
             vcatpvfn_long_double_t fv;
@@ -13079,8 +13078,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                 fv = nv;
 #endif
             }
-            else
-            {
+            else {
                 SvGETMAGIC(argsv);
                 /* we jump here if an int-ish format encountered an
                  * infinite/Nan argsv. After setting nv/fv, it falls
@@ -13112,8 +13110,9 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                 && !fill
                 && intsize != 'q'
                 && ((eptr = F0convert(nv, ebuf + sizeof ebuf, &elen)))
-            )
+               ) {
                 goto float_concat;
+            }
 
             /* Determine the buffer size needed for the various
              * floating-point formats.
@@ -13204,7 +13203,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                  * might be emitted.  frexp() (or frexpl) has some
                  * unspecified behaviour for nan/inf/-inf, so lucky we've
                  * already handled them above */
-                STRLEN digits;
+                int digits;
                 int i = PERL_INT_MIN;
                 (void)Perl_frexp((NV)fv, &i);
                 if (i == PERL_INT_MIN)
@@ -13218,8 +13217,9 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                      * constants plus radix len, which can't be in
                      * overflow territory unless the radix SV is consuming
                      * over 1/2 the address space */
-                    assert(float_need < ((STRLEN)~0) - digits);
+                    assert(float_need < PERL_INT_MAX - digits);
                     float_need += digits;
+                    assert(float_need >= 0);
                 }
             }
             else if (UNLIKELY(isALPHA_FOLD_EQ(c, 'a'))) {
@@ -13236,7 +13236,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                      * or six bytes of the NV are unused. Also, we'll
                      * still pick up an extra +6 from the default
                      * precision calculation below. */
-                    STRLEN digits =
+                    int digits =
 #ifdef LONGDOUBLE_DOUBLEDOUBLE
                         /* For the "double double", we need more.
                          * Since each double has their own exponent, the
@@ -13251,8 +13251,9 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                         NVSIZE * 2; /* 2 hexdigits for each byte */
 #endif
                     /* see "this can't overflow" comment above */
-                    assert(float_need < ((STRLEN)~0) - digits);
+                    assert(float_need < PERL_INT_MAX - digits);
                     float_need += digits;
+                    assert(float_need >= 0);
                 }
 	    }
             /* special-case "%.<number>g" if it will fit in ebuf */
@@ -13262,8 +13263,8 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                 && has_precis
                 /* check, in manner not involving wrapping, that it will
                  * fit in ebuf  */
-                && float_need < sizeof(ebuf)
-                && sizeof(ebuf) - float_need > precis
+                && (size_t)float_need < sizeof(ebuf)
+                && sizeof(ebuf) - (size_t)float_need > (size_t)precis
                 && !(width || left || plus || alt)
                 && !fill
                 && intsize != 'q'
@@ -13276,27 +13277,27 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 
 
             {
-                STRLEN pr = has_precis ? precis : 6; /* known default */
-                /* this probably can't wrap, since precis is limited
-                 * to 1/4 address space size, but better safe than sorry
-                 */
-                if (float_need >= ((STRLEN)~0) - pr)
+                int pr = has_precis ? precis : 6; /* known default */
+                if (float_need >= PERL_INT_MAX - pr)
                     croak_memory_wrap();
                 float_need += pr;
+                assert(float_need >= 0);
             }
 
 	    if (float_need < width)
 		float_need = width;
 
-	    if (PL_efloatsize <= float_need) {
+	    if (PL_efloatsize <= (STRLEN)float_need) {
                 /* PL_efloatbuf should be at least 1 greater than
                  * float_need to allow a trailing \0 to be returned by
                  * snprintf().  If we need to grow, overgrow for the
                  * benefit of future generations */
-                const STRLEN extra = 0x20;
-                if (float_need >= ((STRLEN)~0) - extra)
+                const int extra = 0x20;
+                assert(float_need < PERL_INT_MAX - extra);
+                if (float_need >= PERL_INT_MAX - extra)
                     croak_memory_wrap();
                 float_need += extra;
+                assert(float_need >= 0);
 		Safefree(PL_efloatbuf);
 		PL_efloatsize = float_need;
 		Newx(PL_efloatbuf, PL_efloatsize, char);
@@ -13394,7 +13395,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
             assert(!zeros);
             assert(!esignlen);
             assert(elen);
-            assert(elen >= width);
+            assert(elen >= (STRLEN)width);
 
             S_sv_catpvn_simple(aTHX_ sv, eptr, elen);
 
@@ -13510,31 +13511,33 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
         /* append esignbuf, filler, zeros, eptr and dotstr to sv */
 
         {
-            STRLEN need, have, gap;
-            STRLEN i;
+            int need, have, gap;
+            int i;
             char *s;
 
             /* signed value that's wrapped? */
-            assert(elen  <= ((~(STRLEN)0) >> 1));
+            assert(elen <= (STRLEN)(PERL_INT_MAX >> 1));
 
             /* if zeros is non-zero, then it represents filler between
              * elen and precis. So adding elen and zeros together will
              * always be <= precis, and the addition can never wrap */
-            assert(!zeros || (precis > elen && precis - elen == zeros));
+            assert(!zeros || (precis > (int)elen && precis - (int)elen == (int)zeros));
             have = elen + zeros;
 
-            if (have >= (((STRLEN)~0) - esignlen))
+            if ((STRLEN)have >= (STRLEN)(PERL_INT_MAX - esignlen))
                 croak_memory_wrap();
             have += esignlen;
+            assert(have >= 0);
+            assert(width >= 0);
 
             need = (have > width ? have : width);
             gap = need - have;
 
-            if (need >= (((STRLEN)~0) - (SvCUR(sv) + 1)))
+            if ((STRLEN)need >= (STRLEN)(PERL_INT_MAX - (SvCUR(sv) + 1)))
                 croak_memory_wrap();
             need += (SvCUR(sv) + 1);
 
-            SvGROW(sv, need);
+            SvGROW(sv, (STRLEN)need);
 
             s = SvEND(sv);
 

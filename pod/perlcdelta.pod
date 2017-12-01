@@ -178,6 +178,14 @@ A possible stack buffer overflow in the C<%ENV> code on Windows has been fixed
 by removing the buffer completely since it was superfluous anyway.
 L<[perl #131665]|https://rt.perl.org/Public/Bug/Display.html?id=131665>
 
+=head2 Unsigned long stack access of printf format arguments
+
+perl 5.27.5 started allowing unsigned long/4 stack indices for sv
+arguments, and width and precision with the API even allowing
+C<unsigned long>.  Previously those numbers were safely typed to
+C<int>. Revert that security problem in cperl. The maximal width and
+precision is also back to INT_MAX.
+
 =head1 Incompatible Changes
 
 =head2 Comma-less variable lists in formats are no longer allowed

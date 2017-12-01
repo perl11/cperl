@@ -324,7 +324,6 @@ for (int(~0/2+1), ~0, "9999999999999999999") {
         $result = eval { sprintf "%$j\$s", @args; };
         like $@, qr/Integer overflow/ , "%NNN\$s where NNN=~$i";
     }
-
     is($warn, 16, "expected warnings");
     is($bad,   0, "unexpected warnings");
 }

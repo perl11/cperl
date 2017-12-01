@@ -1736,14 +1736,14 @@ Apdmb	|void	|sv_usepvn	|NN SV* sv|NULLOK char* ptr|STRLEN len
 Apd	|void	|sv_usepvn_flags|NN SV *const sv|NULLOK char* ptr|const STRLEN len\
 				|const U32 flags
 Apd	|void	|sv_vcatpvfn	|NN SV *const sv|NN const char *const pat|const STRLEN patlen \
-				|NULLOK va_list *const args|NULLOK SV **const svargs|const Size_t sv_count \
+				|NULLOK va_list *const args|NULLOK SV **const svargs|const int sv_count \
 				|NULLOK bool *const maybe_tainted
 Apd	|void	|sv_vcatpvfn_flags|NN SV *const sv|NN const char *const pat|const STRLEN patlen \
-				|NULLOK va_list *const args|NULLOK SV **const svargs|const Size_t sv_count \
+				|NULLOK va_list *const args|NULLOK SV **const svargs|const int sv_count \
 				|NULLOK bool *const maybe_tainted|const U32 flags
 Apd	|void	|sv_vsetpvfn	|NN SV *const sv|NN const char *const pat|const STRLEN patlen \
 				|NULLOK va_list *const args|NULLOK SV **const svargs \
-				|const Size_t sv_count|NULLOK bool *const maybe_tainted
+				|const int sv_count|NULLOK bool *const maybe_tainted
 ApR	|NV	|str_to_version	|NN SV *sv
 EXpRM	|SV*	|swash_init	|NN const char* pkg|NN const char* name|NN SV* listsv \
 				|I32 minbits|I32 none
@@ -2809,7 +2809,7 @@ s	|int	|sv_2iuv_non_preserve	|NN SV *const sv|I32 numtype
 s	|int	|sv_2iuv_non_preserve	|NN SV *const sv
 #    endif
 #  endif
-sR	|STRLEN	|expect_number	|NN const char **const pattern
+sR	|int	|expect_number	|NN const char **const pattern
 sn	|STRLEN	|sv_pos_u2b_forwards|NN const U8 *const start \
 			|NN const U8 *const send|NN STRLEN *const uoffset \
 			|NN bool *const at_end
