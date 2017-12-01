@@ -227,7 +227,10 @@ long CPerlHost::num_hosts = 0L;
 
 extern "C" void win32_checkTLS(struct interpreter *host_perl);
 
+/* GCC will warn -Winvalid-offsetof with non-POD types in class CPerlHost */
+GCC_DIAG_IGNORE(-Winvalid-offsetof)
 #define STRUCT2RAWPTR(x, y) (CPerlHost*)(((LPBYTE)x)-offsetof(CPerlHost, y))
+
 #ifdef CHECK_HOST_INTERP
 inline CPerlHost* CheckInterp(CPerlHost *host)
 {
@@ -284,7 +287,7 @@ inline CPerlHost* IPerlProc2Host(struct IPerlProc* piPerl)
     return STRUCT2PTR(piPerl, m_hostperlProc);
 }
 
-
+GCC_DIAG_RESTORE
 
 #undef IPERL2HOST
 #define IPERL2HOST(x) IPerlMem2Host(x)
