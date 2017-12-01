@@ -1313,7 +1313,7 @@ utils: $(PERLEXE) ..\utils\Makefile
 	copy ..\pod\perlcdelta.pod ..\pod\perl5272cdelta.pod
 	copy ..\pod\perldelta.pod ..\pod\perl5277delta.pod
 	cd ..\win32
-	$(PERLEXE) $(PL2BAT) $(UTILS)
+	$(MINIPERL) -I..\lib $(PL2BAT) $(UTILS)
 	$(MINIPERL) -I..\lib ..\autodoc.pl ..
 	$(MINIPERL) -I..\lib ..\pod\perlmodlib.PL -q ..
 
