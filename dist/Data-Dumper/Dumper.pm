@@ -10,7 +10,7 @@
 package Data::Dumper;
 
 BEGIN {
-  $VERSION = '2.167_03';  # Don't forget to set version and release
+  $VERSION = '2.168_03';  # Don't forget to set version and release
   $XS_VERSION = $VERSION; # date in POD below!
   $VERSION = eval $VERSION;
 }               
@@ -538,8 +538,8 @@ sub _dump {
     $ref = \$val;
     if (ref($ref) eq 'GLOB') {  # glob
       my $name = substr($val, 1);
-      if ($name =~ /^[A-Za-z_][\w:]*$/ && $name ne 'main::') {
-        $name =~ s/^main::/::/;
+      $name =~ s/^main::(?!\z)/::/;
+      if ($name =~ /\A(?:[A-Z_a-z][0-9A-Z_a-z]*)?::(?:[0-9A-Z_a-z]+::)*[0-9A-Z_a-z]*\z/ && $name ne 'main::') {
         $sname = $name;
       }
       else {
@@ -1476,7 +1476,7 @@ modify it under the same terms as Perl itself.
 
 =head1 VERSION
 
-Version 2.167_03
+Version 2.168_03
 
 =head1 SEE ALSO
 
