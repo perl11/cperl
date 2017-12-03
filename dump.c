@@ -1234,6 +1234,7 @@ S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o, const CV *c
 #ifdef USE_CPERL
         || optype == OP_AELEMFAST_LEX_U
         || optype == OP_OELEMFAST
+        || optype == OP_IASSIGN
 #endif
         )
         S_opdump_indent(aTHX_ o, level, bar, file, "PRIVATE = %d\n",
@@ -3800,9 +3801,9 @@ Perl_op_class(pTHX_ const OP *o)
 
     if (o->op_type == OP_AELEMFAST) {
 #ifdef USE_ITHREADS
-	    return OPclass_PADOP;
+        return OPclass_PADOP;
 #else
-	    return OPclass_SVOP;
+        return OPclass_SVOP;
 #endif
     }
 

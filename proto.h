@@ -8840,6 +8840,11 @@ STATIC int	S_match_user_type(pTHX_ const HV* const dstash, const char* aname, bo
 #define PERL_ARGS_ASSERT_MATCH_USER_TYPE	\
 	assert(dstash); assert(aname)
 
+STATIC void	S_maybe_iassign(pTHX_ OP *o)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_MAYBE_IASSIGN	\
+	assert(o)
+
 STATIC void	S_maybe_multiconcat(pTHX_ OP *o)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_MAYBE_MULTICONCAT	\
@@ -8905,6 +8910,13 @@ PERL_STATIC_INLINE void	S_op_gv_set(pTHX_ OP* o, GV* gv)
 PERL_STATIC_INLINE OP*	S_op_next_nn(OP* o)
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_OP_NEXT_NN	\
+	assert(o)
+#endif
+
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE OP*	S_op_parent_nn(const OP* o)
+			__attribute__nonnull__(1);
+#define PERL_ARGS_ASSERT_OP_PARENT_NN	\
 	assert(o)
 #endif
 

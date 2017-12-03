@@ -2605,6 +2605,7 @@ sn	|void	|prune_chain_head 	|NN OP** op_p
 #  if defined(USE_CPERL)
 s	|const char*|typename 	|NULLOK const HV* stash
 in	|OP*	|op_next_nn 	|NN OP* o
+in	|OP*	|op_parent_nn 	|NN const OP* o
 in	|OP*	|op_prev_nn 	|NN const OP* us
 in	|OP*	|op_prevstart_nn|NN const OP* start|NN const OP* us
 s	|OPSLAB*|new_slab	|size_t sz
@@ -2620,6 +2621,7 @@ s	|void	|check_hash_fields_and_hekify	|NULLOK UNOP *rop|NN SVOP *key_op|int real
 #    ifdef PERL_FAKE_SIGNATURE
 s	|void	|maybe_op_signature	|NN CV *cv|NN OP *o
 #    endif
+sM	|void	|maybe_iassign	|NN OP *o
 sM	|void	|maybe_multiconcat	|NN OP *o
 s	|bool	|aassign_padcheck|NN OP* o|bool rhs
 s	|int	|aassign_scan	|NN OP* o|bool rhs|bool top|NN int *scalars_p

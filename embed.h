@@ -2086,6 +2086,7 @@
 #define match_type1		S_match_type1
 #define match_type2		S_match_type2
 #define match_user_type(a,b,c)	S_match_user_type(aTHX_ a,b,c)
+#define maybe_iassign(a)	S_maybe_iassign(aTHX_ a)
 #define maybe_multiconcat(a)	S_maybe_multiconcat(aTHX_ a)
 #define maybe_multideref(a,b,c,d)	S_maybe_multideref(aTHX_ a,b,c,d)
 #define maybe_targlex(a)	S_maybe_targlex(aTHX_ a)
@@ -2099,6 +2100,7 @@
 #define op_fixup(a,b,c)		S_op_fixup(aTHX_ a,b,c)
 #define op_gv_set(a,b)		S_op_gv_set(aTHX_ a,b)
 #define op_next_nn		S_op_next_nn
+#define op_parent_nn		S_op_parent_nn
 #define op_prev_nn		S_op_prev_nn
 #define op_prevstart_nn		S_op_prevstart_nn
 #define op_sibling_newUNOP(a,b,c,d)	S_op_sibling_newUNOP(aTHX_ a,b,c,d)

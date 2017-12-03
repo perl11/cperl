@@ -302,6 +302,24 @@ S_op_next_nn(OP* o) {
 }
 
 /*
+=for apidoc in|OP*	|op_parent_nn	|OP* o
+
+Returns the parent op. Walks the the siblings until the parent.
+
+=cut
+*/
+PERL_STATIC_INLINE OP*
+S_op_parent_nn(const OP* o) {
+    OP* op = (OP*)o;
+    PERL_ARGS_ASSERT_OP_PARENT_NN;
+#ifndef PERL_OP_PARENT
+    Perl_croak_nocontext("panic: invalid op_parent_nn");
+#endif
+    for (; OpHAS_SIBLING(op); op = OpSIBLING(op)) ;
+    return !op->op_moresib ? op->op_sibparent : NULL;
+}
+
+/*
 =for apidoc in|OP*	|op_prev_nn	|OP* us
 
 Returns the previous sibling or parent op, pointing via OpSIBLNG or
@@ -1133,9 +1151,10 @@ Perl_op_free(pTHX_ OP *o)
          *     we can't spot faults in the main code, only
          *     evaled/required code */
 #ifdef DEBUGGING
-        if (   o->op_ppaddr == PL_ppaddr[o->op_type]
+        if (   o->op_ppaddr == PL_ppaddr[type]
             && PL_parser
-            && !PL_parser->error_count)
+            && !PL_parser->error_count
+            && type != OP_IASSIGN)
         {
             assert(!(o->op_private & ~PL_op_private_valid[type]));
         }
@@ -4365,8 +4384,13 @@ S_optimize_op(pTHX_ OP* o)
             PL_curcop = ((COP*)o);		/* for warnings */
             break;
 
-        case OP_CONCAT:
         case OP_SASSIGN:
+            if (IS_CONST_OP(OpFIRST(o)) && IS_TYPE(OpLAST(o), PADSV)) {
+                maybe_iassign(o);
+                break;
+            }
+            /* FALLTHROUGH */
+        case OP_CONCAT:
         case OP_STRINGIFY:
         case OP_SPRINTF:
             maybe_multiconcat(o);
@@ -8223,7 +8247,7 @@ Perl_newBINOP(pTHX_ I32 type, I32 flags, OP *first, OP *last)
     if (OpNEXT(binop) || binop->op_type != (OPCODE)type)
 	return (OP*)binop;
 
-    return fold_constants(op_integerize(op_std_init((OP *)binop)));
+    return fold_constants(op_integerize(op_std_init((OP*)binop)));
 }
 
 /* Helper function for S_pmtrans(): comparison function to sort an array
@@ -15591,7 +15615,7 @@ S_op_check_type(pTHX_ OP* o, OP* left, OP* right, bool is_assign)
 /*
 =for apidoc ck_sassign
 CHECK callback for sassign (s2	S S	"(:Scalar,:Scalar):Scalar")
-and iassign (s0		"():Int")
+and iassign (s0	"():Int")
 
 Esp. handles state var initialization and tries to optimize away the
 assignment for a lexical C<$_> via L</maybe_targlex>.
@@ -15627,21 +15651,48 @@ Perl_ck_sassign(pTHX_ OP *o)
     DEBUG_kv(Perl_deb(aTHX_ "ck_sassign: check types\n"));
     op_check_type(o, left, right, TRUE);
 
-    if (   IS_CONST_OP(right) && SvIOK(cSVOPx_sv(right))
-        && abs(SvIVX(cSVOPx_sv(right))) < 128
-        && IS_TYPE(left, PADSV))
-    {
-        /* sassign left const(IV) -> iassign */
-        DEBUG_kv(Perl_deb(aTHX_ "ck_sassign: => iassign\n"));
-        OpTYPE_set(o, OP_IASSIGN);
-        o->op_targ = OpLAST(o)->op_targ;
-        o->op_private = SvIVX(cSVOPx_sv(right));
-        o->op_flags &= ~(OPf_KIDS|OPf_STACKED);
-        op_free(left);
-        op_free(right);
-        return o;
-    }
     return maybe_targlex(o);
+}
+
+static void
+S_maybe_iassign(pTHX_ OP *o)
+{
+    dVAR;
+    OP * const right = OpFIRST(o);
+    OP * const left  = OpLAST(o);
+
+    PERL_ARGS_ASSERT_MAYBE_IASSIGN;
+
+    if ( IS_CONST_OP(right) && SvIOK(cSVOPx_sv(right)) &&
+         abs(SvIVX(cSVOPx_sv(right))) < 128 &&
+         IS_TYPE(left, PADSV) &&
+         OpWANT_SCALAR(left) ) /* ignores LVINTRO */
+    {
+        OP *prev = op_prev_nn(o);
+        /* sassign left const(IV) -> iassign */
+        DEBUG_kv(Perl_deb(aTHX_ "optimize sassign => iassign\n"));
+        OpTYPE_set(left, OP_IASSIGN);
+        left->op_private = SvIVX(cSVOPx_sv(right));
+        left->op_rettype = (U8)type_Int;
+        left->op_flags &= ~(OPf_KIDS|OPf_STACKED);
+        left->op_sibparent = o->op_sibparent;
+        left->op_moresib = o->op_moresib;
+        left->op_next = o->op_next;
+        /* has prev in a list? */
+        if (prev && prev->op_moresib && prev->op_sibparent == o) {
+            prev->op_sibparent = prev->op_next = left;
+        }
+        /* last in a list? */
+        if ( !left->op_moresib &&
+             left->op_next == left->op_sibparent &&
+             left->op_next &&
+             OP_IS_LISTOP(OpTYPE(left->op_next)) ) {
+            OpLAST(left->op_next) = left;
+        }
+        o->op_flags &= ~(OPf_KIDS|OPf_STACKED);
+        op_free(o);
+        op_free(right);
+    }
 }
 
 /*
@@ -22129,21 +22180,6 @@ Perl_rpeep(pTHX_ OP *o)
 	    break;
 
 	case OP_SASSIGN:
-#if 0
-            if (IS_CONST_OP(OpFIRST(o)) && SvIOK(cSVOPx_sv(OpFIRST(o)))
-                && abs(SvIVX(cSVOPx_sv(OpFIRST(o)))) < 128
-                && IS_TYPE(OpLAST(o), PADSV)) {
-                /* sassign left const(IV) -> iassign */
-                DEBUG_kv(Perl_deb(aTHX_ "rpeep: => iassign\n"));
-                OpTYPE_set(o, OP_IASSIGN);
-                o->op_targ = OpLAST(o)->op_targ;
-                o->op_private = SvIVX(cSVOPx_sv(OpFIRST(o)));
-                o->op_flags -= OPf_KIDS;
-                op_free(OpLAST(o));
-                op_free(OpFIRST(o));
-                oldop = NULL;
-            }
-#endif
 	    if (OP_GIMME_VOID(o)
                 || (IS_TYPE(OpNEXT(o), LINESEQ)
                     && (IS_TYPE(OpNEXT(OpNEXT(o)), LEAVESUB)
