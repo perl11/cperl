@@ -635,6 +635,10 @@ __DATA__
 
 %include misc
 
+%include format
+
+%include mess
+
 %include variables
 
 %include mPUSH
@@ -646,8 +650,6 @@ __DATA__
 %include newCONSTSUB
 
 %include MY_CXT
-
-%include format
 
 %include SvREFCNT
 
