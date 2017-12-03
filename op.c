@@ -9787,7 +9787,7 @@ S_newONCEOP(pTHX_ OP *initop, OP *padop)
     OP *const first = newOP(OP_NULL, 0);
     OP *const nullop = newCONDOP(0, first, initop, other);
     /* XXX targlex disabled for now; see ticket #124160
-	newCONDOP(0, first, S_maybe_targlex(aTHX_ initop), other);
+	newCONDOP(0, first, maybe_targlex(initop), other);
      */
     OP *const condop = first->op_next;
 
@@ -15641,7 +15641,7 @@ Perl_ck_sassign(pTHX_ OP *o)
         op_free(right);
         return o;
     }
-    return S_maybe_targlex(aTHX_ o);
+    return maybe_targlex(o);
 }
 
 /*
