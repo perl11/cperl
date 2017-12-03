@@ -12067,7 +12067,6 @@ Usually used via one of its frontends C<sv_vcatpvf> and C<sv_vcatpvf_mg>.
 =cut
 */
 
-
 void
 Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN patlen,
                        va_list *const args, SV **const svargs, const int sv_count, bool *const maybe_tainted,
@@ -13279,9 +13278,13 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
             {
                 int pr = has_precis ? precis : 6; /* known default */
                 if (float_need >= PERL_INT_MAX - pr)
-                    croak_memory_wrap();
+                    S_croak_overflow();
                 float_need += pr;
                 assert(float_need >= 0);
+                if (float_need >= 1024)
+                    Perl_croak(aTHX_
+                        "Too large floating point precision in format string %s for %s",
+                        pat, (PL_op ? OP_DESC(PL_op) : "sv_vcatpvfn"));
             }
 
 	    if (float_need < width)
@@ -13295,7 +13298,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                 const int extra = 0x20;
                 assert(float_need < PERL_INT_MAX - extra);
                 if (float_need >= PERL_INT_MAX - extra)
-                    croak_memory_wrap();
+                    S_croak_overflow();
                 float_need += extra;
                 assert(float_need >= 0);
 		Safefree(PL_efloatbuf);

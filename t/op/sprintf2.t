@@ -1031,18 +1031,22 @@ like sprintf("%p", 0+'NaN'), qr/^[0-9a-f]+$/, "%p and NaN";
         like $@, qr/Integer overflow/, "overflow: %*s $hex, $i";
 
         eval { my $s = sprintf '%*2$s', "abc", $i; };
-        like $@, qr/Integer overflow/, 'overflow: %*2$s';
+        like $@, qr/Integer overflow/, "overflow: %*2\$s $i";
 
         eval { my $s = sprintf '%.*s', $i, "abc"; };
-        like $@, qr/Integer overflow/, 'overflow: %.*s';
+        like $@, qr/Integer overflow/, "overflow: %.*s $i";
 
         eval { my $s = sprintf '%.*2$s', "abc", $i; };
-        like $@, qr/Integer overflow/, 'overflow: %.*2$s';
+        like $@, qr/Integer overflow/, "overflow: %.*2\$s $i";
 
         next if $i < 0;
 
         eval { my $s = sprintf "%.${i}f", 1.234 };
-        like $@, qr/Integer overflow/, 'overflow: %.NNNf';
+        if ($i >= 2147483645) {
+            like $@, qr/Integer overflow/, "overflow: %.${i}f";
+        } else {
+            like $@, qr/Too large floating point precision/, "overflow: %.${i}f";
+        }
     }
 }
 
