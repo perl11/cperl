@@ -185,6 +185,7 @@ arguments, and width and precision with the API even allowing
 C<unsigned long>.  Previously those numbers were safely typed to
 C<int>. Revert that security problem in cperl. The maximal width and
 precision is also back to INT_MAX.
+See L<[cperl #344]|https://github.com/perl11/cperl/issues/344>
 
 =head1 Incompatible Changes
 
@@ -823,6 +824,24 @@ and New Warnings
 =head3 New Errors
 
 =over 4
+
+=item *
+
+L<Integer overflow in format string for %s|perldiag/"Integer overflow in format string for %s">
+
+cperl 5.27.2 added a new limitation of INT_MAX to the max. argument
+index, width and precision values for printf format strings. The new
+perl5.27.5 limitation is ULONG_MAX, which is a security risk, see
+L</Unsigned long stack access of printf format arguments>.
+
+=item *
+
+L<Too large floating point precision in format string %s for %s|perldiag/"Too large floating point precision in format string %s for %s">
+
+cperl 5.27.2 added a new limitation of 1024 to the max. precision of
+floating point conversions to strings via sprintf, to seperate it
+from Integer overflows in overlarge indices, width and precision
+values.
 
 =item *
 

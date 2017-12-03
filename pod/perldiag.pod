@@ -6394,6 +6394,13 @@ See L<perlunicode/"User-Defined Character Properties">.
 (F) There has to be at least one argument to syscall() to specify the
 system call to call, silly dilly.
 
+=item Too large floating point precision in format string %s for %s
+
+(F) The maximum allowed floating point precision to be printed by sprintf
+is 1024. Either you mixed up the width with the precision or try to use
+Math::BigFloat. Internally the max. precision range is from 6 to ~33 with
+__float128 long doubles.
+
 =item Too late for "-%s" option
 
 (X) The #! line (or local equivalent) in a Perl script contains the
