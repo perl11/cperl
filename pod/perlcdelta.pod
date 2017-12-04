@@ -185,6 +185,10 @@ XXX
 
 =over 4
 
+=item L<B::Deparse> 1.49_05c
+
+Removed arybase support.
+
 =item L<Config> 6.23
 
 Add the FREEBSD_KERNEL_VERSION key for FreeBSD.

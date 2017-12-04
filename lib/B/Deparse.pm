@@ -73,7 +73,7 @@ use B qw(main_root main_start main_cv svref_2object opnumber perlstring
         SIGNATURE_SHIFT
     );
 
-$VERSION = '1.48_05c';
+$VERSION = '1.49_05c';
 $VERSION =~ s/c$//;
 use strict;
 our $AUTOLOAD;
@@ -90,7 +90,7 @@ BEGIN {
 		OPpPAD_STATE PMf_SKIPWHITE RXf_SKIPWHITE
 		PMf_CHARSET PMf_KEEPCOPY PMf_NOCAPTURE CVf_ANONCONST CVf_EXTERN
 		CVf_LOCKED CVf_PURE OPpREVERSE_INPLACE OPpSUBSTR_REPL_FIRST
-		PMf_NONDESTRUCT OPpCONST_ARYBASE OPpEVAL_BYTES
+		PMf_NONDESTRUCT OPpEVAL_BYTES
 		OPpLVREF_TYPE OPpLVREF_SV OPpLVREF_AV OPpLVREF_HV
 		OPpLVREF_CV OPpLVREF_ELEM SVpad_STATE SVphv_CLASS HvAUXf_ROLE)) {
 	eval { B->import($_) };
@@ -941,7 +941,6 @@ sub new {
     $self->{'use_dumper'} = 0;
     $self->{'use_tabs'} = 0;
 
-    $self->{'ambient_arybase'} = 0;
     $self->{'ambient_warnings'} = undef; # Assume no lexical warnings
     $self->{'ambient_hints'} = 0;
     $self->{'ambient_hinthash'} = undef;
@@ -987,7 +986,6 @@ sub new {
 sub init {
     my $self = shift;
 
-    $self->{'arybase'}  = $self->{'ambient_arybase'};
     $self->{'warnings'} = defined ($self->{'ambient_warnings'})
 				? $self->{'ambient_warnings'} & WARN_MASK
 				: undef;
@@ -1105,7 +1103,7 @@ my %strict_bits = do {
 
 sub ambient_pragmas {
     my $self = shift;
-    my ($arybase, $hint_bits, $warning_bits, $hinthash) = (0, 0);
+    my ($hint_bits, $warning_bits, $hinthash) = (0);
 
     while (@_ > 1) {
 	my $name = shift();
@@ -1130,14 +1128,6 @@ sub ambient_pragmas {
 		@names = split' ', $val;
 	    }
 	    $hint_bits |= $strict_bits{$_} for @names;
-	}
-
-	elsif ($name eq '$[') {
-	    if (OPpCONST_ARYBASE) {
-		$arybase = $val;
-	    } else {
-		croak "\$[ can't be non-zero on this perl" unless $val == 0;
-	    }
 	}
 
 	elsif ($name eq 'integer'
@@ -1210,7 +1200,6 @@ sub ambient_pragmas {
 	croak "The ambient_pragmas method expects an even number of args";
     }
 
-    $self->{'ambient_arybase'} = $arybase;
     $self->{'ambient_warnings'} = $warning_bits;
     $self->{'ambient_hints'} = $hint_bits;
     $self->{'ambient_hinthash'} = $hinthash;
@@ -2224,11 +2213,6 @@ sub pragmata {
             push @text, $self->keyword("package") . " $stash;\n";
         #}
 	$self->{'curstash'} = $stash;
-    }
-
-    if (OPpCONST_ARYBASE && $self->{'arybase'} != $op->arybase) {
-	push @text, '$[ = '. $op->arybase .";\n";
-	$self->{'arybase'} = $op->arybase;
     }
 
     my $warnings = $op->warnings;
@@ -4308,7 +4292,7 @@ sub pp_aelemfast_lex {
     $name =~ s/^@/\$/;
     my $i = $op->private;
     $i -= 256 if $i > 127;
-    return $name . "[" .  ($i + $self->{'arybase'}) . "]";
+    return $name . "[$i]";
 }
 
 sub pp_aelemfast_lex_u { pp_aelemfast_lex(@_) }
@@ -4333,7 +4317,7 @@ sub pp_aelemfast {
     $name = $quoted ? "$name->" : '$' . $name;
     my $i = $op->private;
     $i -= 256 if $i > 127;
-    return $name . "[" .  ($i + $self->{'arybase'}) . "]";
+    return $name . "[$i]";
 }
 
 sub rv2x {
@@ -5661,9 +5645,6 @@ sub meth_rclass_sv {
 sub pp_const {
     my $self = shift;
     my($op, $cx) = @_;
-    if ($op->private & OPpCONST_ARYBASE) {
-        return '$[';
-    }
 #    if ($op->private & OPpCONST_BARE) { # trouble with '=>' autoquoting
 #	return $self->const_sv($op)->PV;
 #    }
@@ -5695,7 +5676,6 @@ sub dq {
     my $op = shift;
     my $type = $op->name;
     if ($type eq "const") {
-	return '$[' if $op->private & OPpCONST_ARYBASE;
 	return uninterp(escape_str(unback($self->const_sv($op)->as_string)));
     } elsif ($type eq "concat") {
         return dq_disambiguate($self->dq($op->first), $self->dq($op->last));
@@ -6056,7 +6036,6 @@ sub re_dq {
 
     my $type = $op->name;
     if ($type eq "const") {
-	return '$[' if $op->private & OPpCONST_ARYBASE;
 	my $unbacked = re_unback($self->const_sv($op)->as_string);
 	return re_uninterp(escape_re($unbacked));
     } elsif ($type eq "concat") {
