@@ -1,0 +1,13 @@
+
+---https://perldoc.perl.org/perlhack.html#Submitting-patches
+
+criar o patch
+
+depois do commit
+
+
+
+ambs@diabelli ExtUtils-CBuilder (blead)$ git format-patch 5a993d81c4b1abf13cd3ae4cbc04f26c7516bc37
+
+0001-Update-to-ExtUtils-CBuilder-0.280226.patch
+

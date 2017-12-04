@@ -568,6 +568,10 @@ https://github.com/dankogai/p5-encode/pull/121
 
 Minor updates from p5p
 
+=item L<ExtUtils::CBuilder> 0.280230
+
+use vars => our
+
 =item L<feature> 1.49_01
 
 =item L<fields> 2.26c

@@ -15557,6 +15557,7 @@ our %delta = (
             'ExtUtils::Constant::ProxySubs' => '2.24_01',
             'ExtUtils::Constant::Utils'     => '2.24_01',
             'ExtUtils::Constant::XS'        => '2.24_01',
+            'ExtUtils::CBuilder'    => '0.280230',
             'feature'               => '1.49_01',
             'fields'                => '2.26c',
             'File::Fetch'           => '0.54',

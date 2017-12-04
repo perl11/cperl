@@ -3035,6 +3035,7 @@ dist/ExtUtils-CBuilder/lib/ExtUtils/CBuilder/Platform/Windows/GCC.pm	CBuilder me
 dist/ExtUtils-CBuilder/lib/ExtUtils/CBuilder/Platform/Windows/MSVC.pm	CBuilder methods for Windows
 dist/ExtUtils-CBuilder/LICENSE		EU-CB license
 dist/ExtUtils-CBuilder/Makefile.PL		EU-CB configuration script
+dist/ExtUtils-CBuilder/NOTAS-Alberto
 dist/ExtUtils-CBuilder/README.patching		EU-CB patching nstructions
 dist/ExtUtils-CBuilder/README.release		EU-CB release instructions
 dist/ExtUtils-CBuilder/t/00-have-compiler.t			ExtUtils::CBuilder tests

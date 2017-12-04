@@ -671,6 +671,7 @@ sub just_pm_to_blib {
                             |README
                             |README\.patching
                             |README\.release
+                            |NOTAS-.*
                             )\z/xi; # /i to deal with case munging systems.
         if ($leaf eq "$last.pm") {
             ++$has_top;
