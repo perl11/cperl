@@ -704,6 +704,16 @@ Don't Copy() null pointer
     - Remove some compile warnings
     - SP off by 1 in _crt_localtime
 
+=item L<Time::HiRes> 1.9747_01
+
+Drop 5.005 support.
+Replace DynaLoader with XSLoader.
+
+=item L<Unicode::Collate> 1.25
+
+Drop 5.005 support.
+Replace DynaLoader with XSLoader.
+
 =item L<utf8> 2.02c
 
 Improved function documentation

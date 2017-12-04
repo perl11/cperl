@@ -17,17 +17,16 @@ use File::Spec;
 
 no warnings 'utf8';
 
-our $VERSION = '1.23';
+our $VERSION = '1.25';
 our $PACKAGE = __PACKAGE__;
 
 ### begin XS only ###
-require DynaLoader;
-our @ISA = qw(DynaLoader);
-bootstrap Unicode::Collate $VERSION;
+use XSLoader ();
+XSLoader::load('Unicode::Collate', $VERSION);
 ### end XS only ###
 
 my @Path = qw(Unicode Collate);
-my $KeyFile = "allkeys.txt";
+my $KeyFile = 'allkeys.txt';
 
 # Perl's boolean
 use constant TRUE  => 1;
@@ -89,9 +88,9 @@ my $DefaultRearrange = [ 0x0E40..0x0E44, 0x0EC0..0x0EC4 ];
 my $HighestVCE = pack(VCE_TEMPLATE, 0, 0xFFFE, 0x20, 0x5, 0xFFFF);
 my $minimalVCE = pack(VCE_TEMPLATE, 0,      1, 0x20, 0x5, 0xFFFE);
 
-sub UCA_Version { "34" }
+sub UCA_Version { '34' }
 
-sub Base_Unicode_Version { "9.0.0" }
+sub Base_Unicode_Version { '9.0.0' }
 
 ######
 
@@ -196,7 +195,7 @@ my %DerivCode = (
 
 sub checkCollator {
     my $self = shift;
-    _checkLevel($self->{level}, "level");
+    _checkLevel($self->{level}, 'level');
 
     $self->{derivCode} = $DerivCode{ $self->{UCA_Version} }
 	or croak "Illegal UCA version (passed $self->{UCA_Version}).";
@@ -210,13 +209,13 @@ sub checkCollator {
     if (! defined $self->{backwards}) {
 	$self->{backwardsFlag} = 0;
     } elsif (! ref $self->{backwards}) {
-	_checkLevel($self->{backwards}, "backwards");
+	_checkLevel($self->{backwards}, 'backwards');
 	$self->{backwardsFlag} = 1 << $self->{backwards};
     } else {
 	my %level;
 	$self->{backwardsFlag} = 0;
 	for my $b (@{ $self->{backwards} }) {
-	    _checkLevel($b, "backwards");
+	    _checkLevel($b, 'backwards');
 	    $level{$b} = 1;
 	}
 	for my $v (sort keys %level) {
