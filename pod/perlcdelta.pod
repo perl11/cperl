@@ -588,7 +588,7 @@ the ISA as with base.
 
 cperl-only.
 
-=item L<File::Fetch> 0.54
+=item L<File::Fetch> 0.56
 
 Switch test URL from www.cpan.org to httpbin.org
 
