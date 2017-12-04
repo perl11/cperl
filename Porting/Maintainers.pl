@@ -744,7 +744,7 @@ use File::Glob qw(:case);
     },
 
     'Filter::Util::Call' => {
-        'DISTRIBUTION' => 'RURBAN/Filter-1.57.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Filter-1.58.tar.gz',
         'FILES'        => q[cpan/Filter-Util-Call
                             pod/perlfilter.pod
                            ],
@@ -755,7 +755,9 @@ use File::Glob qw(:case);
             qr{^lib/Filter/},
             qr{^tee/},
             qr{^t/z_},
-            qw( Call/Makefile.PL
+            qw( .appveyor.yml
+                .travis.yml
+                Call/Makefile.PL
                 Call/ppport.h
                 Call/typemap
                 mytest
@@ -764,9 +766,6 @@ use File::Glob qw(:case);
                 t/exec.t
                 t/order.t
                 t/sh.t
-                t/rt_101033.pm
-                t/rt_101033.t
-                t/rt_54452-rebless.t
                 t/tee.t
                 t/z_kwalitee.t
                 t/z_manifest.t
@@ -778,7 +777,6 @@ use File::Glob qw(:case);
         ],
         'MAP' => {
             'Call/'            => 'cpan/Filter-Util-Call/',
-            't/filter-util.pl' => 'cpan/Filter-Util-Call/filter-util.pl',
             'perlfilter.pod'   => 'pod/perlfilter.pod',
             ''                 => 'cpan/Filter-Util-Call/',
         },

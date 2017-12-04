@@ -597,6 +597,11 @@ Switch test URL from www.cpan.org to httpbin.org
 Skip a test when File::Glob not used.
 Avoid undefined behaviour in Copy() [perl #131746]
 
+=item L<Filter::Util::Call> 1.58
+
+XSLoader, our. defer Carp.
+add filter_read_exact tests.
+
 =item L<GDBM_File> 1.16
 
 Add a pod link
@@ -793,6 +798,16 @@ WIDTH NON-JOINER) and U+200D (ZERO WIDTH JOINER).
 =item *
 
 Added API docs for most toke.c lexer functions.
+
+=back
+
+=head3 L<perlfilter>
+
+=over 4
+
+=item *
+
+Add warning about raw C<?...?> pattern delimiters.
 
 =back
 

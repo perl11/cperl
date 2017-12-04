@@ -15565,6 +15565,7 @@ our %delta = (
             'fields'                => '2.26c',
             'File::Fetch'           => '0.56',
             'File::Glob'            => '1.30',
+            'Filter::Util::Call'    => '1.58',
             'GDBM_File'             => '1.16',
             'I18N::Langinfo'        => '0.14',
             'Module::Load::Conditional' => '0.68_01',
