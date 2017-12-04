@@ -15549,6 +15549,7 @@ our %delta = (
             'Data::Dumper'          => '2.167_02',
             'Devel::Peek'           => '1.27_03',
             'Devel::PPPort'         => '3.36_03',
+            'Digest::SHA'           => '5.98',
             'DirHandle'             => '1.05',
             'Encode'                => '2.93',
             'ExtUtils::Constant'    => '0.24_01',

@@ -541,6 +541,10 @@ use cv_set_call_checker_flags
 
 Silence PERL_CORE make
 
+=item L<Digest::SHA> 5.98
+
+Remove deprecated -p option
+
 =item L<DirHandle> 1.05
 
 Document as obsolete
