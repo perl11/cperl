@@ -25,7 +25,7 @@ CPAN::Meta::Requirements dist/CPAN-Meta-Requirements/t/strings.t 86347bcaac1ccbf
 CPAN::Meta::YAML cpan/CPAN-Meta-YAML/t/lib/TestUtils.pm 89535dc9f122a77a8320df27e5929aa574196753
 Compress::Raw::Zlib cpan/Compress-Raw-Zlib/Makefile.PL 269a30b1f30a0a1458b91372c7d72915e5312d71
 Config::Perl::V cpan/Config-Perl-V/t/28_plv522c.t ec21436d9dde53ca06b46dd07476a109b8047464
-Config::Perl::V cpan/Config-Perl-V/V.pm 74b5c9278c618b0dc2534064f804228588cda18b
+Config::Perl::V cpan/Config-Perl-V/V.pm 31c7197ebc05774a24a72d078ac956af7d19e023
 DB_File cpan/DB_File/Makefile.PL 20e1908f4eb938a399daa7fef289ebb0a39b7435
 Devel::NYTProf cpan/Devel-NYTProf/FileHandle.xs 59ec3924cf3542c5c0c44400343bf455821f15df
 Devel::NYTProf cpan/Devel-NYTProf/lib/Devel/NYTProf/FileInfo.pm 913665651ffa5415b71adb39c269559e74c35b0e
@@ -108,7 +108,7 @@ Math::BigRat cpan/Math-BigRat/t/bigfltpm.inc 8000c7057453138ff48cf4cba61f0f4a1db
 Math::BigRat cpan/Math-BigRat/t/bigfltrt.t 5508d55216c52caf26aa2e6478691c50b7856e7d
 Math::BigRat cpan/Math-BigRat/t/bigratpm.t cfd770aabeaf6b742fd942143e816db42db04fba
 Memoize cpan/Memoize/t/expmod_t.t 9386100cd9c95a0e8a4e001bba3aa52eec114d21
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 18fd5599862236701a2ff9ff17efc2dfe8f7927a
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm b24151bd891608d3c0e7f4e5df12ab9e51d0c6c1
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 029a563ad4a56599e8455e614170871241a7cd79
 Module::Load::Conditional cpan/Module-Load-Conditional/lib/Module/Load/Conditional.pm 9749bb2a08a404662d137901e7483799acbff5d8
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086

@@ -507,6 +507,14 @@ The link, https://github.com/madler/zlib/issues/253, is the upstream report for 
 valgrind errors not already dealt with by 1.2.11. Using calloc in Zlib.xs for now as a workaround.
 #121074: valgrind errors in the test suite
 
+=item L<Config::Perl::V> 0.29_01
+
+    * Add test for 5.26.1-RC1, and some cperl -V's
+    * Fix signature with argument
+    * Ignore ccache and compiler path in signature
+
+    * Add default_inc_excludes_dot
+
 =item C<coretypes> 0.03c
 
 Each coretype is now a class.
