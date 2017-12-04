@@ -11820,6 +11820,8 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 		cv = newCONSTSUB_flags(
 		    NULL, name, namlen, name_is_utf8 ? SVf_UTF8 : 0,
 		    const_sv);
+		assert(cv);
+		assert(SvREFCNT((SV*)cv) != 0);
 		CvFLAGS(cv) |= CvMETHOD(PL_compcv);
 	    }
 	    else {
@@ -11923,6 +11925,8 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	    SvRV_set(gv, (SV *)cv);
 	}
     }
+    assert(cv);
+    assert(SvREFCNT((SV*)cv) != 0);
 
     if (!CvHASGV(cv)) {
 	if (isGV(gv))
@@ -12011,12 +12015,15 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
                 evanescent = process_special_blocks(floor, name, gv, cv);
         }
     }
+    assert(cv);
 
   done:
+    assert(!cv || evanescent || SvREFCNT((SV*)cv) != 0);
     if (PL_parser)
 	PL_parser->copline = NOLINE;
     LEAVE_SCOPE(floor);
 
+    assert(!cv || evanescent || SvREFCNT((SV*)cv) != 0);
     if (!evanescent) {
 #ifdef PERL_DEBUG_READONLY_OPS
     if (slab)
@@ -12205,6 +12212,8 @@ Perl_newCONSTSUB_flags(pTHX_ HV *stash, const char *name, STRLEN len,
 			     : S_const_sv_xsub,
 			 file ? file : "", "",
 			 &sv, XS_DYNAMIC_FILENAME | flags);
+    assert(cv);
+    assert(SvREFCNT((SV*)cv) != 0);
     CvXSUBANY(cv).any_ptr = SvREFCNT_inc_simple(sv);
     CvCONST_on(cv);
 
@@ -12259,6 +12268,7 @@ Perl_newXS_len_flags(pTHX_ const char *name, STRLEN len,
 {
     CV *cv;
     bool interleave = FALSE;
+    bool evanescent = FALSE;
 
     PERL_ARGS_ASSERT_NEWXS_LEN_FLAGS;
 
@@ -12306,6 +12316,8 @@ Perl_newXS_len_flags(pTHX_ const char *name, STRLEN len,
                     gv_method_changed(gv); /* newXS */
             }
         }
+	assert(cv);
+	assert(SvREFCNT((SV*)cv) != 0);
 
         GvXSCV_on(gv);
         CvGV_set(cv, gv);
@@ -12334,14 +12346,17 @@ Perl_newXS_len_flags(pTHX_ const char *name, STRLEN len,
 #endif
 
         if (name)
-            process_special_blocks(0, name, gv, cv);
+            evanescent = process_special_blocks(0, name, gv, cv);
         else
             CvANON_on(cv);
     } /* <- not a conditional branch */
 
+    assert(cv);
+    assert(evanescent || SvREFCNT((SV*)cv) != 0);
 
-    sv_setpv(MUTABLE_SV(cv), proto);
+    if (!evanescent) sv_setpv(MUTABLE_SV(cv), proto);
     if (interleave) LEAVE;
+    assert(evanescent || SvREFCNT((SV*)cv) != 0);
     return cv;
 }
 
