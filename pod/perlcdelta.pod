@@ -614,6 +614,11 @@ Use new fcn Perl_langinfo()
 
 Doc how to import when you want to 'use MODULE ()'
 
+=item L<JSON::PP> 2.97000_04
+
+Minor updates, mostly docs.
+Upstream Boolean still did not work with Cpanel::JSON::XS.
+
 =item L<Module::CoreList> 20170815c
 
 =item L<Module::Load::Conditional> 0.68_01

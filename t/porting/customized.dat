@@ -85,7 +85,8 @@ IO::Compress::Base cpan/IO-Compress/t/compress/encode.pl 776c114af5146d3c328c247
 IO::Compress::Base cpan/IO-Compress/t/cz-14gzopen.t dee09dbad5cb1cad6027fd61d14552a192b68060
 IO::Socket::IP cpan/IO-Socket-IP/lib/IO/Socket/IP.pm d5d2ac7a181c3fd89a924297f032e7ae2e003965
 IPC::Cmd cpan/IPC-Cmd/t/01_IPC-Cmd.t 3626c405359d5e78c7bbc8245013251920527366
-JSON::PP cpan/JSON-PP/lib/JSON/PP.pm bc050082b714add65e6cb1b2b68f588337bcd26e
+JSON::PP cpan/JSON-PP/lib/JSON/PP.pm f8b702365e06c0235e7a1b10580ef726c92c20c6
+JSON::PP cpan/JSON-PP/lib/JSON/PP/Boolean.pm 2f530d28f97d0693d258ccf44694c9eaccecd422
 Math::BigInt cpan/Math-BigInt/t/bare_mbf.t b56ab2976395fa0621b9433e371c65a796936560
 Math::BigInt cpan/Math-BigInt/t/bare_mbi.t dc377711843db2b26f327a20142f1978c5e03d4b
 Math::BigInt cpan/Math-BigInt/t/bare_mif.t abfcfd3c26b3c3bb18b42a3ca211dc262889ce34

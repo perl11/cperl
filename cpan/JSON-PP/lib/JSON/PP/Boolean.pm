@@ -15,10 +15,10 @@ use overload (
        return $obj ? 1 == $op : 0 == $op;
      }
    },
-   fallback => 1,
+    fallback => 1,
 );
 
-$JSON::PP::Boolean::VERSION = '2.94_01';
+$JSON::PP::Boolean::VERSION = '2.97000_04';
 
 1;
 
@@ -40,6 +40,7 @@ L<JSON::PP> for more info about this class.
 =head1 AUTHOR
 
 This idea is from L<JSON::XS::Boolean> written by Marc Lehmann <schmorp[at]schmorp.de>
+The implementation is from L<Cpanel::JSON::XS::Boolean> from cperl.
 
 =cut
 
