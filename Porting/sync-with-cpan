@@ -325,7 +325,7 @@ sub wget {
         require HTTP::Tiny;
         my $http = HTTP::Tiny->new();
         $http->mirror( $url => $saveas );
-        1
+        -f $saveas
     } or
        # Some system do not have wget.  Fall back to curl if we do not
        # have it.  On Windows, `which wget` is not going to work, so
