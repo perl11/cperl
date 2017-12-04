@@ -1700,14 +1700,14 @@ empty list etc; use higher-level functions like op_append_elem() for that.
 C<parent> is the parent node of the sibling chain. It may passed as C<NULL> if
 the splicing doesn't affect the first or last op in the chain.
 
-C<start> is the node preceding the first node to be spliced.  Node(s)
+C<start> is the node preceding the first node to be spliced.  Sibling node(s)
 following it will be deleted, and ops will be inserted after it.  If it is
 C<NULL>, the first node onwards is deleted, and nodes are inserted at the
 beginning.
 
-C<del_count> is the number of nodes to delete.  If zero, no nodes are deleted.
-If -1 or greater than or equal to the number of remaining kids, all
-remaining kids are deleted.
+C<del_count> is the number of sibling nodes to delete.  If zero, no
+nodes are deleted.  If -1 or greater than or equal to the number of
+remaining kids, all remaining kids are deleted.
 
 C<insert> is the first of a chain of nodes to be inserted in place of the nodes.
 If C<NULL>, no nodes are inserted.
@@ -21739,6 +21739,7 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
 
 /*
 =for apidoc method_finalize
+
 Resolve internal lexicals or field helem's or field accessors 
 to fields in the class method or sub.
 
@@ -21790,8 +21791,10 @@ S_role_field_fixup(pTHX_ OP* o, CV* cv, U16 ix, U16 nix, bool doit)
 
 /*
 =for apidoc add_isa_fields
+
 Copy all not-existing fields from parent classes or roles to the class of
 C<name>. Duplicates are fatal with roles, ignored with classes.
+
 =cut
 */
 static void

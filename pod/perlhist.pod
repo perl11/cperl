@@ -656,6 +656,7 @@ the strings?).
 
  rurban    5.27.0c      2017-May-17
  rurban    5.27.1c      2017-Aug-15
+ rurban    5.27.2c      2017-Dec-05
 
 =head2 SELECTED RELEASE MEMORY USAGE
 

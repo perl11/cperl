@@ -3,7 +3,7 @@ use strict;
 use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use version;
-$VERSION = '5.20171103c';
+$VERSION = '5.20171205c';
 $VERSION =~ s/c$//;
 
 sub PKG_PATTERN () { q#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z# }
@@ -347,7 +347,7 @@ our %released = (
     5.026001 => '2017-09-22',
     5.027005 => '2017-10-20',
     5.027006 => '2017-11-20',
-    '5.027002c' => '????-??-??',
+    '5.027002c' => '2017-12-05',
     '5.024003c' => '????-??-??',
  );
 

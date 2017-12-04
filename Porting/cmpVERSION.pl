@@ -120,7 +120,6 @@ my %skip;
 	cpan/CPAN/lib/CPAN/Distribution.pm
 	cpan/CPAN/lib/CPAN/Shell.pm
         dist/PathTools/lib/File/Spec/VMS.pm
-        cpan/B-Debug/Debug.pm
         )} = ();
 
 # Files to skip just for particular version(s),
