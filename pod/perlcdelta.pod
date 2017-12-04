@@ -572,6 +572,10 @@ Minor updates from p5p
 
 use vars => our
 
+=item L<ExtUtils::Install> 2.14
+
+Minor updates, some taken from cperl.
+
 =item L<feature> 1.49_01
 
 =item L<fields> 2.26c

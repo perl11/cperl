@@ -45,8 +45,7 @@ SKIP: {
     ok chmod 0555, $exists, 'make read only';
 
     skip "Current user or OS cannot create directories that they cannot read", 6
-      # these tests require a directory we cant read
-      if -w $exists or $^O eq 'MSWin32';
+          if -w $exists; # these tests require a directory we cant read
 
     is_deeply [can_write_dir($exists)], [0, $exists];
     is_deeply [can_write_dir($subdir)], [0, $exists, $subdir];

@@ -32,11 +32,11 @@ ExtUtils::Install - install files from here to there
 
 =head1 VERSION
 
-2.08
+2.14
 
 =cut
 
-our $VERSION = '2.08';  # <-- do not forget to update the POD section just above this line!
+our $VERSION = '2.14';  # <-- do not forget to update the POD section just above this line!
 $VERSION = eval $VERSION;
 
 =pod
@@ -91,7 +91,7 @@ Dies with a special message.
 
 BEGIN {
     *Is_VMS        = $^O eq 'VMS'     ? sub(){1} : sub(){0};
-    *Is_Win32      = $^O eq 'Win32'   ? sub(){1} : sub(){0};
+    *Is_Win32      = $^O eq 'MSWin32' ? sub(){1} : sub(){0};
     *Is_cygwin     = $^O eq 'cygwin'  ? sub(){1} : sub(){0};
     *CanMoveAtBoot = ($^O eq 'MSWin32' || $^O eq 'cygwin') ? sub(){1} : sub(){0};
 }
@@ -103,7 +103,9 @@ my $Inc_uninstall_warn_handler;
 my $INSTALL_ROOT = $ENV{PERL_INSTALL_ROOT};
 my $INSTALL_QUIET = $ENV{PERL_INSTALL_QUIET};
 $INSTALL_QUIET = 1
-  if (defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/);
+  if (!exists $ENV{PERL_INSTALL_QUIET} and
+      defined $ENV{MAKEFLAGS} and
+      $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/);
 
 my $Curdir = File::Spec->curdir;
 

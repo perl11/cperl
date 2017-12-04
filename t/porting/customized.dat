@@ -57,8 +57,6 @@ Encode cpan/Encode/encoding.pm 779656f3a83bf7c39625a9fc3a0b1d6723dc29b5
 Encode cpan/Encode/t/Aliases.t 95bf948f5dbdd4f775904baf2111413b66a5944d
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t 30dbb8884acdb910e79649be5c72e350be27eb36
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t 71a03fe898634486a5181ac32b6a98f03bb9a914
-ExtUtils::Install cpan/ExtUtils-Install/lib/ExtUtils/Install.pm 0004c64c78cd90f20dc8186261c1b1e291537b9f
-ExtUtils::Install cpan/ExtUtils-Install/t/lib/MakeMaker/Test/Setup/BFD.pm d458c84cf9312319dc588bce371a1ddffb5def3a
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/Liblist/Kid.pm 62563c9fc18ae5ae8f0800ae0554f8258e53eec8
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm 9765d225fed7b96cd8d6c40c802a7fb74fa009b6
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker/Locale.pm 07850b6618b4236293544f207fc838c911378cbe
@@ -108,7 +106,7 @@ Math::BigRat cpan/Math-BigRat/t/bigfltpm.inc 8000c7057453138ff48cf4cba61f0f4a1db
 Math::BigRat cpan/Math-BigRat/t/bigfltrt.t 5508d55216c52caf26aa2e6478691c50b7856e7d
 Math::BigRat cpan/Math-BigRat/t/bigratpm.t cfd770aabeaf6b742fd942143e816db42db04fba
 Memoize cpan/Memoize/t/expmod_t.t 9386100cd9c95a0e8a4e001bba3aa52eec114d21
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm d8c18d48395bfd6a640af3717829607a062e1728
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 699d8e98bbc664b20c4849d7ef42ae8ccfe48811
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 075d662c2e7a36d640828384126b8cd2bf75035e
 Module::Load::Conditional cpan/Module-Load-Conditional/lib/Module/Load/Conditional.pm 9749bb2a08a404662d137901e7483799acbff5d8
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
