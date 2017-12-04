@@ -15569,6 +15569,7 @@ our %delta = (
             'Filter::Util::Call'    => '1.58',
             'GDBM_File'             => '1.16',
             'I18N::Langinfo'        => '0.14',
+            'Locale::Codes'         => '3.55',
             'Module::Load::Conditional' => '0.68_01',
             'Mu'                    => '0.02c',
             'NEXT'                  => '0.67_01',
