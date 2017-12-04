@@ -643,6 +643,17 @@ prevent mro.pm from loading DynaLoader
 Implemented L<Mu/fields> returning fields objects.
 cperl-only.
 
+=item L<Net::Ping> 2.63
+
+Keep v5.002 - v5.6 support
+
+Removed outdated demo/fping from the documentation
+(RT #123750 by Steve Morris)
+
+Added t/420_ping_syn_port.t (#4 by Julio Fraire) with fixes.
+
+Added indices and crosslinks to the documentation
+
 =item L<NEXT> 0.67_01
 
 Fix for GLOB stubs [cpan #123002].

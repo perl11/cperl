@@ -39,17 +39,13 @@ my @hosts = (
   # Hopefully this is never a routeable host
   "172.29.249.249",
 
-  # Hopefully all these web and smtp ports are open
+  # Hopefully all these http and https ports are open
   "www.google.com",
-  "www.bluehost.com",
-  "yahoo.com",
-  "www.yahoo.com",
   "www.duckduckgo.com",
   "www.microsoft.com",
-  "www.about.com",
 );
 
-use Test::More tests =>33;
+use Test::More tests => 19;
 
 BEGIN {use_ok('Net::Ping')};
 
@@ -71,7 +67,7 @@ isa_ok($p, 'Net::Ping', 'new() worked');
 
 # Change to use the more common web port.
 # (Make sure getservbyname works in scalar context.)
-# cmp_ok(($p->{port_num} = getservbyname("http", "tcp")), '>', 0, 'valid port');
+cmp_ok(($p->{port_num} = getservbyname("http", "tcp")), '>', 0, 'valid port for http/tcp');
 
 my %contacted;
 foreach my $host (@hosts) {
@@ -95,13 +91,11 @@ while (my @r = $p->ack()) {
 }
 
 Alarm(0);
-# 172.29.249.249 should not be reachable, and about.com does not support
-# https
-is keys %contacted, 3,
-    'Three servers did not acknowledge our ping';
-delete $contacted{$_} 
+# 172.29.249.249 should not be reachable
+is keys %contacted, 2,
+  '2 servers did not acknowledge our ping'
+  or diag sort keys %contacted;
+delete $contacted{$_}
     foreach ('172.29.249.249:80','172.29.249.249:443', 'www.about.com:443');
 is keys %contacted, 0,
-    'The servers taht did not acknowledge our ping were correct';
-
-done_testing();
+    'The servers that did not acknowledge our ping were correct';

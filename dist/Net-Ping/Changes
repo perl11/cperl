@@ -1,5 +1,20 @@
 CHANGES
 -------
+
+2.63  Sun Nov 26 18:56:04 CET 2017 (rurban)
+       Bugfixes
+        - Keep v5.002 - v5.6 support
+        - Removed outdated demo/fping from the documentation
+          (RT #123750 by Steve Morris)
+        - Added t/420_ping_syn_port.t (#4 by Julio Fraire)
+          with fixes.
+       Features
+        - added indices and crosslinks to the documentation
+
+2.62  Tue Sep 12 13:20:25 2017 -0600 (Nicholas R)
+       Limitations (not on CPAN)
+       - Removed support for v5.002 < v5.6 by introducing our
+
 2.61  Sat Jun 17 13:12:58 CEST 2017 (rurban)
        Bugfixes
         - Fix ping_udp for a started udp echo server (PR#5 by Stephan Loyd)
