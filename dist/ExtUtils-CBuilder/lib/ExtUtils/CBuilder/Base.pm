@@ -1,5 +1,4 @@
 package ExtUtils::CBuilder::Base;
-$ExtUtils::CBuilder::Base::VERSION = '0.280226';
 use strict;
 use warnings;
 use File::Spec;
@@ -9,6 +8,8 @@ use Config;
 use Text::ParseWords;
 use IPC::Cmd qw(can_run);
 use File::Temp qw(tempfile);
+
+our $VERSION = '0.280230'; # VERSION
 
 # More details about C/C++ compilers:
 # http://developers.sun.com/sunstudio/documentation/product/compiler.jsp

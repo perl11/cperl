@@ -615,10 +615,10 @@ use File::Glob qw(:case);
     },
 
     'ExtUtils::CBuilder' => {
-        'DISTRIBUTION' => 'AMBS/ExtUtils-CBuilder-0.280226.tar.gz',
+        'DISTRIBUTION' => 'AMBS/ExtUtils-CBuilder-0.280230.tar.gz',
         'FILES'        => q[dist/ExtUtils-CBuilder],
         'EXCLUDED'     => [
-            qw(README.mkdn),
+            qw(README.mkdn NOTAS-Alberto),
             qr{^xt},
         ],
         # skip them on travis [cperl #32]

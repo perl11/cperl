@@ -69,19 +69,60 @@ L<[perl #131665]|https://rt.perl.org/Public/Bug/Display.html?id=131665>
 
 =item L<B::Debug>  1.26
 
-=item L<Compress::Raw::Zlib>  2.076_01
+=item L<Compress::Raw::Zlib> 2.076
 
-plus our zlib-src and make -s patches
+Silence gcc compiler warnings when -Wsign-compare is enabled
+#123688: Compilation warnings with clang
+
+Silence gcc compiler warnings when -Wimplicit-fallthrough is enabled
+#123358: Compilation warnings with gcc-7.*
+
+Windows uses -lzlib. Linux uses -lz
+#123699: wrong external zlib name used on Windows
+
+Update zlib-src directory to use zlib 1.2.11
+#123245: perl 5.26.1 is vulnerable to CVE-2016-9843, CVE-2016-9841, CVE-2016-9840, CVE-2016-9842
+
+Don't allow offset to be greater than length of buffer in crc32.
+
+Change my_zcalloc to use safecalloc.  The link,
+L<https://github.com/madler/zlib/issues/253>, is the upstream report
+for the remaining valgrind errors not already dealt with by
+1.2.11. Using calloc in Zlib.xs for now as a workaround.
+#121074: valgrind errors in the test suite
 
 =item L<Config|XSConfig> 6.23
 
-=item L<Config::Perl::V>  0.29_01
+=item L<Config::Perl::V> 0.29_01
+
+    * Add test for 5.26.1-RC1, and some cperl -V's
+    * Fix signature with argument
+    * Ignore ccache and compiler path in signature
+
+    * Add default_inc_excludes_dot
 
 =item L<Cpanel::JSON::XS>  3.0240
 
 =item L<Digest::SHA>  6.01
 
-=item L<Encode>  2.93
+=item L<Encode> 2.93
+
+lib/Encode/MIME/Name.pm t/mime-name.t
+Pulled: Add "euc-cn" => "EUC-CN" alias to Encode::MIME::Name
+https://github.com/dankogai/p5-encode/pull/124
+
+lib/Encode/CN/HZ.pm lib/Encode/JP/JIS7.pm lib/Encode/MIME/Header.pm
+t/decode.t
+Pulled: Uninitialized value fixes #122
+https://github.com/dankogai/p5-encode/pull/122
+
+Makefile.PL
+Pulled: Fix -Werror=declaration-after-statement for gcc 4.1.2
+https://github.com/dankogai/p5-encode/pull/121
+
+=item L<ExtUtils::CBuilder> 0.280230
+
+use vars => our
 
 =item L<Storable> 3.05_14
 
