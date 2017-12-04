@@ -493,7 +493,8 @@ shextract=`SH_to_target $SH`
 ## In the following dollars and backticks do not need the extra backslash.
 $spitshell >>$Makefile <<!GROK!THIS!
 
-private = preplibrary \$(CONFIGPM) \$(CONFIGPOD) git_version.h lib/buildcustomize.pl
+private = preplibrary \$(CONFIGPM) \$(CONFIGPOD) git_version.sh git_version.h \
+          lib/buildcustomize.pl
 
 # Files to be built with variable substitution before miniperl
 # is available.
@@ -1607,6 +1608,8 @@ MAKEDEPEND = Makefile makedepend
 
 $(FIRSTMAKEFILE):	README $(MAKEDEPEND)
 	$(MAKE) depend MAKEDEPEND=
+
+myconfig: git_version.sh lib/Config_git.pl
 !NO!SUBS!
 
 for f in $SH; do
