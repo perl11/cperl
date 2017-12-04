@@ -455,7 +455,7 @@ Limit dotless-INC effect on base.pm with guard
 
 Support PL_sv_zero
 
-=item L<B::C> 1.55_05
+=item L<B::C> 1.55_06
 
 Support POK/PVLV REGEXP for v5.27.3/v5.27.2c
 VOL => volatile for  v5.27.6/v5.27.2c
@@ -514,6 +514,8 @@ valgrind errors not already dealt with by 1.2.11. Using calloc in Zlib.xs for no
     * Ignore ccache and compiler path in signature
 
     * Add default_inc_excludes_dot
+
+=item C<constant> 1.34
 
 =item C<coretypes> 0.03c
 

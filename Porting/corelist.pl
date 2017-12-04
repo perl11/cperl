@@ -35,6 +35,11 @@ my $perl_version = version->parse("$raw_version");
 my $perl_vnum    = $perl_version->numify;
 my $perl_vstring = $perl_version->normal; # how do we get version.pm to not give us leading v?
 $perl_vstring =~ s/^v//;
+if ( ($raw_version == $] and $^V =~ /c$/)
+     or ($raw_version =~ /c$/)) {
+    $perl_vstring .= 'c';
+    $perl_vnum    = "'${perl_vnum}c'";
+}
 
 if ( !-f 'MANIFEST' ) {
     die "Must be run from the root of a clean perl tree\n";
@@ -45,14 +50,14 @@ my $corelist = join( '', <$corelist_fh> );
 close $corelist_fh;
 
 unless (
-    $corelist =~ /^%released \s* = \s* \(
+    $corelist =~ /^(?:our )?%released \s* = \s* \(
         .*?
         $perl_vnum \s* => \s* .*?
         \);/ismx
     )
 {
     warn "Adding $perl_vnum to the list of released perl versions. Please consider adding a release date.\n";
-    $corelist =~ s/^(%released \s* = \s* .*?) ( \) )
+    $corelist =~ s/(%released \s* = \s* .*?) ( \) )
                 /$1  $perl_vnum => '????-??-??',\n  $2/ismx;
 }
 
@@ -106,25 +111,26 @@ find(
 
         # some heuristics to figure out the module name from the file name
         $module =~ s{^(lib|cpan|dist|(?:symbian/)?ext|os2/OS2)/}{}
-			and $1 ne 'lib'
+            and $1 ne 'lib'
             and (
-            $module =~ s{\b(\w+)/\1\b}{$1},
-            $module =~ s{^B/O}{O},
-            $module =~ s{^Devel-PPPort}{Devel},
-            $module =~ s{^libnet/}{},
-            $module =~ s{^PathTools/}{},
-            $module =~ s{REXX/DLL}{DLL},
-            $module =~ s{^Encode/encoding}{encoding},
-            $module =~ s{^IPC-SysV/}{IPC/},
-            $module =~ s{^MIME-Base64/QuotedPrint}{MIME/QuotedPrint},
-            $module =~ s{^(?:DynaLoader|Errno|Opcode|XSLoader)/}{},
-            $module =~ s{^Sys-Syslog/win32}{Sys-Syslog},
-            $module =~ s{^Time-Piece/Seconds}{Time/Seconds},
-            );
-		$module =~ s{^lib/}{}g;
+              $module =~ s{\b(\w+)/\1\b}{$1},
+              $module =~ s{^B/O}{O},
+              $module =~ s{^B/C/ByteLoader}{B/ByteLoader},
+              $module =~ s{^Devel-PPPort}{Devel},
+              $module =~ s{^libnet/}{},
+              $module =~ s{^PathTools/}{},
+              $module =~ s{REXX/DLL}{DLL},
+              $module =~ s{^Encode/encoding}{encoding},
+              $module =~ s{^IPC-SysV/}{IPC/},
+              $module =~ s{^MIME-Base64/QuotedPrint}{MIME/QuotedPrint},
+              $module =~ s{^(?:DynaLoader|Errno|Opcode|XSLoader)/}{},
+              $module =~ s{^Sys-Syslog/win32}{Sys-Syslog},
+              $module =~ s{^Time-Piece/Seconds}{Time/Seconds},
+          );
+        $module =~ s{^lib/}{}g;
         $module =~ s{/}{::}g;
         $module =~ s{-}{::}g;
-		$module =~ s{^.*::lib::}{}; # turns Foo/lib/Foo.pm into Foo.pm
+        $module =~ s{^.*::lib::}{}; # turns Foo/lib/Foo.pm into Foo.pm
         $module =~ s/(\.pm|_pm\.PL)$//;
         $lines{$module}          = $version;
         $module_to_file{$module} = $File::Find::name;
@@ -133,11 +139,11 @@ find(
     'symbian/ext',
     'lib',
     'ext',
-	'cpan',
-	'dist'
+    'cpan',
+    'dist'
 );
 
--e 'configpm' and $lines{Config} = "$]";
+-e 'configpm' and $lines{Config} = "$perl_vnum";
 
 if ( open my $ucdv, "<", "lib/unicore/version" ) {
     chomp( my $ucd = <$ucdv> );
@@ -167,8 +173,8 @@ for my $key (sort keys %{ $delta_data->{removed} || {} }) {
 $versions_in_release .= "        }\n";
 $versions_in_release .= "    },\n";
 
-$corelist =~ s/^(%delta\s*=\s*.*?)^\s*$perl_vnum\s*=>\s*{.*?},\s*(^\);)$/$1$2/ism;
-$corelist =~ s/^(%delta\s*=\s*.*?)(^\);)$/$1$versions_in_release$2/ism;
+$corelist =~ s/^(our %delta\s*=\s*.*?)^\s*$perl_vnum\s*=>\s*{.*?},\s*(^\);)$/$1$2/ism;
+$corelist =~ s/^(our %delta\s*=\s*.*?)(^\);)$/$1$versions_in_release$2/ism;
 
 exit unless %modlist;
 
@@ -247,7 +253,7 @@ foreach my $module ( sort keys %module_to_upstream ) {
 }
 $upstream_stanza .= ");";
 
-$corelist =~ s/^%upstream .*? ;$/$upstream_stanza/ismx;
+$corelist =~ s/^our %upstream .*? ;$/$upstream_stanza/ismx;
 
 # Deprecation generation
 {
@@ -296,7 +302,7 @@ foreach my $module ( sort keys %module_to_upstream ) {
 }
 $tracker .= ");";
 
-$corelist =~ s/^%bug_tracker .*? ;/$tracker/eismx;
+$corelist =~ s/^our %bug_tracker .*? ;/$tracker/eismx;
 
 write_corelist($corelist,$corelist_file);
 
@@ -371,10 +377,11 @@ sub version_strip {
 }
 
 sub make_corelist_delta {
-  my($version, $lines, $existing) = @_;
+  my ($version, $lines, $existing) = @_;
   # Trust core perl, if someone does use a weird version number the worst that
   # can happen is an extra delta entry for a module.
-  my %versions = map { $_ => eval $lines->{$_} } keys %$lines;
+  my @versions = map { $_ => eval $lines->{$_} } keys %$lines;
+  my %versions = @versions; # no strict hashpairs
 
   # Ensure we have the corelist data loaded from this perl checkout, not the system one.
   require $corelist_file;
@@ -425,8 +432,8 @@ sub make_coreutils_delta {
   }
 
   my $smallest = (sort {
-      ((keys($deltas{$a}->{changed}->%*) + keys($deltas{$a}->{removed}->%*)) <=>
-       (keys($deltas{$b}->{changed}->%*) + keys($deltas{$b}->{removed}->%*))) ||
+      ((keys(%{$deltas{$a}->{changed}}) + keys(%{$deltas{$a}->{removed}})) <=>
+       (keys(%{$deltas{$b}->{changed}}) + keys(%{$deltas{$b}->{removed}}))) ||
       $b cmp $a
     } keys %deltas)[0];
 
