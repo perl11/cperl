@@ -15552,6 +15552,7 @@ our %delta = (
             'Digest::SHA'           => '5.98',
             'DirHandle'             => '1.05',
             'Encode'                => '2.93',
+            'experimental'          => '0.019_01c',
             'ExtUtils::Constant'    => '0.24_01',
             'ExtUtils::Constant::Base'      => '2.24_01',
             'ExtUtils::Constant::ProxySubs' => '2.24_01',

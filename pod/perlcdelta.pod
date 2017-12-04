@@ -564,6 +564,10 @@ Makefile.PL
 Pulled: Fix -Werror=declaration-after-statement for gcc 4.1.2
 https://github.com/dankogai/p5-encode/pull/121
 
+=item L<experimental> 0.019_01c
+
+eval use feature, minor test fix.
+
 =item L<ExtUtils::Constant> 0.24_01
 
 Minor updates from p5p

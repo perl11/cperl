@@ -1,10 +1,10 @@
 package experimental;
-$experimental::VERSION = '0.017_01c'; #cperl fixed lexical_topic
+$experimental::VERSION = '0.019_01c'; #cperl fixed lexical_topic
 use strict;
 use warnings;
 use version ();
 
-use feature ();
+BEGIN { eval { require feature } };
 use Carp qw/croak carp/;
 
 my %warnings = map { $_ => 1 } grep { /^experimental::/ } keys %warnings::Offsets;
@@ -40,8 +40,8 @@ my %min_version = (
 	unicode_strings => '5.12.0',
 );
 my %max_version = (
-	#lexical_topic   => '5.23.4',
 	autoderef       => '5.23.1',
+	#lexical_topic   => '5.23.4',
 );
 
 $_ = version->new($_) for values %min_version;
@@ -130,7 +130,7 @@ experimental - Experimental features made easy
 
 =head1 VERSION
 
-version 0.017
+version 0.019_01c
 
 =head1 SYNOPSIS
 
