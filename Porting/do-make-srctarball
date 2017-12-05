@@ -1,13 +1,15 @@
 #!/bin/sh
 
+COPYFILE_DISABLE=1
 cd /usr/src/perl/blead/cperl
 ver=$(../perl_version)
 
-mkdir ../cperl-${ver}-build 2>/dev/null \
-    || rm -rf ../cperl-${ver}-build ../cperl-${ver} 
+rm -rf ../cperl-${ver}-build ../cperl-${ver} 2>/dev/null
+mkdir ../cperl-${ver}-build 2>/dev/null
 cp -frp .git ../cperl-${ver}-build/
 cd ../cperl-${ver}-build
 git reset --hard
 git clean -dxf
+#rm -rf .git
 #cp ../cperl/Porting/makerel Porting/
-perl Porting/makerel -bx
+perl Porting/makerel -x

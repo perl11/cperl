@@ -937,8 +937,8 @@ the tarball and directory name:
                         # git clean should not output anything!
  $ git status           # and there's nothing lying around
 
- $ perl Porting/makerel -bx -s RC1            # for a release candidate
- $ perl Porting/makerel -bx                   # for the release itself
+ $ perl Porting/makerel -x -s RC1            # for a release candidate
+ $ perl Porting/makerel -x                   # for the release itself
 
 This creates the  directory F<../perl-x.y.z-RC1> or similar, copies all
 the MANIFEST files into it, sets the correct permissions on them, then
@@ -948,7 +948,7 @@ C<tar.bz2> file. The C<-x> also produces a C<tar.xz> file.
 If you're getting your tarball suffixed with -uncommitted and you're sure
 your changes were all committed, you can override the suffix with:
 
-    $ perl Porting/makerel -b -s ''
+    $ perl Porting/makerel -x -s ''
 
 XXX if we go for extra tags and branches stuff, then add the extra details
 here

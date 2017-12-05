@@ -189,6 +189,16 @@ my $src = (-e $perl) ? $perl : 'perl'; # 'perl' in maint branch
 print "Checking if you have 7z...\n";
 my $output_7z = `7z 2>&1`;
 my $have_7z = defined $output_7z && $output_7z =~ /7-Zip/;
+my ($cmd7z, $have_pigz);
+
+if (!$have_7z) {
+  print "Checking if you have pigz...\n";
+  my $output_pz = `pigz --help 2>&1`;
+  $have_pigz = defined $output_pz && $output_pz =~ /Usage: pigz/;
+} else {
+  # 4 threads
+  $cmd7z = '7z a -mx9 -bd -si -mmt4 ';
+}
 
 print "Checking if you have advdef...\n";
 my $output_advdef = `advdef --version 2>&1`;
@@ -196,7 +206,11 @@ my $have_advdef = defined $output_advdef && $output_advdef =~ /advancecomp/;
 
 if ($have_7z) {
     print "Creating and compressing the tar.gz file with 7z...\n";
-    $cmd = "tar cf - $reldir | 7z a -tgzip -mx9 -bd -si $reldir.tar.gz";
+    $cmd = "tar cf - $reldir | $cmd7z -tgzip $reldir.tar.gz";
+    system($cmd) == 0 or die "$cmd failed";
+} elsif ($have_pigz) {
+    print "Creating and compressing the tar.gz file with pigz...\n";
+    $cmd = "tar cf - $reldir | pigz -9 -- $reldir.tar.gz";
     system($cmd) == 0 or die "$cmd failed";
 } else {
     print "Creating and compressing the tar.gz file...\n";
@@ -212,7 +226,8 @@ if ($have_7z) {
 if ($opts{b}) {
     if ($have_7z) {
         print "Creating and compressing the tar.bz2 file with 7z...\n";
-        $cmd = "tar cf - $reldir | 7z a -tbzip2 -mx9 -bd -si $reldir.tar.bz2";
+        # 4 threads
+        $cmd = "tar cf - $reldir | $cmd7z -tbzip2 $reldir.tar.bz2";
         system($cmd) == 0 or die "$cmd failed";
     } else {
         print "Creating and compressing the tar.bz2 file...\n";
@@ -223,7 +238,8 @@ if ($opts{b}) {
 
 if ($opts{x}) {
     print "Creating and compressing the tar.xz file with xz...\n";
-    $cmd = "tar cf - $reldir | xz -z -c > $reldir.tar.xz";
+    # -T0 use as many threads as there are processor cores
+    $cmd = "tar cf - $reldir | xz -T0 -z -c > $reldir.tar.xz";
     system($cmd) == 0 or die "$cmd failed";
 }
 
