@@ -1447,6 +1447,11 @@ our %delta :const = (
         changed => {},
         removed => {}
     },
+    '5.027003c' => {
+        delta_from => '5.027002c',
+        changed => {},
+        removed => {}
+    },
 );
 
 our %utilities = Module::CoreList::_undelta(\%delta);

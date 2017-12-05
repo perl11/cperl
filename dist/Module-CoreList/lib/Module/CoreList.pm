@@ -349,6 +349,7 @@ our %released = (
     5.027006 => '2017-11-20',
     '5.027002c' => '2017-12-05',
     '5.024003c' => '????-??-??',
+    '5.027003c' => '????-??-??',
  );
 
 sub version_sort {
@@ -15686,6 +15687,44 @@ our %delta = (
         },
         removed => {
             'B::Debug'              => '1.25',
+        }
+    },
+    '5.027003c' => {
+        delta_from => '5.027002c',
+        changed => {
+            'B::Op_private'         => '5.027003',
+            'Module::CoreList'      => '5.20171205c',
+            'Module::CoreList::Utils'=> '5.20171205c',
+            'Module::CoreList::TieHashDelta'=> '5.20171205',
+        },
+        removed => {
+            'Locale::Codes'         => '3.55',
+            'Locale::Codes::Constants'=> '3.55',
+            'Locale::Codes::Country'=> '3.55',
+            'Locale::Codes::Country_Codes'=> '3.55',
+            'Locale::Codes::Country_Retired'=> '3.55',
+            'Locale::Codes::Currency'=> '3.55',
+            'Locale::Codes::Currency_Codes'=> '3.55',
+            'Locale::Codes::Currency_Retired'=> '3.55',
+            'Locale::Codes::LangExt'=> '3.55',
+            'Locale::Codes::LangExt_Codes'=> '3.55',
+            'Locale::Codes::LangExt_Retired'=> '3.55',
+            'Locale::Codes::LangFam'=> '3.55',
+            'Locale::Codes::LangFam_Codes'=> '3.55',
+            'Locale::Codes::LangFam_Retired'=> '3.55',
+            'Locale::Codes::LangVar'=> '3.55',
+            'Locale::Codes::LangVar_Codes'=> '3.55',
+            'Locale::Codes::LangVar_Retired'=> '3.55',
+            'Locale::Codes::Language'=> '3.55',
+            'Locale::Codes::Language_Codes'=> '3.55',
+            'Locale::Codes::Language_Retired'=> '3.55',
+            'Locale::Codes::Script' => '3.55',
+            'Locale::Codes::Script_Codes'=> '3.55',
+            'Locale::Codes::Script_Retired'=> '3.55',
+            'Locale::Country'       => '3.55',
+            'Locale::Currency'      => '3.55',
+            'Locale::Language'      => '3.55',
+            'Locale::Script'        => '3.55',
         }
     },
 );

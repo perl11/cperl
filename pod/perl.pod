@@ -243,7 +243,8 @@ aux c2ph h2ph h2xs cperlbug pl2pm pod2html pod2man splain xsubpp
     perlexperiment	A listing of experimental features in Perl
 
     perlcperl		Perl notes for cperl (variant)
-    perlcdelta		cperl changes in version 5.27.2c
+    perlcdelta		cperl changes since previous version
+    perl5272cdelta	cperl changes in version 5.27.2c
     perl5271cdelta	cperl changes in version 5.27.1c
     perl5270cdelta	cperl changes in version 5.27.0c
     perl5261cdelta	cperl changes in version 5.26.1c

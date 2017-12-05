@@ -142,6 +142,6 @@
          "url" : "http://github.com/perl11/cperl/"
       }
    },
-   "version" : "5.027002c",
+   "version" : "5.027003c",
    "x_serialization_backend" : "Cpanel::JSON::XS version 3.0239"
 }
