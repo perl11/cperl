@@ -4840,7 +4840,7 @@ Doesn't handle set magic.
 The perl equivalent is C<$sv = undef;>. Note that it doesn't free any string
 buffer, unlike C<undef $sv>.
 
-Introduced in perl 5.27.2.
+Introduced in perl 5.27.3.
 
 =cut
 */
