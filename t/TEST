@@ -50,7 +50,6 @@ my %abs = (
 	   '../cpan/File-Fetch' => 1,
 	   '../cpan/IPC-Cmd' => 1,
 	   '../cpan/IPC-SysV' => 1,
-	   '../cpan/Locale-Codes' => 1,
 	   '../cpan/Module-Load' => 1,
 	   '../cpan/Module-Load-Conditional' => 1,
 	   '../cpan/Parse-CPAN-Meta' => 1,
@@ -87,11 +86,10 @@ my %temp_needs_dot  = map { $_ => 1 } qw(
     ../cpan/ExtUtils-Install
     ../cpan/Filter-Util-Call
     ../cpan/libnet
-    ../cpan/Locale-Codes
     ../cpan/Math-BigInt
     ../cpan/Math-BigRat
     ../cpan/Test-Harness
-    ../cpan/Test-Simple
+    ../dist/Test-Simple
     ../cpan/version
 );
 

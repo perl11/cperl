@@ -135,9 +135,9 @@ Skip redefinition warnings on cperl since 5.27.2
 
 =over 4
 
-=item *
+=item L<Locale::Codes> 3.55
 
-XXX
+Deprecated with v5.27.2c
 
 =back
 

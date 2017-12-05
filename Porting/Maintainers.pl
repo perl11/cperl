@@ -907,21 +907,6 @@ use File::Glob qw(:case);
         'CUSTOMIZED'   => [ qw( lib_pm.PL )],
     },
 
-    'Locale::Codes' => {
-        'DISTRIBUTION' => 'SBECK/Locale-Codes-3.55.tar.gz',
-        'FILES'        => q[cpan/Locale-Codes],
-        'EXCLUDED'     => [
-            qw( README.first
-                t/pod_coverage.ign
-                t/pod_coverage.t
-                t/pod.t),
-            qr{^t/runtests},
-            qr{^t/runtests\.bat},
-            qr{^internal/},
-            qr{^examples/},
-        ],
-    },
-
     'Locale::Maketext' => {
         'DISTRIBUTION' => 'TODDR/Locale-Maketext-1.28.tar.gz',
         'FILES'        => q[dist/Locale-Maketext],
