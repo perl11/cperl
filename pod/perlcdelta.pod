@@ -687,6 +687,17 @@ Faster. add DEBUGGING_RE_ONLY define
 
 =item L<SelfLoader> 1.24
 
+=item L<Scalar::Util> 2.49_09
+
+fix find_rundefsvoffset logic
+Fix t/subname.t for unstrict names
+   perl5.26 started defining $Config{usecperl} as 'UNKNOWN', hence this check
+   is now unreliable.
+
+Merge with 1.49 upstream:
+Ensure pairmap extends its stack correctly (davem)
+Fix name of List::Util::unpairs in its error messages
+
 =item L<sort> 2.03
 
 no sort stable; SORTf_UNSTABLE flag

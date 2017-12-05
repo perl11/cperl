@@ -8,7 +8,8 @@ BEGIN { $^P |= 0x210 }
 #       the place they were compiled.
 use Test::More;
 use B 'svref_2object';
-use Config;
+my $ISCPERL;
+BEGIN { $ISCPERL = $^V =~ /c$/; }
 
 # This is a mess. The stash can supposedly handle Unicode but the behavior
 # is literally undefined before 5.16 (with crashes beyond the basic plane),
@@ -55,7 +56,7 @@ sub caller3_ok {
     # this is apparently how things worked before 5.16
     utf8::encode($expected) if $] < 5.016 and $ord > 255;
     # before 5.16 and after v5.25.2c names with NUL are stripped
-    if (!$ord and ($] < 5.016 or ($Config{usecperl} and $] >= 5.025002))) {
+    if (!$ord and ($] < 5.016 or ($ISCPERL and $] >= 5.025002))) {
       $expected =~ s/\0.*//;
     }
 
@@ -70,7 +71,7 @@ sub caller3_ok {
 my @test_ordinals = ( 1 .. 255 );
 # 5.16 is the first perl to allow \0 in identifiers
 # 5.25.2c disallowed \0 again.
-push @test_ordinals, 0 if $] >= 5.016 and !($] >= 5.025002 and $Config{usecperl});
+push @test_ordinals, 0 if $] >= 5.016 and !($] >= 5.025002 and $ISCPERL);
 # This is a mess. Yes, the stash supposedly can handle unicode, yet
 # on < 5.16 the behavior is literally undefined (with crashes beyond
 # the basic plane), and is still unclear post 5.16 with eval_bytes/eval_utf8
@@ -174,7 +175,7 @@ for my $ord (@test_ordinals) {
     if ($ord == 0x27) { # ' => :: gv.c:S_parse_gv_stash_name
       $fullname = "test::SOME_::_STASH::SOME_::_NAME";
     }
-    if (!$ord && ($] >= 5.025002 and $Config{usecperl})) {
+    if (!$ord && ($] >= 5.025002 and $ISCPERL)) {
       $fullname = "test::SOME_::SOME_";
     }
 
@@ -196,12 +197,17 @@ for my $ord (@test_ordinals) {
         $expected = "aliased::native::$fullname";
         {
             no strict 'refs';
-            BEGIN {strict->unimport('names') if $] >= 5.027001 and $^V =~ /c$/}
             *palatable:: = *{"aliased::native::${pkg}::"};
             # now palatable:: literally means aliased::native::${pkg}::
-            warnings->unimport('security') if $Config{usecperl} and $] >= 5.025;
-            ${"palatable::$subname"} = 1;
-            ${"palatable::"}{"sub"} = ${"palatable::"}{$subname};
+            if ($ISCPERL and $] >= 5.025) {
+              warnings->unimport('security');
+              BEGIN { strict->unimport('names') if $] >= 5.027; }
+              ${"palatable::$subname"} = 1;
+              ${"palatable::"}{"sub"} = ${"palatable::"}{$subname};
+            } else {
+              ${"palatable::$subname"} = 1;
+              ${"palatable::"}{"sub"} = ${"palatable::"}{$subname};
+            }
             # and palatable::sub means aliased::native::${pkg}::${subname}
         }
         $sub = compile_named_sub 'palatable::sub' => '(caller(0))[3]';

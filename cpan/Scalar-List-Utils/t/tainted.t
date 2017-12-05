@@ -13,7 +13,7 @@ my $var = 2;
 
 ok( !tainted($var), 'known variable');
 
-ok( tainted($^X),      'interpreter variable');
+ok( tainted($^X),	'interpreter variable');
 
 $var = $^X;
 ok( tainted($var),	'copy of interpreter variable');
