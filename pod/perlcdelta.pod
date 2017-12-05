@@ -32,6 +32,16 @@ L</Selected Bug Fixes> section.
 
 [ List each security issue as a =head2 entry ]
 
+=head2 Disallow illegal glob with embedded NUL
+
+E.g. C<< <$fh\000> >> throws now the safe syscalls warning, and errors
+with C<Glob not terminated>, and does not pass the illegal glob path
+to the internal or external glob.
+
+This problem was added with v5.27.5 by replacing strchr with memchr,
+allowing such illegal strings.
+See L<[cperl #342]|https://github.com/perl11/cperl/issues/342>
+
 =head1 Incompatible Changes
 
 XXX For a release on a stable branch, this section aspires to be:

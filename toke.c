@@ -11152,7 +11152,7 @@ S_scan_inputsymbol(pTHX_ char *start)
     if (d - PL_tokenbuf != len) {
         pl_yylval.ival = OP_GLOB;
         s = scan_str(start,FALSE,FALSE,FALSE,NULL);
-        if (!s)
+        if (!s || !IS_SAFE_PATHNAME(SvPVX(PL_lex_stuff), SvCUR(PL_lex_stuff)+1, "glob"))
            Perl_croak(aTHX_ "Glob not terminated");
         return s;
     }
@@ -11642,9 +11642,7 @@ S_scan_str(pTHX_ char *start, int keep_bracketed_quoted, int keep_delims, int re
     }
 
     /* decide whether this is the first or second quoted string we've read
-       for this op
-    */
-
+       for this op */
     if (PL_lex_stuff)
         PL_parser->lex_sub_repl = sv;
     else
