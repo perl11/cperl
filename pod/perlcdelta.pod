@@ -125,6 +125,10 @@ XXX
 mkppport called PPPort_pm.PL without
 passing through MAKEFLAGS. Add --quiet support there
 
+=item L<I18N::LangTags>  0.42_01
+
+Linkify docs.
+
 =item L<Unicode::Collate> 1.25_01
 
 Skip redefinition warnings on cperl since 5.27.2

@@ -107,7 +107,7 @@ Math::BigRat cpan/Math-BigRat/t/bigfltpm.inc 8000c7057453138ff48cf4cba61f0f4a1db
 Math::BigRat cpan/Math-BigRat/t/bigfltrt.t 5508d55216c52caf26aa2e6478691c50b7856e7d
 Math::BigRat cpan/Math-BigRat/t/bigratpm.t cfd770aabeaf6b742fd942143e816db42db04fba
 Memoize cpan/Memoize/t/expmod_t.t 9386100cd9c95a0e8a4e001bba3aa52eec114d21
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 9dd2e747d740d8a5bb8f3118cd2c0e6488eb4a32
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 5d579c8368695e61712f3bf6476ff9e5c623ca05
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 346efec8c56f6fbbc77871e19246f0f4d38c4b6b
 Module::Load::Conditional cpan/Module-Load-Conditional/lib/Module/Load/Conditional.pm 9749bb2a08a404662d137901e7483799acbff5d8
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
