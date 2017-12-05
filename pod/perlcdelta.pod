@@ -181,8 +181,8 @@ perl 5.27.5 started allowing unsigned long/4 stack indices for its sv
 arguments, and width and precision with the API even allowing
 C<unsigned long>.  Previously those numbers were safely typed to
 C<int>. Revert that security problem in cperl. The maximal width and
-precision is also back to INT_MAX.  See L<[cperl
-#344]|https://github.com/perl11/cperl/issues/344>
+precision is also back to INT_MAX.
+See L<[cperl #344]|https://github.com/perl11/cperl/issues/344>
 
 =head1 Incompatible Changes
 
@@ -297,8 +297,6 @@ Note that these uses continue to raise a deprecation message.
 
 =head2 Module removals
 
-XXX Remove this section if inapplicable.
-
 The following modules will be removed from the core distribution in a
 future release, and will at that time need to be installed from CPAN.
 Distributions on CPAN which require these modules will need to list them as
@@ -315,14 +313,9 @@ not usually on concerns over their design.
 
 =over
 
-=item XXX
-
-XXX Note that deprecated modules should be listed here even if they are listed
-as an updated module in the L</Modules and Pragmata> section.
+=item L<Locale::Codes>
 
 =back
-
-[ List each other deprecation as a =head2 entry ]
 
 =head1 Performance Enhancements
 
@@ -451,7 +444,7 @@ Remove deprecated no-op attributes :unique, :locked
 
 Limit dotless-INC effect on base.pm with guard
 
-=item L<B> 1.69_08
+=item L<B> 1.71_08
 
 Support PL_sv_zero
 
@@ -460,7 +453,7 @@ Support PL_sv_zero
 Support POK/PVLV REGEXP for v5.27.3/v5.27.2c
 VOL => volatile for  v5.27.6/v5.27.2c
 
-=item L<B::Concise> 1.002c
+=item L<B::Concise> 1.003c
 
 Support PL_sv_zero
 
@@ -487,6 +480,8 @@ Fix problems introduced by the partial EBCDIC support from version
 Remove obsolete pod about NBSP
 
 =item L<Compress::Raw::Zlib> 2.076
+
+Updated internal zlib from 1.2.8 to 1.2.11
 
 Silence gcc compiler warnings when -Wsign-compare is enabled
 #123688: Compilation warnings with clang
@@ -580,6 +575,8 @@ use vars => our
 
 Minor updates, some taken from cperl.
 
+=item L<ExtUtils::ParseXS> 3.26_02
+
 =item L<feature> 1.49_01
 
 =item L<fields> 2.26c
@@ -610,6 +607,8 @@ add filter_read_exact tests.
 
 Add a pod link
 
+=item L<Hash::Util::FieldHash> 1.20
+
 =item L<I18N::Langinfo> 0.14
 
 Use new fcn Perl_langinfo()
@@ -618,10 +617,14 @@ Use new fcn Perl_langinfo()
 
 Doc how to import when you want to 'use MODULE ()'
 
+=item L<IO::Handle> 1.37
+
 =item L<JSON::PP> 2.97000_04
 
 Minor updates, mostly docs.
 Upstream Boolean still did not work with Cpanel::JSON::XS.
+
+=item C<libnet> 3.11_01
 
 =item L<Locale::Codes> 3.55
 
@@ -658,9 +661,13 @@ Added indices and crosslinks to the documentation
 
 Fix for GLOB stubs [cpan #123002].
 
-=item L<O> 1.02
+=item L<O> 1.03
 
 Improve error message for bogus -MO=… arguments
+
+=item L<ODBM_File> 1.15
+
+=item L<Opcode> 1.40_02c
 
 =item L<perl5db> 1.52_01c
 
@@ -671,6 +678,8 @@ Support debugger cmds not requiring spaces
 check invariant at compile time.
 
 return EACCES on writing to a read-only scalar
+
+=item L<Pod::HTML> 2.2303c
 
 =item L<Pod::Perldoc> 3.2801
 
@@ -744,6 +753,10 @@ Replace DynaLoader with XSLoader.
 Drop 5.005 support.
 Replace DynaLoader with XSLoader.
 
+=item L<Unicode::Normalize> 1.26
+
+Switch to XSLoader from Dynaloader
+
 =item L<utf8> 2.02c
 
 Improved function documentation
@@ -755,11 +768,13 @@ STRICT_DECIMAL_VERSION, STRICT_DOTTED_DECIMAL_VERSION regexes.
 
 Add F<t/11_taint.t>
 
-=item L<VMS::Stdio> 2.42_01
+=item L<VMS::Stdio> 2.44_01
 
 Drop VMS::stdio compatibility shim
 
 =item L<XS::APITest> 0.92_02
+
+=item L<XS::Typemap> 0.16
 
 =back
 
@@ -1526,8 +1541,8 @@ L<[perl #132442]|https://rt.perl.org/Public/Bug/Display.html?id=132442>
 
 Classes are still experimental, and have some limitations:
 
-Cannot be created in an eval block or subroutine. The pad lookup is still global
-and not per optional CvPADLIST.
+Cannot be created in an eval block or subroutine. The pad lookup is
+still global and not per optional CvPADLIST.
 
 Method composition with overlapping field indices does not work
 yet. This requires the not yet finished inliner.

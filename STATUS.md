@@ -42,7 +42,7 @@ The current stable release is
   
 the latest development release:
 
-* [5.27.1c](https://github.com/perl11/cperl/releases/tag/cperl-5.27.1) - [perl5271cdelta](perl5271cdelta.html).
+* [5.27.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.27.2) - [perl5272cdelta](perl5272cdelta.html).
 
 We also have:
 
@@ -52,11 +52,13 @@ We also have:
 All tests pass. CPAN works.
 Some fixes in my `rurban/distroprefs` repo for certain CPAN modules are needed.
 
-v5.24.0c, v5.24.1c and v5.24.2c
-have [about 24 fixes](perldelta.html#Known-Problems-fixed-elsewhere),
+v5.24.0c, v5.24.1c and v5.24.2c have
+[about 24 fixes](perldelta.html#Known-Problems-fixed-elsewhere),
 for problems which are not fixed in perl-5.24.1.  Ditto with 5.26,
 cperl-5.22.4c has about 20 fixes which are not in the latest
-perl-5.22.3.  Since cperl development is about 10x faster than p5p
+perl-5.22.3. Similar numbers for v5.27.2c, as p5p is still adding
+security and performance problems.
+Since cperl development is about 10x faster than p5p
 development, and damage done within p5p increases, these numbers do
 increase over time.
 
@@ -257,6 +259,9 @@ patches. Test2 is not yet supported, as it is still 20% slower, and
 has no significant benefit over the old Test-Simple. And they chose to break
 the API and performance, instead of letting users select the new Test2 module.
 
+Beware of modules with `inc/Test`. This is broken. Remove this dir and try
+to reinstall again.
+
 # FAQ
 
 ## Test::More::skip errors
@@ -347,9 +352,9 @@ are limited. So they are based on master.
   windows: autoinstall of binary libffi missing.
   more convenience methods needed.
 
-* [smoke/gh16-class](https://github.com/perl11/cperl/issues/16)
+* [bugfix/gh311-role-meth](https://github.com/perl11/cperl/issues/311)
 
-  See the relevant subtickets:
+  See the relevant #16 subtickets:
   compose role methods, use mro on classes, array and hash field syntax
   ($obj->array[0], $obj->hash{key}), :before, :after, :around method
   composition, class :native,
@@ -460,4 +465,4 @@ They also revert some wrong decisions p5p already made.
 
 --
 
-2017-08-14 rurban
+2017-12-05 rurban
