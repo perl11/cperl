@@ -7,8 +7,8 @@ use File::Spec;
 use File::Compare qw( compare );
 use File::Copy qw( copy );
 use File::Basename qw( dirname );
-use constant SILENT => (defined $ENV{MAKEFLAGS}
-                        and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) ? 1 : 0;
+my $SILENT = (defined $ENV{MAKEFLAGS}
+              and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) ? 1 : 0;
 
 sub iterdirs(&);
 
@@ -34,7 +34,7 @@ my @destdirs = readlist($opt{list});
 
 # Nothing to do...
 unless (@destdirs) {
-  print "no destination directories found in $opt{list}\n" unless SILENT;
+  print "no destination directories found in $opt{list}\n" unless $SILENT;
   exit 0;
 }
 
@@ -44,7 +44,7 @@ if ($opt{clean}) {
     my($dir, $fulldir) = @_;
     my $dest = File::Spec->catfile($fulldir, 'ppport.h');
     if (-f $dest) {
-      print "removing ppport.h for $dir\n" unless SILENT;
+      print "removing ppport.h for $dir\n" unless $SILENT;
       unlink $dest or warn "WARNING: could not remove $dest: $!\n";
       1 while unlink $dest;  # remove any remaining versions
     }
@@ -68,7 +68,7 @@ my @unlink;
 
 END {
   for my $file (@unlink) {
-    print "removing temporary file $file\n" unless SILENT;
+    print "removing temporary file $file\n" unless $SILENT;
     unlink $file or warn "WARNING: could not remove $file: $!\n";
     1 while unlink $file;  # remove any remaining versions
   }
@@ -90,11 +90,11 @@ iterdirs {
   my($dir, $fulldir) = @_;
   my $dest = File::Spec->catfile($fulldir, 'ppport.h');
   if (compare('ppport.h', $dest)) {
-    print "installing ppport.h for $dir\n" unless SILENT;
+    print "installing ppport.h for $dir\n" unless $SILENT;
     copy('ppport.h', $dest) or die "copying ppport.h to $dest failed: $!\n";
   }
   else {
-    print "ppport.h in $dir is up-to-date\n" unless SILENT;
+    print "ppport.h in $dir is up-to-date\n" unless $SILENT;
   }
 };
 
@@ -145,7 +145,8 @@ sub run
     $_ = qq("$_") if $^O eq 'VMS' && /^[^"]/;
     $run .= " $_";
   }
-  print "running $run\n" unless SILENT;
+  $run .= ' --quiet' if $SILENT;
+  print "running $run\n" unless $SILENT;
   system $run and die "$run failed: $?\n";
 }
 

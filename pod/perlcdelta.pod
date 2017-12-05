@@ -120,6 +120,11 @@ XXX
 
 =over 4
 
+=item L<Devel::PPPort> 3.36_04
+
+mkppport called PPPort_pm.PL without
+passing through MAKEFLAGS. Add --quiet support there
+
 =item L<Unicode::Collate> 1.25_01
 
 Skip redefinition warnings on cperl since 5.27.2

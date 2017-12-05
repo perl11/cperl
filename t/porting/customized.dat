@@ -46,7 +46,7 @@ Devel::PPPort dist/Devel-PPPort/parts/inc/ppphbin e700553a5f9b790f3f712394658a86
 Devel::PPPort dist/Devel-PPPort/parts/todo/5013007 0446df4a31dcd58b8e27ab9e810711f0e4840fee
 Devel::PPPort dist/Devel-PPPort/parts/todo/5015004 4bdb7b2545380ade42e22dbb097f7fbf07737393
 Devel::PPPort dist/Devel-PPPort/ppport_h.PL 3aa0b958adf67a9b9385bf2b5b89ecf8cdd391c7
-Devel::PPPort dist/Devel-PPPort/PPPort_pm.PL 98e47dcf2a859290d0bba38cf6d34e729f59bcf2
+Devel::PPPort dist/Devel-PPPort/PPPort_pm.PL 00e87405844d6ed403a947dbb478bc744b72a2c1
 Devel::PPPort dist/Devel-PPPort/PPPort_xs.PL 034cce281a0017fe0ba05d9060f34a8c65781553
 Devel::PPPort dist/Devel-PPPort/t/testutil.pl 6d9502a22d0df23ba42f6b808c9c7d5fe65f5024
 Digest::MD5 cpan/Digest-MD5/Makefile.PL 3b5b9693e5a22f5189878d84833b10f98136e619
@@ -107,7 +107,7 @@ Math::BigRat cpan/Math-BigRat/t/bigfltpm.inc 8000c7057453138ff48cf4cba61f0f4a1db
 Math::BigRat cpan/Math-BigRat/t/bigfltrt.t 5508d55216c52caf26aa2e6478691c50b7856e7d
 Math::BigRat cpan/Math-BigRat/t/bigratpm.t cfd770aabeaf6b742fd942143e816db42db04fba
 Memoize cpan/Memoize/t/expmod_t.t 9386100cd9c95a0e8a4e001bba3aa52eec114d21
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 6ca183b516facdda8798713d3ee62a71235d12ae
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 9dd2e747d740d8a5bb8f3118cd2c0e6488eb4a32
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 346efec8c56f6fbbc77871e19246f0f4d38c4b6b
 Module::Load::Conditional cpan/Module-Load-Conditional/lib/Module/Load/Conditional.pm 9749bb2a08a404662d137901e7483799acbff5d8
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086

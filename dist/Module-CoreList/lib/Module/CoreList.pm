@@ -15696,6 +15696,7 @@ our %delta = (
             'Module::CoreList'      => '5.20171205c',
             'Module::CoreList::Utils'=> '5.20171205c',
             'Module::CoreList::TieHashDelta'=> '5.20171205',
+            'Devel::PPPort'         => '3.36_04',
             'Unicode::Collate'      => '1.25_01',
         },
         removed => {
