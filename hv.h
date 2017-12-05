@@ -356,7 +356,7 @@ C<SV*>.
 /* 64bit arith is faster, even with the added mask */
 #if LONGSIZE >= 8
 #define HvHASH_INDEX(hash, max) \
-    ((U64_CONST(0x7fffffff00000000) | hash) & (max))
+    ((UINT64_C(0x7fffffff00000000) | hash) & (max))
 #else
 #define HvHASH_INDEX(hash, max) (hash & (max))
 #endif
