@@ -5309,16 +5309,6 @@ PP(pp_entersub)
                 if (UNLIKELY(!SvOK(sv)))
                     DIE(aTHX_ PL_no_usym, "a subroutine");
 
-                if (UNLIKELY(sv == SV_YES)) { /* unfound import, ignore */
-                    if (PL_op->op_flags & OPf_STACKED) /* hasargs */
-                        SP = PL_stack_base + POPMARK;
-                    else
-                        (void)POPMARK;
-                    if (GIMME_V == G_SCALAR)
-                        PUSHs(UNDEF);
-                    RETURN;
-                }
-
                 sym = SvPV_nomg_const(sv, len);
                 if (PL_op->op_private & OPpHINT_STRICT_REFS)
                     DIE(aTHX_ "Can't use string (\"%" SVf32 "\"%s) as a subroutine ref while \"strict refs\" in use", sv, len>32 ? "..." : "");
@@ -5546,7 +5536,6 @@ PP(pp_entersub)
 PP(pp_enterxssub)
 {
     dVAR; dSP; dPOPss;
-    const bool hasargs = (PL_op->op_flags & OPf_STACKED) != 0;
     CV *cv;
     GV *gv;
 
@@ -5573,14 +5562,6 @@ PP(pp_enterxssub)
             if (isGV_with_GP(sv)) goto we_have_a_glob;
             /* FALLTHROUGH */
         default:
-            if (sv == SV_YES) {		/* unfound import, ignore */
-                EXTEND(SP, 1);
-                if (hasargs)
-                    SP = PL_stack_base + POPMARK;
-                else
-                    (void)POPMARK;
-                RETURN;
-            }
             SvGETMAGIC(sv);
             if (LIKELY(SvROK(sv))) { /* 2nd most common case. RV -> CV */
                 if (UNLIKELY(SvAMAGIC(sv))) {
