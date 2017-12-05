@@ -120,9 +120,9 @@ XXX
 
 =over 4
 
-=item *
+=item L<Unicode::Collate> 1.25_01
 
-L<XXX> has been upgraded from version A.xx to B.yy.
+Skip redefinition warnings on cperl since 5.27.2
 
 =back
 
