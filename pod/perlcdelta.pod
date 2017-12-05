@@ -367,7 +367,14 @@ files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 
 =item *
 
-XXX
+Fixed error message for illegal charnames, and avoid passing NUL into
+the charnames lookup, which is a potential security threat.  E.g. on
+"\N{TILDE\000}" report "Missing right brace on \\N\{\}" as before
+with 5.27.2 and on "\N{TILDE\001}" report "Unknown charname 'TILDE\1'" and
+not "Unknown charname 'TILDE'".  perl5.27.5 started reporting those
+errors with "Unknown charname 'TILDE'" hiding all characters behind
+the embedded NUL or any non-printable character.
+L<[cperl #342]|https://github.com/perl11/cperl/issues/342>
 
 =back
 

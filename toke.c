@@ -2802,6 +2802,8 @@ S_get_and_check_backslash_N_name(pTHX_ const char* s, const char* const e)
 
     PERL_ARGS_ASSERT_GET_AND_CHECK_BACKSLASH_N_NAME;
 
+    if (UNLIKELY(!*s))
+        goto bad_charname;
     if (!SvCUR(res)) {
         SvREFCNT_dec_NN(res);
         /* diag_listed_as: Unknown charname '%s' */
@@ -3874,7 +3876,7 @@ S_scan_const(pTHX_ char *start)
                 s++;
 
                 /* If there is no matching '}', it is an error. */
-                if (! (e = (char *) memchr(s, '}', send - s))) {
+                if (! (e = (char *) strchr(s, '}'))) {
                     if (! PL_lex_inpat) {
                         yyerror("Missing right brace on \\N{}");
                     } else {
@@ -9894,10 +9896,19 @@ S_new_constant(pTHX_ const char *s, STRLEN len, const char *key, STRLEN keylen,
             why3 = "} is not defined";
         report:
             if (*key == 'c') {
-                msg = Perl_form(aTHX_
-                            /* The +3 is for '\N{'; -4 for that, plus '}' */
-                            "Unknown charname '%.*s'", (int)typelen - 4, type + 3
-                      );
+                SV *tmp = newSVpvn_flags("", 0, UTF ? SVf_UTF8|SVs_TEMP : SVs_TEMP);
+                SV *dsv = Perl_newSVpvn_flags(aTHX_ STR_WITH_LEN("Unknown charname '"),
+                                              SVs_TEMP);
+                if (UTF)
+                    /* The +3 is for '\N{'; -4 for that, plus '}' */
+                    sv_catpvn(tmp, type + 3, typelen - 4);
+                else
+                    pv_pretty(tmp, type + 3, typelen - 4, 60, NULL, NULL,
+                              PERL_PV_PRETTY_ELLIPSES);
+                sv_catsv(dsv, tmp);
+                sv_catpvs(dsv, "'");
+                yyerror_pvn(SvPVX(dsv), SvCUR(dsv), UTF ? SVf_UTF8 : 0);
+                return SvREFCNT_inc_simple_NN(sv);
             }
             else {
                 msg = Perl_form(aTHX_ "Constant(%.*s): %s%s%s",

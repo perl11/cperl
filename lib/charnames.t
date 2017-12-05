@@ -19,7 +19,7 @@ my @WARN;
 BEGIN {
     unless(grep /blib/, @INC) {
 	chdir 't' if -d 't';
-	@INC = '../lib';
+	# @INC = '../lib';
     }
     $SIG{__WARN__} = sub { push @WARN, @_ };
 }
@@ -940,6 +940,19 @@ is("\N{U+1D0C5}", "\N{BYZANTINE MUSICAL SYMBOL FTHORA SKLIRON CHROMA VASIS}", 'V
         is(charnames::string_vianame("co pt_ic: She i"), chr(0x3E2), "Verify that loose :short matching works with string_vianame");
         is(charnames::vianame("  Arm-en-ian: x e h_"), 0x56D, "Verify that loose :short matching works with vianame");
     }
+}
+
+my $args = { switches => [''] };
+if ( $^V =~ /c$/ and $] >= 5.027003 ) { # [cperl #342]
+  fresh_perl_like(sprintf("\"\\N{TILDE%cx}\"\n", 0),
+                  qr/Missing right brace on \\N\{\} at /, $args, "Embedded NUL");
+  eval sprintf("\"\\N{TILDE%c}\"\n", 1);
+  like($@, qr/Unknown charname 'TILDE\\1'/, "quote illegal char");
+} else {
+  fresh_perl_like(sprintf("\"\\N{TILDE%cx}\"\n", 0),
+                  qr/Unknown charname 'TILDE'/, $args, "Invisible embedded NUL");
+  eval sprintf("\"\\N{TILDE%c}\"\n", 1);
+  like($@, qr/Unknown charname 'TILDE/, "dont quote illegal char");
 }
 
 {
