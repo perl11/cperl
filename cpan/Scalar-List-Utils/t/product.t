@@ -116,7 +116,9 @@ SKIP: {
   SKIP: {
     skip "$] has no proper stringify overload", 1 if $] < 5.008;
     $t = product($max, $max);
-    is($t,  (1<<62)-(1<<32)+1, 'max * max');
+    my $exp = (1<<62)-(1<<32)+1;
+    # The last digit may deviate
+    ok(abs($t - $exp) <= 1, 'max * max');
   }
 
   $t = product($min*8, $min);
