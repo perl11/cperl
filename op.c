@@ -9377,11 +9377,24 @@ S_assignment_type(pTHX_ const OP *o)
     if (!o)
 	return TRUE;
 
-    if ((IS_NULL_OP(o)) && (OpKIDS(o)))
-	o = OpFIRST(o);
+    if (IS_TYPE(o, SREFGEN))
+    {
+	OP * const kid = OpFIRST(OpFIRST(o));
+	type = kid->op_type;
+	flags = o->op_flags | kid->op_flags;
+	if (!(flags & OPf_PARENS)
+	  && (IS_TYPE(kid, RV2AV) || IS_TYPE(kid, PADAV) ||
+	      IS_TYPE(kid, RV2HV) || IS_TYPE(kid, PADHV) ))
+	    return ASSIGN_REF;
+	ret = ASSIGN_REF;
+    } else {
+        if ((IS_NULL_OP(o)) && (OpKIDS(o)))
+	    o = OpFIRST(o);
+	flags = o->op_flags;
+	type = o->op_type;
+	ret = 0;
+    }
 
-    flags = o->op_flags;
-    type = o->op_type;
     if (type == OP_COND_EXPR) {
         OP * const sib = OpSIBLING(OpFIRST(o));
         const I32 t = assignment_type(sib);
@@ -9393,17 +9406,6 @@ S_assignment_type(pTHX_ const OP *o)
 	    yyerror("Assignment to both a list and a scalar");
 	return FALSE;
     }
-    else if (type == OP_SREFGEN) {
-	OP * const kid = OpFIRST(OpFIRST(o));
-	type = kid->op_type;
-	flags |= kid->op_flags;
-	if (!(flags & OPf_PARENS)
-	  && (IS_TYPE(kid, RV2AV) || IS_TYPE(kid, PADAV) ||
-	      IS_TYPE(kid, RV2HV) || IS_TYPE(kid, PADHV) ))
-	    return ASSIGN_REF;
-	ret = ASSIGN_REF;
-    }
-    else ret = 0;
 
     if (type == OP_LIST &&
 	(flags & OPf_WANT) == OPf_WANT_SCALAR &&
