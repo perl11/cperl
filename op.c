@@ -9060,7 +9060,22 @@ Perl_utilize(pTHX_ int aver, I32 floor, OP *version, OP *idop, OP *arg)
 		PL_hints |= HINT_STRICT_SUBS;
 	    if (!(PL_hints & HINT_EXPLICIT_STRICT_VARS))
 		PL_hints |= HINT_STRICT_VARS;
-	}
+            /* use strict names >= use 5.026, hashpairs >= use 5.027 */
+#ifdef USE_CPERL
+            if (vcmp(use_version,
+                     sv_2mortal(upg_version(newSVnv(5.026000), FALSE))) >= 0) {
+# if defined(HINT_STRICT_NAMES) && HINT_STRICT_NAMES
+                if (!(PL_hints & HINT_EXPLICIT_STRICT_REFS))
+                    PL_hints |= HINT_STRICT_NAMES;
+# endif
+                if (vcmp(use_version,
+                         sv_2mortal(upg_version(newSVnv(5.027000), FALSE))) >= 0) {
+                    if (!(PL_hints & HINT_EXPLICIT_STRICT_REFS))
+                        PL_hints |= HINT_STRICT_HASHPAIRS;
+                }
+            }
+#endif
+        }
 	/* otherwise they are off */
 	else {
 	    if (!(PL_hints & HINT_EXPLICIT_STRICT_REFS))
