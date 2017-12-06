@@ -4488,7 +4488,6 @@ PP(pp_system)
 	    (void)rsignal_restore(SIGQUIT, &qhand);
 #endif
 	    STATUS_NATIVE_CHILD_SET(result == -1 ? -1 : status);
-	    do_execfree();	/* free any memory child malloced on fork */
 	    SP = ORIGMARK;
 	    if (did_pipes) {
 		int errkid;
@@ -4567,7 +4566,6 @@ PP(pp_system)
     if (PL_statusvalue == -1)	/* hint that value must be returned as is */
 	result = 1;
     STATUS_NATIVE_CHILD_SET(value);
-    do_execfree();
     SP = ORIGMARK;
     XPUSHi(result ? value : STATUS_CURRENT);
 #endif /* !FORK or VMS or OS/2 */

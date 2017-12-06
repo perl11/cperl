@@ -2474,7 +2474,6 @@ Perl_my_popen_list(pTHX_ const char *mode, int n, SV **args)
 #undef THAT
     }
     /* Parent */
-    do_execfree();	/* free any memory malloced by child on fork */
     if (did_pipes)
 	PerlLIO_close(pp[1]);
     /* Keep the lower of the two fd numbers */
@@ -2633,7 +2632,6 @@ Perl_my_popen(pTHX_ const char *cmd, const char *mode)
 #undef THIS
 #undef THAT
     }
-    do_execfree();	/* free any memory malloced by child on vfork */
     if (did_pipes)
 	PerlLIO_close(pp[1]);
     if (p[that] < p[This]) {
