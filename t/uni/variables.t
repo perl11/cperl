@@ -126,13 +126,13 @@ for ( 0x0 .. 0xff ) {
     if ($chr !~ /\p{XIDS}/u) {
         if ($syntax_error) {
             evalbytes "\$$chr";
-            like($@, qr/ syntax\ error | Unrecognized\ character /x,
-                     "$name as a length-1 variable generates a syntax error");
+            my $err = ($ord == 0x0) ? qr/Illegal NUL in identifier /
+                                    : qr/ syntax\ error | Unrecognized\ character /x;
+            like($@, $err, "$name as a length-1 variable generates a syntax error");
             $tests++;
             utf8::upgrade($chr);
             eval "no strict; \$$chr = 4;",
-            like($@, qr/ syntax\ error | Unrecognized\ character /x,
-                     "  ... and the same under 'use utf8'");
+            like($@, $err, "  ... and the same under 'use utf8'");
             $tests++;
         }
         elsif ($chr =~ /[[:punct:][:digit:]]/a) {

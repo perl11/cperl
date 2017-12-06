@@ -7,7 +7,7 @@ use warnings;
 
 BEGIN { chdir 't' if -d 't'; require './test.pl'; }
 
-plan(tests => 39);
+plan(tests => 43);
 
 {
     print <<'';   # Yow!
@@ -96,36 +96,36 @@ is ${no strict; \$_}, "rhubarb", '${no strict; ...}';
 is join("", map{no strict; "rhu$_" } "barb"), 'rhubarb',
   'map{no strict;...}';
 
-# [perl #123753]
-fresh_perl_is(
+# [perl #105920] replaced by [cperl #345]
+fresh_perl_like(
   '$eq = "ok\n"; print $' . "\0eq\n",
-  "ok\n",
+  qr/Illegal NUL in identifier/,
    { stderr => 1 },
-  '$ <null> ident'
+  '$ <null> ident errors [cperl #345]'
 );
-fresh_perl_is(
+fresh_perl_like(
   '@eq = "ok\n"; print @' . "\0eq\n",
-  "ok\n",
+  qr/Illegal NUL in identifier/,
    { stderr => 1 },
-  '@ <null> ident'
+  '@ <null> ident errors [cperl #345]'
 );
-fresh_perl_is(
+fresh_perl_like(
   '%eq = ("o"=>"k\n"); print %' . "\0eq\n",
-  "ok\n",
+  qr/Illegal NUL in identifier/,
    { stderr => 1 },
-  '% <null> ident'
+  '% <null> ident errors [cperl #345]'
 );
-fresh_perl_is(
+fresh_perl_like(
   'sub eq { "ok\n" } print &' . "\0eq\n",
-  "ok\n",
+  qr/Illegal NUL in identifier/,
    { stderr => 1 },
-  '& <null> ident'
+  '& <null> ident errors [cperl #345]'
 );
-fresh_perl_is(
+fresh_perl_like(
   '$eq = "ok\n"; print ${*' . "\0eq{SCALAR}}\n",
-  "ok\n",
+  qr/Illegal NUL in identifier/,
    { stderr => 1 },
-  '* <null> ident'
+  '* <null> ident errors [cperl #345]'
 );
 SKIP: {
     skip "Different output on EBCDIC (presumably)", 3 if $::IS_EBCDIC;
@@ -134,7 +134,7 @@ SKIP: {
 Bareword found where operator expected at - line 1, near ""ab}"ax"
 	(Missing operator before ax?)
 syntax error at - line 1, near ""ab}"ax"
-Unrecognized character \\x8A; marked by <-- HERE after ab}"ax;&\0z<-- HERE near column 12 at - line 1.
+Illegal NUL in identifier at - line 1.
 gibberish
        { stderr => 1 },
       'gibberish containing &\0z - used to crash [perl #123753]'
@@ -314,5 +314,15 @@ EOM
     "[perl #129273] heap use after free or overflow"
 );
 
-fresh_perl_like('flock  _$', qr/Not enough arguments for flock/, {stderr => 1},
+fresh_perl_like('flock  _$', qr/Final \$ should be \\\$ or \$name at/, {stderr => 1},
                 "[perl #129190] intuit_method() invalidates PL_bufptr");
+
+fresh_perl_like("\$a=[0,1]; print \$a->[0\000]", qr/syntax error/, {stderr => 1},
+                "[cperl #342] \$a->[0\\0] errors");
+fresh_perl_like("\@a=(0,1); print \$a[0\000]", qr/syntax error/, {stderr => 1},
+                "[cperl #342] \$a[0\\0] errors");
+fresh_perl_like("\@a=(0,1); print \$a[0\0001]", qr/syntax error/, {stderr => 1},
+                "[cperl #342] \$a[0\\01] errors");
+fresh_perl_like("\@a=(0,1); print '0' =~ /\$a[0\000]/", qr/syntax error/, {stderr => 1},
+                "[cperl #342] intuit_more() w/ stray NUL in match");
+

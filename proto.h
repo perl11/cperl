@@ -10518,11 +10518,12 @@ STATIC char*	S_scan_heredoc(pTHX_ char *s)
 #define PERL_ARGS_ASSERT_SCAN_HEREDOC	\
 	assert(s)
 
-STATIC char*	S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni, int *normalize)
+STATIC char*	S_scan_ident(pTHX_ char *s, const char *end, char *dest, STRLEN destlen, I32 ck_uni, int *normalize)
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2);
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_SCAN_IDENT	\
-	assert(s); assert(dest)
+	assert(s); assert(end); assert(dest)
 
 STATIC char*	S_scan_inputsymbol(pTHX_ char *start)
 			__attribute__warn_unused_result__

@@ -2753,6 +2753,16 @@ numbers don't take to this kindly.
 (F) The number of bits in vec() (the third argument) must be a power of
 two from 1 to 32 (or 64, if your platform supports that).
 
+=item Illegal NUL in identifier
+
+(F) You used a C<\0> (NUL) byte in an identifer, which is a valid
+whitespace in perl5, but illegal in cperl, matching the behaviour as in C<eval "">.
+
+=item Illegal NUL, syntax error
+
+(F) You used a C<\0> (NUL) byte, which is a valid whitespace in perl5,
+but illegal in cperl, matching the behaviour as in C<eval "">.
+
 =item Illegal octal digit '%c'
 
 (F) You used an 8 or 9 in an octal number.

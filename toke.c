@@ -105,6 +105,8 @@ Individual members of C<PL_parser> have their own documentation.
     && ((XPVIV*)SvANY(sv))->xiv_u.xivu_eval_seen)
 
 static const char* const ident_too_long = "Identifier too long";
+static const char* const ident_nul = "Illegal NUL in identifier";
+static const char* const illegal_nul = "Illegal NUL, syntax error";
 
 #  define NEXTVAL_NEXTTOKE PL_nextval[PL_nexttoke]
 
@@ -4370,11 +4372,11 @@ S_intuit_more(pTHX_ char *s, char *e)
         const int l = *s == '-' ? 2 : 3;
         if (s[l] == '[' || s[l] == '{')
             return TRUE;
-    }
-    if (isRIGHTARROW(s) && FEATURE_POSTDEREF_QQ_IS_ENABLED) {
-        const int l = *s == '-' ? 2 : 3;
-        if ( (s[l] == '$' && (s[l+1] == '*' || (s[l+1] == '#' && s[l+2] == '*')))
-             || (s[l] == '@' && strchr("*[{",s[l+1])) )
+        if (FEATURE_POSTDEREF_QQ_IS_ENABLED &&
+            ((s[l] == '$' &&
+             (s[l+1] == '*' ||
+              (s[l+1] == '#' && s[l+2] == '*'))) ||
+             (s[l] == '@' && memchr("*[{",s[l+1], e-s))))
             return TRUE;
     }
     if (*s != '{' && *s != '[')
@@ -4384,10 +4386,7 @@ S_intuit_more(pTHX_ char *s, char *e)
 
     /* In a pattern, so maybe we have {n,m}. */
     if (*s == '{') {
-        if (regcurly(s)) {
-            return FALSE;
-        }
-        return TRUE;
+        return regcurly(s) ? FALSE : TRUE;
     }
 
     /* On the other hand, maybe we have a character class */
@@ -4402,6 +4401,7 @@ S_intuit_more(pTHX_ char *s, char *e)
         const char * const send = (char *) memchr(s, ']', e - s);
         unsigned char un_char, last_un_char;
         char tmpbuf[sizeof PL_tokenbuf * 4];
+        STRLEN rem = send - s;
 
         if (!send)              /* has to be an expression */
             return TRUE;
@@ -4419,7 +4419,7 @@ S_intuit_more(pTHX_ char *s, char *e)
         }
         Zero(seen,256,char);
         un_char = 255;
-        for (; s < send; s++) {
+        for (; s < send; s++, rem--) {
             last_un_char = un_char;
             un_char = (unsigned char)*s;
             switch (*s) {
@@ -4432,7 +4432,7 @@ S_intuit_more(pTHX_ char *s, char *e)
                     int normalize;
                     char *tmp = PL_bufend;
                     PL_bufend = (char*)send;
-                    scan_ident(s, tmpbuf, sizeof tmpbuf, FALSE, &normalize);
+                    scan_ident(s, send, tmpbuf, sizeof tmpbuf, FALSE, &normalize);
                     PL_bufend = tmp;
                     len = (int)strlen(tmpbuf);
                     if (len > 1) {
@@ -4454,9 +4454,9 @@ S_intuit_more(pTHX_ char *s, char *e)
                 }
                 else if (*s == '$'
                          && s[1]
-                         && strchr("[#!%*<>()-=",s[1]))
+                         && memchr("[#!%*<>()-=",s[1], rem-1))
                 {
-                    if (/*{*/ strchr("])} =",s[2]))
+                    if (/*{*/ memchr("])} =",s[2],rem-2))
                         weight -= 10;
                     else
                         weight -= 1;
@@ -4465,11 +4465,11 @@ S_intuit_more(pTHX_ char *s, char *e)
             case '\\':
                 un_char = 254;
                 if (s[1]) {
-                    if (strchr("wds]",s[1]))
+                    if (memchr("wds]",s[1],rem-1))
                         weight += 100;
                     else if (seen[(U8)'\''] || seen[(U8)'"'])
                         weight += 1;
-                    else if (strchr("rnftbxcav",s[1]))
+                    else if (memchr("rnftbxcav",s[1],rem-1))
                         weight += 40;
                     else if (isDIGIT(s[1])) {
                         weight += 40;
@@ -4485,19 +4485,22 @@ S_intuit_more(pTHX_ char *s, char *e)
                     weight += 50;
                 if (strchr("aA01! ",last_un_char))
                     weight += 30;
-                if (strchr("zZ79~",s[1]))
+                if (memchr("zZ79~",s[1],rem-1))
                     weight += 30;
                 if (last_un_char == 255 && (isDIGIT(s[1]) || s[1] == '$'))
                     weight -= 5;        /* cope with negative subscript */
                 break;
+            case '\0':
+                Perl_croak(aTHX_ "%s", illegal_nul);
             default:
                 if (!isWORDCHAR(last_un_char)
                     && !(last_un_char == '$' || last_un_char == '@'
                          || last_un_char == '&')
                     && isALPHA(*s) && s[1] && isALPHA(s[1])) {
                     char *d = s;
-                    while (isALPHA(*s))
-                        s++;
+                    while (isALPHA(*s)) {
+                        s++; rem--;
+                    }
                     if (keyword(d, s - d, 0))
                         weight -= 150;
                 }
@@ -4543,10 +4546,10 @@ S_intuit_method(pTHX_ char *start, SV *ioname, CV *cv)
     char tmpbuf[sizeof PL_tokenbuf];
     STRLEN len;
     GV* indirgv;
-        /* Mustn't actually add anything to a symbol table.
-           But also don't want to "initialise" any placeholder
-           constants that might already be there into full
-           blown PVGVs with attached PVCV.  */
+    /* Mustn't actually add anything to a symbol table.
+       But also don't want to "initialise" any placeholder
+       constants that might already be there into full
+       blown PVGVs with attached PVCV.  */
     GV * const gv =
         ioname ? gv_fetchsv(ioname, GV_NOADD_NOINIT, SVt_PVCV) : NULL;
     int normalize;
@@ -4555,7 +4558,7 @@ S_intuit_method(pTHX_ char *start, SV *ioname, CV *cv)
     PERL_ARGS_ASSERT_INTUIT_METHOD;
 
     if (gv && SvTYPE(gv) == SVt_PVGV && GvIO(gv))
-            return 0;
+        return 0;
     if (cv && SvPOK(cv)) {
         const char *proto = CvPROTO(cv);
         if (proto) {
@@ -5474,8 +5477,9 @@ Perl_yylex(pTHX)
             DEBUG_T(PerlIO_printf(Perl_debug_log, "### Tokener got EOF\n"));
             TOKEN(0);
         }
-        if (s++ < PL_bufend)
-            goto retry;                 /* ignore stray nulls */
+        if (s+1 < PL_bufend) { /* ending stray nulls: perl5 ignores them */
+            Perl_croak(aTHX_ "%s", illegal_nul);
+        }
         PL_last_uni = 0;
         PL_last_lop = 0;
         if (!PL_in_eval && !PL_preambled) {
@@ -6136,7 +6140,7 @@ Perl_yylex(pTHX)
     case '*':
         if (PL_expect == XPOSTDEREF) POSTDEREF('*');
         if (PL_expect != XOPERATOR) {
-            s = scan_ident(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &normalize);
+            s = scan_ident(s, PL_bufend, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &normalize);
             if (UNLIKELY(normalize)) {
                 d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
                 Copy(d, PL_tokenbuf, len+1, char);
@@ -6183,7 +6187,7 @@ Perl_yylex(pTHX)
         }
         else if (PL_expect == XPOSTDEREF) POSTDEREF('%');
         PL_tokenbuf[0] = '%';
-        s = scan_ident(s, PL_tokenbuf + 1,
+        s = scan_ident(s, PL_bufend, PL_tokenbuf + 1,
                 sizeof PL_tokenbuf - 1, FALSE, &normalize);
         pl_yylval.ival = 0;
         if (!PL_tokenbuf[1]) {
@@ -6790,7 +6794,7 @@ Perl_yylex(pTHX)
         }
 
         PL_tokenbuf[0] = '&';
-        s = scan_ident(s - 1, PL_tokenbuf + 1,
+        s = scan_ident(s - 1, PL_bufend, PL_tokenbuf + 1,
                        sizeof PL_tokenbuf - 1, TRUE, &normalize);
         if (UNLIKELY(normalize)) {
             d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
@@ -7054,7 +7058,7 @@ Perl_yylex(pTHX)
                 || strchr("{$:+-@", s[2])))
         {
             PL_tokenbuf[0] = '@';
-            s = scan_ident(s + 1, PL_tokenbuf + 1,
+            s = scan_ident(s + 1, PL_bufend, PL_tokenbuf + 1,
                            sizeof PL_tokenbuf - 1, FALSE, &normalize);
             if (PL_expect == XOPERATOR) {
                 d = s;
@@ -7076,7 +7080,7 @@ Perl_yylex(pTHX)
         }
 
         PL_tokenbuf[0] = '$';
-        s = scan_ident(s, PL_tokenbuf + 1,
+        s = scan_ident(s, PL_bufend, PL_tokenbuf + 1,
                        sizeof PL_tokenbuf - 1, FALSE, &normalize);
         if (PL_expect == XOPERATOR) {
             d = s;
@@ -7221,7 +7225,8 @@ Perl_yylex(pTHX)
         if (PL_expect == XPOSTDEREF)
             POSTDEREF('@');
         PL_tokenbuf[0] = '@';
-        s = scan_ident(s, PL_tokenbuf + 1, sizeof PL_tokenbuf - 1, FALSE, &normalize);
+        s = scan_ident(s, PL_bufend, PL_tokenbuf + 1, sizeof PL_tokenbuf - 1,
+                       FALSE, &normalize);
         if (UNLIKELY(normalize)) {
             d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
             Copy(d, PL_tokenbuf, len+1, char);
@@ -10095,7 +10100,8 @@ S_scan_word(pTHX_ char *s, char *dest, STRLEN destlen, int allow_package,
                             && LIKELY((U8) *(s) != LATIN1_TO_NATIVE(0xAD)))))
 
 STATIC char *
-S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni, int *normalize)
+S_scan_ident(pTHX_ char *s, const char *end, char *dest, STRLEN destlen,
+             I32 ck_uni, int *normalize)
 {
     SSize_t bracket = -1;
     char *d = dest;
@@ -10107,7 +10113,9 @@ S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni, int *normali
 
     PERL_ARGS_ASSERT_SCAN_IDENT;
 
-    if (isSPACE(*s) || !*s)
+    if (!*s && end > s)
+        Perl_croak(aTHX_ "%s", ident_nul);
+    if (isSPACE(*s))
         s = skipspace(s);
     if (isDIGIT(*s)) {
         while (isDIGIT(*s)) {

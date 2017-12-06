@@ -44,13 +44,16 @@ See L<[cperl #342]|https://github.com/perl11/cperl/issues/342>
 
 =head1 Incompatible Changes
 
-XXX For a release on a stable branch, this section aspires to be:
+=head2 Illegal NUL, syntax error
 
-    There are no changes intentionally incompatible with 5.XXX.XXX
-    If any exist, they are bugs, and we request that you submit a
-    report.  See L</Reporting Bugs> below.
+Embedded NUL bytes read from files, not used in filters, are not
+whitespace anymore, they are syntax errors.
 
-[ List each incompatible change as a =head2 entry ]
+See L<[cperl #345]|https://github.com/perl11/cperl/issues/345> vs
+L<[perl #105920]|https://rt.perl.org/Public/Bug/Display.html?id=105920>.
+
+Parsing NUL bytes is now consistent from files with eval string.
+C<\0> delimited C<q> quote is still valid though.
 
 =head1 Deprecations
 
