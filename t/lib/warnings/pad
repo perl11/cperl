@@ -31,7 +31,7 @@ This has cperl specific multi-script declarations and changes.
 
 __END__
 # pad.c
-use warnings 'misc' ;
+use warnings 'shadow' ;
 my $x ;
 my $x ;
 my $y = my $y ;
@@ -39,7 +39,7 @@ my $p ;
 package X ;
 my $p ;
 package main ;
-no warnings 'misc' ;
+no warnings 'shadow' ;
 my $x ;
 my $y ;
 my $p ;
@@ -49,7 +49,7 @@ EXPECT
 "my" variable $p masks earlier declaration in same scope at - line 8.
 ########
 # pad.c
-use warnings 'misc' ;
+use warnings 'shadow' ;
 our $x ;
 my $x ;
 our $y = my $y ;
@@ -57,7 +57,7 @@ our $p ;
 package X ;
 my $p ;
 package main ;
-no warnings 'misc' ;
+no warnings 'shadow' ;
 our $z ;
 my $z ;
 our $t = my $t ;
@@ -70,7 +70,7 @@ EXPECT
 "my" variable $p masks earlier declaration in same scope at - line 8.
 ########
 # pad.c
-use warnings 'misc' ;
+use warnings 'shadow' ;
 my $x ;
 our $x ;
 my $y = our $y ;
@@ -78,7 +78,7 @@ my $p ;
 package X ;
 our $p ;
 package main ;
-no warnings 'misc' ;
+no warnings 'shadow' ;
 my $z ;
 our $z ;
 my $t = our $t ;
@@ -236,7 +236,7 @@ our $y;
 sub { $x = $y }->();  # should not warn about $y being unavailable
 EXPECT
 ########
-use warnings 'misc' ;
+use warnings 'shadow' ;
 my $x;
 {
     my $x;
@@ -244,7 +244,7 @@ my $x;
 EXPECT
 ########
 # pad.c
-use warnings 'misc' ;
+use warnings 'shadow' ;
 our $x ;
 our $x ;
 our $y = our $y ;
@@ -252,7 +252,7 @@ our $p ;
 package X ;
 our $p ;
 package main ;
-no warnings 'misc' ;
+no warnings 'shadow' ;
 our $a ;
 our $a ;
 our $b = our $b ;
@@ -263,13 +263,13 @@ EXPECT
 "our" variable $x redeclared at - line 4.
 "our" variable $y redeclared at - line 5.
 ########
-use warnings 'misc' ;
+use warnings 'shadow' ;
 our $x;
 {
     our $x;
 }
 our $x;
-no warnings 'misc' ;
+no warnings 'shadow' ;
 our $y;
 {
     our $y;
@@ -280,36 +280,36 @@ EXPECT
 	(Did you mean "local" instead of "our"?)
 "our" variable $x redeclared at - line 6.
 ########
-use warnings 'misc' ;
+use warnings 'shadow' ;
 our $x;
 {
     my $x;
 }
-no warnings 'misc' ;
+no warnings 'shadow' ;
 our $y;
 {
     my $y;
 }
 EXPECT
 ########
-use warnings 'misc' ;
+use warnings 'shadow' ;
 my $x;
 {
     our $x;
 }
-no warnings 'misc' ;
+no warnings 'shadow' ;
 my $y;
 {
     our $y;
 }
 EXPECT
 ########
-use warnings 'misc' ;
+use warnings 'shadow' ;
 my $x;
 {
     my $x;
 }
-no warnings 'misc' ;
+no warnings 'shadow' ;
 my $y;
 {
     my $y;
@@ -322,13 +322,13 @@ use warnings;
 our $x unless $x;
 EXPECT
 ########
-use warnings 'misc';
+use warnings 'shadow';
 our $qunckkk;
 our $_;
 package clank_est;
 our $qunckkk;
 our $_;
-no warnings 'misc';
+no warnings 'shadow';
 our $ouch;
 our $_;
 package whack;
@@ -337,7 +337,7 @@ our $_;
 EXPECT
 "our" variable $_ redeclared at - line 6.
 ########
-use warnings 'misc';
+use warnings 'shadow';
 BEGIN { binmode STDERR, 'utf8'; }
 {
     use utf8;
@@ -347,7 +347,7 @@ BEGIN { binmode STDERR, 'utf8'; }
 EXPECT
 "my" variable $ニコニコ masks earlier declaration in same scope at - line 6.
 ########
-use warnings 'misc';
+use warnings 'shadow';
 BEGIN { binmode STDERR, 'utf8'; }
 {
     use utf8;
