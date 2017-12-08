@@ -254,10 +254,11 @@ Fix setlocale thread race for older perls.
 
 XS improvements
 
-=item L<Devel::PPPort> 3.36_04
+=item L<Devel::PPPort> 3.37_04
 
 mkppport called PPPort_pm.PL without
 passing through MAKEFLAGS. Add --quiet support there
+Fix WIDEST_UTYPE
 
 =item L<DynaLoader> 2.09c
 
