@@ -6,7 +6,7 @@ BEGIN {
     set_up_inc('../lib');
 }
 
-plan tests => 28;
+plan tests => 29;
 
 is(reverse("abc"), "cba", 'simple reverse');
 
@@ -118,3 +118,8 @@ SKIP: {
     ok defined $a[-1] && ${$a[-1]} eq '1', "in-place reverse strengthens weak reference";
     ok defined $a[2] && ${$a[2]} eq '3', "in-place reverse strengthens weak reference in the middle";
 }
+
+# [perl #132544] stack pointer used to go wild when nullary reverse
+# required extending the stack
+for(0..1000){()=(0..$_,scalar reverse )}
+pass "extending the stack without crashing";
