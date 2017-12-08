@@ -9651,6 +9651,7 @@ S_pending_ident(pTHX)
     const char *const has_colon = (const char*) memchr (PL_tokenbuf, ':', tokenbuf_len);
 
     DEBUG_T(PerlIO_printf(Perl_debug_log, "### Pending identifier '%s'\n", PL_tokenbuf));
+    assert(tokenbuf_len >= 2);
 
     /* if we're in a my(), we can't allow dynamics here.
        $foo'bar has already been turned into $foo::bar, so
