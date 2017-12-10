@@ -2730,7 +2730,8 @@ S_dofindlabel(pTHX_ OP *o, const char *label, STRLEN len, U32 flags, OP **opstac
 	o->op_type == OP_SCOPE ||
 	o->op_type == OP_LEAVELOOP ||
 	o->op_type == OP_LEAVESUB ||
-	o->op_type == OP_LEAVETRY)
+	o->op_type == OP_LEAVETRY ||
+	o->op_type == OP_LEAVEGIVEN)
     {
 	*ops++ = cUNOPo->op_first;
 	if (ops >= oplimit)
@@ -2790,6 +2791,9 @@ S_check_op_type(pTHX_ OP * const o)
     if (o->op_type == OP_ENTERITER)
         Perl_croak(aTHX_
                   "Can't \"goto\" into the middle of a foreach loop");
+    if (o->op_type == OP_ENTERGIVEN)
+        Perl_croak(aTHX_
+                  "Can't \"goto\" into a \"given\" block");
 }
 
 /* also used for: pp_dump() */
