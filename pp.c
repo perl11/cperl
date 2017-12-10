@@ -127,20 +127,18 @@ S_rv2gv(pTHX_ SV *sv, const bool vivify_sv, const bool strict,
 		 */
 		if (vivify_sv && sv != UNDEF) {
 		    GV *gv;
+		    HV *stash;
 		    if (SvREADONLY(sv))
 			croak_no_modify_sv(sv);
+		    gv = MUTABLE_GV(newSV(0));
+		    stash = CopSTASH(PL_curcop);
+		    if (SvTYPE(stash) != SVt_PVHV) stash = NULL;
 		    if (cUNOP->op_targ) {
 			SV * const namesv = PAD_SV(cUNOP->op_targ);
-			HV *stash = CopSTASH(PL_curcop);
-			if (SvTYPE(stash) != SVt_PVHV) stash = NULL;
-			gv = MUTABLE_GV(newSV(0));
 			gv_init_sv(gv, stash, namesv, 0);
 		    }
 		    else {
-			const char * const name = CopSTASHPV(PL_curcop);
-			gv = newGVgen_flags(name,
-                                            HvNAMEUTF8(CopSTASH(PL_curcop)) ? SVf_UTF8 : 0 );
-			SvREFCNT_inc_simple_void_NN(gv);
+			gv_init_pv(gv, stash, "__ANONIO__", 0);
 		    }
 		    prepare_SV_for_RV(sv);
 		    SvRV_set(sv, MUTABLE_SV(gv));

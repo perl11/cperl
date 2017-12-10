@@ -10,7 +10,7 @@ $|  = 1;
 use warnings;
 use Config;
 
-plan tests => 159;
+plan tests => 163;
 
 my $Perl = which_perl();
 
@@ -509,5 +509,28 @@ SKIP: {
        "warn on NUL in glob");
 }
 
-package OverloadTest;
-use overload '""' => sub { ${$_[0]} };
+{
+    package OverloadTest;
+    use overload '""' => sub { ${$_[0]} };
+}
+
+# [perl #115814] open(${\$x}, ...) creates spurious reference to handle in stash
+SKIP: {
+    # The bug doesn't depend on perlio, but perlio provides this nice
+    # way of discerning when a handle actually closes.
+    skip("These tests use perlio", 5) unless $Config{useperlio};
+    my($a, $b, $s, $t);
+    $s = "";
+    open($a, ">:scalar:perlio", \$s) or die;
+    print {$a} "abc";
+    is $s, "", "buffering delays writing to scalar (simple open)";
+    $a = undef;
+    is $s, "abc", "buffered write happens on dropping handle ref (simple open)";
+    $t = "";
+    open(${\$b}, ">:scalar:perlio", \$t) or die;
+    print {$b} "xyz";
+    is $t, "", "buffering delays writing to scalar (complex open)";
+    $b = undef;
+    is $t, "xyz", "buffered write happens on dropping handle ref (complex open)";
+    is scalar(grep { /\A_GEN_/ } keys %::), 0, "no gensym appeared in stash";
+}
