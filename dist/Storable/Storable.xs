@@ -111,16 +111,35 @@
 #endif
 
 /*
- * TRACEME() will only output things when the $Storable::DEBUGME is true.
+ * TRACEME() will only output things when the $Storable::DEBUGME is true,
+ * using the value traceme cached in the context.
+ *
+ *
+ * TRACEMED() directly looks at the variable, for use before traceme has been
+ * updated.
  */
 
 #define TRACEME(x)                                            \
+    STMT_START {					      \
+        if (cxt->traceme)				      \
+            { PerlIO_stdoutf x; PerlIO_stdoutf("\n"); }       \
+    } STMT_END
+
+#define TRACEMED(x)                                           \
     STMT_START {                                              \
         if (SvTRUE(get_sv("Storable::DEBUGME", GV_ADD)))      \
             { PerlIO_stdoutf x; PerlIO_stdoutf("\n"); }       \
     } STMT_END
+
+#define INIT_TRACEME							\
+    STMT_START {							\
+	cxt->traceme = SvTRUE(get_sv("Storable::DEBUGME", GV_ADD));	\
+    } STMT_END
+
 #else
 #define TRACEME(x)
+#define TRACEMED(x)
+#define INIT_TRACEME
 #endif	/* DEBUGME */
 
 #ifdef DASSERT
@@ -403,6 +422,9 @@ typedef struct stcxt {
     int in_retrieve_overloaded; /* performance hack for retrieving overloaded objects */
     int flags;			/* controls whether to bless or tie objects */
     U16 recur_depth;        	/* avoid stack overflows RT #97526 */
+#ifdef DEBUGME
+    int traceme;                /* TRACEME() produces output */
+#endif
 } stcxt_t;
 
 /* Note: We dont count nested scalars. This will have to count all refs
@@ -1527,7 +1549,7 @@ static SV *mbuf2sv(pTHX);
 static void init_perinterp(pTHX)
 {
     INIT_STCXT;
-
+    INIT_TRACEME;
     cxt->netorder = 0;		/* true if network order used */
     cxt->forgive_me = -1;	/* whether to be forgiving... */
     cxt->accept_future_minor = -1; /* would otherwise occur too late */
@@ -1559,6 +1581,8 @@ static void init_store_context(pTHX_
         int optype,
         int network_order)
 {
+    INIT_TRACEME;
+
     TRACEME(("init_store_context"));
 
     cxt->netorder = network_order;
@@ -1658,7 +1682,7 @@ static void clean_store_context(pTHX_ stcxt_t *cxt)
 {
     HE *he;
 
-    TRACEME(("clean_store_context"));
+    TRACEMED(("clean_store_context"));
 
     ASSERT(cxt->optype & ST_STORE, ("was performing a store()"));
 
@@ -1746,6 +1770,8 @@ static void clean_store_context(pTHX_ stcxt_t *cxt)
 static void init_retrieve_context(pTHX_
 	stcxt_t *cxt, int optype, int is_tainted)
 {
+    INIT_TRACEME;
+
     TRACEME(("init_retrieve_context"));
 
     /*
@@ -1798,7 +1824,7 @@ static void init_retrieve_context(pTHX_
  */
 static void clean_retrieve_context(pTHX_ stcxt_t *cxt)
 {
-    TRACEME(("clean_retrieve_context"));
+    TRACEMED(("clean_retrieve_context"));
 
     ASSERT(cxt->optype & ST_RETRIEVE, ("was performing a retrieve()"));
 
@@ -1850,7 +1876,7 @@ static void clean_retrieve_context(pTHX_ stcxt_t *cxt)
  */
 static void clean_context(pTHX_ stcxt_t *cxt)
 {
-    TRACEME(("clean_context"));
+    TRACEMED(("clean_context"));
 
     ASSERT(cxt->s_dirty, ("dirty context"));
 
@@ -1880,11 +1906,11 @@ static stcxt_t *allocate_context(pTHX_ stcxt_t *parent_cxt)
 {
     stcxt_t *cxt;
 
-    TRACEME(("allocate_context"));
-
     ASSERT(!parent_cxt->s_dirty, ("parent context clean"));
 
     NEW_STORABLE_CXT_OBJ(cxt);
+    TRACEMED(("allocate_context"));
+
     cxt->prev = parent_cxt->my_sv;
     SET_STCXT(cxt);
 
@@ -1903,7 +1929,7 @@ static void free_context(pTHX_ stcxt_t *cxt)
 {
     stcxt_t *prev = (stcxt_t *)(cxt->prev ? SvPVX(SvRV(cxt->prev)) : 0);
 
-    TRACEME(("free_context"));
+    TRACEMED(("free_context"));
 
     ASSERT(!cxt->s_dirty, ("clean context"));
     ASSERT(prev, ("not freeing root context"));
@@ -1982,7 +2008,9 @@ static SV *pkg_fetchmeth(pTHX_
     GV *gv;
     SV *sv;
     const char *hvname = HvNAME_get(pkg);
-
+#ifdef DEBUGME
+    dSTCXT;
+#endif
 
     /*
      * The following code is the same as the one performed by UNIVERSAL::can
@@ -2055,6 +2083,9 @@ static SV *pkg_can(pTHX_
     SV **svh;
     SV *sv;
     const char *hvname = HvNAME_get(pkg);
+#ifdef DEBUGME
+    dSTCXT;
+#endif
 
     TRACEME(("pkg_can for %s->%s", hvname, method));
 
@@ -2099,6 +2130,9 @@ static SV *scalar_call(pTHX_
     dSP;
     int count;
     SV *sv = 0;
+#ifdef DEBUGME
+    dSTCXT;
+#endif
 
     TRACEME(("scalar_call (cloning=%d)", cloning));
 
@@ -2154,6 +2188,9 @@ static AV *array_call(pTHX_
     int count;
     AV *av;
     int i;
+#ifdef DEBUGME
+    dSTCXT;
+#endif
 
     TRACEME(("array_call (cloning=%d)", cloning));
 
@@ -4468,7 +4505,7 @@ static int do_store(pTHX_
     ASSERT(!(f == 0 && !(optype & ST_CLONE)) || res,
            ("must supply result SV pointer for real recursion to memory"));
 
-    TRACEME(("do_store (optype=%d, netorder=%d)",
+    TRACEMED(("do_store (optype=%d, netorder=%d)",
              optype, network_order));
 
     optype |= ST_STORE;
@@ -4489,6 +4526,8 @@ static int do_store(pTHX_
 
     if (cxt->entry)
         cxt = allocate_context(aTHX_ cxt);
+
+    INIT_TRACEME;
 
     cxt->entry++;
 
@@ -7182,8 +7221,8 @@ static SV *do_retrieve(
     int is_tainted;		/* Is input source tainted? */
     int pre_06_fmt = 0;		/* True with pre Storable 0.6 formats */
 
-    TRACEME(("do_retrieve (optype = 0x%x)", optype));
-    TRACEME(("do_retrieve (flags = 0x%x)", flags));
+    TRACEMED(("do_retrieve (optype = 0x%x, flags=0x%x)",
+	     (unsigned)optype, (unsigned)flags));
 
     optype |= ST_RETRIEVE;
     cxt->flags = flags;
@@ -7217,6 +7256,7 @@ static SV *do_retrieve(
         cxt = allocate_context(aTHX_ cxt);
         cxt->flags = flags;
     }
+    INIT_TRACEME;
 
     cxt->entry++;
 
@@ -7411,7 +7451,7 @@ static SV *do_retrieve(
  */
 static SV *pretrieve(pTHX_ PerlIO *f, IV flag)
 {
-    TRACEME(("pretrieve"));
+    TRACEMED(("pretrieve"));
     return do_retrieve(aTHX_ f, Nullsv, 0, (int)flag);
 }
 
@@ -7422,7 +7462,7 @@ static SV *pretrieve(pTHX_ PerlIO *f, IV flag)
  */
 static SV *mretrieve(pTHX_ SV *sv, IV flag)
 {
-    TRACEME(("mretrieve"));
+    TRACEMED(("mretrieve"));
     return do_retrieve(aTHX_ (PerlIO*) 0, sv, 0, (int)flag);
 }
 
@@ -7446,7 +7486,7 @@ static SV *dclone(pTHX_ SV *sv)
     stcxt_t *real_context;
     SV *out;
 
-    TRACEME(("dclone"));
+    TRACEMED(("dclone"));
 
     /*
      * Workaround for CROAK leak: if they enter with a "dirty" context,
