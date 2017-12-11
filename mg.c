@@ -1776,7 +1776,7 @@ Perl_magic_setsig(pTHX_ SV *sv, MAGIC *mg)
 	} else {
 	    sv = NULL;
 	}
-	if (sv && memEQs(s, len,"IGNORE")) {
+	if (sv && memEQs(s, len, "IGNORE")) {
 	    if (i) {
 #ifdef FAKE_PERSISTENT_SIGNAL_HANDLERS
 		PL_sig_ignoring[i] = 1;
@@ -1786,7 +1786,7 @@ Perl_magic_setsig(pTHX_ SV *sv, MAGIC *mg)
 #endif
 	    }
 	}
-	else if (!sv || memEQs(s, len,"DEFAULT") || !len) {
+	else if (!sv || memEQs(s, len, "DEFAULT") || !len) {
 	    if (i) {
 #ifdef FAKE_DEFAULT_SIGNAL_HANDLERS
 		PL_sig_defaulting[i] = 1;

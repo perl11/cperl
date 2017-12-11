@@ -2091,7 +2091,7 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
 		sv_catpv(PL_e_script, s);
 	    else if (argv[1]) {
 		sv_catpv(PL_e_script, argv[1]);
-		argc--,argv++;
+		argc--, argv++;
 	    }
 	    else
 		Perl_croak(aTHX_ "No code specified for -%c", c);
@@ -2354,7 +2354,7 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
     if (!scriptname)
 	scriptname = argv[0];
     if (PL_e_script) {
-	argc++,argv--;
+	argc++, argv--;
 	scriptname = BIT_BUCKET;	/* don't look for script or read stdin */
     }
     else if (scriptname == NULL) {
