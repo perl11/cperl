@@ -3193,7 +3193,9 @@ S_maybe_multiconcat(pTHX_ OP *o)
     }
     else if (IS_TYPE(topop, CONCAT) &&
              OpSTACKED(topop) &&
-             (OpFLAGS(OpFIRST(o)) & OPf_MOD))
+             (OpFLAGS(OpFIRST(o)) & OPf_MOD) &&
+             !(OpPRIVATE(topop) & OPpCONCAT_NESTED)
+            )
     {
         /* expr .= ..... */
 
