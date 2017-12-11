@@ -1217,9 +1217,7 @@ valgrind allows to suppress such errors using suppression files.  The
 default suppression file that comes with valgrind already catches a lot
 of them.  Some additional suppressions are defined in F<t/perl.supp>.
 
-To get valgrind and for more information see
-
-    http://valgrind.org/
+To get valgrind and for more information see L<http://valgrind.org/>
 
 =head2 AddressSanitizer
 
@@ -1264,7 +1262,7 @@ contains C<-shared> (at least on Linux).
 =back
 
 See also
-L<http://code.google.com/p/address-sanitizer/wiki/AddressSanitizer>.
+L<https://github.com/google/sanitizers/wiki/AddressSanitizer>.
 
 
 =head1 FUZZING
@@ -1450,7 +1448,7 @@ Useful options of F<gcov> include C<-b> which will summarise the basic
 block, branch, and function call coverage, and C<-c> which instead of
 relative frequencies will use the actual counts.  For more information
 on the use of F<gcov> and basic block profiling with gcc, see the
-latest GNU CC manual.  As of gcc 4.8, this is at
+latest GNU CC manual at
 L<http://gcc.gnu.org/onlinedocs/gcc/Gcov-Intro.html#Gcov-Intro>
 
 =head1 MISCELLANEOUS TRICKS
