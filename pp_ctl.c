@@ -3304,6 +3304,8 @@ PP(pp_goto)
 	    for (; enterops[ix]; ix++) {
 		PL_op = enterops[ix];
 		S_check_op_type(aTHX_ PL_op);
+		DEBUG_l( Perl_deb(aTHX_ "pp_goto: Entering %s\n",
+					 OP_NAME(PL_op)));
 		PL_op->op_ppaddr(aTHX);
 	    }
 	    PL_op = oldop;
