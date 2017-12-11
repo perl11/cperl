@@ -13,7 +13,7 @@ BEGIN {
         or skip_all("XS::APItest not available");
 }
 
-plan tests => 144;
+plan tests => 148;
 use Config;
 
 # run some code N times. If the number of SVs at the end of loop N is
@@ -617,3 +617,9 @@ EOF
     sub N_leak { eval 'tr//\N{}-0/' }
     ::leak(2, 0, \&N_leak, "a bad \\N{} in a range leaks");
 }
+
+leak 2,0,\&XS::APItest::PerlIO_stderr,'T_INOUT in default typemap';
+leak 2,0,\&XS::APItest::PerlIO_stdin, 'T_IN in default typemap';
+leak 2,0,\&XS::APItest::PerlIO_stdout,'T_OUT in default typemap';
+leak 2,1,sub{XS::APItest::PerlIO_exportFILE(*STDIN,"");0},
+                                      'T_STDIO in default typemap';

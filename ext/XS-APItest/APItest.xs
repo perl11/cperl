@@ -19,6 +19,8 @@
 
 typedef SV *SVREF;
 typedef PTR_TBL_t *XS__APItest__PtrTable;
+typedef PerlIO * InputStream;
+typedef PerlIO * OutputStream;
 
 #define croak_fail() croak("fail at " __FILE__ " line %d", __LINE__)
 #define croak_fail_nep(h, w) croak("fail %p!=%p at " __FILE__ " line %d", (h), (w), __LINE__)
@@ -4408,6 +4410,18 @@ has_cv_aelem_u(CV *cv)
         RETVAL = has_cv_aelem_u(CvROOT(cv));
     OUTPUT:
         RETVAL
+
+PerlIO *
+PerlIO_stderr()
+
+OutputStream
+PerlIO_stdout()
+
+InputStream
+PerlIO_stdin()
+
+FILE *
+PerlIO_exportFILE(PerlIO *f, const char *mode)
 
 MODULE = XS::APItest PACKAGE = XS::APItest::AUTOLOADtest
 
