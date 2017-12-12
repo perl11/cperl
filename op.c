@@ -3253,7 +3253,8 @@ S_maybe_multiconcat(pTHX_ OP *o)
                 return; /* can't have two assigns */
             targmyop = topop;
         }
-        if (S_sprintf_is_multiconcatable(aTHX_ topop, &sprintf_info)) {
+        if ( LIKELY(!OpSTACKED(topop)) &&
+             S_sprintf_is_multiconcatable(aTHX_ topop, &sprintf_info) ) {
             nargs     = sprintf_info.nargs;
             total_len = sprintf_info.total_len;
             variant   = sprintf_info.variant;
