@@ -1303,7 +1303,7 @@ My sample build cmdline for macports is this. On linux just leave out the C<AFL_
       -Dinstallman1dir=none -Dinstallman3dir=none -Dinstallsiteman1dir=none -Dinstallsiteman3dir=none
     make -s -j4 miniperl
 
-    afl-fuzz -i .fuzz-in -o .fuzz-out -- ./miniperl
+    afl-fuzz -i .fuzz-in -o .fuzz-out -x Porting/afl.dict -- ./miniperl
 
 Fuzzing with L<asan|/AddressSanitizer> or C<DEBUGGING> is also
 possible, but very slow.

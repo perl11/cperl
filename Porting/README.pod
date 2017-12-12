@@ -16,6 +16,10 @@ text.
 Program to prepare dual-life distributions for insertion into the Perl 5
 F<lib/> and F<t/> directories.  Now thought to be largely superseded.
 
+=head2 F<afl.dict>
+
+C<afl-fuzz -x Porting/afl.dict> dictionary. See L<perlhacktips/afl-fuzz>.
+
 =head2 F<appveyor-deploy.sh>
 
 Helper script to package a binary release package on windows,

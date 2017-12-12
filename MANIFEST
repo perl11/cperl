@@ -5227,6 +5227,7 @@ pod/splitpod			Splits perlfunc into multiple pod pages
 Policy_sh.SH			Hold site-wide preferences between Configure runs.
 Porting/acknowledgements.pl	Generate perldelta acknowledgements text
 Porting/add-package.pl		Add/Update CPAN modules that are part of Core
+Porting/afl.dict		afl-fuzz -x keywords dictionary
 Porting/appveyor-deploy.sh	Windows CI deploy script
 Porting/bench.pl		Run benchmarks against t/perf/benchmarks
 Porting/bisect.pl		A tool to make bisecting easy
