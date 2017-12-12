@@ -5192,12 +5192,8 @@ Perl_yylex(pTHX)
             }
             else {
                 I32 tmp;
-#if defined(USE_SANITIZE_ADDRESS) || defined(VALGRIND)
-                if ((PL_bufend - s >= 2) && (memEQc(s, "L\\u") || memEQc(s, "U\\l")))
-#else
-                if (memEQc(s, "L\\u") || memEQc(s, "U\\l"))
-#endif
-                {
+                if (LIKELY(PL_bufend - s >= 2) &&
+                    (memEQc(s, "L\\u") || memEQc(s, "U\\l"))) {
                     tmp = *s, *s = s[2], s[2] = (char)tmp;   /* misordered.*/
                 }
                 if ((*s == 'L' || *s == 'U' || *s == 'F')
@@ -6694,12 +6690,7 @@ Perl_yylex(pTHX)
                         PL_expect = XTERM;
                         break;
                     }
-#if defined(USE_SANITIZE_ADDRESS) || defined(VALGRIND)
-                    if ((PL_bufend - s >= 3) && memEQc(s, "sub"))
-#else
-                    if (memEQc(s, "sub"))
-#endif
-                    {
+                    if (LIKELY(PL_bufend - s >= 3) && memEQc(s, "sub")) {
                         PL_bufptr = s;
                         d = s + 3;
                         d = skipspace(d);
