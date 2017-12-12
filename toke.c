@@ -4376,7 +4376,7 @@ S_intuit_more(pTHX_ char *s, char *e)
             ((s[l] == '$' &&
              (s[l+1] == '*' ||
               (s[l+1] == '#' && s[l+2] == '*'))) ||
-             (s[l] == '@' && memchr("*[{",s[l+1], e-s))))
+             (s[l] == '@' && strchr("*[{", s[l+1]))))
             return TRUE;
     }
     if (*s != '{' && *s != '[')
@@ -4401,7 +4401,6 @@ S_intuit_more(pTHX_ char *s, char *e)
         const char * const send = (char *) memchr(s, ']', e - s);
         unsigned char un_char, last_un_char;
         char tmpbuf[sizeof PL_tokenbuf * 4];
-        STRLEN rem = send - s;
 
         if (!send)              /* has to be an expression */
             return TRUE;
@@ -4419,7 +4418,7 @@ S_intuit_more(pTHX_ char *s, char *e)
         }
         Zero(seen,256,char);
         un_char = 255;
-        for (; s < send; s++, rem--) {
+        for (; s < send; s++) {
             last_un_char = un_char;
             un_char = (unsigned char)*s;
             switch (*s) {
@@ -4454,9 +4453,9 @@ S_intuit_more(pTHX_ char *s, char *e)
                 }
                 else if (*s == '$'
                          && s[1]
-                         && memchr("[#!%*<>()-=",s[1], rem-1))
+                         && strchr("[#!%*<>()-=", s[1]))
                 {
-                    if (/*{*/ memchr("])} =",s[2],rem-2))
+                    if (/*{*/ strchr("])} =", s[2]))
                         weight -= 10;
                     else
                         weight -= 1;
@@ -4465,11 +4464,11 @@ S_intuit_more(pTHX_ char *s, char *e)
             case '\\':
                 un_char = 254;
                 if (s[1]) {
-                    if (memchr("wds]",s[1],rem-1))
+                    if (strchr("wds]", s[1]))
                         weight += 100;
                     else if (seen[(U8)'\''] || seen[(U8)'"'])
                         weight += 1;
-                    else if (memchr("rnftbxcav",s[1],rem-1))
+                    else if (strchr("rnftbxcav", s[1]))
                         weight += 40;
                     else if (isDIGIT(s[1])) {
                         weight += 40;
@@ -4483,9 +4482,9 @@ S_intuit_more(pTHX_ char *s, char *e)
             case '-':
                 if (s[1] == '\\')
                     weight += 50;
-                if (strchr("aA01! ",last_un_char))
+                if (strchr("aA01! ", last_un_char))
                     weight += 30;
-                if (memchr("zZ79~",s[1],rem-1))
+                if (strchr("zZ79~", s[1]))
                     weight += 30;
                 if (last_un_char == 255 && (isDIGIT(s[1]) || s[1] == '$'))
                     weight -= 5;        /* cope with negative subscript */
@@ -4499,7 +4498,7 @@ S_intuit_more(pTHX_ char *s, char *e)
                     && isALPHA(*s) && s[1] && isALPHA(s[1])) {
                     char *d = s;
                     while (isALPHA(*s)) {
-                        s++; rem--;
+                        s++;
                     }
                     if (keyword(d, s - d, 0))
                         weight -= 150;
