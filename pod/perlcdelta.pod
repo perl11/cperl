@@ -90,16 +90,56 @@ as an updated module in the L</Modules and Pragmata> section.
 
 =head1 Performance Enhancements
 
-XXX Changes which enhance performance without changing behaviour go here.
-There may well be none in a stable release.
-
-[ List each enhancement as an =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+All static method calls are now optimized to function calls at compile-time.
+
+Before:
+
+    $ cperl5.27.0d-nt -Dt -e'use strict'
+    (-e:1)	nextstate
+    (-e:1)	const(PV("strict.pm"))
+    (-e:1)	require
+    (-e:1)	nextstate
+    (-e:1)	pushmark
+    (-e:1)	const(PV("strict"))
+    (-e:1)	method_named(->import)
+    (-e:1)	entersub(strict::import)
+    (-e:1)	enterxssub(strict::import)
+    (-e:1)	leavesub
+
+v5.27.1c:
+
+    $ cperl5.27.1d-nt -Dt -e'use strict'
+    (-e:1)	nextstate
+    (-e:1)	const(PV("strict.pm"))
+    (-e:1)	require
+    (-e:1)	nextstate
+    (-e:1)	pushmark
+    (-e:1)	const(PV("strict"))
+    (-e:1)	method_named(->import)
+    (-e:1)	enterxssub(strict::import)
+    (-e:1)	leavesub
+
+v5.27.2c:
+
+    $ cperl5.27.2d-nt -Dt -e'use strict'
+    (-e:1)	nextstate
+    (-e:1)	const(PV("strict.pm"))
+    (-e:1)	require
+    (-e:1)	nextstate
+    (-e:1)	pushmark
+    (-e:1)	const(PV("strict"))
+    (-e:1)	gv(strict::import)
+    (-e:1)	enterxssub(strict::import)
+    (-e:1)	leavesub
+
+See L<http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html>
+
+We don't yet optimize typed scalars to a static call. We don't walk
+the subtypes yet to find the method.
 
 =back
 

@@ -530,13 +530,15 @@ EOM
 	_quote_args(\@args) if IS_VMS;
 	print join(' ', $perl, @args), "\n" if $verbose;
 	my $code = do {
-	   local $ENV{PERL_MM_USE_DEFAULT} = 1;
-	    system $perl, @args;
+            local $ENV{PERL_MM_USE_DEFAULT} = 1;
+            system $perl, @args;
 	};
-	if($code != 0){
+	if ($code != 0){
 	    #make sure next build attempt/run of make_ext.pl doesn't succeed
-	    _unlink($makefile);
+            _unlink($makefile);
+            warn join " ",$perl,@args;
 	    die "Unsuccessful Makefile.PL($ext_dir): code=$code";
+            
 	}
 
 	# Right. The reason for this little hack is that we're sitting inside

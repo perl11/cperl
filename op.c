@@ -16904,7 +16904,7 @@ Perl_ck_subr(pTHX_ OP *o)
     if (cv && CvPURE(cv)) /* check for method field op. only for rv2cv */
 #endif
 
-    /* TODO: inlining, null removal */
+    /* TODO: static methods, inlining, null removal */
     o->op_private &= ~1;
     o->op_private |= (PL_hints & HINT_STRICT_REFS);
     if (PERLDB_SUB && PL_curstash != PL_debstash)
@@ -16917,7 +16917,7 @@ Perl_ck_subr(pTHX_ OP *o)
 	case OP_METHOD_NAMED:
 	    if (IS_CONST_OP(aop)) {
                 SV *meth  = cMETHOPx_meth(cvop);
-                /* check for method field or ctor op: ctor CLASS->new */
+                /* check for static methods, a method field or ctor op: ctor CLASS->new */
                 if (LIKELY(SvPOK(meth))) { /* always a shared COW string */
                     SV *pkg   = cSVOPx_sv(aop);
                     HV *stash = gv_stashsv(pkg, SvUTF8(pkg));
@@ -16937,52 +16937,65 @@ Perl_ck_subr(pTHX_ OP *o)
                         if (gvp) {
                             GV *gv = *gvp;
                             CV* cvf = NULL;
+                            HV *cvstash = NULL;
                             if (SvROK(gv) && SvTYPE(SvRV((SV*)gv)) == SVt_PVCV) {
                                 cvf = (CV*)SvRV((SV*)gv);
                                 /* we'd really need a proper GV here.
                                    see t/op/symbolcache.t */
                                 gv = CvGV(cvf);
+                                cvstash = GvSTASH(gv);
                             }
                             else if (SvTYPE(gv) == SVt_PVGV) {
                                 cvf = GvCV(gv);
+                                if (cvf)
+                                    cvstash = GvSTASH(CvGV(cvf));
                             }
-                            /* allow: sub pkg::meth {} pkg->meth */
-                            if (cvf && (CvSTASH(cvf) == stash || CvSTASH(cvf) == PL_defstash)) {
-                                if (HvCLASS(stash))
-                                    Perl_croak(aTHX_
-                                        "Invalid method call on class subroutine %" SVf,
-                                        SVfARG(cv_name(cvf,NULL,CV_NAME_NOMAIN)));
-                                if (CvISXSUB(cvf) && CvROOT(cvf) &&
-                                    GvXSCV(gv) && !PL_perldb)
-                                {
-                                    DEBUG_k(Perl_deb(aTHX_ "entersub -> xs %" SVf "\n",
-                                        SVfARG(cv_name(cvf, NULL, CV_NAME_NOMAIN))));
-                                    OpTYPE_set(o, OP_ENTERXSSUB);
-                                }
-                                /* from METHOP to GV */
+                            if (cvf) {
+                                /* Note: CvSTASH is 0 with a GV. But when the GvSTASH
+                                 * contains that method, allow this optimization also. */
+                                if (!cvstash)
+                                    cvstash = CvSTASH(cvf);
+                                /* allow: sub pkg::meth {} pkg->meth */
+                                /* TODO: else check class hierarchy */
+                                if (cvstash == stash || cvstash == PL_defstash) {
+                                    if (HvCLASS(stash))
+                                        Perl_croak(aTHX_
+                                            "Invalid method call on class subroutine %" SVf,
+                                            SVfARG(cv_name(cvf,NULL,CV_NAME_NOMAIN)));
+                                    if (CvISXSUB(cvf) && CvROOT(cvf) &&
+                                        GvXSCV(gv) && !PL_perldb)
+                                    {
+                                        DEBUG_k(Perl_deb(aTHX_ "entersub -> xs %" SVf "\n",
+                                            SVfARG(cv_name(cvf, NULL, CV_NAME_NOMAIN))));
+                                        OpTYPE_set(o, OP_ENTERXSSUB);
+                                    }
+                                    /* from METHOP to GV */
 #ifndef USE_ITHREADS
-                                OpTYPE_set(cvop, OP_GV);
-                                OpPRIVATE(cvop) |= OPpGV_WASMETHOD;
-                                /* t/op/symbolcache.t needs a replacable GV, not a CV */
+                                    OpTYPE_set(cvop, OP_GV);
+                                    OpPRIVATE(cvop) |= OPpGV_WASMETHOD;
+                                    /* t/op/symbolcache.t needs a replacable GV, not a CV */
 #ifdef USE_ITHREADS
-                                SvREFCNT_inc_simple_void_NN(gv);
-                                cPADOPx(cvop)->op_padix = pad_alloc(OP_GV, 0);
-                                PAD_SETSV(cPADOPx(cvop)->op_padix, (SV*)gv);
+                                    SvREFCNT_inc_simple_void_NN(gv);
+                                    cPADOPx(cvop)->op_padix = pad_alloc(OP_GV, 0);
+                                    PAD_SETSV(cPADOPx(cvop)->op_padix, (SV*)gv);
 #else
-                                ((SVOP*)cvop)->op_sv = SvREFCNT_inc_NN(gv);
+                                    ((SVOP*)cvop)->op_sv = SvREFCNT_inc_NN(gv);
 #endif
-                                SvREFCNT_dec(meth);
-                                cvop->op_flags |= OPf_WANT_SCALAR;
-                                o->op_flags |= OPf_STACKED;
-                                DEBUG_k(Perl_deb(aTHX_
-                                    "ck_subr: static method call to sub %s::%s\n",
-                                    SvPVX_const(pkg), SvPVX_const(meth)));
+                                    SvREFCNT_dec(meth);
+                                    cvop->op_flags |= OPf_WANT_SCALAR;
+                                    o->op_flags |= OPf_STACKED;
+                                    DEBUG_k(Perl_deb(aTHX_
+                                        "ck_subr: static method call %s->%s => %s::%s\n",
+                                        SvPVX_const(pkg), SvPVX_const(meth),
+                                        SvPVX_const(pkg), SvPVX_const(meth)));
 #endif
+                                }
                             }
                         }
                     }
                 }
             }
+            /* TODO: with typed PADSV check class hierarchy */
             else if (method_field_type(o)) {
                 /* TODO: check default accessor and convert to oelem */
                 OpRETTYPE_set(o, type_Object);
