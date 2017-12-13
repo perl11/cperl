@@ -8873,13 +8873,14 @@ Perl_yylex(pTHX)
                role NAME ... {
                my class BAREWORD :native '{' (NY)
             */
-            if (PL_in_class) goto just_a_word;
+            if (PL_in_class)
+                goto just_a_word;
             {
                 int normalize;
                 AV *isa = NULL, *does = NULL;
                 char *name;
                 d = skipspace(s);
-                s = scan_word(d,PL_tokenbuf,sizeof PL_tokenbuf,
+                s = scan_word(d, PL_tokenbuf, sizeof PL_tokenbuf,
                               TRUE, &len, &normalize);
                 if (UNLIKELY(normalize)) {
                     d = pv_uni_normalize(s, len, &len);
@@ -8896,9 +8897,16 @@ Perl_yylex(pTHX)
                     OpFLAGS(pl_yylval.opval) |= OPf_SPECIAL;
 
                 if (0) {
+                    static char *prev = NULL;
                 cont_as_sub:
                     len = tmp == KEY_role ? 4 : 5;
                     s = PL_bufptr;
+                    if (!prev)
+                        prev = s;
+                    else if (prev == s) {
+                        yyerror("syntax error");
+                        break;
+                    }
                     Copy(s, PL_tokenbuf, len, char);
                     PL_tokenbuf[len] = '\0';
                     goto just_a_word;
