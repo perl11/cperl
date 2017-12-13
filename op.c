@@ -16957,11 +16957,12 @@ Perl_ck_subr(pTHX_ OP *o)
                                     cvstash = CvSTASH(cvf);
                                 /* allow: sub pkg::meth {} pkg->meth */
                                 /* TODO: else check class hierarchy */
-                                if (cvstash == stash || cvstash == PL_defstash) {
-                                    if (HvCLASS(stash))
-                                        Perl_croak(aTHX_
+                                if (HvCLASS(stash) && cvstash == stash) {
+                                    Perl_croak(aTHX_
                                             "Invalid method call on class subroutine %" SVf,
                                             SVfARG(cv_name(cvf,NULL,CV_NAME_NOMAIN)));
+                                }
+                                if (cvstash == stash) {
                                     if (CvISXSUB(cvf) && CvROOT(cvf) &&
                                         GvXSCV(gv) && !PL_perldb)
                                     {
@@ -16969,25 +16970,35 @@ Perl_ck_subr(pTHX_ OP *o)
                                             SVfARG(cv_name(cvf, NULL, CV_NAME_NOMAIN))));
                                         OpTYPE_set(o, OP_ENTERXSSUB);
                                     }
-                                    /* from METHOP to GV */
+                                    /* TODO: fixme threads &main::extracted/DEastAsianWidth.txt */
 #ifndef USE_ITHREADS
+                                    /* from METHOP to GV */
                                     OpTYPE_set(cvop, OP_GV);
                                     OpPRIVATE(cvop) |= OPpGV_WASMETHOD;
                                     /* t/op/symbolcache.t needs a replacable GV, not a CV */
-#ifdef USE_ITHREADS
+# ifdef USE_ITHREADS
                                     SvREFCNT_inc_simple_void_NN(gv);
-                                    cPADOPx(cvop)->op_padix = pad_alloc(OP_GV, 0);
-                                    PAD_SETSV(cPADOPx(cvop)->op_padix, (SV*)gv);
-#else
+                                    /* share the last gv on the pad? */
+                                    {
+                                        PADOFFSET po = AvFILLp(PL_comppad);
+                                        assert(PL_curpad == AvARRAY(PL_comppad));
+                                        if (PL_curpad[po] == (SV*)gv) {
+                                            cPADOPx(cvop)->op_padix = po;
+                                        } else {
+                                            cPADOPx(cvop)->op_padix = pad_alloc(OP_GV, 0);
+                                            PAD_SETSV(cPADOPx(cvop)->op_padix, (SV*)gv);
+                                        }
+                                    }
+# else
                                     ((SVOP*)cvop)->op_sv = SvREFCNT_inc_NN(gv);
-#endif
-                                    SvREFCNT_dec(meth);
-                                    cvop->op_flags |= OPf_WANT_SCALAR;
-                                    o->op_flags |= OPf_STACKED;
+# endif
                                     DEBUG_k(Perl_deb(aTHX_
                                         "ck_subr: static method call %s->%s => %s::%s\n",
                                         SvPVX_const(pkg), SvPVX_const(meth),
                                         SvPVX_const(pkg), SvPVX_const(meth)));
+                                    SvREFCNT_dec(meth);
+                                    cvop->op_flags |= OPf_WANT_SCALAR;
+                                    o->op_flags |= OPf_STACKED;
 #endif
                                 }
                             }

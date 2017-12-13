@@ -94,7 +94,8 @@ as an updated module in the L</Modules and Pragmata> section.
 
 =item *
 
-All static method calls are now optimized to function calls at compile-time.
+Most static method calls on non-threaded perls are now optimized to
+function calls at compile-time.
 
 Before:
 
@@ -139,7 +140,7 @@ v5.27.2c:
 See L<http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html>
 
 We don't yet optimize typed scalars to a static call. We don't walk
-the subtypes yet to find the method.
+the subclasses yet to find the method.
 
 =back
 
