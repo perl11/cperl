@@ -3191,16 +3191,26 @@ the C<OA_*> constants from F<op.h>, namely
 
 =item OA_SVOP
 
+With threads most of them are actually upgraded at compile-time to a
+PADOP, relocated to a READONLY PAD.
+
 =item OA_PADOP
+
+Removed with cperl 5.27.3. Unused since v5.6.0
 
 =item OA_PVOP_OR_SVOP
 
-This should be interpreted as 'C<PVOP>' only.  The C<_OR_SVOP> is because
-the only core C<PVOP>, C<OP_TRANS>, can sometimes be a C<SVOP> instead.
+This should be interpreted as C<PVOP> only.  The C<_OR_SVOP> is
+because the only core C<PVOP>, C<OP_TRANS> and C<OP_TRANSR>, can
+sometimes be a C<SVOP> or C<PADOP> instead.
 
 =item OA_LOOP
 
 =item OA_COP
+
+=item OA_METHOD
+
+=item OA_UNOP_AUX
 
 =back
 

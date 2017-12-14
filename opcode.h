@@ -3153,7 +3153,7 @@ EXTCONST U32 PL_opargs[];
 EXTCONST U32 PL_opargs[] = {
 	0x00000000,	/* null */
 	0x00000100,	/* stub */
-	0x00006d04,	/* scalar */
+	0x00006904,	/* scalar */
 	0x00000104,	/* pushmark */
 	0x00000004,	/* wantarray */
 	0x00001904,	/* const */
@@ -3168,14 +3168,14 @@ EXTCONST U32 PL_opargs[] = {
 	0x00088808,	/* aassign */
 	0x0005c800,	/* oelem */
 	0x0021c000,	/* oelemfast */
-	0x0000ac0d,	/* chop */
-	0x00026c8c,	/* schop */
-	0x0000ac1d,	/* chomp */
-	0x00026c9c,	/* schomp */
-	0x00026c84,	/* defined */
-	0x0003ec04,	/* undef */
-	0x0003ec84,	/* study */
-	0x0003ec8c,	/* pos */
+	0x0000a80d,	/* chop */
+	0x0002688c,	/* schop */
+	0x0000a81d,	/* chomp */
+	0x0002689c,	/* schomp */
+	0x00026884,	/* defined */
+	0x0003e804,	/* undef */
+	0x0003e884,	/* study */
+	0x0003e88c,	/* pos */
 	0x00004464,	/* preinc */
 	0x00004444,	/* i_preinc */
 	0x00004464,	/* predec */
@@ -3199,7 +3199,7 @@ EXTCONST U32 PL_opargs[] = {
 	0x0004491e,	/* i_subtract */
 	0x0004491e,	/* u_subtract */
 	0x0004491e,	/* concat */
-	0x00003c1c,	/* multiconcat */
+	0x0000381c,	/* multiconcat */
 	0x0000501e,	/* stringify */
 	0x0004493e,	/* pow */
 	0x0004491e,	/* i_pow */
@@ -3243,30 +3243,30 @@ EXTCONST U32 PL_opargs[] = {
 	0x0000441e,	/* s_complement */
 	0x00000804,	/* smartmatch */
 	0x0004511e,	/* atan2 */
-	0x00026d9e,	/* sin */
-	0x00026d9e,	/* cos */
-	0x00026c1c,	/* rand */
-	0x00026c1c,	/* srand */
-	0x00026d9e,	/* exp */
-	0x00026d9e,	/* log */
-	0x00026d9e,	/* sqrt */
-	0x00026d9e,	/* int */
-	0x00026d9e,	/* hex */
-	0x00026d9e,	/* oct */
-	0x00026d9e,	/* abs */
+	0x0002699e,	/* sin */
+	0x0002699e,	/* cos */
+	0x0002681c,	/* rand */
+	0x0002681c,	/* srand */
+	0x0002699e,	/* exp */
+	0x0002699e,	/* log */
+	0x0002699e,	/* sqrt */
+	0x0002699e,	/* int */
+	0x0002699e,	/* hex */
+	0x0002699e,	/* oct */
+	0x0002699e,	/* abs */
 	0x0001c444,	/* rv2gv */
 	0x0001c444,	/* rv2sv */
 	0x0000c404,	/* av2arylen */
 	0x0001c440,	/* rv2cv */
 	0x00005804,	/* anoncode */
-	0x00026c84,	/* prototype */
+	0x00026884,	/* prototype */
 	0x00008401,	/* refgen */
 	0x00004406,	/* srefgen */
-	0x00026c8c,	/* ref */
+	0x0002688c,	/* ref */
 	0x00245004,	/* bless */
-	0x00026c88,	/* backtick */
+	0x00026888,	/* backtick */
 	0x00025008,	/* glob */
-	0x0003ac08,	/* readline */
+	0x0003a808,	/* readline */
 	0x00001808,	/* rcatline */
 	0x00004504,	/* regcmaybe */
 	0x00004404,	/* regcreset */
@@ -3275,23 +3275,23 @@ EXTCONST U32 PL_opargs[] = {
 	0x00001404,	/* qr */
 	0x00005404,	/* subst */
 	0x00000c04,	/* substcont */
-	0x00006004,	/* trans */
-	0x00006004,	/* transr */
-	0x00026c9e,	/* length */
+	0x00005c04,	/* trans */
+	0x00005c04,	/* transr */
+	0x0002689e,	/* length */
 	0x2644500c,	/* substr */
 	0x0044500c,	/* vec */
 	0x0244501c,	/* index */
 	0x0244501c,	/* rindex */
 	0x0008500f,	/* sprintf */
 	0x00085005,	/* formline */
-	0x00026c9e,	/* ord */
-	0x00026c9e,	/* chr */
+	0x0002689e,	/* ord */
+	0x0002689e,	/* chr */
 	0x0004501e,	/* crypt */
-	0x00026c8e,	/* ucfirst */
-	0x00026c8e,	/* lcfirst */
-	0x00026c8e,	/* uc */
-	0x00026c8e,	/* lc */
-	0x00026c8e,	/* quotemeta */
+	0x0002688e,	/* ucfirst */
+	0x0002688e,	/* lcfirst */
+	0x0002688e,	/* uc */
+	0x0002688e,	/* lc */
+	0x0002688e,	/* quotemeta */
 	0x0001c448,	/* rv2av */
 	0x0004d844,	/* aelemfast */
 	0x0004c040,	/* aelemfast_lex */
@@ -3306,19 +3306,19 @@ EXTCONST U32 PL_opargs[] = {
 	0x0004c804,	/* s_aelem_u */
 	0x0008d001,	/* aslice */
 	0x0008d001,	/* kvaslice */
-	0x0000ec40,	/* aeach */
-	0x0000ec48,	/* avalues */
-	0x0000ec08,	/* akeys */
-	0x00012c40,	/* each */
-	0x00012c48,	/* values */
-	0x00012c08,	/* keys */
-	0x00006c00,	/* delete */
-	0x00006c04,	/* exists */
+	0x0000e840,	/* aeach */
+	0x0000e848,	/* avalues */
+	0x0000e808,	/* akeys */
+	0x00012840,	/* each */
+	0x00012848,	/* values */
+	0x00012808,	/* keys */
+	0x00006800,	/* delete */
+	0x00006804,	/* exists */
 	0x0001c448,	/* rv2hv */
 	0x00050804,	/* helem */
 	0x00091001,	/* hslice */
 	0x00091001,	/* kvhslice */
-	0x00003c44,	/* multideref */
+	0x00003844,	/* multideref */
 	0x00245082,	/* unpack */
 	0x0008500f,	/* pack */
 	0x00445408,	/* split */
@@ -3329,8 +3329,8 @@ EXTCONST U32 PL_opargs[] = {
 	0x00009005,	/* anonhash */
 	0x0a64d001,	/* splice */
 	0x0008d01d,	/* push */
-	0x0002ec04,	/* pop */
-	0x0002ec04,	/* shift */
+	0x0002e804,	/* pop */
+	0x0002e804,	/* shift */
 	0x0008d01d,	/* unshift */
 	0x000b5001,	/* sort */
 	0x00009009,	/* reverse */
@@ -3351,38 +3351,38 @@ EXTCONST U32 PL_opargs[] = {
 	0x00000c04,	/* dorassign */
 	0x00008441,	/* entersub */
 	0x00008441,	/* enterxssub */
-	0x00003840,	/* method */
-	0x00003840,	/* method_named */
-	0x00003840,	/* method_super */
-	0x00003840,	/* method_redir */
-	0x00003840,	/* method_redir_super */
+	0x00003440,	/* method */
+	0x00003440,	/* method_named */
+	0x00003440,	/* method_super */
+	0x00003440,	/* method_redir */
+	0x00003440,	/* method_redir_super */
 	0x00000400,	/* leavesub */
 	0x00000400,	/* leavesublv */
-	0x00003c00,	/* signature */
-	0x00026c08,	/* caller */
+	0x00003800,	/* signature */
+	0x00026808,	/* caller */
 	0x0000900d,	/* warn */
 	0x0000900d,	/* die */
-	0x00026c04,	/* reset */
+	0x00026804,	/* reset */
 	0x00001100,	/* lineseq */
-	0x00002804,	/* nextstate */
-	0x00002804,	/* dbstate */
+	0x00002404,	/* nextstate */
+	0x00002404,	/* dbstate */
 	0x00000004,	/* unstack */
 	0x00000000,	/* enter */
 	0x00001000,	/* leave */
 	0x00001100,	/* scope */
-	0x00002440,	/* enteriter */
+	0x00002040,	/* enteriter */
 	0x00000000,	/* iter */
 	0x00000000,	/* iter_ary */
 	0x00000000,	/* iter_lazyiv */
-	0x00002440,	/* enterloop */
+	0x00002040,	/* enterloop */
 	0x00000800,	/* leaveloop */
 	0x00009001,	/* return */
-	0x00027404,	/* last */
-	0x00027404,	/* next */
-	0x00027404,	/* redo */
-	0x00027444,	/* dump */
-	0x00027404,	/* goto */
-	0x00026c04,	/* exit */
+	0x00027004,	/* last */
+	0x00027004,	/* next */
+	0x00027004,	/* redo */
+	0x00027044,	/* dump */
+	0x00027004,	/* goto */
+	0x00026804,	/* exit */
 	0x00000c40,	/* entergiven */
 	0x00000400,	/* leavegiven */
 	0x00000c40,	/* enterwhen */
@@ -3390,21 +3390,21 @@ EXTCONST U32 PL_opargs[] = {
 	0x00000000,	/* break */
 	0x00000000,	/* continue */
 	0x00a5900d,	/* open */
-	0x0003ac04,	/* close */
+	0x0003a804,	/* close */
 	0x00199004,	/* pipe_op */
-	0x0001ac0c,	/* fileno */
-	0x00026c0c,	/* umask */
+	0x0001a80c,	/* fileno */
+	0x0002680c,	/* umask */
 	0x00259004,	/* binmode */
 	0x0085d045,	/* tie */
-	0x0001ec04,	/* untie */
-	0x0001ec44,	/* tied */
+	0x0001e804,	/* untie */
+	0x0001e844,	/* tied */
 	0x00451004,	/* dbmopen */
-	0x00012c04,	/* dbmclose */
+	0x00012804,	/* dbmclose */
 	0x04445008,	/* sselect */
 	0x0003900c,	/* select */
-	0x0003ac0c,	/* getc */
+	0x0003a80c,	/* getc */
 	0x245d900d,	/* read */
-	0x0003ac04,	/* enterwrite */
+	0x0003a804,	/* enterwrite */
 	0x00000400,	/* leavewrite */
 	0x000b9005,	/* prtf */
 	0x000b9005,	/* print */
@@ -3413,8 +3413,8 @@ EXTCONST U32 PL_opargs[] = {
 	0x00459004,	/* sysseek */
 	0x245d900d,	/* sysread */
 	0x2645900d,	/* syswrite */
-	0x0003ac04,	/* eof */
-	0x0003ac0c,	/* tell */
+	0x0003a804,	/* eof */
+	0x0003a80c,	/* tell */
 	0x00459004,	/* seek */
 	0x00045004,	/* truncate */
 	0x0045900c,	/* fcntl */
@@ -3431,55 +3431,55 @@ EXTCONST U32 PL_opargs[] = {
 	0x0005900c,	/* shutdown */
 	0x00459004,	/* gsockopt */
 	0x04459004,	/* ssockopt */
-	0x0001ac04,	/* getsockname */
-	0x0001ac04,	/* getpeername */
-	0x0003b080,	/* lstat */
-	0x0003b080,	/* stat */
-	0x0001b084,	/* ftrread */
-	0x0001b084,	/* ftrwrite */
-	0x0001b084,	/* ftrexec */
-	0x0001b084,	/* fteread */
-	0x0001b084,	/* ftewrite */
-	0x0001b084,	/* fteexec */
-	0x0001b084,	/* ftis */
-	0x0001b08c,	/* ftsize */
-	0x0001b08c,	/* ftmtime */
-	0x0001b08c,	/* ftatime */
-	0x0001b08c,	/* ftctime */
-	0x0001b084,	/* ftrowned */
-	0x0001b084,	/* fteowned */
-	0x0001b084,	/* ftzero */
-	0x0001b084,	/* ftsock */
-	0x0001b084,	/* ftchr */
-	0x0001b084,	/* ftblk */
-	0x0001b084,	/* ftfile */
-	0x0001b084,	/* ftdir */
-	0x0001b084,	/* ftpipe */
-	0x0001b084,	/* ftsuid */
-	0x0001b084,	/* ftsgid */
-	0x0001b084,	/* ftsvtx */
-	0x0001b084,	/* ftlink */
-	0x0001b004,	/* fttty */
-	0x0001b084,	/* fttext */
-	0x0001b084,	/* ftbinary */
-	0x00026c1c,	/* chdir */
+	0x0001a804,	/* getsockname */
+	0x0001a804,	/* getpeername */
+	0x0003ac80,	/* lstat */
+	0x0003ac80,	/* stat */
+	0x0001ac84,	/* ftrread */
+	0x0001ac84,	/* ftrwrite */
+	0x0001ac84,	/* ftrexec */
+	0x0001ac84,	/* fteread */
+	0x0001ac84,	/* ftewrite */
+	0x0001ac84,	/* fteexec */
+	0x0001ac84,	/* ftis */
+	0x0001ac8c,	/* ftsize */
+	0x0001ac8c,	/* ftmtime */
+	0x0001ac8c,	/* ftatime */
+	0x0001ac8c,	/* ftctime */
+	0x0001ac84,	/* ftrowned */
+	0x0001ac84,	/* fteowned */
+	0x0001ac84,	/* ftzero */
+	0x0001ac84,	/* ftsock */
+	0x0001ac84,	/* ftchr */
+	0x0001ac84,	/* ftblk */
+	0x0001ac84,	/* ftfile */
+	0x0001ac84,	/* ftdir */
+	0x0001ac84,	/* ftpipe */
+	0x0001ac84,	/* ftsuid */
+	0x0001ac84,	/* ftsgid */
+	0x0001ac84,	/* ftsvtx */
+	0x0001ac84,	/* ftlink */
+	0x0001ac04,	/* fttty */
+	0x0001ac84,	/* fttext */
+	0x0001ac84,	/* ftbinary */
+	0x0002681c,	/* chdir */
 	0x0000901d,	/* chown */
-	0x00026c9c,	/* chroot */
+	0x0002689c,	/* chroot */
 	0x0000909d,	/* unlink */
 	0x0000901d,	/* chmod */
 	0x0000901d,	/* utime */
 	0x0004501c,	/* rename */
 	0x0004501c,	/* link */
 	0x0004501c,	/* symlink */
-	0x00026c8c,	/* readlink */
+	0x0002688c,	/* readlink */
 	0x0026509c,	/* mkdir */
-	0x00026c9c,	/* rmdir */
+	0x0002689c,	/* rmdir */
 	0x00059004,	/* open_dir */
-	0x0001ac00,	/* readdir */
-	0x0001ac0c,	/* telldir */
+	0x0001a800,	/* readdir */
+	0x0001a80c,	/* telldir */
 	0x00059004,	/* seekdir */
-	0x0001ac04,	/* rewinddir */
-	0x0001ac04,	/* closedir */
+	0x0001a804,	/* rewinddir */
+	0x0001a804,	/* closedir */
 	0x0000000c,	/* fork */
 	0x0000001c,	/* wait */
 	0x0004501c,	/* waitpid */
@@ -3487,16 +3487,16 @@ EXTCONST U32 PL_opargs[] = {
 	0x000a501d,	/* exec */
 	0x0000901d,	/* kill */
 	0x0000001c,	/* getppid */
-	0x00026c1c,	/* getpgrp */
+	0x0002681c,	/* getpgrp */
 	0x0026501c,	/* setpgrp */
 	0x0004501c,	/* getpriority */
 	0x0044501c,	/* setpriority */
 	0x0000001c,	/* time */
 	0x00000000,	/* tms */
-	0x00026c08,	/* localtime */
-	0x00026c08,	/* gmtime */
-	0x00026c8c,	/* alarm */
-	0x00026c1c,	/* sleep */
+	0x00026808,	/* localtime */
+	0x00026808,	/* gmtime */
+	0x0002688c,	/* alarm */
+	0x0002681c,	/* sleep */
 	0x0044500d,	/* shmget */
 	0x0044500d,	/* shmctl */
 	0x0444500d,	/* shmread */
@@ -3508,60 +3508,60 @@ EXTCONST U32 PL_opargs[] = {
 	0x0004500d,	/* semop */
 	0x0044500d,	/* semget */
 	0x0444500d,	/* semctl */
-	0x00026cc4,	/* require */
+	0x000268c4,	/* require */
 	0x00004440,	/* dofile */
 	0x00001804,	/* hintseval */
-	0x00026cc0,	/* entereval */
+	0x000268c0,	/* entereval */
 	0x00004400,	/* leaveeval */
 	0x00000c40,	/* entertry */
 	0x00001000,	/* leavetry */
-	0x00006c00,	/* ghbyname */
+	0x00006800,	/* ghbyname */
 	0x00045000,	/* ghbyaddr */
 	0x00000000,	/* ghostent */
-	0x00006c00,	/* gnbyname */
+	0x00006800,	/* gnbyname */
 	0x00045000,	/* gnbyaddr */
 	0x00000000,	/* gnetent */
-	0x00006c00,	/* gpbyname */
+	0x00006800,	/* gpbyname */
 	0x00005000,	/* gpbynumber */
 	0x00000000,	/* gprotoent */
 	0x00045000,	/* gsbyname */
 	0x00045000,	/* gsbyport */
 	0x00000000,	/* gservent */
-	0x00006c04,	/* shostent */
-	0x00006c04,	/* snetent */
-	0x00006c04,	/* sprotoent */
-	0x00006c04,	/* sservent */
+	0x00006804,	/* shostent */
+	0x00006804,	/* snetent */
+	0x00006804,	/* sprotoent */
+	0x00006804,	/* sservent */
 	0x00000004,	/* ehostent */
 	0x00000004,	/* enetent */
 	0x00000004,	/* eprotoent */
 	0x00000004,	/* eservent */
-	0x00006c00,	/* gpwnam */
-	0x00006c00,	/* gpwuid */
+	0x00006800,	/* gpwnam */
+	0x00006800,	/* gpwuid */
 	0x00000000,	/* gpwent */
 	0x00000004,	/* spwent */
 	0x00000004,	/* epwent */
-	0x00006c00,	/* ggrnam */
-	0x00006c00,	/* ggrgid */
+	0x00006800,	/* ggrnam */
+	0x00006800,	/* ggrgid */
 	0x00000000,	/* ggrent */
 	0x00000004,	/* sgrent */
 	0x00000004,	/* egrent */
 	0x0000000c,	/* getlogin */
 	0x0008500d,	/* syscall */
-	0x0001ec04,	/* lock */
+	0x0001e804,	/* lock */
 	0x00000c00,	/* once */
 	0x00000000,	/* custom */
 	0x00001800,	/* coreargs */
 	0x00000408,	/* avhvswitch */
 	0x00000004,	/* runcv */
-	0x00026c8e,	/* fc */
+	0x0002688e,	/* fc */
 	0x00000040,	/* padcv */
 	0x00000040,	/* introcv */
 	0x00000040,	/* clonecv */
 	0x00000040,	/* padrange */
 	0x00000844,	/* refassign */
-	0x00002c40,	/* lvref */
+	0x00002840,	/* lvref */
 	0x00001040,	/* lvrefslice */
-	0x00002c40,	/* lvavref */
+	0x00002840,	/* lvavref */
 	0x00000444,	/* anonconst */
 };
 #endif

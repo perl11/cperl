@@ -399,17 +399,19 @@ XXX
 
 =head1 Internal Changes
 
-XXX Changes which affect the interface available to C<XS> code go here.  Other
-significant internal changes for future core maintainers should be noted as
-well.
-
-[ List each change as an =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+With a threaded perl, GV's are relocated as READONLY PADs.
+Add an abstraction L<perlintern/op_gv_set> to simplify that.
+
+=item *
+
+Removed the obsolete C<OA_PADOP> class. Invalid and unused since 5.6.0.
+Kept C<OP_IS_PADOP> and made it legal for threaded perls.
+The L<B> modules still print PADOP C<'#'> ops as such, which were dynamically
+converted from SVOP's to PADOP's threaded.
 
 =back
 

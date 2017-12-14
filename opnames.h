@@ -527,15 +527,14 @@ core_types_n[] = {
 #define OA_LISTOP 	(4 << OCSHIFT)
 #define OA_PMOP 	(5 << OCSHIFT)
 #define OA_SVOP 	(6 << OCSHIFT)
-#define OA_PADOP 	(7 << OCSHIFT)
-#define OA_PVOP_OR_SVOP (8 << OCSHIFT)
-#define OA_LOOP 	(9 << OCSHIFT)
-#define OA_COP 		(10 << OCSHIFT)
-#define OA_BASEOP_OR_UNOP (11 << OCSHIFT)
-#define OA_FILESTATOP 	(12 << OCSHIFT)
-#define OA_LOOPEXOP 	(13 << OCSHIFT)
-#define OA_METHOP 	(14 << OCSHIFT)
-#define OA_UNOP_AUX 	(15 << OCSHIFT)
+#define OA_PVOP_OR_SVOP (7 << OCSHIFT)
+#define OA_LOOP 	(8 << OCSHIFT)
+#define OA_COP 		(9 << OCSHIFT)
+#define OA_BASEOP_OR_UNOP (10 << OCSHIFT)
+#define OA_FILESTATOP 	(11 << OCSHIFT)
+#define OA_LOOPEXOP 	(12 << OCSHIFT)
+#define OA_METHOP 	(13 << OCSHIFT)
+#define OA_UNOP_AUX 	(14 << OCSHIFT)
 
 
 #define OP_HAS_TARGLEX(ot) ((PL_opargs[ot] & OA_TARGLEX) == OA_TARGLEX)
@@ -548,8 +547,9 @@ core_types_n[] = {
 #define OP_IS_LISTOP(ot) OpCLASS(ot) == OA_LISTOP
 #define OP_IS_PMOP(ot)   OpCLASS(ot) == OA_PMOP
 #define OP_IS_SVOP(ot)   (OpCLASS(ot) == OA_SVOP || OpCLASS(ot) == OA_PVOP_OR_SVOP)
-/* unused! */
-#define OP_IS_PADOP(ot)  OpCLASS(ot) == OA_PADOP
+#ifdef USE_ITHREADS
+# define OP_IS_PADOP(ot)  OP_IS_SVOP(ot)
+#endif
 #define OP_IS_LOOP(ot)   OpCLASS(ot) == OA_LOOP
 #define OP_IS_COP(ot)    OpCLASS(ot) == OA_COP
 #define OP_IS_FILESTATOP(ot) OpCLASS(ot) == OA_FILESTATOP

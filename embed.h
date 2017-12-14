@@ -216,6 +216,7 @@
 #define gv_autoload_sv(a,b,c)	Perl_gv_autoload_sv(aTHX_ a,b,c)
 #define gv_check(a)		Perl_gv_check(aTHX_ a)
 #define gv_const_sv(a)		Perl_gv_const_sv(aTHX_ a)
+#define gv_display(a)		Perl_gv_display(aTHX_ a)
 #define gv_dump(a)		Perl_gv_dump(aTHX_ a)
 #define gv_efullname(a,b)	Perl_gv_efullname(aTHX_ a,b)
 #define gv_efullname4(a,b,c,d)	Perl_gv_efullname4(aTHX_ a,b,c,d)
@@ -1807,6 +1808,7 @@
 #define op_check_type(a,b,c,d)	S_op_check_type(aTHX_ a,b,c,d)
 #define op_const_sv(a,b,c)	S_op_const_sv(aTHX_ a,b,c)
 #define op_destroy(a)		S_op_destroy(aTHX_ a)
+#define op_gv_set(a,b)		S_op_gv_set(aTHX_ a,b)
 #define op_integerize(a)	S_op_integerize(aTHX_ a)
 #define op_next_nn		S_op_next_nn
 #define op_prev_nn		S_op_prev_nn
