@@ -52,7 +52,7 @@ checkOptree ( name	=> 'BEGIN',
 # 5              <0> pushmark s ->6
 # 6              <$> const[PV "strict"] sM ->7
 # 7              <$> const[PV "refs"] sM ->8
-# 8              <.> method_named[PV "unimport"] ->9
+# 8              <$> gv(*strict::unimport) s/WASMETHOD ->9
 # BEGIN 2:
 # k  <1> leavesub[1 ref] K/REFC,1 ->(end)
 # -     <@> lineseq K ->k
@@ -66,7 +66,7 @@ checkOptree ( name	=> 'BEGIN',
 # f              <0> pushmark s ->g
 # g              <$> const[PV "strict"] sM ->h
 # h              <$> const[PV "refs"] sM ->i
-# i              <.> method_named[PV "unimport"] ->j
+# i              <$> gv(*strict::unimport) s/WASMETHOD ->j
 # BEGIN 3:
 # u  <1> leavesub[1 ref] K/REFC,1 ->(end)
 # -     <@> lineseq KP ->u
@@ -245,7 +245,7 @@ checkOptree ( name	=> 'all of BEGIN END INIT CHECK UNITCHECK -exec',
 # 5  <0> pushmark s
 # 6  <$> const[PV "strict"] sM
 # 7  <$> const[PV "refs"] sM
-# 8  <.> method_named[PV "unimport"] 
+# 8  <$> gv(*strict::unimport) s/WASMETHOD
 # 9  <1> enterxssub[t1] KRS*/TARG,STRICT
 # a  <1> leavesub[1 ref] K/REFC,1
 # BEGIN 2:
@@ -256,7 +256,7 @@ checkOptree ( name	=> 'all of BEGIN END INIT CHECK UNITCHECK -exec',
 # f  <0> pushmark s
 # g  <$> const[PV "strict"] sM
 # h  <$> const[PV "refs"] sM
-# i  <.> method_named[PV "unimport"] 
+# i  <$> gv(*strict::unimport) s/WASMETHOD
 # j  <1> enterxssub[t1] KRS*/TARG,STRICT
 # k  <1> leavesub[1 ref] K/REFC,1
 # BEGIN 3:
@@ -373,7 +373,7 @@ checkOptree ( name	=> 'regression test for patch 25352',
 # 5  <0> pushmark s
 # 6  <$> const[PV "strict"] sM
 # 7  <$> const[PV "refs"] sM
-# 8  <.> method_named[PV "unimport"] 
+# 8  <$> gv(*strict::unimport) s/WASMETHOD
 # 9  <1> enterxssub[t1] KRS*/TARG,STRICT
 # a  <1> leavesub[1 ref] K/REFC,1
 # BEGIN 2:
@@ -384,7 +384,7 @@ checkOptree ( name	=> 'regression test for patch 25352',
 # f  <0> pushmark s
 # g  <$> const[PV "strict"] sM
 # h  <$> const[PV "refs"] sM
-# i  <.> method_named[PV "unimport"] 
+# i  <$> gv(*strict::unimport) s/WASMETHOD
 # j  <1> enterxssub[t1] KRS*/TARG,STRICT
 # k  <1> leavesub[1 ref] K/REFC,1
 # BEGIN 3:
