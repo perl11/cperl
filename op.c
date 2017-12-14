@@ -2380,6 +2380,11 @@ Perl_scalarvoid(pTHX_ OP *arg)
             if (IS_TYPE(o, REPEAT))
                 scalar(OpFIRST(o));
             goto func_ops;
+	case OP_CONCAT:
+            if ((o->op_flags & OPf_STACKED) &&
+		    !(o->op_private & OPpCONCAT_NESTED))
+                break;
+	    goto func_ops;
         case OP_SUBSTR:
             if (o->op_private == 4)
                 break;

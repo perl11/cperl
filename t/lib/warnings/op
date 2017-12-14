@@ -2078,3 +2078,12 @@ use warnings;
 sub foo{} my %h; foo (@h{"a","b"});
 EXPECT
 No autovivification of hash slice anymore at - line 2.
+########
+# Useless use of concatenation should appear for any number of args
+use warnings;
+($a, $b, $c) = (42)x3;
+$a.$b;
+$a.$b.$c;
+EXPECT
+Useless use of concatenation (.) or string in void context at - line 4.
+Useless use of concatenation (.) or string in void context at - line 5.
