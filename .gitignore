@@ -35,6 +35,7 @@ bug*.pl
 /perlmain.c
 /perlmini.c
 /pod/Makefile
+/preload
 /runtests
 /writemain
 /x2p/Makefile
