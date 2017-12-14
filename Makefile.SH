@@ -1324,7 +1324,6 @@ install.html: all installhtml
 	${LOCAL_PERL} installhtml   \\
       --podroot=. --podpath=. --recurse  \\
       --htmldir=\$(privlib)/html   \\
-      --htmlroot=\$(privlib)/html  \\
       --splithead=pod/perlipc     \\
       --splititem=pod/perlfunc    \\
       --ignore=Porting/Maintainers.pm,Porting/pumpkin.pod,Porting/repository.pod \\
