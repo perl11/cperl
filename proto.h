@@ -1930,6 +1930,9 @@ PERL_CALLCONV SV*	Perl_gv_const_sv(pTHX_ GV* gv)
 #define PERL_ARGS_ASSERT_GV_CONST_SV	\
 	assert(gv)
 
+PERL_CALLCONV SV*	Perl_gv_display(pTHX_ GV *gv)
+			__attribute__global__;
+
 PERL_CALLCONV void	Perl_gv_dump(pTHX_ GV* gv)
 			__attribute__global__;
 
@@ -8758,6 +8761,14 @@ STATIC SV*	S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE void	S_op_destroy(pTHX_ OP* o);
 #endif
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE void	S_op_gv_set(pTHX_ OP* o, GV* gv)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_OP_GV_SET	\
+	assert(o); assert(gv)
+#endif
+
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE OP*	S_op_integerize(pTHX_ OP *o)
 			__attribute__nonnull__(pTHX_1);

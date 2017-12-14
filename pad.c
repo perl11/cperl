@@ -1866,8 +1866,7 @@ Perl_do_dump_pad(pTHX_ I32 level, PerlIO *file, PADLIST *padlist, int full)
     ppad = AvARRAY(pad);
     Perl_dump_indent(aTHX_ level, file,
 	    "PADNAME = 0x%" UVxf "(0x%" UVxf ") PAD = 0x%" UVxf "(0x%" UVxf ")\n",
-	    PTR2UV(pad_name), PTR2UV(pname), PTR2UV(pad), PTR2UV(ppad)
-    );
+	    PTR2UV(pad_name), PTR2UV(pname), PTR2UV(pad), PTR2UV(ppad));
 
     for (ix = 1; ix <= (PADOFFSET)PadnamelistMAX(pad_name); ix++) {
         const PADNAME *namesv = pname[ix];
@@ -2969,6 +2968,7 @@ Perl_padname_dup(pTHX_ PADNAME *src, CLONE_PARAMS *param)
 Possibly optimizes the internal representation of the sub, esp. more
 expensive loop analysis or more expensive jit optimizations.
 For now does nothing.
+
 =cut
 */
 void

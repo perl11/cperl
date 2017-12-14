@@ -523,6 +523,7 @@ Ap	|void	|dump_packsubs	|NN const HV *stash
 Ap	|void	|dump_packsubs_perl |NN const HV *stash|bool justperl
 Ap	|void	|dump_eval
 Ap	|void	|dump_form	|NN const GV* gv
+Ap	|SV*	|gv_display	|NULLOK GV *gv
 Ap	|void	|gv_dump	|NULLOK GV* gv
 Apd	|OPclass|op_class	|NULLOK const OP *o
 Ap	|void	|op_dump	|NN const OP *o
@@ -564,6 +565,7 @@ Ap	|void	|free_tmps
 ix      |char*  |strip_spaces   |NN const char * orig|NN STRLEN * const len
 #endif
 #if defined(PERL_IN_OP_C)
+i	|void	|op_gv_set	|NN OP* o|NN GV* gv
 s	|OP*	|gen_constant_list|NULLOK OP* o
 #endif
 #if !defined(HAS_GETENV_LEN)

@@ -247,8 +247,8 @@ Perl_pv_escape( pTHX_ SV *dsv, char const * const str,
     PERL_ARGS_ASSERT_PV_ESCAPE;
 
     if (dsv && !(flags & PERL_PV_ESCAPE_NOCLEAR)) {
-	    /* This won't alter the UTF-8 flag */
-            SvPVCLEAR(dsv);
+        /* This won't alter the UTF-8 flag */
+        SvPVCLEAR(dsv);
     }
     
     if ((flags & PERL_PV_ESCAPE_UNI_DETECT) && is_utf8_string((U8*)pv, count))
@@ -911,13 +911,13 @@ Perl_dump_eval(pTHX)
 
 
 /* returns a temp SV displaying the name of a GV. Handles the case where
- * a GV is in fact a ref to a CV */
+ * a GV is in fact a ref to a CV, or NULL */
 
-static SV *
-S_gv_display(pTHX_ GV *gv)
+SV *
+Perl_gv_display(pTHX_ GV *gv)
 {
     SV * const name = newSVpvs_flags("", SVs_TEMP);
-    if (gv) {
+    if (gv && SvTYPE(gv) != SVt_NULL) {
         SV * const raw = newSVpvs_flags("", SVs_TEMP);
         STRLEN len;
         const char * rawpv;
@@ -927,14 +927,14 @@ S_gv_display(pTHX_ GV *gv)
         else {
             assert(SvROK(gv));
             assert(SvTYPE(SvRV(gv)) == SVt_PVCV);
-            Perl_sv_catpvf(aTHX_ raw, "cv ref: %s",
+            Perl_sv_catpvf(aTHX_ raw, "CVREF: %s",
                     SvPV_nolen_const(cv_name((CV *)SvRV(gv), name, 0)));
         }
         rawpv = SvPV_const(raw, len);
         generic_pv_escape(name, rawpv, len, SvUTF8(raw));
     }
     else
-        sv_catpvs(name, "(NULL)");
+        sv_catpvs(name, "NULL");
 
     return name;
 }
@@ -1308,7 +1308,7 @@ S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o, const CV *c
 #else
         S_opdump_indent(aTHX_ o, level, bar, file,
             "GV = %" SVf " (0x%" UVxf ")\n",
-            SVfARG(S_gv_display(aTHX_ cGVOPo_gv)), PTR2UV(cGVOPo_gv));
+            SVfARG(gv_display(cGVOPo_gv)), PTR2UV(cGVOPo_gv));
 #endif
         break;
 
@@ -3582,7 +3582,7 @@ Perl_debop(pTHX_ const OP *o)
     case OP_GVSV:
     case OP_GV:
         PerlIO_printf(Perl_debug_log, "(%" SVf ")",
-                SVfARG(S_gv_display(aTHX_ cGVOPo_gv)));
+                SVfARG(gv_display(cGVOPo_gv)));
 	break;
 
     case OP_PADSV:
@@ -3718,9 +3718,6 @@ Perl_op_class(pTHX_ const OP *o)
 
     case OA_SVOP:
 	return OPclass_SVOP;
-
-    case OA_PADOP:
-	return OPclass_PADOP;
 
     case OA_PVOP_OR_SVOP:
         /*

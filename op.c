@@ -4302,6 +4302,65 @@ Perl_op_relocate_sv(pTHX_ SV** svp, PADOFFSET* targp)
 }
 #endif
 
+/*
+=for apidoc op_gv_set
+
+Set the gv as the op_sv.
+With threads also relocate a gv to the pad for thread safety.
+cperl-only
+
+=cut
+*/
+PERL_STATIC_INLINE void
+S_op_gv_set(pTHX_ OP* o, GV* gv)
+{
+#ifdef USE_ITHREADS
+    PADOFFSET po = AvFILLp(PL_comppad);
+    PERL_ARGS_ASSERT_OP_GV_SET;
+    STATIC_ASSERT_STMT(sizeof(PADOP) <= sizeof(SVOP));
+    ASSERT_CURPAD_ACTIVE("op_gv_set");
+    assert(PL_curpad == AvARRAY(PL_comppad));
+    assert(OP_IS_PADOP(o->op_type)); /* only with cperl. with perl5 you need to check SVOP */
+
+    SvREFCNT_inc_simple_void_NN(gv);
+
+#ifdef USE_PAD_REUSE
+    if (!SvPADTMP(gv) && PL_comppad == PadlistARRAY(CvPADLIST(PL_main_cv))[1]) {
+# ifndef PAD_REUSE_MRU
+#  define PAD_REUSE_MRU 8
+# endif
+        /* Search the last 8 global pads for reuse. All those should be readonly if GV.
+         * XXX pad_swipe may delete our reused pad when going out of scope, which breaks our reuse.
+         * We need to find out our scope padrange.
+         */
+        PADOFFSET i;
+        CACHE_PREFETCH(PL_curpad[po-PAD_REUSE_MRU], 0, 0);
+        for (i = po; i >= PAD_REUSE_MRU; i--) {
+            if (PL_curpad[i] == (SV*)gv) {
+                DEBUG_kv(Perl_deb(aTHX_ "op_gv_set %s reuse [%lu] %s 0x%x\n",
+                                  SvPVX_const(gv_display(gv)), (unsigned long)i,
+                                  SvPEEK((SV*)gv), SvFLAGS(gv)));
+                cPADOPx(o)->op_padix = i;
+                return;
+            }
+        }
+    }
+#endif
+    po = pad_alloc(o->op_type, SVf_READONLY);
+    cPADOPx(o)->op_padix = po;
+    if (PAD_SVl(po) && !SvIS_FREED(PAD_SVl(po)))
+        sv_free(PAD_SVl(po));
+    PAD_SETSV(po, (SV*)gv);
+    DEBUG_kv(Perl_deb(aTHX_ "op_gv_set %s [%lu] %s 0x%x\n",
+                      SvPVX_const(gv_display(gv)), (unsigned long)po,
+                      SvPEEK((SV*)gv), SvFLAGS(gv)));
+#else
+    PERL_ARGS_ASSERT_OP_GV_SET;
+    assert(OP_IS_SVOP(o->op_type));
+    cSVOPo->op_sv = SvREFCNT_inc_simple_NN((SV*)gv);
+#endif
+}
+
 
 /*
 =for apidoc finalize_op
@@ -8182,14 +8241,10 @@ S_pmtrans(pTHX_ OP *o, OP *expr, OP *repl)
 	    bits = 8;
 
 	swash = MUTABLE_SV(swash_init("utf8", "", listsv, bits, none));
+        op_gv_set(o, (GV*)swash);
 #ifdef USE_ITHREADS
-	cPADOPo->op_padix = pad_alloc(OP_TRANS, SVf_READONLY);
-	SvREFCNT_dec(PAD_SVl(cPADOPo->op_padix));
-	PAD_SETSV(cPADOPo->op_padix, swash);
 	SvPADTMP_on(swash);
-	SvREADONLY_on(swash);
-#else
-	cSVOPo->op_sv = swash;
+        SvREADONLY_on(swash);
 #endif
 	SvREFCNT_dec(listsv);
 	SvREFCNT_dec(transv);
@@ -8845,6 +8900,7 @@ Perl_newPADOP(pTHX_ I32 type, I32 flags, SV *sv)
 {
     dVAR;
     PADOP *padop;
+    PADOFFSET po;
 
     PERL_ARGS_ASSERT_NEWPADOP;
 
@@ -8855,10 +8911,21 @@ Perl_newPADOP(pTHX_ I32 type, I32 flags, SV *sv)
 
     NewOp(1101, padop, 1, PADOP);
     OpTYPE_set(padop, type);
-    padop->op_padix =
-	pad_alloc(type, isGV(sv) ? SVf_READONLY : SVs_PADTMP);
-    SvREFCNT_dec(PAD_SVl(padop->op_padix));
-    PAD_SETSV(padop->op_padix, sv);
+    assert(PL_curpad == AvARRAY(PL_comppad));
+    po = AvFILLp(PL_comppad);
+#ifdef USE_PAD_REUSE
+    /* TODO: check PAD_REUSE_MRU, allow cvref also. Better check for READONLY */
+    if (isGV(sv) && PL_curpad[po] == sv) {
+        padop->op_padix = po;		/* reuse the last GV slot */
+    } else
+#endif
+    {
+        /* XXX: cvref also? */
+        po = padop->op_padix =
+            pad_alloc(type, isGV(sv) ? SVf_READONLY : SVs_PADTMP);
+        sv_free(PAD_SVl(po));
+        PAD_SETSV(po, sv);
+    }
     assert(sv);
     padop->op_next = (OP*)padop;
     padop->op_flags = (U8)flags;
@@ -13080,7 +13147,8 @@ Perl_ck_rvconst(pTHX_ OP *o)
 	if ((SvROK(kidsv) || isGV_with_GP(kidsv)) && SvREADONLY(kidsv)) {
 	    return o;
 	}
-	if (SvTYPE(kidsv) == SVt_PVAV) return o;
+	if (SvTYPE(kidsv) == SVt_PVAV)
+            return o;
 	if ((OpPRIVATE(o) & HINT_STRICT_REFS) && (OpPRIVATE(kid) & OPpCONST_BARE)) {
 	    const char *badthing;
 	    switch (o->op_type) {
@@ -13144,16 +13212,8 @@ Perl_ck_rvconst(pTHX_ OP *o)
 		    gv_fetchsv(kidsv, GV_ADDMULTI, SVt_PVCV);
 	    }
             OpTYPE_set(kid, OP_GV);
-	    SvREFCNT_dec(kid->op_sv);
-#ifdef USE_ITHREADS
-	    /* XXX hack: dependence on sizeof(PADOP) <= sizeof(SVOP) */
-	    STATIC_ASSERT_STMT(sizeof(PADOP) <= sizeof(SVOP));
-	    kPADOP->op_padix = pad_alloc(OP_GV, SVf_READONLY);
-	    SvREFCNT_dec(PAD_SVl(kPADOP->op_padix));
-	    PAD_SETSV(kPADOP->op_padix, MUTABLE_SV(SvREFCNT_inc_simple_NN(gv)));
-#else
-	    kid->op_sv = SvREFCNT_inc_simple_NN(gv);
-#endif
+            SvREFCNT_dec(kid->op_sv);
+            op_gv_set((OP*)kid, gv);
 	    kid->op_private = 0;
 	    /* FAKE globs in the symbol table cause weird bugs (#77810) */
 	    SvFAKE_off(gv);
@@ -16971,28 +17031,11 @@ Perl_ck_subr(pTHX_ OP *o)
                                             SVfARG(cv_name(cvf, NULL, CV_NAME_NOMAIN))));
                                         OpTYPE_set(o, OP_ENTERXSSUB);
                                     }
-                                    /* TODO: fixme threads &main::extracted/DEastAsianWidth.txt */
                                     /* from METHOP to GV */
-/*#ifndef USE_ITHREADS*/
                                     OpTYPE_set(cvop, OP_GV);
                                     OpPRIVATE(cvop) |= OPpGV_WASMETHOD;
                                     /* t/op/symbolcache.t needs a replacable GV, not a CV */
-#ifdef USE_ITHREADS
-                                    SvREFCNT_inc_simple_void_NN(gv);
-                                    /* share the last gv on the pad */
-                                    {
-                                        PADOFFSET po = AvFILLp(PL_comppad);
-                                        assert(PL_curpad == AvARRAY(PL_comppad));
-                                        if (PL_curpad[po] == (SV*)gv) {
-                                            cPADOPx(cvop)->op_padix = po;
-                                        } else {
-                                            cPADOPx(cvop)->op_padix = pad_alloc(OP_GV, 0);
-                                            PAD_SETSV(cPADOPx(cvop)->op_padix, (SV*)gv);
-                                        }
-                                    }                                    
-#else
-                                    ((SVOP*)cvop)->op_sv = SvREFCNT_inc_NN(gv);
-#endif
+                                    op_gv_set(cvop, gv);
                                     DEBUG_k(Perl_deb(aTHX_
                                         "ck_subr: static method call %s->%s => %s::%s\n",
                                         SvPVX_const(pkg), SvPVX_const(meth),
@@ -17000,7 +17043,6 @@ Perl_ck_subr(pTHX_ OP *o)
                                     SvREFCNT_dec(meth);
                                     cvop->op_flags |= OPf_WANT_SCALAR;
                                     o->op_flags |= OPf_STACKED;
-/*#endif*/
                                 }
                             }
                         }
