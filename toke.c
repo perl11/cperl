@@ -8905,7 +8905,7 @@ Perl_yylex(pTHX)
                         prev = s;
                     else if (prev == s) {
                         yyerror("syntax error");
-                        break;
+                        TOKEN(0);
                     }
                     Copy(s, PL_tokenbuf, len, char);
                     PL_tokenbuf[len] = '\0';
