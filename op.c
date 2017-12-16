@@ -1347,7 +1347,7 @@ Perl_op_clear(pTHX_ OP *o)
 	  instead it lives on. This results in that it could be reused as 
 	  a target later on when the pad was reallocated.
 	**/
-        if(o->op_targ) {
+        if (o->op_targ) {
           pad_swipe(o->op_targ,1);
           o->op_targ = 0;
         }
@@ -11625,7 +11625,6 @@ Perl_op_clone_oplist(pTHX_ OP* o, OP* last, bool init) {
                 break;
             case OA_UNOP:
             case OA_BASEOP_OR_UNOP:
-            case OA_FILESTATOP:
             case OA_LOOPEXOP:
                 OPCLONE(UNOP);
                 FIXUP(UNOP,first);
@@ -11660,15 +11659,45 @@ Perl_op_clone_oplist(pTHX_ OP* o, OP* last, bool init) {
                     FIXUP(METHOP,u.op_first);   /* dynamic */
                 }
                 break;
+#ifdef USE_ITHREADS
+            case OA_FILESTATOP:
+                {
+                    const OP* const kid = OpFIRST(o);
+                    if ( IS_TYPE(kid, CONST)
+                         && (kid->op_private & OPpCONST_BARE)
+                         && !kid->op_folded ) {
+                        OPCLONE(PADOP);
+                    } else {
+                        OPCLONE(UNOP);
+                        FIXUP(UNOP,first);
+                    }
+                }
+                break;
+            case OA_SVOP:
+            case OA_PVOP_OR_SVOP:
+                if ( IS_TYPE(o, GV) ||
+                     IS_TYPE(o, GVSV) ||
+                     IS_TYPE(o, AELEMFAST) ||
+                     ( (IS_TYPE(o, TRANS) ||
+                        IS_TYPE(o, TRANSR)) &&
+                       (o->op_private & (OPpTRANS_FROM_UTF|OPpTRANS_TO_UTF))) ) {
+                    OPCLONE(PADOP);
+                } else {
+                    OPCLONE(SVOP);
+                }
+                break;
+#else
+            case OA_FILESTATOP:
+                OPCLONE(UNOP);
+                FIXUP(UNOP,first);
+                break;
             case OA_SVOP:
                 OPCLONE(SVOP);
-                break;
-            case OA_PADOP:
-                OPCLONE(PADOP);
                 break;
             case OA_PVOP_OR_SVOP:
                 OPCLONE(PVOP);
                 break;
+#endif
             case OA_LOOP:
                 OPCLONE(LOOP);
                 FIXUP(LOOP,first);
