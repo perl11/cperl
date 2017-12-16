@@ -8074,11 +8074,15 @@ PERL_CALLCONV PerlInterpreter*	perl_clone_using(PerlInterpreter *proto_perl, UV 
 STATIC bool	S_cv_check_inline(pTHX_ const OP *o, CV *compcv)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_CV_CHECK_INLINE	\
+	assert(o); assert(compcv)
 
-STATIC OP*	S_cv_do_inline(pTHX_ OP *o, OP *cvop, CV *cv, bool meth)
+STATIC OP*	S_cv_do_inline(pTHX_ OP *o, OP *cvop, CV *cv)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT_CV_DO_INLINE	\
+	assert(o); assert(cvop); assert(cv)
 
 #    endif
 #  endif
@@ -8652,6 +8656,11 @@ STATIC bool	S_process_special_blocks(pTHX_ I32 floor, const char *const fullname
 #define PERL_ARGS_ASSERT_PROCESS_SPECIAL_BLOCKS	\
 	assert(fullname); assert(gv); assert(cv)
 
+STATIC void	S_prune_chain_head(OP** opp)
+			__attribute__nonnull__(1);
+#define PERL_ARGS_ASSERT_PRUNE_CHAIN_HEAD	\
+	assert(opp)
+
 STATIC OP*	S_ref_array_or_hash(pTHX_ OP* cond);
 STATIC OP*	S_refkids(pTHX_ OP* o, I32 type);
 STATIC bool	S_scalar_mod_type(const OP *o, I32 type)
@@ -8953,11 +8962,6 @@ STATIC void	S_process_optree(pTHX_ CV *cv, OP *root, OP *start)
 			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_PROCESS_OPTREE	\
 	assert(root); assert(start)
-
-STATIC void	S_prune_chain_head(OP** op_p)
-			__attribute__nonnull__(1);
-#define PERL_ARGS_ASSERT_PRUNE_CHAIN_HEAD	\
-	assert(op_p)
 
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE OP*	S_set_boolean(pTHX_ OP *o)

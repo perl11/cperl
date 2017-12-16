@@ -1896,7 +1896,7 @@
 #    if defined(PERL_IN_OP_C)
 #      if defined(USE_CPERL)
 #define cv_check_inline(a,b)	S_cv_check_inline(aTHX_ a,b)
-#define cv_do_inline(a,b,c,d)	S_cv_do_inline(aTHX_ a,b,c,d)
+#define cv_do_inline(a,b,c)	S_cv_do_inline(aTHX_ a,b,c)
 #      endif
 #    endif
 #  endif
@@ -2046,6 +2046,7 @@
 #define optimize_op(a)		S_optimize_op(aTHX_ a)
 #define pmtrans(a,b,c)		S_pmtrans(aTHX_ a,b,c)
 #define process_special_blocks(a,b,c,d)	S_process_special_blocks(aTHX_ a,b,c,d)
+#define prune_chain_head	S_prune_chain_head
 #define ref_array_or_hash(a)	S_ref_array_or_hash(aTHX_ a)
 #define refkids(a,b)		S_refkids(aTHX_ a,b)
 #define scalar_mod_type		S_scalar_mod_type
@@ -2106,7 +2107,6 @@
 #define padnamelist_type_fixup(a,b,c)	S_padnamelist_type_fixup(aTHX_ a,b,c)
 #define peep_leaveloop(a,b,c)	S_peep_leaveloop(aTHX_ a,b,c)
 #define process_optree(a,b,c)	S_process_optree(aTHX_ a,b,c)
-#define prune_chain_head	S_prune_chain_head
 #define set_boolean(a)		S_set_boolean(aTHX_ a)
 #define stash_to_coretype(a)	S_stash_to_coretype(aTHX_ a)
 #define typename(a)		S_typename(aTHX_ a)
