@@ -50,6 +50,19 @@ XXX For a release on a stable branch, this section aspires to be:
 
 [ List each incompatible change as a =head2 entry ]
 
+=head2 Over-radix digits in floating point literals
+
+Octal and binary floating point literals used to permit any hexadecimal
+digit to appear after the radix point.  The digits are now restricted
+to those appropriate for the radix, as digits before the radix point
+always were.
+
+=head2 Return type of C<unpackstring()>
+
+The return types of the C API functions C<unpackstring()> and
+C<unpack_str()> have changed from C<I32> to C<SSize_t>, in order to
+accommodate datasets of more than two billion items.
+
 =head1 Deprecations
 
 XXX Any deprecated features, syntax, modules etc. should be listed here.
@@ -508,9 +521,50 @@ files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 
 =over 4
 
+C<pack> and C<unpack> can now handle repeat counts and lengths that
+exceed two billion.  [perl #119367]
+
 =item *
 
-XXX
+Digits past the radix point in octal and binary floating point literals
+now have the correct weight on platforms where a floating point
+significand doesn't fit into an integer type.
+
+=item *
+
+C<exit(0)> in a C<UNITCHECK> or C<CHECK> block no longer permits the
+main program to run, and C<exit(0)> in a C<BEGIN> block no longer permits
+C<INIT> blocks to run before exiting.  [perl #2754]
+
+=item *
+
+The canonical truth value no longer has a spurious special meaning as
+a callable.  It used to be a magic placeholder for a missing C<import>
+or C<unimport> method.  It is now treated like any other string C<1>.
+[perl #126042]
+
+=item *
+
+The C<readpipe()> built-in function now checks at compile time that
+it has only one parameter expression, and puts it in scalar context,
+thus ensuring that it doesn't corrupt the stack at runtime.  [perl #4574]
+
+=item *
+
+C<sort> now performs correct reference counting when aliasing C<$a> and
+C<$b>, thus avoiding premature destruction and leakage of scalars if they
+are re-aliased during execution of the sort comparator.  [perl #92264]
+
+=item *
+
+C<reverse> with no operand, reversing C<$_> by default, is no longer in
+danger of corrupting the stack.  [perl #132544]
+
+=item *
+
+C<exec>, C<system>, et al are no longer liable to have their argument
+lists corrupted by reentrant calls and by magic such as tied scalars.
+[perl #129888]
 
 =item *
 
