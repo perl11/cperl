@@ -4394,14 +4394,18 @@ PP(pp_system)
     int result;
 # endif
 
+    while (++MARK <= SP) {
+	SV *origsv = *MARK;
+	STRLEN len;
+	char *pv;
+	pv = SvPV(origsv, len);
+	*MARK = newSVpvn_flags(pv, len,
+		    (SvFLAGS(origsv) & SVf_UTF8) | SVs_TEMP);
+    }
+    MARK = ORIGMARK;
+
     if (TAINTING_get) {
 	TAINT_ENV();
-	while (++MARK <= SP) {
-	    (void)SvPV_nolen_const(*MARK);      /* stringify for taint check */
-	    if (TAINT_get)
-		break;
-	}
-	MARK = ORIGMARK;
 	TAINT_PROPER("system");
     }
     else {

@@ -197,6 +197,19 @@ TODO: {
         or printf "# \$! eq %d, '%s'\n", $!, $!;
 }
 
+package CountRead {
+    sub TIESCALAR { bless({ n => 0 }, $_[0]) }
+    sub FETCH { ++$_[0]->{n} }
+}
+my $cr;
+tie $cr, "CountRead";
+is system($^X, "-e", "exit(\$ARGV[0] eq '1' ? 0 : 1)", $cr), 0,
+    "system args have magic processed exactly once";
+is tied($cr)->{n}, 1, "system args have magic processed before fork";
+
+is system($^X, "-e", "exit(\$ARGV[0] eq \$ARGV[1] ? 0 : 1)", "$$", $$), 0,
+    "system args have magic processed before fork";
+
 my $test = curr_test();
 exec $Perl, '-le', qq{${quote}print 'ok $test - exec PROG, LIST'${quote}};
 fail("This should never be reached if the exec() worked");

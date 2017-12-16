@@ -529,6 +529,8 @@ files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 
 =over 4
 
+=item *
+
 C<pack> and C<unpack> can now handle repeat counts and lengths that
 exceed two billion.  [perl #119367]
 
@@ -550,6 +552,13 @@ The canonical truth value no longer has a spurious special meaning as
 a callable.  It used to be a magic placeholder for a missing C<import>
 or C<unimport> method.  It is now treated like any other string C<1>.
 [perl #126042]
+
+=item *
+
+C<system> now reduces its arguments to strings in the parent process, so
+any effects of stringifying them (such as overload methods being called
+or warnings being emitted) are visible in the way the program expects.
+[perl #121105]
 
 =item *
 
