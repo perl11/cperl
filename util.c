@@ -4046,9 +4046,9 @@ Perl_my_strftime(pTHX_ const char *fmt, int sec, int min, int hour, int mday, in
   buflen = 64;
   Newx(buf, buflen, char);
 
-  GCC_DIAG_IGNORE(-Wformat-nonliteral); /* fmt checked by caller */
+  GCC_DIAG_IGNORE_STMT(-Wformat-nonliteral); /* fmt checked by caller */
   len = strftime(buf, buflen, fmt, &mytm);
-  GCC_DIAG_RESTORE;
+  GCC_DIAG_RESTORE_STMT;
 
   /*
   ** The following is needed to handle to the situation where
@@ -4074,9 +4074,9 @@ Perl_my_strftime(pTHX_ const char *fmt, int sec, int min, int hour, int mday, in
     Renew(buf, bufsize, char);
     while (buf) {
 
-      GCC_DIAG_IGNORE(-Wformat-nonliteral); /* fmt checked by caller */
+      GCC_DIAG_IGNORE_STMT(-Wformat-nonliteral); /* fmt checked by caller */
       buflen = strftime(buf, bufsize, fmt, &mytm);
-      GCC_DIAG_RESTORE;
+      GCC_DIAG_RESTORE_STMT;
 
       if (buflen > 0 && buflen < bufsize)
 	break;

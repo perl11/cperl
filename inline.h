@@ -284,17 +284,13 @@ S_sv_or_pv_pos_u2b(pTHX_ SV *sv, const char *pv, STRLEN pos, STRLEN *lenp)
 /* ------------------------------- handy.h ------------------------------- */
 
 /* saves machine code for a common noreturn idiom typically used in Newx*() */
-#ifdef GCC_DIAG_PRAGMA
-GCC_DIAG_IGNORE(-Wunused-function) /* Intentionally left semicolonless. */
-#endif
+GCC_DIAG_IGNORE(-Wunused-function)
 static void
 S_croak_memory_wrap(void)
 {
     Perl_croak_nocontext("%s",PL_memory_wrap);
 }
-#ifdef GCC_DIAG_PRAGMA
-GCC_DIAG_RESTORE /* Intentionally left semicolonless. */
-#endif
+GCC_DIAG_RESTORE
 
 /* ------------------------------- utf8.h ------------------------------- */
 
@@ -1208,7 +1204,9 @@ Perl_utf8_hop(const U8 *s, SSize_t off)
 		s--;
 	}
     }
+    GCC_DIAG_IGNORE_STMT(-Wcast-qual);
     return (U8 *)s;
+    GCC_DIAG_RESTORE_STMT;
 }
 
 /*
@@ -1242,12 +1240,17 @@ Perl_utf8_hop_forward(const U8 *s, SSize_t off, const U8 *end)
 
     while (off--) {
         STRLEN skip = UTF8SKIP(s);
-        if ((STRLEN)(end - s) <= skip)
+        if ((STRLEN)(end - s) <= skip) {
+            GCC_DIAG_IGNORE_STMT(-Wcast-qual);
             return (U8 *)end;
+            GCC_DIAG_RESTORE_STMT;
+        }
         s += skip;
     }
 
+    GCC_DIAG_IGNORE_STMT(-Wcast-qual);
     return (U8 *)s;
+    GCC_DIAG_RESTORE_STMT;
 }
 
 /*
@@ -1285,7 +1288,9 @@ Perl_utf8_hop_back(const U8 *s, SSize_t off, const U8 *start)
             s--;
     }
     
+    GCC_DIAG_IGNORE_STMT(-Wcast-qual);
     return (U8 *)s;
+    GCC_DIAG_RESTORE_STMT;
 }
 
 /*

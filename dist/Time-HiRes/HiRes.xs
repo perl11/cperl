@@ -46,6 +46,15 @@ extern "C" {
 #define PERL_VERSION_GE(r,v,s) \
 	(PERL_DECIMAL_VERSION >= PERL_VERSION_DECIMAL(r,v,s))
 
+#ifndef GCC_DIAG_IGNORE
+# define GCC_DIAG_IGNORE(x)
+# define GCC_DIAG_RESTORE
+#endif
+#ifndef GCC_DIAG_IGNORE_STMT
+# define GCC_DIAG_IGNORE_STMT(x) GCC_DIAG_IGNORE(x) NOOP
+# define GCC_DIAG_RESTORE_STMT GCC_DIAG_RESTORE NOOP
+#endif
+
 /* At least ppport.h 3.13 gets this wrong: one really cannot
  * have NVgf as anything else than "g" under Perl 5.6.x. */
 #if PERL_REVISION == 5 && PERL_VERSION == 6
@@ -1339,7 +1348,7 @@ setitimer(which, seconds, interval = 0)
          * causes -Wc++-compat to complain about passing an int instead
          */
 #if defined(GCC_DIAG_IGNORE) && !defined(__cplusplus)
-        GCC_DIAG_IGNORE(-Wc++-compat);
+        GCC_DIAG_IGNORE_STMT(-Wc++-compat);
 #endif
 	if (setitimer(which, &newit, &oldit) == 0) {
 	  EXTEND(sp, 1);
@@ -1350,7 +1359,7 @@ setitimer(which, seconds, interval = 0)
 	  }
 	}
 #if defined(GCC_DIAG_RESTORE) && !defined(__cplusplus)
-        GCC_DIAG_RESTORE;
+        GCC_DIAG_RESTORE_STMT;
 #endif
 
 void
@@ -1363,7 +1372,7 @@ getitimer(which)
          * causes -Wc++-compat to complain about passing an int instead
          */
 #if defined(GCC_DIAG_IGNORE) && !defined(__cplusplus)
-        GCC_DIAG_IGNORE(-Wc++-compat);
+        GCC_DIAG_IGNORE_STMT(-Wc++-compat);
 #endif
 	if (getitimer(which, &nowit) == 0) {
 	  EXTEND(sp, 1);
@@ -1374,7 +1383,7 @@ getitimer(which)
 	  }
 	}
 #if defined(GCC_DIAG_RESTORE) && !defined(__cplusplus)
-        GCC_DIAG_RESTORE;
+        GCC_DIAG_RESTORE_STMT;
 #endif
 
 #endif /* #if defined(HAS_GETITIMER) && defined(HAS_SETITIMER) */

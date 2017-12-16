@@ -128,7 +128,7 @@ Test::Harness cpan/Test-Harness/t/nofork.t 17a1bde6de588ca647cd89d3786e84a68164a
 Test::Harness cpan/Test-Harness/t/regression.t 4b6448b3d3bae1f406e25c8f61d2656a2338d639
 Test::Harness cpan/Test-Harness/t/sample-tests/switches 350f7e96e4bfb8dbac352200d656e8f52a76ab7e
 Test::Harness cpan/Test-Harness/t/source_handler.t 1b9abe550c8c5383eddefb0811c083605cb66ba4
-Time::HiRes dist/Time-HiRes/HiRes.xs 0fda2e23eade1f3de981a9264596fcf11ebbaca4
+Time::HiRes dist/Time-HiRes/HiRes.xs 48935fd91178d38676125ff6eafac74e38b76fda
 Time::HiRes dist/Time-HiRes/t/alarm.t afe8affac025fad2da36e18c66d318ffc981d4db
 Time::HiRes dist/Time-HiRes/t/clock.t acb2497e55facb882c41154805e917d1dbe5377c
 Time::HiRes dist/Time-HiRes/t/itimer.t 659db22bc635177b130e0478aef1fd5e1edf0b6d
@@ -154,9 +154,9 @@ bignum dist/bignum/t/scope_f.t 2b8cc7daffe1092e3bf550b64a37e808b2abc5f5
 bignum dist/bignum/t/scope_i.t ca81c61aff43fee8b6bf89fc698834d721825488
 bignum dist/bignum/t/scope_r.t 531216cbede50c3dbc82795c549a439e2c8ac627
 lib dist/lib/lib_pm.PL 04a3dedbc657cac6c8db1faf2f0c6a7af328a23f
-threads dist/threads/lib/threads.pm 509262bf9850f2e2d0effc41a9172b5fa592c096
+threads dist/threads/lib/threads.pm d368e09746fcb6d9056b4b02d974ed3904233ca0
 threads dist/threads/t/locale.t 9a2a5b43a39867590eb288d4a1759abac2052aa8
-threads dist/threads/threads.xs 030620f4374ad62176e3c5d4d24b2dbd90a12b69
+threads dist/threads/threads.xs 200e3e2fb76e1e56d79168291ff58edc251a4b1c
 threads::shared dist/threads-shared/t/waithires.t dc867159fd2fa8c09326cd7627f5a0635ca5e3b5
 version cpan/version/lib/version.pm 2a13001de38b343b29720bd432612472dfd3f265
 version cpan/version/lib/version/regex.pm 78326aeeff8b3603558da9f9b86822a04c0b7be2

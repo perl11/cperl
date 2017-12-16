@@ -13252,7 +13252,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 
                 /* hopefully the above makes ptr a very constrained format
                  * that is safe to use, even though it's not literal */
-                GCC_DIAG_IGNORE(-Wformat-nonliteral);
+                GCC_DIAG_IGNORE_STMT(-Wformat-nonliteral);
 #ifdef USE_QUADMATH
                 {
                     const char* qfmt = quadmath_format_single(ptr);
@@ -13275,7 +13275,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 #else
                 elen = my_snprintf(PL_efloatbuf, PL_efloatsize, ptr, fv);
 #endif
-                GCC_DIAG_RESTORE;
+                GCC_DIAG_RESTORE_STMT;
 	    }
 
 	    eptr = PL_efloatbuf;
@@ -17095,7 +17095,7 @@ Perl_report_uninit(pTHX_ const SV *uninit_sv)
         desc = "sort";
 
     /* PL_warn_uninit_sv is constant */
-    GCC_DIAG_IGNORE(-Wformat-nonliteral);
+    GCC_DIAG_IGNORE_STMT(-Wformat-nonliteral);
     if (desc)
         /* diag_listed_as: Use of uninitialized value%s */
         Perl_warner(aTHX_ packWARN(WARN_UNINITIALIZED), PL_warn_uninit_sv,
@@ -17104,7 +17104,7 @@ Perl_report_uninit(pTHX_ const SV *uninit_sv)
     else
         Perl_warner(aTHX_ packWARN(WARN_UNINITIALIZED), PL_warn_uninit,
                 "", "", "");
-    GCC_DIAG_RESTORE;
+    GCC_DIAG_RESTORE_STMT;
 }
 
 /*

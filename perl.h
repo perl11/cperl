@@ -406,26 +406,27 @@
 /* on gcc (and clang), specify that a warning should be temporarily
  * ignored; e.g.
  *
- *    GCC_DIAG_IGNORE(-Wmultichar);
+ *    GCC_DIAG_IGNORE_STMT(-Wmultichar);
  *    char b = 'ab';
- *    GCC_DIAG_RESTORE;
+ *    GCC_DIAG_RESTORE_STMT;
  *
  * based on http://dbp-consulting.com/tutorials/SuppressingGCCWarnings.html
  *
  * Note that "pragma GCC diagnostic push/pop" was added in GCC 4.6, Mar 2011;
  * clang only pretends to be GCC 4.2, but still supports push/pop.
  *
- * Note on usage: on non-gcc (or lookalike, like clang) compilers
- * one cannot use these with a semicolon at file (global) level without
- * warnings since they are defined as empty, which leads into the terminating
- * semicolon being left alone on a line:
- * ;
- * which makes compilers mildly cranky.  Therefore at file level one
- * should use the GCC_DIAG_IGNORE and GCC_DIAG_RESTORE macros *without*
- * the semicolons.
+ * Note on usage: all macros must be used at a place where a declaration
+ * or statement can occur, i.e., not in the middle of an expression.
+ * *_DIAG_IGNORE() and *_DIAG_RESTORE can be used in any such place, but
+ * must be used without a following semicolon.  *_DIAG_IGNORE_DECL() and
+ * *_DIAG_RESTORE_DECL must be used with a following semicolon, and behave
+ * syntactically as declarations (like dNOOP).  *_DIAG_IGNORE_STMT()
+ * and *_DIAG_RESTORE_STMT must be used with a following semicolon,
+ * and behave syntactically as statements (like NOOP).
  *
- * (A dead-on-arrival solution would be to try to define the macros as
- * NOOP or dNOOP, those don't work both inside functions and outside.)
+ * In cperl we dont see the usefulness of *_DIAG_RESTORE_DECL and rather ignore it,
+ * using either the STMT or the semicolon-less pragma declaration. Such a pragma
+ * is never a statement, only a declaration. The only usefulness is for code indenters.
  */
 
 #if defined(__clang__) || defined(__clang) || \
@@ -439,7 +440,10 @@
 #  define GCC_DIAG_IGNORE(w)
 #  define GCC_DIAG_RESTORE
 #endif
-
+#define GCC_DIAG_IGNORE_DECL(x) GCC_DIAG_IGNORE(x) dNOOP
+#define GCC_DIAG_RESTORE_DECL GCC_DIAG_RESTORE dNOOP
+#define GCC_DIAG_IGNORE_STMT(x) GCC_DIAG_IGNORE(x) NOOP
+#define GCC_DIAG_RESTORE_STMT GCC_DIAG_RESTORE NOOP
 /* for clang specific pragmas */
 #if defined(__clang__) || defined(__clang)
 #  define CLANG_DIAG_PRAGMA(x) _Pragma (#x)
@@ -450,6 +454,10 @@
 #  define CLANG_DIAG_IGNORE(x)
 #  define CLANG_DIAG_RESTORE
 #endif
+#define CLANG_DIAG_IGNORE_DECL(x) CLANG_DIAG_IGNORE(x) dNOOP
+#define CLANG_DIAG_RESTORE_DECL CLANG_DIAG_RESTORE dNOOP
+#define CLANG_DIAG_IGNORE_STMT(x) CLANG_DIAG_IGNORE(x) NOOP
+#define CLANG_DIAG_RESTORE_STMT CLANG_DIAG_RESTORE NOOP
 
 /* suppress version specific warnings: */
 
