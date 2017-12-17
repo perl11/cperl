@@ -17052,6 +17052,7 @@ Perl_ck_subr(pTHX_ OP *o)
                 /* TODO: check default accessor and convert to oelem */
                 OpRETTYPE_set(o, type_Object);
             }
+            /* FALLTHROUGH */
 	case OP_METHOD:
 	case OP_METHOD_SUPER:
 	case OP_METHOD_REDIR:
