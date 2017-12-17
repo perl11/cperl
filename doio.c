@@ -618,6 +618,7 @@ S_openn_cleanup(pTHX_ GV *gv, IO *io, PerlIO *fp, char *mode, const char *oname,
 {
     int fd;
     Stat_t statbuf;
+    bool did_fstat = FALSE;
 
     PERL_ARGS_ASSERT_OPENN_CLEANUP;
 
@@ -662,6 +663,7 @@ S_openn_cleanup(pTHX_ GV *gv, IO *io, PerlIO *fp, char *mode, const char *oname,
 	    (void) PerlIO_close(fp);
 	    goto say_false;
 	}
+        did_fstat = TRUE;
 #ifndef PERL_MICRO
 	if (S_ISSOCK(statbuf.st_mode))
 	    IoTYPE(io) = IoTYPE_SOCKET;	/* in case a socket was passed in to us */
@@ -801,9 +803,9 @@ S_openn_cleanup(pTHX_ GV *gv, IO *io, PerlIO *fp, char *mode, const char *oname,
 	else
 	    IoOFP(io) = fp;
     }
-    if (statbufp)
-        *statbufp = statbuf;
 
+    if (statbufp && did_fstat)
+        *statbufp = statbuf;
     return TRUE;
 
   say_false:
