@@ -2112,7 +2112,7 @@ S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len,
                     /* Ensures that we have an all-digit variable, ${"1foo"} fails
                        this test  */
                     UV uv;
-                    if (!grok_atoUV(name, &uv, NULL) || uv > I32_MAX)
+                    if (!grok_atoUV(name, &uv, NULL))
                         goto ret;
                     if (UNLIKELY(uv > I32_MAX))
                         Perl_croak(aTHX_ "panic: gv name too long (%" UVuf ")", uv);
