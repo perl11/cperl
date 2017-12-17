@@ -173,6 +173,11 @@ XXX
 
 =over 4
 
+=item L<Cpanel::JSON::XS> 3.0240
+
+Simplify C<allow_singlequote> check, coverity cid #165321.
+Remove logical dead code.
+
 =item L<Devel::PPPort> 3.36_04
 
 mkppport called PPPort_pm.PL without

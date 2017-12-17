@@ -2303,7 +2303,7 @@ _decode_str (pTHX_ dec_t *dec, char endstr)
   int utf8 = 0;
   char *dec_cur = dec->cur;
   unsigned char ch;
-  int allow_squote = (dec->json.flags & F_ALLOW_SQUOTE) && (endstr == 0x27);
+  assert(endstr == 0x27 || endstr == '"');
 
   do
     {
@@ -2316,6 +2316,9 @@ _decode_str (pTHX_ dec_t *dec, char endstr)
 
           if (UNLIKELY(ch == endstr))
             {
+              if (ch == 0x27 && !(dec->json.flags & F_ALLOW_SQUOTE)) {
+                ERR("'\"' expected");
+              }
               --dec_cur;
               break;
             }
@@ -2447,10 +2450,7 @@ _decode_str (pTHX_ dec_t *dec, char endstr)
             }
           else if (LIKELY(ch >= 0x20 && ch < 0x80)) {
             *cur++ = ch;
-            if (UNLIKELY(allow_squote && ch == 0x27)) {
-              --dec_cur;
-              break;
-            }
+            /* Ending ' already handled above with (ch == endstr) cid #165321 */
           }
           else if (ch >= 0x80)
             {
@@ -2758,7 +2758,7 @@ decode_hv (pTHX_ dec_t *dec)
         int is_bare = allow_barekey;
 
         if (UNLIKELY(allow_barekey
-                         && *dec->cur >= 'A' && *dec->cur <= 'z'))
+                     && *dec->cur >= 'A' && *dec->cur <= 'z'))
           ;
         else if (UNLIKELY(allow_squote)) {
           if (*dec->cur != '"' && *dec->cur != 0x27) {
