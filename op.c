@@ -1682,8 +1682,8 @@ Perl_op_refcnt_unlock(pTHX)
 
 
 /*
-=for apidoc Apdn|OP*	|op_sibling_splice	|NULLOK OP *parent \
-				|NULLOK OP *start |int del_count |NULLOK OP* insert
+=for apidoc Apdn|OP*	|op_sibling_splice	|\
+	NULLOK OP *parent |NULLOK OP *start |int del_count |NULLOK OP* insert
 
 A general function for editing the structure of an existing chain of
 op_sibling nodes.  By analogy with the perl-level C<splice()> function, allows
@@ -1753,8 +1753,6 @@ Perl_op_sibling_splice(OP *parent, OP *start, int del_count, OP* insert)
 
     if (start)
         first = OpSIBLING(start);
-    else if (!parent)
-        goto no_parent;
     else
         first = OpFIRST(parent);
 
@@ -1784,7 +1782,7 @@ Perl_op_sibling_splice(OP *parent, OP *start, int del_count, OP* insert)
     }
     else {
         if (!parent)
-            goto no_parent;
+            goto no_parent;        
         OpFIRST(parent) = insert;
         if (insert)
             parent->op_flags |= OPf_KIDS;
@@ -1798,7 +1796,7 @@ Perl_op_sibling_splice(OP *parent, OP *start, int del_count, OP* insert)
         OP *lastop;
 
         if (!parent)
-            goto no_parent;
+            goto no_parent;        
 
         /* ought to use OP_CLASS(parent) here, but that can't handle
          * ex-foo OP_NULL ops. Also note that XopENTRYCUSTOM() can't
