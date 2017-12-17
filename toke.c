@@ -9912,13 +9912,15 @@ S_new_constant(pTHX_ const char *s, STRLEN len, const char *key, STRLEN keylen,
                 SV *tmp = newSVpvn_flags("", 0, UTF ? SVf_UTF8|SVs_TEMP : SVs_TEMP);
                 SV *dsv = Perl_newSVpvn_flags(aTHX_ STR_WITH_LEN("Unknown charname '"),
                                               SVs_TEMP);
-                if (UTF)
-                    /* The +3 is for '\N{'; -4 for that, plus '}' */
-                    sv_catpvn(tmp, type + 3, typelen - 4);
-                else
-                    pv_pretty(tmp, type + 3, typelen - 4, 60, NULL, NULL,
-                              PERL_PV_PRETTY_ELLIPSES);
-                sv_catsv(dsv, tmp);
+                if (LIKELY(type != NULL && typelen > 4)) {
+                    if (UTF)
+                        /* The +3 is for '\N{'; -4 for that, plus '}' */
+                        sv_catpvn(tmp, type + 3, typelen - 4);
+                    else
+                        pv_pretty(tmp, type + 3, typelen - 4, 60, NULL, NULL,
+                                  PERL_PV_PRETTY_ELLIPSES);
+                    sv_catsv(dsv, tmp);
+                }
                 sv_catpvs(dsv, "'");
                 yyerror_pvn(SvPVX(dsv), SvCUR(dsv), UTF ? SVf_UTF8 : 0);
                 return SvREFCNT_inc_simple_NN(sv);
