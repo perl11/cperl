@@ -722,6 +722,7 @@ int ZEXPORT inflate(
                 CRC2(state->check, hold);
             INITBITS();
             state->mode = TIME;
+            /* FALLTHROUGH */
         case TIME:
             NEEDBITS(32);
             if (state->head != Z_NULL)
@@ -730,6 +731,7 @@ int ZEXPORT inflate(
                 CRC4(state->check, hold);
             INITBITS();
             state->mode = OS;
+            /* FALLTHROUGH */
         case OS:
             NEEDBITS(16);
             if (state->head != Z_NULL) {
