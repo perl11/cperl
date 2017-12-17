@@ -565,7 +565,7 @@
 #define op_append_elem(a,b,c)	Perl_op_append_elem(aTHX_ a,b,c)
 #define op_append_list(a,b,c)	Perl_op_append_list(aTHX_ a,b,c)
 #define op_class(a)		Perl_op_class(aTHX_ a)
-#define op_clone_oplist(a,b,c)	Perl_op_clone_oplist(aTHX_ a,b,c)
+#define op_clone_optree(a,b,c)	Perl_op_clone_optree(aTHX_ a,b,c)
 #define op_contextualize(a,b)	Perl_op_contextualize(aTHX_ a,b)
 #define op_convert_list(a,b,c)	Perl_op_convert_list(aTHX_ a,b,c)
 #define op_dump(a)		Perl_op_dump(aTHX_ a)
@@ -1896,7 +1896,7 @@
 #    if defined(PERL_IN_OP_C)
 #      if defined(USE_CPERL)
 #define cv_check_inline(a,b)	S_cv_check_inline(aTHX_ a,b)
-#define cv_do_inline(a,b,c)	S_cv_do_inline(aTHX_ a,b,c)
+#define cv_do_inline(a,b,c,d)	S_cv_do_inline(aTHX_ a,b,c,d)
 #      endif
 #    endif
 #  endif

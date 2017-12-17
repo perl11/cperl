@@ -1278,7 +1278,7 @@ in	|int	|match_type1	|const U32 sig|core_types_t arg1
 in	|int	|match_type2	|const U32 sig|core_types_t arg1|core_types_t arg2
 #    ifdef PERL_INLINE_SUBS
 sM	|bool	|cv_check_inline|NN const OP *o|NN CV *compcv
-sM	|OP*	|cv_do_inline   |NN OP *o|NN OP *cvop|NN CV *cv
+sM	|OP*	|cv_do_inline   |NULLOK OP *parent|NN OP *o|NN OP *cvop|NN CV *cv
 #    endif
 i	|OP*	|new_entersubop |NN GV* gv |NN OP* arg
 sM	|OP*	|op_clone_sv	|NN OP* o
@@ -1287,7 +1287,7 @@ sM	|OP*	|op_clone_sv	|NN OP* o
 : Used in op.c, pp_hot.c, and universal.c
 #if defined(USE_CPERL)
 XEp	|void	|arg_check_type_sv |NULLOK const PADNAME* pn|NN SV* sv|NULLOK GV *cvname
-AMRp	|OP*	|op_clone_oplist|NN OP* o  |NULLOK OP* last|bool init
+AMRp	|OP*	|op_clone_optree|NN OP* o  |NULLOK OP* last|bool init
 #endif
 : Used in op.c and pp_sys.c
 p	|int	|mode_from_discipline	|NULLOK const char* s|STRLEN len

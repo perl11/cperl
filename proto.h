@@ -4178,11 +4178,11 @@ PERL_CALLCONV void	Perl_op_clear(pTHX_ OP* o)
 #define PERL_ARGS_ASSERT_OP_CLEAR	\
 	assert(o)
 
-PERL_CALLCONV OP*	Perl_op_clone_oplist(pTHX_ OP* o, OP* last, bool init)
+PERL_CALLCONV OP*	Perl_op_clone_optree(pTHX_ OP* o, OP* last, bool init)
 			__attribute__global__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
-#define PERL_ARGS_ASSERT_OP_CLONE_OPLIST	\
+#define PERL_ARGS_ASSERT_OP_CLONE_OPTREE	\
 	assert(o)
 
 PERL_CALLCONV OP*	Perl_op_contextualize(pTHX_ OP* o, I32 context)
@@ -8077,10 +8077,10 @@ STATIC bool	S_cv_check_inline(pTHX_ const OP *o, CV *compcv)
 #define PERL_ARGS_ASSERT_CV_CHECK_INLINE	\
 	assert(o); assert(compcv)
 
-STATIC OP*	S_cv_do_inline(pTHX_ OP *o, OP *cvop, CV *cv)
-			__attribute__nonnull__(pTHX_1)
+STATIC OP*	S_cv_do_inline(pTHX_ OP *parent, OP *o, OP *cvop, CV *cv)
 			__attribute__nonnull__(pTHX_2)
-			__attribute__nonnull__(pTHX_3);
+			__attribute__nonnull__(pTHX_3)
+			__attribute__nonnull__(pTHX_4);
 #define PERL_ARGS_ASSERT_CV_DO_INLINE	\
 	assert(o); assert(cvop); assert(cv)
 
