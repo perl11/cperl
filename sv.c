@@ -11873,12 +11873,13 @@ S_format_hexfp(pTHX_ char * const buf, const STRLEN bufsize, const char c,
              * the top non-zero nybble. */
             for (i = vfnz[0], n = 0; i > 1; i >>= 1, n++) { }
             assert(n < 4);
-            vlnz[1] = 0;
+            if (vlnz)
+                vlnz[1] = 0;
             for (vshr = vlnz; vshr >= vfnz; vshr--) {
               vshr[1] |= (vshr[0] & (0xF >> (4 - n))) << (4 - n);
               vshr[0] >>= n;
             }
-            if (vlnz[1]) {
+            if (vlnz && vlnz[1]) {
               vlnz++;
             }
           }
@@ -11891,6 +11892,7 @@ S_format_hexfp(pTHX_ char * const buf, const STRLEN bufsize, const char c,
         if (has_precis) {
             U8* ve = (subnormal ? vlnz + 1 : vend);
             SSize_t vn = ve - v0;
+            assert(subnormal ? vlnz != NULL : 1);
             assert(vn >= 1);
             if (precis < (Size_t)(vn - 1)) {
                 bool overflow = FALSE;
