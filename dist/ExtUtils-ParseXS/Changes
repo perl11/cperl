@@ -1,5 +1,10 @@
 Revision history for Perl extension ExtUtils::ParseXS.
 
+3.36_03 2017-12-18 13:21:57 rurban
+  - skip PUTBACK;return; on XSRETURN in PPCODE
+  - remove perl5 incompatible __attribute__global__ needed for -flto.
+    XS_EXTERNAL has it already.
+
 3.36
   - Make generated code avoid warnings about the "items" variable
     being unused

@@ -187,6 +187,13 @@ passing through MAKEFLAGS. Add --quiet support there
 
 Support for C<-DAFL_FUZZ> with L<afl-clang-fast|perlhacktips/"afl-fuzz">
 
+=item L<ExtUtils::ParseXS> 3.36_03
+
+skip C<PUTBACK;return;> on XSRETURN in PPCODE
+
+remove perl5 incompatible C<__attribute__global__> needed for -flto.
+C<XS_EXTERNAL> has it already.
+
 =item L<I18N::LangTags>  0.42_01
 
 Linkify docs.
