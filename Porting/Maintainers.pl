@@ -1252,8 +1252,8 @@ use File::Glob qw(:case);
     },
 
     'Scalar::Util' => {
-        # lexical $_ support, binary names, various other fixes
-        'DISTRIBUTION' => 'RURBAN/Scalar-List-Utils-1.49_09.tar.gz',
+        # lexical $_ support, binary names, cperl support, various other fixes
+        'DISTRIBUTION' => 'RURBAN/Scalar-List-Utils-1.49_10.tar.gz',
         'FILES'        => q[cpan/Scalar-List-Utils],
     },
 

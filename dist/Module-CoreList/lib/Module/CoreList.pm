@@ -15699,6 +15699,10 @@ our %delta = (
             'Cpanel::JSON::XS'      => '3.0240',
             'Devel::PPPort'         => '3.36_04',
             'I18N::LangTags'        => '0.42_01',
+            'List::Util'            => '1.49_10',
+            'List::Util::XS'        => '1.49_10',
+            'Scalar::Util'          => '1.49_10',
+            'Sub::Util'             => '1.49_10',
             'Unicode::Collate'      => '1.25_01',
         },
         removed => {

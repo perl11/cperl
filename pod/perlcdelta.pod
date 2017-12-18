@@ -191,6 +191,10 @@ Support for C<-DAFL_FUZZ> with L<afl-clang-fast|perlhacktips/"afl-fuzz">
 
 Linkify docs.
 
+=item L<List::Util> 1.49_10
+
+Fixup the new pairmap spill code.
+
 =item L<Unicode::Collate> 1.25_01
 
 Skip redefinition warnings on cperl since 5.27.2
