@@ -20267,8 +20267,12 @@ Perl_rpeep(pTHX_ OP *o)
                     o->op_next     = k->op_next;
                     o->op_flags   &= ~(OPf_REF|OPf_WANT);
                     o->op_flags   |= want;
+#if OPpPADHV_ISKEYS != OPpRV2HV_ISKEYS
                     o->op_private |= (o->op_type == OP_PADHV ?
-                                      OPpRV2HV_ISKEYS : OPpRV2HV_ISKEYS);
+                                      OPpPADHV_ISKEYS : OPpRV2HV_ISKEYS);
+#else
+                    o->op_private |= OPpRV2HV_ISKEYS;
+#endif
                     /* for keys(%lex), hold onto the OP_KEYS's targ
                      * since padhv doesn't have its own targ to return
                      * an int with */
