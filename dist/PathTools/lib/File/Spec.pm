@@ -6,7 +6,7 @@ use vars qw(@ISA);
 our $VERSION = '4.68c'; # modernized
 $VERSION =~ s/c$//;
 
-my %module = (MacOS   => 'Mac',
+my %module = (
 	      MSWin32 => 'Win32',
 	      os2     => 'OS2',
 	      VMS     => 'VMS',
