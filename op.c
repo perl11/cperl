@@ -10947,13 +10947,15 @@ S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
     bool padsv = FALSE;
     PERL_ARGS_ASSERT_OP_CONST_SV;
 
-    for (; o; o = OpNEXT(o)) {
+    do {
 	const OPCODE type = o->op_type;
 
 	if (type == OP_NEXTSTATE || type == OP_DBSTATE
             || type == OP_NULL   || type == OP_LINESEQ
-            || type == OP_PUSHMARK)
+            || type == OP_PUSHMARK) {
+            o = OpNEXT(o);
             continue;
+        }
 	if (type == OP_LEAVESUB)
 	    break;
 	if (sv)
@@ -10975,7 +10977,9 @@ S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
 	else {
 	    return NULL;
 	}
-    }
+        o = OpNEXT(o);
+    } while (o);
+
     if (padsv) {
 	CvCONST_on(cv);
 	return NULL;
