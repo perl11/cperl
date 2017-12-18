@@ -1378,6 +1378,7 @@ Perl_leave_scope(pTHX_ I32 base)
 	case SAVEt_REGCONTEXT:
 	    /* regexp must have croaked */
             DEBUG_lv(Perl_deb(aTHX_ "restore REGCONTEXT (not ALLOC) "));
+            /* FALLTHROUGH */
 	case SAVEt_ALLOC:
             DEBUG_lv(Perl_deb(aTHX_ "restore ALLOC %d\n",
                               (int)(uv >> SAVE_TIGHT_SHIFT)));

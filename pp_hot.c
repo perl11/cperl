@@ -6012,6 +6012,7 @@ PP(pp_signature)
         case SIGNATURE_arg_default_padsv:
         case SIGNATURE_arg_default_gvsv:
             items++;
+            /* FALLTHROUGH */
         case SIGNATURE_arg:
         case SIGNATURE_arg_default_none:
         case SIGNATURE_arg_default_undef:
