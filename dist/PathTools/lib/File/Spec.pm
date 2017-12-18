@@ -1,9 +1,8 @@
 package File::Spec;
 
 use strict;
-use vars qw(@ISA);
 
-our $VERSION = '4.68c'; # modernized
+our $VERSION = '4.71c'; # modernized
 $VERSION =~ s/c$//;
 
 my %module = (
@@ -20,7 +19,7 @@ my %module = (
 my $module = $module{$^O} || 'Unix';
 
 require "File/Spec/$module.pm";
-@ISA = ("File::Spec::$module");
+our @ISA = ("File::Spec::$module");
 
 1;
 
