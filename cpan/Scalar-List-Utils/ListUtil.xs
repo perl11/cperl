@@ -1078,9 +1078,8 @@ PPCODE:
 
         if (spill)
             /* the POP_MULTICALL will trigger the SAVEFREESV above;
-             * keep it alive  it on the temps stack instead */
+             * keep it alive it on the temps stack instead */
             SvREFCNT_inc_simple_void_NN(spill);
-            sv_2mortal((SV*)spill);
 
         POP_MULTICALL;
 
