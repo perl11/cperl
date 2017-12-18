@@ -123,7 +123,8 @@
 
 /* Warnings Categories added in Perl 5.027 */
 
-#define WARN_SHADOW			 70
+#define WARN_EXPERIMENTAL__SCRIPT_RUN	 70
+#define WARN_SHADOW			 71
 
 #define WARNsize			 18
 #define WARN_ALLstring			 "\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125"
