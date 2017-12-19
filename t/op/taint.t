@@ -17,7 +17,7 @@ BEGIN {
 use strict;
 use Config;
 
-plan tests => 889+14;
+plan tests => 889+15;
 
 $| = 1;
 
@@ -2576,6 +2576,15 @@ is eval { eval $::x.1 }, 1, 'reset does not taint undef';
 # sary since it aborts when it fails.)
 () = defined $^X && ref \$^X;
 
+
+# RT #132385
+# It was trying to taint a boolean return from s/// (e.g. PL_sv_yes)
+# and was thus crashing with 'Modification of a read-only value'.
+
+{
+    my $s = "abcd" . $TAINT;
+    ok(!!($s =~ s/a/x/g), "RT #132385");
+}
 
 # This may bomb out with the alarm signal so keep it last
 SKIP: {
