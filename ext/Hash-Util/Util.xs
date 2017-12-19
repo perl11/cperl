@@ -9,10 +9,10 @@ MODULE = Hash::Util		PACKAGE = Hash::Util
 void
 _clear_placeholders(hashref)
         HV *hashref
-    PROTOTYPE: \%
-    PREINIT:
+PROTOTYPE: \%
+PREINIT:
         HV *hv;
-    CODE:
+CODE:
         hv = MUTABLE_HV(hashref);
         hv_clear_placeholders(hv);
 
@@ -21,11 +21,11 @@ all_keys(hash,keys,placeholder)
 	HV *hash
 	AV *keys
 	AV *placeholder
-    PROTOTYPE: \%\@\@
-    PREINIT:
+PROTOTYPE: \%\@\@
+PREINIT:
         SV *key;
         HE *he;
-    PPCODE:
+PPCODE:
         av_clear(keys);
         av_clear(placeholder);
 
@@ -40,14 +40,14 @@ all_keys(hash,keys,placeholder)
 void
 hidden_ref_keys(hash)
 	HV *hash
-    ALIAS:
+ALIAS:
 	Hash::Util::legal_ref_keys = 1
-    PREINIT:
+PREINIT:
         SV *key;
         HE *he;
-    PPCODE:
+PPCODE:
         (void)hv_iterinit(hash);
-	while((he = hv_iternext_flags(hash, HV_ITERNEXT_WANTPLACEHOLDERS)) != NULL) {
+	while ((he = hv_iternext_flags(hash, HV_ITERNEXT_WANTPLACEHOLDERS)) != NULL) {
 	    key = hv_iterkeysv(he);
             if (ix || HeVAL(he) == &PL_sv_placeholder) {
                 XPUSHs( key );
@@ -59,9 +59,8 @@ hv_store(hash, key, val)
 	HV *hash
 	SV* key
 	SV* val
-    PROTOTYPE: \%$$
-    CODE:
-    {
+PROTOTYPE: \%$$
+CODE:
         SvREFCNT_inc(val);
 	if (!hv_store_ent(hash, key, val, 0)) {
 	    SvREFCNT_dec(val);
@@ -69,14 +68,13 @@ hv_store(hash, key, val)
 	} else {
 	    XSRETURN_YES;
 	}
-    }
 
 void
 hash_seed()
-    PROTOTYPE:
-    PPCODE:
-    mXPUSHs(newSVpvn((char *)PERL_HASH_SEED,PERL_HASH_SEED_BYTES));
-    XSRETURN(1);
+PROTOTYPE:
+PPCODE:
+    	mXPUSHs(newSVpvn((char *)PERL_HASH_SEED,PERL_HASH_SEED_BYTES));
+    	XSRETURN(1);
 
 
 void
@@ -128,7 +126,6 @@ void
 bucket_info(rhv)
         SV* rhv
 PPCODE:
-{
     /*
 
     Takes a non-magical hash ref as an argument and returns a list of
@@ -194,13 +191,11 @@ PPCODE:
 #undef BUCKET_INFO_ITEMS_ON_STACK
     }
     XSRETURN(0);
-}
 
 void
 bucket_array(rhv)
         SV* rhv
 PPCODE:
-{
     /* Returns an array of arrays representing key/bucket mappings.
      * Each element of the array contains either an integer or a reference
      * to an array of keys. A plain integer represents K empty buckets. An
@@ -274,14 +269,12 @@ PPCODE:
         XSRETURN(1);
     }
     XSRETURN(0);
-}
 
 SV*
 bucket_ratio(rhv)
         SV* rhv
 PROTOTYPE: \%
 PPCODE:
-{
     if (SvROK(rhv)) {
         SV *hv = SvRV(rhv);
         if (SvTYPE(hv) == SVt_PVHV) {
@@ -310,22 +303,20 @@ PPCODE:
     } else {
         XSRETURN_UNDEF;
     }
-}
 
 void
 num_buckets(rhv)
         SV* rhv
 PROTOTYPE: \%
 PPCODE:
-{
-    if (SvROK(rhv)) {
-        rhv = SvRV(rhv);
-        if (SvTYPE(rhv) == SVt_PVHV ) {
-            XSRETURN_UV(HvMAX((HV*)rhv)+1);
+        if (SvROK(rhv)) {
+            rhv = SvRV(rhv);
+            if (SvTYPE(rhv) == SVt_PVHV ) {
+                XSRETURN_UV(HvMAX((HV*)rhv)+1);
+            }
         }
-    }
-    XSRETURN_UNDEF;
-}
+        XSRETURN_UNDEF;
+
 
 void
 used_buckets(rhv)
