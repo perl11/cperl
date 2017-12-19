@@ -26,12 +26,6 @@ here, but most should go in the L</Performance Enhancements> section.
 
 =head1 Security
 
-XXX Any security-related notices go here.  In particular, any security
-vulnerabilities closed should be noted here rather than in the
-L</Selected Bug Fixes> section.
-
-[ List each security issue as a =head2 entry ]
-
 =head2 Disallow illegal glob with embedded NUL
 
 E.g. C<< <$fh\000> >> throws now the safe syscalls warning, and errors
@@ -41,6 +35,18 @@ to the internal or external glob.
 This problem was added with v5.27.5 by replacing strchr with memchr,
 allowing such illegal strings.
 See L<[cperl #342]|https://github.com/perl11/cperl/issues/342>
+
+=head2 Follow chroot with chdir("/")
+
+Fixed two security issues with the chroot op:
+
+* fail on embedded NUL in the chroot argument.
+Set C<errno> to EINVAL.
+
+* If a call to chroot is not followed by a call to chdir("/") the
+chroot jail confinement can be violated.  In Perl_pp_chroot: A call to
+chroot followed by an operation that may escape from the chroot jail.
+Coverity CID #165302 Insecure chroot.
 
 =head1 Incompatible Changes
 

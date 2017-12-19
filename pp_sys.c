@@ -3796,10 +3796,23 @@ PP(pp_chown)
 PP(pp_chroot)
 {
 #ifdef HAS_CHROOT
-    dSP; dTARGET;
-    char * const tmps = POPpx;
+    dSP;
+    STRLEN len;
+    SV *sv = POPs;
+    const char *tmps = SvPV_const(sv, len);
+    int result;
     TAINT_PROPER("chroot");
-    PUSHi( chroot(tmps) >= 0 );
+    if (!IS_SAFE_PATHNAME(tmps, len, "chroot")) {
+        SETERRNO(EINVAL,LIB_INVARG);
+        PUSHs( SV_NO );
+        RETURN;
+    }
+    result = chroot(tmps);
+    if (result >= 0 && PerlDir_chdir("/") == 0) {
+        PUSHs( SV_YES );
+    } else {
+        PUSHs( SV_NO );
+    }
     RETURN;
 #else
     DIE(aTHX_ PL_no_func, "chroot");
