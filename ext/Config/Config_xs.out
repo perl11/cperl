@@ -7063,24 +7063,24 @@ BOOT:
 void
 CLONE(...)
 PPCODE:
-  {
-    MY_CXT_CLONE; /* possible declaration */
-    MY_CXT.defineSV = newSVpvs("define");
-  }
-  return; /* skip implicit PUTBACK, returning @_ to caller, more efficient*/
+        MY_CXT_CLONE; /* possible declaration */
+        MY_CXT.defineSV = newSVpvs("define");
+        /* skip implicit PUTBACK, returning @_ to caller, more efficient*/
+        return;
 
 #  endif
 
 void
 END(...)
 PREINIT:
-  dMY_CXT;
+	dMY_CXT;
 PPCODE:
-  SV * const sv = MY_CXT.defineSV;
-  MY_CXT.defineSV = NULL;
-  if (sv) /* already NULL in global destruction */
-    SvREFCNT_dec_NN(sv);
-  return; /* skip implicit PUTBACK, returning @_ to caller, more efficient*/
+        SV * const sv = MY_CXT.defineSV;
+        MY_CXT.defineSV = NULL;
+        if (sv) /* already NULL in global destruction */
+            SvREFCNT_dec_NN(sv);
+        /* skip implicit PUTBACK, returning @_ to caller, more efficient*/
+        return;
 
 #endif
 
@@ -7095,11 +7095,12 @@ PREINIT:
   SV * classnameSV;
   PERL_UNUSED_ARG(classname);
 CODE:
-  rv = sv_newmortal();
-  classnameSV = *SP;
-  *SP = rv; /*since TIEHASH is somewhat private API use SvPVX, no func call */
-  sv_setref_uv(rv, SvPVX(classnameSV), 0);
-  return; /* skip implicit PUTBACK, SP didnt move, 1 arg in means 1 arg out */
+        rv = sv_newmortal();
+        classnameSV = *SP;
+        *SP = rv; /*since TIEHASH is somewhat private API use SvPVX, no func call */
+        sv_setref_uv(rv, SvPVX(classnameSV), 0);
+        /* skip implicit PUTBACK, SP didnt move, 1 arg in means 1 arg out */
+        return;
 
 void
 FETCH(self, key)
@@ -7121,8 +7122,8 @@ PPCODE:
      PERL_UNUSED_VAR(self);
      if (!c)
          XSRETURN_UNDEF;
-     if(ix == 0) { /* is FETCH */
-      if (c->type == T_INT) {
+     if (ix == 0) { /* is FETCH */
+       if (c->type == T_INT) {
           IV iv;
 #if PTRSIZE != IVSIZE
            if(c->len)
@@ -7189,7 +7190,8 @@ PPCODE:
      else /* is EXISTS */
         RETVAL = &PL_sv_yes;
      *SP = RETVAL;
-     return; /* skip implicit PUTBACK, it was done earlier */
+     /* skip implicit PUTBACK, it was done earlier */
+     return;
 
 #you would think the prototype croak can be removed and replaced with ...
 #but the check actually makes sure there is 1 SP slot available since the retval
@@ -7198,11 +7200,13 @@ void
 SCALAR(self)
     SV *self
 CODE:
-    PERL_UNUSED_VAR(self);
-    /* MAX_HASH_VALUE is technically wrong, real array size is MAX_HASH_VALUE +1 */
-    *SP = my_newSVstaticpvn(aTHX_ STRINGIFY(TOTAL_KEYWORDS) "/" STRINGIFY(MAX_HASH_VALUE),
-                                  sizeof (STRINGIFY(TOTAL_KEYWORDS) "/" STRINGIFY(MAX_HASH_VALUE))-1);
-    return; /* skip implicit PUTBACK, SP didnt move, 1 arg in means 1 arg out */
+        PERL_UNUSED_VAR(self);
+        /* MAX_HASH_VALUE is technically wrong, real array size is MAX_HASH_VALUE +1 */
+        *SP = my_newSVstaticpvn(aTHX_
+                  STRINGIFY(TOTAL_KEYWORDS) "/" STRINGIFY(MAX_HASH_VALUE),
+                  sizeof (STRINGIFY(TOTAL_KEYWORDS) "/" STRINGIFY(MAX_HASH_VALUE))-1);
+        /* skip implicit PUTBACK, SP didnt move, 1 arg in means 1 arg out */
+        return;
 
 # 1st arg could be self in the future
 # Note: KEYS doesnt exist in tied hash API, only FIRSTKEY/NEXTKEY
@@ -7216,9 +7220,9 @@ PREINIT:
     const char * const end = (char *)stringpool+sizeof (stringpool_contents);
 PPCODE:
     const I32 gimme = GIMME_V;
-    if(gimme != G_VOID) {
+    if (gimme != G_VOID) {
         EXTEND(sp,  gimme == G_SCALAR ? 1 : size);
-        if(gimme == G_SCALAR)
+        if (gimme == G_SCALAR)
             mPUSHu(size); /* return just length */
         else {
             int i = 0; /* optimized away */
@@ -7237,38 +7241,33 @@ void
 FIRSTKEY(self)
          CFGSELF *self
 PREINIT:
-    /* Note: This is highly gperf dependent */
-    const char *s = (const char *)stringpool;
-    size_t len;
+        /* Note: This is highly gperf dependent */
+        const char *s = (const char *)stringpool;
+        size_t len;
 CODE:
-    STATIC_ASSERT_STMT(sizeof (stringpool_contents) > 1); /* atleast 1 string */
-
-    len = strlen(s);
-    /* self is SVIV with offset (aka iterator) into stringpool */
-    *self = len + 1; /* set to next string to read */
-    /* overwrite CFGSELF *self slot on stack */
-    *SP = my_newSVstaticpvn(aTHX_ s, len);
-    return; /* skip implicit PUTBACK, 1 arg in, means 1 arg out, SP not moved*/
+        STATIC_ASSERT_STMT(sizeof (stringpool_contents) > 1); /* atleast 1 string */
+        len = strlen(s);
+        /* self is SVIV with offset (aka iterator) into stringpool */
+        *self = len + 1; /* set to next string to read */
+        /* overwrite CFGSELF *self slot on stack */
+        *SP = my_newSVstaticpvn(aTHX_ s, len);
+        return;
 
 void
 NEXTKEY(self, lastkey)
-         CFGSELF *self
-         SV *lastkey
-PREINIT:
-    SV * RETVAL;
+        CFGSELF *self
+        SV *lastkey
 PPCODE:
-    PERL_UNUSED_VAR(lastkey);
-    SP++; /* make space for 1 returned SV* */
-    PUTBACK; /* let some vars go out of liveness */
-
-    /* bounds check to avoid running off the end of stringpool */
-    if (*self < sizeof (stringpool_contents)) {
-        const char * key = (const char*)stringpool+*self;
-        size_t len = strlen(key);
-        *self += len + 1;
-        RETVAL = my_newSVstaticpvn(aTHX_ key, len);
-    }
-    else
-        RETVAL = &PL_sv_undef;
-    *SP = RETVAL;
-    return; /* skip implicit PUTBACK, it was done earlier */
+        PERL_UNUSED_VAR(lastkey);
+        SP++;    /* make space for 1 returned SV* */
+	PUTBACK;
+        /* bounds check to avoid running off the end of stringpool */
+        if (*self < sizeof (stringpool_contents)) {
+            const char * key = (const char*)stringpool+*self;
+            size_t len = strlen(key);
+            *self += len + 1;
+            *SP = my_newSVstaticpvn(aTHX_ key, len);
+        }
+        else
+            *SP = &PL_sv_undef;
+        return;
