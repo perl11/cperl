@@ -529,6 +529,7 @@ aux_list_thr(o)
             } /* OP_SIGNATURE */
 #endif
         } /* switch */
+	XSRETURN(0); /* force removal of PUTBACK, return */
 
 #endif
 
