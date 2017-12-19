@@ -3732,6 +3732,12 @@ PERL_CALLCONV I32	Perl_my_lstat(pTHX)
 PERL_CALLCONV I32	Perl_my_lstat_flags(pTHX_ const U32 flags)
 			__attribute__global__;
 
+PERL_CALLCONV int	Perl_my_mkstemp_cloexec(char *templte)
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(1);
+#define PERL_ARGS_ASSERT_MY_MKSTEMP_CLOEXEC	\
+	assert(templte)
+
 PERL_CALLCONV PerlIO*	Perl_my_popen_list(pTHX_ const char* mode, int n, SV ** args)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
@@ -5332,8 +5338,8 @@ PERL_CALLCONV void	Perl_setdefout(pTHX_ GV* gv)
 #define PERL_ARGS_ASSERT_SETDEFOUT	\
 	assert(gv)
 
-PERL_CALLCONV void	Perl_setfd_cloexec(pTHX_ int fd);
-PERL_CALLCONV void	Perl_setfd_inhexec(pTHX_ int fd);
+PERL_CALLCONV void	Perl_setfd_cloexec(int fd);
+PERL_CALLCONV void	Perl_setfd_inhexec(int fd);
 PERL_CALLCONV void	Perl_setfd_inhexec_for_sysfd(pTHX_ int fd);
 PERL_CALLCONV char*	Perl_setlocale(int category, const char* locale)
 			__attribute__global__;
@@ -7073,9 +7079,11 @@ STATIC int	S_dooneliner(pTHX_ const char *cmd, const char *filename)
 #  endif
 #endif
 #if !defined(HAS_MKOSTEMP)
-PERL_CALLCONV int	Perl_my_mkostemp(char *templte, int flags);
+PERL_CALLCONV int	Perl_my_mkostemp(char *templte, int flags)
+			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_MY_MKOSTEMP	\
 	assert(templte)
+
 #endif
 #if !defined(HAS_MKSTEMP)
 PERL_CALLCONV int	Perl_my_mkstemp(char *templte)
