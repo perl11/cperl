@@ -335,13 +335,11 @@ used_buckets(rhv)
         SV* rhv
 PROTOTYPE: \%
 PPCODE:
-{
-    if (SvROK(rhv)) {
-        rhv = SvRV(rhv);
-        if ( SvTYPE(rhv) == SVt_PVHV ) {
-            XSRETURN_UV(HvFILL((HV*)rhv));
+	if (SvROK(rhv)) {
+            rhv = SvRV(rhv);
+            if ( SvTYPE(rhv) == SVt_PVHV ) {
+                XSRETURN_UV(HvFILL((HV*)rhv));
+            }
         }
-    }
-    XSRETURN_UNDEF;
-}
+	XSRETURN_UNDEF;
 
