@@ -824,6 +824,9 @@ S_openindirtemp(pTHX_ GV *gv, SV *orig_name, SV *temp_out_name) {
     PerlIO *fp;
     const char *p = SvPV_nolen(orig_name);
     const char *sep;
+#ifdef HAS_UMASK
+    Mode_t mode_mask;
+#endif
 
     /* look for the last directory separator */
     sep = strrchr(p, '/');
@@ -851,8 +854,19 @@ S_openindirtemp(pTHX_ GV *gv, SV *orig_name, SV *temp_out_name) {
     }
     else
         sv_setpvs(temp_out_name, "XXXXXXXX");
+#ifdef HAS_UMASK
+    /* POSIX 2008 demands such an umask, but still
+       problematic on Solaris, HP-UX and AIX and older libc's.
+       (e.g. glibc <= 2.06) */
+    /* Temporarily set the umask such that the file has 0600 permissions.  */
+    mode_mask = umask (S_IXUSR | S_IRWXG | S_IRWXO);
+#endif
 
     fd = Perl_my_mkstemp(SvPVX(temp_out_name));
+
+#ifdef HAS_UMASK
+    (void)umask(mode_mask);
+#endif
 
     if (fd < 0)
         return FALSE;

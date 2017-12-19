@@ -48,6 +48,12 @@ chroot jail confinement can be violated.  In Perl_pp_chroot: A call to
 chroot followed by an operation that may escape from the chroot jail.
 Coverity CID #165302 Insecure chroot.
 
+=head2 Set umask(0600) before calling mkstemp
+
+POSIX 2008 demands such an umask, but it is still problematic on
+Solaris, HP-UX and AIX and older libcs, e.g. glibc <= 2.06.
+Temporarily set the umask such that the temp. file has 0600 permissions.
+
 =head1 Incompatible Changes
 
 =head2 Illegal NUL, syntax error
