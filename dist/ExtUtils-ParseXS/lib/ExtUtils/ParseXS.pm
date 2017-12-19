@@ -626,7 +626,7 @@ EOF
           $self->death("PPCODE must be last thing") if @{ $self->{line} };
           print "\tLEAVE;\n" if $self->{ScopeThisXSUB};
           # TODO: if all paths return with XSRETURN skip this also
-          if ($consumed_code !~ /\bXSRETURN(_\w+|\(\d+\));\s*$/s) {
+          if ($consumed_code !~ /\b(?:XSRETURN(?:_\w+|_[IUNP]VN?\(.*?\)|\(\d+\))|return);\s*$/s) {
             print "\tPUTBACK;\n\treturn;\n";
           }
         }
