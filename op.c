@@ -11782,12 +11782,14 @@ S_cv_do_inline(pTHX_ OP* parent, OP *o, OP *cvop, CV *cv)
     bool with_enter_leave = FALSE;
     bool optim_args = TRUE;
     PERL_ARGS_ASSERT_CV_DO_INLINE;
+    PERL_UNUSED_ARG(parent); /* later for splice */
     assert(IS_TYPE(o, ENTERSUB));
 
     /* handle optional args:
           pushmark args* gv null* entersub body leavesub NULL
        => pushmark gv rv2av args* push enter? body leave?
        TODO: dependent on the body the push args list can be optimized away.
+       keep the args in inargs[6]
     */
     arg = OpFIRST(o);
     if (!OpHAS_SIBLING(arg))
@@ -11861,7 +11863,12 @@ S_cv_do_inline(pTHX_ OP* parent, OP *o, OP *cvop, CV *cv)
     o = op_clone_optree(CvROOT(cv), NULL, TRUE);
     if (!o || !OpKIDS(o))
         return NULL;
-    firstop = o;
+    firstop = o; /* that's the LEAVESUB, will be converted into a LEAVE or skipped */
+    assert(IS_TYPE(firstop, LEAVESUB));
+    /* scan the new body - to be inlined - if enter/leave is needed, 
+     * if it's too large, and convert all nextstate to setstate+keepstate's.
+     * forgot about the seen_logop.
+     */
     for (i=0, j=0, o=OpFIRST(o); o; o = OpKIDS(o) ? OpFIRST(o) : OpSIBLING(o)) {
         bool seen_logop = FALSE;
         OP *prev;
@@ -18573,7 +18580,10 @@ Perl_ck_subr(pTHX_ OP *o)
                     "ck_subr: skip inline sub %" SVf ", no inline\n",
                     SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN))));
             } else {
-                cv_do_inline(op_parent(o), o, cvop, cv);
+                /* op_parent is usually NULL here */
+                OP *parent = op_parent(o);
+                assert(parent == NULL);
+                cv_do_inline(parent, o, cvop, cv);
             }
         }
 #endif
