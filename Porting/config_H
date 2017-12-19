@@ -4030,6 +4030,13 @@
  */
 #define HAS_MKDTEMP		/**/
 
+/* HAS_MKOSTEMP:
+ *	This symbol, if defined, indicates that the mkostemp routine is
+ *	available to exclusively create and open a uniquely named
+ *	temporary file.
+ */
+#define HAS_MKOSTEMP		/**/
+
 /* HAS_MKSTEMPS:
  *	This symbol, if defined, indicates that the mkstemps routine is
  *	available to exclusively create and open a uniquely named

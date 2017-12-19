@@ -266,7 +266,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1279
+#define TOTAL_KEYWORDS 1280
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 37
 #define MIN_HASH_VALUE 3
@@ -1167,6 +1167,7 @@ struct stringpool_t
     char stringpool_str3283[sizeof ("d_endpwent_r")];
     char stringpool_str3301[sizeof ("i_systypes")];
     char stringpool_str3305[sizeof ("nvmantbits")];
+    char stringpool_str3306[sizeof ("d_mkostemp")];
     char stringpool_str3309[sizeof ("d_pwgecos")];
     char stringpool_str3310[sizeof ("need_va_copy")];
     char stringpool_str3311[sizeof ("d_ttyname_r")];
@@ -2449,6 +2450,7 @@ static const struct stringpool_t stringpool_contents =
     "d_endpwent_r",
     "i_systypes",
     "nvmantbits",
+    "d_mkostemp",
     "d_pwgecos",
     "need_va_copy",
     "d_ttyname_r",
@@ -5191,7 +5193,9 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str3305,		T_INV,0,ALN64I"@@nvmantbits@@"},
-      {XSCNO}, {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str3306,		T_INV,0,ALN64I"@@d_mkostemp@@"},
+      {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str3309,		T_INV,0,ALN64I"@@d_pwgecos@@"},
 
@@ -7166,7 +7170,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str10937,	T_INV,0,ALN64I"@@known_extensions@@"}
     };
 
-#line 7169 "Config.xs"
+#line 7173 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);
