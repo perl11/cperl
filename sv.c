@@ -12028,7 +12028,7 @@ S_format_hexfp(pTHX_ char * const buf, const STRLEN bufsize, const char c,
                 nmove--;
             }
             Move(zerox, zerox + nzero, nmove, char);
-            memset(zerox, fill ? '0' : ' ', nzero);
+            memset(zerox, '0', nzero);
         }
         else {
             /* Move it to the right. */
