@@ -29,6 +29,18 @@ to the internal or external glob.
 
 See L<[cperl #342]|https://github.com/perl11/cperl/issues/342>
 
+=head2 Follow chroot with chdir("/")
+
+Fixed two security issues with the chroot op:
+
+* fail on embedded NUL in the chroot argument.
+Set C<errno> to EINVAL.
+
+* If a call to chroot is not followed by a call to chdir("/") the
+chroot jail confinement can be violated.  In Perl_pp_chroot: A call to
+chroot followed by an operation that may escape from the chroot jail.
+Coverity CID #165302 Insecure chroot.
+
 =head1 Modules and Pragmata
 
 =head2 Updated Modules and Pragmata
