@@ -1801,6 +1801,7 @@
 #define my_kid(a,b,c)		S_my_kid(aTHX_ a,b,c)
 #define newGIVWHENOP(a,b,c,d,e)	S_newGIVWHENOP(aTHX_ a,b,c,d,e)
 #define newMETHOP_internal(a,b,c,d)	S_newMETHOP_internal(aTHX_ a,b,c,d)
+#define new_entersubop(a,b)	S_new_entersubop(aTHX_ a,b)
 #define new_logop(a,b,c,d)	S_new_logop(aTHX_ a,b,c,d)
 #define new_slab(a)		S_new_slab(aTHX_ a)
 #define no_bareword_allowed(a)	S_no_bareword_allowed(aTHX_ a)

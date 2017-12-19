@@ -9280,6 +9280,7 @@ Perl_vload_module(pTHX_ U32 flags, SV *name, SV *ver, va_list *args)
 PERL_STATIC_INLINE OP *
 S_new_entersubop(pTHX_ GV *gv, OP *arg)
 {
+    PERL_ARGS_ASSERT_NEW_ENTERSUBOP;
     return newUNOP(OP_ENTERSUB, OPf_STACKED,
 		   newLISTOP(OP_LIST, 0, arg,
 			     newUNOP(OP_RV2CV, 0,
@@ -9295,7 +9296,7 @@ Perl_dofile(pTHX_ OP *term, I32 force_builtin)
     PERL_ARGS_ASSERT_DOFILE;
 
     if (!force_builtin && (gv = gv_override("do", 2))) {
-	doop = S_new_entersubop(aTHX_ gv, term);
+	doop = new_entersubop(gv, term);
     }
     else {
 	doop = newUNOP(OP_DOFILE, 0, scalar(term));
@@ -12621,7 +12622,7 @@ Perl_ck_backtick(pTHX_ OP *o)
     {
         /* detach rest of siblings from o and its first child */
         op_sibling_splice(o, OpFIRST(o), -1, NULL);
-	newop = S_new_entersubop(aTHX_ gv, sibl);
+	newop = new_entersubop(gv, sibl);
     }
     else if (!OpKIDS(o)) {
 	newop = newUNOP(OP_BACKTICK, 0,	newDEFSVOP());
@@ -13609,7 +13610,7 @@ Perl_ck_glob(pTHX_ OP *o)
 	 */
 	o->op_flags |= OPf_SPECIAL;
 	o->op_targ = pad_alloc(OP_GLOB, SVs_PADTMP);
-	o = S_new_entersubop(aTHX_ gv, o);
+	o = new_entersubop(gv, o);
 	o = newUNOP(OP_NULL, 0, o);
 	o->op_targ = OP_GLOB; /* hint at what it used to be: eg in newWHILEOP */
 	return o;
@@ -14749,7 +14750,7 @@ Perl_ck_require(pTHX_ OP *o)
 	    kid = newDEFSVOP();
 	}
 	op_free(o);
-	newop = S_new_entersubop(aTHX_ gv, kid);
+	newop = new_entersubop(gv, kid);
 	return newop;
     }
 
@@ -17105,6 +17106,7 @@ Perl_ck_subr(pTHX_ OP *o)
         }
         else if (!CvROOT(cv))
 	    S_entersub_alloc_targ(aTHX_ o);
+
 	if (!namegv) {
 	    /* The original call checker API guarantees that a GV will be
 	       be provided with the right name.  So, if the old API was
