@@ -4644,8 +4644,9 @@ PP(pp_subst)
 		Move(s, d, i+1, char);		/* include the NUL */
 	    }
 	    SPAGAIN;
+            assert(iters);
             if (PL_op->op_private & OPpTRUEBOOL)
-                PUSHs(iters ? SV_YES : SV_ZERO);
+                PUSHs(SV_YES);
             else
                 mPUSHi(iters);
 	}
@@ -4762,7 +4763,7 @@ PP(pp_subst)
 
 	    SPAGAIN;
             if (PL_op->op_private & OPpTRUEBOOL)
-                PUSHs(iters ? SV_YES : SV_ZERO);
+                PUSHs(SV_YES);
             else
                 mPUSHi(iters);
 	}
