@@ -1756,12 +1756,15 @@ Perl_init_i18nl10n(pTHX_ int printwarn)
                                     *bad_lang_use_once
                                     && strNEc(bad_lang_use_once, "0")))));
     bool done = FALSE;
-    char * sl_result[NOMINAL_LC_ALL_INDEX + 1];   /* setlocale() return vals;
+    static char * sl_result[NOMINAL_LC_ALL_INDEX + 1]; /* setlocale() return vals;
                                                      not copied so must be
                                                      looked at immediately */
-    char * curlocales[NOMINAL_LC_ALL_INDEX + 1];  /* current locale for given
+    static char * curlocales[NOMINAL_LC_ALL_INDEX + 1]; /* current locale for given
                                                      category; should have been
-                                                     copied so aren't volatile
+                                                     copied so aren't volatile.
+                                                     Needs to be initialized via static,
+                                                     See Coverity CID #180984
+                                                     Uninitialized pointer read
                                                    */
     char * locale_param;
 
