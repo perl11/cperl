@@ -227,7 +227,7 @@ int GetTermSizeVIO(pTHX_ PerlIO *file,int *retwidth,int *retheight,int *xpix,int
 {
 /* _scrsize better than VioGetMode: Solaris, OS/2 */
 #if 0
-	int handle=PerlIO_fileno(file);
+	int handle = PerlIO_fileno(file);
 
         static VIOMODEINFO *modeinfo = NULL;
 
@@ -265,7 +265,7 @@ int GetTermSizeVIO(pTHX_ PerlIO *file,int * retwidth,int *retheight, int *xpix,i
 #if defined(TIOCGWINSZ) && !defined(DONT_USE_GWINSZ)
 int GetTermSizeGWINSZ(pTHX_ PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
 {
-	int handle=PerlIO_fileno(file);
+	int handle = PerlIO_fileno(file);
 	struct winsize w;
 
 	if (ioctl (handle, TIOCGWINSZ, &w) == 0) {
@@ -293,7 +293,7 @@ int GetTermSizeGWINSZ(pTHX_ PerlIO *file,int *retwidth,int *retheight,int *xpix,
 #if (!defined(TIOCGWINSZ) || defined(DONT_USE_GWINSZ)) && (defined(TIOCGSIZE) && !defined(DONT_USE_GSIZE))
 int GetTermSizeGSIZE(pTHX_ PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
 {
-	int handle=PerlIO_fileno(file);
+	int handle = PerlIO_fileno(file);
 
 	struct ttysize w;
 
@@ -321,7 +321,7 @@ int GetTermSizeGSIZE(pTHX_ PerlIO *file,int *retwidth,int *retheight,int *xpix,i
 #ifdef USE_WIN32
 int GetTermSizeWin32(pTHX_ PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
 {
-	int handle=PerlIO_fileno(file);
+	int handle = PerlIO_fileno(file);
 	HANDLE whnd = (HANDLE)_get_osfhandle(handle);
 	CONSOLE_SCREEN_BUFFER_INFO info;
 
@@ -376,7 +376,7 @@ STATIC int termsizeoptions() {
 int SetTerminalSize(pTHX_ PerlIO *file,int width,int height,int xpix,int ypix)
 {
 #ifndef VIOMODE
-	int handle=PerlIO_fileno(file);
+	int handle = PerlIO_fileno(file);
 #endif
 
 #ifdef VIOMODE
@@ -501,7 +501,7 @@ STATIC const I32 terminal_speeds[] = {
 
 int getspeed(pTHX_ PerlIO *file,I32 *in, I32 *out)
 {
-	int handle=PerlIO_fileno(file);
+	int handle = PerlIO_fileno(file);
 #if defined(I_TERMIOS) || defined(I_TERMIO) || defined(I_SGTTY)
 	int i;
 #endif
@@ -618,7 +618,7 @@ void ReadMode(pTHX_ PerlIO *file,int mode)
 	struct tbuffer	savebuf;
 
 	
-	handle=PerlIO_fileno(file);
+	handle = PerlIO_fileno(file);
 	
 	firsttime=!hv_exists(filehash, (char*)&handle, sizeof(int));
 
@@ -1246,19 +1246,18 @@ DONT_USE_SELECT. */
 int selectfile(pTHX_ PerlIO *file,double delay)
 {
 	struct timeval t;
-	int handle=PerlIO_fileno(file);
+	int handle = PerlIO_fileno(file);
 
 	/*char buf[32];    
 	Select_fd_set_t fd=(Select_fd_set_t)&buf[0];*/
 
 	fd_set fd;
-	if (PerlIO_fast_gets(file) && PerlIO_get_cnt(file) > 0)
+	if (handle < 0 || (PerlIO_fast_gets(file) && PerlIO_get_cnt(file) > 0))
 		return 1;
 
 	/*t.tv_sec=t.tv_usec=0;*/
 
-        if (delay < 0.0)
-            delay = 0.0;
+        if (delay < 0.0) delay = 0.0;
         t.tv_sec = (long)delay;
         delay -= (double)t.tv_sec;
         t.tv_usec = (long)(delay * 1000000.0);
@@ -1282,7 +1281,7 @@ int selectfile(pTHX_ PerlIO *file, double delay)
 #ifdef Have_nodelay
 int setnodelay(pTHX_ PerlIO *file, int mode)
 {
-	int handle=PerlIO_fileno(file);
+	int handle = PerlIO_fileno(file);
 	int flags;
 	flags=fcntl(handle,F_GETFL,0);
 	if(mode)
@@ -1302,16 +1301,16 @@ int setnodelay(pTHX_ PerlIO *file, int mode)
 #endif
 
 #ifdef Have_poll
-int pollfile(pTHX_ PerlIO *file,double delay)
+int pollfile(pTHX_ PerlIO *file, double delay)
 {
-	int handle=PerlIO_fileno(file);
+	int handle = PerlIO_fileno(file);
 	struct pollfd fds;
-	if (PerlIO_fast_gets(f) && PerlIO_get_cnt(f) > 0)
+	if (handle < 0 || (PerlIO_fast_gets(file) && PerlIO_get_cnt(file) > 0))
 		return 1;
-	if(delay<0.0) delay = 0.0;
-	fds.fd=handle;
-	fds.events=POLLIN;
-	fds.revents=0;
+	if (delay < 0.0) delay = 0.0;
+	fds.fd = handle;
+	fds.events = POLLIN;
+	fds.revents = 0;
 	return (poll(&fds,1,(long)(delay * 1000.0))>0);
 } 
 #else

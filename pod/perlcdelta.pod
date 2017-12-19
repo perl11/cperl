@@ -202,6 +202,10 @@ Linkify docs.
 
 Fixup the new pairmap spill code.
 
+=item L<Term::ReadKey> 2.37_02
+
+Protect from fileno returning -1, invalid file arg.
+
 =item L<Unicode::Collate> 1.25_01
 
 Skip redefinition warnings on cperl since 5.27.2

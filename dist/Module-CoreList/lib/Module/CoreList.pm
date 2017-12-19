@@ -15708,6 +15708,7 @@ our %delta = (
             'List::Util::XS'        => '1.49_10',
             'Scalar::Util'          => '1.49_10',
             'Sub::Util'             => '1.49_10',
+            'Term::ReadKey'         => '2.37_02',
             'Unicode::Collate'      => '1.25_01',
         },
         removed => {

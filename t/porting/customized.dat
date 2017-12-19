@@ -105,7 +105,7 @@ Math::BigRat cpan/Math-BigRat/t/bigfltpm.inc 8000c7057453138ff48cf4cba61f0f4a1db
 Math::BigRat cpan/Math-BigRat/t/bigfltrt.t 5508d55216c52caf26aa2e6478691c50b7856e7d
 Math::BigRat cpan/Math-BigRat/t/bigratpm.t cfd770aabeaf6b742fd942143e816db42db04fba
 Memoize cpan/Memoize/t/expmod_t.t 9386100cd9c95a0e8a4e001bba3aa52eec114d21
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 6483400a0caa026daced540a7ca176bf5af5e92e
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm d22f11457126be792ecb376d0279741efaface53
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 346efec8c56f6fbbc77871e19246f0f4d38c4b6b
 Module::Load::Conditional cpan/Module-Load-Conditional/lib/Module/Load/Conditional.pm 9749bb2a08a404662d137901e7483799acbff5d8
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
@@ -120,7 +120,7 @@ Safe dist/Safe/Safe.pm 4bc5e5c4f38134c342ec786a93d42baaecd13722
 Safe dist/Safe/t/safeops.t fd132a2e73036362f90511a1be5c36ffd07d4b11
 Search::Dict dist/Search-Dict/lib/Search/Dict.pm 1a896da1e51d5ab18227b2c28793a37cfd55308b
 Sys::Syslog cpan/Sys-Syslog/t/syslog.t bed4da2de76558f92d354bb83dc01fd7d66cadec
-Term::ReadKey cpan/Term-ReadKey/ReadKey.xs 59b64457d07717565ab7f5163743685f77bb5f4c
+Term::ReadKey cpan/Term-ReadKey/ReadKey.xs fabd4d69ce8f2a2897af9036c69a9f2ccef46031
 Term::ReadKey cpan/Term-ReadKey/t/02_terminal_functions.t b17051b192850c2fce14842f2f469e1ac1895c4d
 Test::Harness cpan/Test-Harness/t/compat/env.t 2632a5e4226e8fac52a051f37952a79326b8c51f
 Test::Harness cpan/Test-Harness/t/compat/inc-propagation.t b006872243d82ffd447e99ff241b6287c6aed36c
