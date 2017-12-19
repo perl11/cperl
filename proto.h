@@ -5332,6 +5332,9 @@ PERL_CALLCONV void	Perl_setdefout(pTHX_ GV* gv)
 #define PERL_ARGS_ASSERT_SETDEFOUT	\
 	assert(gv)
 
+PERL_CALLCONV void	Perl_setfd_cloexec(pTHX_ int fd);
+PERL_CALLCONV void	Perl_setfd_inhexec(pTHX_ int fd);
+PERL_CALLCONV void	Perl_setfd_inhexec_for_sysfd(pTHX_ int fd);
 PERL_CALLCONV char*	Perl_setlocale(int category, const char* locale)
 			__attribute__global__;
 
