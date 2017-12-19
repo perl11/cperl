@@ -1840,13 +1840,10 @@ PPt(pp_aelemfast_lex_u, "():Scalar")
 PPt(pp_aelem_u, "(:Array(:Scalar),:Int):Scalar")
 {
     dSP;
-    SV** svp = NULL;
     SV* elemsv = POPs;
     IV index = SvIV(elemsv);
     AV * const av = MUTABLE_AV(TOPs);
     const U32 lval = PL_op->op_flags & OPf_MOD || LVRET;
-    /*const U32 defer = PL_op->op_private & OPpLVAL_DEFER;
-      const bool localizing = PL_op->op_private & OPpLVAL_INTRO;*/
 
     if (UNLIKELY(SvTYPE(av) != SVt_PVAV)) /* likely is that AvARRAY is uninit, or lval */
 	RETSETUNDEF;
@@ -1855,6 +1852,8 @@ PPt(pp_aelem_u, "(:Array(:Scalar),:Int):Scalar")
         RETURN;
     }
     TOPs = AvARRAY(av)[index]; /* negative indices are illegal for _u */
+    if (!TOPs)
+        TOPs = lval ? newSV(0) : UNDEF;
     RETURN;
 }
 
