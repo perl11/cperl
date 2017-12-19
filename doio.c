@@ -2172,7 +2172,7 @@ Perl_apply(pTHX_ I32 type, SV **mark, SV **sp)
     case OP_CHMOD:
 	APPLY_TAINT_PROPER();
 	if (++mark <= sp) {
-	    val = SvIV(*mark);
+	    U32 mode = SvUV(*mark);
 	    APPLY_TAINT_PROPER();
 	    tot = sp - mark;
 	    while (++mark <= sp) {
@@ -2185,7 +2185,7 @@ Perl_apply(pTHX_ I32 type, SV **mark, SV **sp)
                         if (fd < 0) {
                             SETERRNO(EBADF,RMS_IFI);
                             tot--;
-                        } else if (fchmod(fd, val))
+                        } else if (fchmod(fd, mode))
                             tot--;
 #else
 			Perl_die(aTHX_ PL_no_func, "fchmod");
@@ -2200,7 +2200,7 @@ Perl_apply(pTHX_ I32 type, SV **mark, SV **sp)
 		    const char *name = SvPV_nomg_const(*mark, len);
 		    APPLY_TAINT_PROPER();
                     if (!IS_SAFE_PATHNAME(name, len, "chmod") ||
-                        PerlLIO_chmod(name, val)) {
+                        PerlLIO_chmod(name, mode)) {
                         tot--;
                     }
 		}
@@ -2211,9 +2211,8 @@ Perl_apply(pTHX_ I32 type, SV **mark, SV **sp)
     case OP_CHOWN:
 	APPLY_TAINT_PROPER();
 	if (sp - mark > 2) {
-            I32 val2;
-	    val = SvIVx(*++mark);
-	    val2 = SvIVx(*++mark);
+            U32 owner = SvUVx(*++mark);
+            U32 group = SvUVx(*++mark);
 	    APPLY_TAINT_PROPER();
 	    tot = sp - mark;
 	    while (++mark <= sp) {
@@ -2226,7 +2225,7 @@ Perl_apply(pTHX_ I32 type, SV **mark, SV **sp)
                         if (fd < 0) {
                             SETERRNO(EBADF,RMS_IFI);
 			    tot--;
-                        } else if (fchown(fd, val, val2))
+                        } else if (fchown(fd, owner, group))
 			    tot--;
 #else
 			Perl_die(aTHX_ PL_no_func, "fchown");
@@ -2241,7 +2240,7 @@ Perl_apply(pTHX_ I32 type, SV **mark, SV **sp)
 		    const char *name = SvPV_nomg_const(*mark, len);
 		    APPLY_TAINT_PROPER();
                     if (!IS_SAFE_PATHNAME(name, len, "chown") ||
-                        PerlLIO_chown(name, val, val2)) {
+                        PerlLIO_chown(name, owner, group)) {
 			tot--;
                     }
 		}
