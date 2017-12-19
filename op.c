@@ -309,8 +309,8 @@ Perl_Slab_Alloc(pTHX_ size_t sz)
                     /* this op was not added by core. the slot became corrupt */
                     DEBUG_S_warn((aTHX_ "but it is not slabbed %p (not added by core)",
                                   (void*)o));
-                    o = NULL;
                     OpSLOT(o)->opslot_next = NULL;
+                    o = NULL;
                 }
             }
 	}
