@@ -114,6 +114,13 @@ as an updated module in the L</Modules and Pragmata> section.
 
 [ List each other deprecation as a =head2 entry ]
 
+=head1 Deprecations
+
+=head2 Use of code points over 0xFF in string bitwise operators
+
+Some uses of these already are illegal after a previous deprecation
+cycle.  This deprecates the remaining uses.  See L<perldeprecation>.
+
 =head1 Performance Enhancements
 
 XXX Changes which enhance performance without changing behaviour go here.
