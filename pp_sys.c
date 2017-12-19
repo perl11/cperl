@@ -4693,8 +4693,8 @@ PP(pp_getpriority)
 {
 #ifdef HAS_GETPRIORITY
     dSP; dTARGET;
-    const int who = POPi;
-    const int which = TOPi;
+    const id_t who   = POPu; /* linux: unsigned int, bsd: u32 */
+    const int  which = TOPi;
     SETi( getpriority(PRIORITY_WHICH_T(which), who) );
     RETURN;
 #else
@@ -4706,11 +4706,11 @@ PP(pp_setpriority)
 {
 #ifdef HAS_SETPRIORITY
     dSP; dTARGET;
-    const int niceval = POPi;
-    const int who = POPi;
-    const int which = TOPi;
+    const int  prio  = POPi;
+    const id_t who   = POPu; /* linux: unsigned int, bsd: u32 */
+    const int  which = TOPi;
     TAINT_PROPER("setpriority");
-    SETi( setpriority(PRIORITY_WHICH_T(which), who, niceval) >= 0 );
+    SETi( setpriority(PRIORITY_WHICH_T(which), who, prio) >= 0 );
     RETURN;
 #else
     DIE(aTHX_ PL_no_func, "setpriority");
