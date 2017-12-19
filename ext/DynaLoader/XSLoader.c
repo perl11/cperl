@@ -33,7 +33,7 @@ XS(XS_XSLoader_load) {
         modlibname = OutCopFILE(PL_curcop);
         DLDEBUG(2,PerlIO_printf(Perl_debug_log, "XSLoader::load from caller '%s', '%s'\n",
                 HvNAME(stash), modlibname));
-        if (strEQc(modlibname, "-e"))
+        if (modlibname && strEQc(modlibname, "-e"))
             modlibname = NULL;
     }
     else {
@@ -59,7 +59,7 @@ XS(XS_XSLoader_load) {
     }
     if (!modlibname) {
         modlibname = OutCopFILE(PL_curcop);
-        if (memEQ(modlibname, "(eval ", 6)) /* This catches RT #115808 */
+        if (modlibname && memEQ(modlibname, "(eval ", 6)) /* This catches RT #115808 */
             modlibname = NULL;
         if (!modlibname) {
             ENTER; SAVETMPS;
