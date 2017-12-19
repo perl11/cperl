@@ -1240,6 +1240,8 @@ Perl_leave_scope(pTHX_ I32 base)
                               (int)i));
             goto clearsv;
 	case SAVEt_CLEARSV:
+            if (UNLIKELY(!PL_curpad))
+                break;
 	    svp = &PL_curpad[uv >> SAVE_TIGHT_SHIFT];
             DEBUG_lv(Perl_deb(aTHX_ "restore CLEARSV [%ld]\n",
                               (long)(uv >> SAVE_TIGHT_SHIFT)));
