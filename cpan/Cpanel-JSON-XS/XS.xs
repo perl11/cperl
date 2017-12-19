@@ -3491,11 +3491,10 @@ PROTOTYPES: DISABLE
 
 void CLONE (...)
     PPCODE:
-{
         MY_CXT_CLONE; /* possible declaration */
         init_MY_CXT(aTHX_ &MY_CXT);
-        return; /* skip implicit PUTBACK, returning @_ to caller, more efficient*/
-}
+	/* skip implicit PUTBACK, returning @_ to caller, more efficient*/
+        return;
 
 #endif
 
@@ -3507,11 +3506,11 @@ void END(...)
         sv = MY_CXT.sv_json;
         MY_CXT.sv_json = NULL;
         SvREFCNT_dec_NN(sv);
-        return; /* skip implicit PUTBACK, returning @_ to caller, more efficient*/
+	/* skip implicit PUTBACK, returning @_ to caller, more efficient*/
+        return;
 
 void new (char *klass)
     PPCODE:
-{
         dMY_CXT;
   	SV *pv = NEWSV (0, sizeof (JSON));
         SvPOK_only (pv);
@@ -3520,7 +3519,6 @@ void new (char *klass)
            newRV_noinc (pv),
            strEQc (klass, "Cpanel::JSON::XS") ? JSON_STASH : gv_stashpv (klass, 1)
         )));
-}
 
 void ascii (JSON *self, int enable = 1)
     ALIAS:
