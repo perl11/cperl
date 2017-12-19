@@ -81,7 +81,7 @@ MODULE = re	PACKAGE = re
 
 void
 install()
-    PPCODE:
+PPCODE:
         PL_colorset = 0;	/* Allow reinspection of ENV. */
         /* PL_debug |= DEBUG_r_FLAG; */
 	XPUSHs(sv_2mortal(newSViv(PTR2IV(&my_reg_engine))));
@@ -93,7 +93,6 @@ PROTOTYPE: $
 PREINIT:
     REGEXP *re;
 PPCODE:
-{
     if ((re = SvRX(sv)) /* assign deliberate */
        /* only for re engines we know about */
        && (RX_ENGINE(re) == &my_reg_engine
@@ -117,5 +116,4 @@ PPCODE:
         XSRETURN(2);
     }
     XSRETURN_UNDEF;
-}
 
