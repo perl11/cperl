@@ -202,6 +202,10 @@ Linkify docs.
 
 Fixup the new pairmap spill code.
 
+=item L<PerlIO::via> 0.17_01
+
+Protect from NULL arg.
+
 =item L<Term::ReadKey> 2.37_02
 
 Protect from fileno returning -1, invalid file arg.
