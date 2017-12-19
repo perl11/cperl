@@ -988,6 +988,8 @@ Perl_leave_scope(pTHX_ I32 base)
                     (OPpPADRANGE_COUNTSHIFT + SAVE_TIGHT_SHIFT)] + i - 1;
             goto clearsv;
 	case SAVEt_CLEARSV:
+            if (UNLIKELY(!PL_curpad))
+                break;
 	    svp = &PL_curpad[uv >> SAVE_TIGHT_SHIFT];
             i = 1;
           clearsv:
