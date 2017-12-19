@@ -196,7 +196,7 @@ passing through MAKEFLAGS. Add --quiet support there
 
 =item L<ExtUtils::Miniperl> 1.08
 
-Support for C<-DAFL_FUZZ> with L<afl-clang-fast|perlhacktips/"afl-fuzz">
+Support B<afl-fuzz> with L<afl-clang-fast|perlhacktips/"afl-fuzz">
 
 =item L<ExtUtils::ParseXS> 3.36_03
 
