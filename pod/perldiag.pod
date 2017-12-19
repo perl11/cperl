@@ -3621,17 +3621,16 @@ optional and then shuffle the parameters around in the subroutine's body.
 =item Matched non-Unicode code point 0x%X against Unicode property; may
 not be portable
 
-(S non_unicode) Perl allows strings to contain a superset of
-Unicode code points; each code point may be as large as what is storable
-in an unsigned integer on your system, but these may not be accepted by
-other languages/systems.  This message occurs when you matched a string
-containing such a code point against a regular expression pattern, and
-the code point was matched against a Unicode property, C<\p{...}> or
-C<\P{...}>.  Unicode properties are only defined on Unicode code points,
-so the result of this match is undefined by Unicode, but Perl (starting
-in v5.20) treats non-Unicode code points as if they were typical
-unassigned Unicode ones, and matched this one accordingly.  Whether a
-given property matches these code points or not is specified in
+(S non_unicode) Perl allows strings to contain a superset of Unicode
+code points; each code point may be as large as 0x110000. This
+message occurs when you matched a string containing such a code point
+against a regular expression pattern, and the code point was matched
+against a Unicode property, C<\p{...}> or C<\P{...}>.  Unicode
+properties are only defined on Unicode code points, so the result of
+this match is undefined by Unicode, but Perl (starting in v5.20)
+treats non-Unicode code points as if they were typical unassigned
+Unicode ones, and matched this one accordingly.  Whether a given
+property matches these code points or not is specified in
 L<perluniprops/Properties accessible through \p{} and \P{}>.
 
 This message is suppressed (unless it has been made fatal) if it is
