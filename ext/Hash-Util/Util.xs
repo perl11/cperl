@@ -84,25 +84,22 @@ hash_value(string,...)
         SV* string
 PROTOTYPE: $;$
 PPCODE:
-{
-    UV uv;
-    STRLEN len;
-    char *pv = SvPV(string,len);
-    if (items < 2) {
-        PERL_HASH(uv, pv, len);
-    } else {
-        STRLEN seedlen;
-        U8 *seedbuf = (U8 *)SvPV(ST(1),seedlen);
-        if ( seedlen < PERL_HASH_SEED_BYTES ) {
-            sv_dump(ST(1));
-            Perl_croak(aTHX_ "seed len must be at least %d long only got %"
-                             UVuf " bytes", PERL_HASH_SEED_BYTES, (UV)seedlen);
+	UV uv;
+        STRLEN len;
+        char *pv = SvPV(string,len);
+        if (items < 2) {
+            PERL_HASH(uv, pv, len);
+        } else {
+            STRLEN seedlen;
+            U8 *seedbuf = (U8 *)SvPV(ST(1),seedlen);
+            if ( seedlen < PERL_HASH_SEED_BYTES ) {
+                sv_dump(ST(1));
+                Perl_croak(aTHX_ "seed len must be at least %d long only got %"
+                                 UVuf " bytes", PERL_HASH_SEED_BYTES, (UV)seedlen);
+            }
+            PERL_HASH_WITH_SEED(seedbuf, uv, pv, len);
         }
-
-        PERL_HASH_WITH_SEED(seedbuf, uv, pv, len);
-    }
-    XSRETURN_UV(uv);
-}
+	XSRETURN_UV(uv);
 
 void
 hash_traversal_mask(rhv, ...)
