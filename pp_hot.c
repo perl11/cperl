@@ -1854,11 +1854,7 @@ PPt(pp_aelem_u, "(:Array(:Scalar),:Int):Scalar")
         TOPs = lval ? newSV(0) : UNDEF;
         RETURN;
     }
-    svp = &AvARRAY(av)[index]; /* negative indices are illegal for _u */
-    if (!svp)
-        TOPs = lval ? newSV(0) : UNDEF;
-    else
-        TOPs = *svp;
+    TOPs = AvARRAY(av)[index]; /* negative indices are illegal for _u */
     RETURN;
 }
 
