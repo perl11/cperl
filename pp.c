@@ -5543,7 +5543,8 @@ PP(pp_hslice)
         svp = he ? &HeVAL(he) : NULL;
 
         if (lval) {
-            if (!svp || !*svp || *svp == UNDEF) {
+            /* only with readonly hash */
+            if (UNLIKELY(!svp || !*svp || *svp == UNDEF)) {
                 DIE(aTHX_ PL_no_helem_sv, SVfARG(keysv));
             }
             if (localizing) {
@@ -5601,7 +5602,8 @@ PP(pp_kvhslice)
         svp = he ? &HeVAL(he) : NULL;
 
         if (lval) {
-            if (!svp || !*svp || *svp == UNDEF) {
+            /* only with readonly hash */
+            if (UNLIKELY(!svp || !*svp || *svp == UNDEF)) {
                 DIE(aTHX_ PL_no_helem_sv, SVfARG(keysv));
             }
 	    *MARK = sv_mortalcopy(*MARK);
