@@ -5514,49 +5514,60 @@ PP(pp_hslice)
     dSP; dMARK; dORIGMARK;
     HV * const hv = MUTABLE_HV(POPs);
     const I32 lval = (PL_op->op_flags & OPf_MOD || LVRET);
-    const bool localizing = PL_op->op_private & OPpLVAL_INTRO;
-    bool can_preserve = FALSE;
+    bool empty = HvKEYS(hv) > 0 ? FALSE : TRUE;
 
-    if (localizing) {
-        MAGIC *mg;
-        HV *stash;
-
-	if (SvCANEXISTDELETE(hv))
-	    can_preserve = TRUE;
-    }
-
-    while (++MARK <= SP) {
-        SV * const keysv = *MARK;
-        SV **svp;
-        HE *he;
-        bool preeminent = TRUE;
-
-        if (localizing && can_preserve) {
-	    /* If we can determine whether the element exist,
-             * try to preserve the existenceness of a tied hash
-             * element by using EXISTS and DELETE if possible.
-             * Fallback to FETCH and STORE otherwise. */
-            preeminent = hv_exists_ent(hv, keysv, 0);
-        }
-
-        he = hv_fetch_ent(hv, keysv, lval, 0);
-        svp = he ? &HeVAL(he) : NULL;
-
+    if (UNLIKELY(empty)) {
         if (lval) {
-            if (!svp || !*svp || *svp == UNDEF) {
-                DIE(aTHX_ PL_no_helem_sv, SVfARG(keysv));
-            }
-            if (localizing) {
-		if (HvNAME_get(hv) && isGV(*svp))
-		    save_gp(MUTABLE_GV(*svp), !OpSPECIAL(PL_op));
-		else if (preeminent)
-		    save_helem_flags(hv, keysv, svp,
-			 OpSPECIAL(PL_op) ? 0 : SAVEf_SETMAGIC);
-		else
-		    SAVEHDELETE(hv, keysv);
-            }
+            while (++MARK <= SP)
+                *MARK = newSV(0);
+        } else {
+            while (++MARK <= SP)
+                *MARK = UNDEF;
         }
-        *MARK = svp && *svp ? *svp : UNDEF;
+    } else {
+        const bool localizing = PL_op->op_private & OPpLVAL_INTRO;
+        bool can_preserve = FALSE;
+        if (localizing) {
+            MAGIC *mg;
+            HV *stash;
+
+            if (SvCANEXISTDELETE(hv))
+                can_preserve = TRUE;
+        }
+        while (++MARK <= SP) {
+            SV * const keysv = *MARK;
+            SV **svp;
+            HE *he;
+            bool preeminent = TRUE;
+
+            if (localizing && can_preserve) {
+                /* If we can determine whether the element exist,
+                 * try to preserve the existenceness of a tied hash
+                 * element by using EXISTS and DELETE if possible.
+                 * Fallback to FETCH and STORE otherwise. */
+                preeminent = hv_exists_ent(hv, keysv, 0);
+            }
+
+            he = hv_fetch_ent(hv, keysv, lval, 0);
+            svp = he ? &HeVAL(he) : NULL;
+
+            if (lval) {
+                /* only with readonly hash */
+                if (UNLIKELY(!svp || !*svp || *svp == UNDEF)) {
+                    DIE(aTHX_ PL_no_helem_sv, SVfARG(keysv));
+                }
+                if (localizing) {
+                    if (HvNAME_get(hv) && isGV(*svp))
+                        save_gp(MUTABLE_GV(*svp), !OpSPECIAL(PL_op));
+                    else if (preeminent)
+                        save_helem_flags(hv, keysv, svp,
+                                         OpSPECIAL(PL_op) ? 0 : SAVEf_SETMAGIC);
+                    else
+                        SAVEHDELETE(hv, keysv);
+                }
+            }
+            *MARK = svp && *svp ? *svp : UNDEF;
+        }
     }
     if (GIMME_V != G_ARRAY) {
 	MARK = ORIGMARK;
@@ -5601,7 +5612,8 @@ PP(pp_kvhslice)
         svp = he ? &HeVAL(he) : NULL;
 
         if (lval) {
-            if (!svp || !*svp || *svp == UNDEF) {
+            /* only with readonly hash */
+            if (UNLIKELY(!svp || !*svp || *svp == UNDEF)) {
                 DIE(aTHX_ PL_no_helem_sv, SVfARG(keysv));
             }
 	    *MARK = sv_mortalcopy(*MARK);
