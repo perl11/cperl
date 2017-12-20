@@ -660,9 +660,9 @@ addbits('rv2gv',
 addbits('enteriter',
                     1 => qw(OPpITER_REVERSED REVERSED),# for (reverse ...)
                     3 => qw(OPpITER_DEF      DEF),     # 'for $_' or 'for my $_'
-);
+  );
 addbits('iter',     1 => qw(OPpITER_REVERSED REVERSED));
-
+addbits('hslice',   4 => qw(OPpSTACKCOPY     COPY)); # kvhslice already creates a mortalcopy
 
 for (qw(const)) { # int_const uint_const str_const num_const
     addbits($_,

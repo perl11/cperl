@@ -5515,6 +5515,7 @@ PP(pp_hslice)
     HV * const hv = MUTABLE_HV(POPs);
     const I32 lval = (PL_op->op_flags & OPf_MOD || LVRET);
     const bool localizing = PL_op->op_private & OPpLVAL_INTRO;
+    const bool copy = PL_op->op_private & OPpSTACKCOPY && GIMME_V == G_ARRAY;
     bool can_preserve = FALSE;
 
     if (localizing) {
@@ -5539,12 +5540,12 @@ PP(pp_hslice)
             preeminent = hv_exists_ent(hv, keysv, 0);
         }
 
-        he = hv_fetch_ent(hv, keysv, lval, 0);
+        he = hv_fetch_ent(hv, keysv, copy ? 0 : lval, 0);
         svp = he ? &HeVAL(he) : NULL;
 
         if (lval) {
             /* only with readonly hash */
-            if (UNLIKELY(!svp || !*svp || *svp == UNDEF)) {
+            if (UNLIKELY(!copy && (!svp || !*svp || *svp == UNDEF))) {
                 DIE(aTHX_ PL_no_helem_sv, SVfARG(keysv));
             }
             if (localizing) {
@@ -5557,7 +5558,16 @@ PP(pp_hslice)
 		    SAVEHDELETE(hv, keysv);
             }
         }
-        *MARK = svp && *svp ? *svp : UNDEF;
+        if (svp && *svp) {
+            if (UNLIKELY(copy && !SvREADONLY(*svp))) {
+                *MARK = newSVsv(*svp); /* avoid sideeffects on the hash [cperl #347] */
+            } else {
+                *MARK = *svp;
+            }
+        } else {
+            /* lval with copy returns NULL */
+            *MARK = UNDEF;
+        }
     }
     if (GIMME_V != G_ARRAY) {
 	MARK = ORIGMARK;

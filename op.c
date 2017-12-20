@@ -10485,9 +10485,11 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
 	iterflags |= OPf_STACKED;
     }
     else {
-        if (IS_TYPE(expr, HSLICE))
-            Perl_ck_warner(aTHX_ packWARN(WARN_DEPRECATED),
-                           "Autovivified hash slice is deprecated");
+        if (IS_TYPE(expr, HSLICE)) {
+            Perl_ck_warner(aTHX_ packWARN(WARN_SYNTAX),
+                           "No autovivification of hash slice anymore");
+            expr->op_private |= OPpSTACKCOPY;
+        }
         expr = op_lvalue(force_list(expr, 1), OP_GREPSTART);
     }
 

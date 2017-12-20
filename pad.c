@@ -2273,7 +2273,8 @@ S_cv_clone(pTHX_ CV *proto, CV *cv, CV *outside, HV *cloned)
 
     assert(!CvUNIQUE(proto));
 
-    if (!cv) cv = MUTABLE_CV(newSV_type(SvTYPE(proto)));
+    if (!cv)
+        cv = MUTABLE_CV(newSV_type(SvTYPE(proto)));
     CvFLAGS(cv) = CvFLAGS(proto) & ~(CVf_CLONE|CVf_WEAKOUTSIDE|CVf_CVGV_RC
 				    |CVf_SLABBED);
     CvCLONED_on(cv);
@@ -2281,8 +2282,9 @@ S_cv_clone(pTHX_ CV *proto, CV *cv, CV *outside, HV *cloned)
     CvFILE(cv)		= CvDYNFILE(proto) ? savepv(CvFILE(proto))
 					   : CvFILE(proto);
     if (CvNAMED(proto))
-	 CvNAME_HEK_set(cv, share_hek_hek(CvNAME_HEK(proto)));
-    else CvGV_set(cv,CvGV(proto));
+        CvNAME_HEK_set(cv, share_hek_hek(CvNAME_HEK(proto)));
+    else
+        CvGV_set(cv,CvGV(proto));
     CvSTASH_set(cv, CvSTASH(proto));
     OP_REFCNT_LOCK;
     CvROOT(cv)		= OpREFCNT_inc(CvROOT(proto));

@@ -498,6 +498,14 @@ was repeating the warning message C<Bareword found where operator expected>
 endlessly.
 L<[cperl #346]|https://github.com/perl11/cperl/issues/346>
 
+=item *
+
+Fixed autovivifaction of hash slices in C<for> loops.
+There's also a new syntax warning about this change,
+L<perldiag/"No autovivification of hash slice anymore">
+L<[cperl #347]|https://github.com/perl11/cperl/issues/347>.
+
+
 =back
 
 =head1 Known Problems

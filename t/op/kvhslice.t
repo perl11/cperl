@@ -203,12 +203,13 @@ like $@, qr`^Type of arg 1 to nowt_but_hash must be hash \(not(?x:
            ) key/value hash slice\) at `,
     '\% prototype';
 
-TODO: {
-    local $TODO = "RT #2166: foreach autovivifies hash slices";
+{
     my %h;
     foreach (@h{'a', 'b'}) {}
     is keys(%h), 0, 'no autovivify in foreach';
-
+}
+TODO: {
+    local $TODO = "RT #2166: foreach autovivifies hash slices";
     %h = ();
     # also hash slices as sub args
     sub baz {}; baz($h{a}, @h{"b", "c"});

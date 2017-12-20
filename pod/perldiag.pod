@@ -4206,6 +4206,17 @@ setgid script to even be allowed to attempt.  Generally speaking there
 will be another way to do what you want that is, if not secure, at least
 securable.  See L<perlsec>.
 
+=item No autovivification of hash slice anymore
+
+(W syntax) With cperl 5.27.3 hash slices do not autovivify anymore
+in for lists. This is a bug and was fixed.
+See L<[cperl #347]|https://github.com/perl11/cperl/issues/347>.
+This warning will disappear with v5.30c.
+
+Examples:
+
+  my %h; foreach (@h{"a","b"}) {}    # keys %h was 2, now 0
+
 =item No code specified for -%c
 
 (F) Perl's B<-e> and B<-E> command-line options require an argument.  If
