@@ -494,7 +494,7 @@ shextract=`SH_to_target $SH`
 $spitshell >>$Makefile <<!GROK!THIS!
 
 private = preplibrary \$(CONFIGPM) \$(CONFIGPOD) git_version.sh git_version.h \
-          lib/buildcustomize.pl
+          lib/buildcustomize.pl myconfig
 
 # Files to be built with variable substitution before miniperl
 # is available.
