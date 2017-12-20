@@ -551,10 +551,12 @@ is ($r, '1CBA', 'Reverse for array and value via map with var');
 is do {17; foreach (1, 2) { 1; } }, '', "RT #1085: what should be output of perl -we 'print do { foreach (1, 2) { 1; } }'";
 
 TODO: {
-    local $TODO = "RT #2166: foreach spuriously autovivifies";
+    local $TODO = "RT #2166: foreach autovivifies hash slices";
     my %h;
     foreach (@h{a, b}) {}
-    is keys(%h), 0, 'RT #2166: foreach spuriously autovivifies';
+    is keys(%h), 0, 'RT #2166: foreach autovivifies hash slices';
+    # also hash slices as sub args
+    # sub foo {}; foo($h{a}, @h{"b", "c"}); print keys %h => 2
 }
 
 sub {

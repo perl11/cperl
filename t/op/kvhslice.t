@@ -8,7 +8,7 @@ BEGIN {
 
 # use strict;
 
-plan tests => 39;
+plan tests => 41;
 
 # simple use cases
 {
@@ -102,7 +102,7 @@ plan tests => 39;
 # lvalue subs in foreach
 {
     my %h = qw(a 1 b 2 c 3);
-    sub foo:lvalue{ %h{qw(a b)} };
+    sub foo:lvalue { %h{qw(a b)} };
     $_++ foreach foo();
     ok( eq_hash( \%h, { a => 2, b => 3, c => 3 } ), "correct hash" );
 }
@@ -202,3 +202,15 @@ eval 'nowt_but_hash %INC{bar}';
 like $@, qr`^Type of arg 1 to nowt_but_hash must be hash \(not(?x:
            ) key/value hash slice\) at `,
     '\% prototype';
+
+TODO: {
+    local $TODO = "RT #2166: foreach autovivifies hash slices";
+    my %h;
+    foreach (@h{'a', 'b'}) {}
+    is keys(%h), 0, 'no autovivify in foreach';
+
+    %h = ();
+    # also hash slices as sub args
+    sub baz {}; baz($h{a}, @h{"b", "c"});
+    is keys %h, 0, 'no autovivify in sub args';
+}
