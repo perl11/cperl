@@ -16966,9 +16966,11 @@ Perl_ck_subr(pTHX_ OP *o)
 	aop = OpFIRST(aop);
     aop = OpSIBLING(aop);
     for (cvop = aop; OpHAS_SIBLING(cvop); cvop = OpSIBLING(cvop)) {
-        if (IS_TYPE(cvop, HSLICE))
-            Perl_ck_warner(aTHX_ packWARN(WARN_DEPRECATED),
-                           "Autovivified hash slice is deprecated");
+        if (IS_TYPE(cvop, HSLICE)) {
+            Perl_ck_warner(aTHX_ packWARN(WARN_SYNTAX),
+                           "No autovivification of hash slice anymore");
+            cvop->op_private |= OPpSTACKCOPY;
+        }
     }
     cv = rv2cv_op_cv(cvop, RV2CVOPCV_MARK_EARLY);
     namegv = cv ? (GV*)rv2cv_op_cv(cvop, RV2CVOPCV_MAYBE_NAME_GV) : NULL;
