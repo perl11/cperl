@@ -927,7 +927,7 @@ Perl_gv_display(pTHX_ GV *gv)
         else {
             assert(SvROK(gv));
             assert(SvTYPE(SvRV(gv)) == SVt_PVCV);
-            Perl_sv_catpvf(aTHX_ raw, "CVREF: %s",
+            Perl_sv_catpvf(aTHX_ raw, "CVREF %s",
                     SvPV_nolen_const(cv_name((CV *)SvRV(gv), name, 0)));
         }
         rawpv = SvPV_const(raw, len);
