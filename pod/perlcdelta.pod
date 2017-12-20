@@ -406,7 +406,11 @@ made:
 
 =item *
 
-XXX
+Fixed two testcases where autovivifying hash slices were actually used.
+
+    ++$_ for @INC{"charnames.pm","_charnames.pm"}
+=>
+    $INC{"charnames.pm"}++; $INC{"_charnames.pm"}++;
 
 =back
 
