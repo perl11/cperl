@@ -226,6 +226,10 @@ Linkify docs.
 
 Fix new Autovivified hash slice warning
 
+=item L<HTTP::Tiny>  0.070_01
+
+Fix new Autovivified hash slice warning
+
 =item L<List::Util> 1.49_10
 
 Fixup the new pairmap spill code.

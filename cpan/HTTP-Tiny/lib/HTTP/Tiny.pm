@@ -4,7 +4,7 @@ use strict;
 use warnings;
 # ABSTRACT: A small, simple, correct HTTP/1.1 client
 
-our $VERSION = '0.070';
+our $VERSION = '0.070_01';
 
 sub _croak { require Carp; Carp::croak(@_) }
 
@@ -1272,7 +1272,8 @@ sub read_header_lines {
 sub write_request {
     @_ == 2 || die(q/Usage: $handle->write_request(request)/ . "\n");
     my($self, $request) = @_;
-    $self->write_request_header(@{$request}{qw/method uri headers header_case/});
+    my @headers = @{$request}{qw/method uri headers header_case/};
+    $self->write_request_header( @headers );
     $self->write_body($request) if $request->{cb};
     return;
 }
