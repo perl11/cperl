@@ -81,7 +81,7 @@ IO dist/IO/lib/IO/Socket/UNIX.pm 5e43fb9b96b9e9e093a0d579e90515365b7c4ecd
 IO::Compress::Base cpan/IO-Compress/lib/File/GlobMapper.pm 81f265ee36efb2b9373a8c32e86df1fc56c8e2de
 IO::Compress::Base cpan/IO-Compress/t/compress/encode.pl 776c114af5146d3c328c247c9550e021bb8bac62
 IO::Compress::Base cpan/IO-Compress/t/cz-14gzopen.t dee09dbad5cb1cad6027fd61d14552a192b68060
-IO::Socket::IP cpan/IO-Socket-IP/lib/IO/Socket/IP.pm d5d2ac7a181c3fd89a924297f032e7ae2e003965
+IO::Socket::IP cpan/IO-Socket-IP/lib/IO/Socket/IP.pm db487ebd6f709d306c4a1d55cb3454f24c7e40cc
 IPC::Cmd cpan/IPC-Cmd/t/01_IPC-Cmd.t 3626c405359d5e78c7bbc8245013251920527366
 JSON::PP cpan/JSON-PP/lib/JSON/PP.pm f8b702365e06c0235e7a1b10580ef726c92c20c6
 JSON::PP cpan/JSON-PP/lib/JSON/PP/Boolean.pm 2f530d28f97d0693d258ccf44694c9eaccecd422
@@ -105,7 +105,7 @@ Math::BigRat cpan/Math-BigRat/t/bigfltpm.inc 8000c7057453138ff48cf4cba61f0f4a1db
 Math::BigRat cpan/Math-BigRat/t/bigfltrt.t 5508d55216c52caf26aa2e6478691c50b7856e7d
 Math::BigRat cpan/Math-BigRat/t/bigratpm.t cfd770aabeaf6b742fd942143e816db42db04fba
 Memoize cpan/Memoize/t/expmod_t.t 9386100cd9c95a0e8a4e001bba3aa52eec114d21
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 049876863bcc0cd5c497e91dd5dcbf0d07647374
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 300cb204d1a90ff02ff8dd351b26c260362bf506
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 346efec8c56f6fbbc77871e19246f0f4d38c4b6b
 Module::Load::Conditional cpan/Module-Load-Conditional/lib/Module/Load/Conditional.pm 096fcf1ba8e3c783b37465c122c674cd02b0e6f4
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086

@@ -222,6 +222,10 @@ C<XS_EXTERNAL> has it already.
 
 Linkify docs.
 
+=item L<IO::Socket::IP> 0.39_02
+
+Fix new Autovivified hash slice warning
+
 =item L<List::Util> 1.49_10
 
 Fixup the new pairmap spill code.

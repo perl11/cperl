@@ -7,7 +7,7 @@ package IO::Socket::IP;
 # $VERSION needs to be set before  use base 'IO::Socket'
 #  - https://rt.cpan.org/Ticket/Display.html?id=92107
 BEGIN {
-   $VERSION = '0.39_01';
+   $VERSION = '0.39_02';
 }
 
 use strict;
@@ -632,8 +632,8 @@ sub setup
       last if ${*$self}{io_socket_ip_idx} >= @{ ${*$self}{io_socket_ip_infos} };
 
       my $info = ${*$self}{io_socket_ip_infos}->[${*$self}{io_socket_ip_idx}];
-
-      $self->socket( @{$info}{qw( family socktype protocol )} ) or
+      my @slice = @{$info}{qw( family socktype protocol )};
+      $self->socket( @slice ) or
          ( ${*$self}{io_socket_ip_errors}[2] = $!, next );
 
       $self->blocking( 0 ) unless ${*$self}{io_socket_ip_blocking};

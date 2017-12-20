@@ -15704,6 +15704,7 @@ our %delta = (
             'ExtUtils::ParseXS::Eval' => '3.36_03',
             'ExtUtils::ParseXS::Utilities'=> '3.36_03',
             'I18N::LangTags'        => '0.42_01',
+            'IO::Socket::IP'        => '0.39_02',
             'List::Util'            => '1.49_10',
             'List::Util::XS'        => '1.49_10',
             'Module::Load::Conditional' => '0.68_02',
