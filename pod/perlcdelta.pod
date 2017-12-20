@@ -71,6 +71,13 @@ C<\0> delimited C<q> quote is still valid though.
 
 XXX Any deprecated features, syntax, modules etc. should be listed here.
 
+=head2 Autovivified hash slice
+
+is deprecated. Hash slices autovivify in for loops lists and as subroutine
+arguments. This is a bug and will be fixed.
+See L<[cperl #347]|https://github.com/perl11/cperl/issues/347> and
+L<perldiag/"Autovivified hash slice is deprecated">
+
 =head2 Module removals
 
 XXX Remove this section if inapplicable.

@@ -10485,6 +10485,9 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
 	iterflags |= OPf_STACKED;
     }
     else {
+        if (IS_TYPE(expr, HSLICE))
+            Perl_ck_warner(aTHX_ packWARN(WARN_DEPRECATED),
+                           "Autovivified hash slice is deprecated");
         expr = op_lvalue(force_list(expr, 1), OP_GREPSTART);
     }
 
@@ -16960,7 +16963,11 @@ Perl_ck_subr(pTHX_ OP *o)
     if (!OpHAS_SIBLING(aop))
 	aop = OpFIRST(aop);
     aop = OpSIBLING(aop);
-    for (cvop = aop; OpHAS_SIBLING(cvop); cvop = OpSIBLING(cvop)) ;
+    for (cvop = aop; OpHAS_SIBLING(cvop); cvop = OpSIBLING(cvop)) {
+        if (IS_TYPE(cvop, HSLICE))
+            Perl_ck_warner(aTHX_ packWARN(WARN_DEPRECATED),
+                           "Autovivified hash slice is deprecated");
+    }
     cv = rv2cv_op_cv(cvop, RV2CVOPCV_MARK_EARLY);
     namegv = cv ? (GV*)rv2cv_op_cv(cvop, RV2CVOPCV_MAYBE_NAME_GV) : NULL;
 #if 0

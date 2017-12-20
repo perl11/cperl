@@ -101,6 +101,8 @@
 
     oops: oopsAV		[oopsAV]	TODO
     oops: oopsHV		[oopsHV]	TODO
+
+    Autovivified hash slice is deprecated	[newFOROP], [ck_subr]
     
 __END__
 # op.c
@@ -2071,4 +2073,13 @@ use warnings; no warnings 'reserved';
 label:{next(1,label)}
 EXPECT
 Useless use of constant in list at next() at - line 2.
-
+########
+use warnings;
+sub foo{} my %h; foo (@h{"a","b"});
+EXPECT
+Autovivified hash slice is deprecated at - line 2.
+########
+use warnings;
+my %h; foreach (@h{"a","b"}) {}
+EXPECT
+Autovivified hash slice is deprecated at - line 2.
