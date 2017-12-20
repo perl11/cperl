@@ -357,7 +357,7 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
  			rev += (*s - '0') * mult;
  			mult /= 10;
 			if (   (PERL_ABS(orev) > PERL_ABS(rev)) 
-			    || (PERL_ABS(rev) > VERSION_MAX )) {
+                            || ((U32)PERL_ABS(rev) > VERSION_MAX )) {
 			    Perl_ck_warner(aTHX_ packWARN(WARN_OVERFLOW), 
 					   "Integer overflow in version %d",VERSION_MAX);
 			    s = end - 1;
