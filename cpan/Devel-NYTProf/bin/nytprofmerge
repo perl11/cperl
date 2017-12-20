@@ -333,9 +333,9 @@ foreach my $fid_line (sort keys %callers) {
     foreach my $called (sort keys %{$callers{$fid_line}}) {
         foreach my $caller (sort keys %{$callers{$fid_line}{$called}}) {
             my $sum = $callers{$fid_line}{$called}{$caller};
+            my @sums = @{$sum}{qw(incl excl reci)};
             $out->write_sub_callers($fid, $line, $caller, $sum->{count},
-                                    @{$sum}{qw(incl excl reci)},
-                                    $sum->{depth}, $called);
+                                    @sums, $sum->{depth}, $called);
         }
     }
 }
