@@ -15706,6 +15706,7 @@ our %delta = (
             'I18N::LangTags'        => '0.42_01',
             'List::Util'            => '1.49_10',
             'List::Util::XS'        => '1.49_10',
+            'Module::Load::Conditional' => '0.68_02',
             'PerlIO::via'           => '0.17_01',
             'Scalar::Util'          => '1.49_10',
             'Sub::Util'             => '1.49_10',

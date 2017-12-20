@@ -226,6 +226,10 @@ Linkify docs.
 
 Fixup the new pairmap spill code.
 
+=item L<Module::Load::Conditional> 0.68_02
+
+Suppress new Autovivified hash slice warning
+
 =item L<PerlIO::via> 0.17_01
 
 Protect from NULL arg.

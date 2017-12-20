@@ -23,7 +23,7 @@ BEGIN {
                         $FIND_VERSION $ERROR $CHECK_INC_HASH $FORCE_SAFE_INC ];
     use Exporter;
     @ISA            = qw[Exporter];
-    $VERSION        = '0.68_01';
+    $VERSION        = '0.68_02';
     $VERBOSE        = 0;
     $DEPRECATED     = 0;
     $FIND_VERSION   = 1;
@@ -238,7 +238,8 @@ sub check_install {
                     ($fh) = $dir->($dir, $file);
 
                 } elsif (UNIVERSAL::isa($dir, 'ARRAY')) {
-                    ($fh) = $dir->[0]->($dir, $file, @{$dir}{1..$#{$dir}})
+                    my @dirs = @{$dir}{1..$#{$dir}};
+                    ($fh) = $dir->[0]->($dir, $file, @dirs);
 
                 } elsif (UNIVERSAL::can($dir, 'INC')) {
                     ($fh) = $dir->INC($file);
