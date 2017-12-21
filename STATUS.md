@@ -1,6 +1,6 @@
 # cperl status
 
-[![Build Status](https://travis-ci.org/perl11/cperl.svg?branch=master)](https://travis-ci.org/perl11/cperl) [![Coverity Status](https://scan.coverity.com/projects/6933/badge.svg)](https://scan.coverity.com/projects/perl11-cperl) [perl11.org/cperl/STATUS.html](perl11.org/cperl/STATUS.html) [![Donate](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/rurban/donate)
+[![Build Status](https://travis-ci.org/perl11/cperl.svg?branch=master)](https://travis-ci.org/perl11/cperl) [![Coverity Status](https://scan.coverity.com/projects/6933/badge.svg)](https://scan.coverity.com/projects/perl11-cperl) [perl11.org/cperl/STATUS.html](perl11.org/cperl/STATUS.html) [![Donate](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/rurban/donate) [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/perl11/cperl.svg)](http://isitmaintained.com/project/perl11/cperl "Average time to resolve an issue") [![Percentage of issues still open](http://isitmaintained.com/badge/open/perl11/cperl.svg)](http://isitmaintained.com/project/perl11/cperl "Percentage of issues still open")
 
 The name **cperl** stands for **a perl with classes, types, compiler
 support, continuation of perl5 development** or just a **company-friendly
