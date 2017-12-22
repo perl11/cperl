@@ -686,8 +686,6 @@ PP(pp_pipe_op)
 
     if (PerlProc_pipe_cloexec(fd) < 0)
 	goto badexit;
-    setfd_inhexec_for_sysfd(fd[0]);
-    setfd_inhexec_for_sysfd(fd[1]);
 
     IoIFP(rstio) = PerlIO_fdopen(fd[0], "r" PIPE_OPEN_MODE);
     IoOFP(wstio) = PerlIO_fdopen(fd[1], "w" PIPE_OPEN_MODE);
@@ -2513,7 +2511,6 @@ PP(pp_socket)
     if (fd < 0) {
 	RETPUSHUNDEF;
     }
-    setfd_inhexec_for_sysfd(fd);
     IoIFP(io) = PerlIO_fdopen(fd, "r" SOCKET_OPEN_MODE); /* stdio gets confused about sockets */
     IoOFP(io) = PerlIO_fdopen(fd, "w" SOCKET_OPEN_MODE);
     IoTYPE(io) = IoTYPE_SOCKET;
@@ -2550,8 +2547,6 @@ PP(pp_sockpair)
     TAINT_PROPER("socketpair");
     if (PerlSock_socketpair_cloexec(domain, type, protocol, fd) < 0)
 	RETPUSHUNDEF;
-    setfd_inhexec_for_sysfd(fd[0]);
-    setfd_inhexec_for_sysfd(fd[1]);
     IoIFP(io1) = PerlIO_fdopen(fd[0], "r" SOCKET_OPEN_MODE);
     IoOFP(io1) = PerlIO_fdopen(fd[0], "w" SOCKET_OPEN_MODE);
     IoTYPE(io1) = IoTYPE_SOCKET;
@@ -2667,7 +2662,6 @@ PP(pp_accept)
 
     if (fd < 0)
 	goto badexit;
-    setfd_inhexec_for_sysfd(fd);
     if (IoIFP(nstio))
 	Perl_do_close(aTHX_ ngv, FALSE);
     IoIFP(nstio) = PerlIO_fdopen(fd, "r" SOCKET_OPEN_MODE);

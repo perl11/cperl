@@ -8061,50 +8061,45 @@ Perl_yylex(pTHX)
                 TOKEN(BAREWORD);
             }
 
-        case KEY___FILE__:
-            FUN0OP(
-                   newSVOP(OP_CONST, 0, newSVpv(CopFILE(PL_curcop),0))
-            );
+	case KEY___FILE__:
+	    FUN0OP(
+                newSVOP(OP_CONST, 0, newSVpv(CopFILE(PL_curcop),0))
+	    );
 
-        case KEY___LINE__:
-            FUN0OP(
-                   newSVOP(OP_CONST, 0,
-                     Perl_newSVpvf(aTHX_ "%" IVdf, (IV)CopLINE(PL_curcop)))
-            );
+	case KEY___LINE__:
+	    FUN0OP(
+                newSVOP(OP_CONST, 0,
+		    Perl_newSVpvf(aTHX_ "%" IVdf, (IV)CopLINE(PL_curcop)))
+	    );
 
-        case KEY___PACKAGE__:
-            FUN0OP(
-                   newSVOP(OP_CONST, 0,
-                           (PL_curstash
-                            ? newSVhek(HvNAME_HEK(PL_curstash))
-                            : UNDEF))
-            );
+	case KEY___PACKAGE__:
+	    FUN0OP(
+                newSVOP(OP_CONST, 0,
+					(PL_curstash
+					 ? newSVhek(HvNAME_HEK(PL_curstash))
+					 : &PL_sv_undef))
+	    );
 
-        case KEY___DATA__:
-        case KEY___END__: {
-            GV *gv;
-            if (PL_rsfp && (!PL_in_eval || PL_tokenbuf[2] == 'D')) {
-                HV * const stash = PL_tokenbuf[2] == 'D' && PL_curstash
-                                        ? PL_curstash
-                                        : PL_defstash;
-                gv = (GV *)*hv_fetchs(stash, "DATA", 1);
-                if (!isGV(gv))
-                    gv_init(gv,stash,"DATA",4,0);
-                GvMULTI_on(gv);
-                if (!GvIO(gv))
-                    GvIOp(gv) = newIO();
-                IoIFP(GvIOp(gv)) = PL_rsfp;
-                {
-		    const int fd = PerlIO_fileno(PL_rsfp);
-                    if (fd >= 3)
-			setfd_cloexec(fd);
-                }
-                /* Mark this internal pseudo-handle as clean */
-                IoFLAGS(GvIOp(gv)) |= IOf_UNTAINT;
-                if ((PerlIO*)PL_rsfp == PerlIO_stdin())
-                    IoTYPE(GvIOp(gv)) = IoTYPE_STD;
-                else
-                    IoTYPE(GvIOp(gv)) = IoTYPE_RDONLY;
+	case KEY___DATA__:
+	case KEY___END__: {
+	    GV *gv;
+	    if (PL_rsfp && (!PL_in_eval || PL_tokenbuf[2] == 'D')) {
+		HV * const stash = PL_tokenbuf[2] == 'D' && PL_curstash
+					? PL_curstash
+					: PL_defstash;
+		gv = (GV *)*hv_fetchs(stash, "DATA", 1);
+		if (!isGV(gv))
+		    gv_init(gv,stash,"DATA",4,0);
+		GvMULTI_on(gv);
+		if (!GvIO(gv))
+		    GvIOp(gv) = newIO();
+		IoIFP(GvIOp(gv)) = PL_rsfp;
+		/* Mark this internal pseudo-handle as clean */
+		IoFLAGS(GvIOp(gv)) |= IOf_UNTAINT;
+		if ((PerlIO*)PL_rsfp == PerlIO_stdin())
+		    IoTYPE(GvIOp(gv)) = IoTYPE_STD;
+		else
+		    IoTYPE(GvIOp(gv)) = IoTYPE_RDONLY;
 #if defined(WIN32) && !defined(PERL_TEXTMODE_SCRIPTS)
                 /* if the script was opened in binmode, we need to revert
                  * it to text mode for compatibility; but only iff it has CRs

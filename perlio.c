@@ -245,7 +245,7 @@ PerlIO_fdupopen(pTHX_ PerlIO *f, CLONE_PARAMS *param, int flags)
     return win32_fdupopen(f);
 # else
     if (f) {
-	const int fd = PerlLIO_dup(PerlIO_fileno(f));
+	const int fd = PerlLIO_dup_cloexec(PerlIO_fileno(f));
 	if (fd >= 0) {
 	    char mode[8];
 #  ifdef DJGPP
@@ -289,7 +289,7 @@ PerlIO_openn(pTHX_ const char *layers, const char *mode, int fd,
                 return NULL;
 
 	    if (*mode == IoTYPE_NUMERIC) {
-		fd = PerlLIO_open3(name, imode, perm);
+		fd = PerlLIO_open3_cloexec(name, imode, perm);
 		if (fd >= 0)
 		    return PerlIO_fdopen(fd, mode + 1);
 	    }
@@ -2692,6 +2692,7 @@ PerlIOUnix_open(pTHX_ PerlIO_funcs *self, PerlIO_list_t *layers,
 		IV n, const char *mode, int fd, int imode,
 		int perm, PerlIO *f, int narg, SV **args)
 {
+    bool known_cloexec = 0;
     if (PerlIOValid(f)) {
 	if (PerlIOBase(f)->tab && PerlIOBase(f)->flags & PERLIO_F_OPEN)
 	    (*PerlIOBase(f)->tab->Close)(aTHX_ f);
@@ -2712,10 +2713,15 @@ PerlIOUnix_open(pTHX_ PerlIO_funcs *self, PerlIO_list_t *layers,
 	    const char *path = SvPV_const(*args, len);
 	    if (!IS_SAFE_PATHNAME(path, len, "open"))
                 return NULL;
-	    fd = PerlLIO_open3(path, imode, perm);
+	    fd = PerlLIO_open3_cloexec(path, imode, perm);
+	    known_cloexec = 1;
 	}
     }
     if (fd >= 0) {
+	if (known_cloexec)
+	    setfd_inhexec_for_sysfd(fd);
+	else
+	    setfd_cloexec_or_inhexec_by_sysfdness(fd);
 	if (*mode == IoTYPE_IMPLICIT)
 	    mode++;
 	if (!f) {
@@ -2750,7 +2756,9 @@ PerlIOUnix_dup(pTHX_ PerlIO *f, PerlIO *o, CLONE_PARAMS *param, int flags)
     const PerlIOUnix * const os = PerlIOSelf(o, PerlIOUnix);
     int fd = os->fd;
     if (flags & PERLIO_DUP_FD) {
-	fd = PerlLIO_dup(fd);
+	fd = PerlLIO_dup_cloexec(fd);
+	if (fd >= 0)
+	    setfd_inhexec_for_sysfd(fd);
     }
     if (fd >= 0) {
 	f = PerlIOBase_dup(aTHX_ f, o, param, flags);
@@ -3038,7 +3046,7 @@ PerlIO_importFILE(FILE *stdio, const char *mode)
 	       Note that the errno value set by a failing fdopen
 	       varies between stdio implementations.
 	     */
-            const int fd = PerlLIO_dup(fd0);
+            const int fd = PerlLIO_dup_cloexec(fd0);
 	    FILE *f2;
             if (fd < 0) {
                 return f;
@@ -3060,23 +3068,22 @@ PerlIO_importFILE(FILE *stdio, const char *mode)
 	if ((f = PerlIO_push(aTHX_(PerlIO_allocate(aTHX)), PERLIO_FUNCS_CAST(&PerlIO_stdio), mode, NULL))) {
 	    s = PerlIOSelf(f, PerlIOStdio);
 	    s->stdio = stdio;
+	    fd0 = fileno(stdio);
+	    if (fd0 != -1) {
+		PerlIOUnix_refcnt_inc(fd0);
+		setfd_cloexec_or_inhexec_by_sysfdness(fd0);
+	    }
 #ifdef EBCDIC
-            fd0 = fileno(stdio);
-            if (fd0 != -1) {
-                PerlIOUnix_refcnt_inc(fd0);
-            }
             else {
-                rc = fldata(stdio, filename, &fileinfo);
-                if (rc != 0) {
+                rc = fldata(stdio,filename,&fileinfo);
+                if (rc != 0){
                     PerlIOUnix_refcnt_inc(fd0);
                 }
-                if (fileinfo.__dsorgHFS) {
+                if (fileinfo.__dsorgHFS){
                     PerlIOUnix_refcnt_inc(fd0);
                 }
                 /* This MVS dataset , OK! */
             }
-#else
-	    PerlIOUnix_refcnt_inc(fileno(stdio));
 #endif
 	}
     }
@@ -3102,7 +3109,9 @@ PerlIOStdio_open(pTHX_ PerlIO_funcs *self, PerlIO_list_t *layers,
 	if (!s->stdio)
 	    return NULL;
 	s->stdio = stdio;
-	PerlIOUnix_refcnt_inc(fileno(s->stdio));
+	fd = fileno(stdio);
+	PerlIOUnix_refcnt_inc(fd);
+	setfd_cloexec_or_inhexec_by_sysfdness(fd);
 	return f;
     }
     else {
@@ -3113,7 +3122,7 @@ PerlIOStdio_open(pTHX_ PerlIO_funcs *self, PerlIO_list_t *layers,
                 return NULL;
 	    if (*mode == IoTYPE_NUMERIC) {
 		mode++;
-		fd = PerlLIO_open3(path, imode, perm);
+		fd = PerlLIO_open3_cloexec(path, imode, perm);
 	    }
 	    else {
 	        FILE *stdio;
@@ -3133,7 +3142,9 @@ PerlIOStdio_open(pTHX_ PerlIO_funcs *self, PerlIO_list_t *layers,
 		    f = PerlIO_push(aTHX_ f, self, mode, PerlIOArg);
 		    if (f) {
 			PerlIOSelf(f, PerlIOStdio)->stdio = stdio;
-			PerlIOUnix_refcnt_inc(fileno(stdio));
+			fd = fileno(stdio);
+			PerlIOUnix_refcnt_inc(fd);
+			setfd_cloexec_or_inhexec_by_sysfdness(fd);
 		    } else {
 			PerlSIO_fclose(stdio);
 		    }
@@ -3174,7 +3185,9 @@ PerlIOStdio_open(pTHX_ PerlIO_funcs *self, PerlIO_list_t *layers,
 		}
 		if ((f = PerlIO_push(aTHX_ f, self, mode, PerlIOArg))) {
 		    PerlIOSelf(f, PerlIOStdio)->stdio = stdio;
-		    PerlIOUnix_refcnt_inc(fileno(stdio));
+		    fd = fileno(stdio);
+		    PerlIOUnix_refcnt_inc(fd);
+		    setfd_cloexec_or_inhexec_by_sysfdness(fd);
 		}
 		return f;
 	    }
@@ -3198,7 +3211,7 @@ PerlIOStdio_dup(pTHX_ PerlIO *f, PerlIO *o, CLONE_PARAMS *param, int flags)
             const int fd = fileno(stdio);
             char mode[8];
             if (flags & PERLIO_DUP_FD) {
-                const int dfd = PerlLIO_dup(fd);
+                const int dfd = PerlLIO_dup_cloexec(fileno(stdio));
                 if (dfd >= 0) {
                     stdio = PerlSIO_fdopen(dfd, PerlIO_modestr(o,mode));
                     goto set_this;
@@ -3214,7 +3227,9 @@ PerlIOStdio_dup(pTHX_ PerlIO *f, PerlIO *o, CLONE_PARAMS *param, int flags)
         set_this:
             PerlIOSelf(f, PerlIOStdio)->stdio = stdio;
             if (stdio) {
-                PerlIOUnix_refcnt_inc(fileno(stdio));
+                int fd = fileno(stdio);
+                PerlIOUnix_refcnt_inc(fd);
+                setfd_cloexec_or_inhexec_by_sysfdness(fd);
             }
         }
     }
@@ -3390,7 +3405,7 @@ PerlIOStdio_close(pTHX_ PerlIO *f)
 	    SAVE_ERRNO;
 	    invalidate = PerlIOStdio_invalidate_fileno(aTHX_ stdio);
 	    if (!invalidate) {
-		dupfd = PerlLIO_dup(fd);
+		dupfd = PerlLIO_dup_cloexec(fd);
 #ifdef USE_ITHREADS
 		if (dupfd < 0) {
 		    /* Oh cXap. This isn't going to go well. Not sure if we can
@@ -3417,7 +3432,8 @@ PerlIOStdio_close(pTHX_ PerlIO *f)
 	result = close(fd);
 #endif
 	if (dupfd >= 0) {
-	    PerlLIO_dup2(dupfd, fd);
+	    PerlLIO_dup2_cloexec(dupfd, fd);
+	    setfd_inhexec_for_sysfd(fd);
 	    PerlLIO_close(dupfd);
 	}
         MUTEX_UNLOCK(&PL_perlio_mutex);
@@ -5199,19 +5215,19 @@ PerlIO_tmpfile(void)
 	 /* if TMPDIR is set and not empty, we try that first */
 	 sv = newSVpv(tmpdir, 0);
 	 sv_catpv(sv, tempname + 4);
-	 fd = Perl_my_mkstemp(SvPVX(sv));
+	 fd = Perl_my_mkstemp_cloexec(SvPVX(sv));
      }
      if (fd < 0) {
 	 SvREFCNT_dec(sv);
 	 sv = NULL;
 	 /* else we try /tmp */
-	 fd = Perl_my_mkstemp(tempname);
+	 fd = Perl_my_mkstemp_cloexec(tempname);
      }
      if (fd < 0) {
          /* Try cwd */
          sv = newSVpvs(".");
          sv_catpv(sv, tempname + 4);
-         fd = Perl_my_mkstemp(SvPVX(sv));
+         fd = Perl_my_mkstemp_cloexec(SvPVX(sv));
      }
      umask(old_umask);
      if (fd >= 0) {
