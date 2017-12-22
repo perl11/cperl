@@ -5559,8 +5559,8 @@ PP(pp_hslice)
             }
         }
         if (svp && *svp) {
-            if (UNLIKELY(copy && !SvREADONLY(*svp))) {
-                *MARK = newSVsv(*svp); /* avoid sideeffects on the hash [cperl #347] */
+            if (UNLIKELY(copy)) {
+                *MARK = newSVsv(*svp);
             } else {
                 *MARK = *svp;
             }
@@ -5582,6 +5582,7 @@ PP(pp_kvhslice)
     dSP; dMARK;
     HV * const hv = MUTABLE_HV(POPs);
     I32 lval = (PL_op->op_flags & OPf_MOD);
+    const bool copy = PL_op->op_private & OPpSTACKCOPY && GIMME_V == G_ARRAY;
     SSize_t items = SP - MARK;
 
     if (PL_op->op_private & OPpMAYBE_LVSUB) {
@@ -5595,12 +5596,12 @@ PP(pp_kvhslice)
        }
     }
 
-    MEXTEND(SP,items);
+    MEXTEND(SP, items);
     while (items > 1) {
 	*(MARK+items*2-1) = *(MARK+items);
 	items--;
     }
-    items = SP-MARK;
+    items = SP - MARK;
     SP += items;
 
     while (++MARK <= SP) {
@@ -5616,9 +5617,17 @@ PP(pp_kvhslice)
             if (UNLIKELY(!svp || !*svp || *svp == UNDEF)) {
                 DIE(aTHX_ PL_no_helem_sv, SVfARG(keysv));
             }
-	    *MARK = sv_mortalcopy(*MARK);
+	    *MARK = sv_mortalcopy(*MARK); /* copy the key */
         }
-        *++MARK = svp && *svp ? *svp : UNDEF;
+        if (svp && *svp) {
+            if (UNLIKELY(copy)) {
+                *++MARK = newSVsv(*svp);
+            } else {
+                *++MARK = *svp;
+            }
+        } else {
+            *++MARK = UNDEF;
+        }
     }
     if (GIMME_V != G_ARRAY) {
 	MARK = SP - items*2;

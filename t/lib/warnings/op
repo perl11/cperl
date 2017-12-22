@@ -2078,8 +2078,3 @@ use warnings;
 sub foo{} my %h; foo (@h{"a","b"});
 EXPECT
 No autovivification of hash slice anymore at - line 2.
-########
-use warnings;
-my %h; foreach (@h{"a","b"}) {}
-EXPECT
-No autovivification of hash slice anymore at - line 2.

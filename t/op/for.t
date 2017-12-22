@@ -5,7 +5,7 @@ BEGIN {
     require "./test.pl";
 }
 
-plan(129);
+plan(131);
 
 # A lot of tests to check that reversed for works.
 
@@ -553,9 +553,18 @@ is do {17; foreach (1, 2) { 1; } }, '', "RT #1085: what should be output of perl
 {
     my %h;
     foreach (@h{a, b}) {}
-    is keys(%h), 0, 'RT #2166: foreach autovivifies hash slices';
-    # also hash slices as sub args
-    # sub foo {}; foo($h{a}, @h{"b", "c"}); print keys %h => 2
+    is keys(%h), 2, 'foreach autovivifies hash slices [RT #2166]';
+
+    %h = ();
+    foreach ($h{a}, $h{b}) {}
+    is keys(%h), 2, 'list of helems same as hslice';
+
+    %h = ();
+    foreach (%h{qw(a b)}) {}
+    is keys(%h), 2, 'same for kvhslice';
+
+    # but not as sub args
+    # sub foo {}; foo($h{a}, @h{"b", "c"}); print keys %h => 0
 }
 
 sub {
