@@ -5609,12 +5609,12 @@ PP(pp_kvhslice)
         SV **svp;
         HE *he;
 
-        he = hv_fetch_ent(hv, keysv, lval, 0);
+        he = hv_fetch_ent(hv, keysv, copy ? 0 : lval, 0);
         svp = he ? &HeVAL(he) : NULL;
 
         if (lval) {
             /* only with readonly hash */
-            if (UNLIKELY(!svp || !*svp || *svp == UNDEF)) {
+            if (UNLIKELY(!copy && (!svp || !*svp || *svp == UNDEF))) {
                 DIE(aTHX_ PL_no_helem_sv, SVfARG(keysv));
             }
 	    *MARK = sv_mortalcopy(*MARK); /* copy the key */

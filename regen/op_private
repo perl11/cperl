@@ -662,7 +662,7 @@ addbits('enteriter',
                     3 => qw(OPpITER_DEF      DEF),     # 'for $_' or 'for my $_'
   );
 addbits('iter',     1 => qw(OPpITER_REVERSED REVERSED));
-addbits('hslice',   4 => qw(OPpSTACKCOPY     COPY)); # kvhslice already creates a mortalcopy
+addbits($_,         4 => qw(OPpSTACKCOPY     COPY)) for qw(hslice kvhslice);
 
 for (qw(const)) { # int_const uint_const str_const num_const
     addbits($_,

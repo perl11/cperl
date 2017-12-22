@@ -4188,16 +4188,15 @@ securable.  See L<perlsec>.
 
 =item No autovivification of hash slice anymore
 
-(W syntax) Hash slices do not autovivify anymore in for lists and sub
-args. This is a bug and was fixed with cperl v5.27.3c.
-See L<[cperl #347]|https://github.com/perl11/cperl/issues/347>.
-This warning will disappear with v5.30c.
+(W syntax) Hash slices and key/value hash slices do not autovivify
+anymore in sub args.  This is a bug and was fixed with cperl v5.27.3c.
+See L<[cperl #347]|https://github.com/perl11/cperl/issues/347>.  This
+warning will disappear with v5.30c.
 
 Examples:
 
   sub foo{} my %h; foo (@h{"a","b"}); # keys %h was 2, now 0
-
-  my %h; for (@h{"a","b"}) {}         # keys %h was 2, now 0
+  sub foo{} my %h; foo (%h{"a","b"}); # keys %h was 2, now 0
 
 Portable fix to avoid this warning: Use a temp. array for the hash slice.
 

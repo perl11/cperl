@@ -8,7 +8,7 @@ BEGIN {
 
 # use strict;
 
-plan tests => 44;
+plan tests => 45;
 
 # simple use cases
 {
@@ -218,6 +218,13 @@ is keys(%k), keys(%h), 'helem return the same as hslice in for loop';
     # hash slices as sub args
     sub baz {}; baz($h{a}, @h{"b", "c"});
     is keys %h, 0, 'no autovivify in hslice sub args';
+}
+{
+    no warnings;
+    %h = ();
+    # kvhslice as sub args
+    sub baz {}; baz($h{a}, %h{"b", "c"});
+    is keys %h, 0, 'no autovivify in kvhslice sub args';
 }
 
 %h = ();

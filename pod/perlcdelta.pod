@@ -74,10 +74,10 @@ XXX Any deprecated features, syntax, modules etc. should be listed here.
 =head2 No autovivification of hash slice anymore
 
 This is a new syntax warning, which is deprecated, and will disappear
-with v5.30c.  Hash slices autovivified in subroutine arguments. This
-was a bug, but to check all your code for correctness and portability
-we keep this warning for 2 releases.
-See L<[cperl #347]|https://github.com/perl11/cperl/issues/347> and
+with v5.30c.  Hash slices and key/value hash slices autovivified in
+subroutine arguments. This was a bug, but to check all your code for
+correctness and portability we keep this warning for 2 releases.  See
+L<[cperl #347]|https://github.com/perl11/cperl/issues/347> and
 L<perldiag/"No autovivification of hash slice anymore">.
 
 =head2 Module removals
@@ -406,11 +406,7 @@ made:
 
 =item *
 
-Fixed two testcases where autovivifying hash slices were actually used.
-
-    ++$_ for @INC{"charnames.pm","_charnames.pm"}
-=>
-    $INC{"charnames.pm"}++; $INC{"_charnames.pm"}++;
+XXX
 
 =back
 
@@ -506,11 +502,13 @@ L<[cperl #346]|https://github.com/perl11/cperl/issues/346>
 
 =item *
 
-Fixed autovivifaction of hash slices in sub args.
+Fixed autovivifaction of hash slices and key/value hash slices in sub args.
+They are now consistent with a list of hash elements.
+hash slices still autovivify in for loops.
+
 There's also a new syntax warning about this change,
 L<perldiag/"No autovivification of hash slice anymore">
 L<[cperl #347]|https://github.com/perl11/cperl/issues/347>.
-
 
 =back
 

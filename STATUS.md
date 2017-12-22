@@ -149,6 +149,7 @@ For all versions see [bench-all/](bench-all/index.html)
 * Fast and proper object orientation. User facing classes. class, role, method,
   multi, has, is, does keywords, proper fields, Mu superclass.
 * thread-safety on darwin for uselocale
+* hash slice consistency, no autovivification as sub args
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.
