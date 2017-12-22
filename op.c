@@ -10485,11 +10485,6 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
 	iterflags |= OPf_STACKED;
     }
     else {
-        if (IS_TYPE(expr, HSLICE)) {
-            Perl_ck_warner(aTHX_ packWARN(WARN_SYNTAX),
-                           "No autovivification of hash slice anymore");
-            expr->op_private |= OPpSTACKCOPY;
-        }
         expr = op_lvalue(force_list(expr, 1), OP_GREPSTART);
     }
 
@@ -16966,7 +16961,7 @@ Perl_ck_subr(pTHX_ OP *o)
 	aop = OpFIRST(aop);
     aop = OpSIBLING(aop);
     for (cvop = aop; OpHAS_SIBLING(cvop); cvop = OpSIBLING(cvop)) {
-        if (IS_TYPE(cvop, HSLICE)) {
+        if (IS_TYPE(cvop, HSLICE) || IS_TYPE(cvop, KVHSLICE)) {
             Perl_ck_warner(aTHX_ packWARN(WARN_SYNTAX),
                            "No autovivification of hash slice anymore");
             cvop->op_private |= OPpSTACKCOPY;

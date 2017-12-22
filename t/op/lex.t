@@ -50,24 +50,24 @@ curr_test(3);
 {
  delete local $ENV{PERL_UNICODE};
  fresh_perl_is(
-  'BEGIN{ $INC{"charnames.pm"}++; $INC{"_charnames.pm"}++; } "\N{a}"',
-  'Constant(\N{a}) unknown at - line 1, within string'."\n"
+  'BEGIN{ ++$_ for @INC{"charnames.pm","_charnames.pm"} } "\N{a}"',
+  'Constant(\N{a}) unknown at - line 1, within string' . "\n"
  ."Execution of - aborted due to compilation errors.\n",
    { stderr => 1 },
   'correct output (and no crash) when charnames cannot load for \N{...}'
  );
 }
 fresh_perl_is(
-  'BEGIN{$INC{"charnames.pm"}++; $INC{"_charnames.pm"}++;'
- .      '$^H{charnames} = "foo" } "\N{a}"',
-  "Undefined subroutine &main::foo called at - line 1.\n"
- ."Propagated at - line 1, within string\n"
+  'BEGIN{ ++$_ for @INC{"charnames.pm","_charnames.pm"};
+          $^H{charnames} = "foo" } "\N{a}"',
+  "Undefined subroutine &main::foo called at - line 2.\n"
+ ."Propagated at - line 2, within string\n"
  ."Execution of - aborted due to compilation errors.\n",
    { stderr => 1 },
   'no crash when charnames cannot load and %^H holds string'
 );
 fresh_perl_is(
-  'BEGIN{ $INC{"charnames.pm"}++; $INC{"_charnames.pm"}++;
+  'BEGIN{ ++$_ for @INC{"charnames.pm","_charnames.pm"};
           $^H{charnames} = \"foo" } "\N{a}"',
   "Not a CODE reference at - line 2.\n"
  ."Propagated at - line 2, within string\n"

@@ -8,7 +8,7 @@ BEGIN {
 
 # use strict;
 
-plan tests => 41;
+plan tests => 44;
 
 # simple use cases
 {
@@ -175,7 +175,7 @@ plan tests => 41;
     tie my %h, 'Tie::StdHash';
     %h = map { $_ => uc $_ } 'a'..'c';
 
-    ok( eq_array( [%h{'b','a', 'e'}], [qw(b B a A e), undef] ),
+    ok( eq_array( [%h{'b', 'a', 'e'}], [qw(b B a A e), undef] ),
         "works on tied" );
 
     ok( !exists $h{e}, "no autovivification" );
@@ -203,13 +203,26 @@ like $@, qr`^Type of arg 1 to nowt_but_hash must be hash \(not(?x:
            ) key/value hash slice\) at `,
     '\% prototype';
 
-{
-    my %h;
-    foreach (@h{'a', 'b'}) {}
-    is keys(%h), 0, 'no autovivify in foreach';
+# hslices
+my %h;
+foreach (@h{'a', 'b'}) {}
+is keys(%h), 2, 'autovivify in foreach';
 
+my %k;
+foreach ($k{'a'}, $k{'b'}) {}
+is keys(%k), keys(%h), 'helem return the same as hslice in for loop';
+
+{
+    no warnings;
     %h = ();
-    # also hash slices as sub args
+    # hash slices as sub args
     sub baz {}; baz($h{a}, @h{"b", "c"});
-    is keys %h, 0, 'no autovivify in sub args';
+    is keys %h, 0, 'no autovivify in hslice sub args';
 }
+
+%h = ();
+$_++ foreach %h{'b', 'c'};
+is keys %h, 2, 'aliased kvhslice loops';
+%k = ();
+$_++ foreach $k{'b'}, $k{'c'};
+is keys %h, keys %k, 'same as helem';
