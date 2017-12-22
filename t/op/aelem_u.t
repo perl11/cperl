@@ -5,7 +5,7 @@ BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
 }
-plan( tests => 31 );
+plan( tests => 32 );
 use coretypes;
 use cperl;
 use v5.22;
@@ -22,6 +22,7 @@ my @b0[] = (0,1,2);
 my @b1[] = (0..2);
 my @b2[] = (qw(0 1 2));
 my @b3[] = (0,(1,2));
+my @b4[] :const = (0,1,2);
 
 # @a consists of 5x undef
 ok(!defined $a[0] && !defined $a[4], '@a[5] initialized to undef');
@@ -33,6 +34,7 @@ ok(defined $b0[2] && $b0[2] == 2, '$b0[2]');
 ok(defined $b1[2] && $b1[2] == 2, '$b1[2]');
 ok(defined $b2[2] && $b2[2] eq '2', '$b2[2]');
 ok(defined $b3[2] && $b3[2] == 2, '$b3[2]');
+ok(defined $b4[2] && $b4[2] == 2, '$b4[2]');
 
 eval 'defined $a[5];';
 like ($@, qr/^Array index out of bounds \@a\[5\]/, 'Array index out of bounds $a[5]');

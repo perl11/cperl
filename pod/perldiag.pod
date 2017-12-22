@@ -3079,7 +3079,7 @@ subroutines. See L<perlclass>.
 
 (F) A constant list can only consist of compile-time constant elements.
 
-=item Invalid constant list, recursion limit (%d) exceeded
+=item Invalid constant list, recursion limit (36) exceeded
 
 (F) The nesting of the constant list exceeded the builtin recursion limit.
 

@@ -1104,21 +1104,23 @@ myattrterm:	MY myterm myattrlist
 	|	MY REFGEN myterm myattrlist
 			{ $$ = newUNOP(OP_REFGEN, 0, my_attrs($3,$4)); }
 	|	MY computedsizearydecl myattrlist ASSIGNOP '(' listexpr ')'
-                        {   OP* av = my_attrs($2,$3);
-                            /* sizeof expr must be known */
-                            av_init_shaped(MUTABLE_AV(PAD_SV($2->op_targ)),
+                        {   
+                            PADOFFSET targ = $2->op_targ;
+                            OP* aop = my_attrs($2,$3);
+                            SV *av = PAD_SV(targ);
+                            av_init_shaped(MUTABLE_AV(av),
                                            num_constlistexpr($6, 0),
-                                           PadnameTYPE(PAD_COMPNAME($2->op_targ)));
-                            $$ = newASSIGNOP(OPf_STACKED, newAVREF(av), $4, $6);
+                                           PadnameTYPE(PAD_COMPNAME(targ)));
+                            $$ = newASSIGNOP_maybe_const(aop, $4, $6);
                         }
 	|	MY computedsizearydecl ASSIGNOP '(' listexpr ')'
-                        {   OP* av = $2;
-                            PL_parser->in_my = FALSE;
-                            PL_parser->in_my_stash = NULL;
-                            av_init_shaped(MUTABLE_AV(PAD_SV($2->op_targ)),
+                        {
+                            PADOFFSET targ = $2->op_targ;
+                            OP* aop = localize($2,1);
+                            av_init_shaped(MUTABLE_AV(PAD_SV(targ)),
                                            num_constlistexpr($5, 0),
-                                           PadnameTYPE(PAD_COMPNAME($2->op_targ)));
-                            $$ = newASSIGNOP(OPf_STACKED, newAVREF(av), $3, $5);
+                                           PadnameTYPE(PAD_COMPNAME(targ)));
+                            $$ = newASSIGNOP(OPf_STACKED, aop, $3, $5);
                         }
 	;
 
@@ -1248,6 +1250,7 @@ computedsizearydecl :	'@' PRIVATEREF '[' ']' %prec '('
 			  ck_warner_d(packWARN(WARN_EXPERIMENTAL__SHAPED_ARRAYS),
                                       "The shaped_arrays feature is experimental");
 #endif
+                	  OpTYPE_set($2, OP_PADAV);
 			  $$ = $2;
 			}
 
