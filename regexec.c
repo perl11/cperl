@@ -4842,11 +4842,6 @@ S_isSB(pTHX_ SB_enum before,
      * So do that backup now, setting flags if either Sp or a paragraph
      * separator are found */
 
-    if (before == SB_Sep || before == SB_CR || before == SB_LF) {
-        has_para_sep = TRUE;
-        before = backup_one_SB(strbeg, &lpos, utf8_target);
-    }
-
     if (before == SB_Sp) {
         has_sp = TRUE;
         do {
