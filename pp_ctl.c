@@ -729,7 +729,7 @@ PP(pp_formline)
 
 		item_is_utf8 = DO_UTF8(sv);
 		chophere = s + len;
-		if (!len)
+		if (!len || !s)
 		    break;
 		trans = 0;
 		gotsome = TRUE;
