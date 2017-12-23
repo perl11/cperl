@@ -5461,8 +5461,11 @@ PP(pp_enterwhen)
        to the op that follows the leavewhen.
        RETURNOP calls PUTBACK which restores the stack pointer after the POPs.
     */
-    if (!(PL_op->op_flags & OPf_SPECIAL) && !SvTRUEx(POPs))
+    if (!(PL_op->op_flags & OPf_SPECIAL) && !SvTRUEx(POPs)) {
+	if (gimme == G_SCALAR)
+	    PUSHs(UNDEF);
 	RETURNOP(cLOGOP->op_other->op_next);
+    }
 
     cx = cx_pushblock(CXt_WHEN, gimme, SP, PL_savestack_ix);
     cx_pushwhen(cx);
