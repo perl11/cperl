@@ -3712,8 +3712,6 @@ static const UV _Perl_GCB_invlist[] = { /* for ASCII/Latin1 */
 
 #if defined(PERL_IN_REGEXEC_C)
 
-#define GCB_ENUM_COUNT 19
-
 typedef enum {
 	GCB_Other = 0,
 	GCB_CR = 1,
@@ -10363,8 +10361,6 @@ static const UV _Perl_LB_invlist[] = { /* for ASCII/Latin1 */
 
 #if defined(PERL_IN_REGEXEC_C)
 
-#define LB_ENUM_COUNT 39
-
 typedef enum {
 	LB_Alphabetic = 0,
 	LB_Break_After = 1,
@@ -15740,8 +15736,6 @@ static const UV _Perl_SB_invlist[] = { /* for ASCII/Latin1 */
 
 #if defined(PERL_IN_REGEXEC_C)
 
-#define SB_ENUM_COUNT 16
-
 typedef enum {
 	SB_Other = 0,
 	SB_ATerm = 1,
@@ -20501,8 +20495,6 @@ static const UV _Perl_WB_invlist[] = { /* for ASCII/Latin1 */
 #endif	/* defined(PERL_IN_PERL_C) */
 
 #if defined(PERL_IN_REGEXEC_C)
-
-#define WB_ENUM_COUNT 25
 
 typedef enum {
 	WB_Other = 0,
@@ -35965,8 +35957,6 @@ static const UV _Perl_GCB_invlist[] = { /* for EBCDIC 1047 */
 
 #if defined(PERL_IN_REGEXEC_C)
 
-#define GCB_ENUM_COUNT 19
-
 typedef enum {
 	GCB_Other = 0,
 	GCB_CR = 1,
@@ -42678,8 +42668,6 @@ static const UV _Perl_LB_invlist[] = { /* for EBCDIC 1047 */
 
 #if defined(PERL_IN_REGEXEC_C)
 
-#define LB_ENUM_COUNT 39
-
 typedef enum {
 	LB_Alphabetic = 0,
 	LB_Break_After = 1,
@@ -48091,8 +48079,6 @@ static const UV _Perl_SB_invlist[] = { /* for EBCDIC 1047 */
 
 #if defined(PERL_IN_REGEXEC_C)
 
-#define SB_ENUM_COUNT 16
-
 typedef enum {
 	SB_Other = 0,
 	SB_ATerm = 1,
@@ -52899,8 +52885,6 @@ static const UV _Perl_WB_invlist[] = { /* for EBCDIC 1047 */
 #endif	/* defined(PERL_IN_PERL_C) */
 
 #if defined(PERL_IN_REGEXEC_C)
-
-#define WB_ENUM_COUNT 25
 
 typedef enum {
 	WB_Other = 0,
@@ -68544,8 +68528,6 @@ static const UV _Perl_GCB_invlist[] = { /* for EBCDIC 037 */
 
 #if defined(PERL_IN_REGEXEC_C)
 
-#define GCB_ENUM_COUNT 19
-
 typedef enum {
 	GCB_Other = 0,
 	GCB_CR = 1,
@@ -75249,8 +75231,6 @@ static const UV _Perl_LB_invlist[] = { /* for EBCDIC 037 */
 
 #if defined(PERL_IN_REGEXEC_C)
 
-#define LB_ENUM_COUNT 39
-
 typedef enum {
 	LB_Alphabetic = 0,
 	LB_Break_After = 1,
@@ -80658,8 +80638,6 @@ static const UV _Perl_SB_invlist[] = { /* for EBCDIC 037 */
 
 #if defined(PERL_IN_REGEXEC_C)
 
-#define SB_ENUM_COUNT 16
-
 typedef enum {
 	SB_Other = 0,
 	SB_ATerm = 1,
@@ -85458,8 +85436,6 @@ static const UV _Perl_WB_invlist[] = { /* for EBCDIC 037 */
 #endif	/* defined(PERL_IN_PERL_C) */
 
 #if defined(PERL_IN_REGEXEC_C)
-
-#define WB_ENUM_COUNT 25
 
 typedef enum {
 	WB_Other = 0,
@@ -97475,5 +97451,5 @@ static const U8 WB_table[24][24] = {
  * 691afc683c33824d46eade2af486fb7b75a7d275abbf22caffb72dcedca2793b lib/unicore/mktables
  * 21653d2744fdd071f9ef138c805393901bb9547cf3e777ebf50215a191f986ea lib/unicore/version
  * 913d2f93f3cb6cdf1664db888bf840bc4eb074eef824e082fceda24a9445e60c regen/charset_translations.pl
- * fd69f95fa25d8b270dcd711a21c1a7586bea8bc5081c6a63668d82795f422220 regen/mk_invlists.pl
+ * 520051ffc8f534c956ec809456efdd79ba9708933c5f009f823e92b4eeb7a163 regen/mk_invlists.pl
  * ex: set ro: */
