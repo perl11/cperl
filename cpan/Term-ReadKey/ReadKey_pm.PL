@@ -6,7 +6,7 @@ package Term::ReadKey;
 # and in the Makefile.PL
 use vars qw($VERSION);
 
-$VERSION = '2.37_02';
+$VERSION = '2.37_03';
 
 use Config;
 use File::Basename qw(&basename &dirname);
@@ -317,7 +317,7 @@ choose to license this under the standard Perl license:
 
 use vars qw($VERSION @ISA @EXPORT_OK @EXPORT);
 
-$VERSION = '2.37_02';
+$VERSION = '2.37_03';
 
 require Exporter;
 require DynaLoader;
@@ -399,45 +399,38 @@ sub GetTerminalSize
     my $file = normalizehandle( ( @_ > 0 ? $_[0] : \*STDOUT ) );
 
     my (@results, @fail);
+    my $opts = termsizeoptions();
 
-    if ( &termsizeoptions() & 1 )                       # VIO
-    {
+    if ( $opts & 1 ) {                      # VIO
         @results = GetTermSizeVIO($file);
         push( @fail, "VIOGetMode call" );
     }
-    elsif ( &termsizeoptions() & 2 )                    # GWINSZ
-    {
+    elsif ( $opts & 2 ) {                   # GWINSZ
         @results = GetTermSizeGWINSZ($file);
         push( @fail, "TIOCGWINSZ ioctl" );
     }
-    elsif ( &termsizeoptions() & 4 )                    # GSIZE
-    {
+    elsif ( $opts & 4 ) {                   # GSIZE
         @results = GetTermSizeGSIZE($file);
         push( @fail, "TIOCGSIZE ioctl" );
     }
-    elsif ( &termsizeoptions() & 8 )                    # WIN32
-    {
+    elsif ( $opts & 8 ) {                   # WIN32
         @results = GetTermSizeWin32($file);
         push( @fail, "Win32 GetConsoleScreenBufferInfo call" );
     }
-    else
-    {
+    else {
         @results = ();
     }
 
-    if ( @results < 4 and $UseEnv )
-    {
+    if ( @results < 4 and $UseEnv ) {
         my ($C) = defined( $ENV{COLUMNS} ) ? $ENV{COLUMNS} : 0;
         my ($L) = defined( $ENV{LINES} )   ? $ENV{LINES}   : 0;
-        if ( ( $C >= 2 ) and ( $L >= 2 ) )
-        {
+        if ( ( $C >= 2 ) and ( $L >= 2 ) ) {
             @results = ( $C + 0, $L + 0, 0, 0 );
         }
         push( @fail, "COLUMNS and LINES environment variables" );
     }
 
-    if ( @results < 4 && $^O ne 'MSWin32')
-    {
+    if ( @results < 4 && $^O ne 'MSWin32') {
         my ($prog) = "resize";
 
         # Workaround for Solaris path silliness
@@ -458,20 +451,17 @@ sub GetTerminalSize
                 $results[1] = $1;
                 @results[ 2, 3 ] = ( 0, 0 );
             }
-            else
-            {
+            else {
                 @results = ();
             }
         }
-        else
-        {
+        else {
             @results = ();
         }
         push( @fail, "resize program" );
     }
 
-    if ( @results < 4 && $^O ne 'MSWin32' )
-    {
+    if ( @results < 4 && $^O ne 'MSWin32' ) {
         my ($prog) = "stty size";
 
         my ($stty) = scalar(`$prog 2>/dev/null`);
@@ -483,15 +473,13 @@ sub GetTerminalSize
             $results[1] = $1;
             @results[ 2, 3 ] = ( 0, 0 );
         }
-        else
-        {
+        else {
             @results = ();
         }
         push( @fail, "stty program" );
     }
 
-    if ( @results != 4 )
-    {
+    if ( @results != 4 ) {
         carp("Unable to get Terminal Size."
              . join( "", map( " The $_ didn't work.", @fail ) ));
 	return undef;

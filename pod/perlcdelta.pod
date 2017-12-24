@@ -256,9 +256,10 @@ Suppress new Autovivified hash slice warning
 
 Protect from NULL arg.
 
-=item L<Term::ReadKey> 2.37_02
+=item L<Term::ReadKey> 2.37_03
 
 Protect from fileno returning -1, invalid file arg.
+Reformatted.
 
 =item L<Unicode::Collate> 1.25_01
 
