@@ -10240,7 +10240,7 @@ condition of the C<expr> (i.e. C<< expr->op_next >>).
 
 C<expr> supplies the loop's controlling expression. With a C<foreach>
 loop it is the C<iter> op, with C<while> the while expression, with
-a single block it is NULL.
+a single block it is C<NULL>.
 
 C<block> supplies the main body of the loop, and C<cont> optionally
 supplies a C<continue> block that operates as a second half of the
@@ -10251,7 +10251,7 @@ C<flags> gives the eight bits of C<op_flags> for the C<leaveloop> op
 and, shifted up eight bits, the eight bits of C<op_private> for the
 C<leaveloop> op, except that (in both cases) some bits will be set
 automatically.  C<debuggable> is currently unused and should always be
-1.  C<has_my> can be supplied as true to force the loop body to be
+1.  C<has_my> can be supplied as C<true> to force the loop body to be
 enclosed in its own scope.
 
 =cut
@@ -10463,12 +10463,14 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
             if (UNLIKELY(SvIV(rightsv) < SvIV(leftsv)))
                 DIE(aTHX_ "Invalid for range iterator (%" IVdf " .. %" IVdf ")",
                     SvIV(leftsv), SvIV(rightsv));
+#ifdef DEBUGGING
             /* TODO: unroll loop for small constant ranges, if the body is not too big */
             if (SvIV(rightsv)-SvIV(leftsv) <= PERL_MAX_UNROLL_LOOP_COUNT) {
                 DEBUG_kv(Perl_deb(aTHX_ "TODO unroll loop (%" IVdf "..%" IVdf ")\n",
                                   SvIV(leftsv), SvIV(rightsv)));
                 /* TODO easy with op_clone_oplist from feature/gh23-inline-subs */
             }
+#endif
             optype = OP_ITER_LAZYIV;
         }
 	range->op_flags &= ~OPf_KIDS;
@@ -19080,12 +19082,14 @@ S_peep_leaveloop(pTHX_ OP* leave, OP* from, OP* to)
     if (IS_CONST_OP(from) && IS_CONST_OP(to)
         && SvIOK(fromsv = cSVOPx_sv(from)) && SvIOK(tosv = cSVOPx_sv(to)))
     {
+#ifdef DEBUGGING
         /* Unrolling is easier in newFOROP? */
         if (SvIV(tosv)-SvIV(fromsv) <= PERL_MAX_UNROLL_LOOP_COUNT) {
             DEBUG_kv(Perl_deb(aTHX_ "rpeep: possibly unroll loop (%" IVdf "..%" IVdf ")\n",
                               SvIV(fromsv), SvIV(tosv)));
             /* TODO op_clone_oplist from feature/gh23-inline-subs */
         }
+#endif
         /* 2. Check all aelem if can aelem_u */
         maxto = SvIV(tosv);
     }
@@ -19096,7 +19100,7 @@ S_peep_leaveloop(pTHX_ OP* leave, OP* from, OP* to)
         OP *loop, *iter, *body, *o2;
         SV *idx = MUTABLE_SV(PL_defgv);
 #ifdef DEBUGGING
-        const char *aname = !kid ? ""
+        const char *aname = !kid ? "*"
             : IS_TYPE(kid, GV) ? GvNAME_get(kSVOP_sv)
             : IS_TYPE(kid, PADAV) ? PAD_COMPNAME_PV(kid->op_targ)
             : "";
@@ -19130,7 +19134,7 @@ S_peep_leaveloop(pTHX_ OP* leave, OP* from, OP* to)
                 }
             }
         }
-        DEBUG_kv(Perl_deb(aTHX_ "rpeep: omit loop bounds checks (from..arylen) for %s[%s]\n",
+        DEBUG_kv(Perl_deb(aTHX_ "rpeep: omit loop bounds checks (from..arylen) for %s[%s]...\n",
                           aname, iname));
         iter = OpNEXT(loop);
         body = OpOTHER(OpNEXT(iter));
