@@ -1,17 +1,16 @@
 package Cwd;
 use strict;
 use Exporter;
-use vars qw(@ISA @EXPORT @EXPORT_OK $VERSION);
 
-$VERSION = '4.68c'; # modernized
+our $VERSION = '4.72c'; # modernized
 our $XS_VERSION = $VERSION;
 #$VERSION =~ tr/_//;
 $VERSION =~ s/c$//;
 
-@ISA = qw/ Exporter /;
-@EXPORT = qw(cwd getcwd fastcwd fastgetcwd);
+our @ISA = qw/ Exporter /;
+our @EXPORT = qw(cwd getcwd fastcwd fastgetcwd);
 push @EXPORT, qw(getdcwd) if $^O eq 'MSWin32';
-@EXPORT_OK = qw(chdir abs_path fast_abs_path realpath fast_realpath);
+our @EXPORT_OK = qw(chdir abs_path fast_abs_path realpath fast_realpath);
 
 # sys_cwd may keep the builtin command
 
@@ -398,8 +397,7 @@ sub _perl_abs_path (str $start='.')
 
     unless (@cst = stat( $start ))
     {
-	_carp("stat($start): $!");
-	return '';
+	return undef;
     }
 
     unless (-d _) {
@@ -439,9 +437,10 @@ sub _perl_abs_path (str $start='.')
 	}
 	unless (@cst = stat($dotdots))
 	{
-	    _carp("stat($dotdots): $!");
+	    my $e = $!;
 	    closedir(PARENT);
-	    return '';
+	    $! = $e;
+	    return undef;
 	}
 	if ($pst[0] == $cst[0] && $pst[1] == $cst[1])
 	{
@@ -453,9 +452,10 @@ sub _perl_abs_path (str $start='.')
 	    {
 		unless (defined ($dir = readdir(PARENT)))
 	        {
-		    _carp("readdir($dotdots): $!");
 		    closedir(PARENT);
-		    return '';
+		    require Errno;
+		    $! = Errno::ENOENT();
+		    return undef;
 		}
 		$tst[0] = $pst[0]+1 unless (@tst = lstat("$dotdots/$dir"))
 	    }
@@ -713,7 +713,8 @@ absolute path of the current working directory.
 
     my $cwd = getcwd();
 
-Returns the current working directory.
+Returns the current working directory.  On error returns C<undef>,
+with C<$!> set to indicate the error.
 
 Exposes the POSIX function getcwd(3) or re-implements it if it's not
 available.
@@ -776,7 +777,8 @@ given they'll use the current working directory.
 
 Uses the same algorithm as getcwd().  Symbolic links and relative-path
 components ("." and "..") are resolved to return the canonical
-pathname, just like realpath(3).
+pathname, just like realpath(3).  On error returns C<undef>, with C<$!>
+set to indicate the error.
 
 =item realpath
 

@@ -3,8 +3,8 @@ package File::Spec::Win32;
 use strict;
 require File::Spec::Unix;
 
-our $VERSION = '4.71c'; # modernized
-$VERSION =~ tr/_//;
+our $VERSION = '4.72c'; # modernized
+#$VERSION =~ tr/_//;
 $VERSION =~ s/c$//;
 
 our @ISA = qw(File::Spec::Unix);
