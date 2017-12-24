@@ -7776,8 +7776,8 @@ Perl_newOP(pTHX_ I32 type, I32 flags)
     if (PL_opargs[type] & OA_TARGET)
 	o->op_targ = pad_alloc(type, SVs_PADTMP);
     o = CHECKOP(type, o);
-    if (!OpRETTYPE(o))
-        OpRETTYPE_set(o, OpTYPE_RET(type));
+    if (!OpRETTYPE(o) && (flags = OpTYPE_RET(type)))
+        OpRETTYPE_set(o, (U8)flags);
     return o;
 }
 
