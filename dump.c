@@ -466,14 +466,11 @@ Perl_sv_peek(pTHX_ SV *sv)
 	sv_catpv(t, "WILD");
 	goto finish;
     }
-    else if (   sv == UNDEF || sv == SV_NO || sv == SV_YES || sv == PLACEHOLDER
-             || sv == SV_ZERO)
-    {
+    else if (SvIMMORTAL(sv)) { /* the 4 sv_immortals or sv_placeholder */
 	if (sv == UNDEF) {
 	    sv_catpv(t, "SV_UNDEF");
 	    if (!(SvFLAGS(sv) & (SVf_OK|SVf_OOK|SVs_OBJECT|
-				 SVs_GMG|SVs_SMG|SVs_RMG)) &&
-		SvREADONLY(sv))
+				 SVs_GMG|SVs_SMG|SVs_RMG)))
 		goto finish;
 	}
 	else if (sv == SV_NO) {
@@ -508,14 +505,13 @@ Perl_sv_peek(pTHX_ SV *sv)
 		SvNVX(sv) == 0.0)
 		goto finish;
 	}
-	else {
-	    sv_catpv(t, "SV_PLACEHOLDER");
-	    if (!(SvFLAGS(sv) & (SVf_OK|SVf_OOK|SVs_OBJECT|
-				 SVs_GMG|SVs_SMG|SVs_RMG))
-		  && SvREADONLY(sv))
-		goto finish;
-	}
-	sv_catpv(t, ":");
+        else if (sv == PLACEHOLDER) {
+            sv_catpv(t, "SV_PLACEHOLDER");
+            if (!(SvFLAGS(sv) & (SVf_OK|SVf_OOK|SVs_OBJECT|
+                                 SVs_GMG|SVs_SMG|SVs_RMG)))
+                goto finish;
+        }
+        sv_catpv(t, ":");
     }
     else if (SvREFCNT(sv) == 0) {
 	sv_catpv(t, "(");
