@@ -172,6 +172,13 @@ sub skip_all_without_unicode_tables { # (but only under miniperl)
     }
 }
 
+sub skip_all_without_errno { # (but only under miniperl)
+    if (is_miniperl()) {
+        skip_all_if_miniperl("no Errno")
+            unless eval 'require "Errno"';
+    }
+}
+
 sub find_git_or_skip {
     my ($source_dir, $reason);
     if (-d '.git') {

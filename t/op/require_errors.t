@@ -4,6 +4,7 @@ BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
     set_up_inc( qw(../lib) );
+    skip_all_without_errno();
 }
 
 use strict;

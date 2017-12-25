@@ -4,9 +4,8 @@ BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
     set_up_inc('../lib');
-    use Config ();
-    skip_all_if_miniperl("miniperl can't load attributes")
-      unless $Config::Config{usecperl};
+    skip_all("no Attribute::Handlers and base yet")
+      if is_miniperl() and !eval 'require "Attribute::Handlers" && require "base"';
 }
 
 plan tests => 4;

@@ -5,6 +5,8 @@ BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
     set_up_inc( '../lib' );
+    skip_all("no parent yet")
+      if is_miniperl() and !eval 'require "parent"';
     plan (tests => 196); # some tests are run in BEGIN block
 }
 

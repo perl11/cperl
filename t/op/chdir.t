@@ -10,6 +10,7 @@ BEGIN {
     # possibilities into @INC.
     require "./test.pl";
     set_up_inc(qw(t . lib ../lib));
+    skip_all_without_errno();
 }
 
 plan(tests => 44);
