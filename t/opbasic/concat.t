@@ -810,7 +810,6 @@ ok(ref(CORE::state $y = "a $o b") eq 'o',
         is($got, $expected, "long concat chain $i");
     }
 }
-
 {
   #only fails under ENCODING
   #use Encode;
@@ -819,4 +818,34 @@ ok(ref(CORE::state $y = "a $o b") eq 'o',
   my ($start, $end) = ("\x{a4}","\x{40}");
   my $string = $start.$end;
   is (chomp($string), 0);
+}
+
+# RT #132646
+# with adjacent consts, the second const is treated as an arg rather than a
+# consts. Make sure this doesn't exceeed the maximum allowed number of
+# args
+{
+    my $x = 'X';
+    my $got =
+          'A' . $x . 'B' . 'C' . $x . 'D'
+        . 'A' . $x . 'B' . 'C' . $x . 'D'
+        . 'A' . $x . 'B' . 'C' . $x . 'D'
+        . 'A' . $x . 'B' . 'C' . $x . 'D'
+        . 'A' . $x . 'B' . 'C' . $x . 'D'
+        . 'A' . $x . 'B' . 'C' . $x . 'D'
+        . 'A' . $x . 'B' . 'C' . $x . 'D'
+        . 'A' . $x . 'B' . 'C' . $x . 'D'
+        . 'A' . $x . 'B' . 'C' . $x . 'D'
+        . 'A' . $x . 'B' . 'C' . $x . 'D'
+        . 'A' . $x . 'B' . 'C' . $x . 'D'
+        . 'A' . $x . 'B' . 'C' . $x . 'D'
+        . 'A' . $x . 'B' . 'C' . $x . 'D'
+        . 'A' . $x . 'B' . 'C' . $x . 'D'
+        . 'A' . $x . 'B' . 'C' . $x . 'D'
+        . 'A' . $x . 'B' . 'C' . $x . 'D'
+        . 'A' . $x . 'B' . 'C' . $x . 'D'
+        ;
+    is ($got,
+        "AXBCXDAXBCXDAXBCXDAXBCXDAXBCXDAXBCXDAXBCXDAXBCXDAXBCXDAXBCXDAXBCXDAXBCXDAXBCXDAXBCXDAXBCXDAXBCXDAXBCXD",
+        "RT #132646");
 }

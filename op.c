@@ -3142,6 +3142,7 @@ S_maybe_multiconcat(pTHX_ OP *o)
 
     SSize_t nargs  = 0;
     SSize_t nconst = 0;
+    SSize_t nadjconst  = 0; /* adjacent consts - may be demoted to args */
     STRLEN variant;
     bool utf8 = FALSE;
     bool kid_is_last = FALSE; /* most args will be the RHS kid of a concat op;
@@ -3153,6 +3154,7 @@ S_maybe_multiconcat(pTHX_ OP *o)
     U8 private_flags  = 0;   /* ... op_private of the multiconcat op */
     bool is_sprintf = FALSE; /* we're optimising an sprintf */
     bool is_targable  = FALSE; /* targetop is an OPpTARGET_MY candidate */
+    bool prev_was_const = FALSE; /* previous arg was a const */
     PERL_ARGS_ASSERT_MAYBE_MULTICONCAT;
 
     /* -----------------------------------------------------------------
@@ -3378,7 +3380,7 @@ S_maybe_multiconcat(pTHX_ OP *o)
             last = TRUE;
         }
 
-        if (   nargs              >  PERL_MULTICONCAT_MAXARG        - 2
+        if (   nargs + nadjconst  >  PERL_MULTICONCAT_MAXARG        - 2
             || (argp - args + 1)  > (PERL_MULTICONCAT_MAXARG*2 + 1) - 2)
         {
             /* At least two spare slots are needed to decompose both
@@ -3409,10 +3411,16 @@ S_maybe_multiconcat(pTHX_ OP *o)
             argp++->p = sv;
             utf8   |= cBOOL(SvUTF8(sv));
             nconst++;
+            if (prev_was_const)
+                /* this const may be demoted back to a plain arg later;
+                 * make sure we have enough arg slots left */
+                nadjconst++;
+            prev_was_const = !prev_was_const;
         }
         else {
             argp++->p = NULL;
             nargs++;
+            prev_was_const = FALSE;
         }
 
         if (last)
