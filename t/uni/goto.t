@@ -3,6 +3,7 @@
 BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
+    skip_all_without_unicode_tables();
 }
 
 plan tests => 4;

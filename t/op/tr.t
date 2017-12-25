@@ -9,6 +9,7 @@ BEGIN {
 	eval 'require utf8';
         if ($@) { skip_all("miniperl, no 'utf8'") }
     }
+    skip_all_without_unicode_tables();
 }
 
 use utf8;

@@ -6,6 +6,7 @@ BEGIN {
     set_up_inc('../lib');
     *bar::is = *is;
     *bar::like = *like;
+    skip_all_without_unicode_tables();
 }
 plan 153;
 

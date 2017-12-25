@@ -10,6 +10,7 @@ BEGIN {
         eval 'require re';
         if ($@) { skip_all("miniperl, no 're'") }
     }
+    skip_all_without_unicode_tables();
 }
 
 plan 48;

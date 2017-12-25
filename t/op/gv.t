@@ -1217,15 +1217,19 @@ eval << '--';
 --
 like $@, qr /^Use of inherited AUTOLOAD for non-method main::fred\(\) is no longer allowed/, "Cannot inherit AUTOLOAD";
 
-undef $@;
-eval << '--';
+SKIP: {                   
+  skip "Unicode tables not built yet", 1
+    if is_miniperl() && !eval 'require "unicore/Heavy.pl"';
+  undef $@;
+  eval << '--';
     use utf8;
     use open qw [:utf8 :std];
     sub Oᕞʀ::AUTOLOAD { 1 } sub Oᕞʀ::fᕃƌ {}
     @ISA = qw(Oᕞʀ) ;
     fᕃƌ() ;
 --
-like $@, qr /^Use of inherited AUTOLOAD for non-method main::f\x{1543}\x{18c}\(\) is no longer allowed/, "Cannot inherit AUTOLOAD";
+  like $@, qr /^Use of inherited AUTOLOAD for non-method main::f\x{1543}\x{18c}\(\) is no longer allowed/, "Cannot inherit AUTOLOAD";
+}
 
 __END__
 Perl

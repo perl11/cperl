@@ -8,6 +8,7 @@ BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
     set_up_inc(qw '../lib ../dist/base/lib');
+    skip_all_without_unicode_tables();
 }
 
 use utf8;

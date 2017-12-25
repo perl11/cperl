@@ -11,9 +11,8 @@ BEGIN {
     require './charset_tools.pl';
     require './loc_tools.pl';
     set_up_inc( '../lib','.','../ext/re' );
+    skip_all_without_unicode_tables();
 }
-
-skip_all_without_unicode_tables();
 
 use strict;
 use warnings;

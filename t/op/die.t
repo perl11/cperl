@@ -81,8 +81,12 @@ like($@, qr/\.{3}propagated at/, '... and appends a phrase');
     is( $err, $msg, 'die handler with utf8' );
     eval { warn $msg };
     is( $err, $msg, 'warn handler with utf8' );
+  SKIP: {
+    skip "Unicode tables not built yet", 1
+      if is_miniperl() && !eval 'require "unicore/Heavy.pl"';
     eval qq/ use strict; \$\x{3b1} /;
     like( $@, qr/Global symbol "\$\x{3b1}"/, 'utf8 symbol names show up in $@' );
+    }
 }
 
 # [perl #36470] got uninit warning if $@ was undef

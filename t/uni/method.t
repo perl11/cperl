@@ -8,6 +8,7 @@ BEGIN {
     chdir 't' if -d 't';
     require "./test.pl"; require './charset_tools.pl';
     set_up_inc( qw(. ../lib ../cpan/parent/lib) );
+    skip_all_without_unicode_tables();
 }
 
 use strict;

@@ -19,9 +19,9 @@ BEGIN {
     require './test.pl'; require './charset_tools.pl';
     require './loc_tools.pl';
     set_up_inc('../lib', '.', '../ext/re');
-}
     skip_all('no re module') unless defined &DynaLoader::boot_DynaLoader;
     skip_all_without_unicode_tables();
+}
 
 plan tests => 844;  # Update this when adding/deleting tests.
 
