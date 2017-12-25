@@ -419,7 +419,9 @@ made:
 
 =item *
 
-XXX
+C<make minitest> can now be successfully be run directly after C<make miniperl>.
+The unicode datafiles are now built before, and tests pass even if no module
+was built or mktables failed.
 
 =back
 

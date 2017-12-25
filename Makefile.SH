@@ -1775,16 +1775,16 @@ esac
 $spitshell >>$Makefile <<'!NO!SUBS!'
 
 # minitest can't depend on lib/Config.pm because that might be where miniperl
-# is crashing.
+# is crashing. ditto for mktables
 minitest_prep:
-	-@test -f lib/Config.pm || $(MAKE) lib/Config.pm $(unidatafiles)
+	-@test -f lib/Config.pm -a -f lib/unicore/Name.pm || $(MAKE) lib/Config.pm $(unidatafiles)
 	@echo " "
 	@echo "You may see some irrelevant test failures if you have been unable"
 	@echo "to build lib/Config.pm, or the Unicode data files."
 	@echo " "
 	- cd t && (rm -f $(PERL_EXE); $(LNS) ../$(MINIPERL_EXE) $(PERL_EXE))
 
-MINITEST_TESTS = base/*.t opbasic/*.t comp/*.t op/*.t cmd/*.t run/*.t io/*.t re/*.t uni/*.t perf/*.t ../cpan/version/t/[01][04568]*.t
+MINITEST_TESTS = base/*.t opbasic/*.t comp/*.t op/*.t cmd/*.t run/*.t io/*.t re/*.t uni/*.t perf/*.t
 
 minitest: $(MINIPERL_EXE) minitest_prep
 	- cd t && $(RUN_PERL) TEST $(MINITEST_TESTS) <$(devtty)
