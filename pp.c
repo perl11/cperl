@@ -155,13 +155,10 @@ S_rv2gv(pTHX_ SV *sv, const bool vivify_sv, const bool strict,
 		    report_uninit(sv);
 		return UNDEF;
 	    }
-	    if (noinit)
-                {
-                    if (!(sv = MUTABLE_SV(gv_fetchsv_nomg(
-                                                          sv, GV_ADDMG, SVt_PVGV
-                                                          ))))
-                        return UNDEF;
-                }
+	    if (noinit) {
+                if (!(sv = MUTABLE_SV(gv_fetchsv_nomg(sv, GV_ADDMG, SVt_PVGV))))
+                    return UNDEF;
+            }
 	    else {
 		if (strict) {
                     Perl_die(aTHX_

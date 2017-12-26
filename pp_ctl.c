@@ -2380,7 +2380,7 @@ PP(pp_leaveloop)
         PL_stack_sp = base;
     else
         leave_adjust_stacks(oldsp, base, gimme,
-                                PL_op->op_private & OPpLVALUE ? 3 : 1);
+                            PL_op->op_private & OPpLVALUE ? 3 : 1);
 
     CX_LEAVE_SCOPE(cx);
     cx_poploop(cx);	/* Stack values are safe: release loop vars ... */

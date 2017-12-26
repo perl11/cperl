@@ -2331,7 +2331,7 @@ s	|OP*	|maybe_targlex	|NN OP* o
 s	|bool	|mderef_uoob_gvsv|NN OP* o|NN SV* idx
 #endif
 s	|bool	|mderef_uoob_targ|NN OP* o|PADOFFSET targ
-s	|bool	|peep_leaveloop	|NN OP* leave|NN OP* from|NN OP* to
+s	|bool	|peep_leaveloop	|NN BINOP* leave|NN OP* from|NN OP* to
 #endif
 
 XpR	|void*	|Slab_Alloc	|size_t sz

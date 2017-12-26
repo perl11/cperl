@@ -8836,7 +8836,7 @@ STATIC void	S_optimize_op(pTHX_ OP* o)
 #define PERL_ARGS_ASSERT_OPTIMIZE_OP	\
 	assert(o)
 
-STATIC bool	S_peep_leaveloop(pTHX_ OP* leave, OP* from, OP* to)
+STATIC bool	S_peep_leaveloop(pTHX_ BINOP* leave, OP* from, OP* to)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3);

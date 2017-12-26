@@ -1482,6 +1482,9 @@ S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o, const CV *c
     case OP_ENTERWHEN:
     case OP_ENTERTRY:
     case OP_ONCE:
+    case OP_ITER:
+    case OP_ITER_ARY:
+    case OP_ITER_LAZYIV:
 	S_opdump_indent(aTHX_ o, level, bar, file, "OTHER");
         S_opdump_link(aTHX_ cLOGOPo->op_other, file);
 	break;

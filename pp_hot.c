@@ -4084,9 +4084,11 @@ PP(pp_iter_lazyiv)
     cur = cx->blk_loop.state_u.lazyiv.cur;
     if (UNLIKELY(cur > cx->blk_loop.state_u.lazyiv.end)) {
         assert(PL_stack_sp < PL_stack_max);
+#ifdef DEBUGGING
         EXTEND_SKIP(PL_stack_sp, 1);
+#endif
         *++PL_stack_sp = SV_NO;
-        return PL_op->op_next;
+        return NORMAL;
     }
 
     oldsv = *itersvp;
@@ -4118,15 +4120,14 @@ PP(pp_iter_lazyiv)
     if (UNLIKELY(cur == IV_MAX)) {
         /* Handle end of range at IV_MAX */
         cx->blk_loop.state_u.lazyiv.end = IV_MIN;
-    } else
+    } else {
         ++cx->blk_loop.state_u.lazyiv.cur;
+    }
 
     /* pp_enteriter should have pre-extended the stack */
     assert(PL_stack_sp < PL_stack_max);
-    EXTEND_SKIP(PL_stack_sp, 1);
-    *++PL_stack_sp = SV_YES;
 
-    return PL_op->op_next;
+    return OpOTHER(PL_op);
 }
 
 PP(pp_iter_ary)
@@ -4148,12 +4149,13 @@ PP(pp_iter_ary)
     ix = (cx->blk_loop.state_u.ary.ix += inc);
     if (UNLIKELY(inc > 0
                  ? ix > AvFILL(av)
-                 : ix < 0))
-    {
+                 : ix < 0)) {
         assert(PL_stack_sp < PL_stack_max);
+#ifdef DEBUGGING
         EXTEND_SKIP(PL_stack_sp, 1);
+#endif
         *++PL_stack_sp = SV_NO;
-        return PL_op->op_next;
+        return NORMAL;
     }
 
     if (UNLIKELY(SvRMAGICAL(av))) {
@@ -4166,7 +4168,7 @@ PP(pp_iter_ary)
 
     if (UNLIKELY(cx->cx_type & CXp_FOR_LVREF)) {
         SvSetMagicSV(*itersvp, sv);
-        goto retyes;
+        return OpOTHER(PL_op);
     }
 
     if (LIKELY(sv)) {
@@ -4197,12 +4199,7 @@ PP(pp_iter_ary)
 #endif
         SvREFCNT_dec(oldsv);
 
- retyes:
-    assert(PL_stack_sp < PL_stack_max);
-    EXTEND_SKIP(PL_stack_sp, 1);
-    *++PL_stack_sp = SV_YES;
-
-    return PL_op->op_next;
+    return OpOTHER(PL_op);
 }
 
 PP(pp_iter)
@@ -4210,7 +4207,6 @@ PP(pp_iter)
     PERL_CONTEXT *cx;
     SV *oldsv;
     SV **itersvp;
-
     SV *sv;
     IV ix;
     IV inc;
@@ -4229,8 +4225,14 @@ PP(pp_iter)
            It has SvPVX of "" and SvCUR of 0, which is what we want.  */
         STRLEN maxlen = 0;
         const char *max = SvPV_const(end, maxlen);
-        if (UNLIKELY(SvNIOK(cur) || SvCUR(cur) > maxlen))
-            goto retno;
+        if (UNLIKELY(SvNIOK(cur) || SvCUR(cur) > maxlen)) {
+            assert(PL_stack_sp < PL_stack_max);
+#ifdef DEBUGGING
+            EXTEND_SKIP(PL_stack_sp, 1);
+#endif
+            *++PL_stack_sp = SV_NO;
+            return NORMAL;
+        }
 
         oldsv = *itersvp;
         /* NB: on the first iteration, oldsv will have a ref count of at
@@ -4241,8 +4243,7 @@ PP(pp_iter)
             /* safe to reuse old SV */
             sv_setsv(oldsv, cur);
         }
-        else
-        {
+        else {
             /* we need a fresh SV every time so that loop body sees a
              * completely new SV for closures/references to work as
              * they used to */
@@ -4262,10 +4263,15 @@ PP(pp_iter)
         inc = 1 - (PL_op->op_private & OPpITER_REVERSED);
         ix = (cx->blk_loop.state_u.stack.ix += inc);
         if (UNLIKELY(inc > 0
-                        ? ix > cx->blk_oldsp
-                        : ix <= cx->blk_loop.state_u.stack.basesp)
-        )
-            goto retno;
+                     ? ix > cx->blk_oldsp
+                     : ix <= cx->blk_loop.state_u.stack.basesp)) {
+            assert(PL_stack_sp < PL_stack_max);
+#ifdef DEBUGGING
+            EXTEND_SKIP(PL_stack_sp, 1);
+#endif
+            *++PL_stack_sp = SV_NO;
+            return NORMAL;
+        }
 
         sv = PL_stack_base[ix];
 
@@ -4305,25 +4311,7 @@ PP(pp_iter)
 	DIE(aTHX_ "panic: pp_iter, type=%u", CxTYPE(cx));
     }
 
-    /* Bypass pushing &PL_sv_yes and calling pp_and(); instead
-     * jump straight to the AND op's op_other */
-    assert(OpNEXT(PL_op)->op_type == OP_AND);
-    assert(OpNEXT(PL_op)->op_ppaddr == Perl_pp_and);
-    return OpOTHER(OpNEXT(PL_op));
-
-  retno:
-    /* Bypass pushing &PL_sv_no and calling pp_and(); instead
-     * jump straight to the AND op's op_next */
-    assert(OpNEXT(PL_op)->op_type == OP_AND);
-    assert(OpNEXT(PL_op)->op_ppaddr == Perl_pp_and);
-    /* pp_enteriter should have pre-extended the stack */
-    EXTEND_SKIP(PL_stack_sp, 1);
-    /* we only need this for the rare case where the OP_AND isn't
-     * in void context, e.g. $x = do { for (..) {...} };
-     * but its cheaper to just push it rather than testing first
-     */
-    *++PL_stack_sp = SV_NO;
-    return OpNEXT(OpNEXT(PL_op));
+    return OpOTHER(PL_op);
 }
 
 

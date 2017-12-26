@@ -152,7 +152,7 @@ checkOptree(note   => q{},
 	    code   => q{{ %hash = (); foreach $_ (@array) { $hash{getkey($_)} = $_; } } },
 	    expect => <<'EOT_EOT', expect_nt => <<'EONT_EONT');
 # 1  <;> nextstate(main 478 (eval 10):1) v:{
-# 2  <{> enterloop(next->u last->u redo->3) 
+# 2  <{> enterloop(next->t last->t redo->3) K
 # 3  <;> nextstate(main 475 (eval 10):1) v
 # 4  <0> pushmark s
 # 5  <0> pushmark s
@@ -165,9 +165,8 @@ checkOptree(note   => q{},
 # c  <1> rv2av[t6] sKRM/1
 # d  <#> gv[*_] s
 # e  <1> rv2gv sKRM/1
-# f  <{> enteriter(next->q last->t redo->g) KS/DEF
-# r  <0> iter_ary s
-# s  <|> and(other->g) K/1
+# f  <{> enteriter(next->q last->s redo->g) KS/DEF
+# r  <|> iter_ary(other->g) sK
 # g      <;> nextstate(main 475 (eval 10):1) v:{
 # h      <#> gvsv[*_] s
 # i      <#> gv[*hash] s
@@ -180,12 +179,12 @@ checkOptree(note   => q{},
 # p      <2> sassign vKS/2
 # q      <0> unstack s
 #            goto r
-# t  <2> leaveloop KP/2
-# u  <2> leaveloop K/2
-# v  <1> leavesub[1 ref] K/REFC,1
+# s  <2> leaveloop KP/2
+# t  <2> leaveloop K/2
+# u  <1> leavesub[1 ref] K/REFC,1
 EOT_EOT
 # 1  <;> nextstate(main 562 (eval 15):1) v:{
-# 2  <{> enterloop(next->u last->u redo->3) 
+# 2  <{> enterloop(next->t last->t redo->3) K
 # 3  <;> nextstate(main 559 (eval 15):1) v
 # 4  <0> pushmark s
 # 5  <0> pushmark s
@@ -198,9 +197,8 @@ EOT_EOT
 # c  <1> rv2av[t3] sKRM/1
 # d  <$> gv(*_) s
 # e  <1> rv2gv sKRM/1
-# f  <{> enteriter(next->q last->t redo->g) KS/DEF
-# r  <0> iter_ary s
-# s  <|> and(other->g) K/1
+# f  <{> enteriter(next->q last->s redo->g) KS/DEF
+# r  <|> iter_ary(other->g) sK
 # g      <;> nextstate(main 559 (eval 15):1) v:{
 # h      <$> gvsv(*_) s
 # i      <$> gv(*hash) s
@@ -213,9 +211,9 @@ EOT_EOT
 # p      <2> sassign vKS/2
 # q      <0> unstack s
 #            goto r
-# t  <2> leaveloop KP/2
-# u  <2> leaveloop K/2
-# v  <1> leavesub[1 ref] K/REFC,1
+# s  <2> leaveloop KP/2
+# t  <2> leaveloop K/2
+# u  <1> leavesub[1 ref] K/REFC,1
 EONT_EONT
 
 
