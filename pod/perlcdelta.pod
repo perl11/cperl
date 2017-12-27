@@ -29,10 +29,6 @@ XXX
 
 =over 4
 
-=item L<ExtUtils::MakeMaker>
-
-Fixed F<Config.pm> target for cperl
-
 =item L<Storable> 3.05_14
 
 Try to fix readonly stacksize.h with perlbrew. [cperl #335]
@@ -75,13 +71,13 @@ XXX
 
 =over 4
 
-=item Microsoft Visual C
+=item XXX
 
 =over
 
 =item *
 
-Change from default MSVC90FREE to MSVC110FREE
+XXX
 
 =back
 
@@ -93,7 +89,10 @@ Change from default MSVC90FREE to MSVC110FREE
 
 =item *
 
-XXX
+Fixed wrong C<panic: distributed hash flood> when dealing with
+large C<%^H> hints hashes, with >127 entries, such as C<_charnames.pm> in
+C<Regexp::Common>. Fixed the logic dealing with such a hints hash.
+L<[cperl #350]|https://github.com/perl11/cperl/issues/350>.
 
 =back
 

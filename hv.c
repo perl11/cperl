@@ -3630,7 +3630,6 @@ Perl_refcounted_he_chain_2hv(pTHX_ const struct refcounted_he *chain, U32 flags)
 	SV *value;
 
 	for (; entry; entry = HeNEXT(entry)) {
-            CHECK_HASH_FLOOD(collisions)
 	    if (HeHASH(entry) == hash) {
 		/* We might have a duplicate key here.  If so, entry is older
 		   than the key we've already put in the hash, so if they are
@@ -3653,6 +3652,7 @@ Perl_refcounted_he_chain_2hv(pTHX_ const struct refcounted_he *chain, U32 flags)
 		    goto next_please;
 #endif
 	    }
+            CHECK_HASH_FLOOD(collisions)
 	}
 	assert (!entry);
 	entry = new_HE();
