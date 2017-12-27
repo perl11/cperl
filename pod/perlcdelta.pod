@@ -551,6 +551,13 @@ There's also a new syntax warning about this change,
 L<perldiag/"No autovivification of hash slice anymore">
 L<[cperl #347]|https://github.com/perl11/cperl/issues/347>.
 
+=item *
+
+Fixed wrong C<panic: distributed hash flood> when dealing with
+large C<%^H> hints hashes, with >127 entries, such as C<_charnames.pm> in
+C<Regexp::Common>. Fixed the logic dealing with such a hints hash.
+L<[cperl #350]|https://github.com/perl11/cperl/issues/350>.
+
 =back
 
 =head1 Known Problems
