@@ -1014,7 +1014,7 @@ PL_op_type_str[] = {
 	"(:Scalar,:Scalar):Scalar",	/* 13: sassign */
 	"(:List,:List):List",	/* 14: aassign */
 	"(:Ref,:Str):Any",	/* 15: oelem */
-	"(:Ref,:Int):Any",	/* 16: oelemfast */
+	"():Any",	/* 16: oelemfast */
 	"(:List(:Str)):Scalar",	/* 17: chop */
 	"(:Str):Int",	/* 18: schop */
 	"(:List(:Str)):Scalar",	/* 19: chomp */
@@ -1443,7 +1443,7 @@ EXTCONST U32 PL_op_type[] = {
 	0x0b0bff0b,	/* 13: sassign "(:Scalar,:Scalar):Scalar" */
 	0x1212ff12,	/* 14: aassign "(:List,:List):List" */
 	0x0c08ff13,	/* 15: oelem "(:Ref,:Str):Any" */
-	0x0c05ff13,	/* 16: oelemfast "(:Ref,:Int):Any" */
+	0xffffff13,	/* 16: oelemfast "():Any" */
 	0xa8ffff0b,	/* 17: chop "(:List(:Str)):Scalar" */
 	0x08ffff05,	/* 18: schop "(:Str):Int" */
 	0xa8ffff0b,	/* 19: chomp "(:List(:Str)):Scalar" */
@@ -3188,7 +3188,7 @@ EXTCONST U32 PL_opargs[] = {
 	0x00044804,	/* sassign */
 	0x00088808,	/* aassign */
 	0x0005c800,	/* oelem */
-	0x0021c000,	/* oelemfast */
+	0x00000000,	/* oelemfast */
 	0x0000a80d,	/* chop */
 	0x0002688c,	/* schop */
 	0x0000a81d,	/* chomp */
