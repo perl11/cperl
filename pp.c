@@ -373,54 +373,44 @@ PPt(pp_oelem, "(:Ref,:Str):Any")
    ditto ix for a valid field index.
    fields may be also arrays or hashes.
  */
-PPt(pp_oelemfast, "(:Ref,:Int):Any")
+PPt(pp_oelemfast, "():Any")
 {
     dSP;
-    SV * const obj = PAD_SVl(PL_op->op_targ);
-    const U8 ix    = PL_op->op_private;
-    const bool lvalue = cBOOL((PL_op->op_flags & OPf_MOD || LVRET));
-    /*HV * klass;
+    SV * const obj  = SvRV(PAD_SVl(PL_op->op_targ));
+    const U8   ix   = PL_op->op_private;
+    const bool lval = PL_op->op_flags & OPf_MOD;
+    SV** ary;
+    HV * klass;
 
-    if (UNLIKELY(!obj || SvOBJECT(obj) || !(klass = SvSTASH(obj)) || !SvOOK(klass)
-                 || !SvROK(obj) || SvTYPE(SvRV(obj)) != SVt_PVAV))
+#ifdef DEBUGGING
+    if (UNLIKELY(!obj || !SvOBJECT(obj) || !(klass = SvSTASH(obj)) || !SvOOK(klass)
+                 || SvTYPE(obj) != SVt_PVAV))
         DIE(aTHX_ "Invalid object");
     if (UNLIKELY(!HvCLASS(klass))) {
         const char *name = HvNAME_get(klass) ? HEK_KEY(HvNAME_HEK_NN(klass)) : "__ANON__";
         Perl_die(aTHX_ "Not a class %s", name);
-    }*/
-    EXTEND(SP, 1);
-    PUSHs(AvARRAY(MUTABLE_AV(SvRV(obj)))[ix]);
-    if (lvalue && !TOPs) {
-        HV *klass = SvSTASH(obj);
-#if 0
-        GV *fields;
-        SV *name = newSVpvn_flags(HvNAME(klass), HvNAMELEN(klass),
-                                  HvNAMEUTF8(klass)|SVs_TEMP);
-        /*SV *name = newSVhek(HvNAME_HEK_NN(klass));*/
-        assert(HvCLASS(klass));
-        sv_catpvs(name, "::FIELDS");
-        fields = gv_fetchsv(name, 0, SVt_PVAV);
-        assert(fields && GvAV(fields));
-        {
-            SV *pad = AvARRAY(GvAV(fields))[ix];
-            const PADOFFSET po = SvIVX(pad);
-            assert(SvIOK(pad));
-#else
-        assert(HvCLASS(klass));
-        {
-            const PADOFFSET po = field_index(klass, ix);
-#endif
-            const PADNAME* pn = PAD_COMPNAME(po);
-            /* XXX typed? */
-
-            if (*PadnamePV(pn) == '$')
-                PUSHs(newSV(0));
-            else if (*PadnamePV(pn) == '@')
-                PUSHs(newSV_type(SVt_PVAV));
-            else if (*PadnamePV(pn) == '%')
-                PUSHs(newSV_type(SVt_PVHV));
-        }
     }
+#else
+    klass = SvSTASH(obj);
+#endif
+    EXTEND(SP, 1);
+    assert(HvCLASS(klass));
+    ary = AvARRAY(MUTABLE_AV(obj));
+    assert(ary);
+    if (lval && !ary[ix]) { /* init NULL value */
+        const PADOFFSET po = field_index(klass, ix);
+        const char c = *PAD_COMPNAME_PV(po);
+        /* XXX typed? */
+        if (c == '$')
+            ary[ix] = newSV(0);
+        else if (c == '@')
+            ary[ix] = newSV_type(SVt_PVAV);
+        else if (c == '%')
+            ary[ix] = newSV_type(SVt_PVHV);
+        PUSHs(ary[ix]);
+        RETURN;
+    }
+    PUSHs(ary[ix] ? ary[ix] : UNDEF);
     RETURN;
 }
 

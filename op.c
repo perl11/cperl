@@ -23456,6 +23456,7 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
                             SVfARG(cv_name((CV*)cv, NULL, CV_NAME_NOMAIN)),
                             SvPVX(meth), (int)self, (int)ix));
                         f->op_targ = self;
+                        /* keeps OPf_MOD */
                         OpTYPE_set(f, OP_OELEMFAST); /* PUSHMARK is the bb leader,
                                                         not ENTERSUB. Some next might point
                                                         to it */
