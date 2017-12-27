@@ -565,7 +565,6 @@
 #define op_append_elem(a,b,c)	Perl_op_append_elem(aTHX_ a,b,c)
 #define op_append_list(a,b,c)	Perl_op_append_list(aTHX_ a,b,c)
 #define op_class(a)		Perl_op_class(aTHX_ a)
-#define op_clone_oplist(a,b,c)	Perl_op_clone_oplist(aTHX_ a,b,c)
 #define op_clone_optree(a,b)	Perl_op_clone_optree(aTHX_ a,b)
 #define op_contextualize(a,b)	Perl_op_contextualize(aTHX_ a,b)
 #define op_convert_list(a,b,c)	Perl_op_convert_list(aTHX_ a,b,c)
@@ -1897,7 +1896,6 @@
 #    if defined(PERL_IN_OP_C)
 #      if defined(USE_CPERL)
 #define cv_check_inline(a,b)	S_cv_check_inline(aTHX_ a,b)
-#define cv_do_inline(a,b,c,d)	S_cv_do_inline(aTHX_ a,b,c,d)
 #      endif
 #    endif
 #  endif
@@ -2047,6 +2045,7 @@
 #define optimize_op(a)		S_optimize_op(aTHX_ a)
 #define pmtrans(a,b,c)		S_pmtrans(aTHX_ a,b,c)
 #define process_special_blocks(a,b,c,d)	S_process_special_blocks(aTHX_ a,b,c,d)
+#define prune_chain_head	S_prune_chain_head
 #define ref_array_or_hash(a)	S_ref_array_or_hash(aTHX_ a)
 #define refkids(a,b)		S_refkids(aTHX_ a,b)
 #define scalar_mod_type		S_scalar_mod_type
@@ -2078,6 +2077,7 @@
 #define const_av_xsub(a)	S_const_av_xsub(aTHX_ a)
 #define const_sv_xsub(a)	S_const_sv_xsub(aTHX_ a)
 #define core_type_name(a)	S_core_type_name(aTHX_ a)
+#define cv_do_inline(a,b,c,d)	S_cv_do_inline(aTHX_ a,b,c,d)
 #define do_method_finalize(a,b,c,d)	S_do_method_finalize(aTHX_ a,b,c,d)
 #define io_hints(a)		S_io_hints(aTHX_ a)
 #define is_types_strict()	S_is_types_strict(aTHX)
@@ -2107,7 +2107,6 @@
 #define padnamelist_type_fixup(a,b,c)	S_padnamelist_type_fixup(aTHX_ a,b,c)
 #define peep_leaveloop(a,b,c)	S_peep_leaveloop(aTHX_ a,b,c)
 #define process_optree(a,b,c)	S_process_optree(aTHX_ a,b,c)
-#define prune_chain_head	S_prune_chain_head
 #define set_boolean(a)		S_set_boolean(aTHX_ a)
 #define stash_to_coretype(a)	S_stash_to_coretype(aTHX_ a)
 #define typename(a)		S_typename(aTHX_ a)
