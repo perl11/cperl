@@ -196,6 +196,13 @@ hashes tied to this module [perl #117449].
 It will now retry opening with an acceptable block size if asking gdbm
 to default the block size failed [perl #119623].
 
+=item *
+
+L<Unicode::UCD> has been upgraded from version 0.69 to 0.70.
+
+The function C<num> now accepts an optional parameter to help in
+diagnosing error returns.
+
 =back
 
 =head2 Removed Modules and Pragmata

@@ -39,7 +39,7 @@ sub is {
     return $ok;
 }
 
-print "1..252\n";
+print "1..253\n";
 
 ($a, $b, $c) = qw(foo bar);
 
@@ -810,6 +810,7 @@ ok(ref(CORE::state $y = "a $o b") eq 'o',
         is($got, $expected, "long concat chain $i");
     }
 }
+
 {
   #only fails under ENCODING
   #use Encode;
