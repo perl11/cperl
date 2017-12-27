@@ -150,10 +150,13 @@ fresh_perl_is('END { print "ok\n" } INIT { bless {} and exit }', "ok\n",
 fresh_perl_is('BEGIN{exit 0}; print "still here"', '', {}, 'BEGIN{exit 0} should exit');
 fresh_perl_is('BEGIN{exit 1}; print "still here"', '', {}, 'BEGIN{exit 1} should exit');
 fresh_perl_like('BEGIN{die}; print "still here"', qr/\ADied[^\n]*\.\nBEGIN failed[^\n]*\.\z/, {}, 'BEGIN{die} should exit');
-fresh_perl_is('UNITCHECK{exit 0}; print "still here"', '', {}, 'UNITCHECK{exit 0} should exit');
 fresh_perl_is('UNITCHECK{exit 1}; print "still here"', '', {}, 'UNITCHECK{exit 1} should exit');
 fresh_perl_like('UNITCHECK{die}; print "still here"', qr/\ADied[^\n]*\.\nUNITCHECK failed[^\n]*\.\z/, {}, 'UNITCHECK{die} should exit');
-fresh_perl_is('CHECK{exit 0}; print "still here"', '', {}, 'CHECK{exit 0} should exit');
+TODO: {
+    local $TODO = '[perl #2754] exit(0)';
+    fresh_perl_is('UNITCHECK{exit 0}; print "still here"', '', {}, 'UNITCHECK{exit 0} should exit');
+    fresh_perl_is('CHECK{exit 0}; print "still here"', '', {}, 'CHECK{exit 0} should exit');
+}
 fresh_perl_is('CHECK{exit 1}; print "still here"', '', {}, 'CHECK{exit 1} should exit');
 fresh_perl_like('CHECK{die}; print "still here"', qr/\ADied[^\n]*\.\nCHECK failed[^\n]*\.\z/, {}, 'CHECK{die} should exit');
 
