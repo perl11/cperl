@@ -1277,9 +1277,9 @@ s|core_types_t	|arg_type_sv	|NN SV* sv|NULLOK char** usertype|NULLOK int* u8
 in	|int	|match_type1	|const U32 sig|core_types_t arg1
 in	|int	|match_type2	|const U32 sig|core_types_t arg1|core_types_t arg2
 #    ifdef PERL_INLINE_SUBS
-sm	|bool	|cv_check_inline|NN const OP *o|NN CV *compcv
-sm	|OP*	|cv_do_inline|NN OP *o|NN OP *cvop|NN CV *cv|bool meth
+sM	|bool	|cv_check_inline|NN const OP *o|NN CV *compcv
 #    endif
+sM	|OP*	|cv_do_inline   |NULLOK OP *parent|NN OP *o|NN OP *cvop|NN CV *cv
 i	|OP*	|new_entersubop |NN GV* gv |NN OP* arg
 sM	|OP*	|op_clone_sv	|NN OP* o
 #  endif
@@ -2601,7 +2601,7 @@ s	|bool	|process_special_blocks	|I32 floor \
 					|NN GV *const gv|NN CV *const cv
 s	|void	|clear_special_blocks	|NN const char *const fullname\
 					|NN GV *const gv|NN CV *const cv
-sn	|void	|prune_chain_head 	|NN OP** opp
+sn	|void	|prune_chain_head 	|NN OP** op_p
 #  if defined(USE_CPERL)
 s	|const char*|typename 	|NULLOK const HV* stash
 in	|OP*	|op_next_nn 	|NN OP* o

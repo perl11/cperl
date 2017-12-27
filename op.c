@@ -1344,7 +1344,7 @@ Perl_op_clear(pTHX_ OP *o)
 	  instead it lives on. This results in that it could be reused as 
 	  a target later on when the pad was reallocated.
 	**/
-        if(o->op_targ) {
+        if (o->op_targ) {
           pad_swipe(o->op_targ,1);
           o->op_targ = 0;
         }
@@ -4093,7 +4093,7 @@ S_process_optree(pTHX_ CV *cv, OP *root, OP *start)
 
     if (cv) {
 #ifdef PERL_INLINE_SUBS
-        if (start && cv_check_inline(start, cv))
+        if (*startp && cv_check_inline(*startp, cv))
             CvINLINABLE_on(cv);
 #endif
         /* now that optimizer has done its work, adjust pad values */
@@ -4687,11 +4687,15 @@ S_finalize_op(pTHX_ OP* o)
                  * (which is a list op. So pretend it wasn't a listop */
                 if (type == OP_GLOB)
                     type = OP_NULL;
+#ifdef PERL_INLINE_SUBS
                 else if (type == OP_FREED)
                     return; /* do not follow null'ed freed kids. yes it lives and it follows */
+#endif
             }
+#ifdef PERL_INLINE_SUBS
             else if (type == OP_FREED)
                 return; /* freed kids neither (the ops between gv and entersub) */
+#endif
 
             family = PL_opargs[type] & OA_CLASS_MASK;
 
@@ -11579,16 +11583,12 @@ S_op_fixup(pTHX_ OP *old, OP *newop, U32 init) {
         op_fixup(o->op_sibparent, clone->op_sibparent, pass2+2)
 
 /*
-=for apidoc op_clone_oplist
+=for apidoc op_clone_optree
 
-Clones just the op list/tree/graph, not the data.
-This is the opposite to C<cv_clone>, which clones that pads, but not the ops.
-If C<last> == NULL, clones the whole sub (i.e. tree), otherwise until C<last>.
+Clones just the op tree/graph, not the data.  This is the opposite to
+C<cv_clone>, which clones that pads, but not the ops.
 
 Relinks all ops inside this list, but not the ones outside.
-TODO: Walking by list will miss op_other LOGOP branches. See rpeep
-for the other logic.
-We really should walk the tree (first, sibling).
 
 In the first pass visit and store all op_next pointers, and
 store all the locations of the to be fixed up other pointers,
@@ -11598,115 +11598,6 @@ fixup the missing other pointers.
 C<init> = TRUE will re-initialize the op cache.
 
 Yes, this function is algorithmicly similar to a Garbage Collector.
-
-Note that when op_clone_oplist is called outside of the first compiler
-passes, the ops will not be slabbed. The third rpeep pass is already
-to late.
-
-=cut
-*/
-
-OP*
-Perl_op_clone_oplist(pTHX_ OP* o, OP* last, bool init) {
-    OP *clone = NULL, *prev = NULL, * first = NULL;
-    int pass2;
-    PERL_ARGS_ASSERT_OP_CLONE_OPLIST;
-
-    op_fixup(NULL, NULL, init?1:0); /* init the fixup cache */
-
-    /* first pass:  fixup and record all the next pointers, in exec order.
-       second pass: the rest first, sibling, last, ... all pointers are now known */
-    for (pass2=0; pass2<2; pass2++) {
-        for (; o || o != last; o = o->op_next) {
-            switch (OpCLASS(o->op_type)) {
-            case OA_BASEOP:
-                OPCLONE(OP);
-                break;
-            case OA_UNOP:
-            case OA_BASEOP_OR_UNOP:
-            case OA_FILESTATOP:
-            case OA_LOOPEXOP:
-                OPCLONE(UNOP);
-                FIXUP(UNOP,first);
-                break;
-            case OA_UNOP_AUX:
-                OPCLONE(UNOP_AUX);
-                FIXUP(UNOP,first);
-                break;
-            case OA_BINOP:
-                OPCLONE(BINOP);
-                FIXUP(BINOP,first);
-                FIXUP(BINOP,last);
-                break;
-            case OA_LISTOP:
-                OPCLONE(LISTOP);
-                FIXUP(LISTOP,first);
-                FIXUP(LISTOP,last);
-                break;
-            case OA_LOGOP:
-                OPCLONE(LOGOP);
-                FIXUP(LOGOP,first);
-                FIXUP(LOGOP,other);
-                break;
-            case OA_PMOP:
-                OPCLONE(PMOP);
-                FIXUP(PMOP,first);
-                FIXUP(PMOP,last);
-                break;
-            case OA_METHOP: /* 14 */
-                OPCLONE(METHOP);
-                if (o->op_private & 1) {
-                    FIXUP(METHOP,u.op_first);   /* dynamic */
-                }
-                break;
-            case OA_SVOP:
-                OPCLONE(SVOP);
-                break;
-            case OA_PVOP_OR_SVOP:
-                OPCLONE(PVOP);
-                break;
-            case OA_LOOP:
-                OPCLONE(LOOP);
-                FIXUP(LOOP,first);
-                FIXUP(LOOP,last);
-                FIXUP(LOOP,redoop);
-                FIXUP(LOOP,nextop);
-                FIXUP(LOOP,lastop);
-                break;
-            case OA_COP:
-                OPCLONE(COP);
-                break;
-
-            default:
-                assert(0 && !"op_clone_oplist: missing OA_CLASS case");
-            }
-            if (!pass2) {
-                if (prev)
-                    prev->op_next = clone;
-                else
-                    first = clone;
-                prev = clone;
-            }
-        }
-    }
-    return first;
-}
-
-/*
-=for apidoc op_clone_optree
-
-Clones just the op tree/graph, not the data.
-This is the opposite to C<cv_clone>, which clones that pads, but not the ops,
-and different to L</op_clone_oplist>, which walks just the list of op_next pointers.
-
-Relinks all ops inside this list, but not the ones outside.
-
-In the first pass visit and store all op_next pointers, and
-store all the locations of the to be fixed up other pointers,
-in the 2nd pass all pointers inside the graph are known, and
-fixup the missing other pointers.
-
-C<init> = TRUE will re-initialize the op cache.
 
 Note that when op_clone_oplist is called outside of the first compiler
 passes, the ops will not be slabbed. The third rpeep pass is already
@@ -11733,7 +11624,6 @@ Perl_op_clone_optree(pTHX_ OP* o, bool init) {
                 break;
             case OA_UNOP:
             case OA_BASEOP_OR_UNOP:
-            case OA_FILESTATOP:
             case OA_LOOPEXOP:
                 OPCLONE(UNOP);
                 FIXUP(UNOP,first);
@@ -11768,12 +11658,45 @@ Perl_op_clone_optree(pTHX_ OP* o, bool init) {
                     FIXUP(METHOP,u.op_first);   /* dynamic */
                 }
                 break;
+#ifdef USE_ITHREADS
+            case OA_FILESTATOP:
+                {
+                    const OP* const kid = OpFIRST(o);
+                    if ( IS_TYPE(kid, CONST)
+                         && (kid->op_private & OPpCONST_BARE)
+                         && !kid->op_folded ) {
+                        OPCLONE(PADOP);
+                    } else {
+                        OPCLONE(UNOP);
+                        FIXUP(UNOP,first);
+                    }
+                }
+                break;
+            case OA_SVOP:
+            case OA_PVOP_OR_SVOP:
+                if ( IS_TYPE(o, GV) ||
+                     IS_TYPE(o, GVSV) ||
+                     IS_TYPE(o, AELEMFAST) ||
+                     ( (IS_TYPE(o, TRANS) ||
+                        IS_TYPE(o, TRANSR)) &&
+                       (o->op_private & (OPpTRANS_FROM_UTF|OPpTRANS_TO_UTF))) ) {
+                    OPCLONE(PADOP);
+                } else {
+                    OPCLONE(SVOP);
+                }
+                break;
+#else
+            case OA_FILESTATOP:
+                OPCLONE(UNOP);
+                FIXUP(UNOP,first);
+                break;
             case OA_SVOP:
                 OPCLONE(SVOP);
                 break;
             case OA_PVOP_OR_SVOP:
                 OPCLONE(PVOP);
                 break;
+#endif
             case OA_LOOP:
                 OPCLONE(LOOP);
                 FIXUP(LOOP,first);
@@ -11797,7 +11720,7 @@ Perl_op_clone_optree(pTHX_ OP* o, bool init) {
                 prev = clone;
             }
         }
-        if (OpKIDS(o))
+        if (o && OpKIDS(o))
             o = OpFIRST(o);
     }
 #undef OPCLONE
@@ -11808,7 +11731,6 @@ Perl_op_clone_optree(pTHX_ OP* o, bool init) {
 /* clones the underlying data, not the op.
  * TODO: finish
  */
-
 static OP*
 S_op_clone_sv(pTHX_ OP* o) {
     const OPCODE type = o->op_type;
@@ -11830,10 +11752,11 @@ S_op_clone_sv(pTHX_ OP* o) {
 =for apidoc cv_do_inline
 
 Needs to translate the args to local pads.
-  o:    pushmark
-  cvop: entersub
-Splice inlined ENTERSUB into the current body.
+  o:    entersub
+  cvop: leavesub
+Splice inlined leavesub block, replacing pushmark .. entersub.
 METHOD should not arrive here, neither $obj->method.
+
 handle args: shift, = @_ or just accept SIGNATURED subs with PERL_FAKE_SIGNATURE.
 with a OP_SIGNATURE it is easier. without need to populate @_.
 if arg is call-by-value make a copy.
@@ -11843,14 +11766,13 @@ skip ENTER/LEAVE if certain ops are absent.
 
 $lhs = call(...); => $lhs = do {...inlined...};
 
-Converted to a simplier ck step, without linked op_next ptrs.
+Converted to a simplier ck step, without linked op_next ptrs. Not in rpeep anymore.
 Only activated with PERL_INLINE_SUBS
 =cut
 */
-#ifdef PERL_INLINE_SUBS
 
 static OP*
-S_cv_do_inline(pTHX_ OP *o, OP *cvop, CV *cv, bool meth)
+S_cv_do_inline(pTHX_ OP* parent, OP *o, OP *cvop, CV *cv)
 {
     OP *subop = (OP*)o;
     OP *firstop, *o2, *arg;
@@ -11860,11 +11782,13 @@ S_cv_do_inline(pTHX_ OP *o, OP *cvop, CV *cv, bool meth)
     OP* inargs[6];
     bool with_enter_leave = FALSE;
     bool optim_args = TRUE;
+    bool is_method = CvMETHOD(cv);
     PERL_ARGS_ASSERT_CV_DO_INLINE;
+    PERL_UNUSED_ARG(parent); /* later for splice, loops */
     assert(IS_TYPE(o, ENTERSUB));
 
     DEBUG_k(Perl_deb(aTHX_ "inline %s %" SVf "\n",
-                     meth ? "method" : "sub",
+                     is_method ? "method" : "sub",
                      SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN))));
     /* handle optional args:
           pushmark args* gv null* entersub body leavesub NULL
@@ -11936,10 +11860,15 @@ S_cv_do_inline(pTHX_ OP *o, OP *cvop, CV *cv, bool meth)
        Note: cv_clone is useless for us. It clones the pad, but not
        the ops. We need to keep the pads, but clone the ops. */
     o = op_clone_optree(CvROOT(cv), TRUE);
-    firstop = o;
-    /* XXX! walking by list will miss op_other LOGOP branches.
-       we really should walk the tree (first-sibling) */
-    for (i=0,j=0; o && o->op_next; o = o->op_next) {
+    if (!o || !OpKIDS(o))
+        return NULL;
+    firstop = o; /* that's the LEAVESUB, will be converted into a LEAVE or skipped */
+    assert(IS_TYPE(firstop, LEAVESUB));
+    /* scan the new body - to be inlined - if enter/leave is needed, 
+     * if it's too large, and convert all nextstate to setstate+keepstate's.
+     * forgot about the seen_logop.
+     */
+    for (i=0, j=0, o=OpFIRST(o); o; o = OpKIDS(o) ? OpFIRST(o) : OpSIBLING(o)) {
         bool seen_logop = FALSE;
         OP *prev;
         const OPCODE type = o->op_type;
@@ -11976,6 +11905,10 @@ S_cv_do_inline(pTHX_ OP *o, OP *cvop, CV *cv, bool meth)
         }
         if (OP_IS_LOGOP(o->op_type))
             seen_logop = TRUE;
+#if 0
+        /* XXX move to the end of the tree traversal.
+           i.e. firstop
+         */
         if (OP_TYPE_IS(o->op_next, OP_LEAVESUB)) {
             if (with_enter_leave) {
                 OP *kid;
@@ -12000,6 +11933,7 @@ S_cv_do_inline(pTHX_ OP *o, OP *cvop, CV *cv, bool meth)
             o->op_next = cvop->op_next;
             break;
         }
+#endif
 
         /* TODO: Maybe cache this processed inlined variant in CvINLINE_CACHE(cv),
          * because such a cv is most likely inlined in multiple places.
@@ -12008,13 +11942,13 @@ S_cv_do_inline(pTHX_ OP *o, OP *cvop, CV *cv, bool meth)
          */
 
         /* Try to splice in the args directly */
-        if (o->op_next && args > 0 && args <= 6) {
-            const OPCODE type = o->op_next->op_type;
+        if (OpHAS_SIBLING(o) && args > 0 && args <= 6) {
+            const OPCODE type = OpTYPE(OpSIBLING(o));
             prev = o;
-            o = o->op_next;
+            o = OpSIBLING(o);
 
             if (!optim_args) {
-                DEBUG_kv(Perl_deb(aTHX_ "rpeep: skip optim_args\n"));
+                DEBUG_kv(Perl_deb(aTHX_ "inline: skip optim_args\n"));
             }
             else if (type == OP_GV && strEQ(GvNAME(cGVOPo_gv), "_")) {
                 /* see PERL_FAKE_SIGNATURE assign */
@@ -12102,7 +12036,7 @@ S_cv_do_inline(pTHX_ OP *o, OP *cvop, CV *cv, bool meth)
                         int ix = 0;
                         optim_args = FALSE;
                         assert(ix >= 0 && ix < args);
-                        DEBUG_kv(Perl_deb(aTHX_ "rpeep: $_[??] arg by ref\n"));
+                        DEBUG_kv(Perl_deb(aTHX_ "inline: $_[??] arg by ref\n"));
                         if (0) {
                             o = inargs[ix];
                             o->op_next = prev->op_next->op_next;
@@ -12116,8 +12050,11 @@ S_cv_do_inline(pTHX_ OP *o, OP *cvop, CV *cv, bool meth)
             optim_args = FALSE;
         }
     }
-    CvSTART(cv) = firstop;
-    CvROOT(cv) = LINKLIST(firstop);
+
+    /*CvSTART(cv) = LINKLIST(firstop);
+      CvROOT(cv) = firstop;*/
+    if (!o)
+        return firstop;
     if (!o->op_next || !with_enter_leave ) { /* LEAVESUB without ENTER */
         o->op_next = cvop->op_next;     /* skip and free entersub */
         cvop->op_flags &= ~OPf_KIDS;    /* keep em */
@@ -12152,11 +12089,13 @@ S_cv_do_inline(pTHX_ OP *o, OP *cvop, CV *cv, bool meth)
     } else { /* no leavesub or cvop->op_next == NULL */
         assert(0 && !"no leavesub or cvop->op_next == NULL");
     }
-    DEBUG_kv(Perl_deb(aTHX_ "rpeep: inlined sub. args: %d, body: %d, with enter/leave: %d\n",
-                 args, i, with_enter_leave ));
+    DEBUG_kv(Perl_deb(aTHX_ "done inline %s %" SVf
+                      ". args: %d, body: %d, with enter/leave: %d\n",
+                      is_method ? "method" : "sub",
+                      SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                      args, i, with_enter_leave));
     return firstop;
 }
-#endif
 
 static void
 S_already_defined(pTHX_ CV *const cv, OP * const block, OP * const o,
@@ -18644,7 +18583,7 @@ Perl_ck_subr(pTHX_ OP *o)
                     "ck_subr: skip inline sub %" SVf ", no inline\n",
                     SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN))));
             } else {
-                cv_do_inline(o, cvop, cv, FALSE);
+                cv_do_inline(NULL, o, cvop, cv);
             }
         }
 #endif
@@ -21491,154 +21430,6 @@ Perl_rpeep(pTHX_ OP *o)
                 }
             }
 
-            /* convert static methods to subs, later inline subs */
-            if (0) {
-                int i = 0, meth = 0;
-                OP* o2 = o;
-                OP* gvop = NULL;
-                /* scan from pushmark to the next entersub call, 4 args with $->$ */
-                while (OpNEXT(o) && IS_TYPE(OpNEXT(o), PUSHMARK)) {
-                    oldop = o;
-                    o = OpNEXT(o);
-                }
-                for (; o2 && i<8; o2 = o2->op_next, i++) {
-                    OPCODE type = o2->op_type;
-                    if (type == OP_GV || type == OP_GVSV) {
-                        gvop = o2; /* gvsv for variable method parts, left or right */
-                    } else if (type == OP_METHOD_NAMED) {
-                        /* method name only with pkg->m, not $obj->m */
-                        /* TODO: we could speculate and cache an inlined variant for $obj,
-                           matching the METHOP rclass */
-                        gvop = IS_TYPE(OpNEXT(o), CONST) ? o2 : NULL;
-                        meth++;
-                    }
-                    else if (type == OP_METHOD) /* $obj->$m needs run-time dispatch */
-                        break;
-                    else if (IS_SUB_TYPE(type))
-                        break;
-                }
-                if (o2 && IS_SUB_OP(o2) && gvop) {
-#ifdef USE_ITHREADS
-                    SV *gv = PAD_SVl(cPADOPx(gvop)->op_padix);
-#else
-                    SV *gv = cSVOPx(gvop)->op_sv;
-#endif
-                    CV* cv = NULL;
-                    SV* rcv = NULL;
-                    /* for methods only if the static &pkg->cv exists, or the obj is typed */
-                    if (gv) {
-                        if (SvTYPE(gv) == SVt_PVGV && (cv = GvCV(gv)) &&
-                            SvTYPE(cv) == SVt_PVCV) {
-                            ;
-                        } else if (SvROK(gv) && (cv = (CV*)SvRV((SV*)gv)) && 
-                                   SvTYPE(cv) == SVt_PVCV) {
-                            rcv = gv;
-                        } else if (SvTYPE(gv) == SVt_PV &&
-                                   IS_TYPE(OpNEXT(o), CONST) &&
-                                   IS_TYPE(gvop, METHOD_NAMED))
-                        {
-                            SV *name = cSVOPx_sv(OpNEXT(o));
-                            /* But do error on ""->method */
-                            if (SvTYPE(name) == SVt_PV && SvCUR(name)) {
-                                GV **gvp = NULL;
-                                GV *gvf = NULL;
-                                HV *stash = gv_stashsv(name, SvUTF8(name));
-                                if (stash && SvTYPE(stash) == SVt_PVHV) {
-                                    /* bypass cache and gv overhead */
-                                    gvp = (GV**)hv_common(stash, gv, NULL, 0, 0,
-                                             HV_FETCH_ISEXISTS|HV_FETCH_JUST_SV, NULL, 0);
-                                }
-                                if (gvp) {
-                                    /*char *stashname = HvNAME_get(stash);*/
-                                    gvf = *gvp;
-                                    if (SvROK(gvf) &&
-                                        SvTYPE(SvRV((SV*)gvf)) == SVt_PVCV) {
-                                        cv = (CV*)SvRV((SV*)gvf);
-                                        rcv = (SV*)gvf;
-                                        SvREFCNT_inc_simple_void_NN(rcv);
-                                    }
-                                    else if (SvTYPE(gvf) == SVt_PVGV &&
-                                             (cv = GvCV(gvf))) {
-                                        ;
-                                    }
-                                }
-                                /* not imported alias, e.g. Exporter */
-                                if (cv && CvSTASH(cv) == stash) {
-                                    assert(gvf);
-                                    /* But a class method called as sub should error.
-                                       Detect this earlier than at run-time in the method_named. */
-                                    if (HvCLASS(stash))
-                                        Perl_croak(aTHX_
-                                            "Invalid method call on class subroutine %" SVf,
-                                            SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN)));
-                                    /* convert static method to normal sub */
-                                    /* See http://blogs.perl.org/users/rurban/2011/06/
-                                           how-perl-calls-subs-and-methods.html */
-                                    /* remove bareword-ness of class name */
-                                    o->op_next->op_private &=
-                                        ~(OPpCONST_BARE|OPpCONST_STRICT);
-                                    if (CvISXSUB(cv) && CvROOT(cv) &&
-                                        GvXSCV(gvf) && !PL_perldb)
-                                    {
-                                        DEBUG_k(Perl_deb(aTHX_ "entersub -> xs %" SVf "\n",
-                                            SVfARG(cv_name(cv, NULL, CV_NAME_NOMAIN))));
-                                        OpTYPE_set(o2, OP_ENTERXSSUB);
-                                    }
-                                    /* from METHOP to GV */
-                                    OpTYPE_set(gvop, OP_GV);
-                                    OpPRIVATE(gvop) |= OPpGV_WASMETHOD;
-        /* Cleaning main::BEGIN converted the attached GV (gv-entersub) via
-           sv_unmagic to a PV, which broke the stash{import} entry,
-           breaking all subsequent calls. */
-#if 0
-        /* METH and GV share the same sv* pos, but rather use a cvref.
-           The GV is too fragile when &BEGIN is cleared.
-           But with the cvref lots of tests fail, eg op/hashassign.t
-        */
-                                    if (LIKELY((SV*)gvf != rcv)) {
-                                        if (!rcv)
-                                            rcv = newRV_inc((SV*)cv);
-                                        ((SVOP*)gvop)->op_sv = rcv;
-                                    }
-#else
-                                    if (LIKELY(gv != (SV*)gvf && gv != rcv)) {
-                                        if (UNLIKELY(rcv))
-                                            ((SVOP*)gvop)->op_sv = newRV_inc(rcv);
-                                        else
-                                            ((SVOP*)gvop)->op_sv = SvREFCNT_inc_NN(gvf);
-                                        SvREFCNT_dec(gv);
-                                    }
-#endif
-                                    gvop->op_flags |= OPf_WANT_SCALAR;
-                                    o2->op_flags |= OPf_STACKED;
-                                    DEBUG_k(Perl_deb(aTHX_
-                                        "rpeep: static method call to sub %" SVf "::%" SVf "\n",
-                                         SVfARG(name), SVfARG(gv)));
-                                    meth = FALSE;
-                                }
-                            }
-                        }
-#ifdef PERL_INLINE_SUBS
-                        if (cv && CvINLINABLE(cv) && !meth) {
-                            if (cop_hints_fetch_pvs(PL_curcop, "inline", REFCOUNTED_HE_EXISTS)) {
-                                DEBUG_k(Perl_deb(aTHX_ "rpeep: skip inline sub %" SVf ", no inline\n",
-                                    SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN))));
-                            } else {
-                                OP* tmp;
-                                DEBUG_k(Perl_deb(aTHX_ "rpeep: inline sub %" SVf "\n",
-                                    SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN))));
-                                if ((tmp = cv_do_inline(o, o2, cv, FALSE))) {
-                                    o = tmp;
-                                    if (oldop)
-                                        oldop->op_next = o;
-                                }
-                            }
-                        }
-#endif
-                    }
-                }
-            }
-
             /* Convert a series of PAD ops for my vars plus support into a
              * single padrange op. Basically
              *
@@ -23834,7 +23625,7 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                     CvROOT(ncv)	     = op_clone_optree(CvROOT(cv), TRUE);
                     CvSTART(ncv)     = LINKLIST(CvROOT(ncv));
                     if (CvHASSIG(cv))
-                        CvSIGOP(ncv) = (UNOP_AUX*)CvSTART(ncv)->op_next;
+                        CvSIGOP(ncv) = (UNOP_AUX*)CvSTART(ncv);
                     if (CvPADLIST(cv)) {
                         PADNAMELIST *pnl = PadlistNAMES(CvPADLIST(cv));
                         pnl = cv_clone_padname0(cv, pnl);
@@ -23885,7 +23676,6 @@ Perl_class_role_finalize(pTHX_ OP* o)
     char *fields;
     char padsize;
     STRLEN len;
-    /*PADOFFSET floor = 1;*/
     U32 i;
     bool is_utf8;
     PERL_ARGS_ASSERT_CLASS_ROLE_FINALIZE;
@@ -23942,7 +23732,6 @@ Perl_class_role_finalize(pTHX_ OP* o)
         char *reftype;
         char *key;
         SV *sv;
-        /*OP *body;*/
         U32 klen;
         U32 utf8;
         bool lval;
@@ -23974,68 +23763,30 @@ Perl_class_role_finalize(pTHX_ OP* o)
             SvPVX(name)[len] = '\0';
             continue; /* Already exists. This is a valid accessor override. */
         }
-#if 1
+        DEBUG_k(Perl_deb(aTHX_ "add class accessor method %.*s->%s()%s%s%s { $self->[%d] }\n",
+                         (int)len, SvPVX(name), key, lval ? " :lvalue" : "",
+                         PadnameTYPE(pn) ? " :" : "",
+                         PadnameTYPE(pn) ? HvNAME(PadnameTYPE(pn)) : "",
+                         (int)i));
         cv = newXS_len_flags(SvPVX(name), SvCUR(name),
                              *reftype == '$' ? S_Mu_sv_xsub : S_Mu_av_xsub,
                              file ? file : "",
                              "" /* proto */, NULL /*&const_sv*/,
                              XS_DYNAMIC_FILENAME | utf8);
-        CvXSUBANY(cv).any_u32 = i;
         SvCUR_set(name, len);
         SvPVX(name)[len] = '\0';
+        CvXSUBANY(cv).any_u32 = i;
         CvMETHOD_on(cv);
         CvPURE_on(cv);
         if (lval)
             CvLVALUE_on(cv);
-        DEBUG_k(Perl_deb(aTHX_ "add class accessor method %*s->%s()%s%s%s { $self->[%d] }\n",
-                         (int)len, SvPVX(name), key, lval ? " :lvalue" : "",
-                         PadnameTYPE(pn) ? " :" : "",
-                         PadnameTYPE(pn) ? HvNAME(PadnameTYPE(pn)) : "",
-                         (int)i));
         /* Cannot type a XS yet. no padlist[0], only sigop or hscxt */
         if (PadnameTYPE(pn)) {
             CvTYPED_on(cv);
             /* XXX NYI XS typecheck. Clashes with implicit context &sp? */
             CvHSCXT(cv) = PadnameTYPE(pn);
-            /*PAD_COMPNAME(0) = pn;*/
+            /*CvTYPE_set(cv, PadnameTYPE(pn));*/
         }
-#else
-        /* TODO: scope fixup */
-        SvCUR_set(name, len);
-        SvPVX(name)[len] = '\0';
-        DEBUG_k(Perl_deb(aTHX_ "add class accessor method %*s->%s()%s%s%s { $self->[%d] }\n",
-                         (int)len, SvPVX(name), key, lval ? " :lvalue" : "",
-                         PadnameTYPE(pn) ? " :" : "",
-                         PadnameTYPE(pn) ? HvNAME(PadnameTYPE(pn)) : "",
-                         (int)i));
-        start_subparse(0, CVf_METHOD | (lval ? CVf_LVALUE : 0));
-        po = pad_add_name_pvn("$self", 5, padadd_NO_DUP_CHECK, PadnameTYPE(pn), NULL);
-        assert(po == 1);
-        body = newOP(OP_OELEMFAST, i<<8);
-        body->op_targ = po; /* self */
-        {
-            UNOP_AUX_item *items = (UNOP_AUX_item*)PerlMemShared_malloc
-                (sizeof(UNOP_AUX_item) * 5);
-            OP *op;
-            items[0].uv = 3;
-            items[1].uv = 1 << 16;
-            items[2].uv = 0x10c2; /* padrange + arg + end */
-            items[3].uv = (po << OPpPADRANGE_COUNTSHIFT) | 1; /* 0x81 */
-            op = newUNOP_AUX(OP_SIGNATURE, 0, NULL, items+1);
-            body = op_append_list(OP_LINESEQ, op, body);
-        }
-        cv = newSUB(floor,
-                    newSVOP(OP_CONST, 0, newSVpvn_flags(key, klen, PadnameUTF8(pn))),
-                    NULL, body);
-        CvSTASH_set(cv, stash);
-        CvHASSIG_on(cv);
-        CvSIGOP(cv) = (UNOP_AUX*)CvSTART(cv);
-        if (PadnameTYPE(pn)) {
-            CvTYPED_on(cv);
-            CvTYPE_set(cv, PadnameTYPE(pn));
-        }
-        DEBUG_Xv(padlist_dump(CvPADLIST(cv)));
-#endif
     }
     PL_compcv = savecv;
     /*LEAVE;*/

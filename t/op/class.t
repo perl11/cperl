@@ -5,7 +5,7 @@ BEGIN {
     #require './test.pl';
 }
 local($\, $", $,) = (undef, ' ', '');
-print "1..40\n";
+print "1..39\n";
 my $test = 1;
 
 # allow has hash fields (YAML::Mo)
@@ -143,9 +143,7 @@ print $@ =~ $typewarn ? "" : "not ", "ok ", $test++,
   " # run-time typecheck Mu::new fields\n";
 print $b5 && $b5->i ? "not " : "", "ok ", $test++, " # value\n";
 
-# crashes with wrong padoffset [cperl #311]
-# eval { do './op/class1.inc'; };
-eval q|
+# used to crash with wrong padoffset [cperl #311]
 role Foo3 {
   has $a3 = 2;
   has $b3 = 2;
@@ -153,19 +151,16 @@ role Foo3 {
 class Bar3 does Foo3 does Foo2 { #a3 b3 a
   method test {
     $self->foo2;
-    print $self->a  != 1 ? "not " : "", "ok ", $test++, " # copied role field\n";
-    print $self->b3 != 2 ? "not " : "", "ok ", $test++, " # copied role field\n";
+    print $self->a  != 1 ? "not " : "", "ok ", $test++, " # copied role lex field\n";
+    print $self->b3 != 2 ? "not " : "", "ok ", $test++, " # copied role meth field\n";
   }
 }
-| if 0;
 
-#print $@ eq 'panic: cannot yet adjust field indices when composing role Foo2::foo2 into class Bar3 [cperl #311]' ? "" : "not ",
-#  "ok ", $test++, " # error with not-composible roles $@\n";
-#my $b_3 = new Bar3;
-#my @b_f = $b_3->fields;
-#print @b_f == 3 ? "" : "not ", "ok $test # mixed up 3 indices\n"; $test++;
-#print $b_f[0]->name eq '$a3' ? "" : "not ", "ok $test # \$a3\n"; $test++;
-#print $b_f[1]->name eq '$b3' ? "" : "not ", "ok $test # \$b3\n"; $test++;
+my $b_3 = new Bar3;
+my @b_f = $b_3->fields;
+print @b_f == 3 ? "" : "not ", "ok $test # 3 fields composed\n"; $test++;
+print $b_f[0]->name eq '$a3' ? "" : "not ", "ok $test # \$a3\n"; $test++;
+print $b_f[1]->name eq '$b3' ? "" : "not ", "ok $test # \$b3\n"; $test++;
 #print $b_f[2]->name eq '$a'  ? "" : "not ", "ok $test # \$a\n"; $test++;
-##print "'",$_->name,",'" for @b_f;
-#$b_3->test;
+# print "'",$_->name,",'" for @b_f;
+$b_3->test;
