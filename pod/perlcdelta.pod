@@ -335,7 +335,10 @@ files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 
 =item *
 
-XXX
+Fixed wrong C<panic: distributed hash flood> when dealing with
+large C<%^H> hints hashes, with >127 entries, such as C<_charnames.pm> in
+C<Regexp::Common>. Fixed the logic dealing with such a hints hash.
+L<[cperl #350]|https://github.com/perl11/cperl/issues/350>.
 
 =back
 
