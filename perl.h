@@ -7517,8 +7517,6 @@ END_EXTERN_C
 
 #define MAX_NUMFIELDS 65536 /* U16_MAX */
 
-/* temporarily only. will go away with 5.28.0 */
-/* #define OLD_FIELDS_GV / **/
 #define FIELDS_DYNAMIC_PADSIZE /* */
 
 #undef croak_no_modify_sv

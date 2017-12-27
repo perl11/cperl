@@ -6802,31 +6802,6 @@ The list of name/pad pairs always needs to end with a \0 char.
 void
 Perl_field_pad_add(pTHX_ HV* klass, const char* key, I32 klen, PADOFFSET targ)
 {
-#ifdef OLD_FIELDS_GV
-    SV* name = newSVpvn_flags(HvNAME(klass), HvNAMELEN(klass), HvNAMEUTF8(klass)|SVs_TEMP);
-    GV *fields;
-    const PADNAME *pn = PAD_COMPNAME(targ);
-    PERL_ARGS_ASSERT_FIELD_PAD_ADD;
-
-    sv_catpvs(name, "::FIELDS");
-    fields = gv_fetchsv(name, GV_ADD, SVt_PVAV);
-
-    av_push(GvAVn(fields), newSViv(targ));
-    if (AvFILLp(GvAVn(fields)) >= MAX_NUMFIELDS)
-        Perl_croak(aTHX_ "Too many fields");
-    (void)hv_store(GvHVn(fields), key, klen, newSViv(AvFILLp(GvAVn(fields))), 0);
-
-    if (SvPAD_TYPED(pn)) { /* see check_hash_fields_and_hekify() */
-        HV *type = PadnameTYPE(pn);
-        bool is_const = SvREADONLY(type);
-        SvCUR_set(name, HvNAMELEN(klass)+2); /* with the :: */
-        /* store in the type the GvHV to curstash */
-        if (is_const) SvREADONLY_off(type);
-        (void)hv_store(type, "FIELDS", 6,
-                       SvREFCNT_inc_NN(gv_fetchsv(name, GV_ADD, SVt_PVHV)), 0);
-        if (is_const) SvREADONLY_on(type);
-    }
-#else
     char *fields = HvFIELDS_get(klass);
     U32 len = abs(klen);
 #ifdef FIELDS_DYNAMIC_PADSIZE
@@ -6915,7 +6890,6 @@ Perl_field_pad_add(pTHX_ HV* klass, const char* key, I32 klen, PADOFFSET targ)
         ofields[newlen] = '\0'; /* ending sentinel */
         HvFIELDS(klass) = ofields;
     }
-#endif
 }
 
 /*
@@ -6933,30 +6907,6 @@ and with C<*po> set, sets there the padoffset into comppad.
 int
 Perl_field_search(pTHX_ const HV* klass, const char* key, I32 klen, PADOFFSET* pop)
 {
-#ifdef OLD_FIELDS_GV
-    SV* gv;
-    GV* fields;
-    SV** svp;
-    PERL_ARGS_ASSERT_FIELD_SEARCH;
-    if (!HvNAME(klass)) return NOT_IN_PAD;
-    gv = newSVpvn_flags(HvNAME(klass), HvNAMELEN(klass), HvNAMEUTF8(klass)|SVs_TEMP);
-    sv_catpvs(gv, "::FIELDS");
-    fields = gv_fetchsv(gv, 0, SVt_PVHV);
-    if (!fields) return NOT_IN_PAD;
-    svp = hv_fetch(GvHV(fields), key, klen, FALSE);
-
-    if (svp && SvIOK(*svp)) {
-        IV ix = SvIVX(*svp);
-        if (pop) {
-            SV *po = AvARRAY(GvAV(fields))[ix];
-            if (po && SvIOK(po))
-                *pop = (PADOFFSET)SvIVX(po);
-        }
-        return (int)ix;
-    }
-    else
-        return NOT_IN_PAD;
-#else
     PERL_ARGS_ASSERT_FIELD_SEARCH;
     PERL_UNUSED_ARG(klen);
     if (!HvNAME(klass)) return NOT_IN_PAD;
@@ -6986,7 +6936,6 @@ Perl_field_search(pTHX_ const HV* klass, const char* key, I32 klen, PADOFFSET* p
                 return -1;
         }
     }
-#endif
 }
 
 /*
@@ -7017,19 +6966,8 @@ Number of fields in the klass.
 U16
 Perl_numfields(pTHX_ const HV* klass)
 {
-#ifdef OLD_FIELDS_GV
-    SV* name;
-    GV* fields;
-#endif
     PERL_ARGS_ASSERT_NUMFIELDS;
     if (!HvNAME(klass)) return 0;
-#ifdef OLD_FIELDS_GV
-    name = newSVpvn_flags(HvNAME(klass), HvNAMELEN(klass), HvNAMEUTF8(klass)|SVs_TEMP);
-    sv_catpvs(name, "::FIELDS");
-    fields = gv_fetchsv(name, 0, SVt_PVAV);
-    if (!fields) return 0;
-    return 1+AvFILLp(GvAV(fields));
-#else
     {
         char *fields = HvFIELDS_get(klass);
         if (!fields)
@@ -7049,7 +6987,6 @@ Perl_numfields(pTHX_ const HV* klass)
             return (U16)i;
         }
     }
-#endif
 }
 
 /*
@@ -7061,27 +6998,8 @@ Return i'th field padoffset or C<NOT_IN_PAD>.
 PADOFFSET
 Perl_field_index(pTHX_ const HV* klass, U16 i)
 {
-#ifdef OLD_FIELDS_GV
-    SV* name;
-    GV* fields;
-    SV* po;
-#endif
     PERL_ARGS_ASSERT_FIELD_INDEX;
     if (!HvNAME(klass)) return NOT_IN_PAD;
-#ifdef OLD_FIELDS_GV
-    /*name = newSVhek(HvNAME_HEK_NN(klass));*/
-    name = newSVpvn_flags(HvNAME(klass), HvNAMELEN(klass), HvNAMEUTF8(klass)|SVs_TEMP);
-    sv_catpvs(name, "::FIELDS");
-    fields = gv_fetchsv(name, 0, SVt_PVAV);
-    if (!fields || !GvAV(fields)) return NOT_IN_PAD;
-    if (i > AvFILLp(GvAV(fields)))
-        Perl_croak(aTHX_ "Invalid field index %d of %s %s", i, HvPKGTYPE_NN(klass),
-                   HvNAME(klass));
-    po = AvARRAY(GvAV(fields))[i];
-    return po && SvIOK(po)
-        ? (PADOFFSET)SvIVX(po)
-        : NOT_IN_PAD;
-#else
     {
         char *fields = HvFIELDS_get(klass);
         if (!fields)
@@ -7103,7 +7021,6 @@ Perl_field_index(pTHX_ const HV* klass, U16 i)
                 return NOT_IN_PAD;
         }
     }
-#endif
 }
 
 /*
@@ -22395,35 +22312,16 @@ static void
 S_add_isa_fields(pTHX_ HV* klass, AV* isa)
 {
     const char * const klassname = HvNAME(klass);
-#ifdef OLD_FIELDS_GV
-    STRLEN len = HvNAMELEN(klass);
-    SV *name = newSVpvn_flags(klassname, len, HvNAMEUTF8(klass)|SVs_TEMP);
-    GV *fsym;
-#else
     char padsize;
-#endif
     SSize_t i;
     PERL_ARGS_ASSERT_ADD_ISA_FIELDS;
-
-#ifdef OLD_FIELDS_GV
-    sv_catpvs(name, "::FIELDS");
-    fsym = gv_fetchsv(name, 0, SVt_PVAV); /* might be empty */
-    SvCUR_set(name, len);
-    SvPVX(name)[len] = '\0';
-#endif
 
     for (i=0; i<=AvFILL(isa); i++) {
         SV *tmpnam;
         SV** svp = av_fetch(isa, i, FALSE);
         HV *curclass;
-#ifdef OLD_FIELDS_GV
-        GV *sym;
-        AV *f;
-        SSize_t j;
-#else
         STRLEN l;
         char *fields;
-#endif
         if (!svp)
             continue;
         if (SvPOK(*svp))
@@ -22439,34 +22337,18 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
             continue;
 
         curclass = gv_stashsv(tmpnam, 0);
-#ifdef OLD_FIELDS_GV
-        sv_catpvs(tmpnam, "::FIELDS");
-        sym = gv_fetchsv(tmpnam, 0, SVt_PVAV);
-        if (!sym || !GvAV(sym)) {
-            SvREFCNT_dec(tmpnam);
-            continue;
-        }
-        SvCUR_set(tmpnam, SvCUR(*svp));
-        SvPVX(tmpnam)[SvCUR(*svp)] = '\0';
-
-        f = GvAV(sym);
-        for (j=0; j<=AvFILL(f); j++) {
-            SV* padix = AvARRAY(f)[j];
-            PADOFFSET po = (PADOFFSET)SvIVX(padix);
-#else
         fields = HvFIELDS_get(curclass);
         if (!fields) /* nothing to copy */
             continue;
-# ifdef FIELDS_DYNAMIC_PADSIZE
+#ifdef FIELDS_DYNAMIC_PADSIZE
         padsize = *fields;
         fields++;
-# else
+#else
         padsize = sizeof(PADOFFSET);
-# endif
+#endif
         l = strlen(fields);
         for (; *fields; l=strlen(fields), fields += l+padsize+1 ) {
             PADOFFSET po = fields_padoffset(fields, l+1, padsize);
-#endif
             const PADNAME *pn = PAD_COMPNAME(po);
             char *key;
             I32 klen;
@@ -22489,15 +22371,6 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
 
             /* use the upper padix, not a new one. */
             /*new_po = allocmy(key, klen, 0);*/
-#ifdef OLD_FIELDS_GV
-            if (!fsym) {
-                sv_catpvs(name, "::FIELDS");
-                fsym = gv_fetchsv(name, GV_ADD, SVt_PVAV);
-                av_extend(GvAVn(fsym), 0);
-                SvCUR_set(name, len);
-                SvPVX(name)[len] = '\0';
-            }
-#endif
             DEBUG_k(Perl_deb(aTHX_ "add_isa_fields: add %s from %s to %s [%d]\n",
                              key, SvPVX(tmpnam), klassname, (int)po));
             field_pad_add(klass, key+1, klen, po);
@@ -22709,12 +22582,8 @@ Perl_class_role_finalize(pTHX_ OP* o)
     AV *isa = NULL;
     AV *does = NULL;
     const char *const file = CopFILE(PL_curcop);
-#ifdef OLD_FIELDS_GV
-    AV *fields = NULL;
-#else
     char *fields;
     char padsize;
-#endif
     STRLEN len;
     /*PADOFFSET floor = 1;*/
     U32 i;
@@ -22753,46 +22622,26 @@ Perl_class_role_finalize(pTHX_ OP* o)
     }
     SvCUR_set(name, len);
 
-#ifdef OLD_FIELDS_GV
-    sv_catpvs(name, "::FIELDS");
-    sym = gv_fetchsv(name, 0, SVt_PVAV);
-    SvCUR_set(name, len);
-    SvPVX(name)[len] = '\0';
-    if (!sym || !GvAV(sym) || AvFILLp(GvAV(sym)) < 0) { /* no fields */
-        SvREADONLY_on(stash);
-        PL_parser->in_class = FALSE;
-        return;
-    }
-    fields = GvAV(sym);
-#else
     fields = HvFIELDS_get(stash);
     if (!fields) {
         SvREADONLY_on(stash);
         PL_parser->in_class = FALSE;
         return;
     }
-# ifdef FIELDS_DYNAMIC_PADSIZE
+#ifdef FIELDS_DYNAMIC_PADSIZE
     padsize = *fields;
     fields++;
-# else
+#else
     padsize = sizeof(PADOFFSET);
-# endif
 #endif
 
     /* create the field accessor methods */
     /*ENTER;*/
     savecv = PL_compcv;
     DEBUG_Xv(padlist_dump(CvPADLIST(PL_compcv)));
-#ifdef OLD_FIELDS_GV
-    assert(AvFILLp(fields) < MAX_NUMFIELDS);
-    for (i=0; i<=(U32)AvFILLp(fields); i++) {
-        SV* ix = AvARRAY(fields)[i];
-        PADOFFSET po = (PADOFFSET)SvIVX(ix);
-#else
     for (i=0; *fields; i++) {
         STRLEN l = strlen(fields);
         PADOFFSET po = fields_padoffset(fields, l+1, padsize);
-#endif
         PADNAME *pn = PAD_COMPNAME(po);
         char *reftype;
         char *key;
@@ -22812,9 +22661,7 @@ Perl_class_role_finalize(pTHX_ OP* o)
                        : PadnameUTF8(pn) ? SVf_UTF8 : 0;
         lval = !PadnameCONST(pn);
 
-#ifndef OLD_FIELDS_GV
         fields += l+padsize+1;
-#endif
         /* fixup the pad field for Mu->new */
         SvFLAGS(sv) &= ~(SVs_PADTMP|SVs_PADSTALE);
         /* Or maybe install the accessor as XS, with XSANY for the field ix.
