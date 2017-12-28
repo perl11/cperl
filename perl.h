@@ -7517,8 +7517,6 @@ END_EXTERN_C
 
 #define MAX_NUMFIELDS 65536 /* U16_MAX */
 
-#define FIELDS_DYNAMIC_PADSIZE /* */
-
 #undef croak_no_modify_sv
 #define croak_no_modify_sv(sv) Perl_croak_no_modify_sv(aTHX_ (SV*)sv,__FILE__,__LINE__)
 #undef croak_no_modify

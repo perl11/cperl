@@ -1071,11 +1071,7 @@ XS(XS_Mu_new)
         AV *av = newAV();
         char *fields;
         if ((fields = HvFIELDS_get(stash))) { /* has fields? */
-# ifdef FIELDS_DYNAMIC_PADSIZE
             const char padsize = *fields;
-# else
-            const char padsize = sizeof(PADOFFSET);
-# endif
             SSize_t i, fill;
             if (SvREADONLY(name))
                 name = newSVpvn_flags(SvPVX(name), SvCUR(name), SvUTF8(name)|SVs_TEMP);
@@ -1083,9 +1079,7 @@ XS(XS_Mu_new)
             av_extend(av, fill);
             AvFILLp(av) = fill;
             items--; /* skip $self */
-#ifdef FIELDS_DYNAMIC_PADSIZE
             fields++;
-#endif
             for (i=0; *fields; i++ ) {
                 int l = strlen(fields);
                 const PADOFFSET po = fields_padoffset(fields, l+1, padsize);

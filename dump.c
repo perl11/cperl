@@ -2657,12 +2657,8 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
                 SV * const tmp = newSVpvs_flags("", SVs_TEMP);
                 char *fields = HvFIELDS(sv);
                 STRLEN l;
-# ifdef FIELDS_DYNAMIC_PADSIZE
                 const char padsize = *fields;
                 fields++;
-# else
-                const char padsize = sizeof(PADOFFSET);
-# endif
                 l = strlen(fields);
                 for ( ; *fields; l=strlen(fields), fields += l+padsize+1 ) {
                     PADOFFSET pad = fields_padoffset(fields, l+1, padsize);
