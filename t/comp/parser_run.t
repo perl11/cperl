@@ -23,10 +23,10 @@ Missing $ on loop variable at - line 1.
 EXPECT
 
 fresh_perl_is(<<EOS, <<'EXPECT', {}, "linestart before bufptr");
-\${ \xD5eeeeeeeeeeee
+\${ \xB6eeeeeeeeeeee
 'x
 EOS
-Unrecognized character \xD5; marked by <-- HERE after ${ <-- HERE near column 4 at - line 1.
+Unrecognized character \xB6; marked by <-- HERE after ${ <-- HERE near column 4 at - line 1.
 EXPECT
 
 fresh_perl_is(<<'EOS', <<'EXPECTED', {}, "use after free (#131836)");
