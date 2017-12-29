@@ -151,11 +151,17 @@ my $testblocks = join(" ", "BEGIN { \$| = 1; }", (map { "@{[uc($_)]} { print \"$
 fresh_perl_is($testblocks, "begin\nunitcheck\ncheck\ninit\nmain\nend", {}, 'blocks execute in right order');
 fresh_perl_is("$testblocks BEGIN { exit 1; }", "begin\nunitcheck\ncheck\nend", {}, "BEGIN{exit 1} should exit");
 fresh_perl_like("$testblocks BEGIN { die; }", qr/\Abegin\nDied[^\n]*\.\nBEGIN failed[^\n]*\.\nunitcheck\ncheck\nend\z/, {}, "BEGIN{die} should exit");
-TODO: {
+SKIP: {
+  skip "VMS doesn't have the perl #2754 bug", 1 if $^O eq 'VMS'; #cperl: but why skipping then?
+  fresh_perl_is("$testblocks BEGIN { exit 0; }", "begin\nunitcheck\ncheck\ninit\nend", {}, "BEGIN{exit 0} doesn't exit yet");
+}
+SKIP: {
+  skip "VMS doesn't have the perl #2754 bug", 2 if $^O eq 'VMS'; #cperl: but why skipping then?
+  TODO: {
     local $TODO = '[perl #2754] exit(0)';
-    fresh_perl_is("$testblocks BEGIN { exit 0; }", "begin\nunitcheck\ncheck\nend", {}, "BEGIN{exit 0} should exit");
     fresh_perl_is("$testblocks UNITCHECK { exit 0; }", "begin\nunitcheck\ncheck\nend", {}, "UNITCHECK{exit 0} should exit");
     fresh_perl_is("$testblocks CHECK { exit 0; }", "begin\nunitcheck\ncheck\nend", {}, "CHECK{exit 0} should exit");
+  }
 }
 fresh_perl_is("$testblocks UNITCHECK { exit 1; }", "begin\nunitcheck\ncheck\nend", {}, "UNITCHECK{exit 1} should exit");
 fresh_perl_like("$testblocks UNITCHECK { die; }", qr/\Abegin\nDied[^\n]*\.\nUNITCHECK failed[^\n]*\.\nunitcheck\ncheck\nend\z/, {}, "UNITCHECK{die} should exit");
