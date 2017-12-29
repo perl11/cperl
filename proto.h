@@ -10202,6 +10202,11 @@ STATIC char *	S_find_span_end(char* s, const char * send, const char span_byte)
 #define PERL_ARGS_ASSERT_FIND_SPAN_END	\
 	assert(s); assert(send)
 
+STATIC U8 *	S_find_span_end_mask(U8 * s, const U8 * send, const U8 span_byte, const U8 mask)
+			__attribute__warn_unused_result__;
+#define PERL_ARGS_ASSERT_FIND_SPAN_END_MASK	\
+	assert(s); assert(send)
+
 STATIC bool	S_isFOO_utf8_lc(pTHX_ const U8 classnum, const U8* character)
 			__attribute__global__
 			__attribute__warn_unused_result__
