@@ -1043,6 +1043,8 @@ defect databases.
 
 There is Coverity setup for the perl5 project:
 L<https://scan.coverity.com/projects/perl5>
+and for cperl:
+L<https://scan.coverity.com/projects/perl11-cperl>
 
 =head2 HP-UX cadvise (Code Advisor)
 
