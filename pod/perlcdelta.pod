@@ -356,6 +356,12 @@ platform specific bugs also go here.
 
 XXX
 
+=item *
+
+Fixed return type of C<DynaLoader::dl_find_symbol_anywhere()>,
+the address, not the name.
+L<[cperl #352]|https://github.com/perl11/cperl/issues/352>.
+
 =back
 
 =head1 Errata From Previous Releases
