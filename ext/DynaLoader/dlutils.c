@@ -592,6 +592,8 @@ XS(XS_DynaLoader_dl_find_symbol_anywhere)
         if (items == 1 && SvIOK(TOPs)) {
             DLDEBUG(2,PerlIO_printf(Perl_debug_log, " symbolref=0x%" UVxf "\n",
                                     (UV)TOPi));
+            SvTEMP_off(TOPs);
+            ST(0) = TOPs;
             XSRETURN(1);
         }
     }
