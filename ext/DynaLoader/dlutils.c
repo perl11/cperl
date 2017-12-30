@@ -593,6 +593,8 @@ XS(XS_DynaLoader_dl_find_symbol_anywhere)
         SPAGAIN;
         if (items == 1 && SvIOK(TOPs)) {
             DLDEBUG(2,PerlIO_printf(Perl_debug_log, " symbolref=0x%lx\n", TOPi));
+            SvTEMP_off(TOPs);
+            ST(0) = TOPs;
             XSRETURN(1);
         }
     }

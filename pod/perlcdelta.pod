@@ -128,6 +128,12 @@ be null after a C<gethostent> call.
 
 L<[perl #128740]|https://rt.perl.org/Public/Bug/Display.html?id=128740>
 
+=item DynaLoader::dl_find_symbol_anywhere
+
+Fixed return type of C<DynaLoader::dl_find_symbol_anywhere()>,
+the address, not the name.
+L<[cperl #352]|https://github.com/perl11/cperl/issues/352>.
+
 =back
 
 =head1 Acknowledgements
