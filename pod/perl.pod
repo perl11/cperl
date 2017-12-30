@@ -180,7 +180,9 @@ aux c2ph h2ph h2xs cperlbug pl2pm pod2html pod2man splain xsubpp
     perldoc		Look up Perl documentation in Pod format
 
     perlhist		Perl history records
-    perldelta		Perl changes in version 5.26.0
+    perldelta		Latest Perl changes
+    perl5261delta	Perl changes in version 5.26.1
+    perl5260delta	Perl changes in version 5.26.0
     perl5242delta	Perl changes in version 5.24.2
     perl5241delta	Perl changes in version 5.24.1
     perl5240delta	Perl changes in version 5.24.0
