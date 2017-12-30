@@ -32,7 +32,7 @@ BEGIN {
     'Time::HiRes' => q| ::is( ref Time::HiRes->can('usleep'),'CODE' ) |,  # 5.7.3
 );
 
-plan (26 + keys(%modules) * 3);
+plan (27 + keys(%modules) * 3);
 
 # Try to load the module
 use_ok( 'DynaLoader' );
@@ -155,15 +155,25 @@ is( $numm, scalar keys %modules, "checking number of items in \@dl_modules" )
 is( $numl, scalar keys %modules, "checking number of items in \@dl_librefs" )
   or warn(join(",",@DynaLoader::dl_librefs));
 
+my ($symbol, $symref);
+if ($modules{'List::Util'}) {
+    $symbol = 'boot_List__Util';
+    $symref = DynaLoader::dl_find_symbol_anywhere($symbol);
+}
+
 my @loaded_modules = @DynaLoader::dl_modules;
 for my $libref (reverse @DynaLoader::dl_librefs) {
+
+    my $module = pop @loaded_modules;
+    if ($module eq 'List::Util' and $modules{'List::Util'}) {
+        is($symref, DynaLoader::dl_find_symbol($libref, $symbol), 'dl_find_symbol');
+    }
  TODO: {
         todo_skip( "Can't safely unload with -DPERL_GLOBAL_STRUCT_PRIVATE (RT #119409)", 2 )
             if $Config{ccflags} =~ /(?:^|\s)-DPERL_GLOBAL_STRUCT_PRIVATE\b/;
     SKIP: {
             skip( "unloading unsupported on $^O", 2 )
                 if ($old_darwin || $^O eq 'VMS');
-            my $module = pop @loaded_modules;
             next if $module eq 'warnings' or $module eq 'Config';
             skip( "File::Glob sets PL_opfreehook", 2 ) if $module eq 'File::Glob';
             my $r = eval { DynaLoader::dl_unload_file($libref) };
