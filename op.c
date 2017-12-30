@@ -23312,7 +23312,7 @@ Perl_class_role(pTHX_ OP* o)
 =for apidoc do_method_finalize
 
 A field may start as lexical or access call in the class block and
-method pad, and needs to be converted to oelemfast ops, which are
+method pad, and can to be converted to oelemfast ops, which are
 basically aelemfast_lex_u (lexical typed self, const ix < 256).
 
   PADxV targ     -> OELEMFAST(self)[targ]
@@ -23346,10 +23346,12 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
             int ix = field_search(klass, PadnamePV(pn)+1, klen, NULL);
             if (ix >= 0) {
                 if (LIKELY(ix < 256)) {
+                    if (o->op_private & OPpMAYBE_LVSUB)
+                        o->op_flags |= OPf_MOD;
                     o->op_private = (U8)ix;
                     DEBUG_k(Perl_deb(aTHX_
                         "method_finalize %" SVf ": padsv %s %d => oelemfast %d[%d]\n",
-                                     SVfARG(cv_name((CV*)cv, NULL, CV_NAME_NOMAIN)),
+                        SVfARG(cv_name((CV*)cv, NULL, CV_NAME_NOMAIN)),
                         PadnamePV(pn), (int)o->op_targ, (int)self, (int)o->op_private));
                     o->op_targ = self;
                     OpTYPE_set(o, OP_OELEMFAST);
@@ -23357,7 +23359,7 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
                 else { /* padsv -> oelem self,fieldname */
                     OP *field = newSVOP(OP_CONST, 0,
                                         newSVpvn_flags(PadnamePV(pn)+1, PadnameLEN(pn)-1,
-                                                 PadnameUTF8(pn) ? SVf_UTF8 : 0));
+                                                       PadnameUTF8(pn) ? SVf_UTF8 : 0));
                     I32 flags = o->op_flags & OPf_MOD;
                     OP* obj = newBINOP(OP_OELEM, flags, o, field);
                     OP* prevsib  = S_op_prev_nn(o);
