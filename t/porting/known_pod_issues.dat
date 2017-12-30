@@ -311,7 +311,6 @@ YAML::Syck
 YAML::Tiny
 dist/data-dumper/dumper.pm	? Should you be using L<...> instead of	1
 dist/extutils-constant/lib/extutils/constant.pm	Verbatim line length including indents exceeds 79 by	1
-dist/module-corelist/lib/module/corelist/utils.pm	Verbatim line length including indents exceeds 79 by	2
 dist/net-ping/lib/net/ping.pm	Apparent broken link	1
 dist/storable/storable.pm	Verbatim line length including indents exceeds 79 by	4
 dist/time-hires/hires.pm	Apparent broken link	2
