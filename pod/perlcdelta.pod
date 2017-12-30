@@ -94,6 +94,12 @@ large C<%^H> hints hashes, with >127 entries, such as C<_charnames.pm> in
 C<Regexp::Common>. Fixed the logic dealing with such a hints hash.
 L<[cperl #350]|https://github.com/perl11/cperl/issues/350>.
 
+=item *
+
+Fixed endless rpeep compiler loop with two empty nested loops,
+which e.g. broke C<Net:HTTP>.
+L<[cperl #349]|https://github.com/perl11/cperl/issues/349>.
+
 =back
 
 =head1 Acknowledgements
@@ -125,7 +131,7 @@ the F<AUTHORS> file in the Perl source distribution.
 
 Generated with:
 
-    cperl Porting/acknowledgements.pl cperl-5.26.1..HEAD
+    cperl Porting/acknowledgements.pl cperl-5.26.1..HEAD -c
 
 =head1 Reporting Bugs
 

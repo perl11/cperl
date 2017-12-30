@@ -16731,7 +16731,7 @@ S_peep_leaveloop(pTHX_ OP* leave, OP* from, OP* to)
         for (o2=body; o2 != iter; o2=OpNEXT(o2)) {
             const OPCODE type = o2->op_type;
             SV *av;
-            /*DEBUG_kv(Perl_deb(aTHX_ "rpeep: loop oob %s\n", OP_NAME(o2)));*/
+            DEBUG_kv(Perl_deb(aTHX_ "rpeep: loop oob %s\n", OP_NAME(o2)));
             DEBUG_kv(if (type == OP_AELEM && OP_TYPE_IS(OpFIRST(o2), OP_PADAV))
                          Perl_deb(aTHX_ "rpeep: aelem %s vs %s\n",
                                   aname, PAD_COMPNAME_PV(OpFIRST(o2)->op_targ)));
@@ -16790,6 +16790,11 @@ S_peep_leaveloop(pTHX_ OP* leave, OP* from, OP* to)
                 OpTYPE_set(o2, OP_AELEMFAST_LEX_U);
             }
 #endif
+            /* for(1..2){while(){}} stub - unstack - stub loop */
+            if (UNLIKELY(type == OP_STUB && IS_TYPE(OpNEXT(o2), UNSTACK)
+                         && OpNEXT(OpNEXT(o2)) == o2)) {
+                return TRUE;
+            }
         }
         return TRUE;
     }
