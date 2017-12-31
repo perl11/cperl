@@ -71,18 +71,6 @@ C<experimental::re_strict>.
 
 See L<re/'strict' mode>
 
-=item String- and number-specific bitwise operators
-
-Introduced in Perl 5.22.0
-
-See also: L<perlop/Bitwise String Operators>
-
-Using this feature triggers warnings in the category
-C<experimental::bitwise>.
-
-The ticket for this feature is
-L<[perl #123707]|https://rt.perl.org/rt3/Ticket/Display.html?id=123707>.
-
 =item The <:win32> IO pseudolayer
 
 The ticket for this feature is
@@ -257,6 +245,24 @@ Introduced in Perl 5.22.0 for subroutines only.
 Accepted in cperl 5.24.0 for all data.
 
 See L<perldata/Constant and typed lexical variables>
+
+=item String- and number-specific bitwise operators
+
+Introduced in Perl 5.22.0
+
+Accepted in Perl 5.28.0
+
+=item fc foldcase
+
+Introduced in Perl 5.16.0
+
+Accepted in cperl 5.28.0
+
+=item current_sub
+
+Introduced in Perl 5.16.0
+
+Accepted in cperl 5.28.0
 
 =back
 

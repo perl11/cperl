@@ -206,7 +206,8 @@ C<CORE::evalbytes>.
 This provides the C<__SUB__> token that returns a reference to the current
 subroutine or C<undef> outside of a subroutine.
 
-This feature is available starting with Perl 5.16.
+This feature is available starting with Perl 5.16, and enabled per default
+on cperl since 5.27.
 
 =head2 The 'array_base' feature
 
@@ -225,7 +226,8 @@ which implements Unicode casefolding.
 
 See L<perlfunc/fc> for details.
 
-This feature is available from Perl 5.16 onwards.
+This feature is available from Perl 5.16 onwards, and enabled per default
+on cperl since 5.27.
 
 =head2 The 'lexical_subs' feature
 
@@ -271,6 +273,7 @@ versions, using it triggered the C<experimental::postderef> warning in the
 same way as the 'postderef_qq' feature did. As of Perl 5.24, this syntax is
 not only no longer experimental, but it is enabled for all Perl code,
 regardless of what feature declarations are in scope.
+With cperl this syntax is discouraged.
 
 =head2 The 'signatures' feature
 
@@ -280,10 +283,10 @@ of perl experimental signatures. cperl can parse old-style prototypes
 and new-style signatures dynamically, and does not need to disable warnings
 for them.
 
-B<WARNING>: This feature is still experimental and the implementation may
-change in future versions of Perl.  For this reason, Perl will
-warn when you use the feature, unless you have explicitly disabled the
-warning:
+B<WARNING>: With perl5 this feature is still experimental and the
+implementation may change in future versions of Perl.  For this
+reason, Perl will warn when you use the feature, unless you have
+explicitly disabled the warning:
 
     no warnings "experimental::signatures";
 
@@ -296,7 +299,7 @@ by syntax such as
 
 See L<perlsub/Signatures> for details.
 
-This feature is available from Perl 5.20 onwards.
+This feature is available from Perl 5.20 onwards, and recommended with cperl.
 
 =head2 The 'refaliasing' feature
 
@@ -323,13 +326,6 @@ This feature is available from Perl 5.22 onwards.
 
 =head2 The 'bitwise' feature
 
-B<WARNING>: This feature is still experimental and the implementation may
-change in future versions of Perl.  For this reason, Perl will
-warn when you use the feature, unless you have explicitly disabled the
-warning:
-
-    no warnings "experimental::bitwise";
-
 This makes the four standard bitwise operators (C<& | ^ ~>) treat their
 operands consistently as numbers, and introduces four new dotted operators
 (C<&. |. ^. ~.>) that treat their operands consistently as strings.  The
@@ -337,7 +333,10 @@ same applies to the assignment variants (C<&= |= ^= &.= |.= ^.=>).
 
 See L<perlop/Bitwise String Operators> for details.
 
-This feature is available from Perl 5.22 onwards.
+This feature is available from Perl 5.22 onwards.  Starting in Perl 5.28,
+C<use v5.28> will enable the feature.  Before 5.28, it was still
+experimental and would emit a warning in the "experimental::bitwise"
+category.
 
 =head2 The 'shaped_arrays' feature
 
@@ -370,7 +369,7 @@ corresponding C<0> values. You can also use native types.
 Note that multidimensional arrays will be supported soon, using the
 same feature name. Similar to perl6.
 
-This feature is available from cperl 5.22 onwards.
+This feature is available from cperl 5.22 onwards, and enabled by default.
 
 =head2 The 'declared_refs' feature
 
@@ -433,6 +432,10 @@ The following feature bundles are available:
 
 The C<:default> bundle represents the feature set that is enabled before
 any C<use feature> or C<no feature> declaration.
+
+With cperl the following features are enabled by default:
+
+  signatures lexsubs shaped_arrays fc current_sub
 
 Specifying sub-versions such as the C<0> in C<5.14.0> in feature bundles has
 no effect.  Feature bundles are guaranteed to be the same for all sub-versions.
