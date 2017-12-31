@@ -13357,6 +13357,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'JSON::PP'              => '2.97000_04',
             'JSON::PP::Boolean'     => '2.97000_04',
             'Parse::CPAN::Meta'     => '1.5000c',
+            'Perl::OSType'          => '1.010',
             'Socket'                => '2.24_02',
             'Time::HiRes'           => '1.9739',
             'warnings'              => '1.35',
