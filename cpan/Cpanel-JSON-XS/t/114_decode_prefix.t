@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-use Test::More tests => 8;
+use Test::More tests => 12;
 
 use Cpanel::JSON::XS;
 
@@ -23,3 +23,9 @@ eval { $json->decode('null') }; ok $@ =~ /allow_nonref/;
 eval { $json->decode_prefix( "\n" ) }; ok( $@ =~ /malformed JSON/ );
 eval { $json->decode_prefix('null') }; ok $@ =~ /allow_nonref/;
 
+my $buffer = "[0][1][2][3]";
+for (0..3) {
+  my ($data, $size) = $json->decode_prefix($buffer);
+  $buffer = substr($buffer,$size);
+  is ($size, 3, "advance offset $buffer #82");
+}

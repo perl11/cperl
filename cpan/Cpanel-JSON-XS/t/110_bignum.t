@@ -5,7 +5,7 @@ BEGIN {
   eval q| require Math::BigInt |;
   $has_bignum = $@ ? 0 : 1;
 }
-use Test::More $has_bignum ? (tests => 6) : (skip_all => "Can't load Math::BigInt");
+use Test::More $has_bignum ? (tests => 10) : (skip_all => "Can't load Math::BigInt");
 use Cpanel::JSON::XS;
 use Devel::Peek;
 
@@ -38,3 +38,17 @@ is("$num", '2.0000000000000000001', 'decode bigfloat') or Dump $num;
 $e = $json->encode($num);
 is($e, '2.0000000000000000001', 'encode bigfloat') or Dump $e;
 
+$num = $json->decode(q|[100000000000000000000000000000000000000]|)->[0];
+
+isa_ok( $num, 'Math::BigInt' );
+is(
+    "$num",
+    $fix . '100000000000000000000000000000000000000',
+    'decode bigint inside structure'
+) or Dump($num);
+
+$num = $json->decode(q|[2.0000000000000000001]|)->[0];
+isa_ok( $num, 'Math::BigFloat' );
+
+is( "$num", '2.0000000000000000001', 'decode bigfloat inside structure' )
+  or Dump $num;

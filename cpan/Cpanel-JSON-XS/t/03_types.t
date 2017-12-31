@@ -22,7 +22,7 @@ ok ($true eq "true", "true: eq $true");
 ok ("$false" eq "0",     "false: stringified $false eq 0");
 #ok ("$false" eq "false", "false: stringified $false eq false");
 #ok ("$true" eq "1",    "true: stringified $true eq 1");
-ok ("$true" eq "true", "true: stringified $true");
+ok ("$true" eq "1", "true: stringified $true");
 {
   my $FH;
   my $fn = "tmp_$$";
@@ -32,7 +32,7 @@ ok ("$true" eq "true", "true: stringified $true");
   open $FH, "<", $fn;
   my $s = <$FH>;
   close $FH;
-  ok ($s eq "0true\n", $s); # 11
+  ok ($s eq "01\n", $s); # 11
   unlink $fn;
 }
 

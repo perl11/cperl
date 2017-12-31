@@ -40,7 +40,7 @@ ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/pm_to_blib.t 71ebcee355691ce374fca
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/prereq.t c1fe6e8ce96e8a648043ee8066e60a871fb4e0ba
 ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm 52f5520bc957c306776810d2c6a771445e396fb1
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 7dccb88e51c5669e1660aae1814863e260178023
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 24e4fdbc3ce7e658e46e01cf73ffba2d1d1d6d9e
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 6dba40c39f6f3b204e2fcd4bc5bfd2721bf4ef30
 Net::Domain cpan/libnet/lib/Net/Domain.pm 3ada368520d3179da8bc1b28ae61a99b4981b758
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 8ac11522808238b028b935fa94bf5ff319e68938
@@ -66,9 +66,9 @@ Win32API::File cpan/Win32API-File/Makefile.PL 179d64a532f27293e4dfa5f50da2c51524
 Win32API::File cpan/Win32API-File/t/file.t 124e64aa77e755235eb297644a87fac5388d3d78
 Win32API::File cpan/Win32API-File/t/tie.t 712ea7edd0cc805ce1c0b8172c01b03dd19b583d
 Win32API::File cpan/Win32API-File/typemap 24bff088babeadac0873e8df390d1666d9d9db4a
-YAML::LibYAML cpan/YAML-LibYAML/LibYAML/Makefile.PL 337cdac5c5fb344a651546e856f9c9a2a7dc706a
-YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm 37441ba0eff59df1e75d7c2db64d9b478a8ffc60
-YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm b9846cabfa2ede801c6df9357a97f8ccdc207119
+YAML::LibYAML cpan/YAML-LibYAML/LibYAML/Makefile.PL af46c9ce20b08189cc0fa26b20c69ea051084365
+YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm 527302db61c55bf695da94adfa66e7c2f34b1f09
+YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm 9716931aaf2305fab4a41f35560362947ba3a805
 autodie cpan/autodie/t/mkdir.t 9e70d2282a3cc7d76a78bf8144fccba20fb37dac
 lib dist/lib/lib_pm.PL 6f1951dc926375aa93b93515aa5f3c1ca1396b05
 threads dist/threads/lib/threads.pm f8f5f2c4527aba54ef53a5846e3fad728b24eeea

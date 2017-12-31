@@ -1,5 +1,7 @@
 package Cpanel::JSON::XS;
-our $VERSION = '3.0217';
+our $VERSION = '3.0240';
+our $XS_VERSION = $VERSION;
+# $VERSION = eval $VERSION;
 
 =pod
 
@@ -71,8 +73,8 @@ MAPPING section below to learn about those.
 =item * strict checking of JSON correctness
 
 There is no guessing, no generating of illegal JSON texts by default,
-and only JSON is accepted as input by default (the latter is a security
-feature).
+and only JSON is accepted as input by default. the latter is a security
+feature.
 
 =item * fast
 
@@ -110,31 +112,32 @@ B<Changes to JSON::XS>
 - stricter decode_json() as documented. non-refs are disallowed.
   added a 2nd optional argument. decode() honors now allow_nonref.
 
-- fixed encode of numbers for dual-vars. Different string representations
-  are preserved, but numbers with temporary strings which represent the same number
-  are here treated as numbers, not strings. Cpanel::JSON::XS is a bit slower, but
-  preserves numeric types better.
+- fixed encode of numbers for dual-vars. Different string
+  representations are preserved, but numbers with temporary strings
+  which represent the same number are here treated as numbers, not
+  strings. Cpanel::JSON::XS is a bit slower, but preserves numeric
+  types better.
 
-- numbers ending with .0 stay numbers, are not converted to integers. [#63]
-  dual-vars which are represented as number not integer (42+"bar" != 5.8.9) 
-  are now encoded as number (=> 42.0) because internally it's now a NOK type.
-  However !!1 which is wrongly encoded in 5.8 as "1"/1.0 is still represented
-  as integer.
+- numbers ending with .0 stay numbers, are not converted to
+  integers. [#63] dual-vars which are represented as number not
+  integer (42+"bar" != 5.8.9) are now encoded as number (=> 42.0)
+  because internally it's now a NOK type.  However !!1 which is
+  wrongly encoded in 5.8 as "1"/1.0 is still represented as integer.
 
 - different handling of inf/nan. Default now to null, optionally with
-  -DSTRINGIFY_INFNAN to "inf"/"nan". [#28, #32]
+  stringify_infnan() to "inf"/"nan". [#28, #32]
 
 - added C<binary> extension, non-JSON and non JSON parsable, allows
   C<\xNN> and C<\NNN> sequences.
 
-- 5.6.2 support; sacrificing some utf8 features (assuming bytes all-over),
-  no multi-byte unicode characters.
+- 5.6.2 support; sacrificing some utf8 features (assuming bytes
+  all-over), no multi-byte unicode characters with 5.6.
 
 - interop for true/false overloading. JSON::XS, JSON::PP and Mojo::JSON 
   representations for booleans are accepted and JSON::XS accepts
   Cpanel::JSON::XS booleans [#13, #37]
-  Fixed overloading of booleans. Cpanel::JSON::XS::true stringifies now
-  to true, not 1.
+  Fixed overloading of booleans. Cpanel::JSON::XS::true stringifies again
+  to "1", not "true", analog to all other JSON modules.
 
 - native boolean mapping of yes and no to true and false, as in YAML::XS.
   In perl C<!0> is yes, C<!1> is no.
@@ -147,7 +150,9 @@ B<Changes to JSON::XS>
 
 - is_bool can be called as method, JSON::XS::is_bool not.
 
-- Performance Optimizations for threaded Perls
+- performance optimizations for threaded Perls
+
+- relaxed mode, allowing many popular extensions
 
 - additional fixes for:
 
@@ -160,17 +165,34 @@ B<Changes to JSON::XS>
 
   - #41 overloading of booleans, use the object not the reference.
 
+  - #62 -Dusequadmath conversion and no SEGV.
+
+  - #72 parsing of values followed \0, like 1\0 does fail.
+
+  - #72 parsing of illegal unicode or non-unicode characters.
+
+  - #96 locale-insensitive numeric conversion
+
 - public maintenance and bugtracker
 
 - use ppport.h, sanify XS.xs comment styles, harness C coding style
 
-- common::sense is optional. When available it is not used in the published
-  production module, just during development and testing.
+- common::sense is optional. When available it is not used in the
+  published production module, just during development and testing.
 
-- extended testsuite
+- extended testsuite, passes all http://seriot.ch/parsing_json.html
+  tests.  In fact it is the only know JSON decoder which does so,
+  while also being the fastest.
 
-- support many more options and methods from JSON::PP
+- support many more options and methods from JSON::PP:
+  stringify_infnan, allow_unknown, allow_stringify, allow_barekey,
+  encode_stringify, allow_bignum, allow_singlequote, sort_by
+  (partially), escape_slash, convert_blessed, ...  optional
+  decode_json(, allow_nonref) arg.
+  relaxed implements allow_dupkeys.
 
+- support all 5 unicode BOM's: UTF-8, UTF-16LE, UTF-16BE, UTF-32LE,
+  UTF-32BE, encoding internally to UTF-8.
 
 =cut
 
@@ -180,7 +202,9 @@ our @EXPORT = qw(encode_json decode_json to_json from_json);
 sub to_json($@) {
    if ($] >= 5.008) {
      require Carp;
-     Carp::croak ("Cpanel::JSON::XS::to_json has been renamed to encode_json, either downgrade to pre-2.0 versions of Cpanel::JSON::XS or rename the call");
+     Carp::croak ("Cpanel::JSON::XS::to_json has been renamed to encode_json,".
+                  " either downgrade to pre-2.0 versions of Cpanel::JSON::XS or".
+                  " rename the call");
    } else {
      _to_json(@_);
    }
@@ -189,7 +213,9 @@ sub to_json($@) {
 sub from_json($@) {
    if ($] >= 5.008) {
      require Carp;
-     Carp::croak ("Cpanel::JSON::XS::from_json has been renamed to decode_json, either downgrade to pre-2.0 versions of Cpanel::JSON::XS or rename the call");
+     Carp::croak ("Cpanel::JSON::XS::from_json has been renamed to decode_json,".
+                  " either downgrade to pre-2.0 versions of Cpanel::JSON::XS or".
+                  " rename the call");
    } else {
      _from_json(@_);
    }
@@ -218,9 +244,9 @@ Except being faster.
 
 =item $perl_scalar = decode_json $json_text [, $allow_nonref ]
 
-The opposite of C<encode_json>: expects an UTF-8 (binary) string of an json reference
-and tries to parse that as an UTF-8 encoded JSON text, returning the resulting
-reference. Croaks on error.
+The opposite of C<encode_json>: expects an UTF-8 (binary) string of an
+json reference and tries to parse that as an UTF-8 encoded JSON text,
+returning the resulting reference. Croaks on error.
 
 This function call is functionally identical to:
 
@@ -232,18 +258,20 @@ Note that older decode_json versions in Cpanel::JSON::XS older than
 3.0116 and JSON::XS did not set allow_nonref but allowed them due to a
 bug in the decoder.
 
-If the new optional $allow_nonref argument is set and not false, the allow_nonref
-option will be set and the function will act is described as in the relaxed RFC 7159
-allowing all values such as objects, arrays, strings, numbers, "null", "true", and "false".
+If the new optional $allow_nonref argument is set and not false, the
+allow_nonref option will be set and the function will act is described
+as in the relaxed RFC 7159 allowing all values such as objects,
+arrays, strings, numbers, "null", "true", and "false".
 
 =item $is_boolean = Cpanel::JSON::XS::is_bool $scalar
 
-Returns true if the passed scalar represents either C<JSON::XS::true> or
-C<JSON::XS::false>, two constants that act like C<1> and C<0>, respectively
-and are used to represent JSON C<true> and C<false> values in Perl.
+Returns true if the passed scalar represents either C<JSON::XS::true>
+or C<JSON::XS::false>, two constants that act like C<1> and C<0>,
+respectively and are used to represent JSON C<true> and C<false>
+values in Perl.
 
-See MAPPING, below, for more information on how JSON values are mapped to
-Perl.
+See MAPPING, below, for more information on how JSON values are mapped
+to Perl.
 
 =back
 
@@ -277,21 +305,37 @@ Perl string - very natural.
 =item 2. Perl does I<not> associate an encoding with your strings.
 
 ... until you force it to, e.g. when matching it against a regex, or
-printing the scalar to a file, in which case Perl either interprets your
-string as locale-encoded text, octets/binary, or as Unicode, depending
-on various settings. In no case is an encoding stored together with your
-data, it is I<use> that decides encoding, not any magical meta data.
+printing the scalar to a file, in which case Perl either interprets
+your string as locale-encoded text, octets/binary, or as Unicode,
+depending on various settings. In no case is an encoding stored
+together with your data, it is I<use> that decides encoding, not any
+magical meta data.
 
 =item 3. The internal utf-8 flag has no meaning with regards to the
 encoding of your string.
 
-=item 4. A "Unicode String" is simply a string where each character can be
-validly interpreted as a Unicode code point.
+=item 4. A "Unicode String" is simply a string where each character
+can be validly interpreted as a Unicode code point.
 
-If you have UTF-8 encoded data, it is no longer a Unicode string, but a
-Unicode string encoded in UTF-8, giving you a binary string.
+If you have UTF-8 encoded data, it is no longer a Unicode string, but
+a Unicode string encoded in UTF-8, giving you a binary string.
 
-=item 5. A string containing "high" (> 255) character values is I<not> a UTF-8 string.
+=item 5. A string containing "high" (> 255) character values is I<not>
+a UTF-8 string.
+
+=item 6. Unicode noncharacters only warn, as in core.
+
+The 66 Unicode noncharacters U+FDD0..U+FDEF, and U+*FFFE, U+*FFFF just
+warn, see L<http://www.unicode.org/versions/corrigendum9.html>.  But
+illegal surrogate pairs fail to parse.
+
+=item 7. Raw non-Unicode characters above U+10FFFF are disallowed.
+
+Raw non-Unicode characters outside the valid unicode range fail to
+parse, because "A string is a sequence of zero or more Unicode
+characters" RFC 7159 section 1 and "JSON text SHALL be encoded in
+Unicode RFC 7159 section 8.1. We use now the UTF8_DISALLOW_SUPER
+flag when parsing unicode.
 
 =back
 
@@ -378,9 +422,9 @@ in files or databases, not when talking to other JSON encoders/decoders.
 If the C<$enable> argument is true (or missing), then the C<encode>
 method will not try to detect an UTF-8 encoding in any JSON string, it
 will strictly interpret it as byte sequence.  The result might contain
-new C<\xNN> sequences, which is B<unparsable JSON>.  The C<decode> method
-forbids C<\uNNNN> sequences and accepts C<\xNN> and octal C<\NNN>
-sequences.
+new C<\xNN> sequences, which is B<unparsable JSON>.  The C<decode>
+method forbids C<\uNNNN> sequences and accepts C<\xNN> and octal
+C<\NNN> sequences.
 
 There is also a special logic for perl 5.6 and utf8. 5.6 encodes any
 string to utf-8 automatically when seeing a codepoint >= C<0x80> and
@@ -475,9 +519,9 @@ Example, pretty-print some simple structure:
 
 =item $enabled = $json->get_indent
 
-If C<$enable> is true (or missing), then the C<encode> method will use a multiline
-format as output, putting every array member or object/hash key-value pair
-into its own line, indenting them properly.
+If C<$enable> is true (or missing), then the C<encode> method will use
+a multiline format as output, putting every array member or
+object/hash key-value pair into its own line, indenting them properly.
 
 If C<$enable> is false, no newlines or indenting will be produced, and the
 resulting JSON text is guaranteed not to contain any C<newlines>.
@@ -506,10 +550,10 @@ Example, space_before enabled, space_after and indent disabled:
 
 =item $enabled = $json->get_space_after
 
-If C<$enable> is true (or missing), then the C<encode> method will add an extra
-optional space after the C<:> separating keys from values in JSON objects
-and extra whitespace after the C<,> separating key-value pairs and array
-members.
+If C<$enable> is true (or missing), then the C<encode> method will add
+an extra optional space after the C<:> separating keys from values in
+JSON objects and extra whitespace after the C<,> separating key-value
+pairs and array members.
 
 If C<$enable> is false, then the C<encode> method will not add any extra
 space at those places.
@@ -592,6 +636,12 @@ L</allow_barekey> option.
 
     { foo:"bar" }
 
+=item * duplicate keys
+
+With relaxed decoding of duplicate keys does not error and are silently accepted.
+See L<http://seriot.ch/parsing_json.php#24>:
+RFC 7159 section 4: "The names within an object should be unique."
+
 =back
 
 
@@ -599,8 +649,9 @@ L</allow_barekey> option.
 
 =item $enabled = $json->get_canonical
 
-If C<$enable> is true (or missing), then the C<encode> method will output JSON objects
-by sorting their keys. This is adding a comparatively high overhead.
+If C<$enable> is true (or missing), then the C<encode> method will
+output JSON objects by sorting their keys. This is adding a
+comparatively high overhead.
 
 If C<$enable> is false, then the C<encode> method will output key-value
 pairs in the order Perl stores them (which will likely change between runs
@@ -674,7 +725,6 @@ application-specific files written by humans.
 
     $json->allow_barekey->decode('{foo:"bar"}');
 
-
 =item $json = $json->allow_bignum ([$enable])
 
 =item $enabled = $json->get_allow_bignum
@@ -685,8 +735,9 @@ If C<$enable> is true (or missing), then C<decode> will convert
 the big integer Perl cannot handle as integer into a L<Math::BigInt>
 object and convert a floating number (any) into a L<Math::BigFloat>.
 
-On the contrary, C<encode> converts C<Math::BigInt> objects and C<Math::BigFloat>
-objects into JSON numbers with C<allow_blessed> enable.
+On the contrary, C<encode> converts C<Math::BigInt> objects and
+C<Math::BigFloat> objects into JSON numbers with C<allow_blessed>
+enable.
 
    $json->allow_nonref->allow_blessed->allow_bignum;
    $bigfloat = $json->decode('2.000000000000000000000000001');
@@ -705,10 +756,10 @@ This option is obsolete and replaced by allow_bignum.
 
 =item $enabled = $json->get_allow_nonref
 
-If C<$enable> is true (or missing), then the C<encode> method can convert a
-non-reference into its corresponding string, number or null JSON value,
-which is an extension to RFC4627. Likewise, C<decode> will accept those JSON
-values instead of croaking.
+If C<$enable> is true (or missing), then the C<encode> method can
+convert a non-reference into its corresponding string, number or null
+JSON value, which is an extension to RFC4627. Likewise, C<decode> will
+accept those JSON values instead of croaking.
 
 If C<$enable> is false, then the C<encode> method will croak if it isn't
 passed an arrayref or hashref, as JSON texts must either be an object
@@ -954,29 +1005,37 @@ effect on C<encode> (yet).
 If no argument is given, the limit check will be deactivated (same as when
 C<0> is specified).
 
-See SECURITY CONSIDERATIONS, below, for more info on why this is useful.
+See L</SECURITY CONSIDERATIONS>, below, for more info on why this is useful.
 
 =item $json->stringify_infnan ([$infnan_mode = 1])
 
 =item $infnan_mode = $json->get_stringify_infnan
 
-Get or set how Cpanel::JSON::XS encodes C<inf> or C<nan> for numeric
-values. 
+Get or set how Cpanel::JSON::XS encodes C<inf>, C<-inf> or C<nan> for numeric
+values. Also qnan, snan or negative nan on some platforms.
 
 C<null>:     infnan_mode = 0. Similar to most JSON modules in other languages.
+Always null.
 
-stringified: infnan_mode = 1. As in Mojo::JSON.
+stringified: infnan_mode = 1. As in Mojo::JSON. Platform specific strings.
+Stringified via sprintf(%g), with double quotes.
 
-inf/nan:     infnan_mode = 2. As in JSON::XS, and older releases. Produces invalid JSON.
+inf/nan:     infnan_mode = 2. As in JSON::XS, and older releases.
+Passes through platform dependent values, invalid JSON. Stringified via
+sprintf(%g), but without double quotes.
+
+"inf/-inf/nan": infnan_mode = 3. Platform independent inf/nan/-inf
+strings.  No QNAN/SNAN/negative NAN support, unified to "nan". Much
+easier to detect, but may conflict with valid strings.
 
 =item $json_text = $json->encode ($perl_scalar)
 
 Converts the given Perl data structure (a simple scalar or a reference
 to a hash or array) to its JSON representation. Simple scalars will be
-converted into JSON string or number sequences, while references to arrays
-become JSON arrays and references to hashes become JSON objects. Undefined
-Perl values (e.g. C<undef>) become JSON C<null> values. Neither C<true>
-nor C<false> values will be generated.
+converted into JSON string or number sequences, while references to
+arrays become JSON arrays and references to hashes become JSON
+objects. Undefined Perl values (e.g. C<undef>) become JSON C<null>
+values. Neither C<true> nor C<false> values will be generated.
 
 =item $perl_scalar = $json->decode ($json_text)
 
@@ -1022,14 +1081,14 @@ using C<decode_prefix> to see if a full JSON object is available, but
 is much more efficient (and can be implemented with a minimum of method
 calls).
 
-Cpanel::JSON::XS will only attempt to parse the JSON text once it is sure it
-has enough text to get a decisive result, using a very simple but
-truly incremental parser. This means that it sometimes won't stop as
-early as the full parser, for example, it doesn't detect mismatched
-parentheses. The only thing it guarantees is that it starts decoding as
-soon as a syntactically valid JSON text has been seen. This means you need
-to set resource limits (e.g. C<max_size>) to ensure the parser will stop
-parsing in the presence if syntax errors.
+Cpanel::JSON::XS will only attempt to parse the JSON text once it is
+sure it has enough text to get a decisive result, using a very simple
+but truly incremental parser. This means that it sometimes won't stop
+as early as the full parser, for example, it doesn't detect mismatched
+parentheses. The only thing it guarantees is that it starts decoding
+as soon as a syntactically valid JSON text has been seen. This means
+you need to set resource limits (e.g. C<max_size>) to ensure the
+parser will stop parsing in the presence if syntax errors.
 
 The following methods implement this incremental parser.
 
@@ -1109,15 +1168,16 @@ each successful decode.
 =head2 LIMITATIONS
 
 All options that affect decoding are supported, except
-C<allow_nonref>. The reason for this is that it cannot be made to
-work sensibly: JSON objects and arrays are self-delimited, i.e. you can concatenate
-them back to back and still decode them perfectly. This does not hold true
-for JSON numbers, however.
+C<allow_nonref>. The reason for this is that it cannot be made to work
+sensibly: JSON objects and arrays are self-delimited, i.e. you can
+concatenate them back to back and still decode them perfectly. This
+does not hold true for JSON numbers, however.
 
-For example, is the string C<1> a single JSON number, or is it simply the
-start of C<12>? Or is C<12> a single JSON number, or the concatenation
-of C<1> and C<2>? In neither case you can tell, and this is why Cpanel::JSON::XS
-takes the conservative route and disallows this case.
+For example, is the string C<1> a single JSON number, or is it simply
+the start of C<12>? Or is C<12> a single JSON number, or the
+concatenation of C<1> and C<2>? In neither case you can tell, and this
+is why Cpanel::JSON::XS takes the conservative route and disallows
+this case.
 
 =head2 EXAMPLES
 
@@ -1183,11 +1243,11 @@ JSON array-of-objects, many gigabytes in size, and you want to parse it,
 but you cannot load it into memory fully (this has actually happened in
 the real world :).
 
-Well, you lost, you have to implement your own JSON parser. But Cpanel::JSON::XS
-can still help you: You implement a (very simple) array parser and let
-JSON decode the array elements, which are all full JSON objects on their
-own (this wouldn't work if the array elements could be JSON numbers, for
-example):
+Well, you lost, you have to implement your own JSON parser. But
+Cpanel::JSON::XS can still help you: You implement a (very simple)
+array parser and let JSON decode the array elements, which are all
+full JSON objects on their own (this wouldn't work if the array
+elements could be JSON numbers, for example):
 
    my $json = new Cpanel::JSON::XS;
 
@@ -1255,14 +1315,33 @@ This is a complex example, but most of the complexity comes from the fact
 that we are trying to be correct (bear with me if I am wrong, I never ran
 the above example :).
 
+=head1 BOM
 
+Detect all unicode B<Byte Order Marks> on decode.
+Which are UTF-8, UTF-16LE, UTF-16BE, UTF-32LE and UTF-32BE.
+
+B<Warning>: With perls older than 5.20 you need load the Encode module
+before loading a multibyte BOM, i.e. >= UTF-16. Otherwise an error is
+thrown. This is an implementation limitation and might get fixed later.
+
+See L<https://tools.ietf.org/html/rfc7159#section-8.1>
+I<"JSON text SHALL be encoded in UTF-8, UTF-16, or UTF-32.">
+
+I<"Implementations MUST NOT add a byte order mark to the beginning of a
+JSON text", "implementations (...) MAY ignore the presence of a byte
+order mark rather than treating it as an error".>
+
+See also L<http://www.unicode.org/faq/utf_bom.html#BOM>.
+
+Beware that Cpanel::JSON::XS is currently the only JSON module which
+does accept and decode a BOM.
 
 =head1 MAPPING
 
-This section describes how Cpanel::JSON::XS maps Perl values to JSON values and
-vice versa. These mappings are designed to "do the right thing" in most
-circumstances automatically, preserving round-tripping characteristics
-(what you put in comes out as something equivalent).
+This section describes how Cpanel::JSON::XS maps Perl values to JSON
+values and vice versa. These mappings are designed to "do the right
+thing" in most circumstances automatically, preserving round-tripping
+characteristics (what you put in comes out as something equivalent).
 
 For the more enlightened: note that in the following descriptions,
 lowercase I<perl> refers to the Perl interpreter, while uppercase I<Perl>
@@ -1296,12 +1375,12 @@ the Perl level, there is no difference between those as Perl handles all
 the conversion details, but an integer may take slightly less memory and
 might represent more values exactly than floating point numbers.
 
-If the number consists of digits only, Cpanel::JSON::XS will try to represent
-it as an integer value. If that fails, it will try to represent it as
-a numeric (floating point) value if that is possible without loss of
-precision. Otherwise it will preserve the number as a string value (in
-which case you lose roundtripping ability, as the JSON number will be
-re-encoded to a JSON string).
+If the number consists of digits only, Cpanel::JSON::XS will try to
+represent it as an integer value. If that fails, it will try to
+represent it as a numeric (floating point) value if that is possible
+without loss of precision. Otherwise it will preserve the number as a
+string value (in which case you lose roundtripping ability, as the
+JSON number will be re-encoded to a JSON string).
 
 Numbers containing a fractional or exponential part will always be
 represented as numeric (floating point) values, possibly at a loss of
@@ -1396,7 +1475,7 @@ These special values become JSON true and JSON false values,
 respectively. You can also use C<\1> and C<\0> or C<!0> and C<!1>
 directly if you want.
 
-   encode_json [Cpanel::JSON::XS::true, Cpanel::JSON::XS::true]      # yields [false,true]
+   encode_json [Cpanel::JSON::XS::true, Cpanel::JSON::XS::true] # yields [false,true]
    encode_json [!1, !0]      # yields [false,true]
 
 =item blessed objects
@@ -1472,9 +1551,9 @@ tagged values.
 
 =head3 SERIALIZATION
 
-What happens when C<Cpanel::JSON::XS> encounters a Perl object depends on the
-C<allow_blessed>, C<convert_blessed> and C<allow_tags> settings, which are
-used in this order:
+What happens when C<Cpanel::JSON::XS> encounters a Perl object depends
+on the C<allow_blessed>, C<convert_blessed> and C<allow_tags>
+settings, which are used in this order:
 
 =over 4
 
@@ -1753,6 +1832,17 @@ output for these property strings, e.g.:
 This works because C<__proto__> is not valid outside of strings, so every
 occurrence of C<"__proto__"\s*:> must be a string used as property name.
 
+Unicode non-characters between U+FFFD and U+10FFFF are decoded either
+to the recommended U+FFFD REPLACEMENT CHARACTER (see Unicode PR #121:
+Recommended Practice for Replacement Characters), or in the binary or
+relaxed mode left as is, keeping the illegal non-characters as before.
+
+Raw non-Unicode characters outside the valid unicode range fail now to
+parse, because "A string is a sequence of zero or more Unicode
+characters" RFC 7159 section 1 and "JSON text SHALL be encoded in
+Unicode RFC 7159 section 8.1. We use now the UTF8_DISALLOW_SUPER
+flag when parsing unicode.
+
 If you know of other incompatibilities, please let me know.
 
 
@@ -1849,6 +1939,8 @@ JSON, C<Cpanel::JSON::XS> is incapable of generating invalid JSON
 output (modulo bugs, but C<JSON::XS> has found more bugs in the
 official JSON testsuite (1) than the official JSON testsuite has found
 in C<JSON::XS> (0)).
+C<Cpanel::JSON::XS> is currently the only known JSON decoder which passes all
+L<http://seriot.ch/parsing_json.html> tests, while being the fastest also.
 
 When you have trouble decoding JSON generated by this module using other
 decoders, then it is very likely that you have an encoding mismatch or the
@@ -1944,7 +2036,7 @@ will change.
 
 =head1 SECURITY CONSIDERATIONS
 
-JSON::XS and Cpanel::JSON::XS are not only fast, JSON is generally the
+JSON::XS and Cpanel::JSON::XS are not only fast. JSON is generally the
 most secure serializing format, because it is the only one besides
 Data::MessagePack, which does not deserialize objects per default. For
 all languages, not just perl.  The binary variant BSON (MongoDB) does
@@ -1954,8 +2046,8 @@ It is trivial for any attacker to create such serialized objects in
 JSON and trick perl into expanding them, thereby triggering certain
 methods. Watch L<https://www.youtube.com/watch?v=Gzx6KlqiIZE> for an
 exploit demo for "CVE-2015-1592 SixApart MovableType Storable Perl
-Code Execution" for a deserializer which expands
-objects. Deserializing even coderefs (methods, functions) or external
+Code Execution" for a deserializer which expands objects.
+Deserializing even coderefs (methods, functions) or external
 data would be considered the most dangerous.
 
 Security relevant overview of serializers regarding deserializing
@@ -2107,10 +2199,10 @@ sub false() { $false }
 sub is_bool($) {
   shift if @_ == 2; # as method call
   (ref($_[0]) and UNIVERSAL::isa( $_[0], JSON::PP::Boolean::))
-  or (exists $INC{'Types/Serializer.pm'} and Types::Serialiser::is_bool($_[0]))
+  or (exists $INC{'Types/Serialiser.pm'} and Types::Serialiser::is_bool($_[0]))
 }
 
-XSLoader::load 'Cpanel::JSON::XS', $VERSION;
+XSLoader::load 'Cpanel::JSON::XS', $XS_VERSION;
 
 package
   JSON::PP::Boolean;
@@ -2123,11 +2215,11 @@ BEGIN {
     "0+"     => sub { ${$_[0]} },
     "++"     => sub { $_[0] = ${$_[0]} + 1 },
     "--"     => sub { $_[0] = ${$_[0]} - 1 },
-    '""'     => sub { ${$_[0]} == 1 ? 'true' : '0' }, # GH 29
+    '""'     => sub { ${$_[0]} == 1 ? '1' : '0' }, # GH 29
     'eq'     => sub {
       my ($obj, $op) = ref ($_[0]) ? ($_[0], $_[1]) : ($_[1], $_[0]);
       if ($op eq 'true' or $op eq 'false') {
-        return "$obj" eq 'true' ? 'true' eq $op : 'false' eq $op;
+        return "$obj" eq '1' ? 'true' eq $op : 'false' eq $op;
       }
       else {
         return $obj ? 1 == $op : 0 == $op;
@@ -2156,11 +2248,11 @@ L<https://tools.ietf.org/html/rfc4627>
 
 Marc Lehmann <schmorp@schmorp.de>, http://home.schmorp.de/
 
-Reini Urban <rurban@cpanel.net>, http://cpanel.net/
+Reini Urban <rurban@cpan.org>
 
 =head1 MAINTAINER
 
-Reini Urban <rurban@cpanel.net>
+Reini Urban <rurban@cpan.org>
 
 =cut
 

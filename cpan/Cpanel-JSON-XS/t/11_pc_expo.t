@@ -38,6 +38,9 @@ is($obj->[0], 1.01e+30, 'digit 1.01e+30');
 $js = $pc->encode($obj);
 if ($Config::Config{usequadmath}) {
    is($js,'[1010000000000000000000000000000.0]', 'digit 1010000000000000000000000000000.0 (quadmath)');
+} elsif ($Config::Config{uselongdouble} && $Config::Config{ptrsize} > 4) {
+   like($js, qr/^\[(1010000000000000000000000000000\.0|1.01[Ee]\+0?30)\]/,
+      'digit (64bit ld)'); # esp. non-intel
 } else {
    like($js,qr/\[1.01[Ee]\+0?30\]/, 'digit 1.01e+30');
 }

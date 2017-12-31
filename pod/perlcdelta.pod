@@ -98,6 +98,10 @@ plus keep our cperl and secure YAML:::XS support.
 Merged with L<Parse::CPAN::Meta>,
 F<cpan/Parse-CPAN-Meta> is gone.
 
+=item L<Cpanel::JSON::XS>  3.0240
+
+Update from upstream
+
 =item L<ExtUtils::Liblist::Kid>  8.04_06
 
 Silence No library found errors on darwin for libSystem.dylib libs.
