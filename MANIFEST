@@ -3823,6 +3823,7 @@ dist/Thread-Queue/t/08_nothreads.t	Thread::Queue tests
 dist/Thread-Queue/t/09_ended.t		Thread::Queue tests
 dist/Thread-Queue/t/10_timed.t	Thread::Queue tests
 dist/Thread-Queue/t/11_limit.t
+dist/threads/Changes		ithreads
 dist/Thread-Semaphore/lib/Thread/Semaphore.pm	Thread-safe semaphores
 dist/Thread-Semaphore/t/01_basic.t		Thread::Semaphore tests
 dist/Thread-Semaphore/t/02_errs.t		Thread::Semaphore tests
@@ -3867,9 +3868,11 @@ dist/threads/t/free.t		Test ithread destruction
 dist/threads/threads.xs		ithreads
 dist/threads/t/join.t		Testing the join function
 dist/threads/t/kill2.t		Tests thread signalling
+dist/threads/t/kill3.t
 dist/threads/t/kill.t		Tests thread signalling
 dist/threads/t/libc.t		testing libc functions for threadsafety
 dist/threads/t/list.t		Test threads->list()
+dist/threads/t/locale.t
 dist/threads/t/no_threads.t	threads test for non-threaded Perls
 dist/threads/t/problems.t	Test various memory problems
 dist/threads/t/stack_env.t	Tests for stack limits
@@ -3879,6 +3882,7 @@ dist/threads/t/stress_cv.t	Test with multiple threads, coderef cv argument.
 dist/threads/t/stress_re.t	Test with multiple threads, string cv argument and regexes.
 dist/threads/t/stress_string.t	Test with multiple threads, string cv argument.
 dist/threads/t/thread.t		General ithread tests from thr5005
+dist/threads/t/unique.t
 dist/Tie-File/lib/Tie/File.pm		Files as tied arrays
 dist/Tie-File/t/00_version.t		Trivial test for Tie::File
 dist/Tie-File/t/01_gen.t		Generic read/write tests for Tie::File

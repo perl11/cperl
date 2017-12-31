@@ -13470,6 +13470,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Test::Harness'         => '3.39',
             'Thread::Queue'         => '3.12',
             'Thread::Semaphore'     => '2.13',
+            'threads'               => '2.18_01',
             'Time::HiRes'           => '1.9747_01',
             'Time::Local'           => '1.25',
             'Time::Piece'           => '1.3203',

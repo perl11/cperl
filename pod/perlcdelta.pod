@@ -157,6 +157,8 @@ Fix and re-enable F<t/regression.t>
 
 =item L<Thread::Semaphore>  2.13
 
+=item L<threads>  2.18_01
+
 =item L<Time::HiRes>  1.9747_01
 
 More Darwin thread fixes for clock_gettime,

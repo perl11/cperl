@@ -5,7 +5,7 @@ use 5.008;
 use strict;
 use warnings;
 
-our $VERSION = '2.02_01';
+our $VERSION = '2.18_01';
 my $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -134,7 +134,7 @@ threads - Perl interpreter-based threads
 
 =head1 VERSION
 
-This document describes threads version 2.02
+This document describes threads version 2.17
 
 =head1 WARNING
 
@@ -231,16 +231,30 @@ L<discouraged|perlpolicy/discouraged>.
 
 =head1 DESCRIPTION
 
-Since Perl 5.8, thread programming has been available using a model called
-I<interpreter threads> which provides a new Perl interpreter for each
-thread, and, by default, results in no data or state information being shared
-between threads.
+Since Perl 5.8, thread programming has been available using a model
+called I<interpreter threads> or I<ithreads> which provides a new Perl
+interpreter for each thread, and, by default, results in no data or
+state information being shared between threads.
 
-(Prior to Perl 5.8, I<5005threads> was available through the C<Thread.pm> API.
-This threading model has been deprecated, and was removed as of Perl 5.10.0.)
+Prior to Perl 5.8, true I<5005threads> were available through the
+C<Thread.pm> API.  This threading model has been deprecated, and was
+removed as of Perl 5.10.0.  The old model used shared data and ops
+between the native OS threads and was pretty fast, but was plagued
+with locking bugs and race conditions. The new model needs to walk all
+currently loaded ops to clone all attached data to the threads, and
+only if some variables is marked via L<threads::shared>, a magic clone
+hook is attached to the variables to copy the changed data to the
+other threads. It really is just a slow and naive
+L<fork|perlfunc/fork> workaround for Win32, not as fast as the cygwin
+fork implementation.
 
-As just mentioned, all variables are, by default, thread local.  To use shared
-variables, you need to also load L<threads::shared>:
+The new threads are only fast if not many ops and data are available
+when threads are loaded, otherwise on a non-Win32 system rather use
+fork, which uses the native OS fast copy-on-write scheme. Perl5 has
+none yet.
+
+As just mentioned, all variables are, by default, thread local.  To
+use shared variables, you need to also load L<threads::shared>:
 
     use threads;
     use threads::shared;
@@ -366,7 +380,7 @@ key) will cause its ID to be used as the value:
     use threads qw(stringify);
 
     my $thr = threads->create(...);
-    print("Thread $thr started...\n");  # Prints out: Thread 1 started...
+    print("Thread $thr started\n");  # Prints: Thread 1 started
 
 =item threads->object($tid)
 
@@ -691,7 +705,8 @@ threaded applications.
 To specify a particular stack size for any individual thread, call
 C<-E<gt>create()> with a hash reference as the first argument:
 
-    my $thr = threads->create({'stack_size' => 32*4096}, \&foo, @args);
+    my $thr = threads->create({'stack_size' => 32*4096},
+                              \&foo, @args);
 
 =item $thr2 = $thr1->create(FUNCTION, ARGS)
 
@@ -699,7 +714,8 @@ This creates a new thread (C<$thr2>) that inherits the stack size from an
 existing thread (C<$thr1>).  This is shorthand for the following:
 
     my $stack_size = $thr1->get_stack_size();
-    my $thr2 = threads->create({'stack_size' => $stack_size}, FUNCTION, ARGS);
+    my $thr2 = threads->create({'stack_size' => $stack_size},
+                               FUNCTION, ARGS);
 
 =back
 
@@ -1059,6 +1075,18 @@ In prior perl versions, spawning threads with open directory handles would
 crash the interpreter.
 L<[perl #75154]|http://rt.perl.org/rt3/Public/Bug/Display.html?id=75154>
 
+=item Detached threads and global destruction
+
+If the main thread exits while there are detached threads which are still
+running, then Perl's global destruction phase is not executed because
+otherwise certain global structures that control the operation of threads and
+that are allocated in the main thread's memory may get destroyed before the
+detached thread is destroyed.
+
+If you are using any code that requires the execution of the global
+destruction phase for clean up (e.g., removing temp files), then do not use
+detached threads, but rather join all threads before exiting the program.
+
 =item Perl Bugs and the CPAN Version of L<threads>
 
 Support for threads extends beyond the code in this module (i.e.,
@@ -1084,8 +1112,11 @@ Perl 5.8.0 or later
 
 =head1 SEE ALSO
 
-L<threads> Discussion Forum on CPAN:
-L<http://www.cpanforum.com/dist/threads>
+threads on MetaCPAN:
+L<https://metacpan.org/release/threads>
+
+Code repository for CPAN distribution:
+L<https://github.com/Dual-Life/threads>
 
 L<threads::shared>, L<perlthrtut>
 
@@ -1097,6 +1128,8 @@ L<http://lists.perl.org/list/ithreads.html>
 
 Stack size discussion:
 L<http://www.perlmonks.org/?node_id=532956>
+
+Sample code in the I<examples> directory of this distribution on CPAN.
 
 =head1 AUTHOR
 

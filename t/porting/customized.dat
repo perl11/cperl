@@ -67,7 +67,7 @@ YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm 527302db61c55bf695da94adfa66e7c2f3
 YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm 9716931aaf2305fab4a41f35560362947ba3a805
 autodie cpan/autodie/t/mkdir.t 9e70d2282a3cc7d76a78bf8144fccba20fb37dac
 lib dist/lib/lib_pm.PL 6f1951dc926375aa93b93515aa5f3c1ca1396b05
-threads dist/threads/lib/threads.pm f8f5f2c4527aba54ef53a5846e3fad728b24eeea
-threads dist/threads/threads.xs 86191214f193293053d11ca82a8960e4ed7a74a7
+threads dist/threads/lib/threads.pm 24f0e3c18fa45235e5e53e710831ce623bc4db06
+threads dist/threads/threads.xs 6d5446f1b28fb7697b63f954663cd042774483d1
 version cpan/version/lib/version.pm d0923b895d57f1d669ae36fcf85c87b16db341d1
 version vutil.c a8b145c60cc6df6aec94dbdeff643cd1f32368cd
