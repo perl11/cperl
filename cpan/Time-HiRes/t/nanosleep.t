@@ -8,7 +8,8 @@ BEGIN {
     }
 }
 
-use Test::More 0.82 tests => 3;
+use Test::More tests => 3;
+BEGIN { push @INC, '.' }
 use t::Watchdog;
 use Config;
 

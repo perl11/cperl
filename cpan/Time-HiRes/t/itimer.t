@@ -26,8 +26,10 @@ BEGIN {
 }
 
 use Test::More tests => 2;
+BEGIN { push @INC, '.' }
 use t::Watchdog;
 
+# Increase this to 0.60 on CI, overloaded build servers on a VM, or slow machines
 my $limit = 0.25; # 25% is acceptable slosh for testing timers
 
 my $i = 3;
@@ -36,7 +38,7 @@ my $r = [Time::HiRes::gettimeofday()];
 $SIG{VTALRM} = sub {
     $i ? $i-- : Time::HiRes::setitimer(&Time::HiRes::ITIMER_VIRTUAL, 0);
     printf("# Tick! $i %s\n", Time::HiRes::tv_interval($r));
-};	
+};
 
 printf("# setitimer: %s\n", join(" ",
        Time::HiRes::setitimer(&Time::HiRes::ITIMER_VIRTUAL, 0.5, 0.4)));

@@ -1,6 +1,7 @@
 use strict;
 
 use Test::More tests => 5;
+BEGIN { push @INC, '.' }
 use t::Watchdog;
 
 BEGIN { require_ok "Time::HiRes"; }
@@ -21,13 +22,14 @@ printf("# have_clock           = %d\n", &Time::HiRes::d_clock);
 # Ideally, we'd like to test that the timers are rather precise.
 # However, if the system is busy, there are no guarantees on how
 # quickly we will return.  This limit used to be 10%, but that
-# was occasionally triggered falsely.  
+# was occasionally triggered falsely.
 # So let's try 25%.
 # Another possibility might be to print "ok" if the test completes fine
 # with (say) 10% slosh, "skip - system may have been busy?" if the test
 # completes fine with (say) 30% slosh, and fail otherwise.  If you do that,
 # consider changing over to test.pl at the same time.
 # --A.D., Nov 27, 2001
+# Increase this to 0.60 on CI, overloaded build servers on a VM, or slow machines
 my $limit = 0.25; # 25% is acceptable slosh for testing timers
 
 SKIP: {

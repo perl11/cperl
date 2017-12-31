@@ -1,5 +1,62 @@
 Revision history for the Perl extension Time::HiRes.
 
+1.9747 [???]
+ - Switch to XSLoader from Dynaloader
+
+1.9746 [2017-08-17]
+ - Unreliable t/usleep.t and t/utime.t tests [rt.cpan.org #122819]
+   Avoid testing for $dt = $t2 - $t1 and assuming $dt is less than
+   some value since a heavily loaded machine can delay the $t2.
+   Testing for greater than is fine.
+ - Tweak the configuring messages about subsecond stat/utime.
+
+1.9745 [2017-08-14]
+  - Properly check for futimens/utimensat actually doing something.
+    This should handle 'gnukfreebsd' (which has only stubs, so far
+    we have been skipping the test) and as a new thing 'gnu' (Hurd)
+    (also only stubs).  Thanks to Nigel Horne.
+  - Scan in t/utime.t whether the filesystem (wherever File::Temp
+    puts it tempfiles) supports subsecond timestamps.  This removes
+    the fragile Linux/ext3 specific hack.  As a side effect, the
+    setting of subsecond timestamps is tested only if reading of
+    them is supported.  Thanks to Carsten Gaebler for the test idea,
+    and Ryan Voots for testing.
+
+1.9744 [2017-07-27]
+  - add more potential clock constants, like CLOCK_MONOTONIC_FAST
+    (available in FreeBSD), and not all potentially found clock
+    constants were properly exported to be available from Perl,
+    see your system's clock_gettime() documentation for the available ones
+
+1.9743 [2017-07-20]
+  - correct declared minimum Perl version (should be 5.6, was declared
+    as 5.8 since 1.9727_03): blead af94b3ac
+  - fix the fix for 'do file' to load hints in Makefile.PL: blead 3172fdbc
+
+1.9742 [2017-04-16]
+  - prefer 3-argument open: blead 1ae6ead9
+  - fix dist/Time-HiRes/t/*.t that assumed '.' in @INC: blead 465db51d
+  - fix cases where 'do file' should be 'do ./file'.: blead 8b69401c
+
+1.9741 [2016-11-20]
+  - C++11 compatibility: blead a914236c
+  - El Capitan compatibility: blead 45bbc013
+  - use CLOCK_REALTIME for clock_nanosleep scan: blead 56ed632c
+  - include file consistency in scans: blead 605b4dbe
+  - use clockid_t consistently: blead 2979fdf3
+  - use hv_fetchs(): blead 07e4dd7a
+  - scan for clockid_t (needed for macos Sierra): blead 69d1f2c2
+  - darwin lacks clockid_t: blead d1e7b5aa
+    [rt.cpan.org #129789]
+  - provide template for tempfile: blead 91dca83e
+  - explicit cast for clockid_t in C++11: blead 1c566547
+  - upgrade to a newer ppport (3.35)
+
+1.9740 [2016-09-25]
+  - the ext3/ext2 filesystems do not have subsecond resolution,
+    therefore skip the t/utime.t test
+    [rt.cpan.org #116127]
+
 1.9739 [2016-06-28]
   - the upcoming macOS 10.12 (Sierra, the operating system formerly
     known as OS X, or Darwin) has implemented the clock_gettime()

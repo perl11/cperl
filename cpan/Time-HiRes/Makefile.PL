@@ -5,7 +5,7 @@
 # Use $ENV{FORCE_NANOSLEEP_SCAN} to force rescanning whether there
 # really is hope.
 
-{ use 5.006; }
+require 5.006;
 
 use Config;
 use ExtUtils::MakeMaker;
@@ -88,7 +88,7 @@ sub try_compile_and_link {
     my $obj_ext = $Config{obj_ext} || ".o";
     unlink("$tmp.c", "$tmp$obj_ext");
 
-    if (open(TMPC, ">$tmp.c")) {
+    if (open(TMPC, '>', "$tmp.c")) {
 	print TMPC $c;
 	close(TMPC);
 
@@ -132,7 +132,7 @@ __EOD__
 	    unless defined $cccmd;
 
        if ($^O eq 'VMS') {
-	    open( CMDFILE, ">$tmp.com" );
+	    open( CMDFILE, '>', "$tmp.com" );
 	    print CMDFILE "\$ SET MESSAGE/NOFACILITY/NOSEVERITY/NOIDENT/NOTEXT\n";
 	    print CMDFILE "\$ $cccmd\n";
 	    print CMDFILE "\$ IF \$SEVERITY .NE. 1 THEN EXIT 44\n"; # escalate
@@ -290,6 +290,7 @@ sub has_clock_xxx_syscall {
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
+#include <time.h>
 #include <$SYSCALL_H>
 int main(int argc, char** argv)
 {
@@ -309,6 +310,7 @@ sub has_clock_xxx {
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
+#include <time.h>
 int main(int argc, char** argv)
 {
     struct timespec ts;
@@ -325,6 +327,7 @@ sub has_clock {
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
+#include <time.h>
 int main(int argc, char** argv)
 {
     clock_t tictoc;
@@ -348,7 +351,8 @@ int main(int argc, char** argv)
     struct timespec ts2;
     ts1.tv_sec  = 0;
     ts1.tv_nsec = 750000000;;
-    ret = clock_nanosleep(CLOCK_MONOTONIC, 0, &ts1, &ts2);
+    /* All implementations are supposed to support CLOCK_REALTIME. */
+    ret = clock_nanosleep(CLOCK_REALTIME, 0, &ts1, &ts2);
     ret == 0 ? exit(0) : exit(errno ? errno : -1);
 }
 EOM
@@ -360,7 +364,7 @@ sub has_futimens {
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
-#include <sys/time.h>
+#include <sys/stat.h>
 int main(int argc, char** argv)
 {
     int ret;
@@ -377,7 +381,7 @@ sub has_utimensat{
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
-#include <sys/time.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 int main(int argc, char** argv)
 {
@@ -385,6 +389,21 @@ int main(int argc, char** argv)
     struct timespec ts[2];
     ret = utimensat(AT_FDCWD, 0, ts, 0);
     ret == 0 ? exit(0) : exit(errno ? errno : -1);
+}
+EOM
+}
+
+sub has_clockid_t{
+    return 1 if
+    try_compile_and_link(<<EOM);
+#include "EXTERN.h"
+#include "perl.h"
+#include "XSUB.h"
+#include <time.h>
+int main(int argc, char** argv)
+{
+    clockid_t id = CLOCK_REALTIME;
+    exit(id == CLOCK_REALTIME ? 1 : 0);
 }
 EOM
 }
@@ -402,7 +421,7 @@ sub init {
     if (-f $hints) {
 	print "Using hints $hints...\n";
 	local $self;
-	do $hints;
+	do "./$hints";
 	if (exists $self->{LIBS}) {
 	    $LIBS = $self->{LIBS};
 	    print "Extra libraries: @$LIBS...\n";
@@ -567,6 +586,16 @@ EOD
 	my $nt = ($^O eq 'os2' ? '' : 'not');
         print "You can$nt mix subsecond sleeps with signals.\n";
         print "(It would not be portable anyway.)\n";
+    }
+
+    print "Looking for clockid_t... ";
+    my $has_clockid_t;
+    if (has_clockid_t()) {
+	print "found.\n";
+        $has_clockid_t++;
+	$DEFINE .= ' -DTIME_HIRES_CLOCKID_T';
+    } else {
+	print "NOT found, will use int.\n";
     }
 
     print "Looking for clock_gettime()... ";
@@ -835,7 +864,7 @@ EOM
 
     if ($DEFINE) {
         $DEFINE =~ s/^\s+//;
-        if (open(XDEFINE, ">xdefine")) {
+        if (open(XDEFINE, '>', 'xdefine')) {
 	    print XDEFINE $DEFINE, "\n";
 	    close(XDEFINE);
         }
@@ -907,7 +936,7 @@ sub doMakefile {
     }
 
     if ($ExtUtils::MakeMaker::VERSION >= 6.48) {
-	push @makefileopts, (MIN_PERL_VERSION => '5.008',);
+	push @makefileopts, (MIN_PERL_VERSION => '5.006',);
     }
 
     if ($ExtUtils::MakeMaker::VERSION >= 6.31) {
@@ -919,31 +948,38 @@ sub doMakefile {
 
 sub doConstants {
     if (eval {require ExtUtils::Constant; 1}) {
+        # More or less this same list is in HiRes.pm.  Should unify.
 	my @names = qw(
-                       CLOCKS_PER_SEC
-                       CLOCK_BOOTTIME
-                       CLOCK_HIGHRES
-                       CLOCK_MONOTONIC
-                       CLOCK_MONOTONIC_COARSE
-                       CLOCK_MONOTONIC_PRECISE
-                       CLOCK_MONOTONIC_RAW
-                       CLOCK_PROCESS_CPUTIME_ID
-                       CLOCK_REALTIME
-                       CLOCK_REALTIME_COARSE
-                       CLOCK_REALTIME_FAST
-                       CLOCK_REALTIME_PRECISE
-                       CLOCK_SECOND
-                       CLOCK_SOFTTIME
-                       CLOCK_THREAD_CPUTIME_ID
-                       CLOCK_TIMEOFDAY
-                       CLOCK_UPTIME
-                       CLOCK_UPTIME_FAST
-                       CLOCK_UPTIME_PRECISE
-                       ITIMER_PROF
-                       ITIMER_REAL
-                       ITIMER_REALPROF
-                       ITIMER_VIRTUAL
-                       TIMER_ABSTIME
+		       CLOCKS_PER_SEC
+		       CLOCK_BOOTTIME
+		       CLOCK_HIGHRES
+		       CLOCK_MONOTONIC
+		       CLOCK_MONOTONIC_COARSE
+		       CLOCK_MONOTONIC_FAST
+		       CLOCK_MONOTONIC_PRECISE
+		       CLOCK_MONOTONIC_RAW
+		       CLOCK_PROF
+		       CLOCK_PROCESS_CPUTIME_ID
+		       CLOCK_REALTIME
+		       CLOCK_REALTIME_COARSE
+		       CLOCK_REALTIME_FAST
+		       CLOCK_REALTIME_PRECISE
+		       CLOCK_REALTIME_RAW
+		       CLOCK_SECOND
+		       CLOCK_SOFTTIME
+		       CLOCK_THREAD_CPUTIME_ID
+		       CLOCK_TIMEOFDAY
+		       CLOCK_UPTIME
+		       CLOCK_UPTIME_COARSE
+		       CLOCK_UPTIME_FAST
+		       CLOCK_UPTIME_PRECISE
+		       CLOCK_UPTIME_RAW
+		       CLOCK_VIRTUAL
+		       ITIMER_PROF
+		       ITIMER_REAL
+		       ITIMER_REALPROF
+		       ITIMER_VIRTUAL
+		       TIMER_ABSTIME
                       );
 	foreach (qw (d_usleep d_ualarm d_gettimeofday d_getitimer d_setitimer
 		     d_nanosleep d_clock_gettime d_clock_getres
@@ -986,8 +1022,8 @@ sub doConstants {
 	foreach $file ('const-c.inc', 'const-xs.inc') {
 	    my $fallback = File::Spec->catfile('fallback', $file);
 	    local $/;
-	    open IN, "<$fallback" or die "Can't open $fallback: $!";
-	    open OUT, ">$file" or die "Can't open $file: $!";
+	    open IN, '<', $fallback or die "Can't open $fallback: $!";
+	    open OUT, '>', $file or die "Can't open $file: $!";
 	    print OUT <IN> or die $!;
 	    close OUT or die "Can't close $file: $!";
 	    close IN or die "Can't close $fallback: $!";
@@ -1006,7 +1042,7 @@ sub main {
 	    DEFINE('SELECT_IS_BROKEN');
 	    $LIBS = [];
 	    print "System is $^O, skipping full configure...\n";
-	    open(XDEFINE, ">xdefine") or die "$0: Cannot create xdefine: $!\n";
+	    open(XDEFINE, '>', 'xdefine') or die "$0: Cannot create xdefine: $!\n";
 	    close(XDEFINE);
 	} else {
 	    init();

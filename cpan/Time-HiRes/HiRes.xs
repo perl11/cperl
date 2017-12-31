@@ -87,6 +87,10 @@ extern "C" {
 #   undef ITIMER_REALPROF
 #endif
 
+#ifndef TIME_HIRES_CLOCKID_T
+typedef int clockid_t;
+#endif
+
 #if defined(TIME_HIRES_CLOCK_GETTIME) && defined(_STRUCT_ITIMERSPEC)
 
 /* HP-UX has CLOCK_XXX values but as enums, not as defines.
@@ -750,7 +754,7 @@ hrstatns(UV *atime_nsec, UV *mtime_nsec, UV *ctime_nsec)
 /* Until Apple implements clock_gettime()
  * (ditto clock_getres() and clock_nanosleep())
  * we will emulate them using the Mach kernel interfaces. */
-#if defined(PERL_DARWIN) && \
+#if (defined(PERL_DARWIN) || defined(__APPLE__)) && \
   (defined(TIME_HIRES_CLOCK_GETTIME_EMULATION)   || \
    defined(TIME_HIRES_CLOCK_GETRES_EMULATION)    || \
    defined(TIME_HIRES_CLOCK_NANOSLEEP_EMULATION))
@@ -803,7 +807,7 @@ static int darwin_time_init() {
 }
 
 #ifdef TIME_HIRES_CLOCK_GETTIME_EMULATION
-static int clock_gettime(int clock_id, struct timespec *ts) {
+static int th_clock_gettime(clockid_t clock_id, struct timespec *ts) {
   if (darwin_time_init() && timebase_info.denom) {
     switch (clock_id) {
       case CLOCK_REALTIME:
@@ -834,10 +838,13 @@ static int clock_gettime(int clock_id, struct timespec *ts) {
   SETERRNO(EINVAL, LIB_INVARG);
   return -1;
 }
+
+#define clock_gettime(clock_id, ts) th_clock_gettime((clock_id), (ts))
+
 #endif /* TIME_HIRES_CLOCK_GETTIME_EMULATION */
 
 #ifdef TIME_HIRES_CLOCK_GETRES_EMULATION
-static int clock_getres(int clock_id, struct timespec *ts) {
+static int th_clock_getres(clockid_t clock_id, struct timespec *ts) {
   if (darwin_time_init() && timebase_info.denom) {
     switch (clock_id) {
       case CLOCK_REALTIME:
@@ -856,10 +863,12 @@ static int clock_getres(int clock_id, struct timespec *ts) {
   SETERRNO(EINVAL, LIB_INVARG);
   return -1;
 }
+
+#define clock_getres(clock_id, ts) th_clock_getres((clock_id), (ts))
 #endif /* TIME_HIRES_CLOCK_GETRES_EMULATION */
 
 #ifdef TIME_HIRES_CLOCK_NANOSLEEP_EMULATION
-static int clock_nanosleep(int clock_id, int flags,
+static int th_clock_nanosleep(clockid_t clock_id, int flags,
 			   const struct timespec *rqtp,
 			   struct timespec *rmtp) {
   if (darwin_time_init()) {
@@ -896,6 +905,10 @@ static int clock_nanosleep(int clock_id, int flags,
   SETERRNO(EINVAL, LIB_INVARG);
   return -1;
 }
+
+#define clock_nanosleep(clock_id, flags, rqtp, rmtp) \
+  th_clock_nanosleep((clock_id), (flags), (rqtp), (rmtp))
+
 #endif /* TIME_HIRES_CLOCK_NANOSLEEP_EMULATION */
 
 #endif /* PERL_DARWIN */
@@ -1012,7 +1025,8 @@ usleep(useconds)
 		    useconds -= NV_1E6 * seconds;
 		}
 	    } else if (useconds < 0.0)
-	        croak("Time::HiRes::usleep(%"NVgf"): negative time not invented yet", useconds);
+	        croak("Time::HiRes::usleep(%" NVgf
+                      "): negative time not invented yet", useconds);
 	    usleep((U32)useconds);
 	} else
 	    PerlProc_pause();
@@ -1034,7 +1048,8 @@ nanosleep(nsec)
 	struct timespec sleepfor, unslept;
 	CODE:
 	if (nsec < 0.0)
-	    croak("Time::HiRes::nanosleep(%"NVgf"): negative time not invented yet", nsec);
+	    croak("Time::HiRes::nanosleep(%" NVgf
+                  "): negative time not invented yet", nsec);
         nanosleep_init(nsec, &sleepfor, &unslept);
 	if (nanosleep(&sleepfor, &unslept) == 0) {
 	    RETVAL = nsec;
@@ -1079,11 +1094,15 @@ sleep(...)
 		   useconds = -(IV)useconds;
 #endif /* #if defined(__sparc64__) && defined(__GNUC__) */
 		   if ((IV)useconds < 0)
-		     croak("Time::HiRes::sleep(%"NVgf"): internal error: useconds < 0 (unsigned %"UVuf" signed %"IVdf")", seconds, useconds, (IV)useconds);
+		     croak("Time::HiRes::sleep(%" NVgf
+                           "): internal error: useconds < 0 (unsigned %" UVuf
+                           " signed %" IVdf ")",
+                           seconds, useconds, (IV)useconds);
 		 }
 		 usleep(useconds);
 	    } else
-	        croak("Time::HiRes::sleep(%"NVgf"): negative time not invented yet", seconds);
+	        croak("Time::HiRes::sleep(%" NVgf
+                      "): negative time not invented yet", seconds);
 	} else
 	    PerlProc_pause();
 	gettimeofday(&Tb, NULL);
@@ -1131,7 +1150,9 @@ ualarm(useconds,uinterval=0)
 	  }
 #else
 	if (useconds >= IV_1E6 || uinterval >= IV_1E6) 
-		croak("Time::HiRes::ualarm(%d, %d): useconds or uinterval equal to or more than %"IVdf, useconds, uinterval, IV_1E6);
+		croak("Time::HiRes::ualarm(%d, %d): useconds or uinterval"
+                      " equal to or more than %" IVdf,
+                      useconds, uinterval, IV_1E6);
 	RETVAL = ualarm(useconds, uinterval);
 #endif
 
@@ -1144,7 +1165,8 @@ alarm(seconds,interval=0)
 	NV interval
 	CODE:
 	if (seconds < 0.0 || interval < 0.0)
-	    croak("Time::HiRes::alarm(%"NVgf", %"NVgf"): negative time not invented yet", seconds, interval);
+	    croak("Time::HiRes::alarm(%" NVgf ", %" NVgf
+                  "): negative time not invented yet", seconds, interval);
 	{
 	  IV iseconds = (IV)seconds;
 	  IV iinterval = (IV)interval;
@@ -1152,7 +1174,9 @@ alarm(seconds,interval=0)
 	  NV finterval = interval - iinterval;
 	  IV useconds, uinterval;
 	  if (fseconds >= 1.0 || finterval >= 1.0)
-		croak("Time::HiRes::alarm(%"NVgf", %"NVgf"): seconds or interval too large to split correctly", seconds, interval);
+		croak("Time::HiRes::alarm(%" NVgf ", %" NVgf
+                      "): seconds or interval too large to split correctly",
+                      seconds, interval);
 	  useconds = IV_1E6 * fseconds;
 	  uinterval = IV_1E6 * finterval;
 #if defined(HAS_SETITIMER) && defined(ITIMER_REAL)
@@ -1172,7 +1196,9 @@ alarm(seconds,interval=0)
 	  }
 #else
 	  if (iseconds || iinterval)
-		croak("Time::HiRes::alarm(%"NVgf", %"NVgf"): seconds or interval equal to or more than 1.0 ", seconds, interval);
+		croak("Time::HiRes::alarm(%" NVgf ", %" NVgf
+                      "): seconds or interval equal to or more than 1.0 ",
+                      seconds, interval);
 	    RETVAL = (NV)ualarm( useconds, uinterval ) / NV_1E6;
 #endif
 	}
@@ -1300,7 +1326,9 @@ setitimer(which, seconds, interval = 0)
 	struct itimerval oldit;
     PPCODE:
 	if (seconds < 0.0 || interval < 0.0)
-	    croak("Time::HiRes::setitimer(%"IVdf", %"NVgf", %"NVgf"): negative time not invented yet", (IV)which, seconds, interval);
+	    croak("Time::HiRes::setitimer(%" IVdf ", %" NVgf ", %" NVgf
+                  "): negative time not invented yet",
+                  (IV)which, seconds, interval);
 	newit.it_value.tv_sec  = (IV)seconds;
 	newit.it_value.tv_usec =
 	  (IV)((seconds  - (NV)newit.it_value.tv_sec)    * NV_1E6);
@@ -1310,7 +1338,7 @@ setitimer(which, seconds, interval = 0)
         /* on some platforms the 1st arg to setitimer is an enum, which
          * causes -Wc++-compat to complain about passing an int instead
          */
-#ifdef GCC_DIAG_IGNORE
+#if defined(GCC_DIAG_IGNORE) && !defined(__cplusplus)
         GCC_DIAG_IGNORE(-Wc++-compat);
 #endif
 	if (setitimer(which, &newit, &oldit) == 0) {
@@ -1321,7 +1349,7 @@ setitimer(which, seconds, interval = 0)
 	    PUSHs(sv_2mortal(newSVnv(TV2NV(oldit.it_interval))));
 	  }
 	}
-#ifdef GCC_DIAG_RESTORE
+#if defined(GCC_DIAG_RESTORE) && !defined(__cplusplus)
         GCC_DIAG_RESTORE;
 #endif
 
@@ -1334,7 +1362,7 @@ getitimer(which)
         /* on some platforms the 1st arg to getitimer is an enum, which
          * causes -Wc++-compat to complain about passing an int instead
          */
-#ifdef GCC_DIAG_IGNORE
+#if defined(GCC_DIAG_IGNORE) && !defined(__cplusplus)
         GCC_DIAG_IGNORE(-Wc++-compat);
 #endif
 	if (getitimer(which, &nowit) == 0) {
@@ -1345,7 +1373,7 @@ getitimer(which)
 	    PUSHs(sv_2mortal(newSVnv(TV2NV(nowit.it_interval))));
 	  }
 	}
-#ifdef GCC_DIAG_RESTORE
+#if defined(GCC_DIAG_RESTORE) && !defined(__cplusplus)
         GCC_DIAG_RESTORE;
 #endif
 
@@ -1372,43 +1400,45 @@ PROTOTYPE: $$@
 	tot = 0;
 
 	if ( accessed == &PL_sv_undef && modified == &PL_sv_undef )
-		utbufp = NULL;
+            utbufp = NULL;
 	else {
-		if (SvNV(accessed) < 0.0 || SvNV(modified) < 0.0)
-	        	croak("Time::HiRes::utime(%"NVgf", %"NVgf"): negative time not invented yet", SvNV(accessed), SvNV(modified));
-		Zero(&utbuf, sizeof utbuf, char);
-		utbuf[0].tv_sec = (Time_t)SvNV(accessed);  /* time accessed */
-		utbuf[0].tv_nsec = (long)( ( SvNV(accessed) - utbuf[0].tv_sec ) * 1e9 );
-		utbuf[1].tv_sec = (Time_t)SvNV(modified);  /* time modified */
-		utbuf[1].tv_nsec = (long)( ( SvNV(modified) - utbuf[1].tv_sec ) * 1e9 );
+            if (SvNV(accessed) < 0.0 || SvNV(modified) < 0.0)
+                croak("Time::HiRes::utime(%" NVgf ", %" NVgf
+                      "): negative time not invented yet",
+                      SvNV(accessed), SvNV(modified));
+            Zero(&utbuf, sizeof utbuf, char);
+            utbuf[0].tv_sec = (Time_t)SvNV(accessed);  /* time accessed */
+            utbuf[0].tv_nsec = (long)( ( SvNV(accessed) - utbuf[0].tv_sec ) * 1e9 );
+            utbuf[1].tv_sec = (Time_t)SvNV(modified);  /* time modified */
+            utbuf[1].tv_nsec = (long)( ( SvNV(modified) - utbuf[1].tv_sec ) * 1e9 );
 	}
 
 	while (items > 0) {
-		file = POPs; items--;
+            file = POPs; items--;
 
-		if (SvROK(file) && GvIO(SvRV(file)) && IoIFP(sv_2io(SvRV(file)))) {
-			int fd =  PerlIO_fileno(IoIFP(sv_2io(file)));
-			if (fd < 0)
-				SETERRNO(EBADF,RMS_IFI);
-			else 
+            if (SvROK(file) && GvIO(SvRV(file)) && IoIFP(sv_2io(SvRV(file)))) {
+                int fd =  PerlIO_fileno(IoIFP(sv_2io(file)));
+                if (fd < 0)
+                    SETERRNO(EBADF,RMS_IFI);
+                else
 #ifdef HAS_FUTIMENS
-			if (futimens(fd, utbufp) == 0)
-				tot++;
+                    if (futimens(fd, utbufp) == 0)
+                        tot++;
 #else  /* HAS_FUTIMES */
-				croak("futimens unimplemented in this platform");
+                    croak("futimens unimplemented in this platform");
 #endif /* HAS_FUTIMES */
-		}
-		else {
+            }
+            else {
 #ifdef HAS_UTIMENSAT
-			STRLEN len;
-			char * name = SvPV(file, len);
-			if (IS_SAFE_PATHNAME(name, len, "utime") &&
-			    utimensat(AT_FDCWD, name, utbufp, 0) == 0)
-				tot++;
+                STRLEN len;
+                char * name = SvPV(file, len);
+                if (IS_SAFE_PATHNAME(name, len, "utime") &&
+                    utimensat(AT_FDCWD, name, utbufp, 0) == 0)
+                    tot++;
 #else  /* HAS_UTIMENSAT */
-			croak("utimensat unimplemented in this platform");
+                croak("utimensat unimplemented in this platform");
 #endif /* HAS_UTIMENSAT */
-		}
+            }
 	} /* while items */
 	RETVAL = tot;
 
@@ -1431,7 +1461,7 @@ utime(accessed, modified, ...)
 
 NV
 clock_gettime(clock_id = CLOCK_REALTIME)
-	int clock_id
+	clockid_t clock_id
     PREINIT:
 	struct timespec ts;
 	int status = -1;
@@ -1450,7 +1480,7 @@ clock_gettime(clock_id = CLOCK_REALTIME)
 
 NV
 clock_gettime(clock_id = 0)
-	int clock_id
+	clockid_t clock_id
     CODE:
 	PERL_UNUSED_ARG(clock_id);
         croak("Time::HiRes::clock_gettime(): unimplemented in this platform");
@@ -1464,7 +1494,7 @@ clock_gettime(clock_id = 0)
 
 NV
 clock_getres(clock_id = CLOCK_REALTIME)
-	int clock_id
+	clockid_t clock_id
     PREINIT:
 	int status = -1;
 	struct timespec ts;
@@ -1472,6 +1502,8 @@ clock_getres(clock_id = CLOCK_REALTIME)
 #ifdef TIME_HIRES_CLOCK_GETRES_SYSCALL
 	status = syscall(SYS_clock_getres, clock_id, &ts);
 #else
+	/* CID 165491:  Error handling issues  (NEGATIVE_RETURNS)
+	   "clock_id" is passed to a parameter that cannot be negative. */
 	status = clock_getres(clock_id, &ts);
 #endif
 	RETVAL = status == 0 ? ts.tv_sec + (NV) ts.tv_nsec / NV_1E9 : -1;
@@ -1483,7 +1515,7 @@ clock_getres(clock_id = CLOCK_REALTIME)
 
 NV
 clock_getres(clock_id = 0)
-	int clock_id
+	clockid_t clock_id
     CODE:
 	PERL_UNUSED_ARG(clock_id);
         croak("Time::HiRes::clock_getres(): unimplemented in this platform");
@@ -1497,14 +1529,15 @@ clock_getres(clock_id = 0)
 
 NV
 clock_nanosleep(clock_id, nsec, flags = 0)
-	int clock_id
+	clockid_t clock_id
 	NV  nsec
 	int flags
     PREINIT:
 	struct timespec sleepfor, unslept;
     CODE:
 	if (nsec < 0.0)
-	    croak("Time::HiRes::clock_nanosleep(..., %"NVgf"): negative time not invented yet", nsec);
+	    croak("Time::HiRes::clock_nanosleep(..., %" NVgf
+                  "): negative time not invented yet", nsec);
         nanosleep_init(nsec, &sleepfor, &unslept);
 	if (clock_nanosleep(clock_id, flags, &sleepfor, &unslept) == 0) {
 	    RETVAL = nsec;
@@ -1518,7 +1551,7 @@ clock_nanosleep(clock_id, nsec, flags = 0)
 
 NV
 clock_nanosleep(clock_id, nsec, flags = 0)
-	int clock_id
+	clockid_t clock_id
 	NV  nsec
 	int flags
     CODE:
@@ -1582,18 +1615,18 @@ PROTOTYPE: ;$
 	LEAVE;
 	nret = SP+1 - &ST(0);
 	if (nret == 13) {
-	  UV atime = SvUV(ST( 8));
-	  UV mtime = SvUV(ST( 9));
-	  UV ctime = SvUV(ST(10));
-	  UV atime_nsec;
-	  UV mtime_nsec;
-	  UV ctime_nsec;
-	  hrstatns(&atime_nsec, &mtime_nsec, &ctime_nsec);
-	  if (atime_nsec)
-	    ST( 8) = sv_2mortal(newSVnv(atime + (NV) atime_nsec / NV_1E9));
-	  if (mtime_nsec)
-	    ST( 9) = sv_2mortal(newSVnv(mtime + (NV) mtime_nsec / NV_1E9));
-	  if (ctime_nsec)
-	    ST(10) = sv_2mortal(newSVnv(ctime + (NV) ctime_nsec / NV_1E9));
+            UV atime = SvUV(ST( 8));
+            UV mtime = SvUV(ST( 9));
+            UV ctime = SvUV(ST(10));
+            UV atime_nsec;
+            UV mtime_nsec;
+            UV ctime_nsec;
+            hrstatns(&atime_nsec, &mtime_nsec, &ctime_nsec);
+            if (atime_nsec)
+                ST( 8) = sv_2mortal(newSVnv(atime + (NV) atime_nsec / NV_1E9));
+            if (mtime_nsec)
+                ST( 9) = sv_2mortal(newSVnv(mtime + (NV) mtime_nsec / NV_1E9));
+            if (ctime_nsec)
+                ST(10) = sv_2mortal(newSVnv(ctime + (NV) ctime_nsec / NV_1E9));
 	}
 	XSRETURN(nret);

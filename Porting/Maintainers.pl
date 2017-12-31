@@ -1390,7 +1390,7 @@ use File::Glob qw(:case);
     },
 
     'Time::HiRes' => {
-        'DISTRIBUTION' => 'JHI/Time-HiRes-1.9739.tar.gz',
+        'DISTRIBUTION' => 'JHI/Time-HiRes-1.9747.tar.gz',
         'FILES'        => q[cpan/Time-HiRes],
         # for overly slow smokers
         'CUSTOMIZED'   => [ 't/nanosleep.t' ],
