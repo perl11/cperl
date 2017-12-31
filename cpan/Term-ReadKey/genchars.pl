@@ -1,14 +1,16 @@
 #!/usr/bin/perl
-
 #
 # $Id: genchars.pl,v 2.22 2005/01/11 21:15:17 jonathan Exp $
 #
 ##############################
-$version="1.97";
+$version="1.98";
 ##############################
 use Config;
+
+BEGIN { push @INC, "."; }
 use Configure;
-#BEGIN { require "./Configure.pm"; }
+use constant SILENT =>
+  (defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/ ? 1 : 0);
 
 #sub report {
 #	my($prog)=join(" ",@_);
@@ -30,7 +32,7 @@ use Configure;
 #  return $ret;
 #}
 
-open(CCHARS,">","cchars.h") || die "Fatal error, Unable to write to cchars.h!";
+open(CCHARS,">cchars.h") || die "Fatal error, Unable to write to cchars.h!";
 
 #print "Checking for termio...\n";
 #$TERMIO = !report(	"#include <termio.h>\n	struct termios s; main(){}");
@@ -88,20 +90,21 @@ open(CCHARS,">","cchars.h") || die "Fatal error, Unable to write to cchars.h!";
 );
 
 print CCHARS "
+/* -*- buffer-read-only: t -*-
 
-/* Written by genchars.pl version $version */
+  This file is auto-generated. ***ANY*** changes here will be lost.
+  Written by genchars.pl version $version */
 
 ";
 
 print CCHARS "#define HAVE_POLL_H\n" if CheckHeader("poll.h");
 print CCHARS "#define HAVE_SYS_POLL_H\n" if CheckHeader("sys/poll.h");
 
-print "\n";
+print "\n" unless SILENT;
 if(1) {
 	@values = sort { $possible{$a} cmp $possible{$b} or $a cmp $b } keys %possible;
 
-	print "Writing termio/termios section of cchars.h... "
-          unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
+	print "Writing termio/termios section of cchars.h... " unless SILENT;
 	print CCHARS "
 
 #ifdef CC_TERMIOS
@@ -130,9 +133,15 @@ if(1) {
 # define LEGALMAXCC 126
 #endif
 
+#ifdef XS_INTERNAL
+#  define TRTXS(a) XS_INTERNAL(a)
+#else
+#  define TRTXS(a) XS(a)
+#endif
+
 #if defined(CC_TERMIO) || defined(CC_TERMIOS)
 
-char	* cc_names[] = {	".join('',map("
+STATIC const char	* const cc_names[] = {	".join('',map("
 #if defined($_) && ($_ < LEGALMAXCC)
 	\"$possible{$_}\",	"."
 #else				"."
@@ -140,13 +149,13 @@ char	* cc_names[] = {	".join('',map("
 #endif				", @values ))."
 };
 
-const int MAXCC = 0	",join('',map("
+STATIC const int MAXCC = 0	",join('',map("
 #if defined($_)  && ($_ < LEGALMAXCC)
 	+1		/* $possible{$_} */
 #endif			", @values ))."
 	;
 
-XS(XS_Term__ReadKey_GetControlChars)
+TRTXS(XS_Term__ReadKey_GetControlChars)
 {
 	dXSARGS;
 	if (items < 0 || items > 1) {
@@ -183,7 +192,7 @@ PUSHs(sv_2mortal(newSVpv((char*)&s.c_cc[$values[$_]],1))); 	"."
 	}
 }
 
-XS(XS_Term__ReadKey_SetControlChars)
+TRTXS(XS_Term__ReadKey_SetControlChars)
 {
 	dXSARGS;
 	/*if ((items % 2) != 0) {
@@ -244,8 +253,7 @@ XS(XS_Term__ReadKey_SetControlChars)
 
 ";
 
-	print "Done.\n"
-          unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
+	print "Done.\n" unless SILENT;
 
 }
 
@@ -254,10 +262,9 @@ undef %billy;
 if(@ARGV) { # If any argument is supplied on the command-line don't check sgtty
 	$SGTTY=0; #skip tests
 }  else {
-	print "Checking for sgtty...\n"
-          unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
+	print "Checking for sgtty...\n" unless SILENT;
 
-	$SGTTY = CheckStructure "sgttyb","sgtty.h";
+	$SGTTY = CheckStructure("sgttyb","sgtty.h");
 #	$SGTTY = !Compile("
 ##include <sgtty.h>
 #struct sgttyb s;
@@ -274,12 +281,7 @@ if(@ARGV) { # If any argument is supplied on the command-line don't check sgtty
 #ioctl(0,TIOCGETP,&s);
 #}");
 
-        if ($SGTTY) {
-            print "	Sgtty found.\n"
-              unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
-        } else {
-            print "	Sgtty NOT found.\n";
-        }
+	print "	Sgtty ",($SGTTY?"":"NOT "),"found.\n" unless SILENT;
 }
 
 $billy{"ERASE"} = "s1.sg_erase";
@@ -288,29 +290,28 @@ $tchars=$ltchars=0;
 
 if($SGTTY) {
 
-	print "Checking sgtty...\n"
-          unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
+	print "Checking sgtty...\n" unless SILENT;
 
-	$tchars = CheckStructure "tchars","sgtty.h";
+	$tchars = CheckStructure("tchars","sgtty.h");
 #	$tchars = !report(	'
 ##include <sgtty.h>
 #struct tchars t;  
 #main() { ioctl(0,TIOCGETC,&t); }
 #');
-	print "	tchars structure found.\n" if $tchars;
+	print "	tchars structure found.\n" if $tchars and !SILENT;
 
-	$ltchars = CheckStructure "ltchars","sgtty.h";
+	$ltchars = CheckStructure("ltchars","sgtty.h");
 #	$ltchars = !report(	'
 ##include <sgtty.h>
 #struct ltchars t;  
 #main() { ioctl(0,TIOCGLTC,&t); }
 #');
 
-	print "	ltchars structure found.\n" if $ltchars;
+	print "	ltchars structure found.\n" if $ltchars and !SILENT;
 
 
-	print "Checking symbols\n"
-          unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
+	print "Checking symbols\n" unless SILENT;
+
 
 	for $c (sort keys %possible2) {
 
@@ -321,7 +322,7 @@ if($SGTTY) {
 #")) {
 		if($tchars and CheckField("tchars","t_$c","sgtty.h")) {
 
-			print "	t_$c ($possible2{$c}) found in tchars\n";
+			print "	t_$c ($possible2{$c}) found in tchars\n" unless SILENT;
 			$billy{$possible2{$c}} = "s2.t_$c";
 		}
 
@@ -331,7 +332,7 @@ if($SGTTY) {
 #main () { char c = s3.t_$c; }
 #")) {
 		elsif($ltchars and CheckField("ltchars","t_$c","sgtty.h")) {
-			print "	t_$c ($possible2{$c}) found in ltchars\n";
+			print "	t_$c ($possible2{$c}) found in ltchars\n" unless SILENT;
 			$billy{$possible2{$c}} = "s3.t_$c";
 		}
 
@@ -364,8 +365,7 @@ struct termstruct {
 	$struct .= "
 };";
 
-        print "Writing sgtty section of cchars.h... "
-          unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
+print "Writing sgtty section of cchars.h... " unless SILENT;
 
 	print CCHARS "
 
@@ -373,13 +373,13 @@ struct termstruct {
 $struct
 #define TermStructure struct termstruct
 
-char	* cc_names[] = {	".join('',map("
+STATIC const char	* const cc_names[] = {	".join('',map("
 	\"$_\",			", @values ))."
 };
 
 #define MAXCC	". ($#values+1)."
 
-XS(XS_Term__ReadKey_GetControlChars)
+TRTXS(XS_Term__ReadKey_GetControlChars)
 {
 	dXSARGS;
 	if (items < 0 || items > 1) {
@@ -411,7 +411,7 @@ PUSHs(sv_2mortal(newSVpv(&s.$billy{$values[$_]},1))); 	",0..$#values))."
 	}
 }
 
-XS(XS_Term__ReadKey_SetControlChars)
+TRTXS(XS_Term__ReadKey_SetControlChars)
 {
 	dXSARGS;
 	/*if ((items % 2) != 0) {
@@ -462,7 +462,7 @@ XS(XS_Term__ReadKey_SetControlChars)
 
 #if !defined(CC_TERMIO) && !defined(CC_TERMIOS) && !defined(CC_SGTTY)
 #define TermStructure int
-XS(XS_Term__ReadKey_GetControlChars)
+TRTXS(XS_Term__ReadKey_GetControlChars)
 {
 	dXSARGS;
 	if (items <0 || items>1) {
@@ -476,7 +476,7 @@ XS(XS_Term__ReadKey_GetControlChars)
 	}
 }
 
-XS(XS_Term__ReadKey_SetControlChars)
+TRTXS(XS_Term__ReadKey_SetControlChars)
 {
 	dXSARGS;
 	if (items < 0 || items > 1) {
@@ -488,8 +488,12 @@ XS(XS_Term__ReadKey_SetControlChars)
 
 #endif
 
+/* ex: set ro: */
 ";
 
-print "Done.\n"
-  unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
+print "Done.\n" unless SILENT;
+
+
+
+
 	

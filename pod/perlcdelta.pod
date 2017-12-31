@@ -137,6 +137,10 @@ plus fix some problems in their new code.
 
 =item L<Term::ANSIColor>  4.06
 
+=item L<Term::ReadKey>  2.37_03
+
+from cperl 5.27.3c
+
 =item L<Time::HiRes>  1.9739
 
 More Darwin thread fixes for clock_gettime,

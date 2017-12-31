@@ -40,7 +40,7 @@ ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/pm_to_blib.t 71ebcee355691ce374fca
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/prereq.t c1fe6e8ce96e8a648043ee8066e60a871fb4e0ba
 ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm 52f5520bc957c306776810d2c6a771445e396fb1
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm afff21407dc58c630867bf4e9e79c5385812c559
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm e09961a9ab7177d3c4af6d9d00df778c4f052ca3
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 6dba40c39f6f3b204e2fcd4bc5bfd2721bf4ef30
 Net::Domain cpan/libnet/lib/Net/Domain.pm 3ada368520d3179da8bc1b28ae61a99b4981b758
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 8ac11522808238b028b935fa94bf5ff319e68938
@@ -48,8 +48,8 @@ Pod::Perldoc cpan/Pod-Perldoc/Makefile.PL d1473c88b8cc5543d174966096b95f2d84a7fd
 Pod::Usage cpan/Pod-Usage/scripts/pod2usage.PL e78dee490d466191620821446d49794a4ec6254e
 Safe dist/Safe/Safe.pm fb1cf6efdfcd1d2dac2aca90bccd05cb8d1ac1c4
 Safe dist/Safe/t/safeops.t 2254dd5654230a6de6082510fe766ef7cbb6e7e7
-Term::ReadKey cpan/Term-ReadKey/genchars.pl bb25c74979c6139c3413d97df497329e5775cb19
-Term::ReadKey cpan/Term-ReadKey/Makefile.PL 6bf8420432bd6de3395fa818bd860e8665e5db29
+Term::ReadKey cpan/Term-ReadKey/genchars.pl f2e7df00c08c34872cedcce1746cc71d642c1d80
+Term::ReadKey cpan/Term-ReadKey/Makefile.PL 14169ab0ebeb75d173f3e74b3beb46f5a793788d
 Test::Harness cpan/Test-Harness/t/lib/NoFork.pm e96d39d98c176745a317e2d178713708f03e8cae
 Test::Harness cpan/Test-Harness/t/multiplexer.t 059fbbd8529bf73ba0615272ee85f1706cae734d
 Test::Harness cpan/Test-Harness/t/nofork.t 17a1bde6de588ca647cd89d3786e84a68164a45c
