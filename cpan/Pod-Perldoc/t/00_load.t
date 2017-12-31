@@ -18,6 +18,6 @@ plan tests => scalar @classes;
 
 foreach my $class ( @classes ) {
 	require_ok( $class );
-	my $version = do { no strict 'refs'; ${ '$' . $class . '::VERSION' } };
+	my $version = do { no strict 'refs'; ${ $class . '::VERSION' } };
 	note( "$class $version" ) if defined $version
 	}

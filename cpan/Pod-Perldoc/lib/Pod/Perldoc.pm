@@ -12,7 +12,7 @@ use File::Spec::Functions qw(catfile catdir splitdir);
 use vars qw($VERSION @Pagers $Bindir $Pod2man
   $Temp_Files_Created $Temp_File_Lifetime
 );
-$VERSION = '3.25';
+$VERSION = '3.2801';
 
 #..........................................................................
 
@@ -69,6 +69,7 @@ BEGIN {
  *is_cygwin  = $^O eq 'cygwin'  ? \&TRUE : \&FALSE unless defined &is_cygwin;
  *is_linux   = $^O eq 'linux'   ? \&TRUE : \&FALSE unless defined &is_linux;
  *is_hpux    = $^O =~ m/hpux/   ? \&TRUE : \&FALSE unless defined &is_hpux;
+ *is_amigaos = $^O eq 'amigaos' ? \&TRUE : \&FALSE unless defined &is_amigaos;
 }
 
 $Temp_File_Lifetime ||= 60 * 60 * 24 * 5;
@@ -283,7 +284,8 @@ Options:
     -m   Display module's file in its entirety
     -n   Specify replacement for groff
     -l   Display the module's file name
-    -F   Arguments are file names, not modules
+    -U   Don't attempt to drop privs for security
+    -F   Arguments are file names, not modules (implies -U)
     -D   Verbosely describe what's going on
     -T   Send output to STDOUT without any pager
     -d output_filename_to_send_to
@@ -391,7 +393,7 @@ sub usage_brief {
   my $program_name = $self->program_name;
 
   CORE::die( <<"EOUSAGE" );
-Usage: $program_name [-hVriDtumFXlT] [-n nroffer_program]
+Usage: $program_name [-hVriDtumUFXlT] [-n nroffer_program]
     [-d output_filename] [-o output_format] [-M FormatterModule]
     [-w formatter_option:option_value] [-L translation_code]
     PageName|ModuleName|ProgramName
@@ -484,10 +486,6 @@ sub init_formatter_class_list {
 
   $self->opt_M_with('Pod::Perldoc::ToPod');   # the always-there fallthru
   $self->opt_o_with('text');
-  $self->opt_o_with('term') unless $self->is_mswin32 || $self->is_dos
-       || !($ENV{TERM} && (
-              ($ENV{TERM} || '') !~ /dumb|emacs|none|unknown/i
-           ));
 
   return;
 }
@@ -519,7 +517,7 @@ sub process {
     $self->options_reading;
     $self->pagers_guessing;
     $self->aside(sprintf "$0 => %s v%s\n", ref($self), $self->VERSION);
-    $self->drop_privs_maybe unless $self->opt_U;
+    $self->drop_privs_maybe unless ($self->opt_U || $self->opt_F);
     $self->options_processing;
 
     # Hm, we have @pages and @found, but we only really act on one
@@ -572,6 +570,9 @@ sub find_good_formatter_class {
   my $self = $_[0];
   my @class_list = @{ $self->{'formatter_classes'} || [] };
   $self->die( "WHAT?  Nothing in the formatter class list!?" ) unless @class_list;
+
+  local @INC = @INC;
+  pop @INC if $INC[-1] eq '.';
 
   my $good_class_found;
   foreach my $c (@class_list) {
@@ -845,8 +846,11 @@ sub grand_search_init {
                    =~ s/\.P(?:[ML]|OD)\z//;
             }
             else {
-                print STDERR "No " .
+              print STDERR "No " .
                     ($self->opt_m ? "module" : "documentation") . " found for \"$_\".\n";
+              if ( /^https/ ) {
+                print STDERR "You may need an SSL library (such as IO::Socket::SSL) for that URL.\n";
+              }
             }
             next;
         }
@@ -1004,6 +1008,8 @@ sub new_translator { # $tr = $self->new_translator($lang);
     my $self = shift;
     my $lang = shift;
 
+    local @INC = @INC;
+    pop @INC if $INC[-1] eq '.';
     my $pack = 'POD2::' . uc($lang);
     eval "require $pack";
     if ( !$@ && $pack->can('new') ) {
@@ -1319,7 +1325,7 @@ sub search_perlfunc {
     local $_;
     while (<$fh>) {
         /^=encoding\s+(\S+)/ && $self->set_encoding($fh, $1);
-        last if /^=head2 $re/;
+        last if /^=head2 (?:$re|Alphabetical Listing of Perl Functions)/;
     }
 
     # Look for our function
@@ -1353,7 +1359,7 @@ sub search_perlfunc {
                 last if $found > 1 and $inlist < 2;
             }
         }
-        elsif (/^=item/) {
+        elsif (/^=item|^=back/) {
             last if $found > 1 and $inlist < 2;
         }
         elsif ($found and /^X<[^>]+>/) {
@@ -1662,6 +1668,10 @@ sub pagers_guessing {
         push @pagers, qw( less.exe more.com< );
         unshift @pagers, $ENV{PAGER}  if $ENV{PAGER};
     }
+    elsif ( $self->is_amigaos) { 
+      push @pagers, qw( /SYS/Utilities/MultiView /SYS/Utilities/More /C/TYPE );
+      unshift @pagers, "$ENV{PAGER}" if $ENV{PAGER}; 
+    }
     else {
         if ($self->is_os2) {
           unshift @pagers, 'less', 'cmd /c more <';
@@ -1685,7 +1695,7 @@ sub pagers_guessing {
         unshift @pagers, "$ENV{PERLDOC_PAGER} <" if $ENV{PERLDOC_PAGER};
     }
 
-    $self->aside("Pagers: ", @pagers);
+    $self->aside("Pagers: ", (join ", ", @pagers));
 
     return;
 }
@@ -1912,14 +1922,16 @@ sub page {  # apply a pager to the output file
         #  many many corners of the OS don't like it.  So we
         #  have to force it to be "\" to make everyone happy.
 
+	# if we are on an amiga convert unix path to an amiga one 
+	$output =~ s/^\/(.*)\/(.*)/$1:$2/ if $self->is_amigaos;
+
         foreach my $pager (@pagers) {
             $self->aside("About to try calling $pager $output\n");
             if ($self->is_vms) {
                 last if system("$pager $output") == 0;
+	    } elsif($self->is_amigaos) { 
+                last if system($pager, $output) == 0;
             } else {
-                # fix visible escape codes in ToTerm output
-                # https://bugs.debian.org/758689
-                local $ENV{LESS} = defined $ENV{LESS} ? "$ENV{LESS} -R" : "-R";
                 last if system("$pager \"$output\"") == 0;
             }
         }

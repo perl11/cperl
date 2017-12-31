@@ -118,6 +118,8 @@ Added msys
 
 Added all the man tests from upstream
 
+=item L<Pod::Perldoc>  3.2801
+
 =item L<Socket>  2.024_02
 
 Merge cpan 2.024 with our 2.021_02,
