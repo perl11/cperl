@@ -175,8 +175,9 @@ Less runtime memory: demand-load Carp, Config
 
 =item L<Unicode::Collate>  1.25
 
-=item L<YAML::LibYAML>  0.75
+=item L<version>  0.9918_02c
 
+=item L<YAML::LibYAML>  0.75
 
 =back
 

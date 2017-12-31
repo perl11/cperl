@@ -37,6 +37,23 @@
 #  endif
 #endif
 
+#ifndef strEQc
+#if defined(USE_SANITIZE_ADDRESS) || defined(VALGRIND)
+/* valgrind/asan safe variants using strcmp */
+# define strEQc(s, c) strEQ(s, ("" c ""))
+# define strNEc(s, c) strNE(s, ("" c ""))
+#else
+/* We don't end on page boundary protections, so no SIGBUS */
+# define strEQc(s, c) memEQ(s, ("" c ""), sizeof(c))
+# define strNEc(s, c) memNE(s, ("" c ""), sizeof(c))
+#endif
+#endif
+
+#ifndef hv_existss
+#define hv_existss(hv, key) \
+    hv_exists((hv), ("" key ""), (sizeof(key)-1))
+#endif
+
 #ifndef PERL_ARGS_ASSERT_CK_WARNER
 static void Perl_ck_warner(pTHX_ U32 err, const char* pat, ...);
 
@@ -115,7 +132,7 @@ S_croak_xs_usage(pTHX_ const CV *const cv, const char *const params)
             Perl_croak_nocontext("Usage: %s(%s)", gvname, params);
     } else {
         /* Pants. I don't think that it should be possible to get here. */
-        Perl_croak_nocontext("Usage: CODE(0x%"UVxf")(%s)", PTR2UV(cv), params);
+        Perl_croak_nocontext("Usage: CODE(0x%" UVxf ")(%s)", PTR2UV(cv), params);
     }
 }
 

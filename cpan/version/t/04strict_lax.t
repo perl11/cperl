@@ -13,12 +13,36 @@ SKIP: {
     strict_lax_tests();
     is ref($version::LAX), 'Regexp', 'Can see $version::LAX '.$version::LAX ;
     is ref($version::STRICT), 'Regexp', 'Can see $version::STRICT '.$version::STRICT;
+    {   # https://rt.cpan.org/Ticket/Display.html?id=114712
+        my ($v) = ( "snapshot-1.2.3ga-001-432" =~ /($version::LAX)/ );
+        is $v, '1.2.3', "Extract just the version: $v";
+        ($v) = ( "snapshot-1.2ga-001-432" =~ /($version::LAX)/ );
+        is $v, '1.2', "Extract just the version: $v";
+        ($v) = ( "snapshot-v1.2.3ga-001-432" =~ /($version::STRICT)/ );
+        is $v, 'v1.2.3', "Extract just the version: $v";
+    }
+
+    is ref($version::LAX_DECIMAL_VERSION), 'Regexp', 'Can see $version::LAX_DECIMAL_VERSION '.$version::LAX_DECIMAL_VERSION ;
+    is ref($version::LAX_DOTTED_DECIMAL_VERSION), 'Regexp', 'Can see $version::LAX_DOTTED_DECIMAL_VERSION '.$version::LAX_DOTTED_DECIMAL_VERSION ;
+    is ref($version::STRICT_DECIMAL_VERSION), 'Regexp', 'Can see $version::STRICT_DECIMAL_VERSION '.$version::STRICT_DECIMAL_VERSION;
+    is ref($version::STRICT_DOTTED_DECIMAL_VERSION), 'Regexp', 'Can see $version::STRICT_DOTTED_DECIMAL_VERSION '.$version::STRICT_DOTTED_DECIMAL_VERSION;
+    { # https://rt.cpan.org/Ticket/Display.html?id=119669
+        ($v) = ( "snapshot-1.2.3ga-001-432" =~ /($version::LAX_DOTTED_DECIMAL_VERSION)/ );
+        is $v, '1.2.3', "Extract just the version: $v";
+        ($v) = ( "snapshot-1.2ga-001-432" =~ /($version::LAX_DECIMAL_VERSION)/ );
+        is $v, '1.2', "Extract just the version: $v";
+        ($v) = ( "snapshot-v1.2.3ga-001-432" =~ /($version::STRICT_DOTTED_DECIMAL_VERSION)/ );
+        is $v, 'v1.2.3', "Extract just the version: $v";
+        ($v) = ( "snapshot-1.2ga-001-432" =~ /($version::STRICT_DECIMAL_VERSION)/ );
+        is $v, '1.2', "Extract just the version: $v";
+      }
 }
 
 
 sub strict_lax_tests {
   package temp12345;
   # copied from perl core test t/op/packagev.t
+  # extended for cperl
   # format: STRING STRICT_OK LAX_OK
   my $strict_lax_data = << 'CASE_DATA';
 1.00		pass	pass
@@ -31,6 +55,7 @@ sub strict_lax_tests {
 v1.2.3		pass	pass
 v1.2.3.4	pass	pass
 v0.1.2		pass	pass
+v0.1.2c		pass	pass
 v0.0.0		pass	pass
 01		fail	pass
 01.0203		fail	pass
@@ -42,8 +67,13 @@ v01.02.03	fail	pass
 1.a		fail	fail
 1._		fail	fail
 1.02_03		fail	pass
+1.00_01		fail	pass
+1.00_01c	fail	pass
 v1.2_3		fail	pass
+v1.2_3c		fail	pass
 v1.02_03	fail	pass
+v1.02_03b	fail	fail
+v1.02_03c	fail	pass
 v1.2_3_4	fail	fail
 v1.2_3.4	fail	fail
 1.2_3.4		fail	fail
@@ -53,12 +83,19 @@ v1.2_3.4	fail	fail
 1.1_		fail	fail
 1.02_03_04	fail	fail
 1.2.3		fail	pass
+1.2.3c		fail	pass
+1.2c.3		fail	fail
+1.2c_03		fail	fail
 v1.2		fail	pass
+v1.2c		fail	pass
 v0		fail	pass
 v1		fail	pass
+v1c		fail	fail
 v.1.2.3		fail	fail
 v		fail	fail
+vc		fail	fail
 v1.2345.6	fail	pass
+v1.2345.6c	fail	pass
 undef		fail	pass
 1a		fail	fail
 1.2a3		fail	fail

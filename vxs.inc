@@ -12,7 +12,12 @@
 /* proto member is unused in version, it is used in CORE by non version xsubs */
 #  define VXSXSDP(x)
 #endif
-#define VXS(name) XS(VXSp(name)); XS(VXSp(name))
+
+#ifndef XS_INTERNAL
+#  define XS_INTERNAL(name) static XSPROTO(name)
+#endif
+
+#define VXS(name) XS_INTERNAL(VXSp(name)); XS_INTERNAL(VXSp(name))
 
 /* uses PUSHs, so SP must be at start, PUSHs sv on Perl stack, then returns from
    xsub; this is a little more machine code/tailcall friendly than mPUSHs(foo);
@@ -134,7 +139,7 @@ VXS(universal_version)
 			    name, SvPVx_nolen_const(req));
 #else
 		Perl_croak(aTHX_
-			   "%"HEKf" does not define $%"HEKf
+			   "%" HEKf " does not define $%" HEKf
 			   "::VERSION--version check failed",
 			   HEKfARG(name), HEKfARG(name));
 #endif
@@ -142,7 +147,8 @@ VXS(universal_version)
 	    else {
 #if PERL_VERSION >= 8
 		Perl_croak(aTHX_
-			     "%"SVf" defines neither package nor VERSION--version check failed",
+			     "%" SVf " defines neither package nor VERSION--"
+                             "version check failed",
 			     (void*)(ST(0)) );
 #else
 		Perl_croak(aTHX_ "%s does not define $%s::VERSION--version check failed",
@@ -166,8 +172,8 @@ VXS(universal_version)
 		req = VSTRINGIFY(req);
 		sv  = VSTRINGIFY(sv);
 	    }
-	    Perl_croak(aTHX_ "%"HEKf" version %"SVf" required--"
-		"this is only version %"SVf"", HEKfARG(HvNAME_HEK(pkg)),
+	    Perl_croak(aTHX_ "%" HEKf " version %" SVf " required--"
+		"this is only version %" SVf, HEKfARG(HvNAME_HEK(pkg)),
 		SVfARG(sv_2mortal(req)),
 		SVfARG(sv_2mortal(sv)));
 	}
@@ -215,7 +221,7 @@ VXS(version_new)
         SvGETMAGIC(vs);
         if(SvOK(vs))
             break;
-        /* drop through */
+        /* fall through */
     case 1:
         /* no param or explicit undef */
         /* create empty object */

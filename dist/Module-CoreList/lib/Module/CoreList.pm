@@ -13484,6 +13484,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Unicode::Collate::CJK::Stroke'=> '1.25',
             'Unicode::Collate::CJK::Zhuyin'=> '1.25',
             'Unicode::Collate::Locale'=> '1.25',
+            'version'               => '0.9918_02c',
             'warnings'              => '1.35',
             'YAML::XS'              => '0.75',
             'YAML::LibYAML'         => '0.75',
