@@ -8,9 +8,6 @@ use strict;
 use warnings;
 
 use Config;
-if ($Config::Config{usecperl}) {
-    use Test::More 'skip_all' => 'cperl bug CM-834';
-}
 use Test::More 'no_plan';
 
 use File::Spec;

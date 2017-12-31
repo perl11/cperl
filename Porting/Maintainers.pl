@@ -1257,8 +1257,6 @@ use File::Glob qw(:case);
         'CUSTOMIZED'   => [
             qw( t/multiplexer.t
                 t/nofork.t
-                t/regression.t
-                t/sample-tests/switches
 		t/source_handler.t
 		t/lib/NoFork.pm
               )],

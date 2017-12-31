@@ -143,6 +143,8 @@ from cperl 5.27.3c
 
 =item L<Test::Harness>  3.39
 
+Fix and re-enable F<t/regression.t>
+
 =item L<Time::HiRes>  1.9739
 
 More Darwin thread fixes for clock_gettime,

@@ -595,24 +595,15 @@ my $TEST_DIR = 't/sample-tests';
             'skip_if' => sub {
                 ( $ENV{PERL5OPT} || '' ) =~ m{(?:^|\s)-[dM]};
             },
-            'failed' => {
-                "$TEST_DIR/switches" => {
-                    'canon'  => 1,
-                    'estat'  => '',
-                    'failed' => 1,
-                    'max'    => 1,
-                    'name'   => "$TEST_DIR/switches",
-                    'wstat'  => ''
-                }
-            },
+            'failed' => {},
             'todo'   => {},
             'totals' => {
-                'bad'         => 1,
+                'bad'         => 0,
                 'bonus'       => 0,
                 'files'       => 1,
-                'good'        => 0,
+                'good'        => 1,
                 'max'         => 1,
-                'ok'          => 0,
+                'ok'          => 1,
                 'skipped'     => 0,
                 'sub_skipped' => 0,
                 'tests'       => 1,
