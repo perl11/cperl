@@ -5,7 +5,7 @@ use warnings;
 
 use List::Util qw(first);
 use Test::More;
-plan tests => 22 + ($::PERL_ONLY ? 0 : 2);
+plan tests => 23 + ($::PERL_ONLY ? 0 : 2);
 my $v;
 
 ok(defined &first,	'defined');
@@ -126,3 +126,10 @@ ok($@ =~ /^Not a subroutine reference/, 'check for code reference');
 eval { &first(+{},1,2,3) };
 ok($@ =~ /^Not a subroutine reference/, 'check for code reference');
 
+SKIP: {
+    skip "lexical topic fixed only in cperl, usable 5.10 - 5.24", 1
+      if ($] > 5.023 && $^V !~ /c$/) or $] < 5.010;
+    chdir "t";
+    do "./first-524.inc";
+    chdir "..";
+}

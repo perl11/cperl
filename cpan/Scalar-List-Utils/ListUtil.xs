@@ -1,4 +1,5 @@
 /* Copyright (c) 1997-2000 Graham Barr <gbarr@pobox.com>. All rights reserved.
+ * Copyright (C) 2014, cPanel Inc.  All rights reserved.
  * This program is free software; you can redistribute it and/or
  * modify it under the same terms as Perl itself.
  */
@@ -7,15 +8,138 @@
 #include <perl.h>
 #include <XSUB.h>
 
-#define NEED_sv_2pv_flags 1
-#define NEED_newSVpvn_flags 1
-#include "ppport.h"
+/* undef that when perl5 gets rid of the perl4'ism, e.g. main'dump. 
+   see gv.c:S_parse_gv_stash_name */
+#define PERL_HAS_QUOTE_PKGSEPERATOR
 
-#if PERL_BCDVERSION >= 0x5006000
+#ifdef USE_PPPORT_H
+#  define NEED_sv_2pv_flags 1
+#  define NEED_newSVpvn_flags 1
+#  include "ppport.h"
+#endif
+
+#ifndef PERL_VERSION_DECIMAL
+#  define PERL_VERSION_DECIMAL(r,v,s) (r*1000000 + v*1000 + s)
+#endif
+#ifndef PERL_DECIMAL_VERSION
+#  define PERL_DECIMAL_VERSION \
+	  PERL_VERSION_DECIMAL(PERL_REVISION,PERL_VERSION,PERL_SUBVERSION)
+#endif
+#ifndef PERL_VERSION_GE
+#  define PERL_VERSION_GE(r,v,s) \
+	  (PERL_DECIMAL_VERSION >= PERL_VERSION_DECIMAL(r,v,s))
+#endif
+#ifndef PERL_VERSION_LE
+#  define PERL_VERSION_LE(r,v,s) \
+	  (PERL_DECIMAL_VERSION <= PERL_VERSION_DECIMAL(r,v,s))
+#endif
+
+/* if to disallow \0 in names */
+#if PERL_VERSION_LE(5,16,0) || (defined(USE_CPERL) && PERL_VERSION_GE(5,25,2))
+#define PERL_STRIP_NUL
+#endif
+
+#if PERL_VERSION_GE(5,6,0)
 #  include "multicall.h"
 #endif
 
-#if PERL_BCDVERSION < 0x5023008
+#if PERL_VERSION_LE(5,8,8) && PERL_VERSION_GE(5,7,0)
+#define COP_SEQ_RANGE_LOW(sv)	U_32(SvNVX(sv))
+#define COP_SEQ_RANGE_HIGH(sv)	U_32(SvUVX(sv))
+#endif
+
+/* since 5.16.0 */
+#ifndef GvNAMEUTF8
+#  define GvNAMEUTF8(gv) 0
+#endif
+#ifndef HvNAMEUTF8
+#  define HvNAMEUTF8(hv) 0
+#endif
+/* since 5.8.9 */
+#ifndef HV_FETCH_JUST_SV
+#  define HV_FETCH_JUST_SV 0
+#endif
+
+
+#if PERL_VERSION_GE(5,25,7) && !defined(USE_CPERL) && !defined(find_rundefsvoffset)
+STATIC PADOFFSET
+Perl_find_rundefsvoffset(pTHX)
+{
+    return NOT_IN_PAD;
+}
+#endif
+
+#if PERL_VERSION_LE(5,8,9)
+/* non-destructive variant, without cloning */
+STATIC PADOFFSET
+Perl_find_rundefsvoffset(pTHX)
+{
+# if PERL_VERSION_LE(5,7,0)
+    return NOT_IN_PAD;
+# else
+    const char *name = "$_";
+    PADOFFSET newoff = 0;
+    const CV* innercv = Perl_find_runcv(aTHX_ NULL);
+    CV *cv;
+    I32 off = 0;
+    SV *sv;
+    CV* startcv;
+    U32 seq;
+    I32 depth;
+    AV *oldpad;
+    SV *oldsv;
+    AV *curlist;
+
+    seq = CvOUTSIDE_SEQ(innercv);
+    startcv = CvOUTSIDE(innercv);
+
+    for (cv = startcv; cv; seq = CvOUTSIDE_SEQ(cv), cv = CvOUTSIDE(cv)) {
+	SV **svp;
+	AV *curname;
+	I32 fake_off = 0;
+
+	curlist = CvPADLIST(cv);
+	if (!curlist)
+	    continue; /* an undef CV */
+	svp = av_fetch(curlist, 0, FALSE);
+	if (!svp || *svp == &PL_sv_undef)
+	    continue;
+	curname = (AV*)*svp;
+	svp = AvARRAY(curname);
+
+	depth = CvDEPTH(cv);
+	for (off = AvFILLp(curname); off > 0; off--) {
+	    sv = svp[off];
+	    if (!sv || sv == &PL_sv_undef || !strEQ(SvPVX_const(sv), name))
+		continue;
+	    if (SvFAKE(sv)) {
+		/* we'll use this later if we don't find a real entry */
+		fake_off = off;
+		continue;
+	    }
+	    else {
+		if (   seq >  COP_SEQ_RANGE_LOW(sv)	/* min */
+		    && seq <= COP_SEQ_RANGE_HIGH(sv)	/* max */
+		    && !(newoff && !depth) /* ignore inactive when cloning */
+		)
+                  return off;
+	    }
+	}
+
+	/* no real entry - but did we find a fake one? */
+	if (fake_off) {
+	    if (newoff && !depth)
+		return NOT_IN_PAD; /* don't clone from inactive stack frame */
+	    off = fake_off;
+            return off;
+	}
+    }
+    return NOT_IN_PAD;
+# endif
+}
+#endif
+
+#if !PERL_VERSION_GE(5,23,8)
 #  define UNUSED_VAR_newsp PERL_UNUSED_VAR(newsp)
 #else
 #  define UNUSED_VAR_newsp NOOP
@@ -29,7 +153,7 @@
    was not exported. Therefore platforms like win32, VMS etc have problems
    so we redefine it here -- GMB
 */
-#if PERL_BCDVERSION < 0x5007000
+#if !PERL_VERSION_GE(5,7,0)
 /* Not in 5.6.1. */
 #  ifdef cxinc
 #    undef cxinc
@@ -115,6 +239,7 @@ CODE:
         XSRETURN_UNDEF;
 
     retsv = ST(0);
+    SvGETMAGIC(retsv);
     magic = SvAMAGIC(retsv);
     if(!magic)
       retval = slu_sv_value(retsv);
@@ -122,6 +247,7 @@ CODE:
     for(index = 1 ; index < items ; index++) {
         SV *stacksv = ST(index);
         SV *tmpsv;
+        SvGETMAGIC(stacksv);
         if((magic || SvAMAGIC(stacksv)) && (tmpsv = amagic_call(retsv, stacksv, gt_amg, 0))) {
              if(SvTRUE(tmpsv) ? !ix : ix) {
                   retsv = stacksv;
@@ -175,6 +301,7 @@ CODE:
         }
 
     sv    = ST(0);
+    SvGETMAGIC(sv);
     switch((accum = accum_type(sv))) {
     case ACC_SV:
         retsv = TARG;
@@ -190,6 +317,7 @@ CODE:
 
     for(index = 1 ; index < items ; index++) {
         sv = ST(index);
+        SvGETMAGIC(sv);
         if(accum < ACC_SV && SvAMAGIC(sv)){
             if(!retsv)
                 retsv = TARG;
@@ -436,14 +564,11 @@ CODE:
     HV *stash;
     SV **args = &PL_stack_base[ax];
     CV *cv    = sv_2cv(block, &stash, &gv, 0);
-
+    PADOFFSET targlex;
     if(cv == Nullcv)
         croak("Not a subroutine reference");
-
     if(items <= 1)
         XSRETURN_UNDEF;
-
-    SAVESPTR(GvSV(PL_defgv));
 #ifdef dMULTICALL
     if(!CvISXSUB(cv)) {
         dMULTICALL;
@@ -451,12 +576,18 @@ CODE:
 
         UNUSED_VAR_newsp;
         PUSH_MULTICALL(cv);
-
+        targlex = Perl_find_rundefsvoffset(aTHX);
+        if (targlex == NOT_IN_PAD)
+            SAVESPTR(GvSV(PL_defgv));
         for(index = 1 ; index < items ; index++) {
-            SV *def_sv = GvSV(PL_defgv) = args[index];
-#  ifdef SvTEMP_off
-            SvTEMP_off(def_sv);
+#  if PERL_VERSION_GE(5,7,0)
+            if (targlex != NOT_IN_PAD) {
+                PAD_SVl(targlex) = args[index];
+                SvREFCNT_inc_NN(PAD_SVl(targlex));
+            }
+            else
 #  endif
+              GvSV(PL_defgv) = args[index];
             MULTICALL;
             if(SvTRUEx(*PL_stack_sp)) {
 #  ifdef PERL_HAS_BAD_MULTICALL_REFCOUNT
@@ -477,6 +608,7 @@ CODE:
     else
 #endif
     {
+        SAVESPTR(GvSV(PL_defgv));
         for(index = 1 ; index < items ; index++) {
             dSP;
             GvSV(PL_defgv) = args[index];
@@ -513,21 +645,34 @@ PPCODE:
 
     if(cv == Nullcv)
         croak("Not a subroutine reference");
-
-    SAVESPTR(GvSV(PL_defgv));
 #ifdef dMULTICALL
     if(!CvISXSUB(cv)) {
         dMULTICALL;
         I32 gimme = G_SCALAR;
         int index;
+        PADOFFSET targlex;
 
         UNUSED_VAR_newsp;
         PUSH_MULTICALL(cv);
+        targlex = Perl_find_rundefsvoffset(aTHX);
+        if (targlex == NOT_IN_PAD)
+            SAVESPTR(GvSV(PL_defgv));
         for(index = 1; index < items; index++) {
-            SV *def_sv = GvSV(PL_defgv) = args[index];
-#  ifdef SvTEMP_off
-            SvTEMP_off(def_sv);
+#  if PERL_VERSION_GE(5,7,0)
+            if (targlex != NOT_IN_PAD) {
+                PAD_SVl(targlex) = args[index];
+                SvREFCNT_inc_NN(PAD_SVl(targlex));
+            } else
 #  endif
+            {
+#  ifdef SvTEMP_off
+                SV *def_sv =
+#  endif
+                    GvSV(PL_defgv) = args[index];
+#  ifdef SvTEMP_off
+                SvTEMP_off(def_sv);
+#  endif
+            }
 
             MULTICALL;
             if(SvTRUEx(*PL_stack_sp) ^ invert) {
@@ -542,6 +687,7 @@ PPCODE:
 #endif
     {
         int index;
+        SAVESPTR(GvSV(PL_defgv));
         for(index = 1; index < items; index++) {
             dSP;
             GvSV(PL_defgv) = args[index];
@@ -611,9 +757,9 @@ PPCODE:
         SvGETMAGIC(pair);
 
         if(SvTYPE(pair) != SVt_RV)
-            croak("Not a reference at List::Util::unpack() argument %d", i);
+            croak("Not a reference at List::Util::unpairs() argument %d", i);
         if(SvTYPE(SvRV(pair)) != SVt_PVAV)
-            croak("Not an ARRAY reference at List::Util::unpack() argument %d", i);
+            croak("Not an ARRAY reference at List::Util::unpairs() argument %d", i);
 
         /* TODO: assert pair is an ARRAY ref */
         pairav = (AV *)SvRV(pair);
@@ -692,6 +838,8 @@ PPCODE:
 
     if(!(items % 2) && ckWARN(WARN_MISC))
         warn("Odd number of elements in pairfirst");
+    if(cv == Nullcv)
+        croak("Not a subroutine reference");
 
     agv = gv_fetchpv("a", GV_ADD, SVt_PV);
     bgv = gv_fetchpv("b", GV_ADD, SVt_PV);
@@ -776,6 +924,8 @@ PPCODE:
 
     if(!(items % 2) && ckWARN(WARN_MISC))
         warn("Odd number of elements in pairgrep");
+    if(cv == Nullcv)
+        croak("Not a subroutine reference");
 
     agv = gv_fetchpv("a", GV_ADD, SVt_PV);
     bgv = gv_fetchpv("b", GV_ADD, SVt_PV);
@@ -863,6 +1013,8 @@ PPCODE:
 
     if(!(items % 2) && ckWARN(WARN_MISC))
         warn("Odd number of elements in pairmap");
+    if(cv == Nullcv)
+        croak("Not a subroutine reference");
 
     agv = gv_fetchpv("a", GV_ADD, SVt_PV);
     bgv = gv_fetchpv("b", GV_ADD, SVt_PV);
@@ -871,12 +1023,13 @@ PPCODE:
 /* This MULTICALL-based code appears to fail on perl 5.10.0 and 5.8.9
  * Skip it on those versions (RT#87857)
  */
-#if defined(dMULTICALL) && (PERL_BCDVERSION > 0x5010000 || PERL_BCDVERSION < 0x5008009)
+#if defined(dMULTICALL) && (PERL_VERSION_GE(5,10,1) || PERL_VERSION_LE(5,8,8))
     if(!CvISXSUB(cv)) {
         /* Since MULTICALL is about to move it */
         SV **stack = PL_stack_base + ax;
         I32 ret_gimme = GIMME_V;
         int i;
+        AV *spill = NULL; /* accumulates results if too big for stack */
 
         dMULTICALL;
         I32 gimme = G_ARRAY;
@@ -886,41 +1039,62 @@ PPCODE:
         for(; argi < items; argi += 2) {
             int count;
 
-            GvSV(agv) = args_copy ? args_copy[argi] : stack[argi];
-            GvSV(bgv) = argi < items-1 ?
-                (args_copy ? args_copy[argi+1] : stack[argi+1]) :
-                &PL_sv_undef;
+            GvSV(agv) = stack[argi];
+            GvSV(bgv) = argi < items-1 ? stack[argi+1]: &PL_sv_undef;
 
             MULTICALL;
             count = PL_stack_sp - PL_stack_base;
 
-            if(count > 2 && !args_copy) {
+            if (count > 2 || spill) {
                 /* We can't return more than 2 results for a given input pair
-                 * without trashing the remaining argmuents on the stack still
-                 * to be processed. So, we'll copy them out to a temporary
-                 * buffer and work from there instead.
+                 * without trashing the remaining arguments on the stack still
+                 * to be processed, or possibly overrunning the stack end.
+                 * So, we'll accumulate the results in a temporary buffer
+                 * instead.
                  * We didn't do this initially because in the common case, most
                  * code blocks will return only 1 or 2 items so it won't be
                  * necessary
                  */
-                int n_args = items - argi;
-                Newx(args_copy, n_args, SV *);
-                SAVEFREEPV(args_copy);
+                int fill;
 
-                Copy(stack + argi, args_copy, n_args, SV *);
+                if (!spill) {
+                    spill = newAV();
+                    AvREAL_off(spill); /* don't ref count its contents */
+                    /* can't mortalize here as every nextstate in the code
+                     * block frees temps */
+                    SAVEFREESV(spill);
+                }
 
-                argi = 0;
-                items = n_args;
+                fill = (int)AvFILL(spill);
+                av_extend(spill, fill + count);
+                for(i = 0; i < count; i++)
+                    (void)av_store(spill, ++fill,
+                                    newSVsv(PL_stack_base[i + 1]));
             }
-
-            for(i = 0; i < count; i++)
-                stack[reti++] = newSVsv(PL_stack_sp[i - count + 1]);
+            else
+                for(i = 0; i < count; i++)
+                    stack[reti++] = newSVsv(PL_stack_base[i + 1]);
         }
+
+        /* the POP_MULTICALL will trigger the SAVEFREESV above;
+         * keep it alive  it on the temps stack instead */
+        SvREFCNT_inc_simple_void(spill);
+
         POP_MULTICALL;
+
+        if (spill) {
+            int n = (int)AvFILL(spill) + 1;
+            SP = &ST(reti - 1);
+            EXTEND(SP, n);
+            for (i = 0; i < n; i++)
+                *++SP = *av_fetch(spill, i, FALSE);
+            reti += n;
+            av_clear(spill);
+        }
 
         if(ret_gimme == G_ARRAY)
             for(i = 0; i < reti; i++)
-                sv_2mortal(stack[i]);
+                sv_2mortal(ST(i));
     }
     else
 #endif
@@ -1044,11 +1218,11 @@ CODE:
                 arg = sv_mortalcopy(arg);
 
             if(SvUOK(arg))
-                sv_setpvf(keysv, "%"UVuf, SvUV(arg));
+                sv_setpvf(keysv, "%" UVuf, SvUV(arg));
             else if(SvIOK(arg))
-                sv_setpvf(keysv, "%"IVdf, SvIV(arg));
+                sv_setpvf(keysv, "%" IVdf, SvIV(arg));
             else
-                sv_setpvf(keysv, "%"NVgf, SvNV(arg));
+                sv_setpvf(keysv, "%" NVgf, SvNV(arg));
 #ifdef HV_FETCH_EMPTY_HE
             {
               HE* he = (HE*)hv_common(seen, NULL, SvPVX(keysv), SvCUR(keysv), 0,
@@ -1319,7 +1493,7 @@ CODE:
     if(SvAMAGIC(sv) && (tempsv = AMG_CALLun(sv, numer))) {
         sv = tempsv;
     }
-#if PERL_BCDVERSION < 0x5008005
+#if !PERL_VERSION_GE(5,8,5)
     if(SvPOK(sv) || SvPOKp(sv)) {
         RETVAL = looks_like_number(sv) ? &PL_sv_yes : &PL_sv_no;
     }
@@ -1391,6 +1565,8 @@ PPCODE:
     XSRETURN(1);
 
 # Binary and unicode support from https://github.com/rurban/sub-name/commits/binary
+# refined in https://github.com/Leont/Sub-Name/commits/safe
+# cperl-5.25.2c started disallowing NUL again, as <5.16
 
 void
 set_subname(name, sub)
@@ -1400,9 +1576,13 @@ PREINIT:
     CV *cv = NULL;
     GV *gv;
     HV *stash = CopSTASH(PL_curcop);
-    char *s, *last, *end = NULL;
+    const char *s, *end = NULL;
     MAGIC *mg;
-    STRLEN len;
+    STRLEN namelen;
+    const char* nameptr = SvPV(name, namelen);
+    const char *begin = nameptr;
+    int seen_quote = 0;
+    int utf8flag = SvUTF8(name);
 PPCODE:
     if (!SvROK(sub) && SvGMAGICAL(sub))
         mg_get(sub);
@@ -1413,56 +1593,89 @@ PPCODE:
     else if (!SvOK(sub))
         croak(PL_no_usym, "a subroutine");
     else if (PL_op->op_private & HINT_STRICT_REFS)
-        croak("Can't use string (\"%.256s\") as %s ref while \"strict refs\" in use",
-              SvPV_nolen(sub), "a subroutine");
-    else if ((gv = gv_fetchpv(SvPV_nolen(sub), FALSE, SVt_PVCV)))
+        croak("Can't use string (\"%" SVf "\") as %s ref while \"strict refs\" in use",
+              SVfARG(sub), "a subroutine");
+    else if ((gv = gv_fetchsv(sub, FALSE, SVt_PVCV)))
         cv = GvCVu(gv);
     if (!cv)
-        croak("Undefined subroutine %.256s", SvPV_nolen(sub));
+        croak("Undefined subroutine %" SVf, SVfARG(sub));
     if (SvTYPE(cv) != SVt_PVCV && SvTYPE(cv) != SVt_PVFM)
         croak("Not a subroutine reference");
-    last = s = SvPVX(name);
-    last += SvCUR(name);
+
     /* TODO: If there exists a UTF8 codepoint with ending ':' we are screwed.
        But perl5 does not care neither. */
-    for (; s < last; s++) {
-	if (*s == ':' && s[-1] == ':')
-            end = ++s;
-        /* "In the year 2525, if man is still alive
-           If 4 is finally gone" - gv.c:S_parse_gv_stash_name */
-#if 1
-        else if (*s && s[-1] == '\'')
-            end = s;
+    for (s = nameptr; s < nameptr + namelen; s++) {
+#ifdef PERL_STRIP_NUL
+        if (!*s) {
+#  if PERL_VERSION >= 25
+            SV* tmp = newSVpvs_flags("", SVs_TEMP);
+            if (Perl_ckwarn(aTHX_ packWARN(WARN_SECURITY)))
+                Perl_warn_security(aTHX_
+                                 "Invalid \\0 character in name for set_subname: %s",
+                                 pv_display(tmp, nameptr, namelen, namelen, 127));
+            else
+                Perl_ck_warner(aTHX_ packWARN(WARN_MISC),
+                             "Invalid \\0 character in name for set_subname: %s",
+                             pv_display(tmp, nameptr, namelen, namelen, 127));
+#  endif
+            namelen = s - nameptr;
+            break;
+        }
+#endif
+        if (s > nameptr && *s == ':' && s[-1] == ':') {
+            end = s - 1;
+            begin = ++s;
+            if (seen_quote)
+                seen_quote++;
+        }
+#ifdef PERL_HAS_QUOTE_PKGSEPERATOR
+        /* cperl doesnt support the perl4 ' pkg seperator anymore.
+           gv.c:S_parse_gv_stash_name */
+        else if (s > nameptr && *s != '\0' && s[-1] == '\'') {
+            end = s - 1;
+            begin = s;
+            seen_quote++;
+        }
 #endif
     }
     if (end) {
-        int flags = GV_ADD;
-        const int stash_len = end - SvPVX(name);
-#if PERL_VERSION <= 8
-        /* <= 5.8.8 needs a copy */
-        SV *tmpbuf = newSVpvn(SvPVX(name), stash_len);
-#endif
+        SV* tmp;
+        if (seen_quote > 1) {
+            int flags = GV_ADD;
+            const STRLEN stash_len = end - nameptr + seen_quote;
+            char* left;
+            int i, j;
 #if PERL_VERSION >= 10
-        flags |= SvUTF8(name);
+            flags |= utf8flag;
 #endif
-        len = s - end;
-#if PERL_VERSION <= 8
-        stash = GvHV(gv_fetchpv(SvPVX(tmpbuf), flags, SVt_PVHV));
-        SvREFCNT_dec(tmpbuf);
+#ifdef PERL_HAS_QUOTE_PKGSEPERATOR
+            tmp = newSV(stash_len);
+            left = SvPVX(tmp);
+            for (i = 0, j = 0; j <= end - nameptr; ++i, ++j) {
+                if (nameptr[j] == '\'') {
+                    left[i] = ':';
+                    left[++i] = ':';
+                }
+                else {
+                    left[i] = nameptr[j];
+                }
+            }
+            stash = gv_stashpvn(left, i - 2, GV_ADD | utf8flag);
+            SvREFCNT_dec(tmp);
 #else
-        stash = GvHV(gv_fetchpvn_flags(SvPVX(name), stash_len, flags, SVt_PVHV));
+            stash = gv_stashpvn(nameptr, end - nameptr, GV_ADD | utf8flag);
 #endif
-        s = end;
-    } else {
-        len = s - SvPVX(name);
-        s = SvPVX(name);
+        }
+        else
+            stash = gv_stashpvn(nameptr, end - nameptr, GV_ADD | utf8flag);
+        nameptr = begin;
+        namelen -= begin - nameptr;
     }
-#if defined(DEBUGGING) && defined(I_ASSERT)
-    assert(len < PERL_INT_MAX);
-#endif
 
     /* under debugger, provide information about sub location */
     if (PL_DBsub && CvGV(cv)) {
+        /* WIP utf8 support */
+#if 0
         HV *hv = GvHV(PL_DBsub);
         GV *oldgv = CvGV(cv);
         HV *oldpkg = GvSTASH(oldgv);
@@ -1471,36 +1684,72 @@ PPCODE:
         SV** old_data;
 
         sv_catpvs(full_name, "::");
-        sv_catpvn(full_name, GvNAME(oldgv), GvNAMELEN(oldgv));
+        sv_catpvn_flags(full_name, GvNAME(oldgv), GvNAMELEN(oldgv),
+                        GvNAMEUTF8(oldgv) ? SV_CATUTF8 : SV_CATBYTES);
 
-        old_data = hv_fetch(hv, SvPVX(full_name), SvCUR(full_name), 0);
-        if (old_data) {
-            SvREFCNT_dec(full_name);
+        old_data = (SV**)hv_fetch_ent(hv, full_name, HV_FETCH_JUST_SV, 0);
+        SvREFCNT_dec(full_name);
+
+        if (old_data && *old_data) {
             full_name = newSVpvn_flags(HvNAME(stash), HvNAMELEN_get(stash),
                                        HvNAMEUTF8(stash) ? SVf_UTF8 : 0);
             sv_catpvs(full_name, "::");
-            sv_catpvn(full_name, s, len);
+            sv_catpvn_flags(full_name, nameptr, namelen,
+                            utf8flag ? SV_CATUTF8 : SV_CATBYTES);
+
+            if (hv_store_ent(hv, full_name, *old_data, 0))
+                SvREFCNT_inc(*old_data);
+            SvREFCNT_dec(full_name);
+        }
+#else
+        HV *hv = GvHV(PL_DBsub);
+
+        char *new_pkg = HvNAME(stash);
+
+        char *old_name = GvNAME( CvGV(cv) );
+        char *old_pkg = HvNAME( GvSTASH(CvGV(cv)) );
+
+        int old_len = strlen(old_name) + strlen(old_pkg);
+        int new_len = namelen + strlen(new_pkg);
+
+        SV **old_data;
+        char *full_name;
+
+        Newxz(full_name, (old_len > new_len ? old_len : new_len) + 3, char);
+
+        strcat(full_name, old_pkg);
+        strcat(full_name, "::");
+        strcat(full_name, old_name);
+
+        old_data = hv_fetch(hv, full_name, strlen(full_name), 0);
+
+        if (old_data) {
+            strcpy(full_name, new_pkg);
+            strcat(full_name, "::");
+            strcat(full_name, nameptr);
 
             SvREFCNT_inc(*old_data);
-            if (!hv_store(hv, SvPVX(full_name), SvCUR(full_name), *old_data, 0))
+            if (!hv_store(hv, full_name, strlen(full_name), *old_data, 0))
                 SvREFCNT_dec(*old_data);
         }
-        SvREFCNT_dec(full_name);
+        Safefree(full_name);
+#endif
     }
 
     gv = (GV *) newSV(0);
 #if PERL_VERSION >= 16
-    gv_init_pvn(gv, stash, s, len, SvUTF8(name));
+    gv_init_pvn(gv, stash, nameptr, s - nameptr, GV_ADDMULTI | utf8flag);
 #else
-    gv_init(gv, stash, s, len, GV_ADD);
-    /* Nope. Older B 5.10-5.16 can not handle this negative HEK_LEN. Leave it. */
-#if 0 && PERL_VERSION >= 10 && PERL_VERSION < 16
-    if (SvUTF8(name)) {
+    gv_init(gv, stash, nameptr, s - nameptr, GV_ADD);
+    /* Cannot fake UTF8 symbols. The HEK can, but older B 5.10-5.16 can not
+       handle this negative HEK_LEN. Must leave it ASCII. */
+#  if 0 && PERL_VERSION >= 10 && PERL_VERSION < 16
+    if (utf8flag) {
         HEK *namehek = GvNAME_HEK(gv);
         HEK_LEN(namehek) = -abs(HEK_LEN(namehek));
         SvUTF8_on(gv);
     }
-#endif
+#  endif
 #endif
 
     /*

@@ -3,6 +3,7 @@
 # modify it under the same terms as Perl itself.
 #
 # Maintained since 2013 by Paul Evans <leonerd@leonerd.org.uk>
+# Since 2015 unauthorized by Reini Urban for cperl (binary names, utf8, lexical $_, ...)
 
 package Scalar::Util;
 
@@ -17,7 +18,7 @@ our @EXPORT_OK = qw(
   dualvar isdual isvstring looks_like_number openhandle readonly set_prototype
   tainted
 );
-our $VERSION    = "1.45_03";
+our $VERSION    = "1.49_10";
 $VERSION   = eval $VERSION;
 
 require List::Util; # List::Util loads the XS

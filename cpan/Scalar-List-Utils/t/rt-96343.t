@@ -5,7 +5,9 @@ use warnings;
 
 use Test::More tests => 2;
 
-{
+TODO: { SKIP: {
+  local $TODO = '5.20' if $] > 5.019 and $] < 5.022;
+  skip "on $]",1 if $] < 5.008;
   use List::Util qw( first );
 
   my $hash = {
@@ -14,7 +16,7 @@ use Test::More tests => 2;
 
   is( ( first { 'hello world' eq lc($_) } keys %$hash ), "HellO WorlD",
     'first (lc$_) perserves value' );
-}
+}}
 
 {
   use List::Util qw( any );

@@ -2344,9 +2344,11 @@ cpan/Scalar-List-Utils/ListUtil.xs		Util extension
 cpan/Scalar-List-Utils/Makefile.PL		Util extension
 cpan/Scalar-List-Utils/multicall.h		Util extension
 cpan/Scalar-List-Utils/t/00version.t		Scalar::Util
+cpan/Scalar-List-Utils/t/any-all-524.inc
 cpan/Scalar-List-Utils/t/any-all.t		List::Util
 cpan/Scalar-List-Utils/t/blessed.t		Scalar::Util
 cpan/Scalar-List-Utils/t/dualvar.t		Scalar::Util
+cpan/Scalar-List-Utils/t/first-524.inc
 cpan/Scalar-List-Utils/t/first.t		List::Util
 cpan/Scalar-List-Utils/t/getmagic-once.t
 cpan/Scalar-List-Utils/t/isvstring.t		Scalar::Util
