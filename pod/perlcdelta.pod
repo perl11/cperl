@@ -122,6 +122,8 @@ Added all the man tests from upstream
 
 =item L<Pod::Simple>  3.35
 
+=item L<Pod::Usage>  1.69
+
 =item L<Socket>  2.024_02
 
 Merge cpan 2.024 with our 2.021_02,

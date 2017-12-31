@@ -13405,6 +13405,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
 	    'Pod::Text::Color'      => '4.09',
 	    'Pod::Text::Overstrike' => '4.09',
 	    'Pod::Text::Termcap'    => '4.09',
+	    'Pod::Usage'            => '1.69',
             'Socket'                => '2.24_02',
             'Time::HiRes'           => '1.9739',
             'warnings'              => '1.35',
