@@ -90,6 +90,12 @@ XXX
 
 =back
 
+=head2 Set umask(0600) before calling mkstemp
+
+POSIX 2008 demands such an umask, but it is still problematic on
+Solaris, HP-UX and AIX and older libcs, e.g. glibc <= 2.06.
+The old umask 0177 was insecure.
+
 =head1 Modules and Pragmata
 
 XXX All changes to installed files in F<cpan/>, F<dist/>, F<ext/> and F<lib/>
