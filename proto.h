@@ -8448,6 +8448,7 @@ PERL_CALLCONV SV*	Perl_hfree_next_entry(pTHX_ HV *hv, U32 *indexp)
 
 #endif
 #if defined(PERL_IN_LOCALE_C)
+STATIC const char*	S_category_name(const int category);
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE const char *	S_save_to_buffer(const char * string, char **buf, Size_t *buf_size, const Size_t offset)
 			__attribute__nonnull__(1)

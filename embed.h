@@ -1737,6 +1737,7 @@
 #define action_name(a)		S_action_name(aTHX_ a)
 #  endif
 #  if defined(PERL_IN_LOCALE_C)
+#define category_name		S_category_name
 #define save_to_buffer		S_save_to_buffer
 #    if defined(USE_LOCALE)
 #define new_collate(a)		S_new_collate(aTHX_ a)
