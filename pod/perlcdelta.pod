@@ -88,6 +88,11 @@ Use the new get_svs, get_avs, get_hvs macros.
 U32_MAX keys on 64bit. Better gperf and C++ support.
 Add --regen.
 
+=item L<CPAN>  2.18_01
+
+Update from upstream 2.16,
+plus keep our cperl and secure YAML:::XS support.
+
 =item L<ExtUtils::Liblist::Kid>  8.04_06
 
 Silence No library found errors on darwin for libSystem.dylib libs.

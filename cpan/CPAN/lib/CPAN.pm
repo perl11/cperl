@@ -2,9 +2,8 @@
 # vim: ts=4 sts=4 sw=4:
 use strict;
 package CPAN;
-$CPAN::VERSION = '3.11c'; # fixed for cperl
+$CPAN::VERSION = '2.18_01'; # with cperl support
 $CPAN::VERSION =~ s/_//;
-$CPAN::VERSION =~ s/c$//;
 
 # we need to run chdir all over and we would get at wrong libraries
 # there
@@ -15,8 +14,7 @@ BEGIN {
             $inc = File::Spec->rel2abs($inc) unless ref $inc;
         }
     }
-    # make sure we can install any modules from CPAN without patching them
-    $ENV{PERL_USE_UNSAFE_INC} = 1;
+    $SIG{WINCH} = 'IGNORE' if exists $SIG{WINCH};
 }
 use CPAN::Author;
 use CPAN::HandleConfig;
@@ -65,6 +63,7 @@ use Text::Wrap ();
 sub find_perl ();
 sub anycwd ();
 sub _uniq;
+my $CPERL = $Config::Config{usecperl};
 
 no lib ".";
 
@@ -207,6 +206,8 @@ sub soft_chdir_with_alternatives ($);
         }
         $autoload_recursion--;
     }
+    # make sure we can install any modules from CPAN without patching them
+    $ENV{PERL_USE_UNSAFE_INC} = 1;
 }
 
 {
@@ -463,7 +464,7 @@ Enter 'h' for help.
         }
         for my $class (qw(Module Distribution)) {
             # again unsafe meta access?
-            for my $dm (keys %{$CPAN::META->{readwrite}{"CPAN::$class"}}) {
+            for my $dm (sort keys %{$CPAN::META->{readwrite}{"CPAN::$class"}}) {
                 next unless $CPAN::META->{readwrite}{"CPAN::$class"}{$dm}{incommandcolor};
                 CPAN->debug("BUG: $class '$dm' was in command state, resetting");
                 delete $CPAN::META->{readwrite}{"CPAN::$class"}{$dm}{incommandcolor};
@@ -490,7 +491,7 @@ Trying '$root' as temporary haven.
         push @$cwd, $root;
     }
     while () {
-        if (chdir $cwd->[0]) {
+        if (chdir "$cwd->[0]") {
             return;
         } else {
             if (@$cwd>1) {
@@ -519,9 +520,10 @@ sub _flock {
 }
 
 sub _yaml_module () {
-    my $yaml_module = $CPAN::Config->{yaml_module} || "YAML::XS";
+    my $dflt = $CPERL ? "YAML::XS" : "YAML";
+    my $yaml_module = $CPAN::Config->{yaml_module} || $dflt;
     if (
-        $yaml_module ne "YAML::XS"
+        $yaml_module ne $dflt
         &&
         !$CPAN::META->has_inst($yaml_module)
        ) {
@@ -562,6 +564,7 @@ sub _yaml_loadfile {
 
         my ($code, @yaml);
         if ($code = UNIVERSAL::can($yaml_module, "SafeLoadFile")) {
+            # TODO: allow CPAN::* classes
             eval { @yaml = $code->($local_file); };
             if ($@) {
                 # this shall not be done by the frontend
@@ -727,13 +730,14 @@ sub checklock {
         my $otherpid  = <$fh>;
         my $otherhost = <$fh>;
         $fh->close;
-        if (defined $otherpid && $otherpid) {
+        if (defined $otherpid && length $otherpid) {
             chomp $otherpid;
         }
-        if (defined $otherhost && $otherhost) {
+        if (defined $otherhost && length $otherhost) {
             chomp $otherhost;
         }
         my $thishost  = hostname();
+        my $ask_if_degraded_wanted = 0;
         if (defined $otherhost && defined $thishost &&
             $otherhost ne '' && $thishost ne '' &&
             $otherhost ne $thishost) {
@@ -751,31 +755,7 @@ There seems to be running another CPAN process (pid $otherpid).  Contacting...
 });
             if (kill 0, $otherpid or $!{EPERM}) {
                 $CPAN::Frontend->mywarn(qq{Other job is running.\n});
-                my($ans) =
-                    CPAN::Shell::colorable_makemaker_prompt
-                        (qq{Shall I try to run in downgraded }.
-                        qq{mode? (Y/n)},"y");
-                if ($ans =~ /^y/i) {
-                    $CPAN::Frontend->mywarn("Running in downgraded mode (experimental).
-Please report if something unexpected happens\n");
-                    $RUN_DEGRADED = 1;
-                    for ($CPAN::Config) {
-                        # XXX
-                        # $_->{build_dir_reuse} = 0; # 2006-11-17 akoenig Why was that?
-                        $_->{commandnumber_in_prompt} = 0; # visibility
-                        $_->{histfile}       = "";  # who should win otherwise?
-                        $_->{cache_metadata} = 0;   # better would be a lock?
-                        $_->{use_sqlite}     = 0;   # better would be a write lock!
-                        $_->{auto_commit}    = 0;   # we are violent, do not persist
-                        $_->{test_report}    = 0;   # Oliver Paukstadt had sent wrong reports in degraded mode
-                    }
-                } else {
-                    $CPAN::Frontend->mydie("
-You may want to kill the other job and delete the lockfile. On UNIX try:
-    kill $otherpid
-    rm $lockfile
-");
-                }
+                $ask_if_degraded_wanted = 1;
             } elsif (-w $lockfile) {
                 my($ans) =
                     CPAN::Shell::colorable_makemaker_prompt
@@ -792,9 +772,45 @@ You may want to kill the other job and delete the lockfile. On UNIX try:
                     qq{  and then rerun us.\n}
                 );
             }
+        } elsif ($^O eq "MSWin32") {
+            $CPAN::Frontend->mywarn(
+                                    qq{
+There seems to be running another CPAN process according to '$lockfile'.
+});
+            $ask_if_degraded_wanted = 1;
         } else {
             $CPAN::Frontend->mydie(sprintf("CPAN.pm panic: Found invalid lockfile ".
                                            "'$lockfile', please remove. Cannot proceed.\n"));
+        }
+        if ($ask_if_degraded_wanted) {
+            my($ans) =
+                CPAN::Shell::colorable_makemaker_prompt
+                    (qq{Shall I try to run in downgraded }.
+                     qq{mode? (Y/n)},"y");
+            if ($ans =~ /^y/i) {
+                $CPAN::Frontend->mywarn("Running in downgraded mode (experimental).
+Please report if something unexpected happens\n");
+                $RUN_DEGRADED = 1;
+                for ($CPAN::Config) {
+                    # XXX
+                    # $_->{build_dir_reuse} = 0; # 2006-11-17 akoenig Why was that?
+                    $_->{commandnumber_in_prompt} = 0; # visibility
+                    $_->{histfile}       = "";  # who should win otherwise?
+                    $_->{cache_metadata} = 0;   # better would be a lock?
+                    $_->{use_sqlite}     = 0;   # better would be a write lock!
+                    $_->{auto_commit}    = 0;   # we are violent, do not persist
+                    $_->{test_report}    = 0;   # Oliver Paukstadt had sent wrong reports in degraded mode
+                }
+            } else {
+                my $msg = "You may want to kill the other job and delete the lockfile.";
+                if (defined $otherpid) {
+                    $msg .= " Something like:
+    kill $otherpid
+    rm $lockfile
+";
+                }
+                $CPAN::Frontend->mydie("\n$msg");
+            }
         }
     }
     my $dotcpan = $CPAN::Config->{cpan_home};
@@ -1069,6 +1085,16 @@ sub has_usable {
                        },
                       ],
                'Net::FTP' => [
+                            sub {
+                                my $var = $CPAN::Config->{ftp_proxy} || $ENV{ftp_proxy};
+                                if ($var and $var =~ /^http:/i) {
+                                    # rt #110833
+                                    for ("Net::FTP cannot handle http proxy") {
+                                        $CPAN::Frontend->mywarn($_);
+                                        die $_;
+                                    }
+                                }
+                            },
                             sub {require Net::FTP},
                             sub {require Net::Config},
                            ],
@@ -1123,6 +1149,8 @@ sub has_usable {
                                ]
               };
     if ($usable->{$mod}) {
+        local @INC = @INC;
+        pop @INC if $INC[-1] eq '.';
         for my $c (0..$#{$usable->{$mod}}) {
             my $code = $usable->{$mod}[$c];
             my $ret = eval { &$code() };
@@ -1165,6 +1193,8 @@ sub has_inst {
       $CPAN::META->{dontload_hash}{$mod}||=1; # unsafe meta access, ok
       return 0;
     }
+    local @INC = @INC;
+    pop @INC if $INC[-1] eq '.';
     my $file = $mod;
     my $obj;
     $file =~ s|::|/|g;
@@ -1371,8 +1401,8 @@ sub _list_sorted_descending_is_tested {
                     keys %{$self->{is_tested}};
     if ($foul) {
         $CPAN::Frontend->mywarn("Lost build_dir detected ($foul), giving up all cached test results of currently running session.\n");
-        for my $dbd (keys %{$self->{is_tested}}) { # distro-build-dir
-        SEARCH: for my $d ($CPAN::META->all_objects("CPAN::Distribution")) {
+        for my $dbd (sort keys %{$self->{is_tested}}) { # distro-build-dir
+        SEARCH: for my $d (sort { $a->id cmp $b->id } $CPAN::META->all_objects("CPAN::Distribution")) {
                 if ($d->{build_dir} && $d->{build_dir} eq $dbd) {
                     $CPAN::Frontend->mywarn(sprintf "Flushing cache for %s\n", $d->pretty_id);
                     $d->fforce("");
@@ -1988,6 +2018,10 @@ the form
 
   Modulename=arg0,arg1,arg2,arg3,...
 
+eg:
+
+  CPAN::Plugin::Flurb=dir,/opt/pkgs/flurb/raw,verbose,1
+
 At run time, each listed plugin is instantiated as a singleton object
 by running the equivalent of this pseudo code:
 
@@ -2108,6 +2142,9 @@ currently defined:
   bzip2              path to external prg
   cache_metadata     use serializer to cache metadata
   check_sigs         if signatures should be verified
+  cleanup_after_install
+                     remove build directory immediately after a
+                     successful install
   colorize_debug     Term::ANSIColor attributes for debugging output
   colorize_output    boolean if Term::ANSIColor should colorize output
   colorize_print     Term::ANSIColor attributes for normal output

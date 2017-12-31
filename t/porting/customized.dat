@@ -1,6 +1,6 @@
 B::C cpan/B-C/t/test10 0b3ab672868ee49e8539649aad1ad8c940c4c420
 B::C cpan/B-C/t/TestBC.pm 229e8d066e41af067e68daa88fa521a763631301
-CPAN cpan/CPAN/lib/CPAN.pm c1e6ea96ad32428244cbcefed7590da6ec0b318e
+CPAN cpan/CPAN/lib/CPAN.pm 0eb7416798046db5d8f923de1861280698e96634
 CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/lib/CPAN/Meta/Requirements.pm 486e732a515c6f3f1682f19a95a2eb2420040ac7
 CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/t/accepts.t 35d1924588d5f9f89aec2164476eb98e93f05a5e
 CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/t/strings.t 86347bcaac1ccbf0eb5e96a544eba22bbdef9365
@@ -40,7 +40,7 @@ ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/pm_to_blib.t 71ebcee355691ce374fca
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/prereq.t c1fe6e8ce96e8a648043ee8066e60a871fb4e0ba
 ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm 52f5520bc957c306776810d2c6a771445e396fb1
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 263b203c2663e1e07ce65ac2e323e4101801eb98
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 0ba58f6ce3ec1b571628f76220731efe9bee6327
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm d42040297c1e9564c4fcb44c548f54d41e13a02a
 Net::Domain cpan/libnet/lib/Net/Domain.pm 3ada368520d3179da8bc1b28ae61a99b4981b758
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 8ac11522808238b028b935fa94bf5ff319e68938
