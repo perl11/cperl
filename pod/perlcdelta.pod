@@ -63,22 +63,12 @@ Coverity CID #165302 Insecure chroot.
 
 =over 4
 
-=item YAML::LibYAML  0.71
+=item L<Archive::Tar> 2.26
 
-merged with new upstream libyaml 0.1.7 (2 minor fixes)
+'0' is a valid name for an archive, change 'iter' to check definedness.
+See L<https://metacpan.org/changes/distribution/Archive-Tar>
 
-=item Time::HiRes  1.9739
-
-More Darwin thread fixes for clock_gettime,
-Sierra support,
-test improvements.
-
-=item Socket  2.024_02
-
-Merge cpan 2.024 with our 2.021_02,
-plus fix some problems in their new code.
-
-=item B-C  1.54_12
+=item L<B::C>  1.54_12
 
 Better CopFILE_set,
 Fixup arenasize refcnt.
@@ -91,9 +81,24 @@ Fix !C99 precedence bug (e.g. MSVC).
 Minor refactor to simplify save_hek.
 Use the new get_svs, get_avs, get_hvs macros.
 
-=item ExtUtils::Liblist::Kid  8.04_06
+=item L<ExtUtils::Liblist::Kid>  8.04_06
 
 Silence No library found errors on darwin for libSystem.dylib libs.
+
+=item L<Socket>  2.024_02
+
+Merge cpan 2.024 with our 2.021_02,
+plus fix some problems in their new code.
+
+=item L<Time::HiRes>  1.9739
+
+More Darwin thread fixes for clock_gettime,
+Sierra support,
+test improvements.
+
+=item L<YAML::LibYAML>  0.71
+
+merged with new upstream libyaml 0.1.7 (2 minor fixes)
 
 =back
 
