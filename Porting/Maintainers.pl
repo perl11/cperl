@@ -978,9 +978,9 @@ use File::Glob qw(:case);
         'DISTRIBUTION' => 'BINGOS/Module-CoreList-5.20160320.tar.gz',
         'FILES'        => q[dist/Module-CoreList],
         # skip ending 'c' in numeric context on cperl
-        'CUSTOMIZED'   => [ qw( lib/Module/CoreList.pm
-                                lib/Module/CoreList/Utils.pm
-	                      )],
+        #'CUSTOMIZED'   => [ qw( lib/Module/CoreList.pm
+        #                        lib/Module/CoreList/Utils.pm
+	#                      )],
     },
 
     'Module::Load' => {
@@ -1414,7 +1414,7 @@ use File::Glob qw(:case);
     },
 
     'Unicode::Collate' => {
-        'DISTRIBUTION' => 'SADAHIRO/Unicode-Collate-1.14.tar.gz',
+        'DISTRIBUTION' => 'SADAHIRO/Unicode-Collate-1.25.tar.gz',
         'FILES'        => q[cpan/Unicode-Collate],
         'EXCLUDED'     => [
             qr{N$},

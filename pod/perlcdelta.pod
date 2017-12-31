@@ -161,6 +161,8 @@ Less runtime memory: demand-load Carp, Config
 
 =item L<Time::Piece>  1.3203
 
+=item L<Unicode::Collate>  1.25
+
 =item L<YAML::LibYAML>  0.75
 
 
