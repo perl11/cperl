@@ -13,15 +13,13 @@ If you are upgrading from an earlier release such as v5.26.0c, first
 read the L<perl5261cdelta> documentation, which describes differences
 between v5.26.0c and v5.26.1c.
 
-=head1 Performance Enhancements
+=head1 Security
 
-=over 4
+=head2 Set umask(0600) before calling mkstemp
 
-=item *
-
-XXX
-
-=back
+POSIX 2008 demands such an umask, but it is still problematic on
+Solaris, HP-UX and AIX and older libcs, e.g. glibc <= 2.06.
+The old umask 0177 was insecure.
 
 =head1 Modules and Pragmata
 
