@@ -200,6 +200,7 @@ GTAGS
 
 .git-rr-cache/DUMMY
 log.test-*
+log.bench-*
 /benchres-*
 
 # debugging helpers
