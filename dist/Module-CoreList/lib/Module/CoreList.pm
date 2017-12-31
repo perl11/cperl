@@ -13360,6 +13360,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'CPAN::Shell'           => '5.5006',
             'CPAN::Version'         => '5.5003', 
             'Cpanel::JSON::XS'      => '3.0240',
+            'experimental'          => '0.019_01c',
             'ExtUtils::Liblist::Kid' => '8.04_06',
             'Internals::DumpArenas' => '0.12_04',
             'JSON::PP'              => '2.97000_04',

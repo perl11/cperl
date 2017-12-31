@@ -104,6 +104,8 @@ F<cpan/Parse-CPAN-Meta> is gone.
 
 Update from upstream
 
+=item L<experimental>  0.019_01c
+
 =item L<ExtUtils::Liblist::Kid>  8.04_06
 
 Silence No library found errors on darwin for libSystem.dylib libs.
