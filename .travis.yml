@@ -49,22 +49,28 @@ env:
   matrix:
     - CONFIGURE_OPTION='' XCC='gcc' XBITS=64
     - CONFIGURE_OPTION='' XCC="'gcc\ -m32'" XBITS=32
-    - CONFIGURE_OPTION='-DDEBUGGING' XCC='clang'
-    - CONFIGURE_OPTION='-Duse64bitall -Dusethreads' XCC='gcc'
-    - CONFIGURE_OPTION='-Duselongdouble' XCC='clang'
-    - CONFIGURE_OPTION='-Duselongdouble -DDEBUGGING' XCC='gcc'
-    - CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall' XCC='clang'
+    - CONFIGURE_OPTION='-DDEBUGGING -Duseshrplib' XCC='clang'
+    - CONFIGURE_OPTION='-Duse64bitall -Dusethreads -Duselongdouble' XCC='clang'
+    - CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall -Dld=c++' XCC='c++'
 
 matrix:
-  allow_failures:
-#    - env: CONFIGURE_OPTION='' XCC="'gcc\ -m32'"
   fast_finish: true
+  exclude:
+    - os: osx
+      env: CONFIGURE_OPTION='-Duse64bitint' XCC="'gcc\ -m32'" XBITS=32
+    - os: osx
+      env: CONFIGURE_OPTION='-DDEBUGGING -Duseshrplib' XCC='clang'
+    - os: osx
+      env: CONFIGURE_OPTION='-Duse64bitall -Dusethreads -Duselongdouble' XCC='clang'
+  allow_failures:
+    - env: CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall -Dld=c++' XCC='c++'
 
 #osx:   - CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=corei7 -DPERL_FAKE_SIGNATURE"'
 #linux: - CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=native -msse4.2 -DPERL_FAKE_SIGNATURE"'
 
 script:
-  - test -n $TRAVIS_TAG && CONFIGURE_OPTION="$CONFIGURE_OPTION -Dusedevel";
+  - function shell_session_update { true; } ; CFG=$CONFIGURE_OPTION ;
+    test -n $TRAVIS_TAG && CONFIGURE_OPTION="$CONFIGURE_OPTION -Dusedevel";
     ./Configure -des -Uversiononly -Dcc="$XCC" $CONFIGURE_OPTION -Dprefix=$HOME/cperl/usr
     && make -j4 -s
   - TEST_JOBS=4 make -s -j4 test_harness && make -s install && $HOME/cperl/usr/bin/cperlivp
@@ -86,8 +92,8 @@ notifications:
   irc:
     channels:
       - "irc.perl.org#perl11"
-    on_success: always
-    on_failure: always
+    on_success: never
+    on_failure: never
     # to enable skip_join, in IRC channel first execute `/mode -n`
     skip_join: true
     template:
