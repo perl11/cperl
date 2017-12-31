@@ -4,7 +4,7 @@ use Carp;
 use warnings;
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = '1.00'; # remember to update version in POD!
+$VERSION = '1.00_01'; # remember to update version in POD!
 $VERSION =~ tr/_//d;
 # $DB::single=1;
 
@@ -120,7 +120,8 @@ BEGIN {
 
 sub _resolve_lastattr {
 	return unless $lastattr{ref};
-	my $sym = findsym @lastattr{'pkg','ref'}
+	my @attrs = @lastattr{'pkg','ref'};
+	my $sym = findsym @attrs
 		or die "Internal error: $lastattr{pkg} symbol went missing";
 	my $name = *{$sym}{NAME};
 	warn "Declaration of $name attribute in package $lastattr{pkg} may clash with future reserved word\n"
@@ -273,7 +274,7 @@ Attribute::Handlers - Simpler definition of attribute handlers
 
 =head1 VERSION
 
-This document describes version 1.00 of Attribute::Handlers.
+This document describes version 1.00_01 of Attribute::Handlers.
 
 =head1 SYNOPSIS
 
@@ -328,6 +329,7 @@ This document describes version 1.00 of Attribute::Handlers.
 	# or the variable was typed to MyClass.
         # But beware that this syntax is very fragile in cperl, where
         # it clashes with the declaration of a return type.
+	# Rather use the : ATTR() syntax.
 	# Use ref($_[2]) to determine what kind of referent it was.
 	...
     }

@@ -15696,6 +15696,7 @@ our %delta = (
             'Module::CoreList'      => '5.20171205c',
             'Module::CoreList::Utils'=> '5.20171205c',
             'Module::CoreList::TieHashDelta'=> '5.20171205',
+            'Attribute::Handlers'   => '1.00_01',
             'Cpanel::JSON::XS'      => '3.0240',
             'Devel::PPPort'         => '3.36_04',
             'ExtUtils::ParseXS'     => '3.36_03',

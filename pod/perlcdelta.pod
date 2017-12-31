@@ -232,6 +232,10 @@ XXX
 
 =over 4
 
+=item L<Attribute::Handlers> 1.00_01
+
+fix autovivification bug with hash slice args to a function.
+
 =item L<Compress::Raw::Zlib>
 
 fix upstream deflate.
