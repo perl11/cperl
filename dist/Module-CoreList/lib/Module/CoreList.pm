@@ -13354,6 +13354,8 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Cpanel::JSON::XS'      => '3.0240',
             'ExtUtils::Liblist::Kid' => '8.04_06',
             'Internals::DumpArenas' => '0.12_04',
+            'JSON::PP'              => '2.97000_04',
+            'JSON::PP::Boolean'     => '2.97000_04',
             'Parse::CPAN::Meta'     => '1.5000c',
             'Socket'                => '2.24_02',
             'Time::HiRes'           => '1.9739',

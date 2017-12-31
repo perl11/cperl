@@ -106,6 +106,10 @@ Update from upstream
 
 Silence No library found errors on darwin for libSystem.dylib libs.
 
+=item L<JSON::PP> 2.97000_04
+
+Merge 2.97000 from cpan with ours.
+
 =item L<Socket>  2.024_02
 
 Merge cpan 2.024 with our 2.021_02,
