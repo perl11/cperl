@@ -7,20 +7,23 @@ BEGIN {
 }
 use Test::More;
 
-plan skip_all => "MSVC" if $^O eq 'MSWin32' and $Config{cc} eq 'cl';
+# but works locally
+plan skip_all => "mingw on appveyor"
+  if $^O eq 'MSWin32' and $Config{cc} eq 'gcc' and $ENV{APPVEYOR};
 plan tests => 4;
 
 my $runperl = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
 my $Mblib = Mblib();
 my $perlcc = perlcc();
 my $exe = $^O eq 'MSWin32' ? 'ccode_argv.exe' : 'ccode_argv';
-my $pl = $^O eq 'MSWin32' ? "t\\c_argv.pl" : "t/c_argv.pl";
+my $pl  = $^O eq 'MSWin32' ? "t\\c_argv.pl" : "t/c_argv.pl";
 my $plc = $pl . "c";
 my $d = <DATA>;
 
 open F, ">", $pl;
 print F $d;
 close F;
+diag "$runperl $Mblib $perlcc -O3 -o $exe -r $pl ok 1" if $ENV{TEST_VERBOSE};
 is(`$runperl $Mblib $perlcc -O3 -o $exe -r $pl ok 1`, "ok 1\n", #1
    "perlcc -r file args");
 unlink($exe);

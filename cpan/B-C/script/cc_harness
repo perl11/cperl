@@ -9,7 +9,7 @@ if ($ENV{PERL_CORE}) {
   $libdir  = $Config{prefix} . "/lib";
   $coredir = $ENV{PERL_SRC} || $Config{archlib}."/CORE";
 }
-my $useshrplib = $Config{useshrplib} eq 'true';
+my $useshrplib = $Config{useshrplib} =~ /^(true|yes)$/;
 my $libs = $Config{libs};
 my $so = $Config{so};
 my $libperl = $Config{libperl};
@@ -110,7 +110,7 @@ sub cc_harness_msvc {
       $compile =~ s/ -DNDEBUG / -DDEBUG /;
     } else {
       # avoid expensive optimisations with low memory (1-2 hours!)
-      $compile .= " -Od" if $ENV{APPVEYOR};
+      $compile .= " -Od" if $ENV{APPVEYOR} and $^O eq 'MSWin32';
     }
     $compile .= "-DHAVE_INDEPENDENT_COMALLOC " if $B::C::Config::have_independent_comalloc;
     $compile .= $B::C::Config::extra_cflags;
@@ -132,7 +132,7 @@ sub cc_harness_msvc {
         $link .= " /DEBUG";
     } else {
       # avoid expensive folding with low memory
-      $link .= " /OPT:NOREF" if $ENV{APPVEYOR};
+      $link .= " /OPT:NOREF" if $ENV{APPVEYOR} and $^O eq 'MSWin32';
     }
     if (index($link, "Win32CORE") < 0) {
         my $archdir = $ENV{PERL_CORE} ? "../.." : $Config{archlib};
@@ -160,13 +160,13 @@ if ($^O eq 'MSWin32' && $Config{cc} =~ 'cl') {
 
 my $ccflags = $Config{ccflags};
 # crashes on cygwin
-if ($^O eq 'cygwin' and $ccflags =~ /-fstack-protector\b/
-                    and $linkargs =~ /-fstack-protector\b/)
+if ($^O eq 'cygwin' and $ccflags =~ /-fstack-protector /
+                    and $linkargs =~ /-fstack-protector /)
 {
-  $linkargs =~ s/-fstack-protector\b//;
+  $linkargs =~ s/-fstack-protector //;
 }
 #-pedantic -Wextra -Wconversion
-if ($debug and $Config{cc} =~ /gcc/) {
+if ($debug and $Config{cc} =~ /\bgcc/ and $Config{gccversion}) {
   $ccflags .= " -ansi -Wall -Wshadow -Wcast-qual -Wwrite-strings"
     if !$quiet;
   # remove conflicting flags, esp. -s for strip
@@ -177,7 +177,7 @@ if ($debug and $Config{cc} =~ /gcc/) {
 
 # -Wl,--warn-once is not gold compatible
 $ccflags .= " --no-warn"
-  if $Config{cc} =~ /gcc/ and $quiet and $^O ne 'darwin';
+  if $Config{cc} =~ /\bgcc/ and $Config{gccversion} and $quiet and $^O ne 'darwin';
 $ccflags .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Config::have_independent_comalloc;
 $ccflags .= $B::C::Config::extra_cflags;
 

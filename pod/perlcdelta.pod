@@ -68,7 +68,7 @@ Coverity CID #165302 Insecure chroot.
 '0' is a valid name for an archive, change 'iter' to check definedness.
 See L<https://metacpan.org/changes/distribution/Archive-Tar>
 
-=item L<B::C>  1.54_12
+=item L<B::C>  1.55_06
 
 Better CopFILE_set,
 Fixup arenasize refcnt.

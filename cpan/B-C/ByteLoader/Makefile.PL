@@ -5,7 +5,7 @@ my $ccflags   = $Config{ccflags};
 my $lddlflags = $Config{lddlflags};
 
 if ( -d '.svn' or -d '.git' ) {
-  $ccflags .= ' -ansi -Wall -Wextra' if $Config{cc} =~ /gcc/;
+  $ccflags .= ' -ansi -Wall -Wextra' if $Config{cc} =~ /\bgcc/ and $Config{gccversion};
 }
 if ($] < 5.007) {
   # We are not called by ../Makefile.PL, but be sure about that for now.

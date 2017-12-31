@@ -28,6 +28,11 @@ if ($fw) {
 
 sub probe_byteloader {
   my $out = "probe.plc";
+  # This requires the dynamic/static target C.so to be built before [cpan #120161]
+  if ($] > 5.021) {
+    require Config;
+    system "$Config::Config{make} linkext";
+  }
   system "$^X -Mblib -MO=-qq,Bytecode,-H,-o$out -e'print q(ok)'";
   return "0" unless -s $out;
   my $ret = `$^X -Mblib $out`;

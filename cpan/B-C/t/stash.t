@@ -26,6 +26,7 @@ use Config;
 my $got;
 my $Is_VMS = $^O eq 'VMS';
 my $Is_MacOS = $^O eq 'MacOS';
+my $perl_core = $ENV{PERL_CORE};
 
 my $path = join " ", map { qq["-I$_"] } @INC;
 $path = '"-I../lib" "-Iperl_root:[lib]"' if $Is_VMS;   # gets too long otherwise
@@ -36,22 +37,22 @@ my $X = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
 chomp($got = `$X $path "-MB::Stash" $cover "-Mwarnings" -e1`);
 $got =~ s/Using \w+blib\n// if $] < 5.008001;
 $got =~ s/-u//g;
-diag "got = $got";
+diag "got = $got" unless $perl_core;
 
 my @got = map { s/^\S+ //; $_ }
               sort { $a cmp $b }
                    map { lc($_) . " " . $_ }
                        split /,/, $got;
-diag "(after sorting)";
-diag "got = @got";
+diag "(after sorting)" unless $perl_core;
+diag "got = @got" unless $perl_core;
 ok (@got > 3, "not empty");
 ok ($got =~ /main,/, "contains main");
 ok ($got =~ /,warnings/, "contains warnings");
 
 @got = grep { ! /^(PerlIO|open)(?:::\w+)?$/ } @got;
 
-diag "(after perlio censorings)";
-diag "got = @got";
+diag "(after perlio censorings)" unless $perl_core;
+diag "got = @got" unless $perl_core;
 
 @got = grep { ! /^Win32$/                     } @got  if $^O eq 'MSWin32';
 @got = grep { ! /^NetWare$/                   } @got  if $^O eq 'NetWare';
@@ -71,8 +72,8 @@ if ($Is_VMS) {
     @got = grep { ! /^Socket$/             } @got;
 }
 
-diag "(after platform censorings)";
-diag "got = @got";
+diag "(after platform censorings)" unless $perl_core;
+diag "got = @got" unless $perl_core;
 
 $got = "@got";
 

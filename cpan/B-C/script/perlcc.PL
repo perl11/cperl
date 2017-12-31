@@ -64,6 +64,7 @@ print OUT <<'!NO!SUBS!';
 # Version 2.19, Reini Urban, 2014-07-09
 # Version 2.20, Reini Urban, 2014-07-23
 # Version 2.21, Reini Urban, 2016-06-12
+# Version 2.22, Reini Urban, 2017-07-23
 
 use strict;
 use warnings;
@@ -78,7 +79,7 @@ use Cwd ();
 use Pod::Usage;
 # Time::HiRes does not work with 5.6
 # use Time::HiRes qw(gettimeofday tv_interval);
-our $VERSION = 2.21;
+our $VERSION = 2.22;
 $| = 1;
 eval { require B::C::Config; };
 
@@ -252,6 +253,7 @@ sub parse_argv {
         'B',            # Byte compiler backend
         'O',            # Optimised C backend B::CC
          #'O1-4'        # alias for -Wb=-O1 (new since 2.13)
+        'debug|D',      # alias for --Wb=-Dfull and -S to enable all debug and preserve source code
         'dryrun|n',     # only print commands, do not execute
         'c',            # Compile to C only, no linking
         'check',        # pass -c to B::C and exit
@@ -277,6 +279,12 @@ sub parse_argv {
         'time',         # print benchmark timings (new since 2.08)
         'version',      # (new since 2.13)
     );
+
+    if ( $Options->{debug} ) {
+        $Options->{Wb} = $Options->{Wb} ? $Options->{Wb} . ',' : '';
+        $Options->{Wb} .= '-Dfull';
+        $Options->{S} = 1;
+    }
 
     $Options->{v} += 0;
 
@@ -593,7 +601,11 @@ sub cc_harness_msvc {
     $obj .= ".obj" unless $obj =~ /\.obj$/;
     my $compile = "";
     $compile = '-I"..\..\lib\CORE" ' if $ENV{PERL_CORE};
-    $compile .= ExtUtils::Embed::ccopts." -c -Fo$obj $cfile ";
+    my $ccopts = ExtUtils::Embed::ccopts;
+    my $optWc = opt('Wc');
+    # suppress cl : Command line warning D4025 : overriding '/O1' with '/Od'
+    $ccopts =~ s/\b[-\/]O.\b/-Od/ if $optWc && ($optWc =~ /\b[-\/]Od\b/);
+    $compile .= "$ccopts -c -Fo$obj $cfile ";
     $compile .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Config::have_independent_comalloc;
     $compile .= $B::C::Config::extra_cflags;
     my $link = "-out:$Output $obj";
@@ -606,7 +618,7 @@ sub cc_harness_msvc {
         }
     }
     $compile .= ' -DSTATICXS' if opt('staticxs');
-    $compile .= " ".opt('Wc') if opt('Wc');
+    $compile .= " $optWc" if $optWc;
 
     $link .= ' -libpath:"..\..\lib\CORE"' if $ENV{PERL_CORE};
     my $libdir = opt('L');
@@ -679,10 +691,13 @@ sub cc_harness {
     my ($cfile, $stash, $extra_libs) = @_;
     use ExtUtils::Embed ();
     my $command = ExtUtils::Embed::ccopts." -o \"$Output\" \"$cfile\" ";
+    my $coredir;
     if ($ENV{PERL_CORE}) {
 !NO!SUBS!
 print OUT <<"!EXPANDED!";
-      \$command = "\$Config{ccflags} -I\\\"$srcdir\\\" -L\\\"$srcdir\\\" -o \\\"\$Output\\\" \\\"\$cfile\\\" ";
+      \$coredir = \"$srcdir\";
+      \$coredir .= \"/lib/CORE\" if \$^O eq 'MSWin32'; # forward slashes yes
+      \$command = "\$Config{ccflags} -I\\\"\$coredir\\\" -L\\\"\$coredir\\\" -o \\\"\$Output\\\" \\\"\$cfile\\\" ";
 !EXPANDED!
 print OUT <<'!NO!SUBS!';
     }
@@ -705,27 +720,36 @@ print OUT <<'!NO!SUBS!';
         }
     }
     $command .= " -DSTATICXS" if opt('staticxs');
-    $command .= " ".opt('Wc') if opt('Wc');
+    my $optWc = opt('Wc');
+    if ($optWc) {
+        $command .= " $optWc";
+        # no override warning
+        $command =~ s/\b-O.\b/-O0/ if $optWc =~ /\b-O0\b/;
+    }
     my $ccflags = $command;
 
-    my $useshrplib = $Config{useshrplib};
+    my $useshrplib = $Config{useshrplib} =~ /^(true|yes)$/;
     _die("--sharedxs with useshrplib=false\n") if !$useshrplib and opt('sharedxs');
     my $ldopts;
     if ($stash) {
         my @mods = split /,?-?u/, $stash; # XXX -U stashes
         $ldopts = ExtUtils::Embed::ldopts("-std", \@mods);
     } else {
-        $ldopts = ExtUtils::Embed::ldopts("-std");
+        if ($ENV{PERL_CORE} and $^O eq 'MSWin32') {
+            $ldopts = $Config{libs};
+        } else {
+            $ldopts = ExtUtils::Embed::ldopts("-std"); # critical on mingw
+        }
     }
     $ldopts .= " ".opt('Wl') if opt('Wl');
 
     # gcc crashes with this duplicate -fstack-protector arg
     my $ldflags = $Config{ldflags};
-    if ($^O eq 'cygwin' and $ccflags =~ /-fstack-protector\b/
-                        and $ldopts =~ /-fstack-protector\b/)
+    if ($^O eq 'cygwin' and $ccflags =~ /-fstack-protector /
+                        and $ldopts =~ /-fstack-protector /)
     {
-        $ldopts =~ s/-fstack-protector\b//;
-        $ldflags =~ s/-fstack-protector\b// if $extra_libs;
+        $ldopts =~ s/-fstack-protector //;
+        $ldflags =~ s/-fstack-protector // if $extra_libs;
     }
     # another ldopts bug: ensure Win32CORE gets added, before -lperl
     if (is_winlike()) {
@@ -742,9 +766,12 @@ print OUT <<'!NO!SUBS!';
            }
         }
     }
-    my ($libperl, $libdir, $coredir) = ($Config{libperl});
+    my ($libperl, $libdir) = ($Config{libperl});
     if ($ENV{PERL_CORE}) {
-        $libdir = $coredir = "../.."; # not includedir, which is ../../lib/CORE on windows
+        # on mingw we still search for cperl52x.dll not the importlib
+        # coredir + includedir is ../../lib/CORE on windows
+        $libdir = "../..";
+        # $ldopts .= " -L$coredir" if $^O eq 'MSWin32';
     } else {
         $libdir  = $Config{prefix} . "/lib";
         $coredir = $ENV{PERL_SRC} || $Config{archlib}."/CORE";
@@ -1204,6 +1231,12 @@ Do not delete generated C code after compilation.
 =item -B
 
 Use the Perl bytecode code generator.
+
+=item --debug or -D
+
+Shortcut for --Wb=-Dfull -S
+to enable all debug levels and also preserve source code,
+also view --Wb to enable some specific debugging options.
 
 =item -O
 
