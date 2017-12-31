@@ -252,9 +252,7 @@ dist/module-corelist/lib/module/corelist/utils.pm	Verbatim line length including
 dist/net-ping/lib/net/ping.pm	Apparent broken link	1
 dist/pathtools/lib/file/spec/amigaos.pm	Verbatim line length including indents exceeds 79 by	1
 dist/pathtools/lib/file/spec/mac.pm	? Should you be using L<...> instead of	2
-dist/selfloader/lib/selfloader.pm	Verbatim line length including indents exceeds 79 by	13
 dist/storable/storable.pm	Verbatim line length including indents exceeds 79 by	4
-dist/thread-queue/lib/thread/queue.pm	Verbatim line length including indents exceeds 79 by	6
 dist/threads/lib/threads.pm	Verbatim line length including indents exceeds 79 by	3
 dist/tie-file/lib/tie/file.pm	Verbatim line length including indents exceeds 79 by	3
 ext/config/config_xs.in	Apparent internal link is missing its forward slash	2

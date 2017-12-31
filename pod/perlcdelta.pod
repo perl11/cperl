@@ -155,6 +155,10 @@ More Darwin thread fixes for clock_gettime,
 Sierra support,
 test improvements.
 
+=item L<Time::Local>  1.25
+
+Less runtime memory: demand-load Carp, Config
+
 =item L<YAML::LibYAML>  0.75
 
 

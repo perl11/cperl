@@ -13464,6 +13464,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Thread::Queue'         => '3.12',
             'Thread::Semaphore'     => '2.13',
             'Time::HiRes'           => '1.9747_01',
+            'Time::Local'           => '1.25',
             'warnings'              => '1.35',
             'YAML::XS'              => '0.75',
             'YAML::LibYAML'         => '0.75',
