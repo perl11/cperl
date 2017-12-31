@@ -87,7 +87,7 @@ my %file = map { $_ => File::Spec->catfile( $dir, $_ ) }
         make_iterator => [
             {   name => "valid executable",
                 raw  => [
-                    $perl, ( $ENV{PERL_CORE} ? '-I../../lib -I.' : () ),
+                    $perl, ( $ENV{PERL_CORE} ? '-I../../lib' : () ),
                     (map { "-I$_" } split /$Config{path_sep}/, $ENV{PERL5LIB} || ''),
                     '-It/lib', '-T', $file{source}
                 ],
@@ -96,7 +96,7 @@ my %file = map { $_ => File::Spec->catfile( $dir, $_ ) }
                 assemble_meta => 1,
             },
             {   name  => "invalid source->raw",
-                raw   => "$perl -I. -It/lib $file{source}",
+                raw   => "$perl -It/lib $file{source}",
                 error => qr/^No command found/,
             },
             {   name  => "non-existent source->raw",
@@ -355,9 +355,11 @@ sub test_handler {
 
         SKIP:
         {
-            my $planned = 1;
+            no warnings 'void';
+            %int:: unless %int::; # init the coretype if missing
+            my int $planned = 1;
             $planned += 1 + scalar @{ $test->{output} } if $test->{output};
-            skip $test->{skip_reason}, $planned if $test->{skip};
+            skip "$test->{skip_reason}", $planned if $test->{skip};
 
             my $source = TAP::Parser::Source->new;
             $source->raw( $test->{raw} )             if $test->{raw};

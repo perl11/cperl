@@ -40,7 +40,7 @@ ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/pm_to_blib.t 71ebcee355691ce374fca
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/prereq.t c1fe6e8ce96e8a648043ee8066e60a871fb4e0ba
 ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm 52f5520bc957c306776810d2c6a771445e396fb1
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm e09961a9ab7177d3c4af6d9d00df778c4f052ca3
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 7b932e6ae129fdecf217e392ec81c39de6f1da37
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 6dba40c39f6f3b204e2fcd4bc5bfd2721bf4ef30
 Net::Domain cpan/libnet/lib/Net/Domain.pm 3ada368520d3179da8bc1b28ae61a99b4981b758
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 8ac11522808238b028b935fa94bf5ff319e68938
@@ -55,7 +55,7 @@ Test::Harness cpan/Test-Harness/t/multiplexer.t 059fbbd8529bf73ba0615272ee85f170
 Test::Harness cpan/Test-Harness/t/nofork.t 17a1bde6de588ca647cd89d3786e84a68164a45c
 Test::Harness cpan/Test-Harness/t/regression.t 4b6448b3d3bae1f406e25c8f61d2656a2338d639
 Test::Harness cpan/Test-Harness/t/sample-tests/switches 350f7e96e4bfb8dbac352200d656e8f52a76ab7e
-Test::Harness cpan/Test-Harness/t/source_handler.t 1b8bb1ea600742236de79c586f18dd37ee1c732a
+Test::Harness cpan/Test-Harness/t/source_handler.t 1b9abe550c8c5383eddefb0811c083605cb66ba4
 Text::ParseWords cpan/Text-ParseWords/t/ParseWords.t 9bae51c9b944cd5c0bbabe9d397e573976a2be8e
 Time::HiRes cpan/Time-HiRes/t/nanosleep.t 2739058d39ab3dc66b45fb5a0fb111d09fd643a3
 Win32API::File cpan/Win32API-File/buffers.h 02d230ac9ac7091365128161a0ed671898baefae
