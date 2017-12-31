@@ -93,6 +93,11 @@ Add --regen.
 Update from upstream 2.16,
 plus keep our cperl and secure YAML:::XS support.
 
+=item L<CPAN::Meta>  2.150010c
+
+Merged with L<Parse::CPAN::Meta>,
+F<cpan/Parse-CPAN-Meta> is gone.
+
 =item L<ExtUtils::Liblist::Kid>  8.04_06
 
 Silence No library found errors on darwin for libSystem.dylib libs.

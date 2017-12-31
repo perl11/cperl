@@ -4,7 +4,7 @@ author:
   - rurban@cpanel.net
 build_requires: {}
 dynamic_config: 1
-generated_by: CPAN::Meta version 2.150006, CPAN::Meta::Converter version 2.150005
+generated_by: CPAN::Meta version 2.150010, CPAN::Meta::Converter version 2.150010
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html

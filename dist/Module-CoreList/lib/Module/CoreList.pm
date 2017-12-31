@@ -4,7 +4,7 @@ use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use Module::CoreList::TieHashDelta;
 use version;
-$VERSION = '5.20160827c';
+$VERSION = '5.20171231c';
 $VERSION =~ s/c$//;
 
 sub _released_order {   # Sort helper, to make '?' sort after everything else
@@ -13338,6 +13338,14 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'CPAN::FirstTime'       => '5.5310_01',
             'CPAN::HandleConfig'    => '5.5008',
             'CPAN::Index'           => '2.12',
+            'CPAN::Meta'            => '2.150010c',
+            'CPAN::Meta::Converter' => '2.150010',
+            'CPAN::Meta::Feature'   => '2.150010',
+            'CPAN::Meta::History'   => '2.150010',
+            'CPAN::Meta::Merge'     => '2.150010',
+            'CPAN::Meta::Prereqs'   => '2.150010',
+            'CPAN::Meta::Spec'      => '2.150010c',
+            'CPAN::Meta::Validator' => '2.150010c',
             'CPAN::Mirrors'         => '2.12',
             'CPAN::Module'          => '5.5003',
             'CPAN::Plugin'          => '0.96',
@@ -13345,6 +13353,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'CPAN::Version'         => '5.5003',
             'ExtUtils::Liblist::Kid' => '8.04_06',
             'Internals::DumpArenas' => '0.12_04',
+            'Parse::CPAN::Meta'     => '1.5000c',
             'Socket'                => '2.24_02',
             'Time::HiRes'           => '1.9739',
             'warnings'              => '1.35',

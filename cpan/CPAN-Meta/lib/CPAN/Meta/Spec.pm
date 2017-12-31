@@ -8,7 +8,8 @@ use strict;
 use warnings;
 package CPAN::Meta::Spec;
 
-our $VERSION = '2.150005c';
+our $VERSION = '2.150010c';
+$VERSION =~ s/c$//;
 
 1;
 
@@ -29,7 +30,7 @@ CPAN::Meta::Spec - specification for CPAN distribution metadata
 
 =head1 VERSION
 
-version 2.150005
+version 2.150010c
 
 =head1 SYNOPSIS
 
@@ -159,7 +160,8 @@ constraints on the values of a data element.
 =head2 Boolean
 
 A I<Boolean> is used to provide a true or false value.  It B<must> be
-represented as a defined value.
+represented as a defined value that is either "1" or "0" or stringifies
+to those values.
 
 =head2 String
 
@@ -1201,6 +1203,10 @@ L<Module::Build>
 
 L<Module::Install>
 
+=item *
+
+L<CPAN::Meta::History::Meta_1_4>
+
 =back
 
 =head1 HISTORY
@@ -1233,11 +1239,15 @@ David Golden <dagolden@cpan.org>
 
 Ricardo Signes <rjbs@cpan.org>
 
+=item *
+
+Adam Kennedy <adamk@cpan.org>
+
 =back
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2010 by David Golden and Ricardo Signes.
+This software is copyright (c) 2010 by David Golden, Ricardo Signes, Adam Kennedy and Contributors.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

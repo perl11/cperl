@@ -277,7 +277,7 @@ use File::Glob qw(:case);
     },
 
     'Config' => {
-        'DISTRIBUTION' => 'BULKDD/other/XSConfig-6.21.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/XSConfig-6.23.tar.gz',
         'FILES'      => q[
                  ext/Config/Config.pm
                  ext/Config/Config_xs.{in,out,PL}
@@ -366,7 +366,7 @@ use File::Glob qw(:case);
     # Note: When updating CPAN-Meta the META.* files will need to be regenerated
     # perl -Icpan/CPAN-Meta/lib Porting/makemeta
     'CPAN::Meta' => {
-        'DISTRIBUTION' => 'DAGOLDEN/CPAN-Meta-2.150005.tar.gz',
+        'DISTRIBUTION' => 'DAGOLDEN/CPAN-Meta-2.150010.tar.gz',
         'FILES'        => q[cpan/CPAN-Meta],
         'EXCLUDED'     => [
             qw[t/00-report-prereqs.t],
@@ -1027,15 +1027,6 @@ use File::Glob qw(:case);
     'parent' => {
         'DISTRIBUTION' => 'CORION/parent-0.234.tar.gz',
         'FILES'        => q[cpan/parent],
-    },
-
-    'Parse::CPAN::Meta' => {
-        'DISTRIBUTION' => 'DAGOLDEN/Parse-CPAN-Meta-1.4417.tar.gz',
-        'FILES'        => q[cpan/Parse-CPAN-Meta],
-        'EXCLUDED'     => [
-            qw[t/00-report-prereqs.t],
-            qr{^xt},
-        ],
     },
 
     # PathTools cannot be cpan'd by sync-with-cpan

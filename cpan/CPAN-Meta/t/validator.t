@@ -9,6 +9,9 @@ use IO::Dir;
 use Parse::CPAN::Meta 1.4400;
 use Config;
 
+delete $ENV{CPAN_META_JSON_BACKEND};
+delete $ENV{CPAN_META_JSON_DECODER};
+
 my $defaults_json = $Config{usecperl} ? 'Cpanel::JSON::XS' : 'JSON::PP';
 my $defaults_yaml = $Config{usecperl} ? 'YAML::XS' : 'CPAN::Meta::YAML';
 my @fallbacks_json = qw(JSON::PP Cpanel::JSON::XS JSON::Syck JSON::XS);

@@ -40,8 +40,8 @@ ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/pm_to_blib.t 71ebcee355691ce374fca
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/prereq.t c1fe6e8ce96e8a648043ee8066e60a871fb4e0ba
 ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm 52f5520bc957c306776810d2c6a771445e396fb1
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 0ba58f6ce3ec1b571628f76220731efe9bee6327
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm d42040297c1e9564c4fcb44c548f54d41e13a02a
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 7dccb88e51c5669e1660aae1814863e260178023
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 6dba40c39f6f3b204e2fcd4bc5bfd2721bf4ef30
 Net::Domain cpan/libnet/lib/Net/Domain.pm 3ada368520d3179da8bc1b28ae61a99b4981b758
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 8ac11522808238b028b935fa94bf5ff319e68938
 Pod::Perldoc cpan/Pod-Perldoc/Makefile.PL d1473c88b8cc5543d174966096b95f2d84a7fdcc

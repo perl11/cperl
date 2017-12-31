@@ -4,6 +4,7 @@ package Parse::CPAN::Meta;
 # ABSTRACT: Parse META.yml and META.json CPAN metadata files
 
 our $VERSION = '1.5000c';
+$VERSION =~ s/c$//;
 
 use Exporter;
 use Carp 'croak';
@@ -20,8 +21,17 @@ sub load_file {
     {
       no strict 'refs'; 
       if (exists &{"$backend\::LoadFile"} ) {
-        local $YAML::XS::NonStrict = 1;
-        return &{"$backend\::LoadFile"}($filename);
+        if ($backend eq 'YAML::XS') {
+          local ($YAML::XS::NonStrict, $YAML::XS::DisableCode, 
+                 $YAML::XS::DisableBlessed) = (1, 1, 1);
+          return YAML::XS::LoadFile($filename);
+        } elsif ($backend eq 'YAML::Syck') {
+          local ( $YAML::Syck::LoadCode, $YAML::Syck::UseCode,
+                  $YAML::Syck::LoadBlessed, $YAML::Syck::ImplicitUnicode ) = (0,0,0,1);
+          return YAML::Syck::LoadFile($filename);
+        } else {
+          return &{"$backend\::LoadFile"}($filename);
+        }
       } else {
         my $meta = _slurp($filename);
         return $class->load_yaml_string($meta);
@@ -31,6 +41,8 @@ sub load_file {
   elsif ($filename =~ /\.json$/) {
     my $backend = $class->json_backend();
     if (exists &{"$backend\::LoadFile"} ) {
+      local ($JSON::Syck::LoadCode, $JSON::Syck::UseCode, $JSON::Syck::LoadBlessed) = (0,0,0);
+      local $JSON::Syck::ImplicitUnicode = 1;
       return &{"$backend\::LoadFile"}($filename);
     } else {
       my $meta = _slurp($filename);
@@ -59,15 +71,24 @@ sub load_string {
 sub load_yaml_string {
   my ($class, $string) = @_;
   my $backend = $class->yaml_backend();
-  # set YAML::Tiny compatible options
-  local $YAML::XS::NonStrict = 1;
-  my $data = eval { no strict 'refs'; &{"$backend\::Load"}($string) };
-  # Make some parse errors are non-fatal.
+  my $data;
+  if ($backend eq 'YAML::XS') {
+    local ($YAML::XS::NonStrict, $YAML::XS::DisableCode, 
+           $YAML::XS::DisableBlessed) = (1, 1, 1);
+    $data = eval { YAML::XS::Load($string); };
+  } elsif ($backend eq 'YAML::Syck') {
+    local ($YAML::Syck::LoadCode, $YAML::Syck::UseCode,
+           $YAML::Syck::LoadBlessed, $YAML::Syck::ImplicitUnicode)
+        = (0,0,0,1);
+    $data = YAML::Syck::Load($string);
+  } else {
+    $data = eval { no strict 'refs'; &{"$backend\::Load"}($string) };
+  }
+  # Make some libyaml parse errors are non-fatal.
   # match YAML::Tiny and CPAN::Meta::YAML behavior, which accepts broken YAML
   if ($@) {
     my $err = $@;
-    if ($backend =~ /^YAML(::XS)?$/
-        and $err =~ $permit_yaml_err) {
+    if ($backend =~ /^YAML(::XS)?$/ and $err =~ $permit_yaml_err) {
       warn $err;
     } else {
       croak $err;
@@ -78,15 +99,41 @@ sub load_yaml_string {
 
 sub load_json_string {
   my ($class, $string) = @_;
-  my $data = eval { $class->json_backend()->new->decode($string) };
-  croak $@ if $@;
+  my $backend =  $class->json_backend();
+  my $data;
+  if ($backend eq 'JSON::PP') {
+    require Encode;
+    # load_json_string takes characters, ->decode expects bytes
+    my $encoded = Encode::encode('UTF-8', $string, Encode::PERLQQ());
+    $data = eval { $backend->new->utf8->decode($encoded) };
+  } elsif ($backend->can('decode_json')) { # takes correct utf8
+    no strict 'refs';
+    $data = eval { &{$backend."::decode_json"}($string) };
+    # or not
+    $data = eval { $backend->new->decode($string) } if $@;
+  } elsif ($backend =~ /^(JSON::MaybeXS|Mojo::JSON)$/) {
+    no strict 'refs';
+    $data = eval { &{$backend."::from_json"}($string) };
+  } elsif ($backend eq 'JSON::Syck') {
+    # Syck security
+    local ($JSON::Syck::LoadCode, $JSON::Syck::UseCode, $JSON::Syck::LoadBlessed) = (0,0,0);
+    local $JSON::Syck::ImplicitUnicode = 1;
+    $data = eval { JSON::Syck::Load($string) };
+  } elsif ($backend->can('utf8')) {
+    require Encode;
+    my $encoded = Encode::encode('UTF-8', $string, Encode::PERLQQ());
+    $data = eval { $backend->new->utf8->decode($encoded) };
+  } else {
+    $data = eval { $backend->new->decode($string) };
+  }
+  croak "$backend: $@" if $@;
   return $data || {};
 }
 
 sub yaml_backend {
   my $backend = $ENV{PERL_YAML_BACKEND};
   if (! defined $backend ) {
-    if (_can_load( 'YAML::XS', 0.70 )) {
+    if (_can_load( 'YAML::XS', 0.73 )) {
       return "YAML::XS";
     } else {
       $backend = 'CPAN::Meta::YAML';
@@ -99,10 +146,21 @@ sub yaml_backend {
   return $backend;
 }
 
+sub json_decoder {
+  if (my $decoder = $ENV{CPAN_META_JSON_DECODER}) {
+    _can_load( $decoder )
+      or croak "Could not load CPAN_META_JSON_DECODER '$decoder'\n";
+    $decoder->can('decode_json')
+      or croak "No decode_json sub provided by CPAN_META_JSON_DECODER '$decoder'\n";
+    return $decoder;
+  }
+  return $_[0]->json_backend;
+}
+
 sub json_backend {
   my $backend = $ENV{PERL_JSON_BACKEND};
   if (! $backend or $backend eq 'Cpanel::JSON::XS') {
-    if (_can_load( 'Cpanel::JSON::XS' => 3.0213 )) {
+    if (_can_load( 'Cpanel::JSON::XS' => 3.0218 )) {
       return 'Cpanel::JSON::XS';
     } else {
       $backend = 'JSON::PP';
@@ -117,6 +175,16 @@ sub json_backend {
   elsif ($backend) {
     _can_load( $backend )
       or croak "Could not load PERL_JSON_BACKEND '$backend'\n";
+    if ($backend =~ /^(JSON::MaybeXS|Mojo::JSON)$/) {
+      $backend->can("from_json")
+        or croak "PERL_JSON_BACKEND '$backend' does not implement from_json()\n";
+      return $backend;
+    }
+    elsif ($backend eq 'JSON::Syck') {
+      $backend->can("Load")
+        or croak "PERL_JSON_BACKEND '$backend' does not implement Load()\n";
+      return $backend;
+    }
     $backend->can("decode")
       or croak "PERL_JSON_BACKEND '$backend' does not implement decode()\n";
     return $backend;
@@ -131,6 +199,8 @@ sub json_backend {
 
 sub _slurp {
   require Encode;
+  #open my $fh, "<:encoding(UTF-8)", "$_[0]" ## no critic
+  # permit double encoded UTF-8  and other nonsense
   open my $fh, "<:raw", "$_[0]" ## no critic
     or die "can't open $_[0] for reading: $!";
   my $content = do { local $/; <$fh> };
@@ -165,10 +235,10 @@ sub Load ($) { ## no critic
   my $object;
   eval { require $backend; };
   if ($backend =~ /^YAML(::XS)?$/) {
-    # set YAML::Tiny compatible options:
-    #local $YAML::XS::LoadCode = 0; # so far ignored
+    # set YAML::Tiny/YAML::Syck compatible options:
+    local ($YAML::XS::NonStrict, $YAML::XS::DisableBlessed, $YAML::XS::DisableCode)
+          = (1,1,1);
     #local $YAML::XS::QuoteNumericStrings = 0;
-    local $YAML::XS::NonStrict = 1;
     $object = eval { no strict 'refs'; &{"$backend\::Load"}(shift) };
     # Make some parse errors are non-fatal.
     # Match YAML::Tiny and CPAN::Meta::YAML behavior, which accepts broken YAML
@@ -202,7 +272,7 @@ Parse::CPAN::Meta - Parse META.yml and META.json CPAN metadata files
 
 =head1 VERSION
 
-version 1.4418c
+version 1.5000c
 
 =head1 SYNOPSIS
 
@@ -231,7 +301,8 @@ version 1.4418c
 =head1 DESCRIPTION
 
 B<Parse::CPAN::Meta> is a parser for F<META.json> and F<META.yml> files, using
-L<Cpanel::JSON::XS> and/or L<YAML::XS>.
+L<Cpanel::JSON::XS> and/or L<YAML::XS>, with slow fallbacks to L<CPAN::Meta::YAML>
+and L<JSON::PP>.
 
 B<Parse::CPAN::Meta> provides three methods: C<load_file>, C<load_json_string>,
 and C<load_yaml_string>.  These will read and deserialize CPAN metafiles, and
@@ -305,6 +376,18 @@ be L<Cpanel::JSON::XS> or L<JSON::PP>.  Even if C<PERL_JSON_BACKEND> is set,
 this will return L<JSON> as further delegation is handled by
 the L<JSON> module.  See L</ENVIRONMENT> for details.
 
+Note that C<CPAN_META_JSON_BACKEND> and C<CPAN_META_YAML_BACKEND> are ignored.
+
+=head2 json_decoder
+
+  my $decoder = Parse::CPAN::Meta->json_decoder;
+
+Returns the module name of the JSON decoder.  Unlike L</json_backend>, this
+is not necessarily a full L<JSON>-style module, but only something that will
+provide a C<decode_json> subroutine.  If C<CPAN_META_JSON_DECODER> is set,
+this will be whatever that's set to.  If not, this will be whatever has
+been selected as L</json_backend>.  See L</ENVIRONMENT> for more notes.
+
 =head1 FUNCTIONS
 
 For maintenance clarity, no functions are exported by default.  These functions
@@ -347,6 +430,14 @@ C<YAML::XS> is much stricter than the previous default YAML parser
 L<CPAN::Meta::YAML> (i.e. based on C<YAML::Tiny>), so the following
 fatal YAML::XS errors are unfatalized:
 "control characters are not allowed", "invalid trailing UTF-8 octet"
+
+=head2 CPAN_META_JSON_BACKEND
+
+is only accepted in C<json_decoder>,
+
+=head2 CPAN_META_YAML_BACKEND
+
+is ignored.
 
 =for :stopwords cpan testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto metadata placeholders metacpan
 
