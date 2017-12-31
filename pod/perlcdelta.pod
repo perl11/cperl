@@ -133,6 +133,8 @@ Added all the man tests from upstream
 Merge cpan 2.024 with our 2.021_02,
 plus fix some problems in their new code.
 
+=item L<Sys::Syslog>  0.35
+
 =item L<Time::HiRes>  1.9739
 
 More Darwin thread fixes for clock_gettime,
