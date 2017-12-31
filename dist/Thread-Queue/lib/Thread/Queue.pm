@@ -3,7 +3,7 @@ package Thread::Queue;
 use strict;
 use warnings;
 
-our $VERSION = '3.07';
+our $VERSION = '3.12';
 $VERSION = eval $VERSION;
 
 use threads::shared 1.21;
@@ -65,8 +65,8 @@ sub end
     lock(%$self);
     # No more data is coming
     $$self{'ENDED'} = 1;
-    # Try to release at least one blocked thread
-    cond_signal(%$self);
+
+    cond_signal(%$self);  # Unblock possibly waiting threads
 }
 
 # Return 1 or more items from the head of a queue, blocking if needed
@@ -80,17 +80,21 @@ sub dequeue
 
     # Wait for requisite number of items
     cond_wait(%$self) while ((@$queue < $count) && ! $$self{'ENDED'});
-    cond_signal(%$self) if ((@$queue >= $count) || $$self{'ENDED'});
 
     # If no longer blocking, try getting whatever is left on the queue
     return $self->dequeue_nb($count) if ($$self{'ENDED'});
 
     # Return single item
-    return shift(@$queue) if ($count == 1);
+    if ($count == 1) {
+        my $item = shift(@$queue);
+        cond_signal(%$self);  # Unblock possibly waiting threads
+        return $item;
+    }
 
     # Return multiple items
     my @items;
     push(@items, shift(@$queue)) for (1..$count);
+    cond_signal(%$self);  # Unblock possibly waiting threads
     return @items;
 }
 
@@ -104,7 +108,11 @@ sub dequeue_nb
     my $count = @_ ? $self->_validate_count(shift) : 1;
 
     # Return single item
-    return shift(@$queue) if ($count == 1);
+    if ($count == 1) {
+        my $item = shift(@$queue);
+        cond_signal(%$self);  # Unblock possibly waiting threads
+        return $item;
+    }
 
     # Return multiple items
     my @items;
@@ -112,6 +120,7 @@ sub dequeue_nb
         last if (! @$queue);
         push(@items, shift(@$queue));
     }
+    cond_signal(%$self);  # Unblock possibly waiting threads
     return @items;
 }
 
@@ -135,7 +144,6 @@ sub dequeue_timed
     while ((@$queue < $count) && ! $$self{'ENDED'}) {
         last if (! cond_timedwait(%$self, $timeout));
     }
-    cond_signal(%$self) if ((@$queue >= $count) || $$self{'ENDED'});
 
     # Get whatever we need off the queue if available
     return $self->dequeue_nb($count);
@@ -187,8 +195,7 @@ sub insert
     # Add previous items back onto the queue
     push(@$queue, @tmp);
 
-    # Soup's up
-    cond_signal(%$self);
+    cond_signal(%$self);  # Unblock possibly waiting threads
 }
 
 # Remove items from anywhere in a queue
@@ -206,7 +213,7 @@ sub extract
         $index += @$queue;
         if ($index < 0) {
             $count += $index;
-            return if ($count <= 0);            # Beyond the head of the queue
+            return if ($count <= 0);           # Beyond the head of the queue
             return $self->dequeue_nb($count);  # Extract from the head
         }
     }
@@ -223,6 +230,8 @@ sub extract
 
     # Add back any removed items
     push(@$queue, @tmp);
+
+    cond_signal(%$self);  # Unblock possibly waiting threads
 
     # Return single item
     return $items[0] if ($count == 1);
@@ -263,14 +272,19 @@ sub _validate_count
     if (! defined($count) ||
         ! looks_like_number($count) ||
         (int($count) != $count) ||
-        ($count < 1))
+        ($count < 1) ||
+        ($$self{'LIMIT'} && $count > $$self{'LIMIT'}))
     {
         require Carp;
         my ($method) = (caller(1))[3];
         my $class_name = ref($self);
         $method =~ s/$class_name\:://;
         $count = 'undef' if (! defined($count));
-        Carp::croak("Invalid 'count' argument ($count) to '$method' method");
+        if ($$self{'LIMIT'} && $count > $$self{'LIMIT'}) {
+            Carp::croak("'count' argument ($count) to '$method' method exceeds queue size limit ($$self{'LIMIT'})");
+        } else {
+            Carp::croak("Invalid 'count' argument ($count) to '$method' method");
+        }
     }
 
     return $count;
@@ -304,7 +318,7 @@ Thread::Queue - Thread-safe queues
 
 =head1 VERSION
 
-This document describes Thread::Queue version 3.07
+This document describes Thread::Queue version 3.12
 
 =head1 SYNOPSIS
 
@@ -393,20 +407,20 @@ shared array reference via C<&shared([])>, copy the elements 'foo', 'bar'
 and 'baz' from C<@ary> into it, and then place that shared reference onto
 the queue:
 
-    my @ary = qw/foo bar baz/;
-    $q->enqueue(\@ary);
+ my @ary = qw/foo bar baz/;
+ $q->enqueue(\@ary);
 
 However, for the following, the items are already shared, so their references
 are added directly to the queue, and no cloning takes place:
 
-    my @ary :shared = qw/foo bar baz/;
-    $q->enqueue(\@ary);
+ my @ary :shared = qw/foo bar baz/;
+ $q->enqueue(\@ary);
 
-    my $obj = &shared({});
-    $$obj{'foo'} = 'bar';
-    $$obj{'qux'} = 99;
-    bless($obj, 'My::Class');
-    $q->enqueue($obj);
+ my $obj = &shared({});
+ $$obj{'foo'} = 'bar';
+ $$obj{'qux'} = 99;
+ bless($obj, 'My::Class');
+ $q->enqueue($obj);
 
 See L</"LIMITATIONS"> for caveats related to passing objects via queues.
 
@@ -485,13 +499,17 @@ Sets the size of the queue.  If set, calls to C<enqueue()> will block until
 the number of pending items in the queue drops below the C<limit>.  The
 C<limit> does not prevent enqueuing items beyond that count:
 
-    my $q = Thread::Queue->new(1, 2);
-    $q->limit = 4;
-    $q->enqueue(3, 4, 5);   # Does not block
-    $q->enqueue(6);         # Blocks until at least 2 items are dequeued
+ my $q = Thread::Queue->new(1, 2);
+ $q->limit = 4;
+ $q->enqueue(3, 4, 5);   # Does not block
+ $q->enqueue(6);         # Blocks until at least 2 items are
+                         # dequeued
+ my $size = $q->limit;   # Returns the current limit (may return
+                         # 'undef')
+ $q->limit = 0;          # Queue size is now unlimited
 
-    my $size = $q->limit;   # Returns the current limit (may return 'undef')
-    $q->limit = 0;          # Queue size is now unlimited
+Calling any of the dequeue methods with C<COUNT> greater than a queue's
+C<limit> will generate an error.
 
 =item ->end()
 
@@ -513,14 +531,14 @@ To prevent the contents of a queue from being modified by another thread
 while it is being examined and/or changed, L<lock|threads::shared/"lock
 VARIABLE"> the queue inside a local block:
 
-    {
-        lock($q);   # Keep other threads from changing the queue's contents
-        my $item = $q->peek();
-        if ($item ...) {
-            ...
-        }
-    }
-    # Queue is now unlocked
+ {
+     lock($q);   # Keep other threads from changing the queue's contents
+     my $item = $q->peek();
+     if ($item ...) {
+         ...
+     }
+ }
+ # Queue is now unlocked
 
 =over
 
@@ -545,18 +563,18 @@ Adds the list of items to the queue at the specified index position (0
 is the head of the list).  Any existing items at and beyond that position are
 pushed back past the newly added items:
 
-    $q->enqueue(1, 2, 3, 4);
-    $q->insert(1, qw/foo bar/);
-    # Queue now contains:  1, foo, bar, 2, 3, 4
+ $q->enqueue(1, 2, 3, 4);
+ $q->insert(1, qw/foo bar/);
+ # Queue now contains:  1, foo, bar, 2, 3, 4
 
 Specifying an index position greater than the number of items in the queue
 just adds the list to the end.
 
 Negative index positions are supported:
 
-    $q->enqueue(1, 2, 3, 4);
-    $q->insert(-2, qw/foo bar/);
-    # Queue now contains:  1, 2, foo, bar, 3, 4
+ $q->enqueue(1, 2, 3, 4);
+ $q->insert(-2, qw/foo bar/);
+ # Queue now contains:  1, 2, foo, bar, 3, 4
 
 Specifying a negative index position greater than the number of items in the
 queue adds the list to the head of the queue.
@@ -574,18 +592,18 @@ called with no arguments, C<extract> operates the same as C<dequeue_nb>.
 This method is non-blocking, and will return only as many items as are
 available to fulfill the request:
 
-    $q->enqueue(1, 2, 3, 4);
-    my $item  = $q->extract(2)     # Returns 3
-                                   # Queue now contains:  1, 2, 4
-    my @items = $q->extract(1, 3)  # Returns (2, 4)
-                                   # Queue now contains:  1
+ $q->enqueue(1, 2, 3, 4);
+ my $item  = $q->extract(2)     # Returns 3
+                                # Queue now contains:  1, 2, 4
+ my @items = $q->extract(1, 3)  # Returns (2, 4)
+                                # Queue now contains:  1
 
 Specifying an index position greater than the number of items in the
 queue results in C<undef> or an empty list being returned.
 
-    $q->enqueue('foo');
-    my $nada = $q->extract(3)      # Returns undef
-    my @nada = $q->extract(1, 3)   # Returns ()
+ $q->enqueue('foo');
+ my $nada = $q->extract(3)      # Returns undef
+ my @nada = $q->extract(1, 3)   # Returns ()
 
 Negative index positions are supported.  Specifying a negative index position
 greater than the number of items in the queue may return items from the head
@@ -593,11 +611,12 @@ of the queue (similar to C<dequeue_nb>) if the count overlaps the head of the
 queue from the specified position (i.e. if queue size + index + count is
 greater than zero):
 
-    $q->enqueue(qw/foo bar baz/);
-    my @nada = $q->extract(-6, 2);   # Returns ()         - (3+(-6)+2) <= 0
-    my @some = $q->extract(-6, 4);   # Returns (foo)      - (3+(-6)+4) > 0
-                                     # Queue now contains:  bar, baz
-    my @rest = $q->extract(-3, 4);   # Returns (bar, baz) - (2+(-3)+4) > 0
+ $q->enqueue(qw/foo bar baz/);
+ my @nada = $q->extract(-6, 2);  # Returns ()      - (3+(-6)+2) <= 0
+ my @some = $q->extract(-6, 4);  # Returns (foo)   - (3+(-6)+4) > 0
+                                 # Queue now contains:  bar, baz
+ my @rest = $q->extract(-3, 4);  # Returns (bar, baz) -
+                                 #                   (2+(-3)+4) > 0
 
 =back
 
@@ -616,8 +635,11 @@ Passing array/hash refs that contain objects may not work for Perl prior to
 
 =head1 SEE ALSO
 
-Thread::Queue Discussion Forum on CPAN:
-L<http://www.cpanforum.com/dist/Thread-Queue>
+Thread::Queue on MetaCPAN:
+L<https://metacpan.org/release/Thread-Queue>
+
+Code repository for CPAN distribution:
+L<https://github.com/Dual-Life/Thread-Queue>
 
 L<threads>, L<threads::shared>
 

@@ -13461,6 +13461,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Term::ANSIColor'       => '4.06',
             'Term::ReadKey'         => '2.37_03',
             'Test::Harness'         => '3.39',
+            'Thread::Queue'         => '3.12',
             'Time::HiRes'           => '1.9739',
             'warnings'              => '1.35',
             'YAML::XS'              => '0.75',
