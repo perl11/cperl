@@ -12977,12 +12977,6 @@ Perl_ck_bitop(pTHX_ OP *o)
 
     o->op_private = (U8)(PL_hints & HINT_INTEGER);
 
-    if (IS_TYPE(o, I_BIT_OR)     || IS_TYPE(o, S_BIT_OR)
-     || IS_TYPE(o, I_BIT_XOR)    || IS_TYPE(o, S_BIT_XOR)
-     || IS_TYPE(o, I_BIT_AND)    || IS_TYPE(o, S_BIT_AND)
-     || IS_TYPE(o, I_COMPLEMENT) || IS_TYPE(o, S_COMPLEMENT))
-	Perl_ck_warner_d(aTHX_ packWARN(WARN_EXPERIMENTAL__BITWISE),
-			      "The bitwise feature is experimental");
     if (!OpSTACKED(o) /* Not an assignment */
         && OP_IS_INFIX_BIT(o->op_type))
     {
