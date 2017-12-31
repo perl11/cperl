@@ -10784,7 +10784,7 @@ S_scan_inputsymbol(pTHX_ char *start)
     if (d - PL_tokenbuf != len) {
 	pl_yylval.ival = OP_GLOB;
 	s = scan_str(start,FALSE,FALSE,FALSE,NULL);
-	if (!s)
+	if (!s || !IS_SAFE_PATHNAME(SvPVX(PL_lex_stuff), SvCUR(PL_lex_stuff)+1, "glob"))
 	   Perl_croak(aTHX_ "Glob not terminated");
 	return s;
     }
