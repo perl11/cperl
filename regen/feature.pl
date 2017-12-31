@@ -56,6 +56,9 @@ my %feature_bundle = (
     "5.23"   =>	[qw(say state switch unicode_strings unicode_eval
 		    evalbytes current_sub fc shaped_arrays
                     postderef_qq)],
+    "5.27"   =>	[qw(say state switch unicode_strings unicode_eval
+		    evalbytes current_sub fc shaped_arrays postderef_qq
+                    bitwise)],
 );
 $feature_bundle{"5.10"} = $feature_bundle{"5.9.5"};
 $feature_bundle{"5.13"} = $feature_bundle{"5.11"};
