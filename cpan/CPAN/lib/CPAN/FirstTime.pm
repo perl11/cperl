@@ -9,8 +9,9 @@ use File::Basename ();
 use File::Path ();
 use File::Spec ();
 use CPAN::Mirrors ();
+use Config ();
 use vars qw($VERSION $auto_config);
-$VERSION = "5.5309_01";
+$VERSION = "5.5310_01";
 
 =head1 NAME
 
@@ -123,6 +124,14 @@ checks will be performed at all.
 
 Always try to check and verify signatures if a SIGNATURE file is in
 the package and Module::Signature is installed (yes/no)?
+
+=item cleanup_after_install
+
+Users who install modules and do not intend to look back, can free
+occupied disk space quickly by letting CPAN.pm cleanup each build
+directory immediately after a successful install.
+
+Remove build directory after a successful install? (yes/no)?
 
 =item colorize_output
 
@@ -762,6 +771,39 @@ then restart your command line shell and CPAN before installing modules:
 
 }
 
+#
+#  YAML::Syck, YAML::XS (cperl only), YAML, YAML::Tiny. CPAN::Meta::YAML not yet
+#  YAML::XS is broken upstream, CPAN::Meta::YAML cannot read spec v2.
+#
+
+sub _yaml_init {
+    my ($matcher) = @_;
+    my $CPERL = $Config::Config{usecperl};
+    my $dflt = $CPERL ? 'YAML::XS' : 'YAML';
+    while(1) {
+        my_dflt_prompt(yaml_module => $dflt, $matcher);
+        my $given = $CPAN::Config->{yaml_module};
+        my $forbidden = $CPERL ? qr/^(CPAN::Meta::YAML)$/ : qr/^(CPAN::Meta::YAML|YAML::XS)$/;
+        if ($given =~ $forbidden) {
+            $CPAN::Frontend->mywarn
+              ("Error: $given cannot be used yet. Try YAML"
+               . $CPERL ? ", YAML::Syck or YAML::XS\n" : " or YAML::Syck\n");
+            $CPAN::Frontend->mysleep(3);
+        } else {
+            last;
+        }
+    }
+    my $old_v = $CPAN::Config->{load_module_verbosity};
+    $CPAN::Config->{load_module_verbosity} = q[none];
+    if (!$auto_config && !$CPAN::META->has_inst($CPAN::Config->{yaml_module})) {
+        $CPAN::Frontend->mywarn
+          ("Warning (maybe harmless): '$CPAN::Config->{yaml_module}' not installed. Try $dflt\n");
+        $CPAN::Frontend->mysleep(3);
+    }
+    $CPAN::Config->{load_module_verbosity} = $old_v;
+}
+
+
 sub init {
     my($configpm, %args) = @_;
     use Config;
@@ -884,6 +926,7 @@ sub init {
 
     my_dflt_prompt(index_expire => 1, $matcher);
     my_prompt_loop(scan_cache => 'atstart', $matcher, 'atstart|atexit|never');
+    my_yn_prompt(cleanup_after_install => 0, $matcher);
 
     #
     #= cache_metadata
@@ -934,28 +977,11 @@ sub init {
     #= YAML::Syck, YAML::XS, YAML, YAML::Tiny. CPAN::Meta::YAML not yet
     #
     if (!$matcher or "yaml_module" =~ /$matcher/) {
-        while(1) {
-            my_dflt_prompt(yaml_module => "YAML::XS", $matcher);
-            if ($CPAN::Config->{yaml_module} eq 'CPAN::Meta::YAML') {
-                $CPAN::Frontend->mywarn
-                  ("Error: CPAN::Meta::YAML cannot be used yet. Try YAML, YAML::Syck or YAML::XS\n");
-                $CPAN::Frontend->mysleep(3);
-            } else {
-                last;
-            }
-        }
-        my $old_v = $CPAN::Config->{load_module_verbosity};
-        $CPAN::Config->{load_module_verbosity} = q[none];
-        if (!$auto_config && !$CPAN::META->has_inst($CPAN::Config->{yaml_module})) {
-            $CPAN::Frontend->mywarn
-                ("Warning (maybe harmless): '$CPAN::Config->{yaml_module}' not installed. Try YAML::XS\n");
-            $CPAN::Frontend->mysleep(3);
-        }
-        $CPAN::Config->{load_module_verbosity} = $old_v;
+        _yaml_init($matcher);
     }
 
     #
-    #= YAML code deserialisation
+    #= YAML code deserialisation (security problem)
     #
     my_yn_prompt(yaml_load_code => 0, $matcher);
 

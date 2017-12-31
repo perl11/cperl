@@ -8,7 +8,7 @@ use CPAN::InfoObj;
 use File::Path ();
 @CPAN::Distribution::ISA = qw(CPAN::InfoObj);
 use vars qw($VERSION);
-$VERSION = "2.14_02"; # with cperl fixes
+$VERSION = "2.18_01"; # with cperl support
 
 # no prepare, because prepare is not a command on the shell command line
 # TODO: clear instance cache on reload
@@ -207,7 +207,12 @@ sub color_cmd_tmps {
         && $self->{incommandcolor}==$color;
     $CPAN::MAX_RECURSION||=0; # silence 'once' warnings
     if ($depth>=$CPAN::MAX_RECURSION) {
-        die(CPAN::Exception::RecursiveDependency->new($ancestors));
+        my $e = CPAN::Exception::RecursiveDependency->new($ancestors);
+        if ($e->is_resolvable) {
+            return $self->{incommandcolor}=2;
+        } else {
+            die $e;
+        }
     }
     # warn "color_cmd_tmps $depth $color " . $self->id; # sleep 1;
     my $prereq_pm = $self->prereq_pm;
@@ -372,6 +377,7 @@ sub get {
                            ? $ENV{PERL5LIB}
                            : ($ENV{PERLLIB} || "");
     local $ENV{PERL5OPT} = defined $ENV{PERL5OPT} ? $ENV{PERL5OPT} : "";
+    # local $ENV{PERL_USE_UNSAFE_INC} = exists $ENV{PERL_USE_UNSAFE_INC} ? $ENV{PERL_USE_UNSAFE_INC} : 1; # get
     $CPAN::META->set_perl5lib;
     local $ENV{MAKEFLAGS}; # protect us from outer make calls
 
@@ -569,7 +575,14 @@ See also http://rt.cpan.org/Ticket/Display.html?id=38932\n");
         unless (File::Copy::move($from,$to)) {
             my $err = $!;
             $from = File::Spec->rel2abs($from);
-            $CPAN::Frontend->mydie("Couldn't move $from to $to: $err");
+            $CPAN::Frontend->mydie(
+                "Couldn't move $from to $to: $err; #82295? ".
+                "CPAN::VERSION=$CPAN::VERSION; ".
+                "File::Copy::VERSION=$File::Copy::VERSION; ".
+                "$from " . (-e $from ? "exists; " : "does not exist; ").
+                "$to " . (-e $to ? "exists; " : "does not exist; ").
+                "cwd=" . CPAN::anycwd() . ";"
+            );
         }
     }
     $self->{build_dir} = $packagedir;
@@ -1290,6 +1303,7 @@ Could not determine which directory to use for looking at $dist.
                 : ($ENV{PERLLIB} || "");
 
         local $ENV{PERL5OPT} = defined $ENV{PERL5OPT} ? $ENV{PERL5OPT} : "";
+        # local $ENV{PERL_USE_UNSAFE_INC} = exists $ENV{PERL_USE_UNSAFE_INC} ? $ENV{PERL_USE_UNSAFE_INC} : 1; # look
         $CPAN::META->set_perl5lib;
         local $ENV{MAKEFLAGS}; # protect us from outer make calls
         local $ENV{PERL_USE_UNSAFE_INC} = 1;
@@ -1810,6 +1824,7 @@ sub prepare {
                            ? $ENV{PERL5LIB}
                            : ($ENV{PERLLIB} || "");
     local $ENV{PERL5OPT} = defined $ENV{PERL5OPT} ? $ENV{PERL5OPT} : "";
+    local $ENV{PERL_USE_UNSAFE_INC} = exists $ENV{PERL_USE_UNSAFE_INC} ? $ENV{PERL_USE_UNSAFE_INC} : 1; # prepare
     $CPAN::META->set_perl5lib;
     local $ENV{MAKEFLAGS}; # protect us from outer make calls
 
@@ -2104,6 +2119,7 @@ is part of the perl-%s distribution. To install that, you need to run
                            ? $ENV{PERL5LIB}
                            : ($ENV{PERLLIB} || "");
     local $ENV{PERL5OPT} = defined $ENV{PERL5OPT} ? $ENV{PERL5OPT} : "";
+    local $ENV{PERL_USE_UNSAFE_INC} = exists $ENV{PERL_USE_UNSAFE_INC} ? $ENV{PERL_USE_UNSAFE_INC} : 1; # make
     $CPAN::META->set_perl5lib;
     local $ENV{MAKEFLAGS}; # protect us from outer make calls
 
@@ -2834,9 +2850,23 @@ sub unsat_prereq {
                 $CPAN::SQLite->search("CPAN::Module",$need_module);
             }
             $nmo = $CPAN::META->instance("CPAN::Module",$need_module);
-            next if $nmo->uptodate;
             $inst_file = $nmo->inst_file || '';
             $available_file = $nmo->available_file || '';
+            $available_version = $nmo->available_version;
+            if ($nmo->uptodate) {
+                my $accepts = eval {
+                    $merged->accepts_module($need_module, $available_version);
+                };
+                unless ($accepts) {
+                    my $rq = $merged->requirements_for_module( $need_module );
+                    $CPAN::Frontend->mywarn(
+                        "Warning: Version '$available_version' of ".
+                        "'$need_module' is up to date but does not ".
+                        "fulfill requirements ($rq). I will continue, ".
+                        "but chances to succeed are low.\n");
+                }
+                next NEED;
+            }
 
             # if they have not specified a version, we accept any installed one
             if ( $available_file
@@ -2849,8 +2879,6 @@ sub unsat_prereq {
                     next NEED;
                 }
             }
-
-            $available_version = $nmo->available_version;
         }
 
         # We only want to install prereqs if either they're not installed
@@ -3466,6 +3494,7 @@ sub test {
                            : ($ENV{PERLLIB} || "");
 
     local $ENV{PERL5OPT} = defined $ENV{PERL5OPT} ? $ENV{PERL5OPT} : "";
+    local $ENV{PERL_USE_UNSAFE_INC} = exists $ENV{PERL_USE_UNSAFE_INC} ? $ENV{PERL_USE_UNSAFE_INC} : 1; # test
     $CPAN::META->set_perl5lib;
     local $ENV{MAKEFLAGS}; # protect us from outer make calls
     local $ENV{PERL_MM_USE_DEFAULT} = 1 if $CPAN::Config->{use_prompt_default};
@@ -3626,7 +3655,7 @@ sub test {
 }
 
 sub _make_test_illuminate_prereqs {
-    my($self) = @_;
+    my ($self) = @_;
     my @prereq;
 
     # local $CPAN::DEBUG = 16; # Distribution
@@ -3943,6 +3972,7 @@ sub install {
                            : ($ENV{PERLLIB} || "");
 
     local $ENV{PERL5OPT} = defined $ENV{PERL5OPT} ? $ENV{PERL5OPT} : "";
+    local $ENV{PERL_USE_UNSAFE_INC} = exists $ENV{PERL_USE_UNSAFE_INC} ? $ENV{PERL_USE_UNSAFE_INC} : 1; # install
     $CPAN::META->set_perl5lib;
     local $ENV{PERL_MM_USE_DEFAULT} = 1 if $CPAN::Config->{use_prompt_default};
     local $ENV{NONINTERACTIVE_TESTING} = 1 if $CPAN::Config->{use_prompt_default};
@@ -3962,6 +3992,15 @@ sub install {
         $CPAN::Frontend->myprint("  $system -- OK\n");
         $CPAN::META->is_installed($self->{build_dir});
         $self->{install} = CPAN::Distrostatus->new("YES");
+        if ($CPAN::Config->{'cleanup_after_install'}) {
+            my $parent = File::Spec->catdir( $self->{build_dir}, File::Spec->updir );
+            chdir $parent or $CPAN::Frontend->mydie("Couldn't chdir to $parent: $!\n");
+            File::Path::rmtree($self->{build_dir});
+            my $yml = "$self->{build_dir}.yml";
+            if (-e $yml) {
+                unlink $yml or $CPAN::Frontend->mydie("Couldn't unlink $yml: $!\n");
+            }
+        }
     } else {
         $self->{install} = CPAN::Distrostatus->new("NO");
         $CPAN::Frontend->mywarn("  $system -- NOT OK\n");
@@ -3988,7 +4027,9 @@ sub install {
         }
     }
     delete $self->{force_update};
-    $self->store_persistent_state;
+    unless ($CPAN::Config->{'cleanup_after_install'}) {
+        $self->store_persistent_state;
+    }
 
     $self->post_install();
 

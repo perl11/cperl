@@ -2,9 +2,8 @@
 # vim: ts=4 sts=4 sw=4:
 use strict;
 package CPAN;
-$CPAN::VERSION = '2.14c'; # fixed for cperl
+$CPAN::VERSION = '2.18_01'; # with cperl support
 $CPAN::VERSION =~ s/_//;
-$CPAN::VERSION =~ s/c$//;
 
 # we need to run chdir all over and we would get at wrong libraries
 # there
@@ -66,6 +65,7 @@ use Text::Wrap ();
 sub find_perl ();
 sub anycwd ();
 sub _uniq;
+my $CPERL = $Config::Config{usecperl};
 
 no lib ".";
 
@@ -208,6 +208,8 @@ sub soft_chdir_with_alternatives ($);
         }
         $autoload_recursion--;
     }
+    # make sure we can install any modules from CPAN without patching them
+    $ENV{PERL_USE_UNSAFE_INC} = 1;
 }
 
 {
@@ -520,9 +522,10 @@ sub _flock {
 }
 
 sub _yaml_module () {
-    my $yaml_module = $CPAN::Config->{yaml_module} || "YAML::XS";
+    my $dflt = $CPERL ? "YAML::XS" : "YAML";
+    my $yaml_module = $CPAN::Config->{yaml_module} || $dflt;
     if (
-        $yaml_module ne "YAML::XS"
+        $yaml_module ne $dflt
         &&
         !$CPAN::META->has_inst($yaml_module)
        ) {
@@ -1084,6 +1087,16 @@ sub has_usable {
                        },
                       ],
                'Net::FTP' => [
+                            sub {
+                                my $var = $CPAN::Config->{ftp_proxy} || $ENV{ftp_proxy};
+                                if ($var and $var =~ /^http:/i) {
+                                    # rt #110833
+                                    for ("Net::FTP cannot handle http proxy") {
+                                        $CPAN::Frontend->mywarn($_);
+                                        die $_;
+                                    }
+                                }
+                            },
                             sub {require Net::FTP},
                             sub {require Net::Config},
                            ],
@@ -1138,6 +1151,8 @@ sub has_usable {
                                ]
               };
     if ($usable->{$mod}) {
+        local @INC = @INC;
+        pop @INC if $INC[-1] eq '.';
         for my $c (0..$#{$usable->{$mod}}) {
             my $code = $usable->{$mod}[$c];
             my $ret = eval { &$code() };
@@ -1180,6 +1195,8 @@ sub has_inst {
       $CPAN::META->{dontload_hash}{$mod}||=1; # unsafe meta access, ok
       return 0;
     }
+    local @INC = @INC;
+    pop @INC if $INC[-1] eq '.';
     my $file = $mod;
     my $obj;
     $file =~ s|::|/|g;
@@ -2127,6 +2144,9 @@ currently defined:
   bzip2              path to external prg
   cache_metadata     use serializer to cache metadata
   check_sigs         if signatures should be verified
+  cleanup_after_install
+                     remove build directory immediately after a
+                     successful install
   colorize_debug     Term::ANSIColor attributes for debugging output
   colorize_output    boolean if Term::ANSIColor should colorize output
   colorize_print     Term::ANSIColor attributes for normal output

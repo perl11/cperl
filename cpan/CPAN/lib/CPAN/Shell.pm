@@ -562,7 +562,7 @@ sub reload {
     $self->debug("self[$self]command[$command]arg[@arg]") if $CPAN::DEBUG;
     if ($command =~ /^cpan$/i) {
         my $redef = 0;
-        chdir $CPAN::iCwd if $CPAN::iCwd; # may fail
+        chdir "$CPAN::iCwd" if $CPAN::iCwd; # may fail
         my $failed;
       MFILE: for my $f (@relo) {
             next unless exists $INC{$f};

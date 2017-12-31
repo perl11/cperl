@@ -74,6 +74,11 @@ L<[perl #131665]|https://rt.perl.org/Public/Bug/Display.html?id=131665>
 
 =item L<Config|XSConfig> 6.23
 
+=item L<CPAN>  2.18_01
+
+Update from upstream 2.16,
+plus keep our cperl and secure YAML:::XS support.
+
 =item L<ExtUtils::MM_Unix>  8.04_04
 
 Support filehandles for C<<< MM->parse_version >>>.

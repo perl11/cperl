@@ -1,9 +1,9 @@
 B::C cpan/B-C/t/test10 0b3ab672868ee49e8539649aad1ad8c940c4c420
-CPAN cpan/CPAN/lib/App/Cpan.pm 8501efde6526055051b311b38fae3eff592d4f63
-CPAN cpan/CPAN/lib/CPAN.pm 3c18561fe8a6947135c5208d968890b41e1b0dc3
-CPAN cpan/CPAN/lib/CPAN/Distribution.pm 01be7d5e0ed091be0f9db7ee562cca0b4670bf49
-CPAN cpan/CPAN/lib/CPAN/FirstTime.pm bc6f59c30cf7dbb7180270d673c3b152ea93f6c2
-CPAN cpan/CPAN/lib/CPAN/Version.pm 4f70abb999f1dba524ffd66ee8ac055cd335e1b8
+CPAN cpan/CPAN/lib/App/Cpan.pm fcfc8800fa3dbff061da3688ad6a6fdd3716fbc8
+CPAN cpan/CPAN/lib/CPAN.pm c5d899afe34f7b8bc543b77ece8bf11db7513ef0
+CPAN cpan/CPAN/lib/CPAN/Distribution.pm 19fd41553adb6326fd7d4e28f034be21a0c9895d
+CPAN cpan/CPAN/lib/CPAN/FirstTime.pm 7ba5ecc72a0e8525e3c70c9cb9104d527af9fc80
+CPAN cpan/CPAN/lib/CPAN/Version.pm 9754d1518e2e53453a51741188c14f326ff4fb7f
 CPAN::Meta cpan/CPAN-Meta/lib/CPAN/Meta.pm 5e1d1466cbdb58d00e3a94661d2871f41efc4761
 CPAN::Meta cpan/CPAN-Meta/lib/CPAN/Meta/History/Meta_1_4.pod 3a1ae20933b955b5f1e538ea35b502517a3ae391
 CPAN::Meta cpan/CPAN-Meta/lib/CPAN/Meta/Spec.pm bcee4a5a8412c8ecc90c7ec3ccbabf622de3b56c
