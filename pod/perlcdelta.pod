@@ -81,6 +81,8 @@ Fix !C99 precedence bug (e.g. MSVC).
 Minor refactor to simplify save_hek.
 Use the new get_svs, get_avs, get_hvs macros.
 
+=item L<B::Debug>  1.26
+
 =item L<Config>  6.23
 
 U32_MAX keys on 64bit. Better gperf and C++ support.
