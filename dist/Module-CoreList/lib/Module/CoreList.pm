@@ -13369,6 +13369,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'List::Util::XS'        => '1.49_10',
             'Math::BigFloat::Trace' => '0.47',
             'Math::BigInt::Trace'   => '0.47',
+            'parent'                => '0.236',
             'Parse::CPAN::Meta'     => '1.5000c',
             'Perl::OSType'          => '1.010',
 	    'Pod::Man'              => '4.09',

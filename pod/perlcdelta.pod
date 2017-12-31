@@ -114,6 +114,10 @@ Silence No library found errors on darwin for libSystem.dylib libs.
 
 Merge 2.97000 from cpan with ours.
 
+=item L<parent>  0.236
+
+Without C<'> as pkg separator.
+
 =item L<Perl::OSType>  1.010
 
 Added msys

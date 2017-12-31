@@ -1029,8 +1029,9 @@ use File::Glob qw(:case);
     },
 
     'parent' => {
-        'DISTRIBUTION' => 'CORION/parent-0.234.tar.gz',
+        'DISTRIBUTION' => 'CORION/parent-0.236.tar.gz',
         'FILES'        => q[cpan/parent],
+        'EXCLUDED'     => [qr{^xt/}, qw(t/rt62341.t.disabled)],
     },
 
     # PathTools cannot be cpan'd by sync-with-cpan
