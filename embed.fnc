@@ -2625,7 +2625,7 @@ sd	|void	|pad_check_dup	|NN PADNAME *name|U32 flags \
 Apd	|PADOFFSET|pad_findmy_pvn|NN const char* namepv|STRLEN namelen|U32 flags
 Apd	|PADOFFSET|pad_findmy_pv|NN const char* name|U32 flags
 Apd	|PADOFFSET|pad_findmy_sv|NN SV* name|U32 flags
-ApdD	|PADOFFSET|find_rundefsvoffset	|
+Apd	|PADOFFSET|find_rundefsvoffset	|
 Apd	|SV*	|find_rundefsv	|
 : Used in pp.c
 p	|SV*	|find_rundefsv2	|NN CV *cv|U32 seq

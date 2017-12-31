@@ -1231,9 +1231,7 @@ PERL_CALLCONV SV*	Perl_find_rundefsv2(pTHX_ CV *cv, U32 seq)
 #define PERL_ARGS_ASSERT_FIND_RUNDEFSV2	\
 	assert(cv)
 
-PERL_CALLCONV PADOFFSET	Perl_find_rundefsvoffset(pTHX)
-			__attribute__deprecated__;
-
+PERL_CALLCONV PADOFFSET	Perl_find_rundefsvoffset(pTHX);
 PERL_CALLCONV char*	Perl_find_script(pTHX_ const char *scriptname, bool dosearch, const char *const *const search_ext, I32 flags)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_FIND_SCRIPT	\
