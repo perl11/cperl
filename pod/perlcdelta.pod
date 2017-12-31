@@ -135,6 +135,8 @@ plus fix some problems in their new code.
 
 =item L<Sys::Syslog>  0.35
 
+=item L<Term::ANSIColor>  4.06
+
 =item L<Time::HiRes>  1.9739
 
 More Darwin thread fixes for clock_gettime,

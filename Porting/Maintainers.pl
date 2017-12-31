@@ -1191,11 +1191,13 @@ use File::Glob qw(:case);
     },
 
     'Term::ANSIColor' => {
-        'DISTRIBUTION' => 'RRA/Term-ANSIColor-4.05.tar.gz',
+        'DISTRIBUTION' => 'RRA/Term-ANSIColor-4.06.tar.gz',
         'FILES'        => q[cpan/Term-ANSIColor],
         'EXCLUDED'     => [
             qr{^examples/},
             qr{^t/data/},
+            qr{^README\.md},
+            qr{^docs/},
             qr{^t/docs/},
             qr{^t/style/},
             qw( t/module/aliases-env.t ),
