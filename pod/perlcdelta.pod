@@ -37,6 +37,14 @@ POSIX 2008 demands such an umask, but it is still problematic on
 Solaris, HP-UX and AIX and older libcs, e.g. glibc <= 2.06.
 The old umask 0177 was insecure.
 
+=head2 Disallow illegal glob with embedded NUL
+
+E.g. C<< <$fh\000> >> throws now the safe syscalls warning, and errors
+with C<Glob not terminated>, and does not pass the illegal glob path
+to the internal or external glob.
+
+See L<[cperl #342]|https://github.com/perl11/cperl/issues/342>
+
 =head1 Modules and Pragmata
 
 =head2 Updated Modules and Pragmata

@@ -10,7 +10,7 @@ $|  = 1;
 use warnings;
 use Config;
 
-plan tests => 157;
+plan tests => 161;
 
 my $Perl = which_perl();
 
@@ -492,6 +492,23 @@ pass("no crash when open autovivifies glob in freed package");
                                   stdin => undef);
     $runperl =~ s/ </ 1</;
     ok(system($runperl)==0, 'stdio dup on empty filehandle [perl #63244]');
+}
+
+
+{
+  my $WARN = '';
+  local $SIG{__WARN__} = sub { $WARN = shift };
+  eval "my \$f;my \@a = <\$f\000>;";
+  like($@, qr/Glob not terminated/, "Glob not terminated with NUL");
+  like($WARN, qr/^Invalid \\0 character in pathname for glob/,
+       "warn on NUL in glob");
+  {
+    no warnings 'syscalls';
+    $WARN = '';
+    eval "my \$f;my \@a = <\$f\000>;";
+    like($@, qr/Glob not terminated/, "Glob not terminated with NUL");
+    is($WARN, "", "ignore warn on NUL in glob");
+  }
 }
 
 package OverloadTest;
