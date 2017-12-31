@@ -31,6 +31,12 @@ the C<\0> at the end.
 
 L<[perl #128952]|https://rt.perl.org/Public/Bug/Display.html?id=128952>
 
+=head2 Set umask(0600) before calling mkstemp
+
+POSIX 2008 demands such an umask, but it is still problematic on
+Solaris, HP-UX and AIX and older libcs, e.g. glibc <= 2.06.
+The old umask 0177 was insecure.
+
 =head1 Modules and Pragmata
 
 =head2 Updated Modules and Pragmata
