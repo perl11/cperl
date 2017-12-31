@@ -126,6 +126,8 @@ Added all the man tests from upstream
 
 =item L<Scalar::Util>  1.49_10
 
+=item L<SelfLoader>  1.24
+
 =item L<Socket>  2.024_02
 
 Merge cpan 2.024 with our 2.021_02,
