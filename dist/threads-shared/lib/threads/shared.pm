@@ -7,7 +7,7 @@ use warnings;
 
 use Scalar::Util qw(reftype refaddr blessed);
 
-our $VERSION = '1.49'; # Please update the pod, too.
+our $VERSION = '1.57'; # Please update the pod, too.
 my $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -195,7 +195,7 @@ threads::shared - Perl extension for sharing data structures between threads
 
 =head1 VERSION
 
-This document describes threads::shared version 1.48
+This document describes threads::shared version 1.57
 
 =head1 SYNOPSIS
 
@@ -558,17 +558,30 @@ they contain will be lost.
 Therefore, populate such variables B<after> declaring them as shared.  (Scalar
 and scalar refs are not affected by this problem.)
 
+Blessing a shared item after it has been nested in another shared item does
+not propagate the blessing to the shared reference:
+
+  my $foo = &share({});
+  my $bar = &share({});
+  $bar->{foo} = $foo;
+  bless($foo, 'baz');   # $foo is now of class 'baz',
+                        # but $bar->{foo} is unblessed.
+
+Therefore, you should bless objects before sharing them.
+
 It is often not wise to share an object unless the class itself has been
-written to support sharing.  For example, an object's destructor may get
-called multiple times, once for each thread's scope exit.  Another danger is
-that the contents of hash-based objects will be lost due to the above
-mentioned limitation.  See F<examples/class.pl> (in the CPAN distribution of
-this module) for how to create a class that supports object sharing.
+written to support sharing.  For example, a shared object's destructor may
+get called multiple times, once for each thread's scope exit, or may not
+get called at all if it is embedded inside another shared object.  Another
+issue is that the contents of hash-based objects will be lost due to the
+above mentioned limitation.  See F<examples/class.pl> (in the CPAN
+distribution of this module) for how to create a class that supports object
+sharing.
 
 Destructors may not be called on objects if those objects still exist at
 global destruction time.  If the destructors must be called, make sure
 there are no circular references and that nothing is referencing the
-objects, before the program ends.
+objects before the program ends.
 
 Does not support C<splice> on arrays.  Does not support explicitly changing
 array lengths via $#array -- use C<push> and C<pop> instead.
@@ -635,8 +648,11 @@ to: L<http://rt.cpan.org/Public/Dist/Display.html?Name=threads-shared>
 
 =head1 SEE ALSO
 
-L<threads::shared> Discussion Forum on CPAN:
-L<http://www.cpanforum.com/dist/threads-shared>
+threads::shared on MetaCPAN:
+L<https://metacpan.org/release/threads-shared>
+
+Code repository for CPAN distribution:
+L<https://github.com/Dual-Life/threads-shared>
 
 L<threads>, L<perlthrtut>
 
@@ -645,6 +661,8 @@ L<http://www.perl.com/pub/a/2002/09/04/threads.html>
 
 Perl threads mailing list:
 L<http://lists.perl.org/list/ithreads.html>
+
+Sample code in the I<examples> directory of this distribution on CPAN.
 
 =head1 AUTHOR
 

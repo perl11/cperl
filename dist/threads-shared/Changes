@@ -1,0 +1,205 @@
+Revision history for Perl extension threads::shared.
+
+1.57 Sun May  7 22:48:33 2017
+	- Fix Clang macro backward compatibility per patch by Andy Grundman
+
+1.56 Fri Apr 14 10:51:56 2017 +0100
+	- RT #131124 Memory allocation fix (not released to CPAN)
+
+1.55 Sun Feb 26 18:23:45 2017
+	- Document issue with destructor not called on embedded shared objects
+
+1.54 Sat Dec 31 17:33:20 2016
+	- Fix Clang macro
+
+1.53 Fri Dec 30 17:35:13 2016
+	- Sync from blead
+
+1.52 Mon May 16 18:46:52 2016
+	- Make t/test.pl compatible with Perls < 5.10 (again)
+
+1.51 Fri Apr 22 19:05:18 2016
+	- Documented that 'bless' does not propagate to nested shared items.
+
+1.48 Sat Jun 13 12:00:00 2015
+	- Fix for when freeing elements with $#shared = N to trigger shared object destruction
+
+1.46 Tue Feb  4 21:48:51 2014
+	- Sync from blead that fixes a thread context issue
+
+1.45 Wed Nov 13 15:27:09 2013
+	- Sync from blead
+
+1.43 Fri Jan 11 15:49:59 2013
+	- Timeout fix for t/stress.t (Nicholas Clark)
+
+1.42 Tue Oct  2 21:23:46 EDT 2012
+	- Support for dualvars (thanks to Philippe Causse)
+
+1.41 Wed Sep  5 17:16:10 2012
+	- Added feature to ignore cloning of unsupported types
+
+1.40 Fri Sep  9 19:58:06 EDT 2011
+	- Destructors now called when shared objects removed from shared structures
+
+1.39 Sat Sep  3 15:09:23 2011
+	- Version bump for blead
+
+1.38 Sat Sep  3 02:23:11 2011
+	- Sync from blead
+	- Documented limitation regarding removing shared objects from shared structures
+
+1.37 Sun Apr 17 23:43:21 2011
+	- Sync from blead
+
+1.36 Fri Dec 24 16:50:11 2010
+	- POD update
+
+1.34 Fri Oct  8 16:48:25 2010
+	- Veto signal dispatch hook (commit 65c7421c80585e0d12a20773935dc01f4ffa3e42)
+
+1.33 Tue Mar  9 14:03:47 EST 2010
+	- Handle shared object reference during global destruction
+	- Document that changing array length via $#array doesn't work
+
+1.32 Fri Oct 16 16:31:18 2009
+	- Merge changes from blead (commit 8a8fad9addd88c65ee8b18b0e45b2ed9a18987f8)
+
+1.31 Mon Aug 10 19:14:35 2009
+	- Handle thread creation failures in tests due to lack of memory, etc.
+
+1.29 Mon Jun 22 08:35:00 2009
+	- Small doc fix
+	- Test file changes for core
+	- Upgraded ppport.h to Devel::PPPort 3.19
+
+1.28 Mon Feb 23 18:46:19 2009
+	- Correct POD wrt lock()
+	- Clarify is_shared($hash{'elem'}) in POD
+	- Upgraded ppport.h to Devel::PPPort 3.16
+
+1.27 Tue Nov 25 16:47:48 2008
+	- Require a minimum version of 'threads'
+	- Documented each(%{$foo{'bar'}}) bug
+	- Simplified loading modules in tests
+	- Upgraded ppport.h to Devel::PPPort 3.14_03
+
+1.26 Wed Jul 16 13:45:44 2008
+	- Conditionalize read-only tests for Perl < 5.8.3
+
+1.25 Fri Jul 11 17:04:47 2008
+	- Fix to shared_clone() for read-only objects
+
+1.24 Mon Jul  7 17:34:37 2008
+	- Support utf8 hash keys (bug #37149)
+	- Use standardized watchdog/timeout code in tests
+
+1.23 Tue Jun 17 20:26:13 2008
+	- Rewrite of timer process in tests
+
+1.22 Tue Jun 10 17:15:36 2008
+	- Upgraded ppport.h to Devel::PPPort 3.14
+	- LICENSE section in POD
+	- End all tests with exit(0)
+
+1.21 Wed May 14 15:15:44 2008
+	- Added shared_clone()
+	- Fixed is_shared($x->{elem}) and the like
+	- Upgraded ppport.h to Devel::PPPort 3.13_03
+
+1.19 Wed May  7 17:56:26 2008
+	- Fixed return value of ref() on refs of refs
+	- Document using is_shared() vs. refaddr() on shared refs
+	- Don't fail t/stress.t if ENOMEM on thread creations
+
+1.18 Tue Feb 26 16:21:55 2008
+	- Stress test diagnostics
+	- 'die' properly if no compiler
+
+1.17 Fri Feb 22 21:28:52 2008
+	- Allow installation on non-threaded Perls
+
+1.16 Wed Feb 20 17:15:44 2008
+	- Blead change 33256
+	- Upgraded ppport.h to Devel::PPPort 3.13_01
+
+1.15 Tue Nov  6 17:20:10 2007
+	- For Perl 5.10.0 and later, fixed problem with storing shared
+	    objects in shared structures
+	- Upgraded ppport.h to Devel::PPPort 3.13
+
+1.14 Thu Sep 20 14:29:36 2007
+	- Upgraded ppport.h to Devel::PPPort 3.11_06
+	- Fixed ppport.h warnings
+
+1.13 Wed Sep  5 13:40:50 2007
+	- POD spelling test (maintainer only)
+
+1.12 Wed May 23 09:21:35 EDT 2007
+	- Fixed 'Confused test output' problems with tests
+	- Skip stress test under HP-UX 10.20
+
+1.11 Mon May 14 12:13:37 2007
+	- Modify stress test to be TODO under MSWin32
+	- Store user locks safely
+
+1.09 Mon Apr  9 16:49:30 EDT 2007
+	- Modify stress test to not hang under MSWin32
+	- Fix casting issue under MSWin32
+
+1.08 Fri Mar 16 08:31:50 EDT 2007
+	- Sub-second resolution for cont_timedwait under MSWin32
+	    (courtesy of Dean Arnold)
+	- Fix compiler warnings
+	- Upgraded ppport.h to Devel::PPPort 3.11
+
+1.07 Wed Feb  7 10:44:22 EST 2007
+	- POD tweaks per Wolfgang Laun
+
+1.06 Wed Dec 20 14:01:57 EST 2006
+	- Fixed a bug in unlocking code
+	- Added stress test for cond_* functions
+
+1.05 Wed Oct 25 14:27:36 EDT 2006
+	- Makefile.PL changes for CORE
+	- g++ build fixes
+
+1.04 Thu Oct 12 10:50:46 EDT 2006
+	- Added example script
+	- Added POD tests
+
+1.03 Fri Sep 15 15:09:26 EDT 2006
+	- Fix memory leak caused by blessed shared objects
+	- Upgraded ppport.h to Devel::PPPort 3.10
+
+1.02 Fri Jul 14 08:56:03 EDT 2006
+	- Skip failing thread/wait tests on HP-UX 10.20 (patch 27920)
+	- Check for 'C' compiler when building module
+	- Remove BEGIN block in .pm file
+	- Upgraded ppport.h to Devel::PPPort 3.09
+
+1.01 Sat Mar 25 18:46:44 EST 2006
+	- Restoration of 'core' build parameters
+
+0.99 Sun Mar 19 17:38:52 EST 2006
+	- Use $ENV{PERL_CORE} in tests
+	- More XS code cleanups
+	- Eliminated use of Exporter
+
+0.98 Fri Mar 17 13:25:34 EST 2006
+	- XS code cleanup
+
+0.97 Mon Mar 13 14:30:50 EST 2006
+	- Cleaned up shared.h as part of the ppport.h upgrade
+	- Cleaned up tests
+	- Compatible with 5.9.3
+
+0.96 Mon Feb 27 16:50:07 EST 2006
+	- Added 'is_shared' as alias to '_id'
+	- Upgraded ppport.h to v3.08
+	- Updated POD with discussion of bless()
+
+0.95 Fri Feb 03 16:46:00 2006
+	- Initial (re-)release to CPAN
+	- 'bless' is now supported on shared refs
+

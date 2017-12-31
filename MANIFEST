@@ -3834,6 +3834,7 @@ dist/Thread-Semaphore/t/06_timed.t	Thread::Semaphore tests
 dist/threads/hints/hpux.pl	Hint file for HPUX
 dist/threads/hints/linux.pl	Hint file for Linux
 dist/threads/lib/threads.pm		ithreads
+dist/threads-shared/Changes	thread shared variables
 dist/threads-shared/hints/linux.pl	thread shared variables
 dist/threads-shared/lib/threads/shared.pm	thread shared variables
 dist/threads-shared/shared.xs		thread shared variables

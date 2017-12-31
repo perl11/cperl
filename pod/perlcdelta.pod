@@ -159,6 +159,8 @@ Fix and re-enable F<t/regression.t>
 
 =item L<threads>  2.18_01
 
+=item L<threads::shared>  1.57
+
 =item L<Time::HiRes>  1.9747_01
 
 More Darwin thread fixes for clock_gettime,

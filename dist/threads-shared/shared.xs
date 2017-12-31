@@ -656,7 +656,18 @@ Perl_sharedsv_cond_timedwait(perl_cond *cond, perl_mutex *mut, double abs)
     abs -= (NV)ts.tv_sec;
     ts.tv_nsec = (long)(abs * 1000000000.0);
 
+#if defined(CLANG_DIAG_IGNORE)
+    CLANG_DIAG_IGNORE(-Wthread-safety);
+    /* warning: calling function 'pthread_cond_timedwait' requires holding mutex 'mut' exclusively [-Wthread-safety-analysis] */
+#endif
+
     switch (pthread_cond_timedwait(cond, mut, &ts)) {
+
+/* perl.h defines CLANG_DIAG_* but only in 5.24+ */
+#if defined(CLANG_DIAG_RESTORE)
+CLANG_DIAG_RESTORE;
+#endif
+
         case 0:         got_it = 1; break;
         case ETIMEDOUT:             break;
 #ifdef OEMVS
@@ -1094,8 +1105,9 @@ sharedsv_array_mg_CLEAR(pTHX_ SV *sv, MAGIC *mg)
                 if (!sv) continue;
                 if ( (SvOBJECT(sv) || (SvROK(sv) && (sv = SvRV(sv))))
                   && SvREFCNT(sv) == 1 ) {
-                    SV *tmp = Perl_sv_newmortal(caller_perl);
+                    SV *tmp;
                     PERL_SET_CONTEXT((aTHX = caller_perl));
+                    tmp = sv_newmortal();
                     sv_upgrade(tmp, SVt_RV);
                     get_RV(tmp, sv);
                     PERL_SET_CONTEXT((aTHX = PL_sharedsv_space));
@@ -1164,17 +1176,6 @@ const MGVTBL sharedsv_array_vtbl = {
     0,                          /* local */
 #endif
 };
-
-
-/* Recursively unlocks a shared sv. */
-
-static void
-Perl_sharedsv_unlock(pTHX_ SV *ssv)
-{
-    user_lock *ul = S_get_userlock(aTHX_ ssv, 0);
-    assert(ul);
-    recursive_lock_release(aTHX_ &ul->lock);
-}
 
 
 /* Recursive locks on a sharedsv.
@@ -1385,8 +1386,9 @@ STORESIZE(SV *obj,IV count)
                 if (   (SvOBJECT(sv) || (SvROK(sv) && (sv = SvRV(sv))))
                     && SvREFCNT(sv) == 1 )
                 {
-                    SV *tmp = Perl_sv_newmortal(caller_perl);
+                    SV *tmp;
                     PERL_SET_CONTEXT((aTHX = caller_perl));
+                    tmp = sv_newmortal();
                     sv_upgrade(tmp, SVt_RV);
                     get_RV(tmp, sv);
                     PERL_SET_CONTEXT((aTHX = PL_sharedsv_space));
