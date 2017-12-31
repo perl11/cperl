@@ -108,9 +108,8 @@ More Darwin thread fixes for clock_gettime,
 Sierra support,
 test improvements.
 
-=item L<YAML::LibYAML>  0.71
+=item L<YAML::LibYAML>  0.75
 
-merged with new upstream libyaml 0.1.7 (2 minor fixes)
 
 =back
 

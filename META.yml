@@ -123,4 +123,4 @@ resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/perl11/cperl/
 version: '5.022005'
-x_serialization_backend: YAML::XS version 0.71
+x_serialization_backend: YAML::XS version 0.75

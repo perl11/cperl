@@ -1,7 +1,7 @@
 use strict; use warnings;
 
 package YAML::XS;
-our $VERSION = '0.71';
+our $VERSION = '0.75';
 
 use base 'Exporter';
 
@@ -10,10 +10,11 @@ use base 'Exporter';
 %YAML::XS::EXPORT_TAGS = (
     all => [qw(Dump Load LoadFile DumpFile)],
 );
-# $YAML::XS::NonStrict = 1; # for Load
-# $YAML::XS::UseCode = 0;   # for Dump
-# $YAML::XS::DumpCode = 0;  # for Dump
-# $YAML::XS::LoadCode = 0;  # for Load. ignored
+# $YAML::XS::NonStrict = 1;      # for Load
+# $YAML::XS::DisableCode = 0;    # for Load
+# $YAML::XS::DisableBlessed = 0; # for Load
+# $YAML::XS::UseCode = 0;        # for Dump
+# $YAML::XS::DumpCode = 0;       # for Dump
 
 $YAML::XS::QuoteNumericStrings = 1;
 

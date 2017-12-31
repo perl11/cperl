@@ -1,3 +1,4 @@
+use lib '.';
 use t::TestYAML tests => 7;
 
 use YAML::XS qw'LoadFile';

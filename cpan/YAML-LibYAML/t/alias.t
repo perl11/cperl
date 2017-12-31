@@ -1,3 +1,4 @@
+use lib '.';
 use t::TestYAMLTests tests => 10;
 
 my ($a, $b) = Load(<<'...');

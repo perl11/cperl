@@ -1,4 +1,5 @@
 # YAML 1.2 only
+use lib '.';
 use t::TestYAMLTests tests => 4;
 no warnings 'once';
 

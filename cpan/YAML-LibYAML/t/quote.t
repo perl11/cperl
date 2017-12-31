@@ -1,3 +1,4 @@
+use lib '.';
 use t::TestYAMLTests tests => 4;
 
 is Dump('', [''], {foo => ''}), <<'...', 'Dumped empty string is quoted';

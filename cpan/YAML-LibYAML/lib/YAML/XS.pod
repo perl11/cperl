@@ -23,14 +23,18 @@ YAML::XS - Perl YAML Serialization using XS and libyaml
     my $yaml = DumpFile ("my.yml", [ 1..4 ]);
     my $array = LoadFile "my.yml";
 
+    { # security, disable custom tags
+      local $YAML::XS::DisableBlessed = 1;
+      my $array = LoadFile("META.yml");
+    }
+
 =head1 DESCRIPTION
 
-Kirill Siminov's C<libyaml> is a good YAML library implementation. The
-C library is written precisely to the YAML 1.1 specification, and
-offers YAML 1.2 support. It was originally bound to Python and was
-later bound to Ruby. libsyck is written more elegant, has less bugs,
-is not as strict as libyaml, but misses some YAML features. It can only
-do YAML 1.1
+Kirill Siminov's C<libyaml> is a good YAML library implementation. The C
+library is written precisely to the YAML 1.1 specification, and offers YAML
+1.2 support. It was originally bound to Python and was later bound to Ruby.
+C<libsyck> is written a bit more elegant, has less bugs, is not as strict as
+libyaml, but misses some YAML features. It can only do YAML 1.1
 
 This module is a Perl XS binding to libyaml which offers Perl somewhat
 acceptable YAML support to date.
@@ -39,14 +43,14 @@ This module exports the functions C<Dump>, C<Load>, C<DumpFile> and
 C<LoadFile>. These functions are intended to work exactly like C<YAML.pm>'s
 corresponding functions.
 
-If you set the option C<$YAML::XS::IndentlessMap> to 0 or undef,
-C<YAML::XS> will behave like with version E<lt> 0.70, which creates yml
-files which cannot be read by C<YAML.pm>
+If you set the option C<$YAML::XS::IndentlessMap> to 0 or undef, C<YAML::XS>
+will behave like with version E<lt> 0.70, which creates yml files which cannot
+be read by C<YAML.pm>.
 
 However the loader is stricter than C<YAML>, C<YAML::Syck> and
-C<CPAN::Meta::YAML> i.e. C<YAML::Tiny> as used in core.  Set the
-variable C<$YAML::XS::NonStrict> to allow certain reader errors to
-pass the C<CPAN::Meta> validation testsuite.
+C<CPAN::Meta::YAML> i.e. C<YAML::Tiny> as used in core. Set the variable
+C<$YAML::XS::NonStrict> to allow certain reader errors to pass the
+C<CPAN::Meta> validation testsuite.
 
 =head1 CONFIGURATION
 
@@ -56,25 +60,38 @@ via globals variables only, so far. Affecting Load and LoadFile.
 
 =over
 
-=item C<$YAML::XS::NonStrict>
-
-Permit certain reader errors to loosely match other YAML module
-semantics.  In detail: Allow B<"control characters are not allowed">.
-Note that any error is stored and returned, just not immediately.
-
-However the reader error B<"invalid trailing UTF-8 octet"> and all other utf8
-strictness violations are still fatal.
-
-And if the structure of the YAML document cannot be parsed, i.e. a
-required value consists only of invalid control characters, the loader
-returns an error, unlike with non-strict YAML modules.
-
-=item C<$YAML::XS::LoadCode>
-
-Ignored.
-If enabled supports deparsing and evaling of code blocks.
+=item * C<$YAML::XS::NonStrict>
 
 =back
+
+Permit certain reader errors to loosely match other YAML module semantics. In
+detail: Allow C<"control characters are not allowed">. Note that any error is
+stored and returned, just not immediately.
+
+However the reader error C<"invalid trailing UTF-8 octet"> and all other utf8
+strictness violations are still fatal.
+
+And if the structure of the YAML document cannot be parsed, i.e. a required
+value consists only of invalid control characters, the loader returns an
+error, unlike with non-strict YAML modules.
+
+=over
+
+=item * C<$YAML::XS::DisableCode>
+
+=back
+
+Not yet implemented. Disables support for deparsing and evaling of code blocks
+while loading.
+
+=over
+
+=item * C<$YAML::XS::DisableBlessed>
+
+=back
+
+Disables support for blessing custom tags while loading, but allows pure perl
+tags, such as array, hash and scalar.
 
 =head2 Dumper Options
 
@@ -82,15 +99,25 @@ via globals variables only, so far. Affecting Dump and DumpFile
 
 =over
 
-=item C<$YAML::XS::UseCode>
+=item * C<$YAML::XS::UseCode>
+
+=back
 
 If enabled supports Dump of CV code blocks via C<YAML::XS::coderef2text()>.
 
-=item C<$YAML::XS::DumpCode>
+=over
+
+=item * C<$YAML::XS::DumpCode>
+
+=back
 
 If enabled supports Dump of CV code blocks via C<YAML::XS::coderef2text()>.
 
-=item C<$YAML::XS::QuoteNumericStrings>
+=over
+
+=item * C<$YAML::XS::QuoteNumericStrings>
+
+=back
 
 When true (the default) strings that look like numbers but have not been
 numified will be quoted when dumping.
@@ -98,66 +125,96 @@ numified will be quoted when dumping.
 This ensures leading that things like leading zeros and other formatting are
 preserved.
 
-=item C<$YAML::XS::IndentlessMap>
+=over
+
+=item * C<$YAML::XS::IndentlessMap>
+
+=back
 
 Default 0
 
-Set to 1 or a true value to fallback to the old C<YAML::XS> behavior to
-omit the indentation of map keys, which arguably violates the YAML
-spec, is different to all other YAML libraries and causes C<YAML.pm> to
-fail.
+Set to 1 or a true value to fallback to the old C<YAML::XS> behavior to omit
+the indentation of map keys, which arguably violates the YAML spec, is
+different to all other YAML libraries and causes C<YAML.pm> to fail.
 
 With 0
 
-   authors:
-     - this author
+     authors:
+       - this author
 
 With 1
 
-   authors:
-   - this author
+     authors:
+     - this author
 
-=item C<$YAML::XS::Indent>
+=over
+
+=item * C<$YAML::XS::Indent>
+
+=back
 
 Default 2
 
-=item C<$YAML::XS::BestWidth>
+=over
+
+=item * C<$YAML::XS::BestWidth>
+
+=back
 
 Default 80
 
 Control text wrapping.
 
-=item C<$YAML::XS::Canonical>
+=over
+
+=item * C<$YAML::XS::Canonical>
+
+=back
 
 Default 1
 
 Set to undef or 0 to disable sorting map keys.
 
-=item C<$YAML::XS::Unicode>
+=over
+
+=item * C<$YAML::XS::Unicode>
+
+=back
 
 Default 1
 
 Set to undef or 0 to disallow unescaped non-ASCII characters.
 
-=item C<$YAML::XS::Encoding>
+=over
+
+=item * C<$YAML::XS::Encoding>
+
+=back
 
 Default utf8
 
 Set to any, utf8, utf16le or utf16be
 
-=item C<$YAML::XS::LineBreak>
+=over
+
+=item * C<$YAML::XS::LineBreak>
+
+=back
 
 Default ln
 
 Set to any, cr, ln or crln.
 
-=item C<$YAML::XS::OpenEnded>
+=over
+
+=item * C<$YAML::XS::OpenEnded>
+
+=back
 
 Default 0
 
-Set to 1 or a true value to embed the yaml into "...".
-
-=back
+Set to 1 or a true value to embed the yaml into "...". If an explicit document
+end is required.
 
 =head1 USING YAML::XS WITH UNICODE
 

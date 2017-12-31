@@ -1,3 +1,4 @@
+use lib '.';
 use t::TestYAMLTests tests => ( 3 * ( 5 * 5 + 3 ) );
 
 use Scalar::Util qw(weaken);

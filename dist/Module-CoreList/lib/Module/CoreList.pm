@@ -13348,8 +13348,8 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Socket'                => '2.24_02',
             'Time::HiRes'           => '1.9739',
             'warnings'              => '1.35',
-            'YAML::XS'              => '0.71',
-            'YAML::LibYAML'         => '0.71',
+            'YAML::XS'              => '0.75',
+            'YAML::LibYAML'         => '0.75',
         },
         removed => {
         }

@@ -1,4 +1,5 @@
-use t::TestYAMLTests tests => 10;
+use lib '.';
+use t::TestYAMLTests tests => 11;
 no warnings 'once';
 $YAML::XS::IndentlessMap = 1;
 
@@ -7,7 +8,6 @@ filters {
     yaml => 'load_yaml',
 };
 my $test = get_block_by_name("Blessed Hashes and Arrays");
-
 my $hash = $test->perl;
 my $hash2 = $test->yaml;
 
@@ -22,6 +22,13 @@ is ref($hash2->{one}), 'BigList',
     "Object at 'one' is blessed 'BigList'";
 is ref($hash2->{two}), 'BigList',
     "Object at 'two' is blessed 'BigList'";
+
+{
+    local $YAML::XS::DisableBlessed = 1;
+    my $hash3 = Load($test->yaml);
+    is ref($hash3->{two}), '',
+      "Object at 'two' is not blessed";
+}
 
 my $yaml = Dump($hash2);
 

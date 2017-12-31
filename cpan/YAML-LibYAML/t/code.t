@@ -1,3 +1,4 @@
+use lib '.';
 use t::TestYAMLTests tests => 3;
 
 #-------------------------------------------------------------------------------
@@ -17,8 +18,6 @@ bless $sub, "Barry::White";
 $yaml = <<'...';
 --- !!perl/code:Barry::White |-
   {
-      use warnings;
-      use strict;
       print "Bye.\n";
   }
 ...

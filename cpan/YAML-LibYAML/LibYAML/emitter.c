@@ -16,7 +16,7 @@
 #define PUT(emitter,value)                                                      \
     (FLUSH(emitter)                                                             \
      && (*(emitter->buffer.pointer++) = (yaml_char_t)(value),                   \
-         emitter->column ++,                                                    \
+         emitter->column++,                                             	\
          1))
 
 /*
@@ -36,6 +36,20 @@
          emitter->line ++,                                                      \
          1))
 
+/* returning nothing */
+
+#define PUT_BREAK_void(emitter)                                           \
+    (emitter->line_break == YAML_CR_BREAK ?                               \
+       (*(emitter->buffer.pointer++) = (yaml_char_t) '\r') :              \
+     emitter->line_break == YAML_LN_BREAK ?                               \
+       (*(emitter->buffer.pointer++) = (yaml_char_t) '\n') :              \
+     emitter->line_break == YAML_CRLN_BREAK ?                             \
+       (*(emitter->buffer.pointer++) = (yaml_char_t) '\r',                \
+        *(emitter->buffer.pointer++) = (yaml_char_t) '\n') : 0,           \
+      emitter->column = 0,                                                \
+      emitter->line ++                                                    \
+     )
+
 /*
  * Copy a character from a string into buffer.
  */
@@ -53,7 +67,7 @@
 #define WRITE_BREAK(emitter,string)                                             \
     (FLUSH(emitter)                                                             \
      && (CHECK(string,'\n') ?                                                   \
-         (PUT_BREAK(emitter),                                                   \
+         (PUT_BREAK_void(emitter),                                              \
           string.pointer ++,                                                    \
           1) :                                                                  \
          (COPY(emitter->buffer,string),                                         \
@@ -221,7 +235,7 @@ yaml_emitter_write_indent(yaml_emitter_t *emitter);
 
 static int
 yaml_emitter_write_indicator(yaml_emitter_t *emitter,
-        char *indicator, int need_whitespace,
+        const char *indicator, int need_whitespace,
         int is_whitespace, int is_indention);
 
 static int
@@ -706,7 +720,7 @@ yaml_emitter_emit_document_end(yaml_emitter_t *emitter,
 
         emitter->state = YAML_EMIT_DOCUMENT_START_STATE;
 
-        while (!STACK_EMPTY(emitter, emitter->tag_directives)) {
+        while (!(STACK_EMPTY(emitter, emitter->tag_directives))) {
             yaml_tag_directive_t tag_directive = POP(emitter,
                     emitter->tag_directives);
             yaml_free(tag_directive.handle);
@@ -1785,7 +1799,7 @@ yaml_emitter_write_indent(yaml_emitter_t *emitter)
 
 static int
 yaml_emitter_write_indicator(yaml_emitter_t *emitter,
-        char *indicator, int need_whitespace,
+        const char *indicator, int need_whitespace,
         int is_whitespace, int is_indention)
 {
     size_t indicator_length;
@@ -1921,9 +1935,11 @@ yaml_emitter_write_plain_scalar(yaml_emitter_t *emitter,
     while (string.pointer != string.end)
     {
         if (IS_SPACE(string)) {
-            if (allow_breaks && !spaces
-                    && emitter->column > emitter->best_width
-                    && !IS_SPACE_AT(string, 1)) {
+            if (allow_breaks
+                && !spaces
+                && emitter->column > emitter->best_width
+                && !(IS_SPACE_AT(string, 1)))
+            {
                 if (!yaml_emitter_write_indent(emitter))
                     return 0;
                 MOVE(string);
@@ -1988,11 +2004,13 @@ yaml_emitter_write_single_quoted_scalar(yaml_emitter_t *emitter,
     while (string.pointer != string.end)
     {
         if (IS_SPACE(string)) {
-            if (allow_breaks && !spaces
-                    && emitter->column > emitter->best_width
-                    && string.pointer != string.start
-                    && string.pointer != string.end - 1
-                    && !IS_SPACE_AT(string, 1)) {
+            if (allow_breaks
+                && !spaces
+                && emitter->column > emitter->best_width
+                && string.pointer != string.start
+                && string.pointer != string.end - 1
+                && !(IS_SPACE_AT(string, 1)))
+            {
                 if (!yaml_emitter_write_indent(emitter))
                     return 0;
                 MOVE(string);
@@ -2222,7 +2240,7 @@ yaml_emitter_write_block_scalar_hints(yaml_emitter_t *emitter,
         yaml_string_t string)
 {
     char indent_hint[2];
-    char *chomp_hint = NULL;
+    const char *chomp_hint = NULL;
 
     if (IS_SPACE(string) || IS_BREAK(string)) {
         indent_hint[0] = '0' + (char)emitter->best_indent;
@@ -2355,7 +2373,7 @@ yaml_emitter_write_folded_scalar(yaml_emitter_t *emitter,
                     return 0;
                 leading_spaces = IS_BLANK(string);
             }
-            if (!breaks && IS_SPACE(string) && !IS_SPACE_AT(string, 1)
+            if (!breaks && IS_SPACE(string) && !(IS_SPACE_AT(string, 1))
                     && emitter->column > emitter->best_width) {
                 if (!yaml_emitter_write_indent(emitter))
                     return 0;

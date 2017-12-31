@@ -135,7 +135,7 @@ sub spiffy_filter {
             $_ = $data;
             my @my_subs;
             s[^(sub\s+\w+\s+\{)(.*\n)]
-             [${1}my \$self = shift;$2]gm;
+             [${1}my \$self = shift;$2]gm unless m/^\s+my \(?\$self\)?\s*=/m;
             s[^(sub\s+\w+)\s*\(\s*\)(\s+\{.*\n)]
              [${1}${2}]gm;
             s[^my\s+sub\s+(\w+)(\s+\{)(.*)((?s:.*?\n))\}\n]
@@ -145,7 +145,8 @@ sub spiffy_filter {
                 $preclare = join ',', map "\$$_", @my_subs;
                 $preclare = "my($preclare);";
             }
-            $_ = "use strict;use warnings;$preclare${_};1;\n$end";
+            # $_ = "use strict;use warnings;$preclare${_};1;\n$end";
+            $_ = "$preclare${_};1;\n$end";
             if ($filter_dump) { print; exit }
             if ($filter_save) { $filter_result = $_; $_ = $filter_result; }
             $done = 1;
@@ -231,6 +232,7 @@ sub field {
     $code .= sprintf $code{weaken}, $field, $field
       if $args->{-weak};
     $code .= sprintf $code{sub_end}, $field;
+    #warn "XXX ${package}::$field = $code";
 
     my $sub = eval $code;
     die $@ if $@;
@@ -243,6 +245,7 @@ sub default_as_code {
     require Data::Dumper;
     local $Data::Dumper::Sortkeys = 1;
     my $code = Data::Dumper::Dumper(shift);
+    #warn $code;
     $code =~ s/^\$VAR1 = //;
     $code =~ s/;$//;
     return $code;
@@ -486,6 +489,7 @@ sub spiffy_all_methods {
     my %super_methods;
     %super_methods = spiffy_all_methods(${"$class\::ISA"}[0])
       if @{"$class\::ISA"};
+    #warn "Spiffy: ",keys %methods;
     %{{%super_methods, %methods}};
 }
 

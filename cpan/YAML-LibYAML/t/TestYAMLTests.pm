@@ -1,7 +1,8 @@
 package t::TestYAMLTests;
 use lib 'inc';
 use Test::Base -Base;
-@t::TestYAMLTests::EXPORT = qw(Load Dump LoadFile DumpFile n2y y2n nyny get_block_by_name);
+@t::TestYAMLTests::EXPORT = qw(Load Dump LoadFile DumpFile
+                               n2y y2n nyny get_block_by_name);
 
 sub load_config() {
     my $config_file = shift;
@@ -24,7 +25,7 @@ BEGIN {
     my $config = load_config('t/yaml_tests.yaml');
     if ($config->{use_blib}) {
       if ($ENV{PERL_CORE}) {
-        @INC = ('../../lib', '../../lib/auto', 'inc');
+        @INC = ('../../lib', 'inc', '.');
       } else {
         eval "use blib; 1" or die $@;
       }

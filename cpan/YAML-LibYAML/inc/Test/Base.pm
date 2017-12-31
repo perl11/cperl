@@ -1,8 +1,8 @@
 package Test::Base;
-our $VERSION = '0.88';
-
-use Spiffy -Base;
-use Spiffy ':XXX';
+our $VERSION = '0.88c'; # various cperl modernization fixes, expanded source filter
+use strict;use warnings;
+@Test::Base::ISA = ('Spiffy');
+use Spiffy qw(:XXX const stub super field);
 
 my $HAS_PROVIDER;
 BEGIN {
@@ -77,7 +77,7 @@ sub default_object {
 }
 
 my $import_called = 0;
-sub import() {
+sub import {
     $import_called = 1;
     my $class = (grep /^-base$/i, @_)
     ? scalar(caller)
@@ -103,7 +103,7 @@ sub import() {
             if @args;
      }
 
-    _strict_warnings();
+    #_strict_warnings();
     goto &Spiffy::import;
 }
 
@@ -121,10 +121,11 @@ my $Have_Plan = 0;
 my $DIED = 0;
 $SIG{__DIE__} = sub { $DIED = 1; die @_ };
 
-sub block_class  { $self->find_class('Block') }
-sub filter_class { $self->find_class('Filter') }
+sub block_class  { shift->find_class('Block') }
+sub filter_class { shift->find_class('Filter') }
 
 sub find_class {
+    my $self = shift;
     my $suffix = shift;
     my $class = ref($self) . "::$suffix";
     return $class if $class->can('new');
@@ -136,6 +137,7 @@ sub find_class {
 }
 
 sub check_late {
+    my $self = shift;
     if ($self->{block_list}) {
         my $caller = (caller(1))[3];
         $caller =~ s/.*:://;
@@ -143,14 +145,14 @@ sub check_late {
     }
 }
 
-sub find_my_self() {
+sub find_my_self {
     my $self = ref($_[0]) eq $default_class
-    ? splice(@_, 0, 1)
-    : default_object();
+      ? splice(@_, 0, 1)
+      : default_object();
     return $self, @_;
 }
 
-sub blocks() {
+sub blocks {
     (my ($self), @_) = find_my_self(@_);
 
     croak "Invalid arguments passed to 'blocks'"
@@ -177,7 +179,7 @@ sub blocks() {
     return (@blocks);
 }
 
-sub next_block() {
+sub next_block {
     (my ($self), @_) = find_my_self(@_);
     my $list = $self->_next_list;
     if (@$list == 0) {
@@ -191,23 +193,23 @@ sub next_block() {
     return $block;
 }
 
-sub first_block() {
+sub first_block {
     (my ($self), @_) = find_my_self(@_);
     $self->_next_list([]);
     $self->next_block;
 }
 
-sub filters_delay() {
+sub filters_delay {
     (my ($self), @_) = find_my_self(@_);
     $self->_filters_delay(defined $_[0] ? shift : 1);
 }
 
-sub no_diag_on_only() {
+sub no_diag_on_only {
     (my ($self), @_) = find_my_self(@_);
     $self->_no_diag_on_only(defined $_[0] ? shift : 1);
 }
 
-sub delimiters() {
+sub delimiters {
     (my ($self), @_) = find_my_self(@_);
     $self->check_late;
     my ($block_delimiter, $data_delimiter) = @_;
@@ -218,21 +220,21 @@ sub delimiters() {
     return $self;
 }
 
-sub spec_file() {
+sub spec_file {
     (my ($self), @_) = find_my_self(@_);
     $self->check_late;
     $self->_spec_file(shift);
     return $self;
 }
 
-sub spec_string() {
+sub spec_string {
     (my ($self), @_) = find_my_self(@_);
     $self->check_late;
     $self->_spec_string(shift);
     return $self;
 }
 
-sub filters() {
+sub filters {
     (my ($self), @_) = find_my_self(@_);
     if (ref($_[0]) eq 'HASH') {
         $self->_filters_map(shift);
@@ -244,7 +246,7 @@ sub filters() {
     return $self;
 }
 
-sub filter_arguments() {
+sub filter_arguments {
     $Test::Base::Filter::arguments;
 }
 
@@ -286,6 +288,7 @@ sub run(&;$) {
 
 my $name_error = "Can't determine section names";
 sub _section_names {
+    my $self = shift;
     return @_ if @_ == 2;
     my $block = $self->first_block
       or croak $name_error;
@@ -305,7 +308,7 @@ sub END {
     run_compare() unless $Have_Plan or $DIED or not $import_called;
 }
 
-sub run_compare() {
+sub run_compare {
     (my ($self), @_) = find_my_self(@_);
     $self->_assert_plan;
     my ($x, $y) = $self->_section_names(@_);
@@ -327,7 +330,7 @@ sub run_compare() {
     }
 }
 
-sub run_is() {
+sub run_is {
     (my ($self), @_) = find_my_self(@_);
     $self->_assert_plan;
     my ($x, $y) = $self->_section_names(@_);
@@ -341,7 +344,7 @@ sub run_is() {
     }
 }
 
-sub run_is_deeply() {
+sub run_is_deeply {
     (my ($self), @_) = find_my_self(@_);
     $self->_assert_plan;
     my ($x, $y) = $self->_section_names(@_);
@@ -354,7 +357,7 @@ sub run_is_deeply() {
     }
 }
 
-sub run_like() {
+sub run_like {
     (my ($self), @_) = find_my_self(@_);
     $self->_assert_plan;
     my ($x, $y) = $self->_section_names(@_);
@@ -368,7 +371,7 @@ sub run_like() {
     }
 }
 
-sub run_unlike() {
+sub run_unlike {
     (my ($self), @_) = find_my_self(@_);
     $self->_assert_plan;
     my ($x, $y) = $self->_section_names(@_);
@@ -382,7 +385,7 @@ sub run_unlike() {
     }
 }
 
-sub skip_all_unless_require() {
+sub skip_all_unless_require {
     (my ($self), @_) = find_my_self(@_);
     my $module = shift;
     eval "require $module; 1"
@@ -391,13 +394,13 @@ sub skip_all_unless_require() {
         );
 }
 
-sub is_deep() {
+sub is_deep {
     (my ($self), @_) = find_my_self(@_);
     require Test::Deep;
     Test::Deep::cmp_deeply(@_);
 }
 
-sub run_is_deep() {
+sub run_is_deep {
     (my ($self), @_) = find_my_self(@_);
     $self->_assert_plan;
     my ($x, $y) = $self->_section_names(@_);
@@ -411,6 +414,7 @@ sub run_is_deep() {
 }
 
 sub _pre_eval {
+    my $self = shift;
     my $spec = shift;
     return $spec unless $spec =~
       s/\A\s*<<<(.*?)>>>\s*$//sm;
@@ -421,6 +425,7 @@ sub _pre_eval {
 }
 
 sub _block_list_init {
+    my $self = shift;
     my $spec = $self->spec;
     $spec = $self->_pre_eval($spec);
     my $cd = $self->block_delim;
@@ -436,6 +441,7 @@ sub _block_list_init {
 }
 
 sub _choose_blocks {
+    my $self = shift;
     my $blocks = [];
     for my $hunk (@_) {
         my $block = $self->_make_block($hunk);
@@ -454,6 +460,7 @@ sub _choose_blocks {
 }
 
 sub _check_reserved {
+    my $self = shift;
     my $id = shift;
     croak "'$id' is a reserved name. Use something else.\n"
       if $reserved_section_names->{$id} or
@@ -461,6 +468,7 @@ sub _check_reserved {
 }
 
 sub _make_block {
+    my $self = shift;
     my $hunk = shift;
     my $cd = $self->block_delim;
     my $dd = $self->data_delim;
@@ -503,6 +511,7 @@ sub _make_block {
 }
 
 sub _spec_init {
+    my $self = shift;
     return $self->_spec_string
       if $self->_spec_string;
     local $/;
@@ -522,7 +531,7 @@ sub _spec_init {
     return $spec;
 }
 
-sub _strict_warnings() {
+sub _strict_warnings {
     require Filter::Util::Call;
     my $done = 0;
     Filter::Util::Call::filter_add(
@@ -544,7 +553,7 @@ sub _strict_warnings() {
     );
 }
 
-sub tie_output() {
+sub tie_output {
     my $handle = shift;
     die "No buffer to tie" unless @_;
     tie *$handle, 'Test::Base::Handle', $_[0];
@@ -556,12 +565,13 @@ sub no_diff {
 
 package Test::Base::Handle;
 
-sub TIEHANDLE() {
+sub TIEHANDLE {
     my $class = shift;
     bless \ $_[0], $class;
 }
 
 sub PRINT {
+    my $self = shift;
     $$self .= $_ for @_;
 }
 
@@ -579,7 +589,7 @@ sub AUTOLOAD {
     return;
 }
 
-sub block_accessor() {
+sub block_accessor {
     my $accessor = shift;
     no strict 'refs';
     return if defined &$accessor;
@@ -603,6 +613,7 @@ Spiffy::field 'blocks_object';
 Spiffy::field 'original_values' => {};
 
 sub set_value {
+    my $self = shift;
     no strict 'refs';
     my $accessor = shift;
     block_accessor $accessor
@@ -611,6 +622,7 @@ sub set_value {
 }
 
 sub run_filters {
+    my $self = shift;
     my $map = $self->_section_map;
     my $order = $self->_section_order;
     Carp::croak "Attempt to filter a block twice"
@@ -655,6 +667,7 @@ sub run_filters {
 }
 
 sub _get_filters {
+    my $self = shift;
     my $type = shift;
     my $string = shift || '';
     $string =~ s/\s*(.*?)\s*/$1/;
@@ -689,3 +702,4 @@ sub _get_filters {
 }
 
 1;
+

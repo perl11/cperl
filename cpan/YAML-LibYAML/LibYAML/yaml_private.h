@@ -19,6 +19,11 @@
 #endif
 #endif
 
+/* eg. with cplusplus */
+#ifndef PTRDIFF_MAX
+# define PTRDIFF_MAX INT_MAX
+#endif
+
 /*
  * Memory management.
  */
@@ -171,8 +176,8 @@ yaml_string_join(
  * Check the octet at the specified position.
  */
 
-#define CHECK_AT(string,octet,offset)                                           \
-    ((string).pointer[offset] == (yaml_char_t)(octet))
+#define CHECK_AT(string,octet,offset)                   \
+    (string).pointer[offset] == (yaml_char_t)(octet)
 
 /*
  * Check the current octet in the buffer.
@@ -433,7 +438,7 @@ yaml_queue_extend(void **start, void **head, void **tail, void **end);
      (stack).start = (stack).top = (stack).end = 0)
 
 #define STACK_EMPTY(context,stack)                                              \
-    ((stack).start == (stack).top)
+    (stack).start == (stack).top
 
 #define STACK_LIMIT(context,stack,size)                                         \
     ((stack).top - (stack).start < (size) ?                                     \
@@ -466,7 +471,7 @@ yaml_queue_extend(void **start, void **head, void **tail, void **end);
      (queue).start = (queue).head = (queue).tail = (queue).end = 0)
 
 #define QUEUE_EMPTY(context,queue)                                              \
-    ((queue).head == (queue).tail)
+    (queue).head == (queue).tail
 
 #define ENQUEUE(context,queue,value)                                            \
     (((queue).tail != (queue).end                                               \
