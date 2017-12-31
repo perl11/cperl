@@ -114,6 +114,10 @@ Merge 2.97000 from cpan with ours.
 
 Added msys
 
+=item podlators  4.09
+
+Added all the man tests from upstream
+
 =item L<Socket>  2.024_02
 
 Merge cpan 2.024 with our 2.021_02,
