@@ -33,7 +33,7 @@ XS(XS_XSLoader_load) {
         modlibname = OutCopFILE(PL_curcop);
         DLDEBUG(2,PerlIO_printf(Perl_debug_log, "XSLoader::load from caller '%s', '%s'\n",
                 HvNAME(stash), modlibname));
-        if (strEQc(modlibname, "-e"))
+        if (modlibname && strEQc(modlibname, "-e"))
             modlibname = NULL;
     }
     else {
