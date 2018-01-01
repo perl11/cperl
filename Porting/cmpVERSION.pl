@@ -111,8 +111,8 @@ my %skip;
 # usually due to some # mix-up
 
 my %skip_versions = (
-	   # 'some/sample/file.pm' => [ '1.23', '1.24' ],
-	  );
+    'ext/mro/mro.pm' => ['1.17'],
+  );
 
 my $skip_dirs = qr{^(t/lib|ext/DynaLoader)};
 
