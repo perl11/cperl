@@ -15190,6 +15190,13 @@ our %delta = (
         changed => {
             'B::Op_private'         => '5.024003',
             'ExtUtils::MM_Unix'	    => '8.04_05',
+            'IO'                    => '1.38',
+            'IO::Handle'            => '1.37',
+            'IO::Poll'              => '0.10',
+            'IO::Select'            => '1.23',
+            'IO::Socket'            => '1.38_01',
+            'IO::Socket::INET'      => '1.35_01',
+            'IO::Socket::UNIX'      => '1.26_01',
             'Storable'              => '3.05_14',
         },
         removed => {

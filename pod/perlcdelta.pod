@@ -54,6 +54,10 @@ Coverity CID #165302 Insecure chroot.
 
 Support filehandles for C<<< MM->parse_version >>>.
 
+=item L<IO>  1.38
+
+from latest cperl.
+
 =item L<Storable> 3.05_14
 
 Updated from 3.01, many critical fixes.
