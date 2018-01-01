@@ -15197,6 +15197,7 @@ our %delta = (
             'IO::Socket'            => '1.38_01',
             'IO::Socket::INET'      => '1.35_01',
             'IO::Socket::UNIX'      => '1.26_01',
+            'SelectSaver'           => '1.02_01',
             'Storable'              => '3.05_14',
         },
         removed => {
