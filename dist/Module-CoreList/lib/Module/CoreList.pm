@@ -13364,6 +13364,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'ExtUtils::Liblist::Kid' => '8.04_06',
             'ExtUtils::MM_Unix'     => '8.04_04',
             'Internals::DumpArenas' => '0.12_04',
+            'HTTP::Tiny'            => '0.070',
             'JSON::PP'              => '2.97000_04',
             'JSON::PP::Boolean'     => '2.97000_04',
             'List::Util'            => '1.49_10',

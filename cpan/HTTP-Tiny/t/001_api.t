@@ -12,6 +12,7 @@ my @accessors = qw(
 );
 my @methods   = qw(
   new get head put post delete post_form request mirror www_form_urlencode can_ssl
+  connected
 );
 
 my %api;
@@ -23,7 +24,6 @@ can_ok('HTTP::Tiny', @methods, @accessors);
 my @extra =
   grep {! $api{$_} }
   grep { $_ !~ /\A_/ }
-  grep { $_ ne 'croak' }
   grep {; no strict 'refs'; *{"HTTP::Tiny::$_"}{CODE} }
   sort keys %HTTP::Tiny::;
 

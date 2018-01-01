@@ -114,6 +114,8 @@ Support filehandles for C<<< MM->parse_version >>>.
 
 Silence No library found errors on darwin for libSystem.dylib libs.
 
+=item L<HTTP::Tiny> 0.070
+
 =item L<JSON::PP> 2.97000_04
 
 Merge 2.97000 from cpan with ours.
