@@ -51,7 +51,7 @@ env:
     - CONFIGURE_OPTION='' XCC="'gcc\ -m32'" XBITS=32
     - CONFIGURE_OPTION='-DDEBUGGING -Duseshrplib' XCC='clang'
     - CONFIGURE_OPTION='-Duse64bitall -Dusethreads -Duselongdouble' XCC='clang'
-    - CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall -Dld=c++' XCC='c++'
+    - CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall -Dld=c++' XCC='gcc'
 
 matrix:
   fast_finish: true
@@ -63,7 +63,7 @@ matrix:
     - os: osx
       env: CONFIGURE_OPTION='-Duse64bitall -Dusethreads -Duselongdouble' XCC='clang'
   allow_failures:
-    - env: CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall -Dld=c++' XCC='c++'
+    - env: CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall -Dld=c++' XCC='gcc'
 
 #osx:   - CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=corei7 -DPERL_FAKE_SIGNATURE"'
 #linux: - CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=native -msse4.2 -DPERL_FAKE_SIGNATURE"'

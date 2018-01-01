@@ -1566,7 +1566,7 @@ attention to precisely which outputs are influenced by which inputs.
 #ifdef NO_TAINT_SUPPORT
 #   define SvTAINTED(sv) 0
 #else
-#   define SvTAINTED(sv)	  (SvMAGICAL(sv) && sv_tainted(sv))
+#   define SvTAINTED(sv)	  (SvMAGICAL(sv) && sv_tainted((SV *const)sv))
 #endif
 #define SvTAINTED_on(sv)  STMT_START{ if(UNLIKELY(TAINTING_get)){sv_taint(sv);}   }STMT_END
 #define SvTAINTED_off(sv) STMT_START{ if(UNLIKELY(TAINTING_get)){sv_untaint(sv);} }STMT_END
