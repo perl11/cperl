@@ -33,7 +33,8 @@ Matt S Trout, David Golden, Florian Ragwitz, Tatsuhiko Miyagawa,
 Chris C<BinGOs> Williams, Zefram, Ævar Arnfjörð Bjarmason, Stevan
 Little, Dave Rolsky, Max Maischein, Abigail, Jesse Luehrs, Tony Cook,
 Dominic Hargreaves, Aaron Crane, Aristotle Pagaltzis, Matthew Horsfall,
-Peter Martini, and Sawyer X.
+Peter Martini, Sawyer X, Chad 'Exodist' Granum, Renee Bäcker, Eric Herman,
+and John SJ Anderson.
 
 =head2 PUMPKIN?
 
@@ -566,10 +567,19 @@ the strings?).
  Steve     5.22.1-RC4   2015-Dec-08
  Steve     5.22.1       2015-Dec-13
  Steve     5.22.2-RC1   2016-Apr-10
+ Steve     5.22.2       2016-Apr-29
+ Steve     5.22.3-RC1   2016-Jul-17
+ Steve     5.22.3-RC2   2016-Jul-25
+ Steve     5.22.3-RC3   2016-Aug-11
+ Steve     5.22.3-RC4   2016-Oct-12
+ Steve     5.22.3-RC5   2017-Jan-02
+ Steve     5.22.3       2017-Jan-14
+ Steve     5.22.4-RC1   2017-Jul-01
+ Steve     5.22.4       2017-Jul-15
 
  Ricardo   5.23.0       2015-Jun-20     The 5.23 development track
- Matthew   5.23.1       2015-Jul-20
- Matthew   5.23.2       2015-Aug-20
+ Matthew H 5.23.1       2015-Jul-20
+ Matthew H 5.23.2       2015-Aug-20
  Peter     5.23.3       2015-Sep-20
  Steve     5.23.4       2015-Oct-20
  Abigail   5.23.5       2015-Nov-20
@@ -584,7 +594,7 @@ the strings?).
  rurban    5.22.2c      2016-May-09
  rurban    5.22.3c      2016-Jun-03
  rurban    5.22.4c      2016-Jul-27
- rurban    5.22.5c      2016-Sep-??
+ rurban    5.22.5c      2018-Jan-01
 
  Ricardo   5.24.0-RC1   2016-Apr-13     The 5.24 maintenance track
  Ricardo   5.24.0-RC2   2016-Apr-23
@@ -595,6 +605,13 @@ the strings?).
  Steve     5.24.1-RC1   2016-Jul-17
  Steve     5.24.1-RC2   2016-Jul-25
  Steve     5.24.1-RC3   2016-Aug-11
+ Steve     5.24.1-RC4   2016-Oct-12
+ Steve     5.24.1-RC5   2017-Jan-02
+ Steve     5.24.1       2017-Jan-14
+ Steve     5.24.2-RC1   2017-Jul-01
+ Steve     5.24.2       2017-Jul-15
+ Steve     5.24.3-RC1   2017-Sep-10
+ Steve     5.24.3       2017-Sep-22
 
  rurban    5.24.0c-RC1  2016-Jun-08     cperl 5.24
  rurban    5.24.0c-RC2  2016-Jun-17
@@ -602,19 +619,50 @@ the strings?).
  rurban    5.24.0c-RC4  2016-Jul-12
  rurban    5.24.0c-RC5  2016-Jul-19
  rurban    5.24.0c      2016-Jul-28
+ rurban    5.24.1c      2016-Oct-13
+ rurban    5.24.2c      2016-Dec-16
 
  Ricardo   5.25.0       2016-May-09     The 5.25 development track
  Sawyer X  5.25.1       2016-May-20
- Matthew   5.25.2       2016-Jun-20
+ Matthew H 5.25.2       2016-Jun-20
  Steve     5.25.3       2016-Jul-20
  BinGOs    5.25.4       2016-Aug-20
+ Stevan    5.25.5       2016-Sep-20
+ Aaron     5.25.6       2016-Oct-20
+ Chad      5.25.7       2016-Nov-20
+ Sawyer X  5.25.8       2016-Dec-20
+ Abigail   5.25.9       2017-Jan-20
+ Renee     5.25.10      2017-Feb-20
+ Sawyer X  5.25.11      2017-Mar-20
+ Sawyer X  5.25.12      2017-Apr-20
 
  rurban    5.25.0c      2016-Aug-07
+ rurban    5.25.1c      2016-Oct-16
+ rurban    5.25.2c      2016-Dec-13
+ rurban    5.25.3c      2016-Feb-23
+
+ Sawyer X  5.26.0-RC1   2017-May-11     The 5.26 maintenance track
+ Sawyer X  5.26.0-RC2   2017-May-23
+ Sawyer X  5.26.0       2017-May-30
+ Steve     5.26.1-RC1   2017-Sep-10
+ Steve     5.26.1       2017-Sep-22
+
+ rurban    5.26.0c-RC1  2017-Apr-19     cperl 5.26
+ rurban    5.26.0c      2017-Apr-25
+ rurban    5.26.1c      2017-Aug-07
+
+ Sawyer X  5.27.0       2017-May-31     The 5.27 development track
+ Eric      5.27.1       2017-Jun-20
+ Aaron     5.27.2       2017-Jul-20
+
+ rurban    5.27.0c      2017-May-17
+ rurban    5.27.1c      2017-Aug-15
+ rurban    5.27.2c      2017-Dec-05
 
 =head2 SELECTED RELEASE MEMORY USAGE
 
 Size in memory measured with massif for B<perl -e0> for most major
-releases, non-threaded.
+releases, non-threaded. (I<m0>)
 
   release       memory usage
   ==========================
@@ -625,14 +673,17 @@ releases, non-threaded.
   5.12.5	112494
   5.14.4	115511
   5.16.3	118067
-  5.18.4	122128
-  5.20.2	127253
-  5.22.1	127970
-  5.22.1c	118640
-  5.22.2c	115015
-  5.24.0	127363
+  5.18.4	121992
+  5.20.3	127223
+  5.22.2	127961
+  5.22.4c	150722
+  5.24.1	130859
+  5.24.2c	140041
+  5.26.0        119240
+  5.26.1c       131504
+  5.27.2c       138381
 
-For B<perl -MConfig -Mstrict -Mwarnings -V:ccflags>:
+For B<perl -MConfig -Mstrict -Mwarnings -V:ccflags> (I<p0>):
 
   release       memory usage
   ==========================
@@ -644,18 +695,17 @@ For B<perl -MConfig -Mstrict -Mwarnings -V:ccflags>:
   5.12.5	656194
   5.14.4	718838
   5.16.3	734030
-  5.18.2	878407
-  5.20.0	891716
-  5.20.2	882824
-  5.21.9	936898
-  5.21.10	918720
-  5.21.11	888951
-  5.22.0	888978
-  5.22.1c	595302
-  5.22.2c	641251
-  5.24.0	825211
+  5.18.4	800224
+  5.20.3	838428
+  5.22.2	812375
+  5.22.4c	596665
+  5.24.1	815414
+  5.24.2c	602570
+  5.26.0        815329
+  5.26.1c	603860
+  5.27.2c	606807
 
-With unicode: B<perl -C -E'use utf8; my $s="x≈x"; $s=~s/a≈e//i;'>:
+With unicode: B<perl -C -E'use utf8; my $s="x≈x"; $s=~s/a≈e//i;'> (I<p1>):
 
   release       memory usage
   ==========================
@@ -667,12 +717,15 @@ With unicode: B<perl -C -E'use utf8; my $s="x≈x"; $s=~s/a≈e//i;'>:
   5.12.5	1693931
   5.14.4	1719327
   5.16.3	1941590
-  5.18.2	2338119
-  5.20.2	2451474
-  5.22.0	2616925
-  5.22.1c	2616792
-  5.22.2c	1643170
-  5.24.0	2563329
+  5.18.4	2313133
+  5.20.3	2328494
+  5.22.2	2498574
+  5.22.4c	2536098
+  5.24.1	2478438
+  5.24.2c	2546608
+  5.26.0	2592823
+  5.26.1c	2657428
+  5.27.2c	2660423
 
     valgrind --tool=massif --massif-out-file=massif.$r ...
     grep -h mem_heap_B= massif.$r |cut -c12-|sort -rn|head -n1
@@ -758,6 +811,9 @@ explained below.
  5.18.0         5892 113   1088  79  20077 2760   9365 2439   4943 154
  5.20.0         6243 115   1187  75  19499 2701   9620 2457   5145 159
  5.22.0         7819 115   1284  77  19121 2635   9772 2434   5615 176
+ 5.24.0         7922 113   1287  77  19535 2677   9994 2465   5702 177
+ 5.26.0         9140 121  24925 1200 40643 3017  10514 2614   7854 211
+ 5.26.0c        9650 119   1305  79  22011 2950   4237  640   5952 196
 
 The "core"..."doc" mean the following files from the Perl source code
 distribution.  The glob notation ** means recursively, (.) means
@@ -1062,25 +1118,47 @@ the Perl source distribution for somewhat more selected releases.
 
  ======================================================================
 
-                  5.20.0           5.22.0
+                  5.20.0           5.22.0          5.24.0
 
- Configure    552      1       570      1
- Cross        118     15       118     15
- djgpp         18      7        17      7
- h2pl          13     15        13     15
- hints        355     90       356     87
- mad          174      8         -      -
- NetWare      467     61       466     61
- os2          510     70       510     70
- plan9        316     17       317     17
- Porting     1204     68      1393     71
- qnx            1      4         1      4
- symbian      290     54       291     54
- utils        241     27       242     27
- vms          538     12       532     12
- vos            8      7         8      7
- win32       1183     64      1201     64
- x2p          341     19         -      -
+ Configure    552      1       570      1      586      1
+ Cross        118     15       118     15      118     15
+ djgpp         18      7        17      7       17      7
+ h2pl          13     15        13     15       13     15
+ hints        355     90       356     87      362     87
+ mad          174      8         -      -        -      -
+ NetWare      467     61       466     61      467     61
+ os2          510     70       510     70      510     70
+ plan9        316     17       317     17      314     17
+ Porting     1204     68      1393     71     1321     71
+ qnx            1      4         1      4        1      4
+ symbian      290     54       291     54      292     54
+ utils        241     27       242     27      679     53
+ vms          538     12       532     12      524     12
+ vos            8      7         8      7        8      7
+ win32       1183     64      1201     64     1268     65
+ x2p          341     19         -      -        -      -
+
+ ======================================================================
+
+                  5.26.0
+
+ Configure    593      1
+ Cross        122     15
+ djgpp         21      7
+ h2pl          24     15
+ hints        376     87
+ mad            -      -
+ NetWare      499     61
+ os2          552     70
+ plan9        322     17
+ Porting     1380     73
+ qnx            5      4
+ symbian      315     54
+ utils        578     50
+ vms          527     12
+ vos           12      7
+ win32       1313     65
+ x2p            -      -
 
 =head2 SELECTED PATCH SIZES
 

@@ -201,6 +201,9 @@ Less runtime memory: demand-load Carp, Config
 
 =item L<version>  0.9918_02c
 
+With the LYON concensus, affecting some tests with alpha versions.
+e.g. C<v1.1_0> does not warn anymore.
+
 =item L<YAML::LibYAML>  0.75
 
 =back
@@ -238,7 +241,7 @@ well.
 
 =item *
 
-SvREADONLY_off(sv) is only usable as statement, not as expression anymore.
+C<SvREADONLY_off(sv)> is only usable as statement, not as expression anymore.
 It broke Sun C 5.12, in ByteLoader.
 See L<[cperl #183]|https://github.com/perl11/cperl/issues/183>.
 
@@ -283,24 +286,22 @@ L<[cperl #352]|https://github.com/perl11/cperl/issues/352>.
 
 =head1 Acknowledgements
 
-cperl 5.22.5 represents approximately 2 months of development since cperl 5.22.4
-and contains approximately 900,000 lines of changes across 570 files from 13
-authors.
+cperl 5.22.5 represents approximately 17 months of development since cperl
+5.22.4c and contains approximately 140,000 lines of changes across 880 files
+from 3 authors.
 
 Excluding auto-generated files, documentation and release tools, there were
-approximately 7,900 lines of changes to 120 .pm, .t, .c and .h files.
+approximately 54,000 lines of changes to 600 .pm, .t, .c and .h files.
 
-The following people are known to have contributed the improvements
-that became cperl 5.22.5:
+The following people are known to have contributed the improvements that became
+cperl 5.22.5:
 
-Reini Urban, Father Chrysostomos, Karl Williamson, David Mitchell, Daniel
-Dragan, Tony Cook, Lukas Mai, Niko Tyni, H.Merijn Brand, Hugo van der Sanden,
-Dagfinn Ilmari Mannsåker, Aaron Crane, Dan Collins.
+Reini Urban, Slaven Rezic, Father Chrysostomos.
 
 The list above is almost certainly incomplete as it is automatically generated
-from version control history. In particular, it does not include the names of
-the (very much appreciated) contributors who reported issues to the Perl bug
-tracker.
+from version control history including the perl and cperl repos. In particular,
+it does not include the names of the (very much appreciated) contributors who
+reported issues to the Perl bug tracker and the cperl github issues.
 
 Many of the changes included in this version originated in the CPAN modules
 included in Perl's core. We're grateful to the entire CPAN community for
@@ -308,6 +309,10 @@ helping Perl to flourish.
 
 For a more complete list of all of Perl's historical contributors, please see
 the F<AUTHORS> file in the Perl source distribution.
+
+Generated with:
+
+    cperl Porting/acknowledgements.pl cperl-5.22.4..HEAD -c
 
 =head1 Reporting Bugs
 
