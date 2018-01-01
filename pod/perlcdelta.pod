@@ -58,6 +58,8 @@ Support filehandles for C<<< MM->parse_version >>>.
 
 from latest cperl.
 
+=item L<Search::Dict>  1.07_01
+
 =item L<SelectSaver>  1.02_01
 
 3-arg open
