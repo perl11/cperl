@@ -5,7 +5,7 @@ use warnings;
 use vars qw[$VERSION %utilities];
 use Module::CoreList;
 
-$VERSION = '5.20171015c';
+$VERSION = '5.20180106c';
 $VERSION =~ s/c$//;
 
 sub utilities {
@@ -1360,14 +1360,8 @@ our %delta :const = (
         },
         removed => {}
     },
-    '5.026002c' => {
-        delta_from => '5.026001c',
-        changed => {
-        },
-        removed => {}
-    },
     5.027000 => {
-        delta_from => 5.026000,
+        delta_from => 5.026,
         changed => {
         },
         removed => {
@@ -1390,6 +1384,83 @@ our %delta :const = (
         changed => {
             'cperlivp'          => 1,
         },
+        removed => {}
+    },
+    5.022004 => {
+        delta_from => 5.022003,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.024002 => {
+        delta_from => 5.024001,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.027002 => {
+        delta_from => 5.027001,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.027003 => {
+        delta_from => 5.027002,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.027004 => {
+        delta_from => 5.027003,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.024003 => {
+        delta_from => 5.024002,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.026001 => {
+        delta_from => 5.026000,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.027005 => {
+        delta_from => 5.027004,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    '5.027002c' => {
+        delta_from => '5.027001c',
+        changed => {},
+        removed => {}
+    },
+    '5.022005c' => {
+        delta_from => '5.022004c',
+        changed => {},
+        removed => {}
+    },
+    '5.026002c' => {
+        delta_from => '5.026001c',
+        changed => {
+        },
+        removed => {}
+    },
+    '5.027003c' => {
+        delta_from => '5.027002c',
+        changed => {},
         removed => {}
     },
 );
