@@ -299,7 +299,7 @@ new_tmpfile(packname = "IO::File")
 	gv = (GV*)SvREFCNT_inc(newGVgen(packname));
 	if (gv)
 	    (void) hv_delete(GvSTASH(gv), GvNAME(gv), GvNAMELEN(gv), G_DISCARD);
-	if (gv && do_open(gv, "+>&", 3, FALSE, 0, 0, fp)) {
+        if (gv && do_openn(gv, "+>&", 3, FALSE, 0, 0, fp, NULL, 0)) {
 	    ST(0) = sv_2mortal(newRV((SV*)gv));
 	    sv_bless(ST(0), gv_stashpv(packname, TRUE));
 	    SvREFCNT_dec(gv);   /* undo increment in newRV() */
@@ -318,8 +318,11 @@ PPCODE:
 {
 #ifdef HAS_POLL
     const int nfd = (items - 1) / 2;
-    SV *tmpsv = NEWSV(999,nfd * sizeof(struct pollfd));
-    struct pollfd *fds = (struct pollfd *)SvPVX(tmpsv);
+    SV *tmpsv = sv_2mortal(NEWSV(999,nfd * sizeof(struct pollfd)));
+    /* We should pass _some_ valid pointer even if nfd is zero, but it
+     * doesn't matter what it is, since we're telling it to not check any fds.
+     */
+    struct pollfd *fds = nfd ? (struct pollfd *)SvPVX(tmpsv) : (struct pollfd *)tmpsv;
     int i,j,ret;
     for(i=1, j=0  ; j < nfd ; j++) {
 	fds[j].fd = SvIV(ST(i));
@@ -334,7 +337,6 @@ PPCODE:
 	    sv_setiv(ST(i), fds[j].revents); i++;
 	}
     }
-    SvREFCNT_dec(tmpsv);
     XSRETURN_IV(ret);
 #else
 	not_here("IO::Poll::poll");

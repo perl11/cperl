@@ -14,9 +14,24 @@ use Test::More;
 plan skip_all => "UNIX domain sockets not implemented on $^O"
   if ($^O =~ m/^(?:qnx|nto|vos|MSWin32|VMS)$/);
 
-plan tests => 15;
-
 my $socketpath = catfile(tempdir( CLEANUP => 1 ), 'testsock');
+
+# check the socketpath fits in sun_path.
+#
+# pack_sockaddr_un() just truncates the path, this may change, but how
+# it will handle such a condition is undetermined (and we might need
+# to work with older versions of Socket outside of a perl build)
+# https://rt.cpan.org/Ticket/Display.html?id=116819
+
+my $name = eval { pack_sockaddr_un($socketpath) };
+if (defined $name) {
+    my ($packed_name) = eval { unpack_sockaddr_un($name) };
+    if (!defined $packed_name || $packed_name ne $socketpath) {
+        plan skip_all => "socketpath too long for sockaddr_un";
+    }
+}
+
+plan tests => 15;
 
 # start testing stream sockets:
 my $listener = IO::Socket::UNIX->new(Type => SOCK_STREAM,
@@ -36,7 +51,10 @@ SKIP: {
 	unless $Config{d_fork} || $Config{d_pseudofork};
 
     my $cpid = fork();
-    if (0 == $cpid) {
+    if (!defined $cpid) {
+        die "fork failed";
+    }
+    elsif (0 == $cpid) {
 	# the child:
 	sleep(1);
 	my $connector = IO::Socket::UNIX->new(Peer => $socketpath);
@@ -84,7 +102,7 @@ SKIP: {
     my $new = IO::Socket::UNIX->new_from_fd($listener->fileno(), 'r+');
 
     is($new->sockdomain(), $d, 'domain match');
-    SKIP: {
+    SKIP: { # BSD's
       skip "no Socket::SO_PROTOCOL", 1 if !defined(eval { Socket::SO_PROTOCOL });
       skip "SO_PROTOCOL defined but not implemented", 1
          if !defined $new->sockopt(Socket::SO_PROTOCOL);

@@ -791,7 +791,7 @@ use File::Glob qw(:case);
     },
 
     'IO' => {
-        'DISTRIBUTION' => 'GBARR/IO-1.25.tar.gz',
+        'DISTRIBUTION' => 'GBARR/IO-1.38.tar.gz',
         'FILES'        => q[dist/IO/],
         'EXCLUDED'     => ['t/test.pl'],
     },

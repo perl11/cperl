@@ -30,15 +30,19 @@ SKIP: {
 	unless $Config{d_fork} || $Config{d_pseudofork};
 
     my $cpid = fork();
-    if (0 == $cpid) {
+    if (!defined $cpid) {
+        die "fork failed";
+    }
+    elsif (0 == $cpid) {
 	# the child:
 	sleep(1);
 	my $connector = IO::Socket::INET->new(PeerAddr => '127.0.0.1',
 					      PeerPort => $port,
 					      Proto => 'tcp');
 	exit(0);
-    } else {;
-	    ok(defined($cpid), 'spawned a child');
+    }
+    else {
+	ok(defined($cpid), 'spawned a child');
     }
 
     my $new = $listener->accept();
@@ -51,7 +55,7 @@ SKIP: {
     }
 
     is($new->sockdomain(), $d, 'domain match');
-  SKIP: {
+  SKIP: { # BSD's
       skip "no Socket::SO_PROTOCOL", 1 if !defined(eval { Socket::SO_PROTOCOL });
       is($new->protocol(), $p, 'protocol match');
     }
