@@ -128,6 +128,8 @@ Merge 2.97000 from cpan with ours.
 
 =item L<Math::BigInt>  1.999811
 
+=item L<Math::BigRat>  0.2613
+
 =item L<Module::CoreList> 5.20180101c
 
 backported from latest cperl, TieHashDelta is now unused.

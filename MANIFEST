@@ -3684,10 +3684,10 @@ dist/Math-BigRat/t/bigrat.t		Math::BigRat test
 dist/Math-BigRat/t/bigratup.t		test under $Math::BigInt::upgrade
 dist/Math-BigRat/t/bigroot.t		Math::BigRat test
 dist/Math-BigRat/t/bitwise.t		Math::BigRat test
-dist/Math-BigRat/t/blog-mbr.t		Math::BigRat test
 dist/Math-BigRat/t/hang.t		Math::BigRat test for bug #34584 - hang in exp()
 dist/Math-BigRat/t/Math/BigRat/Test.pm	Math::BigRat test helper
 dist/Math-BigRat/t/requirer.t		see if require works properly
+dist/Math-BigRat/t/rt121139.t
 dist/Math-BigRat/t/trap.t		see if trap_nan and trap_inf work
 dist/Module-CoreList/Changes			Module::CoreList Changes
 dist/Module-CoreList/corelist			The corelist command-line utility

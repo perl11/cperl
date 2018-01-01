@@ -15758,6 +15758,7 @@ our %delta = (
             'Math::BigFloat::Subclass' => '0.07',
             'Math::BigFloat::Trace' => '0.47',
             'Math::BigInt::Trace'   => '0.47',
+            'Math::BigRat'          => '0.2613',
             'parent'                => '0.236',
             'Parse::CPAN::Meta'     => '1.5000c',
             'Perl::OSType'          => '1.010',
