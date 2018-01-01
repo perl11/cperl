@@ -70,6 +70,8 @@ Updated from 3.01, many critical fixes.
 
 =item L<VMS::DCLsym>  1.09
 
+=item L<VMS::Stdio>  2.44_01
+
 =back
 
 =head1 Testing

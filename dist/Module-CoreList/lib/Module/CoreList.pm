@@ -15201,6 +15201,7 @@ our %delta = (
             'SelectSaver'           => '1.02_01',
             'Storable'              => '3.05_14',
             'VMS::DCLsym'           => '1.09',
+            'VMS::Stdio'            => '2.44_01',
         },
         removed => {
         }
