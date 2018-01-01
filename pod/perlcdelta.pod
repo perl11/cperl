@@ -148,6 +148,10 @@ Added all the man tests from upstream
 
 =item L<SelfLoader>  1.24
 
+=item L<SelectSaver>  1.02_01
+
+3-arg open
+
 =item L<Socket>  2.024_02
 
 Merge cpan 2.024 with our 2.021_02,

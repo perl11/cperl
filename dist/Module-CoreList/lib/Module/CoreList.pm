@@ -13430,6 +13430,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
 	    'Pod::Text::Termcap'    => '4.09',
 	    'Pod::Usage'            => '1.69',
             'Scalar::Util'          => '1.49_10',
+            'SelectSaver'           => '1.02_01',
             'Sub::Util'             => '1.49_10',
             'Socket'                => '2.24_02',
             'TAP::Base'             => '3.39',

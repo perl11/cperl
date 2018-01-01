@@ -1,6 +1,6 @@
 package SelectSaver;
 
-our $VERSION = '1.02';
+our $VERSION = '1.02_01';
 
 =head1 NAME
 
