@@ -4401,7 +4401,7 @@ PP(pp_system)
 	SvGETMAGIC(origsv); /* twice?! */
         if (TAINT_get)
             break;
-#ifdef WIN32
+#if defined(WIN32) || defined(__VMS)
 	/*
 	 * Because of a nasty platform-specific variation on the meaning
 	 * of arguments to this op, we must preserve numeric arguments
