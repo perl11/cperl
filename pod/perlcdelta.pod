@@ -278,6 +278,8 @@ Fix new Autovivified hash slice warning
 
 Fixup the new pairmap spill code.
 
+=item L<Module::CoreList> 5.20180101c
+
 =item L<Module::Load::Conditional> 0.68_02
 
 Suppress new Autovivified hash slice warning

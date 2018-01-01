@@ -5,7 +5,7 @@ use warnings;
 use vars qw[$VERSION %utilities];
 use Module::CoreList;
 
-$VERSION = '5.20171205c';
+$VERSION = '5.20180101c';
 $VERSION =~ s/c$//;
 
 sub utilities {
@@ -1444,6 +1444,11 @@ our %delta :const = (
     },
     '5.027002c' => {
         delta_from => '5.027001c',
+        changed => {},
+        removed => {}
+    },
+    '5.022005c' => {
+        delta_from => '5.022004c',
         changed => {},
         removed => {}
     },
