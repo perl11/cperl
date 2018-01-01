@@ -434,6 +434,7 @@ pod/cperl.pod	Verbatim line length including indents exceeds 79 by	8
 pod/perl.pod	Verbatim line length including indents exceeds 79 by	8
 pod/perl5221cdelta.pod	Apparent broken link	1
 pod/perl5222cdelta.pod	? Should you be using F<...> or maybe L<...> instead of	1
+pod/perl5225cdelta.pod	Apparent broken link	2
 pod/perl5240cdelta.pod	Apparent broken link	1
 pod/perl5242cdelta.pod	Apparent broken link	2
 pod/perl5260cdelta.pod	Apparent broken link	5
