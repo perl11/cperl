@@ -3582,11 +3582,17 @@ dist/Math-BigInt-FastCalc/t/mbi_rand.t	Math::BigInt::FastCalc extension
 dist/Math-BigInt/lib/Math/BigFloat.pm		An arbitrary precision floating-point arithmetic package
 dist/Math-BigInt/lib/Math/BigInt/CalcEmu.pm	Pure Perl module to support Math::BigInt
 dist/Math-BigInt/lib/Math/BigInt/Calc.pm	Pure Perl module to support Math::BigInt
+dist/Math-BigInt/lib/Math/BigInt/Lib.pm
 dist/Math-BigInt/lib/Math/BigInt.pm	An arbitrary precision integer arithmetic package
 dist/Math-BigInt/t/alias.inc		Support for BigInt tests
 dist/Math-BigInt/t/bare_mbf.t		Test MBF under Math::BigInt::BareCalc
 dist/Math-BigInt/t/bare_mbi.t		Test MBI under Math::BigInt::BareCalc
 dist/Math-BigInt/t/bare_mif.t		Rounding tests under BareCalc
+dist/Math-BigInt/t/bdstr-mbf.t
+dist/Math-BigInt/t/bdstr-mbi.t
+dist/Math-BigInt/t/bestr-mbf.t
+dist/Math-BigInt/t/bestr-mbi.t
+dist/Math-BigInt/t/bfib-mbi.t
 dist/Math-BigInt/t/bigfltpm.inc		Shared tests for bigfltpm.t and sub_mbf.t
 dist/Math-BigInt/t/bigfltpm.t		See if BigFloat.pm works
 dist/Math-BigInt/t/bigintc.t		See if BigInt/Calc.pm works
@@ -3596,18 +3602,36 @@ dist/Math-BigInt/t/bigints.t		See if BigInt.pm works
 dist/Math-BigInt/t/biglog.t		Test the log function
 dist/Math-BigInt/t/big_pi_e.t		test bpi() and bexp()
 dist/Math-BigInt/t/bigroot.t		Test the broot function
+dist/Math-BigInt/t/blucas-mbi.t
+dist/Math-BigInt/t/bnstr-mbf.t
+dist/Math-BigInt/t/bnstr-mbi.t
+dist/Math-BigInt/t/bsstr-mbf.t
+dist/Math-BigInt/t/bsstr-mbi.t
+dist/Math-BigInt/t/calling-class-methods.t
+dist/Math-BigInt/t/calling-instance-methods.t
 dist/Math-BigInt/t/calling.t		Test calling conventions
 dist/Math-BigInt/t/config.t		Test Math::BigInt->config()
 dist/Math-BigInt/t/constant.t		Test Math::BigInt/BigFloat under :constant
 dist/Math-BigInt/t/const_mbf.t		Test Math::BigInt
 dist/Math-BigInt/t/downgrade.t		Test if use Math::BigInt(); under downgrade works
+dist/Math-BigInt/t/dparts-mbf.t
+dist/Math-BigInt/t/dparts-mbi.t
 dist/Math-BigInt/t/_e_math.t		Helper routine in BigFloat for _e math
+dist/Math-BigInt/t/eparts-mbf.t
+dist/Math-BigInt/t/eparts-mbi.t
+dist/Math-BigInt/t/from_bin-mbf.t
+dist/Math-BigInt/t/from_bin-mbi.t
 dist/Math-BigInt/t/from_hex-mbf.t	Test Math::BigInt
+dist/Math-BigInt/t/from_hex-mbi.t
+dist/Math-BigInt/t/from_oct-mbf.t
+dist/Math-BigInt/t/from_oct-mbi.t
 dist/Math-BigInt/t/inf_nan.t		Special tests for inf and *NaN* handling
 dist/Math-BigInt/t/isa.t		Test for Math::BigInt inheritance
 dist/Math-BigInt/t/lib_load.t		Test sane lib names
 dist/Math-BigInt/t/Math/BigFloat/Subclass.pm	Empty subclass of BigFloat for test
 dist/Math-BigInt/t/Math/BigInt/BareCalc.pm	Bigint's simulation of Calc
+dist/Math-BigInt/t/Math/BigInt/Lib/Minimal.pm
+dist/Math-BigInt/t/Math/BigInt/Lib/TestUtil.pm
 dist/Math-BigInt/t/Math/BigInt/Scalar.pm	Pure Perl module to support Math::BigInt
 dist/Math-BigInt/t/Math/BigInt/Subclass.pm	Empty subclass of BigInt for test
 dist/Math-BigInt/t/mbf_ali.t		Tests for BigFloat
@@ -3616,7 +3640,10 @@ dist/Math-BigInt/t/mbimbf.inc		Actual BigInt/BigFloat accuracy, precision and fa
 dist/Math-BigInt/t/mbimbf.t		BigInt/BigFloat accuracy, precision and fallback, round_mode
 dist/Math-BigInt/t/mbi_rand.t		Test Math::BigInt randomly
 dist/Math-BigInt/t/nan_cmp.t		overloaded comparison involving *NaN*
+dist/Math-BigInt/t/new-mbf.t
 dist/Math-BigInt/t/new_overloaded.t	test overloaded numbers in BigFloat's new()
+dist/Math-BigInt/t/nparts-mbf.t
+dist/Math-BigInt/t/nparts-mbi.t
 dist/Math-BigInt/t/objectify_mbf.t	Test Math::BigInt
 dist/Math-BigInt/t/objectify_mbi.t	Test Math::BigInt
 dist/Math-BigInt/t/req_mbf0.t		test: require Math::BigFloat; ->bzero();
@@ -3628,6 +3655,8 @@ dist/Math-BigInt/t/req_mbfw.t		require Math::BigFloat; import ( with => );
 dist/Math-BigInt/t/require.t		Test if require Math::BigInt works
 dist/Math-BigInt/t/round.t		Test rounding with non-integer A and P
 dist/Math-BigInt/t/rt-16221.t		Tests for objectify() w/foreign objs
+dist/Math-BigInt/t/sparts-mbf.t
+dist/Math-BigInt/t/sparts-mbi.t
 dist/Math-BigInt/t/sub_ali.t		Tests for aliases in BigInt subclasses
 dist/Math-BigInt/t/sub_mbf.t		Empty subclass test of BigFloat
 dist/Math-BigInt/t/sub_mbi.t		Empty subclass test of BigInt

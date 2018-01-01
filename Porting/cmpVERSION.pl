@@ -93,6 +93,8 @@ my %skip;
     'win32/FindExt.pm',
     'ext/POSIX/lib/POSIX.pm',
     'cpan/version/t/coretests.pm', # triggers Integer overflow in test module
+    'dist/Math-BigInt/t/Math/BigInt/Scalar.pm',
+    'dist/Math-BigRat/t/Math/BigRat/Test.pm'
 } = ();
 # cperl exceptions
 @skip{qw(cpan/Digest-MD5/MD5.xs 

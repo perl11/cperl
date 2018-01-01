@@ -245,7 +245,8 @@ dist/extutils-constant/lib/extutils/constant.pm	Verbatim line length including i
 dist/extutils-parsexs/lib/extutils/parsexs.pod	line containing nothing but whitespace in paragraph	1
 dist/extutils-parsexs/lib/extutils/typemaps.pm	? Should you be using L<...> instead of	1
 dist/extutils-parsexs/lib/extutils/typemaps.pm	line containing nothing but whitespace in paragraph	4
-dist/math-bigint/lib/math/bigint.pm	Verbatim line length including indents exceeds 79 by	70
+dist/math-bigint/lib/math/bigfloat.pm	Verbatim line length including indents exceeds 79 by	9
+dist/math-bigint/lib/math/bigint.pm	Verbatim line length including indents exceeds 79 by	89
 dist/math-bigrat/lib/math/bigrat.pm	Verbatim line length including indents exceeds 79 by	7
 dist/module-corelist/lib/module/corelist.pod	Verbatim line length including indents exceeds 79 by	4
 dist/module-corelist/lib/module/corelist/utils.pm	Verbatim line length including indents exceeds 79 by	2
@@ -253,7 +254,6 @@ dist/net-ping/lib/net/ping.pm	Apparent broken link	1
 dist/pathtools/lib/file/spec/amigaos.pm	Verbatim line length including indents exceeds 79 by	1
 dist/pathtools/lib/file/spec/mac.pm	? Should you be using L<...> instead of	2
 dist/storable/storable.pm	Verbatim line length including indents exceeds 79 by	4
-dist/threads/lib/threads.pm	Verbatim line length including indents exceeds 79 by	3
 dist/tie-file/lib/tie/file.pm	Verbatim line length including indents exceeds 79 by	3
 ext/config/config_xs.in	Apparent internal link is missing its forward slash	2
 ext/devel-peek/peek.pm	? Should you be using L<...> instead of	1

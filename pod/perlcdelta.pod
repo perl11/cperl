@@ -126,6 +126,8 @@ from latest cperl.
 
 Merge 2.97000 from cpan with ours.
 
+=item L<Math::BigInt>  1.999811
+
 =item L<parent>  0.236
 
 Without C<'> as pkg separator.
