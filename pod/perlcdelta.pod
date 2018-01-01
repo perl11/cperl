@@ -68,6 +68,8 @@ from latest cperl.
 
 Updated from 3.01, many critical fixes.
 
+=item L<VMS::DCLsym>  1.09
+
 =back
 
 =head1 Testing

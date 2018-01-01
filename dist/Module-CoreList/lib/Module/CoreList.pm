@@ -15200,6 +15200,7 @@ our %delta = (
             'Search::Dict'          => '1.07_01',
             'SelectSaver'           => '1.02_01',
             'Storable'              => '3.05_14',
+            'VMS::DCLsym'           => '1.09',
         },
         removed => {
         }
