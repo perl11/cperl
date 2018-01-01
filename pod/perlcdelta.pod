@@ -51,6 +51,8 @@ Coverity CID #165302 Insecure chroot.
 
 Try to fix readonly stacksize.h with perlbrew. [cperl #335]
 
+=item L<VMS::DCLsym>  1.09
+
 =back
 
 =head1 Configuration and Compilation

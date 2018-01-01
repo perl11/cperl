@@ -16215,6 +16215,7 @@ our %delta = (
             'Module::CoreList'      => '5.20170807c',
             'Module::CoreList::Utils'=> '5.20170807c',
             'Storable'              => '3.05_14',
+            'VMS::DCLsym'           => '1.09',
         },
         removed => {
         }
