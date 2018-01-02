@@ -69,7 +69,9 @@ L<[perl #131665]|https://rt.perl.org/Public/Bug/Display.html?id=131665>
 
 =item L<B::Debug>  1.26
 
-=item L<Compress::Raw::Zlib>  2.076
+=item L<Compress::Raw::Zlib>  2.076_01
+
+plus our zlib-src and make -s patches
 
 =item L<Config|XSConfig> 6.23
 
