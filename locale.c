@@ -1824,11 +1824,11 @@ Perl_init_i18nl10n(pTHX_ int printwarn)
     /* setlocale() return vals; not copied so must be looked at immediately.
      * Needs to be initialized via static. See Coverity CID #180984
      * Uninitialized pointer read */
-    static char * sl_result[NOMINAL_LC_ALL_INDEX + 1];
+    static const char * sl_result[NOMINAL_LC_ALL_INDEX + 1];
 
     /* current locale for given category; should have been copied so aren't
      * volatile */
-    static char * curlocales[NOMINAL_LC_ALL_INDEX + 1];
+    static const char * curlocales[NOMINAL_LC_ALL_INDEX + 1];
 
     char * locale_param;
 
@@ -2902,7 +2902,7 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
      * English, it comes down to if the locale's name ends in something like
      * "UTF-8".  It errs on the side of not being a UTF-8 locale. */
 
-    char *save_input_locale = NULL;
+    const char *save_input_locale = NULL;
     STRLEN final_pos;
 
 #  ifdef LC_ALL
@@ -3340,7 +3340,7 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
 
     final_pos = strlen(save_input_locale) - 1;
     if (final_pos >= 3) {
-        char *name = save_input_locale;
+        const char *name = save_input_locale;
 
         /* Find next 'U' or 'u' and look from there */
         while ((name += strcspn(name, "Uu") + 1)
@@ -3512,7 +3512,7 @@ Perl_my_strerror(pTHX_ const int errnum)
 
 #    else
 
-    char * save_locale = NULL;
+    const char * save_locale = NULL;
     bool locale_is_C = FALSE;
 
     /* We have a critical section to prevent another thread from changing the
