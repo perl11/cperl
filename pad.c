@@ -469,21 +469,32 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
     /* remove CvOUTSIDE unless this is an undef rather than a free */
     if (!SvREFCNT(cv)) {
 	CV * outside = CvOUTSIDE(&cvbody);
-	if(outside) {
+	if (outside) {
 	    CvOUTSIDE(&cvbody) = NULL;
-	    if (!CvWEAKOUTSIDE(&cvbody))
+	    if (!CvWEAKOUTSIDE(&cvbody)) {
+#ifdef USE_ITHREADS
+                if (CvCONST(outside) && PL_phase == PERL_PHASE_DESTRUCT)
+                    CvXSUBANY(outside).any_ptr = NULL;
+#endif
 		SvREFCNT_dec_NN(outside);
+            }
 	}
     }
     if (CvCONST(&cvbody)) {
-	SvREFCNT_dec(MUTABLE_SV(CvXSUBANY(&cvbody).any_ptr));
-	/* CvCONST_off(cv); *//* turned off below */
+        SV* sv = MUTABLE_SV(CvXSUBANY(&cvbody).any_ptr);
+        if (sv) {
+            if (SvIS_FREED(sv)) /* avoid double-free */
+                CvXSUBANY(&cvbody).any_ptr = NULL;
+            else
+                SvREFCNT_dec(sv);
+        }
+	CvCONST_off(cv); /* turned off below */
     }
     /* delete all flags except WEAKOUTSIDE and CVGV_RC, which indicate the
      * ref status of CvOUTSIDE and CvGV, and ANON, NAMED and
      * LEXICAL, which are used to determine the sub's name.  */
     CvFLAGS(&cvbody) &= (CVf_WEAKOUTSIDE|CVf_CVGV_RC|CVf_ANON|CVf_LEXICAL
-		   |CVf_NAMED);
+		        |CVf_NAMED);
 }
 
 /*
