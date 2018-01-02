@@ -1,0 +1,357 @@
+=encoding utf8
+
+=head1 NAME
+
+perl5225cdelta - what is new for cperl v5.22.5
+
+=head1 DESCRIPTION
+
+This document describes perl-only differences between the cperl 5.22.4
+release and the cperl 5.22.5 release.
+
+For B<cperl> also see F<Changes> and L<perlcperl>
+
+=head1 Security
+
+=head2 C<@{ \327 \n }> buffer overflows
+
+Fixed C<@{ \327 \n }> tokenizer failures and heap buffer overflows in
+C<sv_vcatpvfn_flags()> with wrong tracking of C<PL_linestr>, the
+currently parsed line buffer. This can easily lead to security
+relevant exploits.
+
+L<[perl #128951]|https://rt.perl.org/Public/Bug/Display.html?id=128951>
+
+=head2 C<eval "q" . chr(overlarge)> stack overflow
+
+In C<eval "q" . chr(100000000064)> generating the error message
+C<Can't find string terminator "XXX"'> was overrunning a local buffer
+designed to hold a single utf8 char, since it wasn't allowing for
+the C<\0> at the end.
+
+L<[perl #128952]|https://rt.perl.org/Public/Bug/Display.html?id=128952>
+
+=head2 Set umask(0600) before calling mkstemp
+
+POSIX 2008 demands such an umask, but it is still problematic on
+Solaris, HP-UX and AIX and older libcs, e.g. glibc <= 2.06.
+The old umask 0177 was insecure.
+
+=head2 Disallow illegal glob with embedded NUL
+
+E.g. C<< <$fh\000> >> throws now the safe syscalls warning, and errors
+with C<Glob not terminated>, and does not pass the illegal glob path
+to the internal or external glob.
+
+See L<[cperl #342]|https://github.com/perl11/cperl/issues/342>
+
+=head2 Follow chroot with chdir("/")
+
+Fixed two security issues with the chroot op:
+
+* fail on embedded NUL in the chroot argument.
+Set C<errno> to EINVAL.
+
+* If a call to chroot is not followed by a call to chdir("/") the
+chroot jail confinement can be violated.  In Perl_pp_chroot: A call to
+chroot followed by an operation that may escape from the chroot jail.
+Coverity CID #165302 Insecure chroot.
+
+=head1 Modules and Pragmata
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item L<Archive::Tar> 2.26
+
+'0' is a valid name for an archive, change 'iter' to check definedness.
+See L<https://metacpan.org/changes/distribution/Archive-Tar>
+
+=item L<B::C>  1.55_06
+
+Better CopFILE_set,
+Fixup arenasize refcnt.
+Delay cvref to init2, properly set a SvRV to a XS sub.
+Optimize constpv for CvFILE (less constants to merge for gcc).
+Improve NV precision by one digit.
+Fix to compile in utf8_heavy.pl, abstract and set %INC.
+Fix generation of @B::C::Config::deps on Windows.
+Fix !C99 precedence bug (e.g. MSVC).
+Minor refactor to simplify save_hek.
+Use the new get_svs, get_avs, get_hvs macros.
+
+=item L<B::Debug>  1.26
+
+=item L<bignum>  0.47
+
+=item L<Config>  6.23
+
+U32_MAX keys on 64bit. Better gperf and C++ support.
+Add --regen.
+
+=item L<CPAN>  2.18_01
+
+Update from upstream 2.16,
+plus keep our cperl and secure YAML:::XS support.
+
+=item L<CPAN::Meta>  2.150010c
+
+Merged with L<Parse::CPAN::Meta>,
+F<cpan/Parse-CPAN-Meta> is gone.
+
+=item L<Cpanel::JSON::XS>  3.0240
+
+Update from upstream
+
+=item L<experimental>  0.019_01c
+
+=item L<ExtUtils::MM_Unix>  8.04_04
+
+Support filehandles for C<<< MM->parse_version >>>.
+
+=item L<ExtUtils::Liblist::Kid>  8.04_06
+
+Silence No library found errors on darwin for libSystem.dylib libs.
+
+=item L<HTTP::Tiny> 0.070
+
+=item L<IO>  1.38
+
+from latest cperl.
+
+=item L<IO::Socket::IP>  0.39
+
+=item L<JSON::PP> 2.97000_04
+
+Merge 2.97000 from cpan with ours.
+
+=item L<Math::BigInt>  1.999811
+
+=item L<Math::BigRat>  0.2613
+
+=item L<Module::CoreList> 5.20180101c
+
+backported from latest cperl, TieHashDelta is now unused.
+
+=item L<parent>  0.236
+
+Without C<'> as pkg separator.
+
+=item L<Perl::OSType>  1.010
+
+Added msys
+
+=item podlators  4.09
+
+Added all the man tests from upstream
+
+=item L<Pod::Perldoc>  3.2801
+
+=item L<Pod::Simple>  3.35
+
+=item L<Pod::Usage>  1.69
+
+=item L<Scalar::Util>  1.49_10
+
+=item L<SelfLoader>  1.24
+
+=item L<SelectSaver>  1.02_01
+
+3-arg open
+
+=item L<Socket>  2.024_02
+
+Merge cpan 2.024 with our 2.021_02,
+plus fix some problems in their new code.
+
+=item L<Sys::Syslog>  0.35
+
+=item L<Term::ANSIColor>  4.06
+
+=item L<Term::ReadKey>  2.37_03
+
+from cperl 5.27.3c
+
+=item L<Test::Harness>  3.39
+
+Fix and re-enable F<t/regression.t>
+
+=item L<Thread::Queue>  3.12
+
+=item L<Thread::Semaphore>  2.13
+
+=item L<threads>  2.18_01
+
+=item L<threads::shared>  1.57
+
+=item L<Time::HiRes>  1.9747_01
+
+More Darwin thread fixes for clock_gettime,
+Sierra support,
+test improvements.
+
+=item L<Time::Local>  1.25
+
+Less runtime memory: demand-load Carp, Config
+
+=item L<Time::Piece>  1.3203
+
+=item L<Unicode::Collate>  1.25
+
+=item L<version>  0.9918_02c
+
+With the LYON concensus, affecting some tests with alpha versions.
+e.g. C<v1.1_0> does not warn anymore.
+
+=item L<YAML::LibYAML>  0.75
+
+=back
+
+=head1 Utility Changes
+
+=head2 F<installperl>
+
+=over 4
+
+=item *
+
+Fixed cperl.exe and cperl*.lib installation on windows.
+
+=back
+
+=head1 Testing
+
+=over 4
+
+=item *
+
+F<t/porting/cmp_version.t> was fixed together with EUMM to handle
+parsing versions from filehandles. Backported.
+
+=back
+
+=head1 Internal Changes
+
+Changes which affect the interface available to C<XS> code go here.  Other
+significant internal changes for future core maintainers should be noted as
+well.
+
+=over 4
+
+=item *
+
+C<SvREADONLY_off(sv)> is only usable as statement, not as expression anymore.
+It broke Sun C 5.12, in ByteLoader.
+See L<[cperl #183]|https://github.com/perl11/cperl/issues/183>.
+
+=back
+
+=head1 Selected Bug Fixes
+
+=over 4
+
+=item aelem_u: fix loop oob for padav
+
+Out-of-bounds check elimination in loops has been fixed for lexical
+counters.  E.g. with C<my @a=(0..4); for my $i (0..$#a) { $a[$i] }> each
+access to C<$a[$i]> in the loop is now really converted to the
+unchecked faster B<aelem_u> op.
+
+Note that multideref ops are not yet converted to omit out-of-bounds
+checks. This is only implemented since cperl-5.25, since it needs to
+widen the internal mderef structure.
+
+=item fixed -DH crash on clear
+
+When clearing a hv (with refcnt 0), HvKEYS crashed with an
+invalid mg on a placeholder. Just use HvTOTALKEYS instead.
+
+=item Check for null in pp_ghostent et al.
+
+Specifically in the C<S_space_join_names_mortal> static function that
+several pp functions call.  On some platforms (such as Gentoo Linux
+with torsocks), C<< hent->h_aliases >> (where C<hent> is a C<struct hostent *>) may
+be null after a C<gethostent> call.
+
+L<[perl #128740]|https://rt.perl.org/Public/Bug/Display.html?id=128740>
+
+=item DynaLoader::dl_find_symbol_anywhere
+
+Fixed return type of C<DynaLoader::dl_find_symbol_anywhere()>,
+the address, not the name.
+L<[cperl #352]|https://github.com/perl11/cperl/issues/352>.
+
+=back
+
+=head1 Acknowledgements
+
+cperl 5.22.5 represents approximately 17 months of development since cperl
+5.22.4c and contains approximately 140,000 lines of changes across 880 files
+from 3 authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 54,000 lines of changes to 600 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements that became
+cperl 5.22.5:
+
+Reini Urban, Slaven Rezic, Father Chrysostomos.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history including the perl and cperl repos. In particular,
+it does not include the names of the (very much appreciated) contributors who
+reported issues to the Perl bug tracker and the cperl github issues.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+Generated with:
+
+    cperl Porting/acknowledgements.pl cperl-5.22.4..HEAD -c
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the articles recently
+posted to the comp.lang.perl.misc newsgroup and the perl bug database at
+https://rt.perl.org/ .  There may also be information at
+http://www.perl.org/ , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the F<perlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
+
+If you think it's a cperl specific bug or trust the cperl developers more 
+please file an issue at L<https://github.com/perl11/cperl/issues>.
+
+If the bug you are reporting has security implications, which make it
+inappropriate to send to a publicly archived mailing list, then please send it
+to perl5-security-report@perl.org.  This points to a closed subscription
+unarchived mailing list, which includes all the core committers, who will be
+able to help assess the impact of issues, figure out a resolution, and help
+co-ordinate the release of patches to mitigate or fix the problem across all
+platforms on which Perl is supported.  Please only use this address for
+security issues in the Perl core, not for modules independently distributed on
+CPAN.
+
+If you trust the cperl developers more, please send an email to
+them. The p5p security teams skips many security issues, or are
+unwilling to fix them.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut

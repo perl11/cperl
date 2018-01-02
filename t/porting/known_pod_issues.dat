@@ -362,6 +362,8 @@ dist/extutils-makemaker/lib/extutils/mm_os2.pm	Verbatim line length including in
 dist/extutils-makemaker/lib/extutils/mm_unix.pm	Verbatim line length including indents exceeds 79 by	6
 dist/extutils-makemaker/lib/extutils/mm_vms.pm	Verbatim line length including indents exceeds 79 by	1
 dist/extutils-makemaker/lib/extutils/mm_win32.pm	Verbatim line length including indents exceeds 79 by	1
+dist/module-corelist/blib/script/corelist	Pod NAME already used	1
+dist/module-corelist/corelist	Pod NAME already used	1
 dist/net-ping/lib/net/ping.pm	Apparent broken link	1
 dist/pod-simple/lib/pod/simple.pod	Apparent broken link	8
 dist/pod-simple/lib/pod/simple.pod	Verbatim line length including indents exceeds 79 by	1
@@ -422,16 +424,17 @@ pod/cperl.pod	Pod NAME already used	1
 pod/cperl.pod	Verbatim line length including indents exceeds 79 by	8
 pod/perl.pod	Verbatim line length including indents exceeds 79 by	8
 pod/perl5222cdelta.pod	? Should you be using F<...> or maybe L<...> instead of	1
+pod/perl5225cdelta.pod	Apparent broken link	1
 pod/perl5240cdelta.pod	Apparent broken link	1
 pod/perl5242cdelta.pod	Apparent broken link	2
 pod/perl5260cdelta.pod	Apparent broken link	4
 pod/perl5260cdelta.pod	unresolved internal link	2
 pod/perl5261cdelta.pod	Apparent broken link	2
-pod/perl5261cdelta.pod	Pod NAME already used	2
-pod/perl5262cdelta.pod	Apparent broken link	2
-pod/perl5262cdelta.pod	Pod NAME already used	1
+pod/perl5261cdelta.pod	Pod NAME already used	1
 pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	3
-pod/perlapi.pod	Verbatim line length including indents exceeds 79 by	6
+pod/perlapi.pod	? Should you be using L<...> instead of	1
+pod/perlapi.pod	Apparent broken link	3
+pod/perlapi.pod	Verbatim line length including indents exceeds 79 by	14
 pod/perlbook.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlcdelta.pod	Apparent broken link	2
 pod/perlcdelta.pod	Pod NAME already used	1
@@ -451,7 +454,7 @@ pod/perlhack.pod	? Should you be using L<...> instead of	1
 pod/perlhist.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlhpux.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlintern.pod	Non-ASCII character seen before =encoding. Assuming UTF-8	1
-pod/perlintern.pod	Verbatim line length including indents exceeds 79 by	77
+pod/perlintern.pod	Verbatim line length including indents exceeds 79 by	88
 pod/perlintern.pod	line containing nothing but whitespace in paragraph	4
 pod/perlinterp.pod	? Should you be using L<...> instead of	1
 pod/perlirix.pod	Verbatim line length including indents exceeds 79 by	1
