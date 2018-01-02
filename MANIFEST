@@ -293,8 +293,12 @@ cpan/Config-Perl-V/t/27_plv5202.t		Config::Perl::V
 cpan/Config-Perl-V/t/28_plv52201w.t		Config::Perl::V
 cpan/Config-Perl-V/t/28_plv5220.t		Config::Perl::V
 cpan/Config-Perl-V/t/28_plv522c.t		Config::Perl::V
+cpan/Config-Perl-V/t/28_plv526c.t
+cpan/Config-Perl-V/t/28_plv5272c.t
 cpan/Config-Perl-V/t/29_plv5235w.t		Config::Perl::V
 cpan/Config-Perl-V/t/30_plv5240.t		Config::Perl::V
+cpan/Config-Perl-V/t/31_plv52511.t
+cpan/Config-Perl-V/t/32_plv5261rc1.t
 cpan/Config-Perl-V/V.pm				Config::Perl::V
 cpan/Cpanel-JSON-XS/bin/cpanel_json_xs
 cpan/Cpanel-JSON-XS/t/00_load.t

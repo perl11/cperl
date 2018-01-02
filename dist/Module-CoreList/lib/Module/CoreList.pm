@@ -15888,6 +15888,7 @@ our %delta = (
             'Compress::Raw::Bzip2'  => '2.074',
             'Compress::Raw::Zlib'   => '2.076',
             'Config'                => '6.23',
+            'Config::Perl::V'       => '0.29_01',
             'CPAN'                  => '2.18_01',
             'CPAN::Bundle'          => '5.5002',
             'CPAN::Distribution'    => '2.18_01',

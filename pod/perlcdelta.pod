@@ -85,9 +85,12 @@ plus our FLAG_APPEND_OUTPUT patches
 
 =item L<Compress::Raw::Zlib>  2.076_01
 
-plus our patches
+plus our patches.
+https://github.com/madler/zlib/pull/329
 
 =item L<Config|XSConfig> 6.23
+
+=item L<Config::Perl::V>  0.29_01
 
 =item L<CPAN>  2.18_01
 

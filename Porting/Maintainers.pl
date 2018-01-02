@@ -311,12 +311,12 @@ use File::Glob qw(:case);
     },
 
     'Config::Perl::V' => {
-        'DISTRIBUTION' => 'HMBRAND/Config-Perl-V-0.27.tgz',
+        'DISTRIBUTION' => 'HMBRAND/Config-Perl-V-0.29.tgz',
         'FILES'        => q[cpan/Config-Perl-V],
         'EXCLUDED'     => [qw(
 		examples/show-v.pl
 		)],
-        # added cperl support and 5.22 tests
+        # added cperl support and tests, keep short format
         'CUSTOMIZED'   => [ qw[ V.pm t/28_plv522.t t/28_plv522c.t ] ],
     },
 
