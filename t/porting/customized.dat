@@ -21,7 +21,7 @@ CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/lib/CPAN/Meta/Requirements.
 CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/t/accepts.t 35d1924588d5f9f89aec2164476eb98e93f05a5e
 CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/t/strings.t 86347bcaac1ccbf0eb5e96a544eba22bbdef9365
 CPAN::Meta::YAML cpan/CPAN-Meta-YAML/t/lib/TestUtils.pm 89535dc9f122a77a8320df27e5929aa574196753
-Compress::Raw::Bzip2 cpan/Compress-Raw-Bzip2/Bzip2.xs da250401c7fbbb3bf8abe57a53e92dda000dc3e6
+Compress::Raw::Bzip2 cpan/Compress-Raw-Bzip2/Bzip2.xs e91c3c75664f726792c82eb588bb67b8e6de73fd
 Compress::Raw::Zlib cpan/Compress-Raw-Zlib/Zlib.xs fa7cfc65b266928d789af50588f7454aaef22670
 Config::Perl::V cpan/Config-Perl-V/t/28_plv522c.t aa8d82945028d74b2c0ee8feba7bf127930ffd8a
 Config::Perl::V cpan/Config-Perl-V/V.pm 74b5c9278c618b0dc2534064f804228588cda18b

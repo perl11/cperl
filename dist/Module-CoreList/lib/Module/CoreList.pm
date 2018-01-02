@@ -15885,6 +15885,7 @@ our %delta = (
             'B::C'                  => '1.55_06',
             'B::BBlock'             => '1.05',
             'B::Debug'              => '1.26',
+            'Compress::Raw::Bzip2'  => '2.074',
             'Config'                => '6.23',
             'CPAN'                  => '2.18_01',
             'CPAN::Bundle'          => '5.5002',

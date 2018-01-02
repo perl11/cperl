@@ -3,13 +3,13 @@
 use strict ;
 require 5.006 ;
 
+use lib '.';
 use private::MakeUtil;
 use ExtUtils::MakeMaker 5.16 ;
 
 my $WALL= '';
-$WALL = ' -Wall -Wno-comment ' if $Config{'cc'} =~ /gcc/ ;
+$WALL = ' -Wall -Wno-comment ' if $Config{'cc'} =~ /\bgcc/ and $Config{gccversion};
 my $USE_PPPORT_H = ($ENV{PERL_CORE}) ? '' : '-DUSE_PPPORT_H';
-
 
 my $BUILD_BZIP2 = defined($ENV{BUILD_BZIP2}) ? $ENV{BUILD_BZIP2} : 1;
 my $BZIP2_LIB = defined($ENV{BZIP2_LIB}) ? $ENV{BZIP2_LIB} : 'bzip2-src';
