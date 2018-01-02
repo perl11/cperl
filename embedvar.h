@@ -191,6 +191,7 @@
 #define PL_laststatval		(vTHX->Ilaststatval)
 #define PL_laststype		(vTHX->Ilaststype)
 #define PL_lex_encoding		(vTHX->Ilex_encoding)
+#define PL_locale_utf8ness	(vTHX->Ilocale_utf8ness)
 #define PL_localizing		(vTHX->Ilocalizing)
 #define PL_localpatches		(vTHX->Ilocalpatches)
 #define PL_lockhook		(vTHX->Ilockhook)
