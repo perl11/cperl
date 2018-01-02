@@ -18,6 +18,7 @@ B-C/script/perlcc
 DB_File/dbr*
 Devel-NYTProf/t/nytprof-50-errno.out
 Devel-NYTProf/t/nytprof_readstream.out
+Term-ReadKey/blockoptions
 Term-ReadKey/cchars.h
 Term-ReadKey/ReadKey.pm
 YAML-LibYAML/t/output/
