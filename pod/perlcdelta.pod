@@ -172,6 +172,22 @@ L<[perl #131260]|https://rt.perl.org/Public/Bug/Display.html?id=131260>
 The parser could sometimes crash if a bareword came after C<evalbytes>.
 L<[perl #129196]|https://rt.perl.org/Public/Bug/Display.html?id=129196>
 
+=item *
+
+Many issues relating to C<printf "%a"> of hexadecimal floating point were
+fixed.  In addition, the "subnormals" (formerly known as "denormals") floating
+point numbers are now supported both with the plain IEEE 754 floating point
+numbers (64-bit or 128-bit) and the x86 80-bit "extended precision".  Note that
+subnormal hexadecimal floating point literals will give a warning about
+"exponent underflow".
+L<[perl #128843]|https://rt.perl.org/Public/Bug/Display.html?id=128843>
+L<[perl #128888]|https://rt.perl.org/Public/Bug/Display.html?id=128888>
+L<[perl #128889]|https://rt.perl.org/Public/Bug/Display.html?id=128889>
+L<[perl #128890]|https://rt.perl.org/Public/Bug/Display.html?id=128890>
+L<[perl #128893]|https://rt.perl.org/Public/Bug/Display.html?id=128893>
+L<[perl #128909]|https://rt.perl.org/Public/Bug/Display.html?id=128909>
+L<[perl #128919]|https://rt.perl.org/Public/Bug/Display.html?id=128919>
+
 =back
 
 =head1 Platform Support
