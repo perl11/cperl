@@ -216,7 +216,7 @@ sub GET_pmflags {
 package B::Disassembler;
 use Exporter;
 @ISA       = qw(Exporter);
-@EXPORT_OK = qw(disassemble_fh get_header print_insn print_insn_bare @opname);
+our @EXPORT_OK = qw(disassemble_fh get_header print_insn print_insn_bare @opname);
 use Carp;
 use strict;
 use B::Asmdata qw(%insn_data @insn_name);

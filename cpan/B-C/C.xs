@@ -3,6 +3,11 @@
 #include <perl.h>
 #include <XSUB.h>
 
+#ifdef __cplusplus
+/* Static OP* initialization 2x */
+# error B-C cannot yet be compiled with C++
+#endif
+
 #ifndef PM_GETRE
 # if defined(USE_ITHREADS) && (PERL_VERSION > 8)
 #  define PM_GETRE(o)     (INT2PTR(REGEXP*,SvIVX(PL_regex_pad[(o)->op_pmoffset])))
@@ -21,6 +26,9 @@
 #ifndef RX_EXTFLAGS
 # define RX_EXTFLAGS(prog) ((prog)->extflags)
 #endif
+#ifndef _OP_SIBPARENT_FIELDNAME
+# define _OP_SIBPARENT_FIELDNAME op_sibling
+#endif
 
 #if PERL_VERSION < 10
 #undef  MY_CXT_INIT
@@ -32,6 +40,15 @@
 #endif
 #if PERL_VERSION == 19 && (PERL_SUBVERSION > 2 && PERL_SUBVERSION <= 4)
 #define need_op_folded
+#endif
+#if !defined(USE_ITHREADS) || (PERL_VERSION >= 10 && PERL_VERSION < 20)
+#define need_make_sv_object
+#endif
+#if PERL_VERSION >= 10 && PERL_VERSION < 20
+#define need_HvARRAY_utf8
+#endif
+#if (PERL_VERSION >= 15) && defined(USE_ITHREADS) && defined(CopSTASH_flags)
+#define need_COP_stashflags
 #endif
 
 typedef struct magic  *B__MAGIC;
@@ -58,6 +75,7 @@ typedef struct {
 
 #if PERL_VERSION >= 10
 
+#ifdef need_make_sv_object
 static const char* const svclassnames[] = {
     "B::NULL",
 #if PERL_VERSION < 19
@@ -86,6 +104,7 @@ static const char* const svclassnames[] = {
     "B::FM",
     "B::IO",
 };
+#endif
 
 #define MY_CXT_KEY "B::C::_guts" XS_VERSION
 
@@ -98,6 +117,8 @@ START_MY_CXT
 
 #define walkoptree_debug	(MY_CXT.x_walkoptree_debug)
 #define specialsv_list		(MY_CXT.x_specialsv_list)
+
+#ifdef need_make_sv_object
 
 static SV *
 make_sv_object(pTHX_ SV *sv)
@@ -122,6 +143,7 @@ make_sv_object(pTHX_ SV *sv)
 }
 
 #endif
+#endif
 
 static int
 my_runops(pTHX)
@@ -139,7 +161,7 @@ my_runops(pTHX)
 	if (PL_debug) {
 	    if (PL_watchaddr && (*PL_watchaddr != PL_watchok))
 		PerlIO_printf(Perl_debug_log,
-			      "WARNING: %"UVxf" changed from %"UVxf" to %"UVxf"\n",
+			      "WARNING: %" UVxf " changed from %" UVxf " to %" UVxf "\n",
 			      PTR2UV(PL_watchaddr), PTR2UV(PL_watchok),
 			      PTR2UV(*PL_watchaddr));
 #if defined(DEBUGGING) \
@@ -180,7 +202,7 @@ my_runops(pTHX)
             Copy( PL_op, op, 1, PMOP );
             /* we need just the flags */
             op->op_next = NULL;
-            op->op_sibling = NULL;
+            op->_OP_SIBPARENT_FIELDNAME = NULL;
             op->op_first = NULL;
             op->op_last = NULL;
 
@@ -507,6 +529,7 @@ aux_list_thr(o)
             } /* OP_SIGNATURE */
 #endif
         } /* switch */
+	XSRETURN(0); /* force removal of PUTBACK, return */
 
 #endif
 
@@ -519,17 +542,6 @@ PadnameGEN(padn)
 	B::PADNAME	padn
     CODE:
         RETVAL = padn->xpadn_gen;
-    OUTPUT:
-	RETVAL
-
-MODULE = B	PACKAGE = B::PADLIST	PREFIX = Padlist
-
-U32
-PadlistID(padlist)
-	B::PADLIST	padlist
-    ALIAS: B::PADLIST::OUTID = 1
-    CODE:
-        RETVAL = ix ? padlist->xpadl_outid : padlist->xpadl_id;
     OUTPUT:
 	RETVAL
 
@@ -553,7 +565,7 @@ RX_EXTFLAGS(rx)
 
 MODULE = B	PACKAGE = B::COP	PREFIX = COP_
 
-#if (PERL_VERSION >= 15) && defined(USE_ITHREADS) && defined(CopSTASH_flags)
+#ifdef need_COP_stashflags
 
 #define COP_stashflags(o)	CopSTASH_flags(o)
 
@@ -585,7 +597,8 @@ MODULE = B__CC	PACKAGE = B::CC
 
 PROTOTYPES: DISABLE
 
-# Perl_ck_null is not exported on Windows, so disable autovivification optimizations there
+# Perl_ck_null is not exported on Windows, so disable autovivification
+# optimizations there
 
 U32
 _autovivification(cop)
@@ -656,7 +669,7 @@ op_folded(op)
 
 MODULE = B	PACKAGE = B::HV		PREFIX = Hv
 
-#if PERL_VERSION >= 10 && PERL_VERSION < 20
+#ifdef need_HvARRAY_utf8
 
 void
 HvARRAY_utf8(hv)

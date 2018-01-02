@@ -4,6 +4,13 @@ use File::Spec;
 use 5.006;
 use Carp;
 
+
+if ($Config{d_cplusplus}) {
+    # ByteLoader/Bytecode can but don't bother
+    print "error B-C cannot yet be compiled with C++\n";
+    exit(1);
+}
+
 my $CORE = $ENV{PERL_CORE} || grep { $_ eq 'PERL_CORE=1' } @ARGV;
 mkdir "lib/B/C" unless -d "lib/B/C";
 unless (-e 'lib/B/C/Config.pm') {
@@ -162,6 +169,10 @@ elsif ($] > 5.015005 and $] < 5.019004) {
 }
 
 my $perlcc = File::Spec->catfile("script", "perlcc");
+if ($CORE and $^O eq 'MSWin32') {
+    $perldll = $Config{usecperl} ? "cperl*.dll" : "perl*.dll";
+    system("copy ..\..\$perldll *.*");
+}
 
 WriteMakefile(
     NAME	 => "B::C",
@@ -175,8 +186,8 @@ WriteMakefile(
 		   'ExtUtils::Embed' => '1.25' # mandatory (missing on redhat)
                    #'B'        => '1.0901' # required but in CORE
                   },
-    'AUTHOR'   => 'Malcolm Beattie (retired), '
-	      .   'Reini Urban <perl-compiler@googlegroups.com>',
+    'AUTHOR'   => 'Reini Urban <perl-compiler@googlegroups.com>, '
+                . 'Malcolm Beattie (retired)',
     'ABSTRACT' => 'Perl compiler',
     'LICENSE'  => 'perl',
     # was in core until 5.9.5, need to update it there
@@ -213,9 +224,10 @@ WriteMakefile(
                "lib/B/Asmdata.pm script/perlcc ccode* cccode* Ccode* lib/B/C/Config.pm ".
  	       "*.core *.stackdump a.out a.exe *.cee *.c *.asm *.dbg *.plc *.obj ".
                "*.concise *~ dll.base dll.exp mod.pl pcc* *.bak *.a ".
-               "t/CORE/v5.*/*/*.bin t/CORE/v5.*/*/*.c Io_argv* t/CORE/v5.*/*/*.subtest.*.t".
-               "t/CORE/v5.*/xtestc* t/CORE/v5.*/C-COMPILED/xtestc/*.t".
-               "t/CORE/v5.*/tmp* tmp*"
+               "t/CORE/v5.*/*/*.bin t/CORE/v5.*/*/*.c Io_argv* t/CORE/v5.*/*/*.subtest.*.t ".
+               "t/CORE/v5.*/xtestc* t/CORE/v5.*/C-COMPILED/xtestc/*.t ".
+               "t/CORE/v5.*/tmp* tmp* ".
+               "perl*.dll cperl*.dll "
              },
 );
 
@@ -421,7 +433,7 @@ sub ccflags {
     # Recommended by http://www.network-theory.co.uk/docs/gccintro/gccintro_32.html
     # -ansi -pedantic -Wall -W -Wconversion -Wshadow -Wcast-qual -Wwrite-strings (-W => -WExtra)
     $ccflags .= " -ansi -pedantic -Wall -Wextra -Wconversion -Wshadow -Wcast-qual -Wwrite-strings"
-      if $Config{cc} =~ /gcc/;
+      if $Config{cc} =~ /\bgcc/ and $Config{gccversion};
 }
 
 sub depend {
@@ -467,7 +479,7 @@ sub subdirs {
         return $s . "
 
 subdirs ::
-	\$(PERL) $bytehintspatched
+	\$(PERL) \"-I\$(PERL_ARCHLIB)\" $bytehintspatched
 ";
     } else {
         $s

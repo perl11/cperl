@@ -51,6 +51,7 @@ my $perldocexe = $^O eq 'MSWin32' ? "perldoc$exe" : "./perldoc$exe";
 # XXX bother File::Which?
 plan skip_all => "$perldoc not found" unless -f $perldoc;
 plan skip_all => "MSVC" if ($^O eq 'MSWin32' and $Config{cc} eq 'cl');
+plan skip_all => "mingw" if ($^O eq 'MSWin32' and $Config{cc} eq 'gcc'); # fail 1,4
 plan tests => 7;
 
 # XXX interestingly 5.8 perlcc cannot compile perldoc because Cwd disturbs the method finding

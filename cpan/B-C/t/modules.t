@@ -41,11 +41,14 @@ use Config;
 
 my $ccopts;
 BEGIN {
-  plan skip_all => "skipped: Overlong tests, timeout on Appveyor CI"
+  plan skip_all => "Overlong tests, timeout on Appveyor CI"
     if $^O eq 'MSWin32' and $ENV{APPVEYOR};
   if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
     # MSVC takes an hour to compile each binary unless -Od
     $ccopts = '"--Wc=-Od"';
+  } elsif ($^O eq 'MSWin32' and $Config{cc} eq 'gcc') {
+    # mingw is much better but still insane with <= 4GB RAM
+    $ccopts = '"--Wc=-O0"';
   } else {
     $ccopts = '';
   }
@@ -275,14 +278,16 @@ for my $module (@modules) {
     }}
 }
 
-my $count = scalar @modules - $skip;
-log_diag("$count / $module_count modules tested with B-C-${B::C::VERSION} - "
-         .$Config{usecperl}?"c":""."perl-$perlversion");
-log_diag(sprintf("pass %3d / %3d (%s)", $pass, $count, percent($pass,$count)));
-log_diag(sprintf("fail %3d / %3d (%s)", $fail, $count, percent($fail,$count)));
-log_diag(sprintf("todo %3d / %3d (%s)", $todo, $fail, percent($todo,$fail)));
-log_diag(sprintf("skip %3d / %3d (%s not installed)\n",
-                 $skip, $module_count, percent($skip,$module_count)));
+if (!$ENV{PERL_CORE}) {
+  my $count = scalar @modules - $skip;
+  log_diag("$count / $module_count modules tested with B-C-${B::C::VERSION} - "
+           .$Config{usecperl}?"c":""."perl-$perlversion");
+  log_diag(sprintf("pass %3d / %3d (%s)", $pass, $count, percent($pass,$count)));
+  log_diag(sprintf("fail %3d / %3d (%s)", $fail, $count, percent($fail,$count)));
+  log_diag(sprintf("todo %3d / %3d (%s)", $todo, $fail, percent($todo,$fail)));
+  log_diag(sprintf("skip %3d / %3d (%s not installed)\n",
+                   $skip, $module_count, percent($skip,$module_count)));
+}
 
 exit;
 
@@ -365,6 +370,10 @@ sub is_todo {
     #)) { return '>= 5.22 with threads SEGV' if $_ eq $module; }}
     #if ($] >= 5.022) { foreach(qw(
     #)) { return '>= 5.22 with threads, no ok' if $_ eq $module; }}
+    # but works with msvc
+    if ($^O eq 'MSWin32' and $Config{cc} eq 'gcc') { foreach(qw(
+      Pod::Usage
+    )) { return 'mingw' if $_ eq $module; }}
   } else { #no threads --------------------------------
     #if ($] > 5.008008 and $] <= 5.009) { foreach(qw(
     #  ExtUtils::CBuilder

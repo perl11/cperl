@@ -1,11 +1,11 @@
 # Maintained now in B::C by Reini Urban <rurban@cpan.org>
 package B::Bblock;
 
-our $VERSION = '1.04';
+our $VERSION = '1.05';
 
 use Exporter ();
-@ISA       = "Exporter";
-@EXPORT_OK = qw(find_leaders);
+@ISA = "Exporter";
+our @EXPORT_OK = qw(find_leaders);
 
 use B qw(peekop walkoptree walkoptree_exec
   main_root main_start svref_2object
@@ -15,6 +15,10 @@ use strict;
 
 my $bblock;
 my @bblock_ends;
+# don't load Config with its dependencies
+use B::C ();
+sub CPERL56 () { ($B::C::Config::Config{usecperl} and $] >= 5.025003) ? 1 : 0 } #sibparent, xpad_cop_seq
+sub PUSHRE  () { ($] >= 5.025006 or CPERL56) ? "split" : "pushre" }
 
 sub mark_leader {
   my $op = shift;
@@ -121,7 +125,7 @@ sub B::LISTOP::mark_if_leader {
 sub B::PMOP::mark_if_leader {
   my $op = shift;
   if (  $op->type
-    and $op->name ne "pushre"
+    and $op->name ne PUSHRE
     and ($] > 5.008005 or $op->name ne "substcont") )
   {
     #warn $op->name, $op->type if $] == 5.008004;

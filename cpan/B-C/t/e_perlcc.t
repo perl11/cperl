@@ -53,6 +53,10 @@ my $redir = $^O eq 'MSWin32' ? '' : '2>&1';
 my $devnull = $^O eq 'MSWin32' ? '' : '2>/dev/null';
 # VC takes a couple hours to compile each executable in -O1
 my $Wcflags = $^O eq 'MSWin32' && $Config{cc} =~ /cl/ ? ' --Wc=-Od' : '';
+if ($^O eq 'MSWin32' && $Config{cc} =~ /gcc/) { # mingw is not much better
+  $Wcflags = ' --Wc=-O0';
+}
+my $ITHREADS = $Config{useithreads};
 #my $o = '';
 #$o = "-Wb=-fno-warnings" if $] >= 5.013005;
 #$o = "-Wb=-fno-fold,-fno-warnings" if $] >= 5.013009;
@@ -91,40 +95,32 @@ $e = q("use Data::Dumper ();Data::Dumper::Dumpxs({});print q(ok)");
 is(`$perlcc -r -e $e  $devnull`, "ok", "-r xs ".($usedl ? "dynamic" : "static")); #12
 cleanup;
 
-SKIP: {
-  #skip "--staticxs hangs on darwin", 10 if $^O eq 'darwin';
- TODO: {
-    # fails 5.8 and sometimes on darwin, msvc also
-    local $TODO = '--staticxs is experimental' if $] < 5.010 or $^O eq 'darwin';
+TODO: {
+    # fails 5.8 and before sometimes on darwin, msvc also.
+    local $TODO = '--staticxs is experimental on darwin and <5.10' if $] < 5.010
+      or $^O eq 'darwin';
     is(`$perlcc --staticxs -r -e $e $devnull`, "ok", "-r --staticxs xs"); #13
     ok(-e $a_exe, "keep default executable"); #14
-  }
-  ok(! -e 'a.out.c', "delete a.out.c file without -S");
-  ok(! -e 'a.out.c.lst', "delete a.out.c.lst without -S");
-  cleanup;
+}
+ok(! -e 'a.out.c',     "delete a.out.c file without -S");
+ok(! -e 'a.out.c.lst', "delete a.out.c.lst without -S");
+cleanup;
 
- TODO: {
-    local $TODO = '--staticxs is experimental' if $] < 5.010 or $^O eq 'darwin';
+TODO: {
+    local $TODO = '--staticxs -S is experimental on darwin and <5.10'
+      if $] < 5.010 or $^O eq 'darwin';
     is(`$perlcc --staticxs -S -o pcc -r -e $e  $devnull`, "ok",
        "-S -o -r --staticxs xs"); #17
     ok(-e $a, "keep executable"); #18
-  }
-  ok(-e 'pcc.c', "keep pcc.c file with -S");
-  ok(-e 'pcc.c.lst', "keep pcc.c.lst with -S");
-  cleanup;
-
- TODO: {
-    # since 5.18 IO is re-added
-    local $TODO = '5.18 added IO (darwin only)' if $] >= 5.018 and $^O eq 'darwin';
-    is(`$perlcc --staticxs -S -o pcc -O3 -r -e "print q(ok)"  $devnull`, "ok", #21
-       "-S -o -r --staticxs without xs");
-  }
- TODO: {
-    local $TODO = '5.18 added IO' if $] >= 5.018;
-    ok(! -e 'pcc.c.lst', "no pcc.c.lst without xs"); #22
-  }
-  cleanup;
 }
+ok(-e 'pcc.c',     "keep pcc.c file with -S");
+ok(-e 'pcc.c.lst', "keep pcc.c.lst with -S");
+cleanup;
+
+is(`$perlcc --staticxs -S -o pcc -O3 -r -e "print q(ok)"  $devnull`, "ok", #21
+   "-S -o -r --staticxs without xs");
+ok(! -e 'pcc.c.lst', "no pcc.c.lst without xs"); #22
+cleanup;
 
 my $f = "pcc.pl";
 open F,">",$f;

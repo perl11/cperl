@@ -508,9 +508,9 @@ static int bget_swab = 0;
 #define BSET_data(dummy,arg)						\
     STMT_START {							\
 	GV *gv;								\
-	char *pname = "main";						\
-	if (arg == 'D')							\
-	    pname = HvNAME(PL_curstash ? PL_curstash : PL_defstash);	\
+	const char *pname = (arg == 'D') ?                              \
+          HvNAME(PL_curstash ? PL_curstash : PL_defstash)               \
+          : "main";                                                     \
 	gv = gv_fetchpv(Perl_form(aTHX_ "%s::DATA", pname), GV_ADD, SVt_PVIO);\
 	GvMULTI_on(gv);							\
 	if (!GvIO(gv))							\
@@ -845,9 +845,12 @@ static int bget_swab = 0;
   } STMT_END
 #endif
 
+#ifndef _OP_SIBPARENT_FIELDNAME
+#  define _OP_SIBPARENT_FIELDNAME op_sibling
+#endif
 #ifndef OpSIBLING
-#  define OpSIBLING(o)        (o)->op_sibling
-#  define OpSIBLING_set(o, v) (o)->op_sibling = (v)
+#  define OpSIBLING(o)        (o)->_OP_SIBPARENT_FIELDNAME
+#  define OpSIBLING_set(o, v) (o)->_OP_SIBPARENT_FIELDNAME = (v)
 #  define OpMAYBESIB_set(o, s, p) OpSIBLING_set(o, s)
 #else
 #  ifndef OpSIBLING_set

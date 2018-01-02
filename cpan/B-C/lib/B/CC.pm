@@ -3,7 +3,7 @@
 #      Copyright (c) 1996, 1997, 1998 Malcolm Beattie
 #      Copyright (c) 2009, 2010, 2011 Reini Urban
 #      Copyright (c) 2010 Heinz Knutzen
-#      Copyright (c) 2012-2015 cPanel Inc
+#      Copyright (c) 2012-2017 cPanel Inc
 #
 #      You may distribute under the terms of either the GNU General Public
 #      License or the Artistic License, as specified in the README file.
@@ -726,8 +726,7 @@ sub cc_queue {
     # curse in sv_clean_objs() checks for ->op_next->op_type
     $fakeop_next = $start->next->save;
   }
-  my $fakeop = B::FAKEOP->new( "next" => $fakeop_next, sibling => 0, ppaddr => $name,
-                               targ=>0, type=>0, flags=>0, private=>0);
+  my $fakeop = B::FAKEOP->new( "next" => $fakeop_next, ppaddr => $name );
   $start = $fakeop->save;
   debug "cc_queue: name $name returns $start\n" if $debug{queue};
   return $start;
@@ -1200,7 +1199,7 @@ sub declare_pad {
 # for cc: unique ascii representation of an utf8 string, for labels
 sub encode_utf8($) {
   my $l = shift;
-  if ($] > 5.006 and utf8::is_utf8($l)) {
+  if ($] > 5.007 and utf8::is_utf8($l)) {
     #  utf8::encode($l);
     #  $l =~ s/([\x{0100}-\x{ffff}])/sprintf("u%x", $1)/ge;
     #$l = substr(B::cstring($l), 1, -1);
@@ -1817,10 +1816,13 @@ sub pp_gvsv {
   else {
     $gvsym = $op->gv->save;
   }
+  write_back_stack();
   # Expects GV*, not SV* PL_curpad
   $gvsym = "(GV*)$gvsym" if $gvsym =~ /PL_curpad/;
-  write_back_stack();
-  if ( $op->private & OPpLVAL_INTRO ) {
+  if ($gvsym eq '(SV*)&PL_sv_undef') {
+    runtime("XPUSHs($gvsym);");
+  }
+  elsif ( $op->private & OPpLVAL_INTRO ) {
     runtime("XPUSHs(save_scalar($gvsym));");
     #my $obj = new B::Stackobj::Const($op->gv);
     #push( @stack, $obj );

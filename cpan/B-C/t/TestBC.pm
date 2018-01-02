@@ -769,7 +769,7 @@ sub cc_harness {
 }
 
 sub tests {
-    my $in = shift || "t/TESTS";
+    my $in = shift @ARGV || "t/TESTS";
     $in = "TESTS" unless -f $in;
     undef $/;
     open TEST, "< $in" or die "Cannot open $in";
@@ -790,7 +790,10 @@ sub run_cc_test {
     ($fnbackend,$opt) = $fnbackend =~ /^(cc?)(,-o.)?/;
     $opt =~ s/,-/_/ if $opt;
     $opt = '' unless $opt;
-    #if ($] > 5.021006 and $fnbackend eq 'cc') { print "ok $cnt # skip CC for 5.22 WIP\n"; return 1; }
+    #if ($] > 5.023007 and $fnbackend eq 'cc' and !$Config{usecperl}) {
+        #print "ok $cnt # skip CC for 5.24\n";
+        #return 1;
+    #}
     use Config;
     require B::C::Config;
     # note that the smokers run the c.t and c_o3.t tests in parallel, with possible
@@ -848,7 +851,8 @@ sub run_cc_test {
             if ($Config{ccversion} eq '12.0.8804') {
                 $command =~ s/ -opt:ref,icf//;
             }
-            $command .= " -Od" if $ENV{APPVEYOR};
+            $command .= " -Od"; # not only appveyor.
+            $command =~ s{ [/-]O[123]}{ };
             my $obj = $obj[0];
             $command =~ s/ \Q-o $exe\E / -c -Fo$obj /;
             my $cmdline = "$Config{cc} $command >NUL"; # need to silence it
@@ -865,10 +869,9 @@ sub run_cc_test {
            ." -L../.. -l$pkg ".$Config{libs}
           : ExtUtils::Embed::ldopts('-std');
         # At least cygwin gcc-4.3 crashes with 2x -fstack-protector
-        $linkargs =~ s/-fstack-protector\b//
-          if $linkargs !~ /-fstack-protector-strong\b/
-          and $command =~ /-fstack-protector\b/
-          and $linkargs =~ /-fstack-protector\b/;
+        $linkargs =~ s/-fstack-protector //
+          if $command =~ /-fstack-protector /
+          and $linkargs =~ /-fstack-protector /;
 
         if ($^O =~ /^(cygwin|MSWin32|msys)/) {
             if (index($command, "Win32CORE") < 0) {
@@ -883,7 +886,7 @@ sub run_cc_test {
                     $linkargs .= " $win32core";
                 }
             }
-            $linkargs .= " -Od" if $ENV{APPVEYOR};
+            $linkargs .= " -Od" if $ENV{APPVEYOR} and $^O eq 'MSWin32';
         }
 	if ( -e "$coredir/$libperl" and $libperl !~ /\.$so$/) {
 	    $command .= $linkargs;
@@ -920,8 +923,8 @@ sub run_cc_test {
                     return 1;
                 }
             }
-            if ($todo and $todo =~ /TODO/) {
-                $todo =~ s/TODO //;
+            if ($todo and $todo =~ /TODO /) {
+                $todo =~ s/TODO //g;
               TODO:
                 {
                     local $TODO = $todo;
@@ -939,16 +942,21 @@ sub run_cc_test {
         ($result,$out,$stderr) = run_cmd($exe, 5);
         if (defined($out) and !$result) {
             if ($out =~ /^$expect$/) {
-                ok(1, $todo eq '#' ? "" : " $todo");
+                if ($todo eq '#') {
+                    ok(1);
+                } else {
+                    ok(1, $todo);
+                }
                 unlink ($test, $cfile, $exe, @obj) unless $keep_c;
                 return 1;
             } else {
                 # cc test failed, double check uncompiled
-                $got = run_perl(verbose  => $ENV{TEST_VERBOSE}, # for debugging
-                                nolib    => $ENV{PERL_CORE} ? 0 : 1, # include ../lib only in CORE
-                                stderr   => 1, # to capture the "ccode.pl syntax ok"
-                                timeout  => 10,
-                                progfile => $test);
+                $got = run_perl
+                  (verbose  => $ENV{TEST_VERBOSE}, # for debugging
+                   nolib    => $ENV{PERL_CORE} ? 0 : 1, # include ../lib only in CORE
+                   stderr   => 1, # to capture the "ccode.pl syntax ok"
+                   timeout  => 10,
+                   progfile => $test);
                 if (! $? and $got =~ /^$expect$/) {
                     ok(1, "$todo wanted: \"$expect\", got: \"$out\"");
                 } else {
@@ -963,11 +971,11 @@ sub run_cc_test {
         }
     }
     if ($todo and $todo =~ /TODO/) {
-	$todo =~ s/TODO //;
+	$todo =~ s/#TODO//g;
       TODO:
         {
-	    local $TODO = $todo;
-            ok(0, "$todo wanted: \"$expect\", \$\? = $?, got: \"$out\"");
+	    local $TODO = $todo ? $todo : $];
+            ok(0, "wanted: \"$expect\", \$\? = $?, got: \"$out\"");
 	}
     } else {
         ok(0, "wanted: \"$expect\", \$\? = $?, got: \"$out\"");
@@ -1149,7 +1157,7 @@ sub plctest {
     chomp $out;
     my $ok = $out =~ /$expected/;
     if ($todo and $todo =~ /TODO/) {
-	$todo =~ s/TODO //;
+	$todo =~ s/TODO //g;
       TODO: {
 	    local $TODO = $todo;
 	    ok($ok);
@@ -1172,7 +1180,11 @@ sub ctest {
     my ($num, $expected, $backend, $base, $script, $todo) =  @_;
     my $name = $base."_$num";
     my $b = $backend; # protect against parallel test name clashes
-    #if ($] > 5.021006 and $backend =~ /^CC/i) { ok(1, "skip CC for 5.22 WIP"); return 1; } # temp 5.22
+    my $CPERL = $Config{usecperl};
+    #if ($] > 5.021006 and $backend =~ /^CC/i) { ok(1, "skip CC for 5.22 WIP"); return 1; }
+    #if ($] >= 5.025 and !$CPERL and $todo !~ /TODO /) {
+    #    $todo .= 'TODO  - no 5.26 yet';
+    #}
     $b =~ s/-(D.*|f.*|v),//g;
     $b =~ s/-/_/g;
     $b =~ s/[, ]//g;
@@ -1212,7 +1224,7 @@ sub ctest {
             ok(1, "skip MSVC"); return 1;
         }
 	if ($todo and $todo =~ /TODO/) {
-	    $todo =~ s/TODO //;
+	    $todo =~ s/TODO //g;
           TODO: {
                 local $TODO = $todo;
                 ok(undef, "failed to compile");
@@ -1237,7 +1249,7 @@ sub ctest {
             }
         }
 	if ($todo and $todo =~ /TODO/) {
-	    $todo =~ s/TODO //;
+	    $todo =~ s/TODO //g;
           TODO: {
                 local $TODO = $todo;
                 ok ($out =~ /$expected/);
@@ -1248,7 +1260,7 @@ sub ctest {
         }
     } else {
 	if ($todo and $todo =~ /TODO/) {
-	    $todo =~ s/TODO //;
+	    $todo =~ s/TODO //g;
           TODO: {
                 local $TODO = $todo;
                 ok (undef);
@@ -1291,7 +1303,7 @@ sub ccompileok {
     my $ok = -e $name or -e "$name.exe";
     if ($todo and $todo =~ /TODO/) {
       TODO: {
-	    $todo =~ s/TODO //;
+	    $todo =~ s/TODO //g;
             local $TODO = $todo;
             ok($ok);
         }
@@ -1308,6 +1320,7 @@ sub todo_tests_default {
     my $what = shift;
     my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);
     my $ITHREADS  = ($Config{useithreads});
+    my $CPERL     = ($Config{usecperl});
 
     my @todo  = ();
     # no IO::Scalar
@@ -1317,6 +1330,7 @@ sub todo_tests_default {
     push @todo, 28 if $] > 5.023 and
       ($Config{cc} =~ / -m32/ or $Config{ccflags} =~ / -m32/);
     push @todo, (21, 38) if $^O eq 'cygwin'; #hangs
+    push @todo, (15,27,41..45) if $] >= 5.025 and !$CPERL;
 
     if ($what =~ /^c(|_o[1-4])$/) {
         # a regression
@@ -1326,6 +1340,7 @@ sub todo_tests_default {
         #push @todo, (48) if $] >= 5.018; # opfree
         push @todo, (48) if $what eq 'c_o4' and $] < 5.021 and $ITHREADS;
         push @todo, (8,18,19,25,26,28)  if $what eq 'c_o4' and !$ITHREADS;
+        #push @todo, (10) if $what eq 'c_o4' and $] > 5.023;
         push @todo, (29) if $] >= 5.021006 and $ITHREADS;
         push @todo, (10,15,27,41,42,43,44,45,49,50)
           if $] >= 5.021006 and $what eq 'c_o4';
@@ -1351,10 +1366,11 @@ sub todo_tests_default {
 	#push @todo, (27)    if $] > 5.008008 and $] < 5.009 and $what eq 'cc_o2';
         push @todo, (103)   if ($] >= 5.012 and $] < 5.014 and !$ITHREADS);
         push @todo, (12,19) if $] >= 5.019; # XXX had 25 also
-        push @todo, (25)    if $] >= 5.021006 and !$Config{usecperl};
+        push @todo, (25)    if $] >= 5.021006 and !$CPERL;
 	push @todo, (29)    if $] >= 5.021006 and $what eq 'cc_o1';
 	push @todo, (24,29) if $] >= 5.021006 and $what eq 'cc_o2';
-        push @todo, (103)   if ($Config{usecperl} and $ITHREADS);
+        push @todo, (103)   if $CPERL and $ITHREADS;
+        push @todo, (9,10,15,24,26,27,41..45,103) if $] > 5.023007 and !$CPERL;
     }
     push @todo, (48)   if $] > 5.007 and $] < 5.009 and $^O =~ /MSWin32|cygwin/i;
     return @todo;

@@ -87,7 +87,7 @@ sub nice1 ($) { }
 my %optype_enum;
 my ($SVt_PVGV, $SVf_FAKE, $POK);
 if ($PERL56) {
-  sub dowarn {};
+  *dowarn = sub {};
   $SVt_PVGV = 13;
   $SVf_FAKE = 0x00100000;
   $POK = 0x00040000 | 0x04000000;
@@ -115,7 +115,7 @@ for ( my $i = 0 ; $i < @optype ; $i++ ) {
 }
 
 BEGIN {
-  my $ithreads = $Config::Config{'useithreads'} eq 'define';
+  my $ithreads = defined $Config::Config{'useithreads'} && $Config::Config{'useithreads'} eq 'define';
   eval qq{
 	sub ITHREADS() { $ithreads }
 	sub VERSION() { $] }
@@ -183,7 +183,7 @@ sub sv_flags($;$) {
 
   # TODO: Check with which Concise and B versions this works. 5.10.0 fails.
   # B::Concise 0.66 fails also
-  sub B::Concise::fmt_line { return shift; }
+  *B::Concise::fmt_line = sub { return shift };
   my $op = $ops{ $tix - 1 };
   if (ref $op and !$op->targ) { # targ assumes a valid curcv
     %h = B::Concise::concise_op( $op );
@@ -957,7 +957,7 @@ sub B::OP::bsave_thin {
     if ($] >= 5.019002 and $op->can('folded')) {
       asm "op_folded", $op->folded if $op->folded;
     }
-    if ($] >= 5.021002 and $[ < 5.021011 and $op->can('lastsib')) {
+    if ($] >= 5.021002 and $] < 5.021011 and $op->can('lastsib')) {
       asm "op_lastsib", $op->lastsib if $op->lastsib;
     }
     elsif ($] >= 5.021011 and $op->can('moresib')) {
