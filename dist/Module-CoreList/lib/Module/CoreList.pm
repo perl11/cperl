@@ -15896,6 +15896,7 @@ our %delta = (
             'CPAN::Plugin'          => '0.96',
             'CPAN::Shell'           => '5.5006',
             'CPAN::Version'         => '5.5003', 
+            'Cpanel::JSON::XS'      => '3.0240',
             'ExtUtils::MM_Unix'	    => '8.04_05',
             'IO'                    => '1.38',
             'IO::Handle'            => '1.37',

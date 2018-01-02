@@ -338,11 +338,13 @@ cpan/Cpanel-JSON-XS/t/22_comment_at_eof.t
 cpan/Cpanel-JSON-XS/t/23_array_ctx.t
 cpan/Cpanel-JSON-XS/t/24_freeze_recursion.t
 cpan/Cpanel-JSON-XS/t/25_boolean.t
+cpan/Cpanel-JSON-XS/t/26_duplicate.t
 cpan/Cpanel-JSON-XS/t/31_bom.t
 cpan/Cpanel-JSON-XS/t/52_object.t
 cpan/Cpanel-JSON-XS/t/53_readonly.t
 cpan/Cpanel-JSON-XS/t/54_stringify.t
 cpan/Cpanel-JSON-XS/t/55_modifiable.t
+cpan/Cpanel-JSON-XS/t/96_interop_pp.t
 cpan/Cpanel-JSON-XS/t/96_interop.t
 cpan/Cpanel-JSON-XS/t/96_mojo.t
 cpan/Cpanel-JSON-XS/t/97_unshare_hek.t

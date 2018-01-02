@@ -3,15 +3,15 @@ use strict;
 use Test::More;
 BEGIN {
   # allow_unknown method added to JSON::PP in 2.09
-  eval 'use JSON 2.09 (); 1'
-    or plan skip_all => 'JSON 2.09 required for cross testing';
+  eval 'use JSON::PP 2.09 (); 1'
+    or plan skip_all => 'JSON::PP 2.09 required for cross testing';
   $ENV{PERL_JSON_BACKEND} = 'JSON::PP';
 }
 plan tests => 32;
-use JSON ();
+use JSON::PP ();
 use Cpanel::JSON::XS ();
 
-my $pp = JSON->new;
+my $pp = JSON::PP->new;
 my $json = Cpanel::JSON::XS->new;
 
 eval q| $json->encode( [ sub {} ] ) |;

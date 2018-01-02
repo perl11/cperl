@@ -1,72 +1,76 @@
-use Test::More tests => 155;
+use Test::More tests => 162;
 use utf8;
 use Cpanel::JSON::XS;
+use warnings;
 
-is(Cpanel::JSON::XS->new->allow_nonref (1)->utf8 (1)->encode ("ü"), "\"\xc3\xbc\"");
-is(Cpanel::JSON::XS->new->allow_nonref (1)->encode ("ü"), "\"ü\"");
+is(Cpanel::JSON::XS->new->allow_nonref->utf8->encode("ü"), "\"\xc3\xbc\"");
+is(Cpanel::JSON::XS->new->allow_nonref->encode("ü"), "\"ü\"");
 
-is(Cpanel::JSON::XS->new->allow_nonref (1)->ascii (1)->utf8 (1)->encode (chr 0x8000), '"\u8000"');
-is(Cpanel::JSON::XS->new->allow_nonref (1)->ascii (1)->utf8 (1)->pretty (1)->encode (chr 0x10402), "\"\\ud801\\udc02\"\n");
+is(Cpanel::JSON::XS->new->allow_nonref->ascii->utf8->encode(chr 0x8000), '"\u8000"');
+is(Cpanel::JSON::XS->new->allow_nonref->ascii->utf8->pretty->encode(chr 0x10402), "\"\\ud801\\udc02\"\n");
 
-SKIP: {
-  skip "5.6", 1 if $] < 5.008;
-  eval { Cpanel::JSON::XS->new->allow_nonref (1)->utf8 (1)->decode ('"ü"') };
-  like $@, qr/malformed UTF-8/;
-}
+ok not defined eval { Cpanel::JSON::XS->new->allow_nonref->utf8->decode('"ü"') };
+like $@, qr/malformed UTF-8/;
 
-is(Cpanel::JSON::XS->new->allow_nonref (1)->decode ('"ü"'), "ü");
-is(Cpanel::JSON::XS->new->allow_nonref (1)->decode ('"\u00fc"'), "ü");
-if ($] < 5.008) {
-  eval { decode_json ('"\ud801\udc02' . "\x{10204}\"", 1) };
-  like $@, qr/malformed UTF-8/;
-} else {
-  is(Cpanel::JSON::XS->new->allow_nonref (1)->decode ('"\ud801\udc02' . "\x{10204}\""), "\x{10402}\x{10204}");
-}
-is(Cpanel::JSON::XS->new->allow_nonref (1)->decode ('"\"\n\\\\\r\t\f\b"'), "\"\012\\\015\011\014\010");
+is(Cpanel::JSON::XS->new->allow_nonref->decode('"ü"'), "ü");
+is(Cpanel::JSON::XS->new->allow_nonref->decode('"\u00fc"'), "ü");
 
-my $love = $] < 5.008 ? "I \342\235\244 perl" : "I ❤ perl";
-is(Cpanel::JSON::XS->new->ascii->encode ([$love]),
-   $] < 5.008 ? '["I \u00e2\u009d\u00a4 perl"]' : '["I \u2764 perl"]', 'utf8 enc ascii');
-is(Cpanel::JSON::XS->new->latin1->encode ([$love]),
-      $] < 5.008 ? "[\"I \342\235\244 perl\"]" : '["I \u2764 perl"]', 'utf8 enc latin1');
+ok not defined eval { decode_json ('"\ud801\udc02' . "\x{10204}\"", 1) };
+like $@, qr/Wide character/;
 
 SKIP: {
   skip "5.6", 1 if $] < 5.008;
-  require Encode;
-  # [RT #84244] wrong complaint: JSON::XS double encodes to ["I â¤ perl"]
-  #             and with utf8 triple encodes it to ["I Ã¢ÂÂ¤ perl"]
-  if ($Encode::VERSION < 2.40 or $Encode::VERSION >= 2.54) { # Encode stricter check: Cannot decode string with wide characters
-    # see also http://stackoverflow.com/questions/12994100/perl-encode-pm-cannot-decode-string-with-wide-character
-    $love = "I \342\235\244 perl";
-  }
-  my $s = Encode::decode_utf8($love); # User tries to double decode wide-char to unicode with Encode
-  is(Cpanel::JSON::XS->new->utf8->encode ([$s]), "[\"I \342\235\244 perl\"]", 'utf8 enc utf8 [RT #84244]');
+  is(Cpanel::JSON::XS->new->allow_nonref->decode('"\ud801\udc02' . "\x{10204}\""), "\x{10402}\x{10204}");
 }
-is(Cpanel::JSON::XS->new->binary->encode ([$love]), '["I \xe2\x9d\xa4 perl"]', 'utf8 enc binary');
+
+is(Cpanel::JSON::XS->new->allow_nonref->decode('"\"\n\\\\\r\t\f\b"'), "\"\012\\\015\011\014\010");
+
+my $utf8_love = "I \342\235\244 perl";
+is(Cpanel::JSON::XS->new->ascii->encode([$utf8_love]), '["I \u00e2\u009d\u00a4 perl"]', 'utf8 enc ascii');
+is(Cpanel::JSON::XS->new->latin1->encode([$utf8_love]), "[\"I \342\235\244 perl\"]", 'utf8 enc latin1');
+is(Cpanel::JSON::XS->new->utf8->encode([$utf8_love]), "[\"I \303\242\302\235\302\244 perl\"]", 'utf8 enc utf8');
+is(Cpanel::JSON::XS->new->binary->encode([$utf8_love]), '["I \xe2\x9d\xa4 perl"]', 'utf8 enc binary');
+
+SKIP: {
+  skip "5.6", 4 if $] < 5.008;
+  my $unicode_love = "I ❤ perl";
+  is(Cpanel::JSON::XS->new->ascii->encode([$unicode_love]), '["I \u2764 perl"]', 'unicode enc ascii');
+  is(Cpanel::JSON::XS->new->latin1->encode([$unicode_love]), "[\"I \\u2764 perl\"]", 'unicode enc latin1');
+  is(Cpanel::JSON::XS->new->utf8->encode([$unicode_love]), "[\"I \342\235\244 perl\"]", 'unicode enc utf8');
+  is(Cpanel::JSON::XS->new->binary->encode([$unicode_love]), '["I \xe2\x9d\xa4 perl"]', 'unicode enc binary');
+}
 
 # TODO: test utf8 hash keys,
 # test utf8 strings without any char > 0x80.
 
 # warn on the 66 non-characters as in core
 {
-  my $w;
-  require warnings;
-  warnings->unimport($] < 5.014 ? 'utf8' : 'nonchar');
+  BEGIN { 'warnings'->import($] < 5.014 ? 'utf8' : 'nonchar') }
+  my $w = '';
   $SIG{__WARN__} = sub { $w = shift };
   my $d = Cpanel::JSON::XS->new->allow_nonref->decode('"\ufdd0"');
   my $warn = $w;
-  is ($d, "\x{fdd0}", substr($warn,0,31)."...");
+  {
+    no warnings 'utf8';
+    is ($d, "\x{fdd0}", substr($warn,0,31)."...");
+  }
   like ($warn, qr/^Unicode non-character U\+FDD0 is/);
   $w = '';
   # higher planes
   $d = Cpanel::JSON::XS->new->allow_nonref->decode('"\ud83f\udfff"');
   $warn = $w;
-  is ($d, "\x{1ffff}", substr($warn,0,31)."...");
+  {
+    no warnings 'utf8';
+    is ($d, "\x{1ffff}", substr($warn,0,31)."...");
+  }
   like ($w, qr/^Unicode non-character U\+1FFFF is/);
   $w = '';
   $d = Cpanel::JSON::XS->new->allow_nonref->decode('"\ud87f\udffe"');
   $warn = $w;
-  is ($d, "\x{2fffe}", substr($warn,0,31)."...");
+  {
+    no warnings 'utf8';
+    is ($d, "\x{2fffe}", substr($warn,0,31)."...");
+  }
   like ($w, qr/^Unicode non-character U\+2FFFE is/);
 
   $w = '';
@@ -77,12 +81,15 @@ is(Cpanel::JSON::XS->new->binary->encode ([$love]), '["I \xe2\x9d\xa4 perl"]', '
 }
 {
   my $w;
-  warnings->unimport($] < 5.014 ? 'utf8' : 'nonchar');
+  BEGIN { 'warnings'->import($] < 5.014 ? 'utf8' : 'nonchar') }
   $SIG{__WARN__} = sub { $w = shift };
   # no warning with relaxed
   my $d = Cpanel::JSON::XS->new->allow_nonref->relaxed->decode('"\ufdd0"');
   my $warn = $w;
-  is ($d, "\x{fdd0}", "no warning with relaxed");
+  {
+    no warnings 'utf8';
+    is ($d, "\x{fdd0}", "no warning with relaxed");
+  }
   is($w, undef);
 }
 
@@ -144,9 +151,9 @@ my @ill =
 {
   # these are no multibyte codepoints, just raw utf8 bytes,
   # so most of them work with 5.6 also.
-  $^W = 1;
+  BEGIN { $^W = 1 }
+  BEGIN { 'warnings'->import($] < 5.014 ? 'utf8' : 'nonchar') }
   my $w;
-  warnings->import($] < 5.014 ? 'utf8' : 'nonchar');
   $SIG{__WARN__} = sub { $w = shift };
 
   for my $ill (@ill) {

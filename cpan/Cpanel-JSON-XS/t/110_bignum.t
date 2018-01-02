@@ -38,7 +38,7 @@ is("$num", '2.0000000000000000001', 'decode bigfloat') or Dump $num;
 $e = $json->encode($num);
 is($e, '2.0000000000000000001', 'encode bigfloat') or Dump $e;
 
-my $num = $json->decode(q|[100000000000000000000000000000000000000]|)->[0];
+$num = $json->decode(q|[100000000000000000000000000000000000000]|)->[0];
 
 isa_ok( $num, 'Math::BigInt' );
 is(
