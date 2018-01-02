@@ -1828,7 +1828,6 @@ Perl_init_i18nl10n(pTHX_ int printwarn)
                                     /* disallow with "" or "0" */
                                     *bad_lang_use_once
                                     && strNEc(bad_lang_use_once, "0")))));
-    bool done = FALSE;
     /* setlocale() return vals; not copied so must be looked at immediately.
      * Needs to be initialized via static. See Coverity CID #180984
      * Uninitialized pointer read */
@@ -1837,8 +1836,6 @@ Perl_init_i18nl10n(pTHX_ int printwarn)
     /* current locale for given category; should have been copied so aren't
      * volatile */
     static const char * curlocales[NOMINAL_LC_ALL_INDEX + 1];
-
-    char * locale_param;
 
 #  ifdef WIN32
 
@@ -1901,20 +1898,19 @@ Perl_init_i18nl10n(pTHX_ int printwarn)
     assert(NOMINAL_LC_ALL_INDEX == LC_ALL_INDEX);
 #    endif
 #  endif    /* DEBUGGING */
-#  ifndef LOCALE_ENVIRON_REQUIRED
-
-    PERL_UNUSED_VAR(done);
-    PERL_UNUSED_VAR(locale_param);
-
-#  else
+#  ifdef LOCALE_ENVIRON_REQUIRED
 
     /*
      * Ultrix setlocale(..., "") fails if there are no environment
      * variables from which to get a locale name.
      */
 
-#    ifdef LC_ALL
+#    ifndef LC_ALL
+#      error Ultrix without LC_ALL not implemented
+#    else
 
+    {
+        bool done = FALSE;
     if (lang) {
 	sl_result[LC_ALL_INDEX] = do_setlocale_c(LC_ALL, setlocale_init);
         DEBUG_LOCALE_INIT(LC_ALL, setlocale_init, sl_result[LC_ALL_INDEX]);
@@ -1924,6 +1920,7 @@ Perl_init_i18nl10n(pTHX_ int printwarn)
 	    setlocale_failure = TRUE;
     }
     if (! setlocale_failure) {
+        const char * locale_param;
         for (i = 0; i < LC_ALL_INDEX; i++) {
             locale_param = (! done && (lang || PerlEnv_getenv(category_names[i])))
                            ? setlocale_init
@@ -1934,6 +1931,7 @@ Perl_init_i18nl10n(pTHX_ int printwarn)
             }
             DEBUG_LOCALE_INIT(categories[i], locale_param, sl_result[i]);
         }
+    }
     }
 
 #    endif /* LC_ALL */
