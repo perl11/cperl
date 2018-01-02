@@ -211,7 +211,7 @@ foreach my $pm_file (sort keys %module_diffs) {
     ++$count;
 
     if (!defined $orig_pm_version || $orig_pm_version eq 'undef') { # sigh
-        print "ok $count - SKIP Can't parse \$VERSION in $pm_file\n"
+        print "ok $count - SKIP Can't parse \$VERSION in $pm_file from git tag $tag_to_compare\n"
           if $tap;
     } elsif (!defined $pm_version || $pm_version eq 'undef') {
         my $nok = "not ok $count - in $pm_file version was $orig_pm_version, now unparsable\n";
