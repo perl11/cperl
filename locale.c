@@ -559,7 +559,7 @@ Perl_set_numeric_underlying(pTHX)
     do_setlocale_c(LC_NUMERIC, PL_numeric_name);
     PL_numeric_standard = PL_numeric_underlying_is_standard;
     PL_numeric_underlying = TRUE;
-    set_numeric_radix(TRUE);
+    set_numeric_radix(! PL_numeric_standard);
 
 #  ifdef DEBUGGING
 
