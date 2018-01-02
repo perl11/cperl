@@ -83,7 +83,9 @@ See L<https://metacpan.org/changes/distribution/Archive-Tar>
 
 plus our FLAG_APPEND_OUTPUT patches
 
-=item L<Compress::Raw::Zlib>  2.076
+=item L<Compress::Raw::Zlib>  2.076_01
+
+plus our patches
 
 =item L<Config|XSConfig> 6.23
 

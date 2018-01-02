@@ -8,6 +8,8 @@ use private::MakeUtil;
 use ExtUtils::MakeMaker 5.16 ;
 use ExtUtils::Install (); # only needed to check for version
 use Config;
+use constant SILENT
+    => (defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) ? 1 : 0;
 
 my $ZLIB_LIB ;
 my $ZLIB_INCLUDE ;
@@ -24,8 +26,8 @@ if ($Config{'gccversion'} and $OPTIMIZE =~ /-g (gdb)? 3/x) {
 # Windows uses a different name for the zlib library
 my $ZLIB_LIBRARY_NAME = $^O eq 'MSWin32' ? 'zlib' : 'z' ;
 
-#$WALL = ' -pedantic ' if $Config{'cc'} =~ /gcc/ ;
-#$WALL = ' -Wall -Wno-comment ' if $Config{'cc'} =~ /gcc/ ;
+#$WALL = ' -pedantic ' if $Config{'cc'} =~ /\bgcc/ and $Config{gccversion} ;
+#$WALL = ' -Wall -Wno-comment ' if $Config{'cc'} =~ /\bgcc/ and $Config{gccversion} ;
 
 # Ticket #18986 says that ExtUtils::Install 1.39 fixes the in-use issue
 # on win32/cygwin, so make the code below conditional on the version of
@@ -55,7 +57,7 @@ EOM
 
     if ($answer =~ /^yes|y/i)
     {
-	print "continuing...\n" 
+	print "continuing...\n" unless SILENT;
     }
     else
     {
@@ -216,7 +218,7 @@ sub ParseCONFIG
     my %Parsed = %ValidOption ;
     my $CONFIG = 'config.in' ;
 
-    print "Parsing $CONFIG...\n" ;
+    print "Parsing $CONFIG...\n" unless SILENT;
 
     open(F, "<$CONFIG") or die "Cannot open file $CONFIG: $!\n" ;
     while (<F>) {
@@ -284,7 +286,7 @@ sub ParseCONFIG
 
 
 	# write the Makefile
-	print "Building Zlib enabled\n" ;
+	print "Building Zlib enabled\n" unless SILENT;
     }
 
     $GZIP_OS_CODE = defined $ENV{'GZIP_OS_CODE'} 
@@ -297,12 +299,12 @@ sub ParseCONFIG
 
     if (uc $GZIP_OS_CODE eq 'AUTO_DETECT')
     {
-        print "Auto Detect Gzip OS Code..\n" ;
+        print "Auto Detect Gzip OS Code..\n" unless SILENT;
         $GZIP_OS_CODE = getOSCode() ;
     }
     
     my $name = getOSname($GZIP_OS_CODE);
-    print "Setting Gzip OS Code to $GZIP_OS_CODE [$name]\n" ;
+    print "Setting Gzip OS Code to $GZIP_OS_CODE [$name]\n" unless SILENT;
 
     print <<EOM if 0 ;
     INCLUDE         [$ZLIB_INCLUDE]
@@ -313,7 +315,7 @@ sub ParseCONFIG
 
 EOM
 
-    print "Looks Good.\n" ;
+    print "Looks Good.\n" unless SILENT;
 
 }
 
