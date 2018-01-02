@@ -149,6 +149,9 @@ elsif (-d "$srcdir/.git") {
     }
     $commit_id = backtick("git rev-parse HEAD");
     $describe = backtick("git describe --long --tags --always");
+    if (defined $describe and $describe !~ /-g/) { # if no tags fetched
+        $describe = "g".$describe;
+    }
     my $commit_created = backtick(qq{git log -1 --pretty="format:%ci"});
     $extra_info = "git_commit_date='$commit_created'";
     backtick("git diff --no-ext-diff --quiet --exit-code");
