@@ -23,7 +23,7 @@ CPAN::Meta::Requirements dist/CPAN-Meta-Requirements/t/strings.t 86347bcaac1ccbf
 CPAN::Meta::YAML cpan/CPAN-Meta-YAML/t/lib/TestUtils.pm 89535dc9f122a77a8320df27e5929aa574196753
 Compress::Raw::Zlib cpan/Compress-Raw-Zlib/Makefile.PL 269a30b1f30a0a1458b91372c7d72915e5312d71
 Config::Perl::V cpan/Config-Perl-V/t/28_plv522c.t ec21436d9dde53ca06b46dd07476a109b8047464
-Config::Perl::V cpan/Config-Perl-V/V.pm 74b5c9278c618b0dc2534064f804228588cda18b
+Config::Perl::V cpan/Config-Perl-V/V.pm 31c7197ebc05774a24a72d078ac956af7d19e023
 DB_File cpan/DB_File/Makefile.PL 4e169e9717f2cc7ce0757897e6bf7ee043a785b1
 Devel::NYTProf cpan/Devel-NYTProf/FileHandle.xs 8b8ccd2e6f8f0ddfb13c7360dffccaf2e7dd0573
 Devel::NYTProf cpan/Devel-NYTProf/lib/Devel/NYTProf/FileInfo.pm 913665651ffa5415b71adb39c269559e74c35b0e
