@@ -1126,7 +1126,8 @@ Perl_setlocale(int category, const char * locale)
 
 #  ifdef LC_ALL
 
-        else if (category == LC_ALL) {
+        else if (category == LC_ALL && ! PL_numeric_underlying) {
+
             SET_NUMERIC_UNDERLYING();
         }
 
@@ -1421,7 +1422,9 @@ S_my_nl_langinfo(const int item, bool toggle)
     LOCALE_LOCK;
 
     if (toggle) {
-        if (item == PERL_RADIXCHAR || item == PERL_THOUSEP) {
+        if (  ! PL_numeric_underlying
+            && (item == PERL_RADIXCHAR || item == PERL_THOUSEP))
+        {
             do_setlocale_c(LC_NUMERIC, PL_numeric_name);
         }
         else {
@@ -1447,9 +1450,7 @@ S_my_nl_langinfo(const int item, bool toggle)
         do_free = TRUE;
     }
 
-    if (   toggle
-        && (item == PERL_RADIXCHAR || item == PERL_THOUSEP))
-    {
+    if (toggle) {
         cur = newlocale(LC_NUMERIC_MASK, PL_numeric_name, cur);
         do_free = TRUE;
     }
@@ -1553,7 +1554,12 @@ S_my_nl_langinfo(const int item, bool toggle)
             LOCALE_LOCK;
 
             if (toggle) {
-                do_setlocale_c(LC_NUMERIC, PL_numeric_name);
+                if (! PL_numeric_underlying) {
+                    do_setlocale_c(LC_NUMERIC, PL_numeric_name);
+                }
+                else {
+                    toggle = FALSE;
+                }
             }
 
             lc = localeconv();
