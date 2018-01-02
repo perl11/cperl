@@ -110,7 +110,7 @@ while (<$in>) {
     my ($k,$v) = split(/=/,$_,2);
     $v = substr($v, 1, length($v)-2); # strip start/end quotes, ' or "
     #$v =~ s/\\/\\\\/g;
-    $h{$k} = $v;
+    $h{$k} = "$v";
 }
 close $in;
 if ($in_core || -e $git) {
@@ -127,7 +127,7 @@ if ($in_core || -e $git) {
         next unless length $_;
         my ($k,$v) = split(/=/,$_,2);
         $v = substr($v, 1, length($v)-2); # strip start/end quotes, ' or "
-        $h{$k} = $v;
+        $h{$k} = "$v";
     }
     close $in;
 }
@@ -267,6 +267,7 @@ while (<$in>) {
         my $v = $h{$k};
         my $type = t_type($v);
         my ($qv, $l);
+        $type = 'T_STR' if $k eq 'git_describe';
         if ($type eq 'T_STR') {
             if ($v eq 'undef') {
                 $l  = 0;
@@ -317,6 +318,7 @@ while (<$in>) {
         } else { # $type eq 'T_INT'
             if ($v >= SPTR_MIN && $v <= SPTR_MAX) { # can fit in a ptr
                 $l = 0;
+                $v =~ s/^0(\d)/$1/g; # not octal
                 $qv = 'ALN64I (char *)'.$v;
             } else {# str in C, IV in perl, will be atoi-ed, 64b IV on 32b perl
                 $l = length($v);
