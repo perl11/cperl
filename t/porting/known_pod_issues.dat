@@ -333,6 +333,7 @@ pod/cperl.pod	Pod NAME already used	1
 pod/cperl.pod	Verbatim line length including indents exceeds 79 by	8
 pod/perl.pod	Verbatim line length including indents exceeds 79 by	8
 pod/perl5222cdelta.pod	? Should you be using F<...> or maybe L<...> instead of	1
+pod/perl5225cdelta.pod	Apparent broken link	1
 pod/perl5240cdelta.pod	Pod NAME already used	1
 pod/perl5240cdelta.pod	line containing nothing but whitespace in paragraph	1
 pod/perl5240cdelta.pod	unresolved internal link	1

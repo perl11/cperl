@@ -588,6 +588,7 @@ the strings?).
  rurban    5.22.2c      2016-May-09
  rurban    5.22.3c      2016-Jun-03
  rurban    5.22.4c      2016-Jul-27
+ rurban    5.22.5c      2018-Jan-01
 
  Ricardo   5.24.0-RC1   2016-Apr-13     The 5.24 maintenance track
  Ricardo   5.24.0-RC2   2016-Apr-23
