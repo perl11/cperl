@@ -15881,6 +15881,7 @@ our %delta = (
             'Module::CoreList'      => '5.20180101c',
             'Module::CoreList::Utils'=> '5.20180101c',
             'App::CPAN'             => '1.66',
+            'Archive::Tar'          => '2.26',
             'B::Debug'              => '1.26',
             'Config'                => '6.23',
             'CPAN'                  => '2.18_01',

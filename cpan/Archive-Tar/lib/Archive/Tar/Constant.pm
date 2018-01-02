@@ -3,13 +3,16 @@ package Archive::Tar::Constant;
 BEGIN {
     require Exporter;
 
-    $VERSION    = '2.18';
+    $VERSION    = '2.26';
     @ISA        = qw[Exporter];
 
     require Time::Local if $^O eq "MacOS";
 }
 
 @EXPORT = Archive::Tar::Constant->_list_consts( __PACKAGE__ );
+
+use strict;
+use warnings;
 
 use constant FILE           => 0;
 use constant HARDLINK       => 1;
