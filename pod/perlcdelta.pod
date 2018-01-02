@@ -41,6 +41,13 @@ chroot jail confinement can be violated.  In Perl_pp_chroot: A call to
 chroot followed by an operation that may escape from the chroot jail.
 Coverity CID #165302 Insecure chroot.
 
+=head2 [CVE-2017-12837] Heap buffer overflow in regular expression compiler
+
+Compiling certain regular expression patterns with the case-insensitive
+modifier could cause a heap buffer overflow and crash perl.  This has now been
+fixed.
+L<[perl #131582]|https://rt.perl.org/Public/Bug/Display.html?id=131582>
+
 =head1 Modules and Pragmata
 
 =head2 Updated Modules and Pragmata
