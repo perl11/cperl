@@ -1,3 +1,4 @@
+use lib '.';
 use t::TestYAMLTests tests => 11;
 no warnings 'once';
 $YAML::XS::IndentlessMap = 1;

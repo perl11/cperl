@@ -245,7 +245,7 @@ having problems, use Devel::Peek on all the possible data points.
 
 Ingy döt Net <ingy@cpan.org>
 
-Reini Urban <rurban@cpanel.net>
+Reini Urban <rurban@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 

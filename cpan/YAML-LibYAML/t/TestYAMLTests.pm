@@ -25,7 +25,7 @@ BEGIN {
     my $config = load_config('t/yaml_tests.yaml');
     if ($config->{use_blib}) {
       if ($ENV{PERL_CORE}) {
-        @INC = ('../../lib', 'inc');
+        @INC = ('../../lib', 'inc', '.');
       } else {
         eval "use blib; 1" or die $@;
       }

@@ -1,3 +1,4 @@
+use lib '.';
 use strict;
 use warnings;
 

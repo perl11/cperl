@@ -1,3 +1,4 @@
+use lib '.';
 use t::TestYAMLTests tests => 2;
 
 my $yaml = Dump "foo\0bar";

@@ -1,3 +1,4 @@
+use lib '.';
 use strict;
 use lib -e 't' ? 't' : 'test';
 my $t = -e 't' ? 't' : 'test';
