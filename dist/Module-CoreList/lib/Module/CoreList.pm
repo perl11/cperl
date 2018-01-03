@@ -15905,6 +15905,7 @@ our %delta = (
             'Cpanel::JSON::XS'      => '3.0240',
             'DB_File'               => '1.840',
             'Devel::PPPort'         => '3.36_04',
+            'Digest::SHA'           => '6.01',
             'ExtUtils::MM_Unix'	    => '8.04_05',
             'IO'                    => '1.38',
             'IO::Handle'            => '1.37',
