@@ -102,6 +102,10 @@ plus keep our cperl and secure YAML:::XS support.
 Simplify C<allow_singlequote> check, coverity cid #165321.
 Remove logical dead code.
 
+=item L<DB_File>  1.840
+
+But skip UpDowngrade() on CORE for reproducible builds
+
 =item L<ExtUtils::MM_Unix>  8.04_04
 
 Support filehandles for C<<< MM->parse_version >>>.
