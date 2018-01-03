@@ -120,7 +120,7 @@ But skip UpDowngrade() on CORE for reproducible builds
 
 =item L<ExtUtils::MakeMaker>  8.30_04c
 
-=item L<ExtUtils::ParseXS>  3.35
+=item L<ExtUtils::ParseXS>  3.36_03
 
 =item L<IO>  1.38
 

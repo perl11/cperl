@@ -11,7 +11,7 @@ use Symbol;
 
 our $VERSION;
 BEGIN {
-  $VERSION = '3.32';
+  $VERSION = '3.36_03';
 }
 use ExtUtils::ParseXS::Constants $VERSION;
 use ExtUtils::ParseXS::CountLines $VERSION;
@@ -519,9 +519,10 @@ EOF
 EOF
     }
     else {
-    # cv likely to be unused
+    # cv and items likely to be unused
     print Q(<<"EOF");
 #    PERL_UNUSED_VAR(cv); /* -W */
+#    PERL_UNUSED_VAR(items); /* -W */
 EOF
     }
 
@@ -621,10 +622,13 @@ EOF
         $self->process_keyword("INIT|ALIAS|ATTRS|PROTOTYPE|INTERFACE_MACRO|INTERFACE|C_ARGS|OVERLOAD");
 
         if ($self->check_keyword("PPCODE")) {
-          $self->print_section();
+          my $consumed_code = $self->print_section();
           $self->death("PPCODE must be last thing") if @{ $self->{line} };
           print "\tLEAVE;\n" if $self->{ScopeThisXSUB};
-          print "\tPUTBACK;\n\treturn;\n";
+          # TODO: if all paths return with XSRETURN skip this also
+          if ($consumed_code !~ /\b(?:XSRETURN(?:_\w+|_[IUNP]VN?\(.*?\)|\(\d+\))|return);\s*$/s) {
+            print "\tPUTBACK;\n\treturn;\n";
+          }
         }
         elsif ($self->check_keyword("CODE")) {
           my $consumed_code = $self->print_section();
@@ -871,6 +875,7 @@ EOF
 #XS_EUPXS(XS_$self->{Packid}_nil)
 #{
 #   dXSARGS;
+#   PERL_UNUSED_VAR(items);
 #   XSRETURN_EMPTY;
 #}
 #
@@ -884,15 +889,11 @@ MAKE_FETCHMETHOD_WORK
   }
 
   # print initialization routine
+  # Windows already has __declspec(dllexport) in XS_EXTERNAL
 
   print Q(<<"EOF");
-##ifdef __cplusplus
-#extern "C"
-##endif
-EOF
-
-  print Q(<<"EOF");
-#XS_EXTERNAL(boot_$self->{Module_cname}); /* prototype to pass -Wmissing-prototypes */
+#XS_EXTERNAL(boot_$self->{Module_cname});
+#
 #XS_EXTERNAL(boot_$self->{Module_cname})
 #[[
 ##if PERL_VERSION_LE(5, 21, 5)

@@ -2,7 +2,7 @@ package ExtUtils::Typemaps;
 use 5.006001;
 use strict;
 use warnings;
-our $VERSION = '3.35';
+our $VERSION = '3.36';
 
 require ExtUtils::ParseXS;
 require ExtUtils::ParseXS::Constants;
@@ -782,7 +782,7 @@ corresponding OUTPUT code:
   ',
     'T_OUT' => '    {
             GV *gv = newGVgen("$Package");
-            if ( do_open(gv, "+>&", 3, FALSE, 0, 0, $var) )
+            if ( do_openn(gv, "+>&", 3, FALSE, 0, 0, $var, NULL, 0) )
                 sv_setsv(
                   $arg,
                   sv_bless(newRV((SV*)gv), gv_stashpv("$Package",1))

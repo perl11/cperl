@@ -62,7 +62,7 @@ ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/Mkbootstrap.t d28d740dfc13cb5118fb
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/pm_to_blib.t 568663f592d962dfae8c750dbcd7383e246a5da5
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/prereq.t 289100886bc698838a6f71cd8fa70348dac20b75
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/vstrings.t 62c50e82f1f7afa702773b61c1cbec80c4902210
-ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm 47822d083c9b3aec7cf72a7baefc64e580b0d546
+ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm ceb8e1cc96b66f659b0b91b0379013f0f8f3e524
 File::Path cpan/File-Path/lib/File/Path.pm 623799e76e11a756ca5e18749d8bc1bdc3800ecd
 File::Path cpan/File-Path/t/Path_win32.t 94b9276557ce7f80b91f6fd9bfa7a0cd9bf9683e
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9

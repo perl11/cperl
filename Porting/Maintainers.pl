@@ -691,6 +691,7 @@ use File::Glob qw(:case);
     'ExtUtils::ParseXS' => {
         'DISTRIBUTION' => 'SMUELLER/ExtUtils-ParseXS-3.35.tar.gz',
         'FILES'        => q[dist/ExtUtils-ParseXS],
+        # 3.36_03  
         'CUSTOMIZED'   => # [perl #128517] reproducible build
           [ 'lib/ExtUtils/ParseXS.pm' ],
     },
