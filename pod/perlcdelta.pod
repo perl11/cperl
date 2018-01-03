@@ -116,6 +116,8 @@ But skip UpDowngrade() on CORE for reproducible builds
 
 =item L<ExtUtils::Constant>  0.24_01
 
+=item L<ExtUtils::Install>  2.14
+
 =item L<ExtUtils::MM_Unix>  8.04_04
 
 Support filehandles for C<<< MM->parse_version >>>.
