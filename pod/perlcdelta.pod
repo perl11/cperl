@@ -154,6 +154,12 @@ add filter_read_exact tests.
 
 from latest cperl.
 
+=item L<IO::Compress::Base>  2.074
+
+ISA fixes for c3 (by cperl) [cpan #120239]
+
+cperl: Keep our t/encode.pl fixes
+
 =item L<JSON::PP> 2.97000_04
 
 Merge 2.97000 from cpan with ours.
