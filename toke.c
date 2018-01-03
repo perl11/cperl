@@ -1948,8 +1948,9 @@ S_skipspace_flags(pTHX_ char *s, U32 flags)
 		    LEX_NO_NEXT_CHUNK : 0));
 	s = PL_bufptr;
 	PL_bufptr = SvPVX(PL_linestr) + bufptr_pos;
-	if (PL_linestart > PL_bufptr)
+	if (PL_linestart > PL_bufptr) {
 	    PL_bufptr = PL_linestart;
+        }
 	return s;
     }
     return s;
@@ -4222,7 +4223,7 @@ S_intuit_method(pTHX_ char *start, SV *ioname, CV *cv)
             || isUPPER(*PL_tokenbuf))
 	    return 0;
 	s = skipspace(s);
-	PL_bufptr = start;
+	/*PL_bufptr = start;*/ /* XXX [perl #125540] use-after-free realloc */
 	PL_expect = XREF;
 	return *s == '(' ? FUNCMETH : METHOD;
     }
@@ -5115,7 +5116,8 @@ Perl_yylex(pTHX)
 		}
 	    }
 	    sv_catpvs(PL_linestr, "\n");
-	    PL_oldoldbufptr = PL_oldbufptr = s = PL_linestart = SvPVX(PL_linestr);
+	    PL_oldoldbufptr = PL_oldbufptr = PL_bufptr = s
+                = PL_linestart = SvPVX(PL_linestr);
 	    PL_bufend = SvPVX(PL_linestr) + SvCUR(PL_linestr);
 	    PL_last_lop = PL_last_uni = NULL;
 	    if (PERLDB_LINE_OR_SAVESRC && PL_curstash != PL_debstash)
