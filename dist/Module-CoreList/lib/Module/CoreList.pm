@@ -15985,6 +15985,7 @@ our %delta = (
             'ExtUtils::Typemaps::OutputMap'=> '3.36',
             'ExtUtils::Typemaps::Type'=> '3.36',
             'File::Fetch'           => '0.56',
+            'File::Path'            => '3.15_01c',
             'IO'                    => '1.38',
             'IO::Handle'            => '1.37',
             'IO::Poll'              => '0.10',

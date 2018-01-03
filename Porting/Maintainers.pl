@@ -702,7 +702,7 @@ use File::Glob qw(:case);
     },
 
     'File::Path' => {
-        'DISTRIBUTION' => 'RICHE/File-Path-2.12.tar.gz',
+        'DISTRIBUTION' => 'RICHE/File-Path-2.15.tar.gz',
         'FILES'        => q[cpan/File-Path],
         'EXCLUDED'     => [
             qw( eg/setup-extra-tests ),
