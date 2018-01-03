@@ -1,6 +1,6 @@
 package ExtUtils::Constant;
 use vars qw (@ISA $VERSION @EXPORT_OK %EXPORT_TAGS);
-$VERSION = '0.23_03';
+$VERSION = '0.24_01';
 $VERSION = eval $VERSION;
 
 =head1 NAME
@@ -24,6 +24,9 @@ perl modules to AUTOLOAD constants defined in C library header files.
 It is principally used by the C<h2xs> utility, on which this code is based.
 It doesn't contain the routines to scan header files to extract these
 constants.
+
+Memory footprint and run-time performance is not as good as
+specialized perfect hashes as with L<XSConfig> or L<Win32::GUI::Constants>.
 
 =head1 USAGE
 
@@ -91,8 +94,10 @@ C<undef>.  The value of the macro is not needed.
 
 =cut
 
-if ($] >= 5.006) {
-  eval "use warnings; 1" or die $@;
+BEGIN {
+    if ($] >= 5.006) {
+        eval "use warnings; 1" or die $@;
+    }
 }
 use strict;
 use Carp qw(croak cluck);
@@ -261,6 +266,8 @@ EOT
   # If anyone is insane enough to suggest a package name containing %
   my $package_sprintf_safe = $package;
   $package_sprintf_safe =~ s/%/%%/g;
+  # People were actually more insane than thought
+  $package_sprintf_safe =~ s/\x{0}/\\0/g if $] > 5.015006;
 
   $xs .= << "EOT";
       /* Return 1 or 2 items. First is error message, or undef if no error.
@@ -321,6 +328,9 @@ I<VERSION> is the perl version the code should be backwards compatible with.
 It defaults to the version of perl running the subroutine.  If I<AUTOLOADER>
 is true, the AUTOLOAD subroutine falls back on AutoLoader::AUTOLOAD for all
 names that the constant() routine doesn't recognise.
+
+This is needed unless you use C<PROXYSUBS => {autoload=>1}>, but which generates
+code unusable earlier than 5.8.
 
 =cut
 
@@ -404,24 +414,26 @@ sub WriteMakefileSnippet {
   my $indent = $args{INDENT} || 2;
 
   my $result = <<"EOT";
-ExtUtils::Constant::WriteConstants(
-                                   NAME         => '$args{NAME}',
-                                   NAMES        => \\\@names,
-                                   DEFAULT_TYPE => '$args{DEFAULT_TYPE}',
+ExtUtils::Constant::WriteConstants
+    (
+      NAME         => '$args{NAME}',
+      NAMES        => \\\@names,
+      DEFAULT_TYPE => '$args{DEFAULT_TYPE}',
 EOT
   foreach (qw (C_FILE XS_FILE)) {
     next unless exists $args{$_};
-    $result .= sprintf "                                   %-12s => '%s',\n",
-      $_, $args{$_};
+    $result .= sprintf "      %-12s => '%s',\n",
+                 $_, $args{$_};
   }
   $result .= <<'EOT';
-                                );
+    );
 EOT
 
   $result =~ s/^/' 'x$indent/gem;
-  return ExtUtils::Constant::XS->dump_names({default_type=>$args{DEFAULT_TYPE},
-					     indent=>$indent,},
-					    @{$args{NAMES}})
+  return ExtUtils::Constant::XS->dump_names
+    ({default_type=>$args{DEFAULT_TYPE},
+      indent=>$indent,},
+     @{$args{NAMES}})
     . $result;
 }
 
@@ -435,34 +447,40 @@ The attributes supported are
 
 =over 4
 
-=item NAME
+=item C<NAME>
 
 Name of the module.  This must be specified
 
-=item DEFAULT_TYPE
+=item C<DEFAULT_TYPE>
 
 The default type for the constants.  If not specified C<IV> is assumed.
 
-=item BREAKOUT_AT
+=item C<BREAKOUT_AT>
 
 The names of the constants are grouped by length.  Generate child subroutines
 for each group with this number or more names in.
 
-=item NAMES
+=item C<NAMES>
 
 An array of constants' names, either scalars containing names, or hashrefs
 as detailed in L<"C_constant">.
 
-=item PROXYSUBS
+=item C<PROXYSUBS>
 
 If true, uses proxy subs. See L<ExtUtils::Constant::ProxySubs>.
+PROXYSUBS create CONSTSUB's for each defined constant upfront, while
+without PROXYSUBS every constant is looked up at run-time. Thus it
+trades memory footprint for faster run-time performance.
 
-=item C_FH
+Options: autoload, push, croak_on_error or croak_on_read with most of
+the options being exclusive, and croak_on_read usable since 5.24.
+
+=item C<C_FH>
 
 A filehandle to write the C code to.  If not given, then I<C_FILE> is opened
 for writing.
 
-=item C_FILE
+=item C<C_FILE>
 
 The name of the file to write containing the C code.  The default is
 C<const-c.inc>.  The C<-> in the name ensures that the file can't be
@@ -470,22 +488,22 @@ mistaken for anything related to a legitimate perl package name, and
 not naming the file C<.c> avoids having to override Makefile.PL's
 C<.xs> to C<.c> rules.
 
-=item XS_FH
+=item C<XS_FH>
 
 A filehandle to write the XS code to.  If not given, then I<XS_FILE> is opened
 for writing.
 
-=item XS_FILE
+=item C<XS_FILE>
 
 The name of the file to write containing the XS code.  The default is
 C<const-xs.inc>.
 
-=item XS_SUBNAME
+=item C<XS_SUBNAME>
 
 The perl visible name of the XS subroutine generated which will return the
 constants. The default is C<constant>.
 
-=item C_SUBNAME
+=item C<C_SUBNAME>
 
 The name of the C subroutine generated which will return the constants.
 The default is I<XS_SUBNAME>.  Child subroutines have C<_> and the name
@@ -523,7 +541,7 @@ sub WriteConstants {
 	  require FileHandle;
 	  $c_fh = FileHandle->new();
       }
-      open $c_fh, ">$ARGS{C_FILE}" or die "Can't open $ARGS{C_FILE}: $!";
+      open $c_fh, ">", $ARGS{C_FILE} or die "Can't open $ARGS{C_FILE}: $!";
   }
 
   my $xs_fh = $ARGS{XS_FH};
@@ -532,7 +550,7 @@ sub WriteConstants {
 	  require FileHandle;
 	  $xs_fh = FileHandle->new();
       }
-      open $xs_fh, ">$ARGS{XS_FILE}" or die "Can't open $ARGS{XS_FILE}: $!";
+      open $xs_fh, ">", $ARGS{XS_FILE} or die "Can't open $ARGS{XS_FILE}: $!";
   }
 
   # As this subroutine is intended to make code that isn't edited, there's no
@@ -551,14 +569,16 @@ sub WriteConstants {
 
       # indent is still undef. Until anyone implements indent style rules with
       # it.
-      foreach (ExtUtils::Constant::XS->C_constant({package => $ARGS{NAME},
-						   subname => $ARGS{C_SUBNAME},
-						   default_type =>
-						       $ARGS{DEFAULT_TYPE},
-						       types => $types,
-						       breakout =>
-						       $ARGS{BREAKOUT_AT}},
-						  @{$ARGS{NAMES}})) {
+      foreach (ExtUtils::Constant::XS->C_constant
+               ({package => $ARGS{NAME},
+                 subname => $ARGS{C_SUBNAME},
+                 default_type =>
+                   $ARGS{DEFAULT_TYPE},
+                 types => $types,
+                 breakout =>
+                   $ARGS{BREAKOUT_AT}},
+                @{$ARGS{NAMES}}))
+      {
 	  print $c_fh $_, "\n"; # C constant subs
       }
       print $xs_fh XS_constant ($ARGS{NAME}, $types, $ARGS{XS_SUBNAME},
@@ -574,9 +594,57 @@ __END__
 
 =back
 
+=head1 PERFORMANCE
+
+You can calculate simple performance numbers with
+C<perl -Mblib t/Constant.t --bench --memtest >/dev/null 2>bench.lst>
+and C<grep ^# bench.lst> for 19 constants.
+
+    Option	        Memory [b]   Time [s]
+    <none>              1612758	     0.023946
+    PROXYSUBS           1593553	     0.020061
+    PROXYSUBS autoload	1588555	     0.024906
+    PROXYSUBS push	1608709	     0.023361
+    PROXYSUBS 
+    croak_on_error	1590267	     0.023052
+    PROXYSUBS
+    croak_on_read	1599747	     0.021710
+    PROXYSUBS
+    autoload push	1589737	     0.021917
+    PROXYSUBS
+    croak_on_error push	1590606	     0.021669
+
+PROXYSUBS without any option is the fastest, and on the lower
+side of memory.
+
+PROXYSUBS autoload is the slowest, but easiest to use.
+
+The old method without PROXYSUBS uses the most memory and is 2nd slowest.
+
+With >500 constants:
+
+    Option	        Memory [b]   Time [s]
+    <none>              2572650	     0.025867
+    PROXYSUBS           2145701	     0.024928
+    PROXYSUBS autoload	2133418	     0.024154
+    PROXYSUBS push	2173807	     0.030029
+    PROXYSUBS 
+    croak_on_error	2142773	     0.025776
+    PROXYSUBS
+    croak_on_read	2144780	     0.027649
+    PROXYSUBS
+    autoload push	2161453	     0.026092
+    PROXYSUBS
+    croak_on_error push	2170791	     0.027433
+
+There are no numbers compared to perfect hashes yet. The estimation is
+that EU-C is ~50% slower and bigger, as seen with L<Win32::GUI::Constants>
+and L<XSConfig>. See also L<Perfect::Hash>.
+
 =head1 AUTHOR
 
-Nicholas Clark <nick@ccl4.org> based on the code in C<h2xs> by Larry Wall and
-others
+Reini Urban <rurban@cpan.org> fixed up ProxySubs and took over maintainance.
+Nicholas Clark <nick@ccl4.org> wrote it based on the code in C<h2xs>
+by Larry Wall and others.
 
 =cut

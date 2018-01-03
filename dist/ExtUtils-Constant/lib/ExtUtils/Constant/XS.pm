@@ -10,7 +10,7 @@ require ExtUtils::Constant::Base;
 @ISA = qw(ExtUtils::Constant::Base Exporter);
 @EXPORT_OK = qw(%XS_Constant %XS_TypeSet);
 
-$VERSION = '0.23_03';
+$VERSION = '0.24_01';
 
 $is_perl56 = ($] < 5.007 && $] > 5.005_50);
 
@@ -86,6 +86,9 @@ typedef double NV; /* 5.6 and later define NVTYPE, and typedef NV to it.  */
 #endif
 #ifndef pTHX_
 #define pTHX_ /* 5.6 or later define this for threading support.  */
+#endif
+#ifndef SvRV_set
+#define SvRV_set(sv,val) SvRV(sv) = (val)
 #endif
 EOT
 

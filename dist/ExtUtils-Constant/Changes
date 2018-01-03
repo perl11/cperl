@@ -1,0 +1,121 @@
+Revision history for Perl extension ExtUtils::Constant.
+
+[Yes, this is out of date. In the interests of getting a release out onto
+CPAN sooner, I've deferred updating this. Since 0.16 all the development
+history can be found via http://perl5.git.perl.org/perl.git/tree/HEAD:/lib ]
+
+0.13  Mon Aug  5 20:20:21 2002
+	Copy the module and test from bleadperl
+        Find and fix a bug when there is only 1 item of a given length, but
+        it has the "check utf8 flag" set. Regression test 52 now tests this.
+
+0.14  Sun Aug 25 15:40:35 BST 2002
+        More aggressive switch code:
+        a: If the last character was used as the switch target, no need to
+           check it again with memEQ (ie memcmp)
+        b: If the first character is used as the switch target, no need to
+           check it again with memEQ  (this does need C code to move the
+           pointer target, so last character is preferred)
+        c: Three character strings are now done as 2 explicit character
+           comparisons after the switch, rather than memEQ. It may be worth
+           extending this to four character strings.
+        Refactor the regression test code to allow multiple test extensions
+        to be built. This way the various possibilities in the switch code can
+        easily be tested.
+        The "more aggressive" switch code shrinks bleadperl's extensions by a
+        grand total of 648(ish) bytes. Amazing! (well, every little helps)
+        Will now install into the core for perl 5.8.0 or later (as it's a core
+        module from 5.7.2ish)
+
+0.15  Thu Jan 13 21:54:21 GMT 2005
+	Avoid problems in dogfood() if a zero length name accidentally gets in
+	Docpatch from Steve Peters
+
+0.16  Sun Jan 23 13:33:33 GMT 2005
+	Refactoring to make parts of the code re-usable for other keyword
+	matching needs. Keep the XS specific functions in ExtUtils::Constant
+	Move the helper functions to ExtUtils::Constant::Utils
+	Turn the generic functions into methods in ExtUtils::Constant::Base,
+	with overrides in ExtUtils::Constant::XS for the existing use.
+	Move ExtUtils::Constant::Aaargh56Hash into its own file.
+	Add "weight" facility. Sorting keyword ordering with this gained
+	another 10% speedup on Perl_keyword. This makes me wonder if second
+	level switching would be a win.
+	Add two examples of subclassing in the examples/ directory.
+
+0.20
+	This version is in perl5 core since v5.9.3
+
+0.21
+	This version is in perl5 core with v5.8.9
+
+0.22	Fri Jun 12 13:59:49 2009 +0100
+	This version is in perl5 core since v5.10.1
+        updated with 71605646f0e67f65c13aa000ef0881ebb82461a5
+
+        No Changes
+
+0.23	Tue Oct 19 20:17:22 2010 +0200
+        Add option croak_on_error to PROXYSUBS, to directly croak() the error message.
+
+        This is only useful with the code that generates Proxy
+        Constant Subroutines, as this adds all known constants to the
+        symbol table at compile time, meaning that the only calls to
+        AUTOLOAD will be to load constants not available on this platform,
+        or for invalid constant names.
+
+        This version is in perl5 core since v5.13.7 updated with
+        04777d295957ad270
+
+0.23_01 Sun Aug 30 15:18:28 2015 +0200 (rurban)
+        Fixed all RT bugs by many users:
+        RT #105813 $->[1] typo (hurricup)
+        avoid 'uninit' warning (davem)
+        skip context with threads (bulk88)
+        typo: C_constant_prefix_param_defintion (rurban)
+        RT #88645: fix crosscompiling without make (fperrad)
+        RT #85527: typo fixes (dsteinbrunner)
+        RT #63832: printf warnings from EU:C (zefram)
+        RT #81249: test fix-ups for VMS (cberry)
+        RT #78188: add a sleep 1 to test (rurban)
+        RT #73041: fix newSVpvn_flags SVs_TEMP for <5.10.1 (rurban)
+        RT #64965: fix croak_sv for <5.013 (rurban)
+
+0.23_02 2015-12-14 12:06:07 rurban
+        Fixed syntax error in a generated xs.inc
+        Fixed parallel test warnings: jobserver unavailable
+
+0.23_03 2016-02-26 12:14:20 rurban
+        Fixed typo C_constant_other_params_definition to
+          C_constant_other_params_definition throughout
+        Fixed podchecker violations.
+        Tested with cperl
+
+0.23_04 2017-04-23 rurban
+        Fix ProxySubs to generate code also valid for 5.8 - 5.14.
+        Add testcases for the 4 ProxySubs options.
+        Warn against its usage on creation.
+
+0.23_05 2017-04-23 rurban
+        Fix the tests under CORE
+
+0.23_06 2017-04-24 rurban
+        Fixed PROXYSUBS autoload, push and croak_on_error for 5.8 and 5.6.
+        Fixed PROXYSUBS with all options but croak_on_read.
+        Only one 5.6 PROXYSUBS autoload limitation in the error message
+        on undefined macros.
+
+0.23_07 2017-04-24 rurban
+        Add benchmarking code and results. Recommended is PROXYSUBS or
+        PROXYSUBS autoload.
+        Silence cperl-only Used once warnings with PROXYSUBS push
+
+0.23_08 2017-04-25 rurban
+	Minor C code improvements for croak_on_read, tested with -Wall -Wextra:
+        Correct MGVTBL for all versions, get_missing_hash not needed.
+
+0.23_09 2017-05-19 rurban
+	C++ compat fixes. -Wliteral-suffix
+
+0.24_01 2017-11-15 rurban
+	better machine code on threaded perl (croak_nocontext)

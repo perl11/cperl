@@ -1,0 +1,66 @@
+ExtUtils::Constant
+==================
+
+A module to generate XS code to import C header constants.
+
+This module arose during the development track for perl 5.8, as part of the
+reworking of h2xs, the perl program that creates boilerplate for perl
+extensions.
+
+h2xs contains routines to extract constants from specified C header files and
+make them available in the module's perl namespace. h2xs does this by building
+C code that delivers the value of constants on demand at run time. Prior to
+5.8, h2xs wrote out a potentially massive switch statement in initial XS
+file, then left it up to the programmer to add any new constants needed. The
+switch statement wasn't overly efficient, could be large enough to make
+compiler optimisers choke, and attempting to add new constants or make other
+changes was prone to error (eg try finding the value of POSIX::ELOOP on perl
+5.004_04 and earlier)
+
+h2xs as of 5.8.0 uses a new strategy of embedding the information about
+which constants it found in the Makefile.PL, and using a new module,
+ExtUtils::Constant, to build the switch table up at Makefile.PL run time.
+This means that you can add more constants easily, by just editing the
+definition, and you have more flexibility in what your "macros" can do,
+and what types they return. For example, Fcntl's XS file after its initial
+#includes is now down to these 5 lines:
+
+#include "const-c.inc"
+
+MODULE = Fcntl		PACKAGE = Fcntl
+
+INCLUDE: const-xs.inc
+
+and the massive switch statement is now stored as instructions in Makefile.PL
+to rebuild it. ExtUtils::Constant also uses a radically different strategy to
+build the C code, in an attempt to maximise the chance that the compiler will
+use branch tables making the initial switch statements more efficient, and
+choosing a switch strategy to minimise the amount of linear searching of
+similar constant names.
+
+The best options seem to be PROXYSUBS or PROXYSUB autoload, with the
+highest speed and on the lower side of memory usage.  With a lot of
+macros, memory and speed is still not comparable to specialized
+perfect hashes, such as XSConfig or Win32::GUI::Constants though, but
+it is good enough for POSIX or Sockets.
+
+I believe ExtUtils::Constant is completely Unicode safe, but as a consequence
+of running various pathological cases as regression tests, the tests will
+fail on perl5.6.0, due to its numerous Unicode bugs. Please upgrade to 5.6.1,
+or better still 5.8.0.
+
+Bug reports from 5.6.0 users (even users on OS X dependent on Apple to ship
+5.6.1) will be acknowledged, tested on 5.6.1, and if not repeatable on 5.6.1
+will be noted as known failures due to 5.6.0, with no further action taken.
+
+By all means send patches to work round 5.6.0 features; if they don't conflict
+with 5.005, 5.6.1, or 5.8.0 they will go in.
+
+COPYRIGHT AND LICENCE
+
+You may distribute this work under the terms of either the GNU General
+Public License or the Artistic License, as specified in perl's README
+file.
+
+Copyright © 2001, 2002, 2005 Nicholas Clark
+Copyright © 2013, 2015, 2017 Reini Urban
