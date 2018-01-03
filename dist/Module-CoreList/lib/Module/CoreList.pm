@@ -15973,6 +15973,7 @@ our %delta = (
             'ExtUtils::Installed'   => '2.14',
             'ExtUtils::Packlist'    => '2.14',
             'ExtUtils::Install'     => '2.14',
+            'ExtUtils::ParseXS'     => '3.35',
             'ExtUtils::testlib'     => '7.30',
             'IO'                    => '1.38',
             'IO::Handle'            => '1.37',

@@ -645,7 +645,7 @@ use File::Glob qw(:case);
     },
 
     'ExtUtils::MakeMaker' => {
-        'DISTRIBUTION' => 'BINGOS/ExtUtils-MakeMaker-7.04.tar.gz',
+        'DISTRIBUTION' => 'BINGOS/ExtUtils-MakeMaker-7.30.tar.gz',
         'FILES'        => q[cpan/ExtUtils-MakeMaker],
         'EXCLUDED'     => [
             qr{^t/lib/Test/},
@@ -689,7 +689,7 @@ use File::Glob qw(:case);
 
     # Note that upstream misses now the 3 xs pods
     'ExtUtils::ParseXS' => {
-        'DISTRIBUTION' => 'SMUELLER/ExtUtils-ParseXS-3.30.tar.gz',
+        'DISTRIBUTION' => 'SMUELLER/ExtUtils-ParseXS-3.35.tar.gz',
         'FILES'        => q[dist/ExtUtils-ParseXS],
         'CUSTOMIZED'   => # [perl #128517] reproducible build
           [ 'lib/ExtUtils/ParseXS.pm' ],
