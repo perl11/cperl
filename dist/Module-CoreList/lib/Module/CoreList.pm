@@ -16023,6 +16023,7 @@ our %delta = (
             'IO::Socket'            => '1.38_01',
             'IO::Socket::INET'      => '1.35_01',
             'IO::Socket::UNIX'      => '1.26_01',
+            'IPC::Cmd'              => '0.98',
             'JSON::PP'              => '2.97000_04',
             'JSON::PP::Boolean'     => '2.97000_04',
             'POSIX'                 => '1.65_01',
