@@ -134,6 +134,15 @@ Correct skip count for Windows.
 Comment out two TODO tests.
 Make subdirectory names used in tests more random
 
+=item L<Filter::Simple>  0.94
+
+Various small documentation fixes.
+Filter::Simple was erroneously signalling eof if it encountered a
+‘no MyFilter’ right after ‘use’:
+      use MyFilter;
+      no MyFilter;
+In this case it should simply not filter anything.
+
 =item L<IO>  1.38
 
 from latest cperl.
