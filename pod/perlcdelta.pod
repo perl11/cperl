@@ -160,6 +160,11 @@ ISA fixes for c3 (by cperl) [cpan #120239]
 
 cperl: Keep our t/encode.pl fixes
 
+=item L<IO::Socket::IP>  0.39_02
+
+Fix new Autovivified hash slice warning.
+Keep demand-load Carp patch.
+
 =item L<JSON::PP> 2.97000_04
 
 Merge 2.97000 from cpan with ours.

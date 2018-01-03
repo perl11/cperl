@@ -7,7 +7,7 @@ package IO::Socket::IP;
 # $VERSION needs to be set before  use base 'IO::Socket'
 #  - https://rt.cpan.org/Ticket/Display.html?id=92107
 BEGIN {
-   $VERSION = '0.38';
+   $VERSION = '0.39_02';
 }
 
 use strict;
@@ -29,7 +29,7 @@ use Socket 1.97 qw(
 my $AF_INET6 = eval { Socket::AF_INET6() }; # may not be defined
 my $AI_ADDRCONFIG = eval { Socket::AI_ADDRCONFIG() } || 0;
 use POSIX qw( dup2 );
-use Errno qw( EINVAL EINPROGRESS EISCONN ENOTCONN ETIMEDOUT EWOULDBLOCK );
+use Errno qw( EINVAL EINPROGRESS EISCONN ENOTCONN ETIMEDOUT EWOULDBLOCK EOPNOTSUPP );
 
 use constant HAVE_MSWIN32 => ( $^O eq "MSWin32" );
 
@@ -153,7 +153,7 @@ sub import
       if( setsockopt $testsock, IPPROTO_IPV6, IPV6_V6ONLY, 0 ) {
          return $can_disable_v6only = 1;
       }
-      elsif( $! == EINVAL ) {
+      elsif( $! == EINVAL || $! == EOPNOTSUPP ) {
          return $can_disable_v6only = 0;
       }
       else {
@@ -632,8 +632,8 @@ sub setup
       last if ${*$self}{io_socket_ip_idx} >= @{ ${*$self}{io_socket_ip_infos} };
 
       my $info = ${*$self}{io_socket_ip_infos}->[${*$self}{io_socket_ip_idx}];
-
-      $self->socket( @{$info}{qw( family socktype protocol )} ) or
+      my @slice = @{$info}{qw( family socktype protocol )};
+      $self->socket( @slice ) or
          ( ${*$self}{io_socket_ip_errors}[2] = $!, next );
 
       $self->blocking( 0 ) unless ${*$self}{io_socket_ip_blocking};
