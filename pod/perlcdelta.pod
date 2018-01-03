@@ -112,6 +112,8 @@ But skip UpDowngrade() on CORE for reproducible builds
 
 =item L<Encode>  2.93
 
+=item L<ExtUtils::CBuilder>  0.280230
+
 =item L<ExtUtils::MM_Unix>  8.04_04
 
 Support filehandles for C<<< MM->parse_version >>>.
