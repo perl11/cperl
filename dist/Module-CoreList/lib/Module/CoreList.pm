@@ -15988,6 +15988,7 @@ our %delta = (
             'File::Path'            => '3.15_01c',
             'Filter::Simple'        => '0.94',
             'Filter::Util::Call'    => '1.58',
+            'Getopt::Long'          => '2.5',
             'IO'                    => '1.38',
             'IO::Handle'            => '1.37',
             'IO::Poll'              => '0.10',

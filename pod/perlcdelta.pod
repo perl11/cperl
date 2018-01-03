@@ -148,6 +148,8 @@ In this case it should simply not filter anything.
 XSLoader, our. defer Carp.
 add filter_read_exact tests.
 
+=item L<Getopt::Long>  2.5
+
 =item L<IO>  1.38
 
 from latest cperl.
