@@ -12,7 +12,7 @@ BEGIN {
         plan skip_all => 'Non-Unix platform';
     }
     else {
-        plan tests => 109;
+        plan tests => 110;
     }
 }
 
@@ -31,7 +31,7 @@ my $os =  ($ExtUtils::MM_Unix::Is{OS2}   || 0)
         + ($ExtUtils::MM_Unix::Is{VMS}   || 0);
 cmp_ok ( $os, '<=', 1,  'There can be only one (or none)');
 
-#is($ExtUtils::MM_Unix::VERSION, $ExtUtils::MakeMaker::VERSION, 'MM_Unix has a $VERSION');
+is($ExtUtils::MM_Unix::VERSION, $ExtUtils::MakeMaker::VERSION, 'MM_Unix has a $VERSION');
 
 # when the following calls like canonpath, catdir etc are replaced by
 # File::Spec calls, the test's become a bit pointless
@@ -98,7 +98,6 @@ foreach ( qw /
   ppd
   prefixify
   processPL
-  quote_paren
   realclean
   static
   static_lib
@@ -223,3 +222,10 @@ foreach (qw/ EXPORT_LIST PERL_ARCHIVE PERL_ARCHIVE_AFTER /)
     like( $t->{CCFLAGS}, qr/\-DMY_THING/,    'cflags retains CCFLAGS' );
 }
 
+{
+    my @targv = ("var=don't forget about spaces and single quotes");
+    local @ARGV = @targv;
+    my $t = bless { NAME => "Foo", FULLPERL => $0, DIR => [] }, $class;
+    $t->makeaperl( TARGET => "Tgt" );
+    is_deeply( \@ARGV, \@targv, 'ARGV is not polluted by makeaperl' );
+}
