@@ -122,6 +122,11 @@ But skip UpDowngrade() on CORE for reproducible builds
 
 =item L<ExtUtils::ParseXS>  3.36_03
 
+=item L<File::Fetch>  0.56
+
+hpux should not use lftp.
+Switch test URL from www.cpan.org to httpbin.org
+
 =item L<IO>  1.38
 
 from latest cperl.
