@@ -143,6 +143,11 @@ Filter::Simple was erroneously signalling eof if it encountered a
       no MyFilter;
 In this case it should simply not filter anything.
 
+=item L<Filter>  1.58
+
+XSLoader, our. defer Carp.
+add filter_read_exact tests.
+
 =item L<IO>  1.38
 
 from latest cperl.

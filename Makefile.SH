@@ -1614,7 +1614,7 @@ test_prep test-prep: test_prep_pre \$(MINIPERL_EXE) \$(unidatafiles) \$(PERL_EXE
 	$to cpan/Pod-Parser/*
 	$to cpan/IO-Compress/*
 	$to cpan/HTTP-Tiny/lib/*
-	$to cpan/Filter-Util-Call/filter-util.pl
+	$to cpan/Filter-Util-Call/t/filter-util.pl
 	$to cpan/Digest-MD5/*
 	$to cpan/Digest-SHA/*
 	$to cpan/Test-Simple/*
