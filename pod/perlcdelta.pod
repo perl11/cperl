@@ -106,6 +106,8 @@ Remove logical dead code.
 
 But skip UpDowngrade() on CORE for reproducible builds
 
+=item L<Devel::PPPort>  3.36_04
+
 =item L<ExtUtils::MM_Unix>  8.04_04
 
 Support filehandles for C<<< MM->parse_version >>>.

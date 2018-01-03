@@ -59,11 +59,13 @@ sub parse_todo
 
 sub expand_version
 {
-  my($op, $ver) = @_;
+  my($op, $ver, $cperl) = @_;
   my($r, $v, $s) = parse_version($ver);
   $r == 5 or die "only Perl revision 5 is supported\n";
   my $bcdver = sprintf "0x%d%03d%03d", $r, $v, $s;
-  return "(PERL_BCDVERSION $op $bcdver)";
+  my $ret = "(PERL_BCDVERSION $op $bcdver)";
+  $ret = "defined(USE_CPERL) && " . $ret if $cperl;
+  return $ret;
 }
 
 sub parse_partspec
@@ -167,7 +169,7 @@ sub parse_partspec
 
   for $section (qw( implementation xsubs xsinit xsmisc xshead xsboot )) {
     if (exists $data{$section}) {
-      $data{$section} =~ s/\{\s*version\s*(<|>|==|!=|>=|<=)\s*([\d._]+)\s*\}/expand_version($1, $2)/gei;
+      $data{$section} =~ s/\{\s*(CPERL\s*&&\s*)?version\s*(<|>|==|!=|>=|<=)\s*([\d._]+)\s*\}/expand_version($2, $3, $1)/gei;
     }
   }
 
@@ -306,6 +308,7 @@ sub parse_embed
         my @e = split /\s*\|\s*/, $line;
         if( @e >= 3 ) {
           my($flags, $ret, $name, @args) = @e;
+          next if $flags =~ /[DM]/; # Skip entries marked as deprecated or unstable
           if ($name =~ /^[^\W\d]\w*$/) {
             for (@args) {
               $_ = [trim_arg($_)];

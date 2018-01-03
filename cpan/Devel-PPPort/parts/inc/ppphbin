@@ -13,7 +13,7 @@
 
 =implementation
 
-use strict;
+use strict qw(refs vars subs);
 
 # Disable broken TRIE-optimization
 BEGIN { eval '${^RE_TRIE_MAXBUF} = -1' if $] >= 5.009004 && $] <= 5.009005 }
@@ -259,8 +259,10 @@ else {
 
 if (!@ARGV || $opt{filter}) {
   my(@in, @out);
-  my %xsc = map { /(.*)\.xs$/ ? ("$1.c" => 1, "$1.cc" => 1) : () } @files;
+  my %xsc = map { /(.*)\.xs$/ && ("$1.c" => 1) } @files;
+  #warn "\@files=",@files,"\%xsc=",join ",",keys %xsc;
   for (@files) {
+    if (/^(.*)\.xs$/) { $xsc{"$1.cc"} = 1; }
     my $out = exists $xsc{$_} || /\b\Q$ppport\E$/i || !/($srcext)$/i;
     push @{ $out ? \@out : \@in }, $_;
   }

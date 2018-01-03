@@ -15,6 +15,8 @@
 
 AmUx|Perl_keyword_plugin_t|PL_keyword_plugin
 AmU|Perl_check_t *|PL_check
+AmU|placeholder|BOM_UTF8
+AmU|placeholder|REPLACEMENT_CHARACTER_UTF8
 AmU|yy_parser *|PL_parser
 AmU||G_ARRAY
 AmU||G_DISCARD
@@ -89,8 +91,10 @@ Amn|peep_t|PL_peepp
 Amn|peep_t|PL_rpeepp
 Amn|void|DECLARATION_FOR_LC_NUMERIC_MANIPULATION
 Ams||ENTER
+Ams||ENTER_with_name
 Ams||FREETMPS
 Ams||LEAVE
+Ams||LEAVE_with_name
 Ams||MULTICALL
 Ams||POP_MULTICALL
 Ams||PUSH_MULTICALL
@@ -169,6 +173,9 @@ Am|HV*|CvSTASH|CV* cv
 Am|HV*|GvHV|GV* gv
 Am|HV*|SvSTASH|SV* sv
 Am|HV*|gv_stashpvs|const char* name|I32 create
+Am|I32|HeKLEN|HE* he
+Am|I32|HvENAMELEN|HV *stash
+Am|I32|HvNAMELEN|HV *stash
 Am|IV|SvIVX|SV* sv
 Am|IV|SvIV_nomg|SV* sv
 Am|IV|SvIVx|SV* sv
@@ -177,18 +184,21 @@ Am|NV|SvNVX|SV* sv
 Am|NV|SvNV_nomg|SV* sv
 Am|NV|SvNVx|SV* sv
 Am|NV|SvNV|SV* sv
+Am|OP *|newUNBOXEDOP|I32 type|I32 flags|NN const char *data
+Am|OP*	|LINKLIST	|NN OP *o
 Am|OP*|LINKLIST|OP *o
 Am|OP*|OpSIBLING|OP *o
 Am|PADOFFSET|pad_add_name_pvs|const char *name|U32 flags|HV *typestash|HV *ourstash
 Am|PADOFFSET|pad_findmy_pvs|const char *name|U32 flags
 Am|REGEXP *|SvRX|SV *sv
-Am|STRLEN|HeKLEN|HE* he
-Am|STRLEN|HvENAMELEN|HV *stash
-Am|STRLEN|HvNAMELEN|HV *stash
+Am|SSize_t|AvFILL|AV* av
 Am|STRLEN|SvCUR|SV* sv
 Am|STRLEN|SvLEN|SV* sv
 Am|STRLEN|UTF8SKIP|char* s
 Am|STRLEN|UVCHR_SKIP|UV cp
+Am|STRLEN|isC9_STRICT_UTF8_CHAR|const U8 *s|const U8 *e
+Am|STRLEN|isSTRICT_UTF8_CHAR|const U8 *s|const U8 *e
+Am|STRLEN|isUTF8_CHAR_flags|const U8 *s|const U8 *e| const U32 flags
 Am|STRLEN|isUTF8_CHAR|const U8 *s|const U8 *e
 Am|SV *|boolSV|bool b
 Am|SV *|cop_hints_fetch_pvn|const COP *cop|const char *keypv|STRLEN keylen|U32 hash|U32 flags
@@ -226,6 +236,9 @@ Am|U32|SvOK|SV* sv
 Am|U32|SvOOK|SV* sv
 Am|U32|SvPOKp|SV* sv
 Am|U32|SvPOK|SV* sv
+Am|U32|SvREADONLY_off|SV* sv
+Am|U32|SvREADONLY_on|SV* sv
+Am|U32|SvREADONLY|SV* sv
 Am|U32|SvREFCNT|SV* sv
 Am|U32|SvROK|SV* sv
 Am|U32|SvUTF8|SV* sv
@@ -242,22 +255,26 @@ Am|UV|SvUV_nomg|SV* sv
 Am|UV|SvUVx|SV* sv
 Am|UV|SvUV|SV* sv
 Am|UV|toFOLD_uni|UV cp|U8* s|STRLEN* lenp
+Am|UV|toFOLD_utf8_safe|U8* p|U8* e|U8* s|STRLEN* lenp
 Am|UV|toFOLD_utf8|U8* p|U8* s|STRLEN* lenp
 Am|UV|toFOLD_uvchr|UV cp|U8* s|STRLEN* lenp
+Am|UV|toLOWER_uni|UV cp|U8* s|STRLEN* lenp
+Am|UV|toLOWER_utf8_safe|U8* p|U8* e|U8* s|STRLEN* lenp
 Am|UV|toLOWER_utf8|U8* p|U8* s|STRLEN* lenp
-Am|UV|toTITLE_uni|UV cp|U8* s|STRLEN* lenp
 Am|UV|toLOWER_uvchr|UV cp|U8* s|STRLEN* lenp
+Am|UV|toTITLE_uni|UV cp|U8* s|STRLEN* lenp
+Am|UV|toTITLE_utf8_safe|U8* p|U8* e|U8* s|STRLEN* lenp
 Am|UV|toTITLE_utf8|U8* p|U8* s|STRLEN* lenp
 Am|UV|toTITLE_uvchr|UV cp|U8* s|STRLEN* lenp
 Am|UV|toUPPER_uni|UV cp|U8* s|STRLEN* lenp
+Am|UV|toUPPER_utf8_safe|U8* p|U8* e|U8* s|STRLEN* lenp
 Am|UV|toUPPER_utf8|U8* p|U8* s|STRLEN* lenp
 Am|UV|toUPPER_uvchr|UV cp|U8* s|STRLEN* lenp
 Am|bool|DO_UTF8|SV* sv
+Am|bool|He_IS_SVKEY|HE* he
 Am|bool|OP_TYPE_IS_OR_WAS|OP *o|Optype type
 Am|bool|OP_TYPE_IS|OP *o|Optype type
 Am|bool|OpHAS_SIBLING|OP *o
-Am|bool|OpSIBLING_set|OP *o|OP *sib
-Am|bool|OpSIBLING|OP *o
 Am|bool|SvIOK_UV|SV* sv
 Am|bool|SvIOK_notUV|SV* sv
 Am|bool|SvIsCOW_shared_hash|SV* sv
@@ -267,6 +284,19 @@ Am|bool|SvTRUE_nomg|SV* sv
 Am|bool|SvTRUE|SV* sv
 Am|bool|SvUOK|SV* sv
 Am|bool|SvVOK|SV* sv
+Am|bool|UTF8_IS_INVARIANT|char c
+Am|bool|UTF8_IS_NONCHAR|const U8 *s|const U8 *e
+Am|bool|UTF8_IS_SUPER|const U8 *s|const U8 *e
+Am|bool|UTF8_IS_SURROGATE|const U8 *s|const U8 *e
+Am|bool|UVCHR_IS_INVARIANT|UV cp
+Am|bool|ckWARN2_d|U32 w1|U32 w2
+Am|bool|ckWARN2|U32 w1|U32 w2
+Am|bool|ckWARN3_d|U32 w1|U32 w2|U32 w3
+Am|bool|ckWARN3|U32 w1|U32 w2|U32 w3
+Am|bool|ckWARN4_d|U32 w1|U32 w2|U32 w3|U32 w4
+Am|bool|ckWARN4|U32 w1|U32 w2|U32 w3|U32 w4
+Am|bool|ckWARN_d|U32 w
+Am|bool|ckWARN|U32 w
 Am|bool|isALPHANUMERIC|char ch
 Am|bool|isALPHA|char ch
 Am|bool|isASCII|char ch
@@ -296,6 +326,7 @@ Am|bool|strNE|char* s1|char* s2
 Am|bool|strnEQ|char* s1|char* s2|STRLEN len
 Am|bool|strnNE|char* s1|char* s2|STRLEN len
 Am|char *|SvGROW|SV* sv|STRLEN len
+Am|char *|SvPVCLEAR|SV* sv
 Am|char*|HePV|HE* he|STRLEN len
 Am|char*|HvENAME|HV* stash
 Am|char*|HvNAME|HV* stash
@@ -320,7 +351,6 @@ Am|char*|SvPVx|SV* sv|STRLEN len
 Am|char*|SvPV|SV* sv|STRLEN len
 Am|const char *|OP_DESC|OP *o
 Am|const char *|OP_NAME|OP *o
-Am|int|AvFILL|AV* av
 Am|svtype|SvTYPE|SV* sv
 Am|unsigned char|HvENAMEUTF8|HV *stash
 Am|unsigned char|HvNAMEUTF8|HV *stash
@@ -446,6 +476,10 @@ Am|void|sv_setpvs|SV* sv|const char* s
 Am|void|sv_setsv_nomg|SV* dsv|SV* ssv
 Am||XopENTRYCUSTOM|const OP *o|which
 Am||XopENTRY|XOP *xop|which
+dMPpRx	|bool	|is_native_string |const char* s|STRLEN len
+dMPpRx|bool|is_native_string|const char* s|STRLEN len
+dMp||op_native_padsv_off|NN OP* o
+dMp||op_native_padsv_on|NN OP* o
 mU||LVRET
 mn|GV *|PL_DBsub
 mn|GV*|PL_last_in_gv
@@ -453,6 +487,7 @@ mn|GV*|PL_ofsgv
 mn|SV *|PL_DBsingle
 mn|SV *|PL_DBtrace
 mn|SV*|PL_rs
+mn|U8|PL_dowarn
 mn|bool|PL_dowarn
 ms||djSP
 mx|U32|BhkFLAGS|BHK *hk
@@ -488,3 +523,5 @@ m|void|PAD_SET_CUR_NOSAVE	|PADLIST padlist|I32 n
 m|void|SAVECLEARSV	|SV **svp
 m|void|SAVECOMPPAD
 m|void|SAVEPADSV	|PADOFFSET po
+s|OPCODE |op_native_variant	|NN OP* o|core_types_t t
+s|OPCODE |op_native_variant	|NN OP* o|core_types_t typeret|NN int* do_cast

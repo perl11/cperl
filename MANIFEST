@@ -799,6 +799,7 @@ cpan/Devel-PPPort/parts/inc/gv		Devel::PPPort include
 cpan/Devel-PPPort/parts/inc/HvNAME	Devel::PPPort include
 cpan/Devel-PPPort/parts/inc/limits	Devel::PPPort include
 cpan/Devel-PPPort/parts/inc/magic	Devel::PPPort include
+cpan/Devel-PPPort/parts/inc/magic_defs	Devel::PPPort include
 cpan/Devel-PPPort/parts/inc/memory	Devel::PPPort include
 cpan/Devel-PPPort/parts/inc/misc	Devel::PPPort include
 cpan/Devel-PPPort/parts/inc/mPUSH	Devel::PPPort include

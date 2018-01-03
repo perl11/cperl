@@ -36,6 +36,8 @@ PL_hexdigit
 PL_hints
 PL_in_my
 PL_in_my_stash
+PL_in_my_class
+PL_in_my_pod
 PL_laststatval
 PL_lex_state
 PL_lex_stuff
@@ -191,6 +193,8 @@ __NEED_DUMMY_VAR__ yy_parser PL_parser;
 # define PL_tokenbuf       D_PPP_my_PL_parser_var(tokenbuf)
 # define PL_in_my          D_PPP_my_PL_parser_var(in_my)
 # define PL_in_my_stash    D_PPP_my_PL_parser_var(in_my_stash)
+# define PL_in_my_class    D_PPP_my_PL_parser_var(in_my_class)
+# define PL_in_my_pod      D_PPP_my_PL_parser_var(in_my_pod)
 # define PL_error_count    D_PPP_my_PL_parser_var(error_count)
 
 
@@ -255,6 +259,8 @@ int dummy_parser_warning(void);
 # define ppp_expect_t expectation
 #elif { VERSION < 5.9.5 }
 # define ppp_expect_t int
+#elif { CPERL && VERSION >= 5.27.1 }
+# define ppp_expect_t expectation
 #else
 # define ppp_expect_t U8
 #endif
@@ -269,6 +275,8 @@ int dummy_parser_warning(void);
 # define ppp_in_my_t bool
 #elif { VERSION < 5.9.5 }
 # define ppp_in_my_t I32
+#elif { CPERL && VERSION >= 5.27.1 }
+# define ppp_in_my_t U8
 #else
 # define ppp_in_my_t U16
 #endif
@@ -405,7 +413,6 @@ other_variables()
                 ppp_TESTVAR(PL_sv_arenaroot);
                 ppp_TESTVAR(PL_tainted);
                 ppp_TESTVAR(PL_tainting);
-
                 ppp_PARSERVAR(ppp_expect_t, PL_expect);
                 ppp_PARSERVAR(line_t, PL_copline);
                 ppp_PARSERVAR(ppp_rsfp_t, PL_rsfp);
