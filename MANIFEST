@@ -3710,7 +3710,6 @@ dist/Net-Ping/t/000_load.t		Ping Net::Ping
 dist/Net-Ping/t/001_new.t		Ping Net::Ping
 dist/Net-Ping/t/010_pingecho.t		Ping Net::Ping
 dist/Net-Ping/t/020_external.t		Ping Net::Ping
-dist/Net-Ping/t/100_load.t		Ping Net::Ping
 dist/Net-Ping/t/110_icmp_inst.t		Ping Net::Ping
 dist/Net-Ping/t/120_udp_inst.t		Ping Net::Ping
 dist/Net-Ping/t/130_tcp_inst.t		Ping Net::Ping
@@ -3722,6 +3721,7 @@ dist/Net-Ping/t/250_ping_hires.t	Ping Net::Ping
 dist/Net-Ping/t/300_ping_stream.t	Ping Net::Ping
 dist/Net-Ping/t/400_ping_syn.t		Ping Net::Ping
 dist/Net-Ping/t/410_syn_host.t		Ping Net::Ping
+dist/Net-Ping/t/420_ping_syn_port.t
 dist/Net-Ping/t/450_service.t		Ping Net::Ping
 dist/Net-Ping/t/500_ping_icmp.t		Ping Net::Ping
 dist/Net-Ping/t/510_ping_udp.t		Ping Net::Ping

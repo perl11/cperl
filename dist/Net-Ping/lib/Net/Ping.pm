@@ -11,7 +11,7 @@ use Fcntl qw( F_GETFL F_SETFL O_NONBLOCK );
 use Socket qw( SOCK_DGRAM SOCK_STREAM SOCK_RAW AF_INET PF_INET IPPROTO_TCP
 	       SOL_SOCKET SO_ERROR SO_BROADCAST
                IPPROTO_IP IP_TOS IP_TTL
-               inet_ntoa inet_aton getnameinfo NI_NUMERICHOST sockaddr_in );
+               inet_ntoa inet_aton getnameinfo sockaddr_in );
 use POSIX qw( ENOTCONN ECONNREFUSED ECONNRESET EINPROGRESS EWOULDBLOCK EAGAIN
 	      WNOHANG );
 use FileHandle;
@@ -21,7 +21,9 @@ use Time::HiRes;
 @ISA = qw(Exporter);
 @EXPORT = qw(pingecho);
 @EXPORT_OK = qw(wakeonlan);
-$VERSION = "2.55";
+# perl5 has a bogus version 2.62, where they claim they are still maintaining it,
+# and broke v5.6.
+$VERSION = "2.63";
 
 # Globals
 
@@ -37,11 +39,11 @@ $syn_forking = 0;
 
 # Constants
 
-my $AF_INET6  = eval { Socket::AF_INET6() };
+my $AF_INET6  = eval { Socket::AF_INET6() } || 30;
 my $AF_UNSPEC = eval { Socket::AF_UNSPEC() };
-my $AI_NUMERICHOST = eval { Socket::AI_NUMERICHOST() };
-my $NI_NUMERICHOST = eval { Socket::NI_NUMERICHOST() };
-my $IPPROTO_IPV6   = eval { Socket::IPPROTO_IPV6() };
+my $AI_NUMERICHOST = eval { Socket::AI_NUMERICHOST() } || 4;
+my $NI_NUMERICHOST = eval { Socket::NI_NUMERICHOST() } || 2;
+my $IPPROTO_IPV6   = eval { Socket::IPPROTO_IPV6() }   || 41;
 #my $IPV6_HOPLIMIT  = eval { Socket::IPV6_HOPLIMIT() };  # ping6 -h 0-255
 my $qr_family = qr/^(?:(?:(:?ip)?v?(?:4|6))|${\AF_INET}|$AF_INET6)$/;
 my $qr_family4 = qr/^(?:(?:(:?ip)?v?4)|${\AF_INET})$/;
@@ -618,8 +620,11 @@ sub ping_external {
     ? ('ip' => $ip->{addr_in})
     : ('host' => $ip->{host});
 
-  eval { require Net::Ping::External; }
-    or croak('Protocol "external" not supported on your system: Net::Ping::External not found');
+  eval {
+    local @INC = @INC;
+    pop @INC if $INC[-1] eq '.';
+    require Net::Ping::External;
+  } or croak('Protocol "external" not supported on your system: Net::Ping::External not found');
   return Net::Ping::External::ping(@addr, timeout => $timeout,
                                    family => $family);
 }
@@ -1295,8 +1300,9 @@ sub ping_udp
         $done = 1;
       } else {
         ($from_port, $from_ip) = _unpack_sockaddr_in($from_saddr, $ip->{family});
+        my $addr_in = ref($ip) eq "HASH" ? $ip->{addr_in} : $ip;
         if (!$source_verify ||
-            (($from_ip eq $ip) &&        # Does the packet check out?
+            (($from_ip eq $addr_in) &&        # Does the packet check out?
              ($from_port == $self->{port_num}) &&
              ($from_msg eq $msg)))
         {
@@ -1379,7 +1385,7 @@ sub ping_syn
     }
   }
 
-  my $entry = [ $host, $ip, $fh, $start_time, $stop_time ];
+  my $entry = [ $host, $ip, $fh, $start_time, $stop_time, $self->{port_num} ];
   $self->{syn}->{$fh->fileno} = $entry;
   if ($self->{stop_time} < $stop_time) {
     $self->{stop_time} = $stop_time;
@@ -1558,7 +1564,7 @@ sub ack
           }
           # Everything passed okay, return the answer
           return wantarray ?
-            ($entry->[0], &time() - $entry->[3], $self->ntop($entry->[1]))
+            ($entry->[0], &time() - $entry->[3], $self->ntop($entry->[1]), $entry->[5])
             : $entry->[0];
         } else {
           warn "Corrupted SYN entry: unknown fd [$fd] ready!";
@@ -1712,10 +1718,8 @@ sub ntop {
     # Socket warns when undef is passed in, but it still works.
     my $port = getservbyname('echo', 'udp');
     my $sockaddr = _pack_sockaddr_in($port, $ip);
-    my ($error, $address) = getnameinfo($sockaddr, NI_NUMERICHOST);
-    if($error) {
-      croak $error;
-    }
+    my ($error, $address) = getnameinfo($sockaddr, $NI_NUMERICHOST);
+    croak $error if $error;
     return $address;
 }
 
@@ -1854,9 +1858,8 @@ sub _resolv {
         croak("getnameinfo($getaddr[0]->{addr}) failed - $err");
       }
     } else {
-      my $error = sprintf "getaddrinfo($h{host},,%s) failed - $err",
-                  ($family == AF_INET) ? "AF_INET" : "AF_INET6";
-      croak("$error");
+      croak(sprintf("getaddrinfo($h{host},,%s) failed - $err",
+                    $family == AF_INET ? "AF_INET" : "AF_INET6"));
     }
   # old way
   } else {
@@ -2023,7 +2026,7 @@ utility to perform the ping, and generally produces relatively
 accurate results. If C<Net::Ping::External> if not installed on your
 system, specifying the "external" protocol will result in an error.
 
-If the "syn" protocol is specified, the ping() method will only
+If the "syn" protocol is specified, the L</ping> method will only
 send a TCP SYN packet to the remote host then immediately return.
 If the syn packet was sent successfully, it will return a true value,
 otherwise it will return false.  NOTE: Unlike the other protocols,
@@ -2031,12 +2034,10 @@ the return value does NOT determine if the remote host is alive or
 not since the full TCP three-way handshake may not have completed
 yet.  The remote host is only considered reachable if it receives
 a TCP ACK within the timeout specified.  To begin waiting for the
-ACK packets, use the ack() method as explained below.  Use the
+ACK packets, use the L</ack> method as explained below.  Use the
 "syn" protocol instead the "tcp" protocol to determine reachability
 of multiple destinations simultaneously by sending parallel TCP
 SYN packets.  It will not block while testing each remote host.
-demo/fping is provided in this distribution to demonstrate the
-"syn" protocol as an example.
 This protocol does not require any special privileges.
 
 =head2 Functions
@@ -2047,6 +2048,7 @@ This protocol does not require any special privileges.
                       host, port, bind, gateway, retrans, pingstring,
                       source_verify econnrefused dontfrag
                       IPV6_USE_MIN_MTU IPV6_RECVPATHMTU])
+X<new>
 
 Create a new ping object.  All of the parameters are optional and can
 be passed as hash ref.  All options besides the first 7 must be passed
@@ -2106,6 +2108,7 @@ IP_PMTUDISC_DO but need we don't chunk oversized packets. You need to
 set $data_size manually.
 
 =item $p->ping($host [, $timeout [, $family]]);
+X<ping>
 
 Ping the remote host and wait for a response.  $host can be either the
 hostname or the IP number of the remote host.  The optional timeout
@@ -2121,6 +2124,7 @@ be a float, as returned by the Time::HiRes::time() function, if hires()
 has been previously called, otherwise it is returned as an integer.
 
 =item $p->source_verify( { 0 | 1 } );
+X<source_verify>
 
 Allows source endpoint verification to be enabled or disabled.
 This is useful for those remote destinations with multiples
@@ -2131,6 +2135,7 @@ This only affects udp and icmp protocol pings.
 This is enabled by default.
 
 =item $p->service_check( { 0 | 1 } );
+X<service_check>
 
 Set whether or not the connect behavior should enforce
 remote service availability as well as reachability.  Normally,
@@ -2155,28 +2160,34 @@ This affects the "udp", "tcp", and "syn" protocols.
 This is disabled by default.
 
 =item $p->tcp_service_check( { 0 | 1 } );
+X<tcp_service_check>
 
 Deprecated method, but does the same as service_check() method.
 
 =item $p->hires( { 0 | 1 } );
+X<hires>
 
 With 1 causes this module to use Time::HiRes module, allowing milliseconds
 to be returned by subsequent calls to ping().
 
 =item $p->time
+X<time>
 
 The current time, hires or not.
 
 =item $p->socket_blocking_mode( $fh, $mode );
+X<socket_blocking_mode>
 
 Sets or clears the O_NONBLOCK flag on a file handle.
 
 =item $p->IPV6_USE_MIN_MTU
+X<IPV6_USE_MIN_MTU>
 
 With argument sets the option.
 Without returns the option value.
 
 =item $p->IPV6_RECVPATHMTU
+X<IPV6_RECVPATHMTU>
 
 Notify an according IPv6 MTU.
 
@@ -2184,11 +2195,13 @@ With argument sets the option.
 Without returns the option value.
 
 =item $p->IPV6_HOPLIMIT
+X<IPV6_HOPLIMIT>
 
 With argument sets the option.
 Without returns the option value.
 
 =item $p->IPV6_REACHCONF I<NYI>
+X<IPV6_REACHCONF>
 
 Sets ipv6 reachability
 IPV6_REACHCONF was removed in RFC3542. ping6 -R supports it.
@@ -2200,6 +2213,7 @@ Without returns the option value.
 Not yet implemented.
 
 =item $p->bind($local_addr);
+X<bind>
 
 Sets the source address from which pings will be sent.  This must be
 the address of one of the interfaces on the local host.  $local_addr
@@ -2217,6 +2231,7 @@ The bind() call can be omitted when specifying the C<bind> option to
 new().
 
 =item $p->open($host);
+X<open>
 
 When you are using the "stream" protocol, this call pre-opens the
 tcp socket.  It's only necessary to do this if you want to
@@ -2231,6 +2246,7 @@ The $host argument can be omitted when specifying the C<host> option to
 new().
 
 =item $p->ack( [ $host ] );
+X<ack>
 
 When using the "syn" protocol, use this method to determine
 the reachability of the remote host.  This method is meant
@@ -2242,59 +2258,68 @@ SYN queued using the ping() method.  If the timeout is
 reached before the TCP ACK is received, or if the remote
 host is not listening on the port attempted, then the TCP
 connection will not be established and ack() will return
-undef.  In list context, the host, the ack time, and the
-dotted ip string will be returned instead of just the host.
-If the optional $host argument is specified, the return
+undef.  In list context, the host, the ack time, the dotted ip 
+string, and the port number will be returned instead of just the host.
+If the optional C<$host> argument is specified, the return
 value will be pertaining to that host only.
 This call simply does nothing if you are using any protocol
-other than syn.
+other than "syn".
 
-When new() had a host option, this host will be used.
-Without host argument, all hosts are scanned.
+When L</new> had a host option, this host will be used.
+Without C<$host> argument, all hosts are scanned.
 
 =item $p->nack( $failed_ack_host );
+X<nack>
 
-The reason that host $failed_ack_host did not receive a
-valid ACK.  Useful to find out why when ack( $fail_ack_host )
+The reason that C<host $failed_ack_host> did not receive a
+valid ACK.  Useful to find out why when C<ack($fail_ack_host)>
 returns a false value.
 
 =item $p->ack_unfork($host)
+X<ack_unfork>
 
-The variant called by ack() with the syn protocol and $syn_forking
+The variant called by L</ack> with the "syn" protocol and C<$syn_forking>
 enabled.
 
 =item $p->ping_icmp([$host, $timeout, $family])
+X<ping_icmp>
 
-The ping() method used with the icmp protocol.
+The L</ping> method used with the icmp protocol.
 
 =item $p->ping_icmpv6([$host, $timeout, $family]) I<NYI>
+X<ping_icmpv6>
 
-The ping() method used with the icmpv6 protocol.
+The L</ping> method used with the icmpv6 protocol.
 
 =item $p->ping_stream([$host, $timeout, $family])
+X<ping_stream>
 
-The ping() method used with the stream protocol.
+The L</ping> method used with the stream protocol.
 
 Perform a stream ping.  If the tcp connection isn't
 already open, it opens it.  It then sends some data and waits for
 a reply.  It leaves the stream open on exit.
 
 =item $p->ping_syn([$host, $ip, $start_time, $stop_time])
+X<ping_syn>
 
-The ping() method used with the syn protocol.
+The L</ping> method used with the syn protocol.
 Sends a TCP SYN packet to host specified.
 
 =item $p->ping_syn_fork([$host, $timeout, $family])
+X<ping_syn_fork>
 
-The ping() method used with the forking syn protocol.
+The L</ping> method used with the forking syn protocol.
 
 =item $p->ping_tcp([$host, $timeout, $family])
+X<ping_tcp>
 
-The ping() method used with the tcp protocol.
+The L</ping> method used with the tcp protocol.
 
 =item $p->ping_udp([$host, $timeout, $family])
+X<ping_udp>
 
-The ping() method used with the udp protocol.
+The L</ping> method used with the udp protocol.
 
 Perform a udp echo ping.  Construct a message of
 at least the one-byte sequence number and any additional data bytes.
@@ -2304,21 +2329,25 @@ done.  Otherwise go back and wait for the message until we run out
 of time.  Return the result of our efforts.
 
 =item $p->ping_external([$host, $timeout, $family])
+X<ping_external>
 
-The ping() method used with the external protocol.
-Uses Net::Ping::External to do an external ping.
+The L</ping> method used with the external protocol.
+Uses L<Net::Ping::External> to do an external ping.
 
 =item $p->tcp_connect([$ip, $timeout])
+X<tcp_connect>
 
 Initiates a TCP connection, for a tcp ping.
 
 =item $p->tcp_echo([$ip, $timeout, $pingstring])
+X<tcp_echo>
 
 Performs a TCP echo.
 It writes the given string to the socket and then reads it
 back.  It returns 1 on success, 0 on failure.
 
 =item $p->close();
+X<close>
 
 Close the network connection for this ping object.  The network
 connection is also closed by "undef $p".  The network connection is
@@ -2326,45 +2355,52 @@ automatically closed if the ping object goes out of scope (e.g. $p is
 local to a subroutine and you leave the subroutine).
 
 =item $p->port_number([$port_number])
+X<port_number>
 
 When called with a port number, the port number used to ping is set to
-$port_number rather than using the echo port.  It also has the effect
+C<$port_number> rather than using the echo port.  It also has the effect
 of calling C<$p-E<gt>service_check(1)> causing a ping to return a successful
 response only if that specific port is accessible.  This function returns
-the value of the port that C<ping()> will connect to.
+the value of the port that L</ping> will connect to.
 
 =item $p->mselect
+X<mselect>
 
-A select() wrapper that compensates for platform
+A C<select()> wrapper that compensates for platform
 peculiarities.
 
 =item $p->ntop
+X<ntop>
 
-Platform abstraction over inet_ntop()
+Platform abstraction over C<inet_ntop()>
 
 =item $p->checksum($msg)
+X<checksum>
 
 Do a checksum on the message.  Basically sum all of
 the short words and fold the high order bits into the low order bits.
 
 =item $p->icmp_result
+X<icmp_result>
 
 Returns a list of addr, type, subcode.
 
 =item pingecho($host [, $timeout]);
+X<pingecho>
 
 To provide backward compatibility with the previous version of
-Net::Ping, a pingecho() subroutine is available with the same
-functionality as before.  pingecho() uses the tcp protocol.  The
-return values and parameters are the same as described for the ping()
+L<Net::Ping>, a C<pingecho()> subroutine is available with the same
+functionality as before.  C<pingecho()> uses the tcp protocol.  The
+return values and parameters are the same as described for the L</ping>
 method.  This subroutine is obsolete and may be removed in a future
-version of Net::Ping.
+version of L<Net::Ping>.
 
 =item wakeonlan($mac, [$host, [$port]])
+X<wakeonlan>
 
 Emit the popular wake-on-lan magic udp packet to wake up a local
 device.  See also L<Net::Wake>, but this has the mac address as 1st arg.
-$host should be the local gateway. Without it will broadcast.
+C<$host> should be the local gateway. Without it will broadcast.
 
 Default host: '255.255.255.255'
 Default port: 9
@@ -2426,14 +2462,6 @@ To report a new bug, visit:
 
 L<https://rt.cpan.org/NoAuth/ReportBug.html?Queue=Net-Ping> (stale)
 
-or call:
-
-  perlbug
-
-resp.:
-
-  cperlbug
-
 =head1 AUTHORS
 
   Current maintainers:
@@ -2461,6 +2489,8 @@ resp.:
     mose@ns.ccsn.edu (Russell Mosemann)
 
 =head1 COPYRIGHT
+
+Copyright (c) 2017, Reini Urban.  All rights reserved.
 
 Copyright (c) 2016, cPanel Inc.  All rights reserved.
 
