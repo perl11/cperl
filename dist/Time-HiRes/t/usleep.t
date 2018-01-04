@@ -9,6 +9,7 @@ BEGIN {
 }
 
 use Test::More tests => 6;
+BEGIN { push @INC, '.' }
 use t::Watchdog;
 
 eval { Time::HiRes::usleep(-2) };
@@ -23,7 +24,7 @@ my $two = CORE::time;
 Time::HiRes::usleep(10_000);
 my $three = CORE::time;
 ok $one == $two || $two == $three
-  or diag "slept too long, $one $two $three";
+or print("# slept too long, $one $two $three\n");
 
 SKIP: {
     skip "no gettimeofday", 1 unless &Time::HiRes::d_gettimeofday;
@@ -31,7 +32,7 @@ SKIP: {
     Time::HiRes::usleep(500_000);
     my $f2 = Time::HiRes::time();
     my $d = $f2 - $f;
-    ok $d > 0.4 && $d < 0.9 or diag "slept $d secs $f to $f2";
+    ok $d > 0.49 or print("# slept $d secs $f to $f2\n");
 }
 
 SKIP: {
@@ -39,7 +40,7 @@ SKIP: {
     my $r = [ Time::HiRes::gettimeofday() ];
     Time::HiRes::sleep( 0.5 );
     my $f = Time::HiRes::tv_interval $r;
-    my $ok = $f > 0.4 && $f < 0.9 ? 1 : 0;
+    my $ok = $f > 0.49 && $f < 0.9 ? 1 : 0;
     if (!$ok and $ENV{TRAVIS_CI}) {
         ok 1, "SKIP flapping test on overly slow Travis CI. slept $f instead of 0.5 secs";
     } else {
@@ -64,7 +65,7 @@ SKIP: {
 
     SKIP: {
 	skip $msg, 1 unless $td < $sleep * (1 + $limit);
-	ok $a < $limit or diag "$msg";
+	ok $a < $limit or print("# $msg\n");
     }
 
     $t0 = Time::HiRes::gettimeofday();
@@ -76,7 +77,7 @@ SKIP: {
 
     SKIP: {
 	skip $msg, 1 unless $td < $sleep * (1 + $limit);
-	ok $a < $limit or diag "$msg";
+	ok $a < $limit or print("# $msg\n");
     }
 }
 

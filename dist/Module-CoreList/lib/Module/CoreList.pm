@@ -16180,6 +16180,7 @@ our %delta = (
             'TAP::Parser::YAMLish::Writer'=> '3.39',
             'Test::Harness'         => '3.39',
             'Thread::Queue'         => '3.12',
+            'Time::HiRes'           => '1.9751',
             'VMS::DCLsym'           => '1.09',
             'VMS::Stdio'            => '2.44_01',
         },

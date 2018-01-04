@@ -237,6 +237,8 @@ Updated from 3.01, many critical fixes.
 
 =item L<Thread::Queue>  3.12
 
+=item L<Time::HiRes>  1.9751
+
 =item L<VMS::DCLsym>  1.09
 
 =item L<VMS::Stdio>  2.44_01
