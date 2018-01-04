@@ -10,7 +10,7 @@ package Math::BigFloat::Test;
 
 use Math::BigFloat;
 require Exporter;
-our @ISA = qw/Exporter Math::BigFloat/;
+our @ISA = qw/Math::BigFloat Exporter/;
 
 use overload;
 
@@ -67,4 +67,4 @@ is($z, 321,
    . q| $z = $x->badd($y); $z|);
 
 # not yet:
-#require 't/upgrade.inc';	# all tests here for sharing
+#require './t/upgrade.inc';	# all tests here for sharing

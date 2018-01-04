@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3913            # tests in require'd file
+use Test::More tests => 3942            # tests in require'd file
                          + 5;           # tests in this file
 
 use lib 't';
@@ -14,7 +14,7 @@ our ($CLASS, $CALC);
 $CLASS = "Math::BigInt::Subclass";
 $CALC  = "Math::BigInt::Calc";          # backend
 
-require 't/bigintpm.inc';	        # perform same tests as bigintpm
+require './t/bigintpm.inc';	        # perform same tests as bigintpm
 
 ###############################################################################
 # Now do custom tests for Subclass itself

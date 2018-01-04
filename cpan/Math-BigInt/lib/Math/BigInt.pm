@@ -20,8 +20,7 @@ use warnings;
 
 use Carp ();
 
-our $VERSION = '1.999726';
-$VERSION = eval $VERSION;
+our $VERSION = '1.999811_01';
 
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(objectify bgcd blcm);
@@ -53,7 +52,6 @@ use overload
 
   '/'     =>      sub { $_[2] ? ref($_[0]) -> new($_[1]) -> bdiv($_[0])
                               : $_[0] -> copy -> bdiv($_[1]); },
-
 
   '%'     =>      sub { $_[2] ? ref($_[0]) -> new($_[1]) -> bmod($_[0])
                               : $_[0] -> copy -> bmod($_[1]); },
@@ -414,7 +412,7 @@ sub precision {
 
 sub config {
     # return (or set) configuration data as hash ref
-    my $class = shift || 'Math::BigInt';
+    my $class = shift || __PACKAGE__;
 
     no strict 'refs';
     if (@_ > 1 || (@_ == 1 && (ref($_[0]) eq 'HASH'))) {
@@ -721,6 +719,10 @@ sub from_hex {
     my $selfref = ref $self;
     my $class   = $selfref || $self;
 
+    # Don't modify constant (read-only) objects.
+
+    return if $selfref && $self->modify('from_hex');
+
     my $str = shift;
 
     # If called as a class method, initialize a new object.
@@ -729,12 +731,14 @@ sub from_hex {
 
     if ($str =~ s/
                      ^
+                     \s*
                      ( [+-]? )
                      (0?x)?
                      (
                          [0-9a-fA-F]*
                          ( _ [0-9a-fA-F]+ )*
                      )
+                     \s*
                      $
                  //x)
     {
@@ -752,9 +756,8 @@ sub from_hex {
 
         # Place the sign.
 
-        if ($sign eq '-' && ! $CALC->_is_zero($self->{value})) {
-            $self->{sign} = '-';
-        }
+        $self->{sign} = $sign eq '-' && ! $CALC->_is_zero($self->{value})
+                          ? '-' : '+';
 
         return $self;
     }
@@ -772,6 +775,10 @@ sub from_oct {
     my $selfref = ref $self;
     my $class   = $selfref || $self;
 
+    # Don't modify constant (read-only) objects.
+
+    return if $selfref && $self->modify('from_oct');
+
     my $str = shift;
 
     # If called as a class method, initialize a new object.
@@ -780,11 +787,13 @@ sub from_oct {
 
     if ($str =~ s/
                      ^
+                     \s*
                      ( [+-]? )
                      (
                          [0-7]*
                          ( _ [0-7]+ )*
                      )
+                     \s*
                      $
                  //x)
     {
@@ -802,9 +811,8 @@ sub from_oct {
 
         # Place the sign.
 
-        if ($sign eq '-' && ! $CALC->_is_zero($self->{value})) {
-            $self->{sign} = '-';
-        }
+        $self->{sign} = $sign eq '-' && ! $CALC->_is_zero($self->{value})
+                          ? '-' : '+';
 
         return $self;
     }
@@ -822,6 +830,10 @@ sub from_bin {
     my $selfref = ref $self;
     my $class   = $selfref || $self;
 
+    # Don't modify constant (read-only) objects.
+
+    return if $selfref && $self->modify('from_bin');
+
     my $str = shift;
 
     # If called as a class method, initialize a new object.
@@ -830,12 +842,14 @@ sub from_bin {
 
     if ($str =~ s/
                      ^
+                     \s*
                      ( [+-]? )
                      (0?b)?
                      (
                          [01]*
                          ( _ [01]+ )*
                      )
+                     \s*
                      $
                  //x)
     {
@@ -853,9 +867,8 @@ sub from_bin {
 
         # Place the sign.
 
-        if ($sign eq '-' && ! $CALC->_is_zero($self->{value})) {
-            $self->{sign} = '-';
-        }
+        $self->{sign} = $sign eq '-' && ! $CALC->_is_zero($self->{value})
+                          ? '-' : '+';
 
         return $self;
     }
@@ -864,6 +877,30 @@ sub from_bin {
     # input is invalid.
 
     return $self->bnan();
+}
+
+# Create a Math::BigInt from a byte string.
+
+sub from_bytes {
+    my $self    = shift;
+    my $selfref = ref $self;
+    my $class   = $selfref || $self;
+
+    # Don't modify constant (read-only) objects.
+
+    return if $selfref && $self->modify('from_bytes');
+
+    Carp::croak("from_bytes() requires a newer version of the $CALC library.")
+        unless $CALC->can('_from_bytes');
+
+    my $str = shift;
+
+    # If called as a class method, initialize a new object.
+
+    $self = $class -> bzero() unless $selfref;
+    $self -> {sign}  = '+';
+    $self -> {value} = $CALC -> _from_bytes($str);
+    return $self;
 }
 
 sub bzero {
@@ -880,7 +917,10 @@ sub bzero {
     my $class   = $selfref || $self;
 
     $self->import() if $IMPORT == 0;            # make require work
-    return if $self->modify('bzero');
+
+    # Don't modify constant (read-only) objects.
+
+    return if $selfref && $self->modify('bzero');
 
     $self = bless {}, $class unless $selfref;
 
@@ -917,7 +957,10 @@ sub bone {
     my $class   = $selfref || $self;
 
     $self->import() if $IMPORT == 0;            # make require work
-    return if $self->modify('bzero');
+
+    # Don't modify constant (read-only) objects.
+
+    return if $selfref && $self->modify('bone');
 
     my $sign = shift;
     $sign = defined $sign && $sign =~ /^\s*-/ ? "-" : "+";
@@ -966,7 +1009,10 @@ sub binf {
     }
 
     $self->import() if $IMPORT == 0;            # make require work
-    return if $self->modify('binf');
+
+    # Don't modify constant (read-only) objects.
+
+    return if $selfref && $self->modify('binf');
 
     my $sign = shift;
     $sign = defined $sign && $sign =~ /^\s*-/ ? "-" : "+";
@@ -1000,7 +1046,10 @@ sub bnan {
     }
 
     $self->import() if $IMPORT == 0;            # make require work
-    return if $self->modify('bnan');
+
+    # Don't modify constant (read-only) objects.
+
+    return if $selfref && $self->modify('bnan');
 
     $self = bless {}, $class unless $selfref;
 
@@ -2336,20 +2385,25 @@ sub blog {
     # value is used as the base, otherwise the base is assumed to be Euler's
     # constant.
 
+    my ($class, $x, $base, @r);
+
     # Don't objectify the base, since an undefined base, as in $x->blog() or
     # $x->blog(undef) signals that the base is Euler's number.
 
-    # set up parameters
-    my ($class, $x, $base, @r) = (undef, @_);
-    # objectify is costly, so avoid it
-    if ((!ref($_[0])) || (ref($_[0]) ne ref($_[1]))) {
-        ($class, $x, $base, @r) = objectify(1, @_);
+    if (!ref($_[0]) && $_[0] =~ /^[A-Za-z]|::/) {
+        # E.g., Math::BigInt->blog(256, 2)
+        ($class, $x, $base, @r) =
+          defined $_[2] ? objectify(2, @_) : objectify(1, @_);
+    } else {
+        # E.g., Math::BigInt::blog(256, 2) or $x->blog(2)
+        ($class, $x, $base, @r) =
+          defined $_[1] ? objectify(2, @_) : objectify(1, @_);
     }
 
     return $x if $x->modify('blog');
 
-    # Handle all exception cases and all trivial cases. I have used Wolfram Alpha
-    # (http://www.wolframalpha.com) as the reference for these cases.
+    # Handle all exception cases and all trivial cases. I have used Wolfram
+    # Alpha (http://www.wolframalpha.com) as the reference for these cases.
 
     return $x -> bnan() if $x -> is_nan();
 
@@ -2666,6 +2720,132 @@ sub bfac {
 
     $x->{value} = $CALC->_fac($x->{value});
     $x->round(@r);
+}
+
+sub bdfac {
+    # compute double factorial, modify $x in place
+    my ($class, $x, @r) = ref($_[0]) ? (undef, @_) : objectify(1, @_);
+
+    return $x if $x->modify('bdfac') || $x->{sign} eq '+inf'; # inf => inf
+    return $x->bnan() if $x->{sign} ne '+'; # NaN, <0 etc => NaN
+
+    Carp::croak("bdfac() requires a newer version of the $CALC library.")
+        unless $CALC->can('_dfac');
+
+    $x->{value} = $CALC->_dfac($x->{value});
+    $x->round(@r);
+}
+
+sub bfib {
+    # compute Fibonacci number(s)
+    my ($class, $x, @r) = objectify(1, @_);
+
+    Carp::croak("bfib() requires a newer version of the $CALC library.")
+        unless $CALC->can('_fib');
+
+    return $x if $x->modify('bfib');
+
+    # List context.
+
+    if (wantarray) {
+        return () if $x ->  is_nan();
+        Carp::croak("bfib() can't return an infinitely long list of numbers")
+            if $x -> is_inf();
+
+        # Use the backend library to compute the first $x Fibonacci numbers.
+
+        my @values = $CALC->_fib($x->{value});
+
+        # Make objects out of them. The last element in the array is the
+        # invocand.
+
+        for (my $i = 0 ; $i < $#values ; ++ $i) {
+            my $fib =  $class -> bzero();
+            $fib -> {value} = $values[$i];
+            $values[$i] = $fib;
+        }
+
+        $x -> {value} = $values[-1];
+        $values[-1] = $x;
+
+        # If negative, insert sign as appropriate.
+
+        if ($x -> is_neg()) {
+            for (my $i = 2 ; $i <= $#values ; $i += 2) {
+                $values[$i]{sign} = '-';
+            }
+        }
+
+        @values = map { $_ -> round(@r) } @values;
+        return @values;
+    }
+
+    # Scalar context.
+
+    else {
+        return $x if $x->modify('bdfac') || $x ->  is_inf('+');
+        return $x->bnan() if $x -> is_nan() || $x -> is_inf('-');
+
+        $x->{sign}  = $x -> is_neg() && $x -> is_even() ? '-' : '+';
+        $x->{value} = $CALC->_fib($x->{value});
+        return $x->round(@r);
+    }
+}
+
+sub blucas {
+    # compute Lucas number(s)
+    my ($class, $x, @r) = objectify(1, @_);
+
+    Carp::croak("blucas() requires a newer version of the $CALC library.")
+        unless $CALC->can('_lucas');
+
+    return $x if $x->modify('blucas');
+
+    # List context.
+
+    if (wantarray) {
+        return () if $x -> is_nan();
+        Carp::croak("blucas() can't return an infinitely long list of numbers")
+            if $x -> is_inf();
+
+        # Use the backend library to compute the first $x Lucas numbers.
+
+        my @values = $CALC->_lucas($x->{value});
+
+        # Make objects out of them. The last element in the array is the
+        # invocand.
+
+        for (my $i = 0 ; $i < $#values ; ++ $i) {
+            my $lucas =  $class -> bzero();
+            $lucas -> {value} = $values[$i];
+            $values[$i] = $lucas;
+        }
+
+        $x -> {value} = $values[-1];
+        $values[-1] = $x;
+
+        # If negative, insert sign as appropriate.
+
+        if ($x -> is_neg()) {
+            for (my $i = 2 ; $i <= $#values ; $i += 2) {
+                $values[$i]{sign} = '-';
+            }
+        }
+
+        @values = map { $_ -> round(@r) } @values;
+        return @values;
+    }
+
+    # Scalar context.
+
+    else {
+        return $x if $x ->  is_inf('+');
+        return $x->bnan() if $x -> is_nan() || $x -> is_inf('-');
+
+        $x->{sign}  = $x -> is_neg() && $x -> is_even() ? '-' : '+';
+        $x->{value} = $CALC->_lucas($x->{value});
+        return $x->round(@r);
+    }
 }
 
 sub blsft {
@@ -3094,41 +3274,43 @@ sub bgcd {
     # does not modify arguments, but returns new object
     # GCD -- Euclid's algorithm, variant C (Knuth Vol 3, pg 341 ff)
 
-    my $y = shift;
-    $y = $class->new($y) if !ref($y);
-    my $class = ref($y);
-    my $x = $y->copy()->babs();                  # keep arguments
-    return $x->bnan() if $x->{sign} !~ /^[+-]$/; # x NaN?
+    my ($class, @args) = objectify(0, @_);
 
-    while (@_) {
-        $y = shift;
-        $y = $class->new($y) if !ref($y);
-        return $x->bnan() if $y->{sign} !~ /^[+-]$/; # y NaN?
+    my $x = shift @args;
+    $x = ref($x) && $x -> isa($class) ? $x -> copy() : $class -> new($x);
+
+    return $class->bnan() if $x->{sign} !~ /^[+-]$/;    # x NaN?
+
+    while (@args) {
+        my $y = shift @args;
+        $y = $class->new($y) unless ref($y) && $y -> isa($class);
+        return $class->bnan() if $y->{sign} !~ /^[+-]$/;    # y NaN?
         $x->{value} = $CALC->_gcd($x->{value}, $y->{value});
         last if $CALC->_is_one($x->{value});
     }
-    $x;
+
+    return $x -> babs();
 }
 
 sub blcm {
     # (BINT or num_str, BINT or num_str) return BINT
     # does not modify arguments, but returns new object
-    # Lowest Common Multiple
+    # Least Common Multiple
 
-    my $y = shift;
-    my ($x);
-    if (ref($y)) {
-        $x = $y->copy();
-    } else {
-        $x = $class->new($y);
+    my ($class, @args) = objectify(0, @_);
+
+    my $x = shift @args;
+    $x = ref($x) && $x -> isa($class) ? $x -> copy() : $class -> new($x);
+    return $class->bnan() if $x->{sign} !~ /^[+-]$/;    # x NaN?
+
+    while (@args) {
+        my $y = shift @args;
+        $y = $class -> new($y) unless ref($y) && $y -> isa($class);
+        return $x->bnan() if $y->{sign} !~ /^[+-]$/;     # y not integer
+        $x -> {value} = $CALC->_lcm($x -> {value}, $y -> {value});
     }
-    my $class = ref($x);
-    while (@_) {
-        my $y = shift;
-        $y = $class->new($y) if !ref ($y);
-        $x = __lcm($x, $y);
-    }
-    $x;
+
+    return $x -> babs();
 }
 
 ###############################################################################
@@ -3443,6 +3625,53 @@ sub bdstr {
     return $x->{sign} eq '-' ? "-$str" : $str;
 }
 
+sub to_hex {
+    # return as hex string, with prefixed 0x
+    my $x = shift;
+    $x = $class->new($x) if !ref($x);
+
+    return $x->bstr() if $x->{sign} !~ /^[+-]$/; # inf, nan etc
+
+    my $hex = $CALC->_to_hex($x->{value});
+    return $x->{sign} eq '-' ? "-$hex" : $hex;
+}
+
+sub to_oct {
+    # return as octal string, with prefixed 0
+    my $x = shift;
+    $x = $class->new($x) if !ref($x);
+
+    return $x->bstr() if $x->{sign} !~ /^[+-]$/; # inf, nan etc
+
+    my $oct = $CALC->_to_oct($x->{value});
+    return $x->{sign} eq '-' ? "-$oct" : $oct;
+}
+
+sub to_bin {
+    # return as binary string, with prefixed 0b
+    my $x = shift;
+    $x = $class->new($x) if !ref($x);
+
+    return $x->bstr() if $x->{sign} !~ /^[+-]$/; # inf, nan etc
+
+    my $bin = $CALC->_to_bin($x->{value});
+    return $x->{sign} eq '-' ? "-$bin" : $bin;
+}
+
+sub to_bytes {
+    # return a byte string
+    my $x = shift;
+    $x = $class->new($x) if !ref($x);
+
+    Carp::croak("to_bytes() requires a finite, non-negative integer")
+        if $x -> is_neg() || ! $x -> is_int();
+
+    Carp::croak("to_bytes() requires a newer version of the $CALC library.")
+        unless $CALC->can('_to_bytes');
+
+    return $CALC->_to_bytes($x->{value});
+}
+
 sub as_hex {
     # return as hex string, with prefixed 0x
     my $x = shift;
@@ -3450,9 +3679,8 @@ sub as_hex {
 
     return $x->bstr() if $x->{sign} !~ /^[+-]$/; # inf, nan etc
 
-    my $s = '';
-    $s = $x->{sign} if $x->{sign} eq '-';
-    $s . $CALC->_as_hex($x->{value});
+    my $hex = $CALC->_as_hex($x->{value});
+    return $x->{sign} eq '-' ? "-$hex" : $hex;
 }
 
 sub as_oct {
@@ -3473,10 +3701,11 @@ sub as_bin {
 
     return $x->bstr() if $x->{sign} !~ /^[+-]$/; # inf, nan etc
 
-    my $s = '';
-    $s = $x->{sign} if $x->{sign} eq '-';
-    return $s . $CALC->_as_bin($x->{value});
+    my $bin = $CALC->_as_bin($x->{value});
+    return $x->{sign} eq '-' ? "-$bin" : $bin;
 }
+
+*as_bytes = \&to_bytes;
 
 ###############################################################################
 # Other conversion methods
@@ -3526,7 +3755,8 @@ sub objectify {
     # Class->badd(Class->(1), 2);  => classname x (scalar), ref x, scalar y
     # Math::BigInt::badd(1, 2);    => scalar x, scalar y
 
-    # A shortcut for the common case $x->unary_op():
+    # A shortcut for the common case $x->unary_op(), in which case the argument
+    # list is (0, $x) or (1, $x).
 
     return (ref($_[1]), $_[1]) if @_ == 2 && ($_[0] || 0) == 1 && ref($_[1]);
 
@@ -3539,7 +3769,6 @@ sub objectify {
     # Get the number of arguments to objectify.
 
     my $count = shift;
-    $count ||= @_;
 
     # Initialize the output array.
 
@@ -3549,16 +3778,17 @@ sub objectify {
     # class name. Otherwise, if the first argument looks like a class name,
     # then use that as our class name. Otherwise, use the default class name.
 
-    {
-        if (ref($a[0])) {               # reference?
-            unshift @a, ref($a[0]);
-            last;
-        }
-        if ($a[0] =~ /^[A-Z].*::/) {    # string with class name?
-            last;
-        }
-        unshift @a, $class;             # default class name
+    my $class;
+    if (ref($a[0])) {                   # reference?
+        $class = ref($a[0]);
+    } elsif ($a[0] =~ /^[A-Z].*::/) {   # string with class name?
+        $class = shift @a;
+    } else {
+        $class = __PACKAGE__;           # default class name
     }
+
+    $count ||= @a;
+    unshift @a, $class;
 
     no strict 'refs';
 
@@ -3576,6 +3806,7 @@ sub objectify {
     }
 
     for my $i (1 .. $count) {
+
         my $ref = ref $a[$i];
 
         # Perl scalars are fed to the appropriate constructor.
@@ -4021,21 +4252,6 @@ sub _find_round_parameters {
     ($self, $a, $p, $r);
 }
 
-##############################################################################
-# internal calculation routines (others are in Math::BigInt::Calc etc)
-
-sub __lcm {
-    # (BINT or num_str, BINT or num_str) return BINT
-    # does modify first argument
-    # LCM
-
-    my ($x, $ty) = @_;
-    return $x->bnan() if ($x->{sign} eq $nan) || ($ty->{sign} eq $nan);
-    my $method = ref($x) . '::bgcd';
-    no strict 'refs';
-    $x * $ty / &$method($x, $ty);
-}
-
 ###############################################################################
 # this method returns 0 if the object can be modified, or 1 if not.
 # We use a fast constant sub() here, to avoid costly calls. Subclasses
@@ -4224,6 +4440,12 @@ Math::BigInt - Arbitrary size integer/float math package
   $x->bnstr();        # string in normalized notation
   $x->bestr();        # string in engineering notation
   $x->bdstr();        # string in decimal notation
+
+  $x->to_hex();       # as signed hexadecimal string
+  $x->to_bin();       # as signed binary string
+  $x->to_oct();       # as signed octal string
+  $x->to_bytes();     # as byte string
+
   $x->as_hex();       # as signed hexadecimal string with prefixed 0x
   $x->as_bin();       # as signed binary string with prefixed 0b
   $x->as_oct();       # as signed octal string with prefixed 0
@@ -4272,7 +4494,7 @@ If the string can not be interpreted, NaN is returned.
 
 Octal numbers are typically prefixed by "0", but since leading zeros are
 stripped, these methods can not automatically recognize octal numbers, so use
-the constructor from_oct() to intepret octal strings.
+the constructor from_oct() to interpret octal strings.
 
 Some examples of valid string input
 
@@ -4434,6 +4656,7 @@ This is used for instance by L<Math::BigInt::Constant>.
 
     print Dumper ( Math::BigInt->config() );
     print Math::BigInt->config()->{lib},"\n";
+    print Math::BigInt->config('lib')},"\n";
 
 Returns a hash containing the configuration, e.g. the version number, lib
 loaded etc. The following hash keys are currently filled in with the
@@ -4518,6 +4741,31 @@ invalid, a NaN is returned.
 Interpret the input as a binary string. A "0b" or "b" prefix is optional. A
 single underscore character may be placed right after the prefix, if present,
 or between any two digits. If the input is invalid, a NaN is returned.
+
+=item from_bytes()
+
+    $x = Math::BigInt->from_bytes("\xf3\x6b");  # $x = 62315
+
+Interpret the input as a byte string, assuming big endian byte order. The
+output is always a non-negative, finite integer.
+
+In some special cases, from_bytes() matches the conversion done by unpack():
+
+    $b = "\x4e";                             # one char byte string
+    $x = Math::BigInt->from_bytes($b);       # = 78
+    $y = unpack "C", $b;                     # ditto, but scalar
+
+    $b = "\xf3\x6b";                         # two char byte string
+    $x = Math::BigInt->from_bytes($b);       # = 62315
+    $y = unpack "S>", $b;                    # ditto, but scalar
+
+    $b = "\x2d\xe0\x49\xad";                 # four char byte string
+    $x = Math::BigInt->from_bytes($b);       # = 769673645
+    $y = unpack "L>", $b;                    # ditto, but scalar
+
+    $b = "\x2d\xe0\x49\xad\x2d\xe0\x49\xad"; # eight char byte string
+    $x = Math::BigInt->from_bytes($b);       # = 3305723134637787565
+    $y = unpack "Q>", $b;                    # ditto, but scalar
 
 =item bzero()
 
@@ -5032,6 +5280,86 @@ Calculates the N'th root of C<$x>.
 
     $x->bfac();                 # factorial of $x (1*2*3*4*..*$x)
 
+Returns the factorial of C<$x>, i.e., the product of all positive integers up
+to and including C<$x>.
+
+=item bdfac()
+
+    $x->bdfac();                # double factorial of $x (1*2*3*4*..*$x)
+
+Returns the double factorial of C<$x>. If C<$x> is an even integer, returns the
+product of all positive, even integers up to and including C<$x>, i.e.,
+2*4*6*...*$x. If C<$x> is an odd integer, returns the product of all positive,
+odd integers, i.e., 1*3*5*...*$x.
+
+=item bfib()
+
+    $F = $n->bfib();            # a single Fibonacci number
+    @F = $n->bfib();            # a list of Fibonacci numbers
+
+In scalar context, returns a single Fibonacci number. In list context, returns
+a list of Fibonacci numbers. The invocand is the last element in the output.
+
+The Fibonacci sequence is defined by
+
+    F(0) = 0
+    F(1) = 1
+    F(n) = F(n-1) + F(n-2)
+
+In list context, F(0) and F(n) is the first and last number in the output,
+respectively. For example, if $n is 12, then C<< @F = $n->bfib() >> returns the
+following values, F(0) to F(12):
+
+    0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144
+
+The sequence can also be extended to negative index n using the re-arranged
+recurrence relation
+
+    F(n-2) = F(n) - F(n-1)
+
+giving the bidirectional sequence
+
+       n  -7  -6  -5  -4  -3  -2  -1   0   1   2   3   4   5   6   7
+    F(n)  13  -8   5  -3   2  -1   1   0   1   1   2   3   5   8  13
+
+If $n is -12, the following values, F(0) to F(12), are returned:
+
+    0, 1, -1, 2, -3, 5, -8, 13, -21, 34, -55, 89, -144
+
+=item blucas()
+
+    $F = $n->blucas();          # a single Lucas number
+    @F = $n->blucas();          # a list of Lucas numbers
+
+In scalar context, returns a single Lucas number. In list context, returns a
+list of Lucas numbers. The invocand is the last element in the output.
+
+The Lucas sequence is defined by
+
+    L(0) = 2
+    L(1) = 1
+    L(n) = L(n-1) + L(n-2)
+
+In list context, L(0) and L(n) is the first and last number in the output,
+respectively. For example, if $n is 12, then C<< @L = $n->blucas() >> returns
+the following values, L(0) to L(12):
+
+    2, 1, 3, 4, 7, 11, 18, 29, 47, 76, 123, 199, 322
+
+The sequence can also be extended to negative index n using the re-arranged
+recurrence relation
+
+    L(n-2) = L(n) - L(n-1)
+
+giving the bidirectional sequence
+
+       n  -7  -6  -5  -4  -3  -2  -1   0   1   2   3   4   5   6   7
+    L(n)  29 -18  11  -7   4  -3   1   2   1   3   4   7  11  18  29
+
+If $n is -12, the following values, L(0) to L(-12), are returned:
+
+    2, 1, -3, 4, -7, 11, -18, 29, -47, 76, -123, 199, -322
+
 =item brsft()
 
     $x->brsft($n);              # right shift $n places in base 2
@@ -5307,26 +5635,53 @@ corresponds to the output from C<dparts()>.
     12000 is returned as "12000"
     10000 is returned as "10000"
 
+=item to_hex()
+
+    $x->to_hex();
+
+Returns a hexadecimal string representation of the number.
+
+=item to_bin()
+
+    $x->to_bin();
+
+Returns a binary string representation of the number.
+
+=item to_oct()
+
+    $x->to_oct();
+
+Returns an octal string representation of the number.
+
+=item to_bytes()
+
+    $x = Math::BigInt->new("1667327589");
+    $s = $x->to_bytes();                    # $s = "cafe"
+
+Returns a byte string representation of the number using big endian byte
+order. The invocand must be a non-negative, finite integer.
+
 =item as_hex()
 
     $x->as_hex();
 
-Returns a string representing the number using hexadecimal notation. The output
-is prefixed by "0x".
+As, C<to_hex()>, but with a "0x" prefix.
 
 =item as_bin()
 
     $x->as_bin();
 
-Returns a string representing the number using binary notation. The output is
-prefixed by "0b".
+As, C<to_bin()>, but with a "0b" prefix.
 
 =item as_oct()
 
     $x->as_oct();
 
-Returns a string representing the number using octal notation. The output is
-prefixed by "0".
+As, C<to_oct()>, but with a "0" prefix.
+
+=item as_bytes()
+
+This is just an alias for C<to_bytes()>.
 
 =back
 

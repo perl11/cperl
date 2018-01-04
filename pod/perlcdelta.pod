@@ -183,6 +183,8 @@ Merged 2.97001 from cpan with ours.
 
 Deprecated from CORE with 5.28.
 
+=item L<Math::BigInt>  1.999811
+
 =item L<Module::CoreList> 5.20180101c
 
 =item L<Search::Dict>  1.07_01

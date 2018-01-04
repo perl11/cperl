@@ -6,8 +6,7 @@ use strict;
 use warnings;
 use lib 't';
 
-my $VERSION = '1.999726';       # adjust manually to match latest release
-$VERSION = eval $VERSION;
+my $VERSION = '1.999811';       # adjust manually to match latest release
 
 use Test::More tests => 5;
 
@@ -24,7 +23,7 @@ use overload;
 package Math::BigFloat::Test;
 
 use Math::BigFloat;
-our @ISA = qw/Math::BigFloat/;          # subclass of MBI
+our @ISA = qw/Math::BigFloat/;          # subclass of MBF
 use overload;
 
 ##############################################################################
@@ -48,7 +47,7 @@ like($@, qr/ ^ Math::BigInt \s+ ( version \s+ )? \S+ \s+ required--this \s+
 
 # test whether fallback to calc works
 $try = qq|use $class ($VERSION, "try", "foo, bar, ");|
-     . qq| $class\->config()->{lib};|;
+     . qq| $class\->config('lib');|;
 $expected = eval $try;
 like($expected, qr/^Math::BigInt::(Fast)?Calc\z/, $try);
 
