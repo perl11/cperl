@@ -15927,6 +15927,7 @@ our %delta = (
             'Encode::Unicode'       => '2.16',
             'Encode::Unicode::UTF7' => '2.10',
             'encoding'              => '2.21',
+            'experimental'          => '0.019_01c',
             'ExtUtils::CBuilder'            => '0.280230',
             'ExtUtils::CBuilder::Base'      => '0.280230',
             'ExtUtils::CBuilder::Platform::Unix'    => '0.280230',

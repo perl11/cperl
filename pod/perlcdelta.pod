@@ -114,6 +114,8 @@ But skip UpDowngrade() on CORE for reproducible builds
 
 =item L<Encode>  2.93
 
+=item L<experimental>  0.019_01c
+
 =item L<ExtUtils::CBuilder>  0.280230
 
 =item L<ExtUtils::Constant>  0.24_01
