@@ -17,12 +17,13 @@ use File::Spec;
 
 no warnings 'utf8';
 
-our $VERSION = '1.25';
+our $VERSION = '1.25_01';
+our $XS_VERSION = eval $VERSION;
 our $PACKAGE = __PACKAGE__;
 
 ### begin XS only ###
 use XSLoader ();
-XSLoader::load('Unicode::Collate', $VERSION);
+XSLoader::load('Unicode::Collate', $XS_VERSION);
 ### end XS only ###
 
 my @Path = qw(Unicode Collate);
