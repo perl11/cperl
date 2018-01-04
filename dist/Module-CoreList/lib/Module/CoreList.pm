@@ -16057,6 +16057,7 @@ our %delta = (
             'Math::BigInt'          => '1.999811_01',
             'Math::BigInt::Calc'    => '1.999811',
             'Math::BigInt::CalcEmu' => '1.999811',
+            'Math::BigInt::FastCalc'  => '0.5006',
             'Math::BigInt::Lib'     => '1.999811',
             'POSIX'                 => '1.65_01',
             'Search::Dict'          => '1.07_01',

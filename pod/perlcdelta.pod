@@ -183,7 +183,18 @@ Merged 2.97001 from cpan with ours.
 
 Deprecated from CORE with 5.28.
 
-=item L<Math::BigInt>  1.999811
+=item L<Math::BigInt>  1.999811_01
+
+See L<https://github.com/rurban/Math-BigInt>
+
+=item L<Math::BigInt::FastCalc>  0.5006
+
+2 new tests files from Math-BigInt.
+
+Math::BigInt::FastCalc is now a subclass of Math::BigInt::Calc, so remove
+aliases like *Math::BigInt::FastCalc::_xxx = \&Math::BigInt::Calc::_xxx.
+
+Use OO-calls rather than function calls. (i.e slower but overridable)
 
 =item L<Module::CoreList> 5.20180101c
 
