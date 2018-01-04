@@ -1208,7 +1208,8 @@ use File::Glob qw(:case);
 
     'Scalar::Util' => {
         # lexical $_ support, binary names, various other fixes
-        'DISTRIBUTION' => 'RURBAN/Scalar-List-Utils-1.46_08.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Scalar-List-Utils-1.49_10.tar.gz',
+        # TODO: move to dist. upstream doesnt apply any patches
         'FILES'        => q[cpan/Scalar-List-Utils],
         # Bump version, make blead compile: RT #113180
         #'CUSTOMIZED'   => [

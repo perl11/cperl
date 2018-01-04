@@ -2,7 +2,7 @@
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
 
-# Maintained since 2015 unauthorized by Reini Urban for cperl
+# Maintained since 2015 unauthorized by Reini Urban for cperl.
 # set_subname, binary names, utf8
 
 package Sub::Util;
@@ -18,7 +18,7 @@ our @EXPORT_OK = qw(
   subname set_subname
 );
 
-our $VERSION    = "1.46_08";
+our $VERSION    = "1.49_10";
 $VERSION   = eval $VERSION;
 
 require List::Util; # as it has the XS
@@ -149,7 +149,7 @@ The general structure of this module was written by Paul Evans
 The XS implementation of L</set_subname> was copied from L<Sub::Name> by
 Matthijs van Duin <xmath@cpan.org>
 
-Support for binary and utf8 names added by Reini Urban <rurban@cpanel.net>
+Support for binary and utf8 names added by Reini Urban <rurban@cpan.org>
 for cperl.
 
 =cut
