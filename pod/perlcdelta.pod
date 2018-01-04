@@ -175,9 +175,9 @@ Added wait_loop_callback for run_forked()
 Bug fixes:
 Only search in curdir in can_run() when on Win32 RT#105601
 
-=item L<JSON::PP> 2.97000_04
+=item L<JSON::PP> 2.97001_04
 
-Merge 2.97000 from cpan with ours.
+Merged 2.97001 from cpan with ours.
 
 =item L<Module::CoreList> 5.20180101c
 
