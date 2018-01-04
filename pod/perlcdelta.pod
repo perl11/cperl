@@ -215,6 +215,8 @@ suse fix for utf8 Net::Cmd
 
 =item L<Pod::Man>  4.10
 
+=item L<Pod::Perldoc>  3.28
+
 =item L<Search::Dict>  1.07_01
 
 =item L<SelectSaver>  1.02_01

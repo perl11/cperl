@@ -1133,7 +1133,7 @@ use File::Glob qw(:case);
     },
 
     'Pod::Perldoc' => {
-        'DISTRIBUTION' => 'MALLEN/Pod-Perldoc-3.27.tar.gz',
+        'DISTRIBUTION' => 'MALLEN/Pod-Perldoc-3.28.tar.gz',
         'FILES'        => q[cpan/Pod-Perldoc],
 
         # Note that we use the CPAN-provided Makefile.PL, since it
@@ -1180,7 +1180,7 @@ use File::Glob qw(:case);
         #        ),
         #],
         'MAP' => {
-            ''                 => 'cpan/podlators/',
+            ''                     => 'cpan/podlators/',
             # this file lives outside the cpan/ directory
             'pod/perlpodstyle.pod' => 'pod/perlpodstyle.pod',
         },
