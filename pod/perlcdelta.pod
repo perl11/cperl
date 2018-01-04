@@ -235,6 +235,8 @@ Updated from 3.01, many critical fixes.
 
 =item L<Test::Harness>  3.39
 
+=item L<Thread::Queue>  3.12
+
 =item L<VMS::DCLsym>  1.09
 
 =item L<VMS::Stdio>  2.44_01
