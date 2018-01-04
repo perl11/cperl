@@ -179,6 +179,10 @@ Only search in curdir in can_run() when on Win32 RT#105601
 
 Merged 2.97001 from cpan with ours.
 
+=item L<Locale::Codes>  3.55
+
+Deprecated from CORE with 5.28.
+
 =item L<Module::CoreList> 5.20180101c
 
 =item L<Search::Dict>  1.07_01

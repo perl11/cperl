@@ -3,7 +3,7 @@ Locale::Codes::Currency_Retired;
 
 # This file was automatically generated.  Any changes to this file will
 # be lost the next time 'deprecate_codes' is run.
-#    Generated on: Fri Nov 18 09:22:54 EST 2016
+#    Generated on: Fri Nov 17 10:39:14 EST 2017
 
 use strict;
 require 5.006;
@@ -11,7 +11,7 @@ use warnings;
 use utf8;
 
 our($VERSION);
-$VERSION='3.42';
+$VERSION='3.55';
 
 $Locale::Codes::Retired{'currency'}{'alpha'}{'code'} = {
    q(ADP) => q(Andorran Peseta),
@@ -78,6 +78,7 @@ $Locale::Codes::Retired{'currency'}{'num'}{'code'} = {
 $Locale::Codes::Retired{'currency'}{'alpha'}{'name'} = {
    q(andorran peseta) => [ q(ADP), q(Andorran Peseta) ],
    q(aruban guilder) => [ q(AWG), q(Aruban Guilder) ],
+   q(azerbaijanian manat) => [ q(AZN), q(Azerbaijanian Manat) ],
    q(belarussian ruble) => [ q(BYR), q(Belarussian Ruble) ],
    q(belgian franc) => [ q(BEF), q(Belgian Franc) ],
    q(bermudian dollar (customarily known as bermuda dollar)) => [ q(BMD), q(Bermudian Dollar (customarily known as Bermuda Dollar)) ],
@@ -87,6 +88,7 @@ $Locale::Codes::Retired{'currency'}{'alpha'}{'name'} = {
    q(candian dollar) => [ q(CAD), q(Candian Dollar) ],
    q(cape verde escudo) => [ q(CVE), q(Cape Verde Escudo) ],
    q(cedi) => [ q(GHS), q(Cedi) ],
+   q(comoro franc) => [ q(KMF), q(Comoro Franc) ],
    q(convertible marks) => [ q(BAM), q(Convertible Marks) ],
    q(croatian kuna) => [ q(HRK), q(Croatian Kuna) ],
    q(cyprus pound) => [ q(CYP), q(Cyprus Pound) ],
@@ -105,10 +107,12 @@ $Locale::Codes::Retired{'currency'}{'alpha'}{'name'} = {
    q(french franc) => [ q(FRF), q(French Franc) ],
    q(german mark) => [ q(DEM), q(German Mark) ],
    q(gold-franc) => [ q(XFO), q(Gold-Franc) ],
+   q(guinea franc) => [ q(GNF), q(Guinea Franc) ],
    q(guinea-bissau peso) => [ q(GWP), q(Guinea-Bissau Peso) ],
    q(irish pound) => [ q(IEP), q(Irish Pound) ],
    q(italian lira) => [ q(ITL), q(Italian Lira) ],
    q(karbovanets) => [ q(UAK), q(Karbovanets) ],
+   q(kip) => [ q(LAK), q(Kip) ],
    q(kroon) => [ q(EEK), q(Kroon) ],
    q(kuna) => [ q(HRK), q(Kuna) ],
    q(kwacha) => [ q(MWK), q(Kwacha) ],
@@ -133,6 +137,7 @@ $Locale::Codes::Retired{'currency'}{'alpha'}{'name'} = {
    q(new romanian leu) => [ q(RON), q(New Romanian Leu) ],
    q(new zaire) => [ q(ZRN), q(New Zaire) ],
    q(nuevo sol) => [ q(PEN), q(Nuevo Sol) ],
+   q(philippine peso) => [ q(PHP), q(Philippine Peso) ],
    q(portuguese escudo) => [ q(PTE), q(Portuguese Escudo) ],
    q(saint helena pound) => [ q(SHP), q(Saint Helena Pound) ],
    q(schilling) => [ q(ATS), q(Schilling) ],
@@ -156,11 +161,15 @@ $Locale::Codes::Retired{'currency'}{'alpha'}{'name'} = {
 };
 
 $Locale::Codes::Retired{'currency'}{'num'}{'name'} = {
+   q(azerbaijanian manat) => [ q(944), q(Azerbaijanian Manat) ],
    q(belarussian ruble) => [ q(974), q(Belarussian Ruble) ],
    q(bolivar fuerte) => [ q(937), q(Bolivar Fuerte) ],
    q(cape verde escudo) => [ q(132), q(Cape Verde Escudo) ],
    q(cedi) => [ q(936), q(Cedi) ],
+   q(comoro franc) => [ q(174), q(Comoro Franc) ],
    q(croatian kuna) => [ q(191), q(Croatian Kuna) ],
+   q(guinea franc) => [ q(324), q(Guinea Franc) ],
+   q(kip) => [ q(418), q(Kip) ],
    q(kwacha) => [ q(454), q(Kwacha) ],
    q(latvian lats) => [ q(428), q(Latvian Lats) ],
    q(leu) => [ q(946), q(Leu) ],
@@ -169,6 +178,7 @@ $Locale::Codes::Retired{'currency'}{'num'}{'name'} = {
    q(new manat) => [ q(934), q(New Manat) ],
    q(new romanian leu) => [ q(946), q(New Romanian Leu) ],
    q(nuevo sol) => [ q(604), q(Nuevo Sol) ],
+   q(philippine peso) => [ q(608), q(Philippine Peso) ],
    q(saint helena pound) => [ q(654), q(Saint Helena Pound) ],
    q(unidades de fomento) => [ q(990), q(Unidades de fomento) ],
    q(us dollar (same day)) => [ q(998), q(US Dollar (Same day)) ],

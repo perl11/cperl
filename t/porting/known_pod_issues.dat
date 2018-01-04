@@ -392,5 +392,6 @@ lib/config.pod	? Should you be using L<...> instead of	-1
 lib/cperl.pm	Pod NAME already used	1
 lib/extutils/embed.pm	Verbatim line length including indents exceeds 79 by	2
 lib/fake_signatures.pm	Apparent broken link	2
+lib/locale/codes/api.pod	Verbatim line length including indents exceeds 79 by	2
 lib/perl5db.pl	? Should you be using L<...> instead of	1
 lib/perl5db.pl	Unterminated C<...> sequence	1
