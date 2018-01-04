@@ -1,6 +1,8 @@
 require 5;
 package Pod::Simple::PullParser;
-$VERSION = '3.35';
+use cperl;
+our $VERSION = '4.35c'; # modernized
+$VERSION =~ s/c$//;
 use Pod::Simple ();
 BEGIN {@ISA = ('Pod::Simple')}
 
@@ -23,8 +25,7 @@ __PACKAGE__->_accessorize(
 #
 #  And here is how we implement a pull-parser on top of a push-parser...
 
-sub filter {
-  my($self, $source) = @_;
+sub filter ($self, $source?) :method {
   $self = $self->new unless ref $self;
 
   $source = *STDIN{IO} unless defined $source;
@@ -37,14 +38,12 @@ sub filter {
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-sub parse_string_document {
-  my $this = shift;
-  $this->set_source(\ $_[0]);
+sub parse_string_document ($this, str $str) :method {
+  $this->set_source(\$str);
   $this->run;
 }
 
-sub parse_file {
-  my($this, $filename) = @_;
+sub parse_file ($this, str $filename) :method {
   $this->set_source($filename);
   $this->run;
 }
@@ -78,9 +77,8 @@ sub parse_line {
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
+sub new ($class, @args) :method {
+  my $self = $class->SUPER::new(@args);
   die "Couldn't construct for $class" unless $self;
 
   $self->{'token_buffer'} ||= [];
@@ -95,8 +93,7 @@ sub new {
 
 # ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
-sub get_token {
-  my $self = shift;
+sub get_token ($self) :method {
   DEBUG > 1 and print STDERR "\nget_token starting up on $self.\n";
   DEBUG > 2 and print STDERR " Items in token-buffer (",
    scalar( @{ $self->{'token_buffer'} } ) ,
@@ -204,11 +201,10 @@ sub get_token {
   return shift @{$self->{'token_buffer'}}; # that's an undef if empty
 }
 
-sub unget_token {
-  my $self = shift;
-  DEBUG and print STDERR "Ungetting ", scalar(@_), " tokens: ",
-   @_ ? "@_\n" : "().\n";
-  foreach my $t (@_) {
+sub unget_token ($self, @tokens) :method {
+  DEBUG and print STDERR "Ungetting ", scalar(@tokens), " tokens: ",
+   @tokens ? "@tokens\n" : "().\n";
+  foreach my $t (@tokens) {
     Carp::croak "Can't unget that, because it's not a token -- it's undef!"
      unless defined $t;
     Carp::croak "Can't unget $t, because it's not a token -- it's a string!"
@@ -217,7 +213,7 @@ sub unget_token {
      unless UNIVERSAL::can($t, 'type');
   }
   
-  unshift @{$self->{'token_buffer'}}, @_;
+  unshift @{$self->{'token_buffer'}}, @tokens;
   DEBUG > 1 and print STDERR "Token buffer now has ",
    scalar(@{$self->{'token_buffer'}}), " items in it.\n";
   return;
@@ -227,9 +223,11 @@ sub unget_token {
 
 # $self->{'source_filename'} = $source;
 
+# this API is horror
+#sub set_source ($self, \$source?) {
+#  return $self->{'source_fh'} unless defined $source;
 sub set_source {
   my $self = shift @_;
-  return $self->{'source_fh'} unless @_;
   Carp::croak("Cannot assign new source to pull parser; create a new instance, instead")
       if $self->{'source_fh'} || $self->{'source_scalar_ref'} || $self->{'source_arrayref'};
   my $handle;
@@ -256,7 +254,7 @@ sub set_source {
     DEBUG and print STDERR "$self 's source is filename $_[0]\n";
     {
       local *PODSOURCE;
-      open(PODSOURCE, "<$_[0]") || Carp::croak "Can't open $_[0]: $!";
+      open(PODSOURCE, "<", $_[0]) || Carp::croak "Can't open $_[0]: $!";
       $handle = *PODSOURCE{IO};
     }
     $self->{'source_filename'} = $_[0];
@@ -272,48 +270,50 @@ sub set_source {
 
 # ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
-sub get_title_short {  shift->get_short_title(@_)  } # alias
+sub get_title_short ($self, %attrs) :method {
+  $self->get_short_title(%attrs)  } # alias
 
-sub get_short_title {
-  my $title = shift->get_title(@_);
+sub get_short_title ($self, %attrs) :method {
+  my $title = $self->get_title(%attrs);
   $title = $1 if $title =~ m/^(\S{1,60})\s+--?\s+./s;
-    # turn "Foo::Bar -- bars for your foo" into "Foo::Bar"
+  # turn "Foo::Bar -- bars for your foo" into "Foo::Bar"
   return $title;
 }
 
-sub get_title       { shift->_get_titled_section(
-  'NAME', max_token => 50, desperate => 1, @_)
+sub get_title ($self, %attrs) :method {
+  $self->_get_titled_section(
+    'NAME', max_token => 50, desperate => 1, %attrs)
 }
-sub get_version     { shift->_get_titled_section(
+sub get_version ($self, %attrs) :method {
+  $self->_get_titled_section(
    'VERSION',
     max_token => 400,
     accept_verbatim => 1,
     max_content_length => 3_000,
-   @_,
+    %attrs,
   );
 }
-sub get_description { shift->_get_titled_section(
+sub get_description ($self, %attrs) :method {
+  $self->_get_titled_section(
    'DESCRIPTION',
     max_token => 400,
     max_content_length => 3_000,
-   @_,
+    %attrs,
 ) }
 
-sub get_authors     { shift->get_author(@_) }  # a harmless alias
+sub get_authors ($self, %attrs) :method { $self->get_author(%attrs) }  # a harmless alias
 
-sub get_author      {
-  my $this = shift;
+sub get_author ($this, %attrs) :method {
   # Max_token is so high because these are
   #  typically at the end of the document:
-  $this->_get_titled_section('AUTHOR' , max_token => 10_000, @_) ||
-  $this->_get_titled_section('AUTHORS', max_token => 10_000, @_);
+  $this->_get_titled_section('AUTHOR' , max_token => 10_000, %attrs) ||
+  $this->_get_titled_section('AUTHORS', max_token => 10_000, %attrs);
 }
 
 #--------------------------------------------------------------------------
 
-sub _get_titled_section {
+sub _get_titled_section ($self, $titlename, %options) :method {
   # Based on a get_title originally contributed by Graham Barr
-  my($self, $titlename, %options) = (@_);
   
   my $max_token            = delete $options{'max_token'};
   my $desperate_for_title  = delete $options{'desperate'};
@@ -474,28 +474,25 @@ sub _get_titled_section {
 #
 #  Methods that actually do work at parse-time:
 
-sub _handle_element_start {
-  my $self = shift;   # leaving ($element_name, $attr_hash_r)
-  DEBUG > 2 and print STDERR "++ $_[0] (", map("<$_> ", %{$_[1]}), ")\n";
+sub _handle_element_start ($self, $element_name, $attr?) :method {
+  DEBUG > 2 and print STDERR "++ $element_name (", map("<$_> ", %{$attr}), ")\n";
   
   push @{ $self->{'token_buffer'} },
-       $self->{'start_token_class'}->new(@_);
+       $self->{'start_token_class'}->new($element_name, $attr);
   return;
 }
 
-sub _handle_text {
-  my $self = shift;   # leaving ($text)
-  DEBUG > 2 and print STDERR "== $_[0]\n";
+sub _handle_text ($self, str $text) :method {
+  DEBUG > 2 and print STDERR "== $text\n";
   push @{ $self->{'token_buffer'} },
-       $self->{'text_token_class'}->new(@_);
+       $self->{'text_token_class'}->new($text);
   return;
 }
 
-sub _handle_element_end {
-  my $self = shift;   # leaving ($element_name);
-  DEBUG > 2 and print STDERR "-- $_[0]\n";
+sub _handle_element_end ($self, str $element_name, $attr?) :method {
+  DEBUG > 2 and print STDERR "-- $element_name\n";
   push @{ $self->{'token_buffer'} }, 
-       $self->{'end_token_class'}->new(@_);
+       $self->{'end_token_class'}->new($element_name);
   return;
 }
 

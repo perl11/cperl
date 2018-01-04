@@ -1157,6 +1157,7 @@ use File::Glob qw(:case);
     },
 
     'Pod::Simple' => {
+        # https://github.com/rurban/pod-simple.git
         'DISTRIBUTION' => 'MARCGREEN/Pod-Simple-3.35.tar.gz',
         'FILES'        => q[cpan/Pod-Simple],
         # https://rt.cpan.org/Public/Bug/Display.html?id=103439

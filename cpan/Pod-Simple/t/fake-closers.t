@@ -16,6 +16,7 @@ my $i = 0;
 
 print "# Real closers ...\n";
 
+if (1) {
 for my $pod ( "=over\n\nblock\n\n=back",
               "=over\n\nblock\n\n=cut\n\ncode\n\n=pod\n\n=back",
               "=begin html\n\ntag\n\n=end html",
@@ -24,7 +25,7 @@ for my $pod ( "=over\n\nblock\n\n=back",
     $parser->parse_string_document($pod);
     is($parser->{'closer-flag'}, -1, "real closer ". ++$i);
 }
-
+}
 $i = 0;
 
 print "# Fake closers ...\n";
@@ -36,6 +37,7 @@ for my $pod ("=begin html\n\ntag=cut",
               ) {
     my $parser = Pod::Simple::Blurb->new();
     $parser->parse_string_document($pod);
+    print "# closer-flag: ", $parser->{'closer-flag'}, "\n";
     is($parser->{'closer-flag'}, 1, "fake closer ". ++$i);
 }
 
@@ -67,5 +69,5 @@ sub end_for {
 }
 
 sub set {
-    $_[0]{'closer-flag'} = defined $_[1]{'fake-closer'} ? 1 : -1;
+    $_[0]->{'closer-flag'} = defined $_[1]->{'fake-closer'} ? 1 : -1;
 }

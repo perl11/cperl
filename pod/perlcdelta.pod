@@ -217,7 +217,7 @@ suse fix for utf8 Net::Cmd
 
 =item L<Pod::Perldoc>  3.28
 
-=item L<Pod::Simple>  3.35
+=item L<Pod::Simple>  4.36c
 
 =item L<Search::Dict>  1.07_01
 

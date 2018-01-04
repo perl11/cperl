@@ -1,7 +1,9 @@
 
 require 5;
 package Pod::Simple::DumpAsText;
-$VERSION = '3.35';
+use cperl;
+our $VERSION = '4.36c'; # modernized
+$VERSION =~ s/c$//;
 use Pod::Simple ();
 BEGIN {@ISA = ('Pod::Simple')}
 
@@ -11,9 +13,8 @@ use Carp ();
 
 BEGIN { *DEBUG = \&Pod::Simple::DEBUG unless defined &DEBUG }
 
-sub new {
-  my $self = shift;
-  my $new = $self->SUPER::new(@_);
+sub new ($self, @args) :method {
+  my $new = $self->SUPER::new(@args);
   $new->{'output_fh'} ||= *STDOUT{IO};
   $new->accept_codes('VerbatimFormatted');
   $new->keep_encoding_directive(1);
@@ -22,32 +23,30 @@ sub new {
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-sub _handle_element_start {
-  # ($self, $element_name, $attr_hash_r)
-  my $fh = $_[0]{'output_fh'};
+sub _handle_element_start ($self, $element_name, $attr?) :method {
+  my $fh = $self->{'output_fh'};
   my($key, $value);
-  DEBUG and print STDERR "++ $_[1]\n";
+  DEBUG and print STDERR "++ $element_name\n";
   
-  print $fh   '  ' x ($_[0]{'indent'} || 0),  "++", $_[1], "\n";
-  $_[0]{'indent'}++;
-  while(($key,$value) = each %{$_[2]}) {
+  print $fh   '  ' x ($self->{'indent'} || 0),  "++", $element_name, "\n";
+  $self->{'indent'}++;
+  while(($key,$value) = each %{$attr}) {
     unless($key =~ m/^~/s) {
-      next if $key eq 'start_line' and $_[0]{'hide_line_numbers'};
+      next if $key eq 'start_line' and $self->{'hide_line_numbers'};
       _perly_escape($key);
       _perly_escape($value);
       printf $fh qq{%s \\ "%s" => "%s"\n},
-        '  ' x ($_[0]{'indent'} || 0), $key, $value;
+        '  ' x ($self->{'indent'} || 0), $key, $value;
     }
   }
   return;
 }
 
-sub _handle_text {
-  DEBUG and print STDERR "== \"$_[1]\"\n";
+sub _handle_text ($self, str $text='') :method {
+  DEBUG and print STDERR "== \"$text\"\n";
   
-  if(length $_[1]) {
-    my $indent = '  ' x $_[0]{'indent'};
-    my $text = $_[1];
+  if (length $text) {
+    my $indent = '  ' x $self->{'indent'};
     _perly_escape($text);
     $text =~  # A not-totally-brilliant wrapping algorithm:
       s/(
@@ -58,21 +57,21 @@ sub _handle_text {
        /$1"\n$indent . "/gx     # => line-break here
     ;
     
-    print {$_[0]{'output_fh'}} $indent, '* "', $text, "\"\n";
+    print {$self->{'output_fh'}} $indent, '* "', $text, "\"\n";
   }
   return;
 }
 
-sub _handle_element_end {
-  DEBUG and print STDERR "-- $_[1]\n";
-  print {$_[0]{'output_fh'}}
-   '  ' x --$_[0]{'indent'}, "--", $_[1], "\n";
+sub _handle_element_end ($self, str $element_name, $attr?) :method {
+  DEBUG and print STDERR "-- $element_name\n";
+  print {$self->{'output_fh'}}
+   '  ' x --$self->{'indent'}, "--$element_name\n";
   return;
 }
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-sub _perly_escape {
+sub _perly_escape { # by-ref
   foreach my $x (@_) {
     $x =~ s/([^\x00-\xFF])/sprintf'\x{%X}',ord($1)/eg;
     # Escape things very cautiously:
