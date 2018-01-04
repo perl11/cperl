@@ -5553,7 +5553,7 @@ Perl_yylex(pTHX)
                 }
             }
             sv_catpvs(PL_linestr, "\n");
-            PL_oldoldbufptr = PL_oldbufptr = s = PL_linestart
+            PL_oldoldbufptr = PL_oldbufptr = PL_bufptr = s = PL_linestart
                 = SvPVX(PL_linestr);
             PL_bufend = SvPVX(PL_linestr) + SvCUR(PL_linestr);
             PL_last_lop = PL_last_uni = NULL;
