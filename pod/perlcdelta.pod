@@ -227,6 +227,8 @@ suse fix for utf8 Net::Cmd
 
 3-arg open
 
+=item L<SelfLoader>  1.24
+
 =item L<Storable> 3.05_14
 
 Updated from 3.01, many critical fixes.

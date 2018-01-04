@@ -16124,6 +16124,7 @@ our %delta = (
             'POSIX'                 => '1.65_01',
             'Search::Dict'          => '1.07_01',
             'SelectSaver'           => '1.02_01',
+            'SelfLoader'            => '1.24',
             'Storable'              => '3.05_14',
             'List::Util'            => '1.49_10',
             'List::Util::XS'        => '1.49_10',
