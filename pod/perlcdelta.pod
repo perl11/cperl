@@ -241,6 +241,8 @@ Updated from 3.01, many critical fixes.
 
 =item L<Thread::Queue>  3.12
 
+=item L<threads>  2.18_01
+
 =item L<Time::HiRes>  1.9751
 
 =item L<Time::Piece>  1.3203

@@ -98,8 +98,9 @@ autodie cpan/autodie/t/mkdir.t 9e70d2282a3cc7d76a78bf8144fccba20fb37dac
 base dist/base/lib/base.pm 8db115a702f759526b031f90cc572d97086978a6
 experimental cpan/experimental/lib/experimental.pm 200983fcfab59ad2a65b94b86ae10693f5d4e1c8
 lib dist/lib/lib_pm.PL 6f1951dc926375aa93b93515aa5f3c1ca1396b05
-threads dist/threads/lib/threads.pm 7a97056db5cd1f495002050f9bc71cd5b26796ab
-threads dist/threads/threads.xs e40ca2536fc7a3249095559d3b8b55bf2dedc7cc
+threads dist/threads/lib/threads.pm 532c5f595f81666fa7ff534a919cbf679dae9b8a
+threads dist/threads/t/locale.t 9a2a5b43a39867590eb288d4a1759abac2052aa8
+threads dist/threads/threads.xs 030620f4374ad62176e3c5d4d24b2dbd90a12b69
 version cpan/version/lib/version.pm 46e7b7eed74b5080b23f852acd84e6ca5aab6d74
 version cpan/version/lib/version/regex.pm a2e6098571d8085340d4378ec21ad54bbcce1ceb
 version vutil.c 9112461d000e5d9ad60de8105fb803a639cbe020
