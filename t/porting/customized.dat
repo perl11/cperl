@@ -74,7 +74,7 @@ Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 7bcee24233cbf0d3b8d9776133afb7266c82a915
 Net::Domain cpan/libnet/lib/Net/Domain.pm fcfe404d3dad82ed56180f9d984fb1f8eb2f3bec
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 8ac11522808238b028b935fa94bf5ff319e68938
-Pod::Perldoc cpan/Pod-Perldoc/lib/Pod/Perldoc.pm 155770a6867b09683ad4963b86b6d8f73dfb08bc
+Pod::Perldoc cpan/Pod-Perldoc/lib/Pod/Perldoc.pm 582be34c077c9ff44d99914724a0cc2140bcd48c
 Pod::Perldoc cpan/Pod-Perldoc/Makefile.PL d1473c88b8cc5543d174966096b95f2d84a7fdcc
 Pod::Perldoc cpan/Pod-Perldoc/t/02_module_pod_output.t d3d315943c2d84b6f4cc68a77ea48943d96c9b8b
 Pod::Usage cpan/Pod-Usage/scripts/pod2usage.PL e78dee490d466191620821446d49794a4ec6254e

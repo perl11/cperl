@@ -1146,7 +1146,14 @@ use File::Glob qw(:case);
         'EXCLUDED' => ['perldoc'],
 
         # https://rt.cpan.org/Ticket/Display.html?id=106798
-        'CUSTOMIZED'   => [ qw[ lib/Pod/Perldoc.pm Makefile.PL t/02_module_pod_output.t ] ],
+        # [rt.cpan.org #88204], [rt.cpan.org #120229]
+        # https://rt.cpan.org/Ticket/Display.html?id=116827
+        'CUSTOMIZED'   => [ qw[
+                            lib/Pod/Perldoc.pm 
+                            Makefile.PL 
+                            t/02_module_pod_output.t
+                            ]
+          ],
     },
 
     'Pod::Simple' => {

@@ -12,8 +12,7 @@ use File::Spec::Functions qw(catfile catdir splitdir);
 use vars qw($VERSION @Pagers $Bindir $Pod2man
   $Temp_Files_Created $Temp_File_Lifetime
 );
-$VERSION = '3.27_02'; # patched in perl5.git
-$VERSION =~ s/_//;
+$VERSION = '3.2801';
 
 #..........................................................................
 
@@ -487,11 +486,6 @@ sub init_formatter_class_list {
 
   $self->opt_M_with('Pod::Perldoc::ToPod');   # the always-there fallthru
   $self->opt_o_with('text');
-  $self->opt_o_with('term') 
-    unless $self->is_mswin32 || $self->is_dos || $self->is_amigaos
-       || !($ENV{TERM} && (
-              ($ENV{TERM} || '') !~ /dumb|emacs|none|unknown/i
-           ));
 
   return;
 }
@@ -852,8 +846,11 @@ sub grand_search_init {
                    =~ s/\.P(?:[ML]|OD)\z//;
             }
             else {
-                print STDERR "No " .
+              print STDERR "No " .
                     ($self->opt_m ? "module" : "documentation") . " found for \"$_\".\n";
+              if ( /^https/ ) {
+                print STDERR "You may need an SSL library (such as IO::Socket::SSL) for that URL.\n";
+              }
             }
             next;
         }
@@ -1698,7 +1695,7 @@ sub pagers_guessing {
         unshift @pagers, "$ENV{PERLDOC_PAGER} <" if $ENV{PERLDOC_PAGER};
     }
 
-    $self->aside("Pagers: ", @pagers);
+    $self->aside("Pagers: ", (join ", ", @pagers));
 
     return;
 }
@@ -1935,11 +1932,6 @@ sub page {  # apply a pager to the output file
 	    } elsif($self->is_amigaos) { 
                 last if system($pager, $output) == 0;
             } else {
-                # fix visible escape codes in ToTerm output
-                # https://bugs.debian.org/758689
-                local $ENV{LESS} = defined $ENV{LESS} ? "$ENV{LESS} -R" : "-R";
-		# On FreeBSD, the default pager is more.
-                local $ENV{MORE} = defined $ENV{MORE} ? "$ENV{MORE} -R" : "-R";
                 last if system("$pager \"$output\"") == 0;
             }
         }
