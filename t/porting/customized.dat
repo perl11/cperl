@@ -101,6 +101,7 @@ lib dist/lib/lib_pm.PL 6f1951dc926375aa93b93515aa5f3c1ca1396b05
 threads dist/threads/lib/threads.pm 532c5f595f81666fa7ff534a919cbf679dae9b8a
 threads dist/threads/t/locale.t 9a2a5b43a39867590eb288d4a1759abac2052aa8
 threads dist/threads/threads.xs 030620f4374ad62176e3c5d4d24b2dbd90a12b69
+threads::shared dist/threads-shared/t/waithires.t dc867159fd2fa8c09326cd7627f5a0635ca5e3b5
 version cpan/version/lib/version.pm 46e7b7eed74b5080b23f852acd84e6ca5aab6d74
 version cpan/version/lib/version/regex.pm a2e6098571d8085340d4378ec21ad54bbcce1ceb
 version vutil.c 9112461d000e5d9ad60de8105fb803a639cbe020
