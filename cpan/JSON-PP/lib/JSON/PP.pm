@@ -14,7 +14,7 @@ use JSON::PP::Boolean;
 use Carp ();
 #use Devel::Peek;
 
-$JSON::PP::VERSION = '2.97000_04';
+$JSON::PP::VERSION = '2.97001_04';
 
 @JSON::PP::EXPORT = qw(encode_json decode_json from_json to_json);
 
@@ -161,7 +161,7 @@ sub pretty {
     my $enable = defined $v ? $v : 1;
 
     if ($enable) { # indent_length(3) for JSON::XS compatibility
-        $self->indent(1)->space_before(1)->space_after(1);
+        $self->indent(1)->indent_length(3)->space_before(1)->space_after(1);
     }
     else {
         $self->indent(0)->space_before(0)->space_after(0);
@@ -416,6 +416,8 @@ sub allow_bigint {
             return;
         } else {
             no warnings 'numeric';
+            # if the utf8 flag is on, it almost certainly started as a string
+            return if utf8::is_utf8($value);
             # detect numbers
             # string & "" -> ""
             # number & "" -> 0 (with warning)
@@ -1670,7 +1672,7 @@ JSON::PP - JSON::XS compatible pure-Perl module.
 
 =head1 VERSION
 
-    2.97000_04
+    2.97001_04
 
 =head1 DESCRIPTION
 
@@ -2090,6 +2092,9 @@ the same hash might be encoded differently even if contains the same data,
 as key-value pairs have no inherent ordering in Perl.
 
 This setting has no effect when decoding JSON texts.
+
+If you want your own sorting routine, you can give a code reference
+or a subroutine name to C<sort_by>. See to C<JSON::PP OWN METHODS>.
 
 This setting has currently no effect on tied hashes.
 

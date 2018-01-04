@@ -270,6 +270,10 @@ Linkify docs.
 
 Fix new Autovivified hash slice warning
 
+=item L<JSON::PP> 2.97001_04
+
+Merged 2.97001 from cpan with ours.
+
 =item L<HTTP::Tiny>  0.070_01
 
 Fix new Autovivified hash slice warning
