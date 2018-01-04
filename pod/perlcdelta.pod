@@ -196,6 +196,14 @@ aliases like *Math::BigInt::FastCalc::_xxx = \&Math::BigInt::Calc::_xxx.
 
 Use OO-calls rather than function calls. (i.e slower but overridable)
 
+=item L<Math::BigRat>  0.2613
+
+Fix problem with second operand being changed in multiplication (CPAN
+RT #121139).
+
+And keep our cperl test fixes.
+See github.com:rurban/Math-BigRat branch cperl
+    
 =item L<Module::CoreList> 5.20180101c
 
 =item L<Search::Dict>  1.07_01
