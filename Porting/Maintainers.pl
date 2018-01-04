@@ -243,7 +243,7 @@ use File::Glob qw(:case);
     },
 
     'bignum' => {
-        'DISTRIBUTION' => 'PJACKLAM/bignum-0.43.tar.gz',
+        'DISTRIBUTION' => 'PJACKLAM/bignum-0.47.tar.gz',
         'FILES'        => q[cpan/bignum],
         'EXCLUDED'     => [
             qr{^inc/Module/},

@@ -79,6 +79,8 @@ See L<https://metacpan.org/changes/distribution/Archive-Tar>
 
 =item L<B::Debug>  1.26
 
+=item L<bignum>  0.47c
+
 =item L<Compress::Raw::Bzip2>  2.074
 
 plus our FLAG_APPEND_OUTPUT patches
