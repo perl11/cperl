@@ -1,9 +1,7 @@
 
 require 5;
 package Pod::Simple::DumpAsXML;
-use cperl;
-our $VERSION = '4.30c'; #modernized
-$VERSION =~ s/c$//;
+$VERSION = '3.35';
 use Pod::Simple ();
 BEGIN {@ISA = ('Pod::Simple')}
 
@@ -14,8 +12,9 @@ use Text::Wrap qw(wrap);
 
 BEGIN { *DEBUG = \&Pod::Simple::DEBUG unless defined &DEBUG }
 
-sub new ($self, @args) {
-  my $new = $self->SUPER::new(@args);
+sub new {
+  my $self = shift;
+  my $new = $self->SUPER::new(@_);
   $new->{'output_fh'} ||= *STDOUT{IO};
   $new->accept_codes('VerbatimFormatted');
   $new->keep_encoding_directive(1);
@@ -24,49 +23,51 @@ sub new ($self, @args) {
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-sub _handle_element_start ($self, $element_name, $attr?) {
-  my $fh = $self->{'output_fh'};
+sub _handle_element_start {
+  # ($self, $element_name, $attr_hash_r)
+  my $fh = $_[0]{'output_fh'};
   my($key, $value);
-  DEBUG and print STDERR "++ $element_name\n";
+  DEBUG and print STDERR "++ $_[1]\n";
   
-  print $fh   '  ' x ($self->{'indent'} || 0),  "<", $element_name;
+  print $fh   '  ' x ($_[0]{'indent'} || 0),  "<", $_[1];
 
-  foreach my $key (sort keys %{$attr}) {
+  foreach my $key (sort keys %{$_[2]}) {
     unless($key =~ m/^~/s) {
-      next if $key eq 'start_line' and $self->{'hide_line_numbers'};
-      _xml_escape($value = $attr->{$key});
+      next if $key eq 'start_line' and $_[0]{'hide_line_numbers'};
+      _xml_escape($value = $_[2]{$key});
       print $fh ' ', $key, '="', $value, '"';
     }
   }
 
 
   print $fh ">\n";
-  $self->{'indent'}++;
+  $_[0]{'indent'}++;
   return;
 }
 
-sub _handle_text ($self, str $text='') {
-  DEBUG and print STDERR "== \"$text\"\n";
-  if(length $text) {
-    my $indent = '  ' x $self->{'indent'};
+sub _handle_text {
+  DEBUG and print STDERR "== \"$_[1]\"\n";
+  if(length $_[1]) {
+    my $indent = '  ' x $_[0]{'indent'};
+    my $text = $_[1];
     _xml_escape($text);
     local $Text::Wrap::huge = 'overflow';
     $text = wrap('', $indent, $text);
-    print {$self->{'output_fh'}} $indent, $text, "\n";
+    print {$_[0]{'output_fh'}} $indent, $text, "\n";
   }
   return;
 }
 
-sub _handle_element_end ($self, str $element_name, $attr?) {
-  DEBUG and print STDERR "-- $element_name\n";
-  print {$self->{'output_fh'}}
-   '  ' x --$self->{'indent'}, "</", $element_name, ">\n";
+sub _handle_element_end {
+  DEBUG and print STDERR "-- $_[1]\n";
+  print {$_[0]{'output_fh'}}
+   '  ' x --$_[0]{'indent'}, "</", $_[1], ">\n";
   return;
 }
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-sub _xml_escape { # by-ref
+sub _xml_escape {
   foreach my $x (@_) {
     # Escape things very cautiously:
     if ($] ge 5.007_003) {

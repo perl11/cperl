@@ -5,9 +5,7 @@ use strict;
 use Carp ();
 use Pod::Simple ();
 use vars qw( $ATTR_PAD @ISA $VERSION $SORT_ATTRS);
-use cperl;
-our $VERSION = '4.32c';
-$VERSION =~ s/c$//;
+$VERSION = '3.35';
 BEGIN {
   @ISA = ('Pod::Simple');
   *DEBUG = \&Pod::Simple::DEBUG unless defined &DEBUG;
@@ -18,8 +16,9 @@ $ATTR_PAD = "\n" unless defined $ATTR_PAD;
 
 $SORT_ATTRS = 0 unless defined $SORT_ATTRS;
 
-sub new ($self, @args) {
-  my $new = $self->SUPER::new(@args);
+sub new {
+  my $self = shift;
+  my $new = $self->SUPER::new(@_);
   $new->{'output_fh'} ||= *STDOUT{IO};
   $new->keep_encoding_directive(1);
   #$new->accept_codes('VerbatimFormatted');
@@ -28,23 +27,24 @@ sub new ($self, @args) {
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-sub _handle_element_start ($self, $element_name, $attr) {
-  my $fh = $self->{'output_fh'};
+sub _handle_element_start {
+  # ($self, $element_name, $attr_hash_r)
+  my $fh = $_[0]{'output_fh'};
   my($key, $value);
-  DEBUG and print STDERR "++ $element_name\n";
-  print $fh "<", $element_name;
+  DEBUG and print STDERR "++ $_[1]\n";
+  print $fh "<", $_[1];
   if($SORT_ATTRS) {
-    foreach my $key (sort keys %{$attr}) {
+    foreach my $key (sort keys %{$_[2]}) {
       unless($key =~ m/^~/s) {
-        next if $key eq 'start_line' and $self->{'hide_line_numbers'};
-        _xml_escape($value = $attr->{$key});
+        next if $key eq 'start_line' and $_[0]{'hide_line_numbers'};
+        _xml_escape($value = $_[2]{$key});
         print $fh $ATTR_PAD, $key, '="', $value, '"';
       }
     }
   } else { # faster
-    while(($key,$value) = each %{$attr}) {
+    while(($key,$value) = each %{$_[2]}) {
       unless($key =~ m/^~/s) {
-        next if $key eq 'start_line' and $self->{'hide_line_numbers'};
+        next if $key eq 'start_line' and $_[0]{'hide_line_numbers'};
         _xml_escape($value);
         print $fh $ATTR_PAD, $key, '="', $value, '"';
       }
@@ -54,25 +54,26 @@ sub _handle_element_start ($self, $element_name, $attr) {
   return;
 }
 
-sub _handle_text ($self, str $text='') {
-  DEBUG and print STDERR "== \"$text\"\n";
-  if (length $text) {
+sub _handle_text {
+  DEBUG and print STDERR "== \"$_[1]\"\n";
+  if(length $_[1]) {
+    my $text = $_[1];
     _xml_escape($text);
-    print {$self->{'output_fh'}} $text;
+    print {$_[0]{'output_fh'}} $text;
   }
   return;
 }
 
-sub _handle_element_end ($self, str $element_name, $attr?) {
-  DEBUG and print STDERR "-- $element_name\n";
-  print {$self->{'output_fh'}} "</", $element_name, ">";
+sub _handle_element_end {
+  DEBUG and print STDERR "-- $_[1]\n";
+  print {$_[0]{'output_fh'}} "</", $_[1], ">";
   return;
 }
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-sub _xml_escape { # by-ref
+sub _xml_escape {
   foreach my $x (@_) {
     # Escape things very cautiously:
     if ($] ge 5.007_003) {

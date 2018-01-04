@@ -1,3 +1,4 @@
+
 require 5;
 package Pod::Simple;
 use strict;
@@ -17,9 +18,7 @@ use vars qw(
 );
 
 @ISA = ('Pod::Simple::BlackBox');
-use cperl;
-our $VERSION = '4.32c'; # modernized
-$VERSION =~ s/c$//;
+$VERSION = '3.35';
 
 @Known_formatting_codes = qw(I B C L E F S X Z); 
 %Known_formatting_codes = map(($_=>1), @Known_formatting_codes);
@@ -127,8 +126,8 @@ __PACKAGE__->_accessorize(
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-sub any_errata_seen ($self) {  # good for using as an exit() value...
-  return $self->{'errors_seen'} || 0;
+sub any_errata_seen {  # good for using as an exit() value...
+  return shift->{'errors_seen'} || 0;
 }
 
 sub errata_seen {
@@ -136,20 +135,21 @@ sub errata_seen {
 }
 
 # Returns the encoding only if it was recognized as being handled and set
-sub detected_encoding ($self) {
-  return $self->{'detected_encoding'};
+sub detected_encoding {
+  return shift->{'detected_encoding'};
 }
 
-sub encoding ($this, @l) {
-  return $this->{'encoding'} unless @l;  # GET.
+sub encoding {
+  my $this = shift;
+  return $this->{'encoding'} unless @_;  # GET.
 
-  $this->_handle_encoding_line("=encoding $l[0]");
+  $this->_handle_encoding_line("=encoding $_[0]");
   if ($this->{'_processed_encoding'}) {
     delete $this->{'_processed_encoding'};
     if(! $this->{'encoding_command_statuses'} ) {
       DEBUG > 2 and print STDERR " CRAZY ERROR: encoding wasn't really handled?!\n";
     } elsif( $this->{'encoding_command_statuses'}[-1] ) {
-      $this->scream( "=encoding $l[0]",
+      $this->scream( "=encoding $_[0]",
          sprintf "Couldn't do %s: %s",
          $this->{'encoding_command_reqs'  }[-1],
          $this->{'encoding_command_statuses'}[-1],
@@ -190,18 +190,19 @@ sub version_report {
 #sub _curr_open_listref { $_[0]{'curr_open'} ||= [] }
 
 
-sub output_string ($this, @l) {
+sub output_string {
   # Works by faking out output_fh.  Simplifies our code.
   #
-  return $this->{'output_string'} unless @l;  # GET.
+  my $this = shift;
+  return $this->{'output_string'} unless @_;  # GET.
   
   require Pod::Simple::TiedOutFH;
-  my $x = (defined($l[0]) and ref($l[0])) ? $l[0] : \( $l[0] );
+  my $x = (defined($_[0]) and ref($_[0])) ? $_[0] : \( $_[0] );
   $$x = '' unless defined $$x;
   DEBUG > 4 and print STDERR "# Output string set to $x ($$x)\n";
-  $this->{'output_fh'} = Pod::Simple::TiedOutFH->handle_on($l[0]);
+  $this->{'output_fh'} = Pod::Simple::TiedOutFH->handle_on($_[0]);
   return
-    $this->{'output_string'} = $l[0];
+    $this->{'output_string'} = $_[0];
     #${ ${ $this->{'output_fh'} } };
 }
 
@@ -231,16 +232,18 @@ sub new {
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-# OVERRIDE IN DERIVED CLASS
-sub _handle_element_start ($self, $element_name, $attr?) {
+sub _handle_element_start {     # OVERRIDE IN DERIVED CLASS
+  my($self, $element_name, $attr_hash_r) = @_;
   return;
 }
-# OVERRIDE IN DERIVED CLASS
-sub _handle_element_end ($self, $element_name, $attr?) {
+
+sub _handle_element_end {       # OVERRIDE IN DERIVED CLASS
+  my($self, $element_name) = @_;
   return;
 }
-# OVERRIDE IN DERIVED CLASS
-sub _handle_text ($self, $text) {
+
+sub _handle_text          {     # OVERRIDE IN DERIVED CLASS
+  my($self, $text) = @_;
   return;
 }
 
@@ -248,18 +251,13 @@ sub _handle_text ($self, $text) {
 #
 # And now directives (not targets)
 
-sub accept_directive_as_verbatim ($self, @args) { 
-  $self->_accept_directives('Verbatim', @args)
-}
-sub accept_directive_as_data ($self, @args) {
-  $self->_accept_directives('Data', @args)
-}
-sub accept_directive_as_processed ($self, @args) { 
-  $self->_accept_directives('Plain', @args)
-}
+sub accept_directive_as_verbatim  { shift->_accept_directives('Verbatim', @_) }
+sub accept_directive_as_data      { shift->_accept_directives('Data',     @_) }
+sub accept_directive_as_processed { shift->_accept_directives('Plain',    @_) }
 
-sub _accept_directives ($this, $type, @args) {
-  foreach my $d (@args) {
+sub _accept_directives {
+  my($this, $type) = splice @_,0,2;
+  foreach my $d (@_) {
     next unless defined $d and length $d;
     Carp::croak "\"$d\" isn't a valid directive name"
      unless $d =~ m/^[a-zA-Z][a-zA-Z0-9]*$/s;
@@ -278,19 +276,20 @@ sub _accept_directives ($this, $type, @args) {
 #--------------------------------------------------------------------------
 # TODO: document these:
 
-sub unaccept_directive ($self, @directives) { $self->unaccept_directives(@directives) };
+sub unaccept_directive { shift->unaccept_directives(@_) };
 
-sub unaccept_directives ($self, @directives) {
-  foreach my $d (@directives) {
+sub unaccept_directives {
+  my $this = shift;
+  foreach my $d (@_) {
     next unless defined $d and length $d;
     Carp::croak "\"$d\" isn't a valid directive name"
      unless $d =~ m/^[a-zA-Z][a-zA-Z0-9]*$/s;
     Carp::croak "But you must accept \"$d\" directives -- it's a builtin!"
      if exists $Known_directives{$d};
-    delete $self->{'accept_directives'}{$d};
+    delete $this->{'accept_directives'}{$d};
     DEBUG > 2 and print STDERR "OK, won't accept \"=$d\" as directive.\n";
   }
-  return sort keys %{ $self->{'accept_directives'} } if wantarray;
+  return sort keys %{ $this->{'accept_directives'} } if wantarray;
   return
 }
 
@@ -298,17 +297,18 @@ sub unaccept_directives ($self, @directives) {
 #
 # And now targets (not directives)
 
-sub accept_target ($this, @args) { $this->accept_targets(@args) } # alias
+sub accept_target         { shift->accept_targets(@_)         } # alias
+sub accept_target_as_text { shift->accept_targets_as_text(@_) } # alias
 
-sub accept_target_as_text ($this, @args) { $this->accept_targets_as_text(@args) } # alias
 
-sub accept_targets ($this, @args) { $this->_accept_targets('1', @args) }
+sub accept_targets         { shift->_accept_targets('1', @_) }
 
-sub accept_targets_as_text ($this, @args) { $this->_accept_targets('force_resolve', @args) }
-# forces them to be processed, even when there's no ":".
+sub accept_targets_as_text { shift->_accept_targets('force_resolve', @_) }
+ # forces them to be processed, even when there's no ":".
 
-sub _accept_targets ($this, $type, @args) {
-  foreach my $t (@args) {
+sub _accept_targets {
+  my($this, $type) = splice @_,0,2;
+  foreach my $t (@_) {
     next unless defined $t and length $t;
     # TODO: enforce some limitations on what a target name can be?
     $this->{'accept_targets'}{$t} = $type;
@@ -319,10 +319,11 @@ sub _accept_targets ($this, $type, @args) {
 }
 
 #--------------------------------------------------------------------------
-sub unaccept_target ($this, @args) { $this->unaccept_targets(@args) }
+sub unaccept_target         { shift->unaccept_targets(@_) }
 
-sub unaccept_targets ($this, @args) {
-  foreach my $t (@args) {
+sub unaccept_targets {
+  my $this = shift;
+  foreach my $t (@_) {
     next unless defined $t and length $t;
     # TODO: enforce some limitations on what a target name can be?
     delete $this->{'accept_targets'}{$t};
@@ -343,10 +344,12 @@ if (! defined $xml_name_re) {
     $xml_name_re = qr/[\x00-\x2C\x2F\x39\x3B-\x40\x5B-\x5E\x60\x7B-\x7F]/;
 }
 
-sub accept_code ($this, @args) { $this->accept_codes(@args) } # alias
+sub accept_code { shift->accept_codes(@_) } # alias
 
-sub accept_codes ($this, @args) {  # Add some codes
-  foreach my $new_code (@args) {
+sub accept_codes {  # Add some codes
+  my $this = shift;
+  
+  foreach my $new_code (@_) {
     next unless defined $new_code and length $new_code;
     # A good-enough check that it's good as an XML Name symbol:
     Carp::croak "\"$new_code\" isn't a valid element name"
@@ -373,10 +376,12 @@ sub accept_codes ($this, @args) {  # Add some codes
 }
 
 #--------------------------------------------------------------------------
-sub unaccept_code ($self, @args) { $self->unaccept_codes(@args) }
+sub unaccept_code { shift->unaccept_codes(@_) }
 
-sub unaccept_codes ($this, @args) { # remove some codes
-  foreach my $new_code (@args) {
+sub unaccept_codes { # remove some codes
+  my $this = shift;
+  
+  foreach my $new_code (@_) {
     next unless defined $new_code and length $new_code;
     # A good-enough check that it's good as an XML Name symbol:
     Carp::croak "\"$new_code\" isn't a valid element name"
@@ -402,8 +407,10 @@ sub unaccept_codes ($this, @args) { # remove some codes
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-sub parse_string_document ($self, @args) {
-  foreach my $line_group (@args) {
+sub parse_string_document {
+  my $self = shift;
+  my @lines;
+  foreach my $line_group (@_) {
     next unless defined $line_group and length $line_group;
     pos($line_group) = 0;
     while($line_group =~
@@ -422,7 +429,8 @@ sub parse_string_document ($self, @args) {
   return $self;
 }
 
-sub _init_fh_source ($self, $source) {
+sub _init_fh_source {
+  my($self, $source) = @_;
 
   #DEBUG > 1 and print STDERR "Declaring $source as :raw for starters\n";
   #$self->_apply_binmode($source, ':raw');
@@ -434,7 +442,8 @@ sub _init_fh_source ($self, $source) {
 #:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.
 #
 
-sub parse_file ($self, $source) {
+sub parse_file {
+  my($self, $source) = (@_);
 
   if(!defined $source) {
     Carp::croak("Can't use empty-string as a source for parse_file");
@@ -447,7 +456,7 @@ sub parse_file ($self, $source) {
   } else {
     {
       local *PODSOURCE;
-      open(PODSOURCE, "<", $source) || Carp::croak("Can't open $source: $!");
+      open(PODSOURCE, "<$source") || Carp::croak("Can't open $source: $!");
       $self->{'source_filename'} = $source;
       $source = *PODSOURCE{IO};
     }
@@ -488,10 +497,11 @@ sub parse_file ($self, $source) {
 
 #:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.
 
-sub parse_from_file ($self, $source?, $to?) {
+sub parse_from_file {
   # An emulation of Pod::Parser's interface, for the sake of Perldoc.
   # Basically just a wrapper around parse_file.
 
+  my($self, $source, $to) = @_;
   $self = $self->new unless ref($self); # so we tolerate being a class method
   
   if(!defined $source)             { $source = *STDIN{IO}
@@ -516,7 +526,7 @@ sub parse_from_file ($self, $source?, $to?) {
     require Symbol;
     my $out_fh = Symbol::gensym();
     DEBUG and print STDERR "Write-opening to $to\n";
-    open($out_fh, ">", $to)  or  Carp::croak "Can't write-open $to: $!";
+    open($out_fh, ">$to")  or  Carp::croak "Can't write-open $to: $!";
     binmode($out_fh)
      if $self->can('write_with_binmode') and $self->write_with_binmode;
     $self->output_fh($out_fh);
@@ -527,30 +537,36 @@ sub parse_from_file ($self, $source?, $to?) {
 
 #-----------------------------------------------------------------------------
 
-sub whine ($self, $line, $complaint) {
+sub whine {
+  #my($self,$line,$complaint) = @_;
+  my $self = shift(@_);
   ++$self->{'errors_seen'};
   if($self->{'no_whining'}) {
-    DEBUG > 9 and print STDERR "Discarding complaint (at line $line) $complaint\n because no_whining is on.\n";
+    DEBUG > 9 and print STDERR "Discarding complaint (at line $_[0]) $_[1]\n because no_whining is on.\n";
     return;
   }
-  push @{$self->{'all_errata'}{$line}}, $complaint;
-  return $self->_complain_warn($line, $complaint) if $self->{'complain_stderr'};
-  return $self->_complain_errata($line, $complaint);
+  push @{$self->{'all_errata'}{$_[0]}}, $_[1];
+  return $self->_complain_warn(@_) if $self->{'complain_stderr'};
+  return $self->_complain_errata(@_);
 }
 
-sub scream ($self,$line,$complaint) {    # like whine, but not suppressible
+sub scream {    # like whine, but not suppressible
+  #my($self,$line,$complaint) = @_;
+  my $self = shift(@_);
   ++$self->{'errors_seen'};
-  push @{$self->{'all_errata'}{$line}}, $complaint;
-  return $self->_complain_warn($line,$complaint) if $self->{'complain_stderr'};
-  return $self->_complain_errata($line,$complaint);
+  push @{$self->{'all_errata'}{$_[0]}}, $_[1];
+  return $self->_complain_warn(@_) if $self->{'complain_stderr'};
+  return $self->_complain_errata(@_);
 }
 
-sub _complain_warn ($self,$line,$complaint) {
+sub _complain_warn {
+  my($self,$line,$complaint) = @_;
   return printf STDERR "%s around line %s: %s\n",
     $self->{'source_filename'} || 'Pod input', $line, $complaint;
 }
 
-sub _complain_errata ($self,$line,$complaint) {
+sub _complain_errata {
+  my($self,$line,$complaint) = @_;
   if( $self->{'no_errata_section'} ) {
     DEBUG > 9 and print STDERR "Discarding erratum (at line $line) $complaint\n because no_errata_section is on.\n";
   } else {
@@ -563,8 +579,9 @@ sub _complain_errata ($self,$line,$complaint) {
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-sub _get_initial_item_type ($self, $para) {
+sub _get_initial_item_type {
   # A hack-wrapper here for when you have like "=over\n\n=item 456\n\n"
+  my($self, $para) = @_;
   return $para->[1]{'~type'}  if $para->[1]{'~type'};
 
   return $para->[1]{'~type'} = 'text'
@@ -575,8 +592,10 @@ sub _get_initial_item_type ($self, $para) {
 
 
 
-sub _get_item_type ($self, $para) {       # mutates the item!!
+sub _get_item_type {       # mutates the item!!
+  my($self, $para) = @_;
   return $para->[1]{'~type'} if $para->[1]{'~type'};
+
 
   # Otherwise we haven't yet been to this node.  Maybe alter it...
   
@@ -653,7 +672,8 @@ sub _make_treelet {
 
 #:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.
 
-sub _wrap_up ($self, @stack) {
+sub _wrap_up {
+  my($self, @stack) = @_;
   my $nixx  = $self->{'nix_X_codes'};
   my $merge = $self->{'merge_text' };
   return unless $nixx or $merge;
@@ -712,7 +732,8 @@ sub _wrap_up ($self, @stack) {
 
 #:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.
 
-sub _remap_sequences ($self,@stack) {
+sub _remap_sequences {
+  my($self,@stack) = @_;
   
   if(@stack == 1 and @{ $stack[0] } == 3 and !ref $stack[0][2]) {
     # VERY common case: abort it.
@@ -799,7 +820,7 @@ sub _remap_sequences ($self,@stack) {
   
   DEBUG > 2 and print STDERR "End of _remap_sequences traversal.\n\n";
 
-  if(@stack == 2 and @{ $_[1] } == 3 and !ref $stack[1][2]) {
+  if(@_ == 2 and @{ $_[1] } == 3 and !ref $_[1][2]) {
     DEBUG and print STDERR "Noting that the treelet is now formatless.\n";
     return 0;
   }
@@ -808,10 +829,12 @@ sub _remap_sequences ($self,@stack) {
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-sub _ponder_extend ($self, $para) {
+sub _ponder_extend {
 
   # "Go to an extreme, move back to a more comfortable place"
   #  -- /Oblique Strategies/,  Brian Eno and Peter Schmidt
+  
+  my($self, $para) = @_;
   my $content = join ' ', splice @$para, 2;
   $content =~ s/^\s+//s;
   $content =~ s/\s+$//s;
@@ -931,7 +954,8 @@ sub _ponder_extend ($self, $para) {
 
 #:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.
 
-sub _treat_Zs ($self,@stack) {  # Nix Z<...>'s
+sub _treat_Zs {  # Nix Z<...>'s
+  my($self,@stack) = @_;
 
   my($i, $treelet);
   my $start_line = $stack[0][1]{'start_line'};
@@ -1026,7 +1050,7 @@ sub _treat_Zs ($self,@stack) {  # Nix Z<...>'s
 # Note, however, that formatting codes and Z<>'s can occur in any and all
 # parts of an L<...> (i.e., in name, section, text, and url).
 
-sub _treat_Ls ($self,@stack) {  # Process our dear dear friends, the L<...> sequences
+sub _treat_Ls {  # Process our dear dear friends, the L<...> sequences
 
   # L<name>
   # L<name/"sec"> or L<name/sec>
@@ -1036,6 +1060,8 @@ sub _treat_Ls ($self,@stack) {  # Process our dear dear friends, the L<...> sequ
   # L<text|/"sec"> or L<text|/sec> or L<text|"sec">
   # L<scheme:...>
   # L<text|scheme:...>
+
+  my($self,@stack) = @_;
 
   my($i, $treelet);
   my $start_line = $stack[0][1]{'start_line'};
@@ -1332,7 +1358,8 @@ sub _treat_Ls ($self,@stack) {  # Process our dear dear friends, the L<...> sequ
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-sub _treat_Es ($self, @stack) {
+sub _treat_Es {
+  my($self,@stack) = @_;
 
   my($i, $treelet, $content, $replacer, $charnum);
   my $start_line = $stack[0][1]{'start_line'};
@@ -1424,7 +1451,8 @@ sub _treat_Es ($self, @stack) {
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-sub _treat_Ss ($self,$treelet) {
+sub _treat_Ss {
+  my($self,$treelet) = @_;
   
   _change_S_to_nbsp($treelet,0) if $self->{'nbsp_for_S'};
 
@@ -1432,11 +1460,13 @@ sub _treat_Ss ($self,$treelet) {
   #  Normalizing nbsp's to S is harder: for each text node, make S content
   #  out of anything matching m/([^ \xA0]*(?:\xA0+[^ \xA0]*)+)/
 
+
   return;
 }
 
-sub _change_S_to_nbsp ($treelet, $in_s) { #  a recursive function
+sub _change_S_to_nbsp { #  a recursive function
   # Sanely assumes that the top node in the excursion won't be an S node.
+  my($treelet, $in_s) = @_;
   
   my $is_s = ('S' eq $treelet->[0]);
   $in_s ||= $is_s; # So in_s is on either by this being an S element,
@@ -1489,7 +1519,8 @@ sub _accessorize {  # A simple-minded method-maker
 # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #=============================================================================
 
-sub filter ($class, $source) {
+sub filter {
+  my($class, $source) = @_;
   my $new = $class->new;
   $new->output_fh(*STDOUT{IO});
   
