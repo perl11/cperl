@@ -71,8 +71,8 @@ JSON::PP cpan/JSON-PP/lib/JSON/PP/Boolean.pm ccc6b9b4daa99ac651e1b65dad2b8508d4e
 Math::BigInt cpan/Math-BigInt/lib/Math/BigInt.pm 98b3099c00483385f5b0738b6dd839665e53c2fe
 Math::BigInt cpan/Math-BigInt/t/mbimbf.inc 9fa49eee70b8f7a911f0afd1b9a11eee672425f5
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
-Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
-Net::Domain cpan/libnet/lib/Net/Domain.pm 73f78880a95de5372bb234f37c386f52e43795d9
+Net::Domain cpan/libnet/lib/Net/Cmd.pm 7bcee24233cbf0d3b8d9776133afb7266c82a915
+Net::Domain cpan/libnet/lib/Net/Domain.pm fcfe404d3dad82ed56180f9d984fb1f8eb2f3bec
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 8ac11522808238b028b935fa94bf5ff319e68938
 Pod::Perldoc cpan/Pod-Perldoc/lib/Pod/Perldoc.pm 155770a6867b09683ad4963b86b6d8f73dfb08bc
 Pod::Perldoc cpan/Pod-Perldoc/Makefile.PL d1473c88b8cc5543d174966096b95f2d84a7fdcc
