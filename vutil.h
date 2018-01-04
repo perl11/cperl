@@ -37,6 +37,11 @@
 #  endif
 #endif
 
+#ifndef hv_existss
+#  define hv_existss(hv, key) \
+          hv_exists((hv), ("" key ""), (sizeof(key)-1))
+#endif
+
 #ifndef PERL_ARGS_ASSERT_CK_WARNER
 static void Perl_ck_warner(pTHX_ U32 err, const char* pat, ...);
 
@@ -115,7 +120,7 @@ S_croak_xs_usage(pTHX_ const CV *const cv, const char *const params)
             Perl_croak_nocontext("Usage: %s(%s)", gvname, params);
     } else {
         /* Pants. I don't think that it should be possible to get here. */
-        Perl_croak_nocontext("Usage: CODE(0x%"UVxf")(%s)", PTR2UV(cv), params);
+        Perl_croak_nocontext("Usage: CODE(0x%" UVxf ")(%s)", PTR2UV(cv), params);
     }
 }
 

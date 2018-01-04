@@ -251,6 +251,8 @@ Updated from 3.01, many critical fixes.
 
 =item L<Unicode::Collate>  1.25_01
 
+=item L<version> 0.9918_02c
+
 =item L<VMS::DCLsym>  1.09
 
 =item L<VMS::Stdio>  2.44_01

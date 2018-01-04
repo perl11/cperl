@@ -1516,7 +1516,7 @@ use File::Glob qw(:case);
     },
 
     'version' => {
-        'DISTRIBUTION' => 'JPEACOCK/version-0.9917.tar.gz',
+        'DISTRIBUTION' => 'JPEACOCK/version-0.9918.tar.gz',
         'FILES'        => q[cpan/version vutil.c vutil.h vxs.inc],
         'EXCLUDED' => [
             qr{^vutil/lib/},
@@ -1532,13 +1532,11 @@ use File::Glob qw(:case);
         # to delete an entire block out of lib/version.pm, since that code is
         # only necessary with the CPAN release.
         'CUSTOMIZED'   => [
-            qw( lib/version.pm lib/version/regex.pm
-                ),
+            qw( lib/version.pm lib/version/regex.pm ),
 
             # Merged upstream, waiting for new CPAN release: see CPAN RT#92721
             # cperl allows the ending 'c'
-            qw( vutil.c vxs.inc
-                ),
+            qw( vutil.c vxs.inc vutil.h ),
         ],
 
         'MAP' => {

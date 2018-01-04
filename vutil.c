@@ -305,7 +305,7 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
     last = PRESCAN_VERSION(s, FALSE, &errstr, &qv, &saw_decimal, &width, &alpha);
     if (errstr) {
 	/* "undef" is a special case and not an error */
-	if ( ! ( *s == 'u' && strEQ(s+1,"ndef")) ) {
+	if ( !strEQc(s, "undef") ) {
 	    Perl_croak(aTHX_ "%s", errstr);
 	}
     }
@@ -357,7 +357,7 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
  			rev += (*s - '0') * mult;
  			mult /= 10;
 			if (   (PERL_ABS(orev) > PERL_ABS(rev)) 
-			    || (PERL_ABS(rev) > VERSION_MAX )) {
+                            || ((U32)PERL_ABS(rev) > VERSION_MAX )) {
 			    Perl_ck_warner(aTHX_ packWARN(WARN_OVERFLOW), 
 					   "Integer overflow in version %d",VERSION_MAX);
 			    s = end - 1;
@@ -478,7 +478,7 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
     (void)hv_stores(MUTABLE_HV(hv), "version", newRV_noinc(MUTABLE_SV(av)));
 
     /* fix RT#19517 - special case 'undef' as string */
-    if ( *s == 'u' && strEQ(s+1,"ndef") ) {
+    if ( strEQc(s, "undef") ) {
 	s += 5;
     }
 
@@ -524,10 +524,10 @@ Perl_new_version(pTHX_ SV *ver)
 	    ver = SvRV(ver);
 
 	/* Begin copying all of the elements */
-	if ( hv_exists(MUTABLE_HV(ver), "qv", 2) )
+	if ( hv_existss(MUTABLE_HV(ver), "qv") )
 	    (void)hv_stores(MUTABLE_HV(hv), "qv", newSViv(1));
 
-	if ( hv_exists(MUTABLE_HV(ver), "alpha", 5) )
+	if ( hv_existss(MUTABLE_HV(ver), "alpha") )
 	    (void)hv_stores(MUTABLE_HV(hv), "alpha", newSViv(1));
 	{
 	    SV ** svp = hv_fetchs(MUTABLE_HV(ver), "width", FALSE);
@@ -671,7 +671,7 @@ VER_NV:
 	     * a standard one, we should be expecting a non-standard one, the same
 	     * one that we have recorded as the underlying locale.  If not, update
 	     * our records. */
-	    if (strEQ(cur_numeric, "C") || strEQ(cur_numeric, "POSIX")) {
+	    if (strEQc(cur_numeric, "C") || strEQc(cur_numeric, "POSIX")) {
 		if (! PL_numeric_standard) {
 		    new_numeric(cur_numeric);
 		}
@@ -688,12 +688,12 @@ VER_NV:
         STORE_NUMERIC_LOCAL_SET_STANDARD();
         LOCK_NUMERIC_STANDARD();
 	if (sv) {
-	    Perl_sv_catpvf(aTHX_ sv, "%.9"NVff, SvNVX(ver));
+	    Perl_sv_catpvf(aTHX_ sv, "%.9" NVff, SvNVX(ver));
 	    len = SvCUR(sv);
 	    buf = SvPVX(sv);
 	}
 	else {
-	    len = my_snprintf(tbuf, sizeof(tbuf), "%.9"NVff, SvNVX(ver));
+	    len = my_snprintf(tbuf, sizeof(tbuf), "%.9" NVff, SvNVX(ver));
 	    buf = tbuf;
 	}
         UNLOCK_NUMERIC_STANDARD();
@@ -877,7 +877,7 @@ Perl_vnumify(pTHX_ SV *vs)
 	Perl_croak(aTHX_ "Invalid version object");
 
     /* see if various flags exist */
-    if ( hv_exists(MUTABLE_HV(vs), "alpha", 5 ) )
+    if ( hv_existss(MUTABLE_HV(vs), "alpha") )
 	alpha = TRUE;
 
     if (alpha) {
@@ -959,11 +959,11 @@ Perl_vnormal(pTHX_ SV *vs)
 	SV * tsv = *av_fetch(av, 0, 0);
 	digit = SvIV(tsv);
     }
-    sv = Perl_newSVpvf(aTHX_ "v%"IVdf, (IV)digit);
+    sv = Perl_newSVpvf(aTHX_ "v%" IVdf, (IV)digit);
     for ( i = 1 ; i <= len ; i++ ) {
 	SV * tsv = *av_fetch(av, i, 0);
 	digit = SvIV(tsv);
-	Perl_sv_catpvf(aTHX_ sv, ".%"IVdf, (IV)digit);
+	Perl_sv_catpvf(aTHX_ sv, ".%" IVdf, (IV)digit);
     }
 
     if ( len <= 2 ) { /* short version, must be at least three */
@@ -1007,13 +1007,17 @@ Perl_vstringify(pTHX_ SV *vs)
     if (svp) {
 	SV *pv;
 	pv = *svp;
-	if ( SvPOK(pv) )
+	if ( SvPOK(pv)
+#if PERL_VERSION_LT(5,17,2)
+	    || SvPOKp(pv)
+#endif
+	)
 	    return newSVsv(pv);
 	else
 	    return &PL_sv_undef;
     }
     else {
-	if ( hv_exists(MUTABLE_HV(vs), "qv", 2) )
+	if ( hv_existss(MUTABLE_HV(vs), "qv") )
 	    return VNORMAL(vs);
 	else
 	    return VNUMIFY(vs);
