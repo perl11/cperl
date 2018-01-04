@@ -241,7 +241,7 @@ Updated from 3.01, many critical fixes.
 
 =item L<Time::Piece>  1.3203
 
-=item L<Unicode::Collate>  1.25
+=item L<Unicode::Collate>  1.25_01
 
 =item L<VMS::DCLsym>  1.09
 

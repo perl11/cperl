@@ -25,21 +25,24 @@
 
 #define VCE_Length	(9)
 
+#ifndef Hangul_SBase
 #define Hangul_SBase  (0xAC00)
-#define Hangul_SIni   (0xAC00)
-#define Hangul_SFin   (0xD7A3)
 #define Hangul_NCount (588)
 #define Hangul_TCount (28)
 #define Hangul_LBase  (0x1100)
+#define Hangul_VBase  (0x1161)
+#define Hangul_TBase  (0x11A7) /* from "no-final" codepoint */
+#endif
+
+#define Hangul_SIni   (0xAC00)
+#define Hangul_SFin   (0xD7A3)
 #define Hangul_LIni   (0x1100)
 #define Hangul_LFin   (0x1159)
 #define Hangul_LFill  (0x115F)
 #define Hangul_LEnd   (0x115F) /* Unicode 5.2 */
-#define Hangul_VBase  (0x1161)
 #define Hangul_VIni   (0x1160) /* from Vowel Filler */
 #define Hangul_VFin   (0x11A2)
 #define Hangul_VEnd   (0x11A7) /* Unicode 5.2 */
-#define Hangul_TBase  (0x11A7) /* from "no-final" codepoint */
 #define Hangul_TIni   (0x11A8)
 #define Hangul_TFin   (0x11F9)
 #define Hangul_TEnd   (0x11FF) /* Unicode 5.2 */
