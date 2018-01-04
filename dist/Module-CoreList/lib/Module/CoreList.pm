@@ -16181,6 +16181,7 @@ our %delta = (
             'Test::Harness'         => '3.39',
             'Thread::Queue'         => '3.12',
             'Time::HiRes'           => '1.9751',
+            'Time::Piece'           => '1.3203',
             'VMS::DCLsym'           => '1.09',
             'VMS::Stdio'            => '2.44_01',
         },

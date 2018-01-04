@@ -239,6 +239,8 @@ Updated from 3.01, many critical fixes.
 
 =item L<Time::HiRes>  1.9751
 
+=item L<Time::Piece>  1.3203
+
 =item L<VMS::DCLsym>  1.09
 
 =item L<VMS::Stdio>  2.44_01
