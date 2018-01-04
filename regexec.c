@@ -10068,8 +10068,6 @@ Perl__is_grapheme(pTHX_ const U8 * strbeg, const U8 * s, const U8 * strend, cons
     return isGCB(cp_gcb_val, next_cp_gcb_val, strbeg, s, TRUE);
 }
 
-#endif
-
 bool
 Perl_isSCRIPT_RUN(pTHX_ const U8 * s, const U8 * send, const bool utf8_target)
 {
@@ -10438,6 +10436,7 @@ Perl_isSCRIPT_RUN(pTHX_ const U8 * s, const U8 * send, const bool utf8_target)
     return retval;
 }
 
+#endif /* ifndef PERL_IN_XSUB_RE */
 
 /*
  * ex: set ts=8 sts=4 sw=4 et:
