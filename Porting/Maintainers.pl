@@ -1170,7 +1170,7 @@ use File::Glob qw(:case);
     },
 
     'Pod::Man' => {
-        'DISTRIBUTION' => 'RRA/podlators-4.09.tar.gz',
+        'DISTRIBUTION' => 'RRA/podlators-4.10.tar.gz',
         'FILES'        => q[cpan/podlators pod/perlpodstyle.pod],
 
         # cperl fix to support make -s
@@ -1186,7 +1186,7 @@ use File::Glob qw(:case);
         },
         'EXCLUDED' => [
           qr{^t/(style|docs)/},
-          qr{/docs/},
+          qr{^docs/},
         ],
     },
 
