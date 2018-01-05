@@ -1,0 +1,444 @@
+=encoding utf8
+
+=head1 NAME
+
+perl5243cdelta - what is new for cperl v5.24.3
+
+=head1 DESCRIPTION
+
+This document describes the differences between the cperl 5.24.2
+and the cperl 5.24.3 releases.
+
+If you are upgrading from an earlier release such as v5.24.1c, first read
+L<perl5242cdelta>, which describes differences between v5.24.1c and v5.24.2c
+
+=head1 Security
+
+=head2 Set umask(0600) before calling mkstemp
+
+POSIX 2008 demands such an umask, but it is still problematic on
+Solaris, HP-UX and AIX and older libcs, e.g. glibc <= 2.06.
+The old umask 0177 was insecure.
+
+=head2 Disallow illegal glob with embedded NUL
+
+E.g. C<< <$fh\000> >> throws now the safe syscalls warning, and errors
+with C<Glob not terminated>, and does not pass the illegal glob path
+to the internal or external glob.
+
+See L<[cperl #342]|https://github.com/perl11/cperl/issues/342>
+
+=head2 Follow chroot with chdir("/")
+
+Fixed two security issues with the chroot op:
+
+* fail on embedded NUL in the chroot argument.
+Set C<errno> to EINVAL.
+
+* If a call to chroot is not followed by a call to chdir("/") the
+chroot jail confinement can be violated.  In Perl_pp_chroot: A call to
+chroot followed by an operation that may escape from the chroot jail.
+Coverity CID #165302 Insecure chroot.
+
+=head2 [CVE-2017-12837] Heap buffer overflow in regular expression compiler
+
+Compiling certain regular expression patterns with the case-insensitive
+modifier could cause a heap buffer overflow and crash perl.  This has now been
+fixed.
+L<[perl #131582]|https://rt.perl.org/Public/Bug/Display.html?id=131582>
+
+=head2 [CVE-2017-12883] Buffer over-read in regular expression parser
+
+For certain types of syntax error in a regular expression pattern, the error
+message could either contain the contents of a random, possibly large, chunk of
+memory, or could crash perl.  This has now been fixed.
+L<[perl #131598]|https://rt.perl.org/Public/Bug/Display.html?id=131598>
+
+=head2 [CVE-2017-12814] C<$ENV{$key}> stack buffer overflow on Windows
+
+A possible stack buffer overflow in the C<%ENV> code on Windows has been fixed
+by removing the buffer completely since it was superfluous anyway.
+L<[perl #131665]|https://rt.perl.org/Public/Bug/Display.html?id=131665>
+
+=head1 Modules and Pragmata
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item L<Archive::Tar>  2.26
+
+'0' is a valid name for an archive, change 'iter' to check definedness.
+See L<https://metacpan.org/changes/distribution/Archive-Tar>
+
+=item L<Attribute::Handlers> 0.99_01
+
+pod updates
+
+=item L<B::C>  1.55_06
+
+=item L<B::Debug>  1.26
+
+=item L<bignum>  0.47c
+
+=item L<Compress::Raw::Bzip2>  2.074
+
+plus our FLAG_APPEND_OUTPUT patches
+
+=item L<Compress::Raw::Zlib>  2.076_01
+
+plus our patches.
+https://github.com/madler/zlib/pull/329
+
+=item L<Config|XSConfig> 6.23
+
+=item L<Config::Perl::V>  0.29_01
+
+=item L<CPAN>  2.18_01
+
+Update from upstream 2.16,
+plus keep our cperl and secure YAML:::XS support.
+
+=item L<Cpanel::JSON::XS> 3.0240
+
+Simplify C<allow_singlequote> check, coverity cid #165321.
+Remove logical dead code.
+
+=item L<DB_File>  1.840
+
+But skip UpDowngrade() on CORE for reproducible builds
+
+=item L<Devel::PPPort>  3.36_04
+
+=item L<Digest::SHA>  6.01
+
+=item L<Encode>  2.93
+
+=item L<experimental>  0.019_01c
+
+=item L<ExtUtils::CBuilder>  0.280230
+
+=item L<ExtUtils::Constant>  0.24_01
+
+=item L<ExtUtils::Install>  2.14
+
+=item L<ExtUtils::MakeMaker>  8.30_04c
+
+=item L<ExtUtils::ParseXS>  3.36_03
+
+=item L<File::Fetch>  0.56
+
+hpux should not use lftp.
+Switch test URL from www.cpan.org to httpbin.org
+
+=item L<File::Path>  3.15_01c
+
+Remove erroneous documentation.
+Correct skip count for Windows.
+Comment out two TODO tests.
+Make subdirectory names used in tests more random
+
+=item L<Filter::Simple>  0.94
+
+Various small documentation fixes.
+Filter::Simple was erroneously signalling eof if it encountered a
+‘no MyFilter’ right after ‘use’:
+      use MyFilter;
+      no MyFilter;
+In this case it should simply not filter anything.
+
+=item L<Filter>  1.58
+
+XSLoader, our. defer Carp.
+add filter_read_exact tests.
+
+=item L<Getopt::Long>  2.5
+
+=item L<IO>  1.38
+
+from latest cperl.
+
+=item L<IO::Compress::Base>  2.074
+
+ISA fixes for c3 (by cperl) [cpan #120239]
+
+cperl: Keep our t/encode.pl fixes
+
+=item L<IO::Socket::IP>  0.39_02
+
+Fix new Autovivified hash slice warning.
+Keep demand-load Carp patch.
+
+=item L<IPC::Cmd>  0.98
+
+flapping 01_IPC-Cmd.t appveyor test
+
+Enhancements:
+Added wait_loop_callback for run_forked()
+
+Bug fixes:
+Only search in curdir in can_run() when on Win32 RT#105601
+
+=item L<JSON::PP> 2.97001_04
+
+Merged 2.97001 from cpan with ours.
+
+=item L<Locale::Codes>  3.55
+
+Deprecated from CORE with 5.28.
+
+=item L<Math::BigInt>  1.999811_01
+
+See L<https://github.com/rurban/Math-BigInt>
+
+=item L<Math::BigInt::FastCalc>  0.5006
+
+2 new tests files from Math-BigInt.
+
+Math::BigInt::FastCalc is now a subclass of Math::BigInt::Calc, so remove
+aliases like *Math::BigInt::FastCalc::_xxx = \&Math::BigInt::Calc::_xxx.
+
+Use OO-calls rather than function calls. (i.e slower but overridable)
+
+=item L<Math::BigRat>  0.2613
+
+Fix problem with second operand being changed in multiplication (CPAN
+RT #121139).
+
+And keep our cperl test fixes.
+See github.com:rurban/Math-BigRat branch cperl
+
+=item L<Module::CoreList> 5.20180101c
+
+=item L<Net::Domain>  3.11_01
+
+cperl fix for darwin to use hostname,
+suse fix for utf8 Net::Cmd
+
+=item L<Net::Ping>  2.63
+
+=item L<Pod::Man>  4.10
+
+=item L<Pod::Perldoc>  3.28
+
+=item L<Pod::Simple>  4.36c
+
+=item L<Scalar::Util>  1.49_10
+
+=item L<Search::Dict>  1.07_01
+
+=item L<SelectSaver>  1.02_01
+
+3-arg open
+
+=item L<SelfLoader>  1.24
+
+=item L<Storable> 3.05_14
+
+Updated from 3.01, many critical fixes.
+
+=item L<Test::Harness>  3.39
+
+=item L<Thread::Queue>  3.12
+
+=item L<threads>  2.18_01
+
+=item L<threads::shared>  1.57
+
+=item L<Time::HiRes>  1.9751
+
+=item L<Time::Piece>  1.3203
+
+=item L<Unicode::Collate>  1.25_01
+
+=item L<version> 0.9918_02c
+
+=item L<VMS::DCLsym>  1.09
+
+=item L<VMS::Stdio>  2.44_01
+
+=back
+
+=head1 Testing
+
+=over 4
+
+=item *
+
+F<t/porting/cmp_version.t> was fixed together with EUMM to handle
+parsing versions from filehandles. Backported.
+
+=back
+
+=head1 Selected Bug Fixes
+
+=over 4
+
+=item *
+
+Fixed wrong C<panic: distributed hash flood> when dealing with
+large C<%^H> hints hashes, with >127 entries, such as C<_charnames.pm> in
+C<Regexp::Common>. Fixed the logic dealing with such a hints hash.
+L<[cperl #350]|https://github.com/perl11/cperl/issues/350>.
+
+=item *
+
+Fixed return type of C<DynaLoader::dl_find_symbol_anywhere()>,
+the address, not the name.
+L<[cperl #352]|https://github.com/perl11/cperl/issues/352>.
+
+=item *
+
+Some regular expression parsing glitches could lead to assertion failures with
+regular expressions such as C</(?<=/> and C</(?<!/>.
+L<[perl #128170]|https://rt.perl.org/Public/Bug/Display.html?id=128170>
+
+=item *
+
+In v5.24.0c C<fchown> was changed not to accept negative one as an argument
+because in some platforms that is an error.  However, in some other platforms
+that is an acceptable argument.  This change has been reverted.
+L<[perl #128967]|https://rt.perl.org/Public/Bug/Display.html?id=128967>.
+
+=item *
+
+A regression in Perl 5.24 with C<tr/\N{U+...}/foo/> when the code point was
+between 128 and 255 has been fixed.
+L<[perl #128734]|https://rt.perl.org/Public/Bug/Display.html?id=128734>.
+
+=item *
+
+A vulnerability in Perl's C<sprintf> implementation has been fixed by avoiding
+a possible memory wrap.
+L<[perl #131260]|https://rt.perl.org/Public/Bug/Display.html?id=131260>
+
+=item *
+
+The parser could sometimes crash if a bareword came after C<evalbytes>.
+L<[perl #129196]|https://rt.perl.org/Public/Bug/Display.html?id=129196>
+
+=item *
+
+Many issues relating to C<printf "%a"> of hexadecimal floating point were
+fixed.  In addition, the "subnormals" (formerly known as "denormals") floating
+point numbers are now supported both with the plain IEEE 754 floating point
+numbers (64-bit or 128-bit) and the x86 80-bit "extended precision".  Note that
+subnormal hexadecimal floating point literals will give a warning about
+"exponent underflow".
+L<[perl #128843]|https://rt.perl.org/Public/Bug/Display.html?id=128843>
+L<[perl #128888]|https://rt.perl.org/Public/Bug/Display.html?id=128888>
+L<[perl #128889]|https://rt.perl.org/Public/Bug/Display.html?id=128889>
+L<[perl #128890]|https://rt.perl.org/Public/Bug/Display.html?id=128890>
+L<[perl #128893]|https://rt.perl.org/Public/Bug/Display.html?id=128893>
+L<[perl #128909]|https://rt.perl.org/Public/Bug/Display.html?id=128909>
+L<[perl #128919]|https://rt.perl.org/Public/Bug/Display.html?id=128919>
+
+=item *
+
+Fixed a place where the regex parser was not setting the syntax error correctly
+on a syntactically incorrect pattern.
+L<[perl #129122]|https://rt.perl.org/Public/Bug/Display.html?id=129122>
+
+=item *
+
+Fixed a memory leak in list assign from/to magic values, added with v5.23.6.
+L<[perl #130766]|https://rt.perl.org/Public/Bug/Display.html?id=130766>
+
+=back
+
+=head1 Platform Support
+
+=head2 Platform-Specific Notes
+
+=over 4
+
+=item VMS
+
+=over 4
+
+=item *
+
+C<configure.com> now recognizes the VSI-branded C compiler.
+
+=back
+
+=item Windows
+
+=over 4
+
+=item *
+
+Building XS modules with GCC 6 in a 64-bit build of Perl failed due to
+incorrect mapping of C<strtoll> and C<strtoull>.  This has now been fixed.
+L<[perl #131726]|https://rt.perl.org/Public/Bug/Display.html?id=131726>
+L<[cpan #121683]|https://rt.cpan.org/Public/Bug/Display.html?id=121683>
+L<[cpan #122353]|https://rt.cpan.org/Public/Bug/Display.html?id=122353>
+
+=back
+
+=back
+
+=head1 Acknowledgements
+
+cperl 5.24.3 represents approximately 13 months of development since cperl
+5.24.2c and contains approximately 190,000 lines of changes across 1,200 files
+from 12 authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 75,000 lines of changes to 830 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements that became
+cperl 5.24.3:
+
+Reini Urban, Jarkko Hietaniemi, Karl Williamson, David Mitchell, Steve Hay,
+Craig A. Berry, James E Keenan, Dan Collins, Slaven Rezic, Tony Cook, Steven
+Humphrey, Dave Cross.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history including the perl and cperl repos. In particular,
+it does not include the names of the (very much appreciated) contributors who
+reported issues to the Perl bug tracker and the cperl github issues.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+Generated this with:
+
+    cperl Porting/acknowledgements.pl cperl-5.24.2..HEAD -c
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the articles recently
+posted to the comp.lang.perl.misc newsgroup and the perl bug database at
+L<https://rt.perl.org/> .  There may also be information at
+L<http://www.perl.org/> , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the L<cperlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
+
+If you think it's a cperl specific bug or trust the cperl developers more 
+please file an issue at L<https://github.com/perl11/cperl/issues>.
+
+If the bug you are reporting has security implications which make it
+inappropriate to send to a publicly archived mailing list, then see
+L<perlsec/SECURITY VULNERABILITY CONTACT INFORMATION>
+For details of how to report the issue.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut

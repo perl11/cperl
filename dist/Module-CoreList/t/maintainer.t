@@ -21,7 +21,8 @@ foreach my $mod ( @mods ) {
   $vers{ $mod->VERSION }++;
 }
 
-is( scalar keys %vers, 1, 'All Module-CoreList modules should have the same $VERSION' );
+is( scalar keys %vers, 1, 'All Module-CoreList modules should have the same $VERSION' )
+  or diag join" ",keys %vers;
 
 # Check that there is a release entry for the current perl version
 my $curver = $];

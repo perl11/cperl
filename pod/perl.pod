@@ -249,6 +249,7 @@ aux c2ph h2ph h2xs cperlbug pl2pm pod2html pod2man splain xsubpp
     perl5270cdelta	cperl changes in version 5.27.0c
     perl5261cdelta	cperl changes in version 5.26.1c
     perl5260cdelta	cperl changes in version 5.26.0c
+    perl5243cdelta	cperl changes in version 5.24.3c
     perl5242cdelta	cperl changes in version 5.24.2c
     perl5241cdelta	cperl changes in version 5.24.1c
     perl5240cdelta	cperl changes in version 5.24.0c

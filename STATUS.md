@@ -46,13 +46,13 @@ the latest development release:
 
 We also have:
 
-* [5.24.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.2) - [perl5242cdelta](perl5242cdelta.html),
-* [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4), [perl5224cdelta](perl5224cdelta.html).
+* [5.24.3c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.3) - [perl5243cdelta](perl5243cdelta.html),
+* [5.22.5c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.5), [perl5225cdelta](perl5225cdelta.html).
 
 All tests pass. CPAN works.
 Some fixes in my `rurban/distroprefs` repo for certain CPAN modules are needed.
 
-v5.24.0c, v5.24.1c and v5.24.2c have
+v5.24.0c, v5.24.1c and v5.24.3c have
 [about 24 fixes](perldelta.html#Known-Problems-fixed-elsewhere),
 for problems which are not fixed in perl-5.24.1.  Ditto with 5.26,
 cperl-5.22.4c has about 20 fixes which are not in the latest
@@ -81,7 +81,7 @@ For all versions see [bench-all/](bench-all/index.html)
 * type-check assignments, since 5.26 also for user-types
 * many more builtin function attributes
 * shaped arrays with compile-time checks and optims
-* static loop optims, eliminated run-time bounds checks
+* static loop optims, eliminated run-time bounds checks, faster loops
 * fast arithmetic overflow
 * convert static method to subs
 * Config as XS
@@ -466,4 +466,4 @@ They also revert some wrong decisions p5p already made.
 
 --
 
-2017-12-05 rurban
+2018-01-05 rurban
