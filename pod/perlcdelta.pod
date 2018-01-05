@@ -75,6 +75,10 @@ L<[perl #131665]|https://rt.perl.org/Public/Bug/Display.html?id=131665>
 '0' is a valid name for an archive, change 'iter' to check definedness.
 See L<https://metacpan.org/changes/distribution/Archive-Tar>
 
+=item L<Attribute::Handlers> 0.99_01
+
+pod updates
+
 =item L<B::C>  1.55_06
 
 =item L<B::Debug>  1.26

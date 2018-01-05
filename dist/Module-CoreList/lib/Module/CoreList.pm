@@ -15886,6 +15886,7 @@ our %delta = (
             'App::Prove::State::Result'=> '3.39',
             'App::Prove::State::Result::Test'=> '3.39',
             'Archive::Tar'          => '2.26',
+            'Attribute::Handlers'   => '0.99_01',
             'B::C'                  => '1.55_06',
             'B::BBlock'             => '1.05',
             'B::Debug'              => '1.26',
