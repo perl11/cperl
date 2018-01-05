@@ -246,6 +246,10 @@ See L<https://github.com/madler/zlib/pull/327>
 Simplify C<allow_singlequote> check, coverity cid #165321.
 Remove logical dead code.
 
+=item L<Data::Dumper>  2.167_03
+
+XS improvements
+
 =item L<Devel::PPPort> 3.36_04
 
 mkppport called PPPort_pm.PL without
@@ -266,6 +270,10 @@ C<XS_EXTERNAL> has it already.
 
 Linkify docs.
 
+=item L<IO>  1.38_01
+
+run-time load Carp
+
 =item L<IO::Socket::IP> 0.39_02
 
 Fix new Autovivified hash slice warning
@@ -273,6 +281,10 @@ Fix new Autovivified hash slice warning
 =item L<JSON::PP> 2.97001_04
 
 Merged 2.97001 from cpan with ours.
+
+=item L<Hash::Util>  0.22_01
+
+XS formatting
 
 =item L<HTTP::Tiny>  0.070_01
 
@@ -288,18 +300,40 @@ Fixup the new pairmap spill code.
 
 Suppress new Autovivified hash slice warning
 
+=item L<mro> 1.21_01
+
+formatting, cperl enhancements
+
+=item L<OS2::Process>  1.12_01
+
+=item L<PerlIO::scalar> 0.29_01
+
+only comment
+
 =item L<PerlIO::via> 0.17_01
 
 Protect from NULL arg.
+
+=item L<Pod::Checker> 1.73_01
+
+no strict hashpairs
 
 =item L<Term::ReadKey> 2.37_03
 
 Protect from fileno returning -1, invalid file arg.
 Reformatted.
 
+=item L<Tie::Hash::NamedCapture> 0.10_01
+
+use croak_no_modify_sv()
+
 =item L<Unicode::Collate> 1.25_01
 
 Skip redefinition warnings on cperl since 5.27.2
+
+=item L<Unicode::UCD>  0.68_01
+
+=item L<Win32>  0.52_01
 
 =back
 

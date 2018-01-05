@@ -5,7 +5,7 @@ use warnings;
 no warnings 'surrogate';    # surrogates can be inputs to this
 use charnames ();
 
-our $VERSION = '0.68';
+our $VERSION = '0.68_01';
 
 require Exporter;
 

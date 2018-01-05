@@ -10,7 +10,7 @@ package Pod::Checker;
 use strict;
 use warnings;
 
-our $VERSION = '1.73';  ## Current version of this package
+our $VERSION = '1.73_01';  ## Current version of this package
 
 =head1 NAME
 

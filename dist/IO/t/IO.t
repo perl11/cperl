@@ -31,7 +31,8 @@ plan(tests => 18);
 	require_ok( 'IO' );
 	ok( @load, 'IO should call XSLoader::load()' );
 	is( $load[0][0], 'IO', '... loading the IO library' );
-	is( $load[0][1], $IO::VERSION, '... with the current .pm version' );
+        my $xsversion = $load[0][1];
+	is( eval $xsversion, $IO::VERSION, '... with the current .pm version' );
 }
 
 my @default = map { "IO/$_.pm" } qw( Handle Seekable File Pipe Socket Dir );

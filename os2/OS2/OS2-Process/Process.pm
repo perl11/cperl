@@ -20,8 +20,10 @@ BEGIN {
   #require AutoLoader;
 
   our @ISA = qw(Exporter);
-  our $VERSION = "1.12";
-  XSLoader::load('OS2::Process', $VERSION);
+  our $VERSION = "1.12_01";
+  our $XS_VERSION = $VERSION;
+  $VERSION = eval $VERSION;
+  XSLoader::load('OS2::Process', $XS_VERSION);
 }
 
 # Items to export into callers namespace by default. Note: do not export

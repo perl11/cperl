@@ -3,7 +3,7 @@ use strict;
 use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use version;
-$VERSION = '5.20180105c';
+$VERSION = '5.20180106c';
 $VERSION =~ s/c$//;
 
 sub PKG_PATTERN () { q#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z# }
@@ -12433,7 +12433,7 @@ our %delta = (
             'ExtUtils::Embed'       => '1.33',
             'File::Find'            => '1.34',
             'File::Glob'            => '1.26',
-            'File::Spec::AmigaOS'   => ';.64',
+            'File::Spec::AmigaOS'   => '3.64',
             'IPC::Msg'              => '2.06_01',
             'IPC::Semaphore'        => '2.06_01',
             'IPC::SharedMem'        => '2.06_01',
@@ -16211,29 +16211,39 @@ our %delta = (
         delta_from => '5.027002c',
         changed => {
             'B::Op_private'         => '5.027003',
-            'Module::CoreList'      => '5.20180101c',
-            'Module::CoreList::Utils'=> '5.20180101c',
+            'Module::CoreList'      => '5.20180105c',
+            'Module::CoreList::Utils'=> '5.20180105c',
             'Module::CoreList::TieHashDelta'=> '5.20171205',
             'Attribute::Handlers'   => '1.00_01',
             'Cpanel::JSON::XS'      => '3.0240',
+            'Data::Dumper'          => '2.167_03',
             'Devel::PPPort'         => '3.36_04',
             'ExtUtils::ParseXS'     => '3.36_03',
             'ExtUtils::ParseXS::Constants'=> '3.36_03',
             'ExtUtils::ParseXS::CountLines'=> '3.36_03',
             'ExtUtils::ParseXS::Eval' => '3.36_03',
             'ExtUtils::ParseXS::Utilities'=> '3.36_03',
+            'Hash::Util'            => '0.22_01',
             'I18N::LangTags'        => '0.42_01',
+            'IO'                    => '1.38_01',
             'IO::Socket::IP'        => '0.39_02',
             'JSON::PP'              => '2.97001_04',
             'JSON::PP::Boolean'     => '2.97001_04',
             'List::Util'            => '1.49_10',
             'List::Util::XS'        => '1.49_10',
             'Module::Load::Conditional' => '0.68_02',
+            'mro'                   => '1.21_01',
+            'PerlIO::scalar'        => '0.29_01',
             'PerlIO::via'           => '0.17_01',
+            'Pod::Checker'          => '1.73_01',
+            'OS2::Process'          => '1.12_01',
             'Scalar::Util'          => '1.49_10',
             'Sub::Util'             => '1.49_10',
             'Term::ReadKey'         => '2.37_03',
+            'Tie::Hash::NamedCapture' => '0.10_01',
             'Unicode::Collate'      => '1.25_01',
+            'Unicode::UCD'          => '0.68_01',
+            'Win32'                 => '0.52_01',
         },
         removed => {
             'Locale::Codes'         => '3.55',

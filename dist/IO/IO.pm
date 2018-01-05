@@ -6,8 +6,10 @@ use XSLoader ();
 use strict;
 use warnings;
 
-our $VERSION = "1.38";
-XSLoader::load 'IO', $VERSION;
+our $VERSION = "1.38_01";
+our $XS_VERSION = $VERSION;
+$VERSION = eval $VERSION;
+XSLoader::load 'IO', $XS_VERSION;
 
 sub import {
     shift;

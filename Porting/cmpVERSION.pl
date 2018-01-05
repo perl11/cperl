@@ -92,6 +92,7 @@ my %skip;
     'cpan/Math-BigInt/t/Math/BigInt/Subclass.pm',   # just a test module
     'cpan/Math-BigRat/t/Math/BigRat/Test.pm',       # just a test module
     'cpan/version/t/coretests.pm', # just a test module
+    'cpan/Win32API-File/inc/ExtUtils/Myconst2perl.pm',
     'dist/Attribute-Handlers/demo/MyClass.pm', # it's just demonstration code
     'dist/Exporter/lib/Exporter/Heavy.pm',
     'dist/Module-CoreList/lib/Module/CoreList.pm',
@@ -129,7 +130,7 @@ my %skip_versions = (
 	   # 'some/sample/file.pm' => [ '1.23', '1.24' ],
 	  );
 
-my $skip_dirs = qr{^(t/lib|ext/DynaLoader)};
+my $skip_dirs = qr{^(t/lib|ext/DynaLoader|cpan/Pod-Usage/t/inc/)};
 
 sub pm_file_from_xs {
     my $xs = shift;
