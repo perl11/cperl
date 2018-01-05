@@ -3103,8 +3103,8 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
     save_input_locale = do_setlocale_r(category, NULL);
     if (! save_input_locale) {
         Perl_croak(aTHX_
-             "panic: %s: %d: Could not find current locale for %s\n",
-                     __FILE__, __LINE__, category_name(category));
+             "panic: %s: %d: Could not find current %s locale, errno=%d\n",
+                     __FILE__, __LINE__, category_name(category), errno);
     }
 
     save_input_locale = stdize_locale(savepv(save_input_locale));
@@ -3174,9 +3174,9 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
             /* Get the current LC_CTYPE locale */
             save_ctype_locale = do_setlocale_c(LC_CTYPE, NULL);
             if (! save_ctype_locale) {
-                DEBUG_L(PerlIO_printf(Perl_debug_log,
-                               "Could not find current locale for LC_CTYPE\n"));
-                goto cant_use_nllanginfo;
+                Perl_croak(aTHX_
+                     "panic: %s: %d: Could not find current LC_CTYPE locale,"
+                     " errno=%d\n", __FILE__, __LINE__, errno);
             }
             save_ctype_locale = stdize_locale(savepv(save_ctype_locale));
 
@@ -3189,11 +3189,10 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
                 save_ctype_locale = NULL;
             }
             else if (! do_setlocale_c(LC_CTYPE, save_input_locale)) {
-                DEBUG_L(PerlIO_printf(Perl_debug_log,
-                                    "Could not change LC_CTYPE locale to %s\n",
-                                    save_input_locale));
                 Safefree(save_ctype_locale);
-                goto cant_use_nllanginfo;
+                Perl_croak(aTHX_
+                 "panic: %s: %d: Could not change LC_CTYPE locale to %s,"
+                 " errno=%d\n", __FILE__, __LINE__, save_input_locale, errno);
             }
         }
 
@@ -3295,8 +3294,6 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
 
     }
 
-  cant_use_nllanginfo:
-
 #  else   /* nl_langinfo should work if available, so don't bother compiling this
            fallback code.  The final fallback of looking at the name is
            compiled, and will be executed if nl_langinfo fails */
@@ -3323,9 +3320,9 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
 
             save_monetary_locale = do_setlocale_c(LC_MONETARY, NULL);
             if (! save_monetary_locale) {
-                DEBUG_L(PerlIO_printf(Perl_debug_log,
-                            "Could not find current locale for LC_MONETARY\n"));
-                goto cant_use_monetary;
+                Perl_croak(aTHX_
+                 "panic: %s: %d: Could not find current LC_MONETARY locale,"
+                 " errno=%d\n", __FILE__, __LINE__, errno);
             }
             save_monetary_locale = stdize_locale(savepv(save_monetary_locale));
 
@@ -3334,11 +3331,10 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
                 save_monetary_locale = NULL;
             }
             else if (! do_setlocale_c(LC_MONETARY, save_input_locale)) {
-                DEBUG_L(PerlIO_printf(Perl_debug_log,
-                            "Could not change LC_MONETARY locale to %s\n",
-                                                        save_input_locale));
                 Safefree(save_monetary_locale);
-                goto cant_use_monetary;
+                Perl_croak(aTHX_
+                 "panic: %s: %d: Could not change LC_MONETARY locale to %s,"
+                 " errno=%d\n", __FILE__, __LINE__, save_input_locale, errno);
             }
         }
 
@@ -3373,7 +3369,6 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
             goto finish_and_return;
         }
     }
-  cant_use_monetary:
 
 #      endif /* USE_LOCALE_MONETARY */
 #    endif /* HAS_LOCALECONV */
@@ -3399,9 +3394,9 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
 
             save_time_locale = do_setlocale_c(LC_TIME, NULL);
             if (! save_time_locale) {
-                DEBUG_L(PerlIO_printf(Perl_debug_log,
-                            "Could not find current locale for LC_TIME\n"));
-                goto cant_use_time;
+                Perl_croak(aTHX_
+                     "panic: %s: %d: Could not find current LC_TIME locale,"
+                     " errno=%d\n", __FILE__, __LINE__, errno);
             }
             save_time_locale = stdize_locale(savepv(save_time_locale));
 
@@ -3410,11 +3405,10 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
                 save_time_locale = NULL;
             }
             else if (! do_setlocale_c(LC_TIME, save_input_locale)) {
-                DEBUG_L(PerlIO_printf(Perl_debug_log,
-                            "Could not change LC_TIME locale to %s\n",
-                                                        save_input_locale));
                 Safefree(save_time_locale);
-                goto cant_use_time;
+                Perl_croak(aTHX_
+                 "panic: %s: %d: Could not change LC_TIME locale to %s,"
+                 " errno=%d\n", __FILE__, __LINE__, save_input_locale, errno);
             }
         }
 
@@ -3468,7 +3462,6 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
         }
         DEBUG_L(PerlIO_printf(Perl_debug_log, "All time-related words for %s contain only ASCII; can't use for determining if UTF-8 locale\n", save_input_locale));
     }
-  cant_use_time:
 
 #    endif
 
@@ -3498,9 +3491,9 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
 
             save_messages_locale = do_setlocale_c(LC_MESSAGES, NULL);
             if (! save_messages_locale) {
-                DEBUG_L(PerlIO_printf(Perl_debug_log,
-                            "Could not find current locale for LC_MESSAGES\n"));
-                goto cant_use_messages;
+                Perl_croak(aTHX_
+                     "panic: %s: %d: Could not find current LC_MESSAGES locale,"
+                     " errno=%d\n", __FILE__, __LINE__, errno);
             }
             save_messages_locale = stdize_locale(savepv(save_messages_locale));
 
@@ -3509,11 +3502,10 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
                 save_messages_locale = NULL;
             }
             else if (! do_setlocale_c(LC_MESSAGES, save_input_locale)) {
-                DEBUG_L(PerlIO_printf(Perl_debug_log,
-                            "Could not change LC_MESSAGES locale to %s\n",
-                                                        save_input_locale));
                 Safefree(save_messages_locale);
-                goto cant_use_messages;
+                Perl_croak(aTHX_
+                 "panic: %s: %d: Could not change LC_MESSAGES locale to %s,"
+                 " errno=%d\n", __FILE__, __LINE__, save_input_locale, errno);
             }
         }
 
@@ -3555,7 +3547,6 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
 
         DEBUG_L(PerlIO_printf(Perl_debug_log, "All error messages for %s contain only ASCII; can't use for determining if UTF-8 locale\n", save_input_locale));
     }
-  cant_use_messages:
 
 #    endif
 #  endif /* the code that is compiled when no nl_langinfo */
@@ -3843,8 +3834,9 @@ Perl_my_strerror(pTHX_ const int errnum)
 
         save_locale = do_setlocale_c(LC_MESSAGES, NULL);
         if (! save_locale) {
-            DEBUG_L(PerlIO_printf(Perl_debug_log,
-                                  "setlocale failed, errno=%d\n", errno));
+            Perl_croak(aTHX_
+                 "panic: %s: %d: Could not find current LC_MESSAGES locale,"
+                 " errno=%d\n", __FILE__, __LINE__, errno);
         }
         else {
             locale_is_C = isNAME_C_OR_POSIX(save_locale);
@@ -3916,8 +3908,9 @@ Perl_my_strerror(pTHX_ const int errnum)
 
         if (save_locale && ! locale_is_C) {
             if (! do_setlocale_c(LC_MESSAGES, save_locale)) {
-                DEBUG_L(PerlIO_printf(Perl_debug_log,
-                      "setlocale restore failed, errno=%d\n", errno));
+                Perl_croak(aTHX_
+                     "panic: %s: %d: setlocale restore failed, errno=%d\n",
+                             __FILE__, __LINE__, errno);
             }
             Safefree(save_locale);
             save_locale = NULL;
