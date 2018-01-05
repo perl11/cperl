@@ -12,10 +12,6 @@ and the cperl 5.24.3 releases.
 If you are upgrading from an earlier release such as v5.24.1c, first read
 L<perl5242cdelta>, which describes differences between v5.24.1c and v5.24.2c
 
-=head1 Notice
-
-XXX Any important notices here
-
 =head1 Security
 
 =head2 Set umask(0600) before calling mkstemp
@@ -274,22 +270,6 @@ parsing versions from filehandles. Backported.
 
 =back
 
-=head1 Internal Changes
-
-XXX Changes which affect the interface available to C<XS> code go here.  Other
-significant internal changes for future core maintainers should be noted as
-well.
-
-[ List each change as a =item entry ]
-
-=over 4
-
-=item *
-
-XXX
-
-=back
-
 =head1 Selected Bug Fixes
 
 =over 4
@@ -400,7 +380,33 @@ L<[cpan #122353]|https://rt.cpan.org/Public/Bug/Display.html?id=122353>
 
 =head1 Acknowledgements
 
-XXX Generate this with:
+cperl 5.24.3 represents approximately 13 months of development since cperl
+5.24.2c and contains approximately 190,000 lines of changes across 1,200 files
+from 12 authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 75,000 lines of changes to 830 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements that became
+cperl 5.24.3:
+
+Reini Urban, Jarkko Hietaniemi, Karl Williamson, David Mitchell, Steve Hay,
+Craig A. Berry, James E Keenan, Dan Collins, Slaven Rezic, Tony Cook, Steven
+Humphrey, Dave Cross.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history including the perl and cperl repos. In particular,
+it does not include the names of the (very much appreciated) contributors who
+reported issues to the Perl bug tracker and the cperl github issues.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+Generated this with:
 
     cperl Porting/acknowledgements.pl cperl-5.24.2..HEAD -c
 
