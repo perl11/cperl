@@ -1239,7 +1239,7 @@ use File::Glob qw(:case);
         },
         'EXCLUDED' => [
           qr{^t/(style|docs)/},
-          qr{/docs/},
+          qr{^docs/},
         ],
     },
 
@@ -1376,7 +1376,7 @@ use File::Glob qw(:case);
     'Test::Simple' => {
         # bumped to 1.4001014 with cperl modernizations.
         # Test2 based 1.3x versions are not yet modernized,
-        'DISTRIBUTION' => 'EXODIST/Test-Simple-1.001014.tar.gz',
+        'DISTRIBUTION' => 'EXODIST/Test-Simple-1.4001014.tar.gz',
         'FILES'        => q[dist/Test-Simple],
         'EXCLUDED'     => [
             qr{^t/xt},
