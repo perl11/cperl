@@ -74,11 +74,23 @@ Updates the contents of F<MANIFEST>
 
 =item *
 
-Runs a C<make test_prep> (assumes a configure has been run)
+Updates the F<Porting/Maintainers.pl> entry
+
+=item *
+
+Adds new package versions to C<Module-Corelist>
+
+=item *
+
+Adds new F<perlcdelta> list entry
 
 =item *
 
 Cleans up
+
+=item *
+
+Runs a C<make test_prep> (assumes a configure has been run)
 
 =item *
 
@@ -137,10 +149,6 @@ When running C<make>, pass a C<< -jI<N> >> option to it.
 
 =item *
 
-Update F<Porting/Maintainers.pl>
-
-=item *
-
 Optional, run a full test suite
 
 =item *
@@ -159,7 +167,7 @@ and an internet connection to be available.
 
 package Maintainers;
 
-use 5.010;
+use 5.016;
 use strict;
 use warnings;
 use Getopt::Long;
@@ -183,13 +191,12 @@ die "Please run Configure before using $0\n"
     if !WIN32 && !-f "Makefile";
 
 our (@IGNORABLE, %Modules);
-
-require "./Porting/Maintainers.pl";
-
 my $MAKE_LOG = 'make.log';
+my $maintainers = 'Porting/Maintainers.pl';
 
-my %IGNORABLE    = map {$_ => 1} @IGNORABLE;
+require "./".$maintainers;
 
+my %IGNORABLE = map {$_ => 1} @IGNORABLE;
 my $tmpdir = tmpdir();
 
 my $package      = "02packages.details.txt";
@@ -231,19 +238,21 @@ sub find_type_f {
 
 # Equivalent of `chmod a-x`
 sub de_exec {
-    my ($filename) = @_;
-    my $mode = (stat $filename)[2] & 0777;
-    if ($mode & 0111) { # exec-bit set
-        chmod $mode & 0666, $filename;
+    for my $filename ( @_ ) {
+        my $mode= (stat $filename)[2] & 0777;
+        if( $mode & 0111 ) { # exec-bit set
+            chmod $mode & 0666, $filename;
+        };
     }
 }
 
 # Equivalent of `chmod +w`
 sub make_writable {
-    my ($filename) = @_;
-    my $mode = (stat $filename)[2] & 0777;
-    if (!($mode & 0222)) { # not writable
+    for my $filename ( @_ ) {
+      my $mode = (stat $filename)[2] & 0777;
+      if (!($mode & 0222)) { # not writable
         chmod $mode | (0222 & ~umask), $filename;
+      }
     }
 }
 
@@ -260,6 +269,65 @@ sub make {
             and die "Running make failed, see $MAKE_LOG";
     };
 };
+
+sub update_corelist {
+  my ($module, $new_version) = @_;
+  my $perlversion = "$]";
+  $perlversion .= 'c' if -f 'STATUS.md';
+  my $corelist = 'dist/Module-CoreList/lib/Module/CoreList.pm';
+  print "Update $corelist ";
+  open my $core, '<', $corelist;
+  open my $newcore, '>', $corelist.'.new';
+  my ($found, $in_section);
+  while (<$core>) {
+    my $mod;
+    if (!$found) {
+      if ($in_section) {
+        # sorted
+        if (/^\s+'(.*)'\s*=>\s+'(\d.*)',/) {
+          $mod = $1;
+          if ($mod eq $module) {
+            if (s/$2/$new_version/) {
+              $found = 1;
+            }
+          } elsif ($mod =~ /^(B::Op_private|Module::Core)/) {
+            ;
+          } elsif (fc($mod) gt fc($module)) {
+            my $l = 21 - length($module);
+            $l = 1 if $l < 1;
+            printf $newcore "%s'%s'%s => '%s',\n", " "x12,
+              $module, " "x$l, $new_version;
+            $found = 1;
+          }
+        }
+        if (/^\s+'5.0/) {
+          $in_section = 0;
+        }
+      }
+      if (/^\s+'$perlversion' =>/) {
+        $in_section = 1;
+      }
+    }
+    print $newcore $_;
+  }
+  close $core;
+  close $newcore;
+  if ($dryrun) {
+    my $cmd = "diff -bu $corelist $corelist.new";
+    say $cmd;
+    say `$cmd`;
+  }
+  elsif ($found) {
+    unlink $corelist;
+    rename "$corelist.new" => $corelist;
+    chmod 0644 => $corelist;
+    say "ok";
+  }
+  else {
+    say "failed for $module $new_version";
+    say "Make sure you update $corelist before committing.";
+  }
+}
 
 my @modules  = $all ? sort keys %Modules : @ARGV;
 
@@ -563,7 +631,7 @@ EOF
 
     unlink "$pkg_dir/$_"                     for @delete;
     say "git add $pkg_dir/$_" 		     for @commit;
-    system('git', 'add', "$pkg_dir/$_") for @commit;
+    system('git', 'add', "$pkg_dir/$_")      for @commit;
     system('git', 'rm', '-f', "$pkg_dir/$_") for @gone;
     de_exec( "$pkg_dir/$_" )                 for @de_exec;
   }
@@ -606,6 +674,100 @@ EOF
     unlink $MANIFEST_NEW
         or die "Can't delete temporary $MANIFEST_NEW: $!\n";
   }
+
+  print "Update $maintainers ";
+  open my $Maintainers_pl, '<', $maintainers;
+  open my $new_Maintainers_pl, '>', $maintainers.'.new';
+  my $found;
+  my $in_mod_section;
+  while (<$Maintainers_pl>) {
+    if (!$found) {
+      if ($in_mod_section) {
+        if (/DISTRIBUTION/) {
+          if (s/\Q$old_version/$new_version/) {
+            $found = 1;
+          }
+        }
+        if (/^    }/) {
+          $in_mod_section = 0;
+        }
+      }
+      if (/\Q$cpan_mod/) {
+        $in_mod_section = 1;
+      }
+    }
+    print $new_Maintainers_pl $_;
+  }
+  close $Maintainers_pl;
+  close $new_Maintainers_pl;
+  if ($dryrun) {
+    my $cmd = "diff -bu $maintainers $maintainers.new";
+    say $cmd;
+    say `$cmd`;
+  }
+  elsif ($found) {
+    unlink $maintainers;
+    rename "$maintainers.new" => $maintainers;
+    chmod 0755 => $maintainers;
+    say "ok";
+  }
+  else {
+    say "failed.";
+    say "Make sure you update $maintainers before committing.";
+  }
+
+  my $perldelta = -f 'STATUS.md' ? 'pod/perlcdelta.pod' : 'pod/perldelta.pod';
+  print "Update $perldelta ";
+  open my $delta, '<', $perldelta;
+  open my $newdelta, '>', $perldelta.'.new';
+  ($found, $in_mod_section) = (0,0);
+  while (<$delta>) {
+    my $mod;
+    if (!$found) {
+      if ($in_mod_section) {
+        # sorted
+        if (/^=item L<(.*)>/) {
+          $mod = $1;
+          if ($mod eq $cpan_mod) {
+            if (s/\Q$old_version/$new_version/) {
+              $found = 1;
+            }
+          } elsif (fc($mod) gt fc($cpan_mod)) {
+            print $newdelta "=item L<$cpan_mod>  $new_version\n\n";
+            $found = 1;
+          }
+        }
+        if (/^=head/) {
+          $in_mod_section = 0;
+        }
+      }
+      if (/^=head2 Updated Modules/) {
+        $in_mod_section = 1;
+      }
+    }
+    print $newdelta $_;
+  }
+  close $delta;
+  close $newdelta;
+  if ($dryrun) {
+    my $cmd = "diff -bu $perldelta $perldelta.new";
+    say $cmd;
+    say `$cmd`;
+  }
+  elsif ($found) {
+    unlink $perldelta;
+    rename "$perldelta.new" => $perldelta;
+    chmod 0644 => $perldelta;
+    say "ok";
+  }
+  else {
+    say " failed.";
+    say "Make sure you update $perldelta before committing.";
+  }
+
+  # TODO: which modules were changed? and to which version?
+  # so far we change only one
+  update_corelist($cpan_mod, $new_version);
 
   if ($make_c) {
     print "Running make -C $prefix/$pkg_dir ... ";
@@ -685,49 +847,6 @@ EOF
     print "\n";
     say "Failed tests: @failed" if @failed;
     chdir '..';
-  }
-  
-  say "Attempting to update Maintainers.pl";
-  open my $Maintainers_pl, '<', 'Porting/Maintainers.pl';
-  open my $new_Maintainers_pl, '>', 'Porting/Maintainers.pl.new';
-
-  my $found;
-  my $in_mod_section;
-  while (<$Maintainers_pl>) {
-    if (!$found) {
-        if ($in_mod_section) {
-            if (/DISTRIBUTION/) {
-                if (s/\Q$old_version/$new_version/) {
-                    $found = 1;
-                }
-            }
-
-            if (/^    \}/) {
-                $in_mod_section = 0;
-            }
-        }
-
-        if (/\Q$module/) {
-            $in_mod_section = 1;
-        }
-    }
-
-    print $new_Maintainers_pl $_;
-  }
-
-  if ($dryrun) {
-    my $cmd = "diff -bu Porting/Maintainers.pl Porting/Maintainers.pl.new";
-    say $cmd;
-    say `$cmd`;
-  }
-  elsif ($found) {
-    unlink 'Porting/Maintainers.pl';
-    rename 'Porting/Maintainers.pl.new' => 'Porting/Maintainers.pl';
-    chmod 0755 => 'Porting/Maintainers.pl';
-  }
-  else {
-    say "Could not update Porting/Maintainers.pl.";
-    say "Make sure you update this by hand before committing.";
   }
 
   say "$o_module is now version $new_version";
