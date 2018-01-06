@@ -20399,7 +20399,7 @@ static const UV _Perl_SCX_invlist[] = { /* for ASCII/Latin1 */
 
 #endif	/* defined(PERL_IN_PERL_C) */
 
-#if defined(PERL_IN_REGEXEC_C)
+#if defined(PERL_CORE) || defined(PERL_EXT)
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -22760,7 +22760,7 @@ static const SCX_enum _Perl_SCX_invmap[] = { /* for ASCII/Latin1 */
 	SCX_Unknown
 };
 
-#endif	/* defined(PERL_IN_REGEXEC_C) */
+#endif	/* defined(PERL_CORE) || defined(PERL_EXT) */
 
 #if defined(PERL_IN_PERL_C)
 
@@ -56796,7 +56796,7 @@ static const UV _Perl_SCX_invlist[] = { /* for EBCDIC 1047 */
 
 #endif	/* defined(PERL_IN_PERL_C) */
 
-#if defined(PERL_IN_REGEXEC_C)
+#if defined(PERL_CORE) || defined(PERL_EXT)
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -59183,7 +59183,7 @@ static const SCX_enum _Perl_SCX_invmap[] = { /* for EBCDIC 1047 */
 	SCX_Unknown
 };
 
-#endif	/* defined(PERL_IN_REGEXEC_C) */
+#endif	/* defined(PERL_CORE) || defined(PERL_EXT) */
 
 #if defined(PERL_IN_PERL_C)
 
@@ -93403,7 +93403,7 @@ static const UV _Perl_SCX_invlist[] = { /* for EBCDIC 037 */
 
 #endif	/* defined(PERL_IN_PERL_C) */
 
-#if defined(PERL_IN_REGEXEC_C)
+#if defined(PERL_CORE) || defined(PERL_EXT)
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -95786,7 +95786,7 @@ static const SCX_enum _Perl_SCX_invmap[] = { /* for EBCDIC 037 */
 	SCX_Unknown
 };
 
-#endif	/* defined(PERL_IN_REGEXEC_C) */
+#endif	/* defined(PERL_CORE) || defined(PERL_EXT) */
 
 #if defined(PERL_IN_PERL_C)
 
@@ -109555,5 +109555,5 @@ static const U8 WB_table[24][24] = {
  * 66b9c8fcacd0f9db3de61f4b89c2a349188346f843b0083ea9b65a45023d4a38 lib/unicore/mktables
  * 21653d2744fdd071f9ef138c805393901bb9547cf3e777ebf50215a191f986ea lib/unicore/version
  * 913d2f93f3cb6cdf1664db888bf840bc4eb074eef824e082fceda24a9445e60c regen/charset_translations.pl
- * ddcc2a146f5202e3fb5fa448eded5e53b49db82e436a742ca37b8cee15179148 regen/mk_invlists.pl
+ * 4898ec84e2b81e8bf948dcdb1c015c14f258cc652337122719885a276ea46d7b regen/mk_invlists.pl
  * ex: set ro: */
