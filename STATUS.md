@@ -1,6 +1,6 @@
 # cperl status
 
-[![Build Status](https://travis-ci.org/perl11/cperl.svg?branch=master)](https://travis-ci.org/perl11/cperl) [![Coverity Status](https://scan.coverity.com/projects/6933/badge.svg)](https://scan.coverity.com/projects/perl11-cperl) [perl11.org/cperl/STATUS.html](perl11.org/cperl/STATUS.html)
+[![Build Status](https://travis-ci.org/perl11/cperl.svg?branch=master)](https://travis-ci.org/perl11/cperl) [![Coverity Status](https://scan.coverity.com/projects/6933/badge.svg)](https://scan.coverity.com/projects/perl11-cperl) [perl11.org/cperl/STATUS.html](perl11.org/cperl/STATUS.html) [![Donate](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/rurban/donate) [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/perl11/cperl.svg)](http://isitmaintained.com/project/perl11/cperl "Average time to resolve an issue") [![Percentage of issues still open](http://isitmaintained.com/badge/open/perl11/cperl.svg)](http://isitmaintained.com/project/perl11/cperl "Percentage of issues still open")
 
 The name **cperl** stands for **a perl with classes, types, compiler
 support, continuation of perl5 development** or just a **company-friendly
@@ -27,11 +27,9 @@ essentially stopped 2002, use perl6-like development policies, better
 security fixes and maintenance than the upstream p5p perl5, and stop
 the ongoing destruction going on in p5p. See [README.cperl](perlcperl.html).
 
-There's no class keyword yet as this needs proper field and method
-handling, multi-dispatch, aggregate type handling and class
-finalization, which is not yet finished. But classes are user-facing
-types, and type-support is builtin. use base and use fields were
-improved to behave almost like classes.
+Almost perl6-like classes, roles, methods, fields. classes are
+user-facing types, and support for types, restricted stashes and fast
+fields is builtin.
 
 Tested and developed on linux and darwin 64bit. darwin 32bit fails
 on two unrelated core tests (issignaling setpayloadsig + chmod linked in).
@@ -44,22 +42,25 @@ The current stable release is
   
 the latest development release:
 
-* [5.27.0c](https://github.com/perl11/cperl/releases/tag/cperl-5.27.0) - [perl5270cdelta](perl5270cdelta.html).
+* [5.27.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.27.2) - [perl5272cdelta](perl5272cdelta.html).
 
 We also have:
 
-* [5.24.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.2) - [perl5242cdelta](perl5242cdelta.html),
-* [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4), [perl5224cdelta](perl5224cdelta.html).
+* [5.24.3c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.3) - [perl5243cdelta](perl5243cdelta.html),
+* [5.22.5c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.5), [perl5225cdelta](perl5225cdelta.html).
 
 All tests pass. CPAN works.
 Some fixes in my `rurban/distroprefs` repo for certain CPAN modules are needed.
 
-v5.24.0c, v5.24.1c and v5.24.2c have
+v5.24.0c, v5.24.1c and v5.24.3c have
 [about 24 fixes](perldelta.html#Known-Problems-fixed-elsewhere),
-for problems which are not fixed in perl-5.24.1.  Ditto cperl-5.22.4c
-has about 20 fixes which are not in the latest perl-5.22.3.  Since
-cperl development is about 10x faster than p5p development, and damage
-done within p5p increases, these numbers do increase over time.
+for problems which are not fixed in perl-5.24.1.  Ditto with 5.26,
+cperl-5.22.4c has about 20 fixes which are not in the latest
+perl-5.22.3. Similar numbers for v5.27.2c, as p5p is still adding
+security and performance problems.
+Since cperl development is about 10x faster than p5p
+development, and damage done within p5p increases, these numbers do
+increase over time.
 
 ![Memory usage: perl -e0](cperl-m0.png)
 
@@ -67,10 +68,10 @@ done within p5p increases, these numbers do increase over time.
 
 ![Memory usage with unicode s///i](cperl-p1.png)
 
-![Benchmarks](cperl-bench26.png)
+![Benchmarks](cperl-bench27.png)
 For all versions see [bench-all/](bench-all/index.html)
 
-# In the stable master branch are the following major features
+# In the latest stable releases are the following major features:
 
 * coretypes (Int, UInt, Num, Str. lowercase native types accepted)
 * types in signatures as designed and also as attribute.
@@ -80,7 +81,7 @@ For all versions see [bench-all/](bench-all/index.html)
 * type-check assignments, since 5.26 also for user-types
 * many more builtin function attributes
 * shaped arrays with compile-time checks and optims
-* static loop optims, eliminated run-time bounds checks
+* static loop optims, eliminated run-time bounds checks, faster loops
 * fast arithmetic overflow
 * convert static method to subs
 * Config as XS
@@ -96,7 +97,7 @@ For all versions see [bench-all/](bench-all/index.html)
   public services.
 * seperate XS and PP XS calls dynamically with a new enterxssub op
 * -DI and -Dk
-* add some unicode ops
+* added many unicode ops
 * improved build system (make -s, faster, CC vs LD confusion)
 * hash keys keep the tainted info. see [perlsec](http://perldoc.perl.org/perlsec.html#Taint-mode)
   There are no known taint loopholes anymore.
@@ -141,22 +142,21 @@ For all versions see [bench-all/](bench-all/index.html)
   inheritance checks are performed at compile-time already.
 * Support restricted stashes, i.e. closed classes, esp. method lookup, destruction
   and readonly ISA.
-
-# In the latest development releases additionally:
-  
 * study with HASH, ARRAY, CODE
 * enhanced dtrace probes
 * support for long path names, > 4096
 * support for unicode BOMs, setting the unicode hints
 * Fast and proper object orientation. User facing classes. class, role, method,
   multi, has, is, does keywords, proper fields, Mu superclass.
+* thread-safety on darwin for uselocale
+* hash slice consistency, no autovivification as sub args
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.
 
-But some features revert decisions p5p already made. See
-[README.cperl](perlcperl.html).  When in doubt I went with the
-decisions and policies perl5 made before 2001, before p5p went
+But some features revert decisions p5p already
+made. See [README.cperl](perlcperl.html).  When in doubt I went with
+the decisions and policies perl5 made before 2001, before p5p went
 downwards. It is very unlikely that p5p will revert their own design
 mistakes. It never happened so far.
 
@@ -206,10 +206,10 @@ download the pkg installer from [http://perl11.org/osx/](http://perl11.org/osx/)
 ## windows
 
 download the self-extracting zip from [http://perl11.org/win/](http://perl11.org/win/)
-and install it into `C:\cperl` via the `cperl-win-5.26.1.3393-win32.exe -InstallPath="C:\\cperl"` cmdline option, or install the latest msvc `.zip` or mingw `.tar.xz` files.
+and install it into `C:\cperl` via the `cperl-5.26.1.3407-win32.exe -InstallPath="C:\\cperl"`
+cmdline option, or install the latest msvc `.zip` or mingw `.tar.xz` files.
 Preferred is now mingw, which works fine parallel to the current strawberry perl
 installation.
-
 
 # Known bugs
 
@@ -217,7 +217,7 @@ The -d debugger fails on most signatures.
 
 See the github issues: [github.com/perl11/cperl/issues](https://github.com/perl11/cperl/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
 
-The following CPAN modules have no patches for 5.26.0c yet:
+The following CPAN modules have no patches for 5.26.1c yet:
 
 * autovivification (mderef rpeep changes)
 * TryCatch
@@ -249,6 +249,7 @@ Patches are needed for `Module::Build`, `IO::Socket::SSL` and `Net::SSLeay`.
 * Missing . in @INC
   (*cperl removed . from @INC 2 years ago already, but ran the cpan tests and
   installer with PERL_USE_UNSAFE_INC. This is now a general 5.26 problem.*)
+* %hash = map under [use strict](/blog/strict-hashpairs.html) (hashpairs since 5.27.0)
 
 Breakage is much less than with a typical major perl5 release, and the
 patches for most common CPAN modules are provided in
@@ -258,6 +259,9 @@ E.g. Test2 (the new Test::Simple) broke >15 modules without any
 patches. Test2 is not yet supported, as it is still 20% slower, and
 has no significant benefit over the old Test-Simple. And they chose to break
 the API and performance, instead of letting users select the new Test2 module.
+
+Beware of modules with `inc/Test`. This is broken. Remove this dir and try
+to reinstall again.
 
 # FAQ
 
@@ -346,18 +350,17 @@ are limited. So they are based on master.
   
   [code](http://github.com/perl11/cperl/commits/smoke/gh22-ffi)
   
-  windows: autoinstall of binary libffi missing, some tests failing.
+  windows: autoinstall of binary libffi missing.
   more convenience methods needed.
 
-* [smoke/gh16-class](https://github.com/perl11/cperl/issues/16)
+* [bugfix/gh311-role-meth](https://github.com/perl11/cperl/issues/311)
 
-  [code](http://github.com/perl11/cperl/commits/smoke/gh16-class)
-
-  user facing classes, internal-only pseudohashes.
-  class, role, method, multi, has keywords, but no multi dispatch yet.
-  HvCLASS merged to master with 5.26.
-  class, role, method, has passes smokes, planned for 5.27.1,
-  multi for 5.27.2.
+  See the relevant #16 subtickets:
+  compose role methods, use mro on classes, array and hash field syntax
+  ($obj->array[0], $obj->hash{key}), :before, :after, :around method
+  composition, class :native,
+  multiple dispatch (fast for binary, slow for mega),
+  tiny MOP (Mu, Metamodel::ClassHOW).
 
 * [bugfix/gh8-cowrefcnt](https://github.com/perl11/cperl/issues/8)
   
@@ -394,7 +397,9 @@ are limited. So they are based on master.
   [code](http://github.com/perl11/cperl/commits/feature/gh102-smallhash)
   
   optimize the speed for small hashes, less keys, inline 3-7 as array.
-  esp. needed for the new objects.
+  esp. needed for the new objects. redis has a limit of 256 (zipmap)
+  favoring linear search over hash lookups. with those we could think
+  of using hashes again more often. now they are way too slow for everything.
 
 * [feature/gh176-unexec](https://github.com/perl11/cperl/issues/176)
   
@@ -409,7 +414,7 @@ are limited. So they are based on master.
   
   optimize space for small strings.
 
-and various [hash tables refactorings]((https://github.com/perl11/cperl/issues/24):
+and various [hash tables refactorings](https://github.com/perl11/cperl/issues/24):
 
 feature/gh24-base-hash feature/gh24-he-array feature/gh24-oldnew-hash-table
 featurex/gh24-array_he featurex/gh24-hash-loop featurex/gh24-hash-loop+utf8
@@ -432,33 +437,33 @@ They also revert some wrong decisions p5p already made.
 
   [code](http://github.com/perl11/cperl/commits/feature/gh23-inline-subs)
 
-  some compiler fixes needed
+  some compiler fixes needed.
 
 * [feature/CM-712-cperl-types-proto](http://github.com/perl11/cperl/commits/feature/CM-712-cperl-types-proto)
 
-  constant fold everything, not only with empty `()` protos
+  constant fold everything, not only with empty `()` protos.
 
 * [feature/gh24-new-hash-table](https://github.com/perl11/cperl/issues/24)
 
   [code](http://github.com/perl11/cperl/commits/feature/gh24-new-hash-table)
 
-  lots of small attempts, but still too hairy. needs a complete hash table rewrite.
+  lots of small attempts, but still too hairy. might need a complete hash table rewrite.
   getting there, but not yet finished for 5.26.
 
 * various more hash tables:
 
-[featurex/gh24-one-word-ahe](http://github.com/perl11/cperl/commits/featurex/gh24-one-word-ahe)
-[featurex/gh24-open-hash](http://github.com/perl11/cperl/commits/featurex/gh24-open-hash)
-[featurex/gh24-hopscotch-hash](http://github.com/perl11/cperl/commits/featurex/gh24-hopscotch-hash)
+  [featurex/gh24-one-word-ahe](http://github.com/perl11/cperl/commits/featurex/gh24-one-word-ahe), 
+  [featurex/gh24-open-hash](http://github.com/perl11/cperl/commits/featurex/gh24-open-hash), 
+  [featurex/gh24-hopscotch-hash](http://github.com/perl11/cperl/commits/featurex/gh24-hopscotch-hash)
 
 ## Soon
 
-* multiple dispatch (fast for binary, slow for mega), tiny MOP (Mu, Metamodel::ClassHOW).
-
 * [the jit](https://github.com/perl11/cperl/issues/220) code: [feature/gh220-llvmjit](http://github.com/perl11/cperl/commits/feature/gh220-llvmjit)
 
-* builtin macros
+* [builtin macros](https://github.com/perl11/cperl/issues/261)
+
+* linear symbol table (not nested stashes) and optree linearization.
 
 --
 
-2017-08-07 rurban
+2018-01-05 rurban
