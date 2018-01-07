@@ -3,7 +3,7 @@ use strict;
 use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use version;
-$VERSION = '5.20180106c';
+$VERSION = '5.20180108c';
 $VERSION =~ s/c$//;
 
 sub PKG_PATTERN () { q#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z# }
@@ -350,7 +350,7 @@ our %released = (
     '5.027002c' => '2017-12-05',
     '5.022005c' => '2018-01-01',
     '5.024003c' => '2018-01-05',
-    '5.026002c' => '????-??-??',
+    '5.026002c' => '2018-01-08',
     '5.027003c' => '????-??-??',
  );
 
@@ -16212,8 +16212,8 @@ our %delta = (
         delta_from => '5.026001c',
         changed => {
             'B::Op_private'         => '5.026002',
-            'Module::CoreList'      => '5.20180106c',
-            'Module::CoreList::Utils'=> '5.20180106c',
+            'Module::CoreList'      => '5.20180108c',
+            'Module::CoreList::Utils'=> '5.20180108c',
             'B::Debug'              => '1.26',
             '_charnames'            => '1.45',
             'charnames'             => '1.45',

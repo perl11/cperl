@@ -30,5 +30,5 @@ my $released = $Module::CoreList::released{ $curver };
 $released = $Module::CoreList::released{ $curver };
 
 ok( defined $released, "There is a released entry for $]" );
-like( $released, qr{^(\d{4}\-\d{2}\-\d{2}|\?\?\?\?-\?\?-\?\?)$},
+like( $released, qr{^[\?\d]{4}\-[\?\d]{2}\-[\?\d]{2}$},
       'It should be a date in YYYY-MM-DD format' );

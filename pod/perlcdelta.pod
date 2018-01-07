@@ -111,16 +111,16 @@ for the remaining valgrind errors not already dealt with by
 
 lib/Encode/MIME/Name.pm t/mime-name.t
 Pulled: Add "euc-cn" => "EUC-CN" alias to Encode::MIME::Name
-https://github.com/dankogai/p5-encode/pull/124
+L<https://github.com/dankogai/p5-encode/pull/124>
 
 lib/Encode/CN/HZ.pm lib/Encode/JP/JIS7.pm lib/Encode/MIME/Header.pm
 t/decode.t
 Pulled: Uninitialized value fixes #122
-https://github.com/dankogai/p5-encode/pull/122
+L<https://github.com/dankogai/p5-encode/pull/122>
 
 Makefile.PL
 Pulled: Fix -Werror=declaration-after-statement for gcc 4.1.2
-https://github.com/dankogai/p5-encode/pull/121
+L<https://github.com/dankogai/p5-encode/pull/121>
 
 =item L<experimental>  0.019_01c
 
@@ -164,7 +164,8 @@ Switch test URL from www.cpan.org to httpbin.org
 
 =item L<Storable> 3.05_14
 
-Try to fix readonly stacksize.h with perlbrew. [cperl #335]
+Try to fix readonly stacksize.h with perlbrew.
+L<[cperl #335]|https://github.com/perl11/cperl/issues/335>
 
 =item L<Test::Builder::Tester> 1.29c
 
@@ -181,57 +182,9 @@ annotate as methods.
 Add updates from 0.9918: Add LAX_DECIMAL_VERSION, LAX_DOTTED_DECIMAL_VERSION,
 STRICT_DECIMAL_VERSION, STRICT_DOTTED_DECIMAL_VERSION regexes.
 
-Add t/11_taint.t
+Add F<t/11_taint.t>
 
 =item L<VMS::DCLsym>  1.09
-
-=back
-
-=head1 Configuration and Compilation
-
-=over
-
-=item *
-
-XXX
-
-=back
-
-=head1 Utility Changes
-
-=head2 L<XXX>
-
-=over 4
-
-=item *
-
-XXX
-
-=back
-
-=head1 Testing
-
-=over 4
-
-=item *
-
-XXX
-
-=back
-
-=head2 Platform-Specific Notes
-
-=over 4
-
-=item XXX
-
-=over
-
-=item *
-
-XXX
-
-=back
 
 =back
 
@@ -346,23 +299,32 @@ L<[cpan #122353]|https://rt.cpan.org/Public/Bug/Display.html?id=122353>
 
 =head1 Acknowledgements
 
-cperl 5.26.2c represents approximately 3 months of development since
-cperl 5.26.1c and contains approximately 20,000 lines of changes
-across 170 files from 6 authors.
+cperl 5.26.2 represents approximately 5 months of development since cperl
+5.26.1c and contains approximately 93,000 lines of changes across 550 files
+from 16 authors.
 
-Excluding auto-generated files, documentation and release tools, there
-were approximately 1,400 lines of changes to 76 .pm, .t, .c and .h
-files.
+Excluding auto-generated files, documentation and release tools, there were
+approximately 13,000 lines of changes to 340 .pm, .t, .c and .h files.
 
-The following people are known to have contributed the improvements
-that became cperl 5.26.2c:
+The following people are known to have contributed the improvements that became
+cperl 5.26.2:
 
-Reini Urban, Tony Cook, William N. Braswell, Jr, vendethiel, Aaron Crane.
+Reini Urban, Steve Hay, Karl Williamson, Tony Cook, David Mitchell, Yves Orton,
+Father Chrysostomos, James E Keenan, Dagfinn Ilmari Mannsåker, Lukas Mai, Andy
+Dougherty, John Peacock, Slaven Rezic, Zefram, Jacques Germishuys, Craig A.
+Berry.
 
 The list above is almost certainly incomplete as it is automatically generated
-from version control history. In particular, it does not include the names of
-the (very much appreciated) contributors who reported issues to the Perl bug
-tracker.
+from version control history including the perl and cperl repos. In particular,
+it does not include the names of the (very much appreciated) contributors who
+reported issues to the Perl bug tracker and the cperl github issues.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
 
 Generated with:
 
