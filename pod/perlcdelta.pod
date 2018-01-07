@@ -135,6 +135,8 @@ better machine code on threaded perl (croak_nocontext)
 hpux should not use lftp.
 Switch test URL from www.cpan.org to httpbin.org
 
+=item L<Filter> 1.58
+
 =item L<Storable> 3.05_14
 
 Try to fix readonly stacksize.h with perlbrew. [cperl #335]
