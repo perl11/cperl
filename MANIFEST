@@ -1614,6 +1614,8 @@ cpan/Locale-Codes/t/currency_func.t
 cpan/Locale-Codes/t/currency_old.t			Locale::Codes tests
 cpan/Locale-Codes/t/currency_oo.t
 cpan/Locale-Codes/t/do_tests.pl
+cpan/Locale-Codes/t/errors.1.t
+cpan/Locale-Codes/t/errors.2.t
 cpan/Locale-Codes/t/langext_func.t
 cpan/Locale-Codes/t/langext_oo.t
 cpan/Locale-Codes/t/langfam_func.t
@@ -1629,6 +1631,7 @@ cpan/Locale-Codes/t/script_oo.t
 cpan/Locale-Codes/t/testfunc.pl				Locale::Codes tests
 cpan/Locale-Codes/t/vals_country.pl			Locale::Codes tests
 cpan/Locale-Codes/t/vals_currency.pl			Locale::Codes tests
+cpan/Locale-Codes/t/vals_error.pl
 cpan/Locale-Codes/t/vals_langext.pl			Locale::Codes tests
 cpan/Locale-Codes/t/vals_langfam.pl			Locale::Codes tests
 cpan/Locale-Codes/t/vals_language.pl			Locale::Codes tests

@@ -139,6 +139,8 @@ Switch test URL from www.cpan.org to httpbin.org
 
 =item L<JSON::PP>  2.97001_04
 
+=item L<Locale::Codes>  3.55
+
 =item L<Storable> 3.05_14
 
 Try to fix readonly stacksize.h with perlbrew. [cperl #335]
