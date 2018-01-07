@@ -143,6 +143,8 @@ Switch test URL from www.cpan.org to httpbin.org
 
 =item libnet  3.11
 
+=item L<Net::Ping>  2.63
+
 =item L<Storable> 3.05_14
 
 Try to fix readonly stacksize.h with perlbrew. [cperl #335]

@@ -38,7 +38,6 @@ my %webs = (
   "172.29.249.249" => 0,
 
   # Hopefully all these web ports are open
-  "www.freeservers.com." => 1,
   "yahoo.com." => 1,
   "www.yahoo.com." => 1,
   "www.about.com." => 1,

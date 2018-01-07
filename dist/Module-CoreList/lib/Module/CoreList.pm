@@ -16287,6 +16287,7 @@ our %delta = (
             'Net::FTP::dataconn'    => '3.11',
             'Net::NNTP'             => '3.11',
             'Net::Netrc'            => '3.11',
+            'Net::Ping'             => '2.63',
             'Net::POP3'             => '3.11',
             'Net::SMTP'             => '3.11',
             'Net::Time'             => '3.11',
