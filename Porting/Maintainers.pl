@@ -629,7 +629,7 @@ use File::Glob qw(:case);
 
     'ExtUtils::Constant' => {
         # Upstream broken
-        'DISTRIBUTION' => 'RURBAN/ExtUtils-Constant-0.23_08.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/ExtUtils-Constant-0.24.tar.gz',
         'FILES'    => q[dist/ExtUtils-Constant],
         'EXCLUDED' => [
             qw( lib/ExtUtils/Constant/Aaargh56Hash.pm

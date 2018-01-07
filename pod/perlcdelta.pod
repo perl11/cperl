@@ -124,6 +124,12 @@ https://github.com/dankogai/p5-encode/pull/121
 
 use vars => our
 
+=item L<ExtUtils::Constant>  0.24_01
+
+C++ compat fixes. -Wliteral-suffix
+
+better machine code on threaded perl (croak_nocontext)
+
 =item L<Storable> 3.05_14
 
 Try to fix readonly stacksize.h with perlbrew. [cperl #335]
