@@ -120,6 +120,8 @@ Makefile.PL
 Pulled: Fix -Werror=declaration-after-statement for gcc 4.1.2
 https://github.com/dankogai/p5-encode/pull/121
 
+=item L<experimental>  0.019_01c
+
 =item L<ExtUtils::CBuilder> 0.280230
 
 use vars => our

@@ -16226,6 +16226,7 @@ our %delta = (
             'Encode::MIME::Header'  => '2.28',
             'Encode::MIME::Name'    => '1.03',
             'encoding'              => '2.21',
+            'experimental'          => '0.019_01c',
             'ExtUtils::CBuilder'            => '0.280230',
             'ExtUtils::CBuilder::Base'      => '0.280230',
             'ExtUtils::CBuilder::Platform::Unix'    => '0.280230',
