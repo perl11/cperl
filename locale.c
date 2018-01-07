@@ -3271,7 +3271,8 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
                                        (int) MB_CUR_MAX));
             if ((unsigned) MB_CUR_MAX < STRLENs(MAX_UNICODE_UTF8)) {
                 is_utf8 = FALSE;
-                goto finish_ctype;
+                restore_switched_locale(LC_CTYPE, original_ctype_locale);
+                goto finish_and_return;
             }
 
 #    endif
@@ -3302,7 +3303,8 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
                 DEBUG_L(PerlIO_printf(Perl_debug_log,
                        "\tnllanginfo returned CODESET '%s'; ?UTF8 locale=%d\n",
                                                      codeset,         is_utf8));
-                goto finish_ctype;
+                restore_switched_locale(LC_CTYPE, original_ctype_locale);
+                goto finish_and_return;
             }
         }
 
@@ -3352,10 +3354,7 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
                             && wc == (wchar_t) UNICODE_REPLACEMENT);
         }
 
-      finish_ctype:
-
         restore_switched_locale(LC_CTYPE, original_ctype_locale);
-
         goto finish_and_return;
     }
 
