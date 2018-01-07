@@ -16306,6 +16306,7 @@ our %delta = (
             'Storable'              => '3.05_14',
             'Test::Builder::Tester' => '1.29c',
             'Time::HiRes'           => '1.9752',
+            'Time::Piece'           => '1.3203',
             'VMS::DCLsym'           => '1.09',
         },
         removed => {

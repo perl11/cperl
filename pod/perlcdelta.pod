@@ -161,6 +161,8 @@ annotate as methods.
 
 =item L<Time::HiRes>  1.9752
 
+=item L<Time::Piece>  1.3203
+
 =item L<VMS::DCLsym>  1.09
 
 =back
