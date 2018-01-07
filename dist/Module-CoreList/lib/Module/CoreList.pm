@@ -16304,6 +16304,7 @@ our %delta = (
             'SelfLoader'            => '1.24',
             'Sub::Util'             => '1.49_10',
             'Storable'              => '3.05_14',
+            'Test::Builder::Tester' => '1.29c',
             'VMS::DCLsym'           => '1.09',
         },
         removed => {

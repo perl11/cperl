@@ -155,6 +155,10 @@ Switch test URL from www.cpan.org to httpbin.org
 
 Try to fix readonly stacksize.h with perlbrew. [cperl #335]
 
+=item L<Test::Builder::Tester> 1.29c
+
+annotate as methods.
+
 =item L<VMS::DCLsym>  1.09
 
 =back

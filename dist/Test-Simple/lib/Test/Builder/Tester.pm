@@ -1,7 +1,7 @@
 package Test::Builder::Tester;
 
 use strict;
-our $VERSION = "1.28";
+our $VERSION = "1.29c";
 
 use Test::Builder 0.99;
 use Symbol;
@@ -484,13 +484,13 @@ sub expect {
     }
 }
 
-sub _account_for_subtest ( $self, $check ) {
+sub _account_for_subtest ( $self, $check ) :method {
 
     # Since we ship with Test::Builder, calling a private method is safe...ish.
     return ref($check) ? $check : $t->_indent . $check;
 }
 
-sub _translate_Failed_check ( $self, $check ) {
+sub _translate_Failed_check ( $self, $check ) :method {
 
     if( $check =~ /\A(.*)#     (Failed .*test) \((.*?) at line (\d+)\)\Z(?!\n)/ ) {
         $check = "/\Q$1\E#\\s+\Q$2\E.*?\\n?.*?\Qat $3\E line \Q$4\E.*\\n?/";
@@ -502,7 +502,7 @@ sub _translate_Failed_check ( $self, $check ) {
 ##
 # return true iff the expected data matches the got data
 
-sub check ($self) {
+sub check ($self) :method {
 
     # turn off warnings as these might be undef
     local $^W = 0;
@@ -521,7 +521,7 @@ sub check ($self) {
 # a complaint message about the inputs not matching (to be
 # used for debugging messages)
 
-sub complaint ($self) {
+sub complaint ($self) :method {
     my $type   = $self->type;
     my $got    = $self->got;
     my $wanted = join '', @{ $self->wanted };
@@ -565,7 +565,7 @@ sub complaint ($self) {
 ##
 # forget all expected and got data
 
-sub reset ($self) {
+sub reset ($self) :method {
     %$self = (
         type   => $self->{type},
         got    => '',
@@ -573,15 +573,15 @@ sub reset ($self) {
     );
 }
 
-sub got ($self) {
+sub got ($self) :method {
     return $self->{got};
 }
 
-sub wanted ($self) {
+sub wanted ($self) :method {
     return $self->{wanted};
 }
 
-sub type ($self) {
+sub type ($self) :method {
     return $self->{type};
 }
 
@@ -589,12 +589,12 @@ sub type ($self) {
 # tie interface
 ###
 
-sub PRINT {
+sub PRINT :method {
     my $self = shift;
     $self->{got} .= join '', @_;
 }
 
-sub TIEHANDLE ( $class, $type ) {
+sub TIEHANDLE ( $class, $type ) :method {
 
     my $self = bless { type => $type }, $class;
     $self->reset;
