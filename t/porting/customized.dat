@@ -119,7 +119,7 @@ Test::Harness cpan/Test-Harness/t/regression.t 4b6448b3d3bae1f406e25c8f61d2656a2
 Test::Harness cpan/Test-Harness/t/sample-tests/switches 350f7e96e4bfb8dbac352200d656e8f52a76ab7e
 Test::Harness cpan/Test-Harness/t/source_handler.t 1b9abe550c8c5383eddefb0811c083605cb66ba4
 Time::HiRes dist/Time-HiRes/HiRes.xs 0fda2e23eade1f3de981a9264596fcf11ebbaca4
-Time::HiRes dist/Time-HiRes/t/alarm.t 1f19ec4a487abfc4725a6abfa44f1cf1d8cd8086
+Time::HiRes dist/Time-HiRes/t/alarm.t afe8affac025fad2da36e18c66d318ffc981d4db
 Time::HiRes dist/Time-HiRes/t/clock.t acb2497e55facb882c41154805e917d1dbe5377c
 Time::HiRes dist/Time-HiRes/t/itimer.t 659db22bc635177b130e0478aef1fd5e1edf0b6d
 Time::HiRes dist/Time-HiRes/t/nanosleep.t 91ff108217547361a527f5438a36c9e09faf7400

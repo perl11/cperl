@@ -159,6 +159,8 @@ Try to fix readonly stacksize.h with perlbrew. [cperl #335]
 
 annotate as methods.
 
+=item L<Time::HiRes>  1.9752
+
 =item L<VMS::DCLsym>  1.09
 
 =back

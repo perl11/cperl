@@ -367,10 +367,14 @@ sub has_futimens {
 #include <sys/stat.h>
 int main(int argc, char** argv)
 {
-    int ret;
-    struct timespec ts[2];
-    ret = futimens(0, ts);
-    ret == 0 ? exit(0) : exit(errno ? errno : -1);
+    int ret1, ret2;
+    struct timespec ts1[2], ts2[2];
+    ret1 = futimens(0, ts1);
+    char buf[1];
+    read(0, buf, 0); /* Assuming reading nothing updates atime (the [0]) */
+    ret2 = futimens(0, ts2);
+    ret1 == 0 && ret2 == 0 && (ts1[0].tv_nsec != 0 || ts2[0].tv_nsec != 0) ?
+        exit(0) : exit(errno ? errno : -1);
 }
 EOM
 }
@@ -385,10 +389,16 @@ sub has_utimensat{
 #include <fcntl.h>
 int main(int argc, char** argv)
 {
-    int ret;
-    struct timespec ts[2];
-    ret = utimensat(AT_FDCWD, 0, ts, 0);
-    ret == 0 ? exit(0) : exit(errno ? errno : -1);
+    int ret1, ret2;
+    struct timespec ts1[2], ts2[2];
+    /* We make the brave but probably foolish assumption that systems
+     * modern enough to have utimensat also have the /dev/stdin. */
+    ret1 = utimensat(AT_FDCWD, "/dev/stdin", ts1, 0);
+    char buf[1];
+    read(0, buf, 0); /* Assuming reading nothing updates atime (the [0]) */
+    ret2 = utimensat(AT_FDCWD, "/dev/stdin", ts2, 0);
+    ret1 == 0 && ret2 == 0 && (ts1[0].tv_nsec != 0 || ts2[0].tv_nsec != 0) ?
+        exit(0) : exit(errno ? errno : -1);
 }
 EOM
 }
@@ -507,7 +517,7 @@ EOD
     if ($has_setitimer && $has_getitimer) {
 	print "You have interval timers (both setitimer and getitimer).\n";
     } else {
-	print "You do not have interval timers.\n";
+	print "You do NOT have interval timers.\n";
     }
 
     print "Looking for ualarm()... ";
@@ -695,7 +705,7 @@ EOD
 	print "NOT found.\n";
     }
 
-    print "Looking for futimens()... ";
+    print "Looking for working futimens()... ";
     my $has_futimens;
     if (has_futimens()) {
         $has_futimens++;
@@ -708,7 +718,7 @@ EOD
 	print "NOT found.\n";
     }
 
-    print "Looking for utimensat()... ";
+    print "Looking for working utimensat()... ";
     my $has_utimensat;
     if (has_utimensat()) {
         $has_utimensat++;
@@ -721,8 +731,12 @@ EOD
 	print "NOT found.\n";
     }
 
-    if ($has_futimens or $has_utimensat) {
+    my $has_hires_utime = ($has_futimens || $has_utimensat);
+    if ($has_hires_utime) {
 	$DEFINE .= ' -DTIME_HIRES_UTIME';
+        print "You seem to have subsecond timestamp setting.\n";
+    } else {
+        print "You do NOT seem to have subsecond timestamp setting.\n";
     }
 
     print "Looking for stat() subsecond timestamps...\n";
@@ -838,14 +852,18 @@ EOM
         DEFINE('TIME_HIRES_STAT', 4);
     } elsif ($has_stat_st_uxtime) {
         DEFINE('TIME_HIRES_STAT', 5);
-    }    
+    }
 
-   if ($DEFINE =~ /-DTIME_HIRES_STAT=\d+/) {
-    print "You seem to have stat() subsecond timestamps.\n";
-    print "(Your struct stat has them, but the filesystems must help.)\n";
-   } else {
-    print "You do not seem to have stat subsecond timestamps.\n";
-   }
+    my $has_hires_stat = ($DEFINE =~ /-DTIME_HIRES_STAT=(\d+)/) ? $1 : 0;
+    if ($has_hires_stat) {
+        print "You seem to have subsecond timestamp reading.\n";
+        print "(Your struct stat has them, but the filesystems must help.)\n";
+        unless ($has_hires_utime) {
+            print "However, you do NOT seem to have subsecond timestamp setting.\n";
+        }
+    } else {
+        print "You do NOT seem to have subsecond timestamp reading.\n";
+    }
 
     my $has_w32api_windows_h;
 
@@ -895,10 +913,10 @@ sub doMakefile {
 	'PREREQ_PM' => {
 	    'Carp' => 0,
 	    'Config' => 0,
-	    'DynaLoader' => 0,
 	    'Exporter' => 0,
 	    'ExtUtils::MakeMaker' => 0,
 	    'Test::More' => 0,
+	    'XSLoader' => 0,
 	    'strict' => 0,
 	},
 	'dist'      => {
@@ -989,15 +1007,16 @@ sub doConstants {
 	    if ($macro =~ /^(d_nanosleep|d_clock)$/) {
 		$macro =~ s/^d_(.+)/TIME_HIRES_\U$1/;
 	    } elsif ($macro =~ /^(d_hires_stat)$/) {
-		my $d_hires_stat = 0;
-		$d_hires_stat = $1 if ($DEFINE =~ /-DTIME_HIRES_STAT=(\d+)/);
-		push @names, {name => $_, macro => "TIME_HIRES_STAT", value => $d_hires_stat,
-			      default => ["IV", "0"]};
-		next;
+		my $d_hires_stat = $1 if ($DEFINE =~ /-DTIME_HIRES_STAT=(\d+)/);
+                if (defined $d_hires_stat) {
+                    push @names, {name => $_, macro => "TIME_HIRES_STAT", value => $d_hires_stat,
+                                  default => ["IV", "0"]};
+                    next;
+                }
 	    } elsif ($macro =~ /^(d_hires_utime)$/) {
 		my $d_hires_utime =
-                    ($DEFINE =~ /-DHAS_FUTIMENS/ ||
-                     $DEFINE =~ /-DHAS_UTIMENSAT/) ? 1 : 0;
+		    ($DEFINE =~ /-DHAS_FUTIMENS/ ||
+		     $DEFINE =~ /-DHAS_UTIMENSAT/);
 		push @names, {name => $_, macro => "TIME_HIRES_UTIME", value => $d_hires_utime,
 			      default => ["IV", "0"]};
 		next;
@@ -1032,9 +1051,11 @@ sub doConstants {
 }
 
 sub main {
-    if (-f "xdefine" && !(@ARGV  && $ARGV[0] eq '--configure')) {
+    if (-f "xdefine" && !(@ARGV  && $ARGV[0] =~ /^--(?:configure|force)$/)) {
 	print qq[$0: The "xdefine" exists, skipping the configure step.\n];
-	print qq[("$^X $0 --configure" to force the configure step)\n];
+	print qq[Use "$^X $0 --configure"\n];
+	print qq[or: "$^X $0 --force\n];
+	print qq[to force the configure step.\n];
     } else {
 	print "Configuring Time::HiRes...\n";
 	1 while unlink("define");
