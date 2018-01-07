@@ -230,7 +230,7 @@ use File::Glob qw(:case);
     },
 
     'B::Debug' => {
-        'DISTRIBUTION' => 'RURBAN/B-Debug-1.25.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/B-Debug-1.26.tar.gz',
         'FILES'        => q[cpan/B-Debug],
         'EXCLUDED'     => ['t/pod.t'],
     },

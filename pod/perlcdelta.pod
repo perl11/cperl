@@ -67,6 +67,8 @@ L<[perl #131665]|https://rt.perl.org/Public/Bug/Display.html?id=131665>
 
 =over 4
 
+=item L<B::Debug>  1.26
+
 =item L<Config|XSConfig> 6.23
 
 =item L<Storable> 3.05_14

@@ -16214,6 +16214,7 @@ our %delta = (
             'B::Op_private'         => '5.026002',
             'Module::CoreList'      => '5.20180106c',
             'Module::CoreList::Utils'=> '5.20180106c',
+            'B::Debug'              => '1.26',
             'Config'                => '6.23',
             'Storable'              => '3.05_14',
             'VMS::DCLsym'           => '1.09',
