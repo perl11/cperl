@@ -273,6 +273,17 @@ L<[perl #131085]|https://rt.perl.org/Public/Bug/Display.html?id=131085>
 
 =over 4
 
+=item FreeBSD
+
+=over 4
+
+=item *
+
+Building with B<g++> on FreeBSD-11.0 has been fixed.
+L<[perl #131337]|https://rt.perl.org/Public/Bug/Display.html?id=131337>
+
+=back
+
 =item Windows
 
 =over 4
