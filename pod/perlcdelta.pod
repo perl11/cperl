@@ -265,6 +265,16 @@ that could lead to a crash in cases such as C<< $::{"A"} = sub {}; \&{"A"} >>.
 This has now been fixed.
 L<[perl #131085]|https://rt.perl.org/Public/Bug/Display.html?id=131085>
 
+=item *
+
+Several built-in functions previously had bugs that could cause them to write
+to the internal stack without allocating room for the item being written.  In
+rare situations, this could have led to a crash.  These bugs have now been
+fixed, and if any similar bugs are introduced in future, they will be detected
+automatically in debugging builds.
+L<[perl #131732]|https://rt.perl.org/Public/Bug/Display.html?id=131732>
+C<[commit 23891d5581278b]>.
+
 =back
 
 =head1 Platform Support
