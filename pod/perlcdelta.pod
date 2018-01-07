@@ -132,6 +132,13 @@ C++ compat fixes. -Wliteral-suffix
 
 better machine code on threaded perl (croak_nocontext)
 
+=item L<ExtUtils::ParseXS>  3.36_03
+
+skip C<PUTBACK;return;> on XSRETURN in PPCODE
+
+remove perl5 incompatible C<__attribute__global__> needed for -flto.
+C<XS_EXTERNAL> has it already.
+
 =item L<File::Fetch>  0.56
 
 hpux should not use lftp.

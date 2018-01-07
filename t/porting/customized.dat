@@ -65,8 +65,8 @@ ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/pm_to_blib.t 568663f592d962dfae8c7
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/pod2man.t 11f73694a57ab199f8fe905559073744af3c14da
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/prereq.t 289100886bc698838a6f71cd8fa70348dac20b75
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/vstrings.t 62c50e82f1f7afa702773b61c1cbec80c4902210
-ExtUtils::ParseXS dist/ExtUtils-ParseXS/Changes 56ba1ad116c26dc025bb6e11537e3c421338c51a
-ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm f13746745b7bdbed84ed81b5dcce84ac8b38c536
+ExtUtils::ParseXS dist/ExtUtils-ParseXS/Changes 497c6c0b9f0e20858088345ab88bca3b9943c6e0
+ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm ceb8e1cc96b66f659b0b91b0379013f0f8f3e524
 File::Path cpan/File-Path/lib/File/Path.pm 9abce7ef6597df33fb0cbbd02bf7e34c12157330
 File::Path cpan/File-Path/t/Path_win32.t 46d09109b418a5ee9c3e2d84ee86449103f7a00d
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
