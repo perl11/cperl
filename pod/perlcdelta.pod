@@ -69,6 +69,8 @@ L<[perl #131665]|https://rt.perl.org/Public/Bug/Display.html?id=131665>
 
 =item L<B::Debug>  1.26
 
+=item L<charnames> 1.45
+
 =item L<Compress::Raw::Zlib> 2.076
 
 Silence gcc compiler warnings when -Wsign-compare is enabled
