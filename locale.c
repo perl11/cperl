@@ -3607,8 +3607,7 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
                                 save_input_locale));
     }
 
-#  endif
-#  ifdef WIN32
+#      ifdef WIN32
 
     /* http://msdn.microsoft.com/en-us/library/windows/desktop/dd317756.aspx */
     if (memENDs(save_input_locale, final_pos, "65001")) {
@@ -3619,7 +3618,8 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
         goto finish_and_return;
     }
 
-#  endif
+#      endif
+#    endif
 
     /* Other common encodings are the ISO 8859 series, which aren't UTF-8.  But
      * since we are about to return FALSE anyway, there is no point in doing
