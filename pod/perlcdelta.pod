@@ -79,6 +79,8 @@ plus our zlib-src and make -s patches
 
 =item L<Cpanel::JSON::XS>  3.0240
 
+=item L<Digest::SHA>  6.01
+
 =item L<Storable> 3.05_14
 
 Try to fix readonly stacksize.h with perlbrew. [cperl #335]
