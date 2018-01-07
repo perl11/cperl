@@ -16217,6 +16217,7 @@ our %delta = (
             'B::Debug'              => '1.26',
             'Compress::Raw::Zlib'   => '2.076',
             'Config'                => '6.23',
+            'Cpanel::JSON::XS'      => '3.0240',
             'Storable'              => '3.05_14',
             'VMS::DCLsym'           => '1.09',
         },

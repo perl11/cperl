@@ -1,18 +1,15 @@
 use strict;
-use Test::More tests => 17;
+use Test::More tests => 32;
 use Cpanel::JSON::XS ();
 
 my $booltrue  = q({"is_true":true});
 my $boolfalse = q({"is_false":false});
-# since 5.16 yes/no is !0/!1, but for earlier perls we need to use a BoolSV
-my $a   = 0;
-my $yes = do{$a==0}; # < 5.16 !0 is not sv_yes
-my $no  = do{$a==1}; # < 5.16 !1 is not sv_no
-my $yesno     = [ $yes, $no ]; # native yes/no. YAML::XS compatible
 my $truefalse = "[true,false]";
 my $cjson = Cpanel::JSON::XS->new;
 my $true  = Cpanel::JSON::XS::true;
 my $false = Cpanel::JSON::XS::false;
+
+my $nonref_cjson = Cpanel::JSON::XS->new->allow_nonref;
 
 # from JSON::MaybeXS
 my $data = $cjson->decode('{"foo": true, "bar": false, "baz": 1}');
@@ -37,10 +34,43 @@ is( $cjson->encode( [\1,\0] ), $truefalse  );
 is( $cjson->encode( [ $true, $false] ),
     $truefalse );
 
-TODO: {
-  local $TODO = 'GH #39';
-  is( $cjson->encode( $yesno ), $truefalse, "map yes/no to [true,false]");
+# GH #39
+# perl block which returns sv_no or sv_yes
+is( $nonref_cjson->encode( do{(my $a=0)==1} ), "false", "map do{(my \$a)=0)==1} to false");
+is( $nonref_cjson->encode( do{(my $a=0)==1} ), "false", "map do{(my \$a)=0)==1} to false");
+is( $nonref_cjson->encode( do{(my $a=1)==1} ), "true", "map do{(my \$a)=1)==1} to true");
+is( $nonref_cjson->encode( do{(my $a=1)==1} ), "true", "map do{(my \$a)=1)==1} to true");
+
+# GH #39
+# XS function UNIVERSAL::isa returns sv_no or sv_yes
+is( $nonref_cjson->encode( UNIVERSAL::isa('0', '1') ), "false", "map UNIVERSAL::isa('0', '1') to false");
+is( $nonref_cjson->encode( UNIVERSAL::isa('0', '1') ), "false", "map UNIVERSAL::isa('0', '1') to false");
+is( $nonref_cjson->encode( UNIVERSAL::isa('UNIVERSAL', 'UNIVERSAL') ), "true", "map UNIVERSAL::isa('UNIVERSAL', 'UNIVERSAL') to true");
+is( $nonref_cjson->encode( UNIVERSAL::isa('UNIVERSAL', 'UNIVERSAL') ), "true", "map UNIVERSAL::isa('UNIVERSAL', 'UNIVERSAL') to true");
+
+# GH #39
+# XS function utf8::is_utf8 returns sv_no or sv_yes
+SKIP: {
+  skip 'Perl 5.8 is needed for boolean tests based on utf8::upgrade()+utf8::is_utf8()', 4 if $] < 5.008;
+  is( $nonref_cjson->encode( do{utf8::is_utf8(my $a)} ), "false", "map do{utf8::is_utf8(my \$a)} to false");
+  is( $nonref_cjson->encode( do{utf8::is_utf8(my $a)} ), "false", "map do{utf8::is_utf8(my \$a)} to false");
+  my $utf8 = '';
+  utf8::upgrade($utf8);
+  is( $nonref_cjson->encode( do{utf8::is_utf8($utf8)} ), "true", "map do{utf8::is_utf8(\$utf8)} to true");
+  is( $nonref_cjson->encode( do{utf8::is_utf8($utf8)} ), "true", "map do{utf8::is_utf8(\$utf8)} to true");
 }
+
+# GH #39
+# perl expression which evaluates to sv_no or sv_yes
+SKIP: {
+  # implemented in 5.16 but broken, works since 5.20
+  skip 'Perl 5.20 is needed for boolean tests based on !1 and !0', 4 if $] < 5.020;
+  is( $nonref_cjson->encode( !1 ), "false", "map !1 to false");
+  is( $nonref_cjson->encode( !1 ), "false", "map !1 to false");
+  is( $nonref_cjson->encode( !0 ), "true", "map !0 to true");
+  is( $nonref_cjson->encode( !0 ), "true", "map !0 to true");
+}
+
 $js = $cjson->decode( $truefalse );
 ok ($js->[0] == $true,  "decode true to yes");
 ok ($js->[1] == $false, "decode false to no");
