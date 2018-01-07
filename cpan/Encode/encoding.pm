@@ -116,7 +116,8 @@ sub import {
     }
 
     my $deprecate =
-        $] >= 5.017 ? "Use of the encoding pragma is deprecated" : 0;
+        ($] >= 5.017 and !$Config{usecperl})
+        ? "Use of the encoding pragma is deprecated" : 0;
 
     my $class = shift;
     my $name  = shift;
@@ -133,6 +134,7 @@ sub import {
         return;
     }
     $name = _get_locale_encoding() if $name eq ':locale';
+    BEGIN { strict->unimport('hashpairs') if $] >= 5.027 and $^V =~ /c$/; }
     my %arg = @_;
     $name = $ENV{PERL_ENCODING} unless defined $name;
     my $enc = find_encoding($name);

@@ -81,6 +81,8 @@ plus our zlib-src and make -s patches
 
 =item L<Digest::SHA>  6.01
 
+=item L<Encode>  2.93
+
 =item L<Storable> 3.05_14
 
 Try to fix readonly stacksize.h with perlbrew. [cperl #335]
