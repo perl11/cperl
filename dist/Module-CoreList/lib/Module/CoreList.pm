@@ -16247,6 +16247,8 @@ our %delta = (
             'ExtUtils::Constant::XS'        => '2.24_01',
             'File::Fetch'           => '0.56',
             'Filter::Util::Call'    => '1.58',
+            'JSON::PP'              => '2.97001_04',
+            'JSON::PP::Boolean'     => '2.97001_04',
             'Storable'              => '3.05_14',
             'VMS::DCLsym'           => '1.09',
         },
