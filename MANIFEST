@@ -239,6 +239,7 @@ cpan/Compress-Raw-Zlib/zlib-src/crc32.c		Compress::Raw::Zlib
 cpan/Compress-Raw-Zlib/zlib-src/crc32.h		Compress::Raw::Zlib
 cpan/Compress-Raw-Zlib/zlib-src/deflate.c	Compress::Raw::Zlib
 cpan/Compress-Raw-Zlib/zlib-src/deflate.h	Compress::Raw::Zlib
+cpan/Compress-Raw-Zlib/zlib-src/gzguts.h
 cpan/Compress-Raw-Zlib/zlib-src/infback.c	Compress::Raw::Zlib
 cpan/Compress-Raw-Zlib/zlib-src/inffast.c	Compress::Raw::Zlib
 cpan/Compress-Raw-Zlib/zlib-src/inffast.h	Compress::Raw::Zlib

@@ -13,7 +13,7 @@ use constant SILENT
 
 my $ZLIB_LIB ;
 my $ZLIB_INCLUDE ;
-my $BUILD_ZLIB = 0 ;
+my $BUILD_ZLIB = 1 ;
 my $OLD_ZLIB = '' ;
 my $WALL = '' ;
 my $GZIP_OS_CODE = -1 ;
