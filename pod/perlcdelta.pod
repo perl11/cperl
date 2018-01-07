@@ -163,6 +163,8 @@ annotate as methods.
 
 =item L<Time::Piece>  1.3203
 
+=item L<Unicode::Collate>  1.25
+
 =item L<VMS::DCLsym>  1.09
 
 =back
