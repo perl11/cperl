@@ -147,6 +147,8 @@ Switch test URL from www.cpan.org to httpbin.org
 
 =item L<Pod::Man>  4.11
 
+=item L<Scalar::Util>  1.49
+
 =item L<Storable> 3.05_14
 
 Try to fix readonly stacksize.h with perlbrew. [cperl #335]

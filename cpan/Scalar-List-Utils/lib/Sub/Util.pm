@@ -2,7 +2,7 @@
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
 
-# Maintained since 2015 unauthorized by Reini Urban for cperl
+# Maintained since 2015 unauthorized by Reini Urban for cperl.
 # set_subname, binary names, utf8
 
 package Sub::Util;
@@ -18,7 +18,7 @@ our @EXPORT_OK = qw(
   subname set_subname
 );
 
-our $VERSION    = "1.47_01";
+our $VERSION    = "1.49_10";
 $VERSION   = eval $VERSION;
 
 require List::Util; # as it has the XS
