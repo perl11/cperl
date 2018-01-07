@@ -642,6 +642,7 @@ the strings?).
  rurban    5.26.0c-RC1  2017-Apr-19     cperl 5.26
  rurban    5.26.0c      2017-Apr-25
  rurban    5.26.1c      2017-Aug-07
+ rurban    5.26.2c      2018-Jan-??
 
  Sawyer X  5.27.0       2017-May-31     The 5.27 development track
  Eric      5.27.1       2017-Jun-20
