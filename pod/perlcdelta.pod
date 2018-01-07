@@ -130,6 +130,11 @@ C++ compat fixes. -Wliteral-suffix
 
 better machine code on threaded perl (croak_nocontext)
 
+=item L<File::Fetch>  0.56
+
+hpux should not use lftp.
+Switch test URL from www.cpan.org to httpbin.org
+
 =item L<Storable> 3.05_14
 
 Try to fix readonly stacksize.h with perlbrew. [cperl #335]

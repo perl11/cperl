@@ -16245,6 +16245,7 @@ our %delta = (
             'ExtUtils::Constant::ProxySubs' => '2.24_01',
             'ExtUtils::Constant::Utils'     => '2.24_01',
             'ExtUtils::Constant::XS'        => '2.24_01',
+            'File::Fetch'           => '0.56',
             'Storable'              => '3.05_14',
             'VMS::DCLsym'           => '1.09',
         },
