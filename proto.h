@@ -2550,14 +2550,6 @@ PERL_CALLCONV bool	Perl_isIDFIRST_lazy(pTHX_ const char* p)
 #define PERL_ARGS_ASSERT_ISIDFIRST_LAZY	\
 	assert(p)
 
-PERL_CALLCONV bool	Perl_isSCRIPT_RUN(pTHX_ const U8 *s, const U8 *send, const bool utf8_target)
-			__attribute__global__
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2);
-#define PERL_ARGS_ASSERT_ISSCRIPT_RUN	\
-	assert(s); assert(send)
-
 /* PERL_CALLCONV bool	Perl_is_ascii_string(const U8* const s, STRLEN len)
 			__attribute__global__
 			__attribute__warn_unused_result__
@@ -7913,6 +7905,14 @@ PERL_STATIC_INLINE STRLEN	S_sv_or_pv_pos_u2b(pTHX_ SV *sv, const char *pv, STRLE
 
 #endif
 #if defined(PERL_CORE) || defined(PERL_EXT)
+PERL_CALLCONV bool	Perl_isSCRIPT_RUN(pTHX_ const U8 *s, const U8 *send, const bool utf8_target, SCX_enum * ret_script)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_ISSCRIPT_RUN	\
+	assert(s); assert(send)
+
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE Size_t	S_variant_under_utf8_count(const U8* const s, const U8* const e)
 			__attribute__warn_unused_result__
