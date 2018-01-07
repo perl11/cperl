@@ -16301,6 +16301,7 @@ our %delta = (
             'List::Util::XS'        => '1.49_10',
             'Scalar::Util'          => '1.49_10',
             'Scalar::Util'          => '1.49_10',
+            'SelfLoader'            => '1.24',
             'Sub::Util'             => '1.49_10',
             'Storable'              => '3.05_14',
             'VMS::DCLsym'           => '1.09',

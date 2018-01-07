@@ -149,6 +149,8 @@ Switch test URL from www.cpan.org to httpbin.org
 
 =item L<Scalar::Util>  1.49
 
+=item L<SelfLoader>  1.24
+
 =item L<Storable> 3.05_14
 
 Try to fix readonly stacksize.h with perlbrew. [cperl #335]
