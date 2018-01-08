@@ -8404,7 +8404,7 @@ S_pmtrans(pTHX_ OP *o, OP *expr, OP *repl)
 	    tbl[t[i]] = -1;
 	for (i = 0, j = 0; i < 256; i++) {
 	    if (!tbl[i]) {
-		if (j >= (I32)rlen) {
+		if (j == (I32)rlen) {
 		    if (del)
 			tbl[i] = -2;
 		    else if (rlen)
@@ -8419,6 +8419,8 @@ S_pmtrans(pTHX_ OP *o, OP *expr, OP *repl)
 		}
 	    }
 	}
+
+        assert(j <= (I32)rlen);
 	if (!del) {
 	    if (!rlen) {
                 /* empty replacement list */
@@ -8426,7 +8428,7 @@ S_pmtrans(pTHX_ OP *o, OP *expr, OP *repl)
 		if (!squash)
 		    o->op_private |= OPpTRANS_IDENTICAL;
 	    }
-	    else if (j >= (I32)rlen)
+	    else if (j == (I32)rlen)
                 /* no more replacement chars than search chars */
 		j = rlen - 1;
 	    else {
