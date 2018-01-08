@@ -52,7 +52,7 @@ my %problematical_tests;
 # considered a TODO.
 my %known_bad_locales = (
                           irix   => qr/ ^ (?: cs | hu | sk ) $/x,
-                          #darwin => qr/ ^ lt_LT.ISO8859 /ix,
+                          darwin => qr/ ^ lt_LT.ISO8859 /ix,
                           os390  => qr/ ^ italian /ix,
                         );
 
