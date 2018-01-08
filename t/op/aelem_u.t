@@ -5,7 +5,7 @@ BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
 }
-plan( tests => 22 );
+plan( tests => 23 );
 use coretypes;
 use cperl;
 use v5.22;
@@ -75,7 +75,7 @@ eval '$a[5][1];';
 like ($@, qr/^Array index out of bounds \@a\[5\]/, "compile-time mderef oob");
 
 # eliminating loop out-of-bounds checks.
-# how to test this? via dump/-Dt?
+# how to test this? via dump/-Dt? B? XS-APItest?
 my @b = (0..4);
 for (0..$#b) { $b[$_] };       # _u
 for (0..$#b) { $a[$_] };       # wrong array
@@ -93,3 +93,6 @@ for (0..$#b) { $b[$_] = 0; }       # mderef_u gvsv
 for my $i (0..$#b) { $b[$i] = 0; } # mderef_u padsv
 
 for (0..$#a) { $a[$_] };       # shaped + mderef_u
+
+eval 'die;for(0,1){while(1){$a[0]}}';
+ok(1, "survive nested loops [cperl #349]");

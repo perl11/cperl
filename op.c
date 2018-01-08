@@ -16790,10 +16790,13 @@ S_peep_leaveloop(pTHX_ OP* leave, OP* from, OP* to)
                 OpTYPE_set(o2, OP_AELEMFAST_LEX_U);
             }
 #endif
-            /* for(1..2){while(){}} stub - unstack - stub loop */
-            if (UNLIKELY(type == OP_STUB && IS_TYPE(OpNEXT(o2), UNSTACK)
-                         && OpNEXT(OpNEXT(o2)) == o2)) {
+            /* for(1..2){while(){}} skip descending into endless inner loop [cperl #349] */
+            if (UNLIKELY(OP_IS_LOOP(type))) {
+#ifdef PERL_OP_PARENT
+                o2 = o2->op_sibparent;
+#else
                 return TRUE;
+#endif
             }
         }
         return TRUE;

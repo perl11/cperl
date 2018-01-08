@@ -248,7 +248,7 @@ L<[cperl #350]|https://github.com/perl11/cperl/issues/350>.
 
 =item *
 
-Fixed endless rpeep compiler loop with two empty nested loops,
+Fixed endless rpeep compiler loop with a constant loop and a nested loop,
 which e.g. broke C<Net:HTTP>.
 L<[cperl #349]|https://github.com/perl11/cperl/issues/349>.
 
