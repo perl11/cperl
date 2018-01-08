@@ -18,18 +18,18 @@ There's no C<make release> target yet.
 
 or:
 
-    make -s -j4 test && make -s install DESTDIR=`pwd`/../cperl-5.26.2-inst
+    make -s -j4 test && make -s install DESTDIR=`pwd`/../cperl-5.26.3-inst
 
-    mkdir ../cperl-5.26.2
-    cp -rp .git ../cperl-5.26.2/
-    cd ../cperl-5.26.2
+    mkdir ../cperl-5.26.3
+    cp -rp .git ../cperl-5.26.3/
+    cd ../cperl-5.26.3
     git reset --hard
     git clean -dxf
     perl Porting/makerel -bx  # src tarball
 
     for t in deb rpm osxpkg solaris pkgin; do
-      fpm -s dir -t $t -C cperl -p ../cperl-5.26.2-inst/ \
-        --version 5.26.2 \
+      fpm -s dir -t $t -C cperl -p ../cperl-5.26.3-inst/ \
+        --version 5.26.3 \
         -m rurban@cpan.org \
         --url http://perl11.org/cperl/$t/ \
         --deb-config Porting/debian --deb-changelog pod/perl5252cdelta.pod
@@ -48,9 +48,9 @@ C<.tar.gz> release.
 In short: Start in a fresh dir, because we don't want to loose our
 internal test files.
 
-    mkdir ../cperl-5.26.2-build
-    cp -rp .git ../cperl-5.26.2-build/
-    cd ../cperl-5.26.2-build
+    mkdir ../cperl-5.26.3-build
+    cp -rp .git ../cperl-5.26.3-build/
+    cd ../cperl-5.26.3-build
     git reset --hard
     git clean -dxf
     perl Porting/makerel -bx
@@ -60,7 +60,7 @@ internal test files.
 My C<../do-conf-cperl-release> contains this.
 ccflags is architecture specific.
 
-    ver=5.26.2
+    ver=5.26.3
     # we put our clashing utils into scriptdir
     ./Configure -sder -Dcc=gcc -Dprefix=/usr \
                 -Accflags="-msse4.2" \
@@ -93,32 +93,32 @@ create packages for debian/ubuntu/mint .deb, redhat/centos/fedora
 .rpm, osx .pkg, bsd and solaris packages, but not yet windows .msi
 
     # on i386 and amd64 debian machines. needs the -1 suffix
-    fpm -s dir -t deb -n cperl -v 5.26.2-1 -m 'rurban@cpan.org' \
+    fpm -s dir -t deb -n cperl -v 5.26.3-1 -m 'rurban@cpan.org' \
         -d 'zlib1g (>= 1:1.2.2.3)' -d libbz2-1.0 -d 'libgdbm3 (>= 1.8.3)' -d 'libdb-5.1' \
         --url http://perl11.org/cperl/deb/ \
         --deb-changelog pod/perl5222cdelta.pod \
-        -C ../cperl-5.26.2-inst .
+        -C ../cperl-5.26.3-inst .
 
     # on i386 and x86_64 centos6 and a centos7 machine. no -1 suffix
-    fpm -s dir -t rpm -n cperl -v 5.26.2 -m 'rurban@cpan.org' \
+    fpm -s dir -t rpm -n cperl -v 5.26.3 -m 'rurban@cpan.org' \
         -d 'zlib' -d bzip2-libs -d 'gdbm' -d 'db4' \
         --url http://perl11.org/cperl/rpm/ \
-        -C ../cperl-5.26.2-inst .
+        -C ../cperl-5.26.3-inst .
 
     # on an amd64 osx machine
-    fpm -s dir -t osxpkg -n cperl -v 5.26.2 -m 'rurban@cpan.org' \
+    fpm -s dir -t osxpkg -n cperl -v 5.26.3 -m 'rurban@cpan.org' \
         --url http://perl11.org/cperl/osxpkg/ \
-        -C ../cperl-5.26.2-inst .
+        -C ../cperl-5.26.3-inst .
 
     # on i386 and amd64 solaris machines
-    fpm -s dir -t solaris -n cperl -v 5.26.2 -m 'rurban@cpan.org' \
+    fpm -s dir -t solaris -n cperl -v 5.26.3 -m 'rurban@cpan.org' \
         --url http://perl11.org/cperl/solaris/ \
-        -C ../cperl-5.26.2-inst .
+        -C ../cperl-5.26.3-inst .
 
     # on i386 and amd64 bsd machines
-    fpm -s dir -t pkgin -n cperl -v 5.26.2 -m 'rurban@cpan.org' \
+    fpm -s dir -t pkgin -n cperl -v 5.26.3 -m 'rurban@cpan.org' \
         --url http://perl11.org/cperl/pkgin/ \
-        -C ../cperl-5.26.2-inst .
+        -C ../cperl-5.26.3-inst .
 
     # on i386 and amd64 windows machines
     # TODO (see strawberry for .msi)
@@ -147,7 +147,7 @@ I use L<http://www.aptly.info/tutorial/repo/>
 
 Add the debs to the pool:
 
-    aptly repo add cperl ../../cperl_5.26.2-1_{i386,amd64}.deb
+    aptly repo add cperl ../../cperl_5.26.3-1_{i386,amd64}.deb
     aptly publish repo cperl
     rsync -av ~/.aptly/public/* perl11.github.com/deb/
 
@@ -161,7 +161,7 @@ Copy the created rpms into the rpm dest dirs.
 
     yum install createrepo
     pre=`pwd`
-    ver=5.26.2
+    ver=5.26.3
     rev=1
     cd perl11.github.com/rpm
 
