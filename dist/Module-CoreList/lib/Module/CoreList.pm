@@ -352,6 +352,7 @@ our %released = (
     '5.024003c' => '2018-01-05',
     '5.026002c' => '2018-01-08',
     '5.027003c' => '????-??-??',
+    '5.026003c' => '???-??-??',
  );
 
 sub version_sort {
@@ -16401,6 +16402,16 @@ our %delta = (
             'Locale::Currency'      => '3.55',
             'Locale::Language'      => '3.55',
             'Locale::Script'        => '3.55',
+        }
+    },
+    '5.026003c' => {
+        delta_from => '5.026002c',
+        changed => {
+            'B::Op_private'         => '5.026003',
+            'Module::CoreList'      => '5.20180108c',
+            'Module::CoreList::Utils'=> '5.20180108c',
+        },
+        removed => {
         }
     },
 );
