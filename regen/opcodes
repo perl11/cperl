@@ -150,9 +150,7 @@ i_negate	integer negation (-)	ck_null		pifst1	S	"(:Scalar):Int"
 not		not			ck_null		pfs1	S	"(:Scalar):Bool"
 complement	1's complement (~)	ck_bitop	pIfst1	S	"(:Scalar):Scalar"
 i_complement	integer 1's complement (~) ck_bitop	pfsT1	S	"(:UInt):UInt"
-# s_complement uses ck_bitop only for the experimental warning.  Once the
-# warning is gone, this can change to ck_null.
-s_complement	string 1's complement (~) ck_bitop	fsT1	S	"(:Str):Str"
+s_complement	string 1's complement (~) ck_null	fsT1	S	"(:Str):Str"
 
 smartmatch	smart match		ck_smartmatch	s2
 
