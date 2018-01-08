@@ -5,7 +5,7 @@ BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
 }
-plan( tests => 32 );
+plan( tests => 33 );
 use coretypes;
 use cperl;
 use v5.22;
@@ -86,7 +86,7 @@ eval '$a[5][1];';
 like ($@, qr/^Array index out of bounds \@a\[5\]/, "compile-time mderef oob");
 
 # eliminating loop out-of-bounds checks.
-# how to test this? via dump/-Dt?
+# how to test this? via dump/-Dt? B?
 my @b = (0..4);
 for (0..$#b) { $b[$_] };       # _u
 for (0..$#b) { $a[$_] };       # wrong array
@@ -118,3 +118,6 @@ for (0..$#a) { $a[$_] };       # shaped + mderef_u
   eval 'my @b[] = '. '(1,'x38 . '(0)' .')'x38 . ";\n";
   like ($@, qr/^Invalid constant list, recursion limit/, 'recursion depth');
 }
+
+eval 'die;for(0,1){while(1){$a[0]}}';
+ok(1, "survive nested loops [cperl #349]");

@@ -19187,7 +19187,7 @@ S_peep_leaveloop(pTHX_ BINOP* leave, OP* from, OP* to)
         DEBUG_kv(Perl_deb(aTHX_ "rpeep: omit loop bounds checks (from..arylen) for %s[%s]...\n",
                           aname, iname));
         iter = OpNEXT(loop);
-        body = OpOTHER(OpNEXT(iter));
+        body = OpOTHER(iter);
         /* replace all aelem with aelem_u for this exact array in
            this loop body, if the index is the loop counter */
         for (o2=body; o2 != iter; o2=OpNEXT(o2)) {
@@ -19257,6 +19257,17 @@ S_peep_leaveloop(pTHX_ BINOP* leave, OP* from, OP* to)
                 changed = TRUE;
             }
 #endif
+            /* for(1..2){while(){}}
+               Skip descending into endless inner loop [cperl #349].
+               A loop is always cyclic.
+            */
+            else if (UNLIKELY(OP_IS_LOOP(type))) {
+#ifdef PERL_OP_PARENT
+                o2 = o2->op_sibparent;
+#else
+                return changed;
+#endif
+            }
         }
         return changed;
     }
