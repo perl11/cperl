@@ -8,6 +8,7 @@ BEGIN {
 
      skip_all_without_config('useithreads');
      skip_all_if_miniperl("no dynamic loading on miniperl, no threads");
+     #skip_all('cygwin') if $^O eq 'cygwin';
 
      plan(30);
 }
@@ -42,7 +43,9 @@ EOI
 # test that we don't get:
 # panic: magic_killbackrefs.
 # Scalars leaked: 3
-fresh_perl_is(<<'EOI', 'ok', { }, 'weaken ref #2 under threads');
+SKIP: {
+  skip "cygwin", 1 if  $^O eq 'cygwin';
+  fresh_perl_is(<<'EOI', 'ok', { }, 'weaken ref #2 under threads');
 package Foo;
 sub new { bless {},shift }
 package main;
@@ -54,6 +57,7 @@ weaken $ref;
 threads->create(sub { $ref = $object } )->join; # $ref = $object causes problems
 print "ok";
 EOI
+}
 
 #PR30333 - sort() crash with threads
 sub mycmp { length($b) <=> length($a) }
