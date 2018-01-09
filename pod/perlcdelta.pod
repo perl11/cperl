@@ -538,9 +538,10 @@ L</Modules and Pragmata> section.
 
 =over 4
 
-=item XXX-some-platform
+=item cygwin
 
-XXX
+threads became unstable with some upstream merges.
+default now to C<-Uuseithreads>.
 
 =back
 
