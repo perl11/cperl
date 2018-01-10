@@ -462,6 +462,7 @@ compiling pad (lvalue) to C<gen>.
 #define PAD_COMPNAME(po)	PAD_COMPNAME_SV(po)
 #define PAD_COMPNAME_SV(po)	(PadnamelistARRAY(PL_comppad_name)[(po)])
 #define PAD_COMPNAME_FLAGS(po)	PadnameFLAGS(PAD_COMPNAME(po))
+#define PAD_COMPNAME_isOUTER(po) (PadnameFLAGS(PAD_COMPNAME(po)) & PADNAMEt_OUTER)
 #define PAD_COMPNAME_FLAGS_isOUR(po) SvPAD_OUR(PAD_COMPNAME_SV(po))
 #define PAD_COMPNAME_PV(po)	PadnamePV(PAD_COMPNAME(po))
 

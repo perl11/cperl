@@ -1108,6 +1108,57 @@ Perl_find_rundefsv2(pTHX_ CV *cv, U32 seq)
 }
 
 /*
+=for apidoc Apd|PADOFFSET|pad_find_outer	|PADNAME *pn|const CV* cv
+
+Search the real pad offset in one of the outer CVs for the fake pad
+entry in the current CV, usually the C<PL_compcv>. See L</pad_findmy_real>.
+
+=cut
+*/
+SV*
+Perl_pad_find_outer(pTHX_ PADNAME *pn, CV* cv)
+{
+    SV* sv;
+    PADNAME* out_pn;
+    int out_flags;
+    PERL_ARGS_ASSERT_PAD_FIND_OUTER;
+
+    if (pad_findlex(PadnamePV(pn), PadnameLEN(pn), 0,
+                    CvOUTSIDE(cv), CvOUTSIDE_SEQ(cv), 1,
+                    &sv, &out_pn, &out_flags) != NOT_IN_PAD)
+        return sv;
+    else
+        return NULL;
+}
+
+/*
+=for apidoc Apd|SV*|pad_findmy_real	|PADOFFSET po|CV* cv
+
+Search the pad for a real SV in all outer SVs from the current CV up.
+Skip inner FAKE pads until we get the real outer curpad slot.
+
+Note that only with C<PL_compcv> at compile-time we will encounter fake
+pads. At runtime the current cv padlist has proper pads.
+
+=cut
+*/
+SV*
+Perl_pad_findmy_real(pTHX_ PADOFFSET po, CV* cv)
+{
+    SV* sv = PAD_SV(po);
+    PERL_ARGS_ASSERT_PAD_FINDMY_REAL;
+
+    /* A nested block has a FAKE pad */
+    if (!SvFLAGS(sv) && PAD_COMPNAME_isOUTER(po)) {
+        PADNAME *pn = PAD_COMPNAME(po);
+        SV* outer = pad_find_outer(pn, cv);
+        if (outer)
+            return outer;
+    }
+    return sv;
+}
+
+/*
 =for apidoc m|PADOFFSET|pad_findlex|const char *namepv|STRLEN namelen|U32 flags|const CV* cv|U32 seq|int warn|SV** out_capture|PADNAME** out_name|int *out_flags
 
 Find a named lexical anywhere in a chain of nested pads.  Add fake entries

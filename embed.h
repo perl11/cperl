@@ -493,8 +493,10 @@
 #ifndef NO_MATHOMS
 #define pad_compname_type(a)	Perl_pad_compname_type(aTHX_ a)
 #endif
+#define pad_find_outer(a,b)	Perl_pad_find_outer(aTHX_ a,b)
 #define pad_findmy_pv(a,b)	Perl_pad_findmy_pv(aTHX_ a,b)
 #define pad_findmy_pvn(a,b,c)	Perl_pad_findmy_pvn(aTHX_ a,b,c)
+#define pad_findmy_real(a,b)	Perl_pad_findmy_real(aTHX_ a,b)
 #define pad_findmy_sv(a,b)	Perl_pad_findmy_sv(aTHX_ a,b)
 #define pad_new(a)		Perl_pad_new(aTHX_ a)
 #define pad_tidy(a)		Perl_pad_tidy(aTHX_ a)
