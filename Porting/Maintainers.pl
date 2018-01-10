@@ -1300,7 +1300,7 @@ use File::Glob qw(:case);
     },
 
     'Storable' => {
-        'DISTRIBUTION' => 'RURBAN/Storable-3.05_16.tar.gz',
+        'DISTRIBUTION' => 'TONYC/Storable-3.06.tar.gz',
         'FILES'        => q[dist/Storable],
     },
 

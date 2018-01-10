@@ -312,7 +312,7 @@ my $so = thaw freeze $o;
 
 $refcount_ok = 0;
 thaw freeze(Foo3->new);
-is($refcount_ok, 1);
+is($refcount_ok, 1, "check refcount");
 
 # Check stack overflows [cpan #97526]
 # JSON::XS limits this to 512.
@@ -324,6 +324,7 @@ sub MAX_DEPTH_HASH () { Storable::stack_depth_hash() }
 sub OVERFLOW () { 35000 }
 {
     my $t;
+    print "# max depth ", MAX_DEPTH, "\n";
     $t = [$t] for 1 .. MAX_DEPTH;
     dclone $t;
     pass "can nest ".MAX_DEPTH." array refs";
@@ -344,12 +345,12 @@ sub OVERFLOW () { 35000 }
 
 eval {
     my $t;
-    $t = [$t] for 1 .. OVERFLOW;
+    $t = [$t] for 1 .. MAX_DEPTH*2;
     diag 'trying catching recursive aref stack overflow';
     dclone $t;
 };
 like $@, qr/Max\. recursion depth with nested structures exceeded/,
-      'Caught aref stack overflow '.OVERFLOW;
+      'Caught aref stack overflow '.MAX_DEPTH*2;
 
 if ($ENV{APPVEYOR} and length(pack "p", "") >= 8) {
     # TODO: need to repro this fail on a small machine.
@@ -359,10 +360,10 @@ else {
     eval {
         my $t;
         # 35.000 will cause appveyor 64bit windows to fail earlier
-        $t = {1=>$t} for 1 .. OVERFLOW;
+        $t = {1=>$t} for 1 .. MAX_DEPTH * 2;
         diag 'trying catching recursive href stack overflow';
         dclone $t;
     };
     like $@, qr/Max\. recursion depth with nested structures exceeded/,
-      'Caught href stack overflow '.OVERFLOW;
+      'Caught href stack overflow '.MAX_DEPTH*2;
 }

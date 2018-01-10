@@ -124,6 +124,7 @@ lib/DynaLoader.pod
 lib/ExtUtils/MANIFEST.SKIP
 lib/ExtUtils/xsubpp
 lib/XSLoader.pod
+lib/Storable/Limit.pm
 lib/auto/
 lib/perldoc.pod
 lib/buildcustomize.pl
