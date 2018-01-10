@@ -17418,34 +17418,37 @@ Perl_ck_aelem(pTHX_ OP *o)
         idx = OP_TYPE_IS(ixop, OP_CONST) ? cSVOPx(ixop)->op_sv : NULL;
     }
     /* compile-time check shaped av with const idx */
-    if (OP_TYPE_IS(avop, OP_PADAV) && avop->op_targ) {
-        AV* av = MUTABLE_AV(PAD_SV(avop->op_targ));
-        if (idx && SvIOK(idx) && AvSHAPED(av)) {
+    if (OP_TYPE_IS(avop, OP_PADAV) && avop->op_targ &&
+        idx && SvIOK(idx))
+    {
+        PADOFFSET po = avop->op_targ;
+        AV* av = MUTABLE_AV(pad_findmy_real(po, PL_compcv));
+        if (AvSHAPED(av)) {
             if (UNLIKELY(SvIsUV(idx))) {
                 UV ix = SvUV(idx);
                 if (ix > (UV)AvFILL(av))
                     Perl_die(aTHX_ "Array index out of bounds %s[%" UVuf "]",
-                             PAD_COMPNAME_PV(avop->op_targ), ix);
+                             PAD_COMPNAME_PV(po), ix);
                 else {
                     DEBUG_kv(Perl_deb(aTHX_ "ck_%s shape ok %s[%" UVuf "]\n",
                                       PL_op_name[o->op_type],
-                                      PAD_COMPNAME_PV(avop->op_targ), ix));
+                                      PAD_COMPNAME_PV(po), ix));
                 }
             } else {
                 IV ix = SvIVX(idx);
                 if (PERL_IABS(ix) > AvFILLp(av))
                     Perl_die(aTHX_ "Array index out of bounds %s[%" IVdf "]",
-                             PAD_COMPNAME_PV(avop->op_targ), ix);
+                             PAD_COMPNAME_PV(po), ix);
                 else {
                     DEBUG_kv(Perl_deb(aTHX_ "ck_%s shape ok %s[%" IVdf "]\n",
                                       PL_op_name[o->op_type],
-                                      PAD_COMPNAME_PV(avop->op_targ), ix));
+                                      PAD_COMPNAME_PV(po), ix));
                     if (ix < 0) {
                         ix = AvFILL(av)+1+ix;
                         SvIV_set(idx, ix);
                         DEBUG_kv(Perl_deb(aTHX_ "ck_%s %s[->%" IVdf "]\n",
                                           PL_op_name[o->op_type],
-                                          PAD_COMPNAME_PV(avop->op_targ), ix));
+                                          PAD_COMPNAME_PV(po), ix));
                     }
                 }
             }
@@ -17512,8 +17515,10 @@ Perl_ck_pad(pTHX_ OP *o)
         }
         /* compile-time check invalid ops on shaped av's. duplicate in rpeep
            when the targ is filled in, or op_next is setup */
-        else if (IS_TYPE(o, PADAV) && AvSHAPED(sv)
-                 && OpNEXT(o) && OpNEXT(OpNEXT(o))) {
+        else if (IS_TYPE(o, PADAV)
+                 && OpNEXT(o) && OpNEXT(OpNEXT(o))
+                 && (sv = pad_findmy_real(o->op_targ, PL_compcv))
+                 && AvSHAPED(sv)) {
             OPCODE type = OpNEXT(OpNEXT(o))->op_type;
             /* splice is for now checked at run-time */
             if (type == OP_PUSH  || type == OP_POP

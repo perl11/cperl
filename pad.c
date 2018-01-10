@@ -1108,6 +1108,65 @@ Perl_find_rundefsv2(pTHX_ CV *cv, U32 seq)
 }
 
 /*
+=for apidoc Apd|PADOFFSET|pad_find_outer	|PADNAME *pn|const CV* cv
+
+Search the real pad offset in one of the outer CVs for the fake pad
+entry in the current CV, usually the C<PL_compcv>. See L</pad_findmy_real>.
+
+=cut
+*/
+SV*
+Perl_pad_find_outer(pTHX_ PADNAME *pn, CV* cv)
+{
+    SV* sv;
+    PADNAME* out_pn;
+    int out_flags;
+    PERL_ARGS_ASSERT_PAD_FIND_OUTER;
+
+    if (pad_findlex(PadnamePV(pn), PadnameLEN(pn), padadd_STALEOK,
+                    CvOUTSIDE(cv), CvOUTSIDE_SEQ(cv), 0,
+                    &sv, &out_pn, &out_flags) != NOT_IN_PAD)
+        /* capturing might add a fresh lval pad, so check for NOT_IN_PAD
+           and ignore it then. */
+        return sv;
+    else {
+        /* fresh captured sv is already mortal. just put it back to the free list */
+        if (sv) {
+            SvTEMP_off(sv);
+            Perl_sv_free2(aTHX_ sv, 1);
+        }
+        return NULL;
+    }
+}
+
+/*
+=for apidoc Apd|SV*|pad_findmy_real	|PADOFFSET po|CV* cv
+
+Search the pad for a real SV in all outer SVs from the current CV up.
+Skip inner FAKE pads until we get the real outer curpad slot.
+
+Note that only with C<PL_compcv> at compile-time we will encounter fake
+pads. At runtime the current cv padlist has proper pads.
+
+=cut
+*/
+SV*
+Perl_pad_findmy_real(pTHX_ PADOFFSET po, CV* cv)
+{
+    SV* sv = PAD_SV(po);
+    PERL_ARGS_ASSERT_PAD_FINDMY_REAL;
+
+    /* A nested block has a FAKE pad */
+    if (!SvFLAGS(sv) && PAD_COMPNAME_isOUTER(po)) {
+        PADNAME *pn = PAD_COMPNAME(po);
+        SV* outer = pad_find_outer(pn, cv);
+        if (outer)
+            return outer;
+    }
+    return sv;
+}
+
+/*
 =for apidoc m|PADOFFSET|pad_findlex|const char *namepv|STRLEN namelen|U32 flags|const CV* cv|U32 seq|int warn|SV** out_capture|PADNAME** out_name|int *out_flags
 
 Find a named lexical anywhere in a chain of nested pads.  Add fake entries
@@ -1227,16 +1286,15 @@ S_pad_findlex(pTHX_ const char *namepv, STRLEN namelen, U32 flags, const CV* cv,
 		*out_name = name_p[offset]; /* return the name */
 		*out_flags = PARENT_FAKELEX_FLAGS(*out_name);
 		DEBUG_Xv(PerlIO_printf(Perl_debug_log,
-		    "Pad findlex cv=0x%" UVxf " matched: offset=%ld flags=0x%lx index=%lu\n",
+		    "Pad findlex cv=0x%" UVxf
+                    " matched: offset=%ld flags=0x%lx index=%lu fake\n",
 		    PTR2UV(cv), (long)offset, (unsigned long)*out_flags,
 		    (unsigned long) PARENT_PAD_INDEX(*out_name) 
 		));
 	    }
 
 	    /* return the lex? */
-
 	    if (out_capture) {
-
 		/* our ? */
 		if (PadnameIsOUR(*out_name)) {
 		    *out_capture = NULL;
@@ -1249,9 +1307,7 @@ S_pad_findlex(pTHX_ const char *namepv, STRLEN namelen, U32 flags, const CV* cv,
                     : *out_flags & PAD_FAKELEX_ANON)
 		{
 		    if (warn)
-			S_unavailable(aTHX_
-				      *out_name);
-
+			S_unavailable(aTHX_ *out_name);
 		    *out_capture = NULL;
 		}
 
@@ -1262,8 +1318,7 @@ S_pad_findlex(pTHX_ const char *namepv, STRLEN namelen, U32 flags, const CV* cv,
 			 && !PadnameIsSTATE(name_p[offset])
 			 && warn && ckWARN(WARN_CLOSURE)) {
 			newwarn = 0;
-			/* diag_listed_as: Variable "%s" will not stay
-					   shared */
+			/* diag_listed_as: Variable "%s" will not stay shared */
 			Perl_warner(aTHX_ packWARN(WARN_CLOSURE),
 			    "%se \"%" UTF8f "\" will not stay shared",
 			     *namepv == '&' ? "Subroutin" : "Variabl",
@@ -1287,7 +1342,7 @@ S_pad_findlex(pTHX_ const char *namepv, STRLEN namelen, U32 flags, const CV* cv,
 		    }
 
 		    *out_capture = AvARRAY(PadlistARRAY(padlist)[
-				    CvDEPTH(cv) ? CvDEPTH(cv) : 1])[offset];
+				     CvDEPTH(cv) ? CvDEPTH(cv) : 1])[offset];
 		    DEBUG_Xv(PerlIO_printf(Perl_debug_log,
 			"Pad findlex cv=0x%" UVxf " found lex=0x%" UVxf "\n",
 			PTR2UV(cv), PTR2UV(*out_capture)));
@@ -1317,7 +1372,6 @@ S_pad_findlex(pTHX_ const char *namepv, STRLEN namelen, U32 flags, const CV* cv,
     }
 
     /* it's not in this pad - try above */
-
     if (!CvOUTSIDE(cv))
 	return NOT_IN_PAD;
 
