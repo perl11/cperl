@@ -382,15 +382,12 @@ like $@,
 
     $s = $all255_twice_plus;
     $c = $s =~ tr/\x40-\xbf/\x80-\xbf\x00-\x40/csd;
-    {
-        local $TODO = "missing last 0x40";
-        is $s, join('', map chr,
+    is $s, join('', map chr,
                 0x80..0xbf,
                 (map  { ($_, $_) } 0x40..0xbf),
                 0x00..0x40,
             ),
         "/csd =-U";
-    }
     is $c, 0x140, "/csd =-U count";
 
 
@@ -413,9 +410,7 @@ like $@,
 
     $s = $all255_plus;
     $c = $s =~ tr/\x40-\xbf\xf0-\xff/\x80-\xbf\x00-\x3f/cd;
-    {
-        local $TODO = "missing 30-3f";
-        is $s, join('', map chr,
+    is $s, join('', map chr,
                 0x80..0xbf,
                 0x40..0xbf,
                 0x00..0x2f,
@@ -423,7 +418,6 @@ like $@,
                 0x30..0x3f,
                 ),
             "/cd  <U";
-    }
     is $c, 0x90, "/cd  <U count";
 
     $s = $all255_twice_plus . "\x3f\x3f\x{200}\x{300}";
@@ -442,16 +436,13 @@ like $@,
 
     $s = $all255_twice_plus;
     $c = $s =~ tr/\x40-\xbf\xf0-\xff/\x80-\xbf\x00-\x3f/csd;
-    {
-        local $TODO = "missing 30-3f";
-        is $s, join('', map chr, 0x80..0xbf,
+    is $s, join('', map chr, 0x80..0xbf,
                 (map  { ($_, $_) } 0x40..0xbf),
                 0x00..0x2f,
                 (map  { ($_, $_) } 0xf0..0xff),
                 0x30..0x3f,
             ),
         "/csd <U";
-    }
     is $c, 0x120, "/csd <U count";
 }
 
