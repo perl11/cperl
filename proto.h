@@ -7067,6 +7067,13 @@ PERL_CALLCONV_NO_RET int	Perl_magic_regdatum_set(pTHX_ SV* sv, MAGIC* mg)
 	assert(sv); assert(mg)
 
 #endif
+#if !defined(EBCDIC)
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE unsigned int	S__variant_byte_number(PERL_UINTMAX_T word)
+			__attribute__warn_unused_result__;
+#endif
+
+#endif
 #if !defined(HAS_GETENV_LEN)
 PERL_CALLCONV char*	Perl_getenv_len(pTHX_ const char *env_elem, unsigned long *len)
 			__attribute__nonnull__(pTHX_1)

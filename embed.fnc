@@ -834,21 +834,23 @@ AndmoR	|bool	|is_utf8_invariant_string|NN const U8* const s|STRLEN len
 AnidR	|bool	|is_utf8_invariant_string_loc|NN const U8* const s	    \
 					|STRLEN len			    \
 					|NULLOK const U8 ** ep
+#ifndef EBCDIC
+AniR	|unsigned int|_variant_byte_number|PERL_UINTMAX_T word
+#endif
 #if defined(PERL_CORE) || defined(PERL_EXT)
 EinR	|Size_t	|variant_under_utf8_count|NN const U8* const s		    \
-		|NN const U8* const e
+					|NN const U8* const e
 #endif
 AmnpdRP	|bool	|is_ascii_string	|NN const U8* const s|STRLEN len
 AmnpdRP	|bool	|is_invariant_string	|NN const U8* const s|STRLEN len
 #if defined(PERL_CORE) || defined (PERL_EXT)
 EXnidR	|bool	|is_utf8_non_invariant_string|NN const U8* const s	    \
-		|STRLEN len
+					|STRLEN len
 #endif
 AnpdD	|STRLEN	|is_utf8_char		|NN const U8 *s
 Abmnpd	|STRLEN	|is_utf8_char_buf	|NN const U8 *buf|NN const U8 *buf_end
 AnmdpR	|bool	|is_utf8_string		|NN const U8 *s|STRLEN len
-AnidR	|bool	|is_utf8_string_flags					    \
-		|NN const U8 *s|STRLEN len|const U32 flags
+AnidR	|bool	|is_utf8_string_flags	|NN const U8 *s|STRLEN len|const U32 flags
 AnmdpR	|bool	|is_strict_utf8_string	|NN const U8 *s|STRLEN len
 AnmdpR	|bool	|is_c9strict_utf8_string|NN const U8 *s|STRLEN len
 Anpdmb	|bool	|is_utf8_string_loc					    \
