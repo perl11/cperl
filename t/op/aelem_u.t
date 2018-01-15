@@ -61,21 +61,19 @@ is($a[0], 1, "set const w/o read-only");
 SKIP: {
     skip "no XS::APItest with miniperl", 1 if is_miniperl();
     require XS::APItest;
-    # TODO: aelemfast_lex_u
-    is(XS::APItest::has_cv_opname($cv, "aelemfast_lex"), 1, 'contains aelemfast_lex');
+    is(XS::APItest::has_cv_opname($cv, "aelemfast_lex_u"), 1, 'contains aelemfast_lex_u');
 }
 $a[-1] = 2; # compile-time changed to 4
 is($a[4], 2, "negative constant index");
 
-# mderef_u:
+# mderef:
 my $i = 0;
 $cv = sub { $a[$i] = 1 };
 $cv->();
 SKIP: {
     skip "no XS::APItest with miniperl", 2 if is_miniperl();
-    # TODO: multideref_u
     is(XS::APItest::has_cv_opname($cv, "multideref"), 1, , 'contains mderef');
-    is(XS::APItest::has_cv_aelem_u($cv), 1, 'with uoob elimination');
+    is(XS::APItest::has_cv_aelem_u($cv), "", 'without uoob elimination');
 }
 is($a[$i], 1, "set");
 $i = -1;

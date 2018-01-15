@@ -609,6 +609,16 @@ Fixed endless rpeep compiler loop with a constant loop and a nested loop,
 which e.g. broke C<Net:HTTP>.
 L<[cperl #349]|https://github.com/perl11/cperl/issues/349>.
 
+=item *
+
+Fixed missing compile-time AvSHAPED detection in nested scopes.
+E.g.:
+
+    my @a[1]; sub { $a[0]->[5] = 1 }->(); # mderef_u
+    my @b[1]; sub { $b[0] = 1 }->();      # aelemfast_lex_u
+
+See L<[cperl #354]|https://github.com/perl11/cperl/issues/354>.
+
 =back
 
 =head1 Known Problems
