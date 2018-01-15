@@ -12261,10 +12261,9 @@ Perl_scan_num(pTHX_ const char *start, YYSTYPE* lvalp)
             } else
               floatit = TRUE;
         }
-        if (floatit) {
-            STORE_LC_NUMERIC_UNDERLYING_SET_STANDARD();
-            /* terminate the string */
-            *d = '\0';
+	if (floatit) {
+	    /* terminate the string */
+	    *d = '\0';
             if (UNLIKELY(hexfp)) {
 #  ifdef NV_MANT_DIG
                 if (significant_bits > NV_MANT_DIG)
@@ -12279,7 +12278,6 @@ Perl_scan_num(pTHX_ const char *start, YYSTYPE* lvalp)
             } else {
                 nv = Atof(PL_tokenbuf);
             }
-            RESTORE_LC_NUMERIC_UNDERLYING();
             sv = newSVnv(nv);
         }
 
