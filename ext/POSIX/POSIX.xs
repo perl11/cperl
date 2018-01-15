@@ -2204,7 +2204,7 @@ localeconv()
             }
 	}
 
-        RESTORE_LC_NUMERIC_STANDARD();
+        RESTORE_LC_NUMERIC();
 #endif  /* HAS_LOCALECONV */
     OUTPUT:
 	RETVAL
@@ -3309,7 +3309,7 @@ strtod(str)
 	    else
 		PUSHs(&PL_sv_undef);
 	}
-        RESTORE_LC_NUMERIC_STANDARD();
+        RESTORE_LC_NUMERIC();
 
 #ifdef HAS_STRTOLD
 
@@ -3331,7 +3331,7 @@ strtold(str)
 	    else
 		PUSHs(&PL_sv_undef);
 	}
-        RESTORE_LC_NUMERIC_STANDARD();
+        RESTORE_LC_NUMERIC();
 
 #endif
 
