@@ -1233,6 +1233,7 @@ PPt(pp_multiconcat, "(:List(:Str)):Str")
 STATIC OP*
 S_pushav(pTHX_ AV* const av)
 {
+    SSize_t i;
     dSP;
     const SSize_t elems = AvFILL(av) + 1;
 
@@ -1244,17 +1245,17 @@ S_pushav(pTHX_ AV* const av)
     }
     EXTEND(SP, elems);
     if (UNLIKELY(SvRMAGICAL(av))) {
-        SSize_t i;
         for (i=0; i < elems; i++) {
-            SV ** const svp = av_fetch(av, i, FALSE);
+            SV ** const svp = av_fetch(av, i, TRUE); /* lvalue */
             SP[i+1] = svp ? *svp : UNDEF;
         }
     }
     else {
-        SSize_t i;
         for (i=0; i < elems; i++) {
-            SV * const sv = AvARRAY(av)[i];
-            SP[i+1] = LIKELY(sv) ? sv : UNDEF;
+            SV * sv = AvARRAY(av)[i];
+	    if (!LIKELY(sv))
+		AvARRAY(av)[i] = sv = newSV(0);
+	    SP[i+1] = sv;
         }
     }
     SP += elems;

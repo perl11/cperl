@@ -6,7 +6,7 @@ BEGIN {
     set_up_inc('.', '../lib');
 }
 
-plan (176);
+plan (181);
 
 #
 # @foo, @bar, and @ary are also used from tie-stdarray after tie-ing them
@@ -607,5 +607,21 @@ $#a = -1; $#a++;
 
 sub { undef *_; shift }->(); # This would crash; no ok() necessary.
 sub { undef *_; pop   }->();
+
+# [perl #8910] lazy creation of array elements used to leak out
+{
+    sub t8910 { $_[1] = 5; $_[2] = 7; }
+    my @p;
+    $p[0] = 1;
+    $p[2] = 2;
+    t8910(@p);
+    is "@p", "1 5 7", "lazy element creation with sub call";
+    my @q;
+    @q[0] = 1;
+    @q[2] = 2;
+    my @qr = \(@q);
+    is $qr[$_], \$q[$_], "lazy element creation with refgen" foreach 0..2;
+    isnt $qr[1], \undef, "lazy element creation with refgen";
+}
 
 "We're included by lib/Tie/Array/std.t so we need to return something true";

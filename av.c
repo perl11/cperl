@@ -297,7 +297,7 @@ Perl_av_fetch(pTHX_ AV *av, SSize_t key, I32 lval)
 	    SV *sv;
 	    if (key < 0) {
 		if (!S_adjust_index(aTHX_ av, tied_magic, &key))
-			return NULL;
+                    return NULL;
 	    }
 
             sv = sv_newmortal();
