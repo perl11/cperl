@@ -25,11 +25,11 @@ package Storable; @ISA = qw(Exporter);
         stack_depth stack_depth_hash
 );
 
-use vars qw($canonical $forgive_me $VERSION $XS_VERSION);
+our ($canonical, $forgive_me);
 
-$VERSION = '3.05_16';
-$XS_VERSION = $VERSION;
-$VERSION = eval $VERSION;
+our $VERSION = '3.06';
+#our $XS_VERSION = $VERSION;
+#$VERSION = eval $VERSION;
 
 our $recursion_limit;
 our $recursion_limit_hash;
