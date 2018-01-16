@@ -472,6 +472,7 @@ my $Curdir;
 sub fast_abs_path ($path?) {
     local $ENV{PWD} = $ENV{PWD} || ''; # Guard against clobberage
     my $cwd = getcwd();
+    defined $cwd or return undef;
     require File::Spec;
     unless ($path) {
       $path = ($Curdir ||= File::Spec->curdir);
@@ -483,7 +484,9 @@ sub fast_abs_path ($path?) {
     ($cwd)  = $cwd  =~ /(.*)/s;
 
     unless (-e $path) {
- 	_croak("$path: No such file or directory");
+	require Errno;
+	$! = Errno::ENOENT();
+	return undef;
     }
 
     unless (-d _) {
@@ -494,7 +497,7 @@ sub fast_abs_path ($path?) {
 
 	if (-l $path) {
 	    my $link_target = readlink($path);
-	    die "Can't resolve link $path: $!" unless defined $link_target;
+	    defined $link_target or return undef;
 	    
 	    $link_target = File::Spec->catpath($vol, $dir, $link_target)
                 unless File::Spec->file_name_is_absolute($link_target);
@@ -508,7 +511,7 @@ sub fast_abs_path ($path?) {
     }
 
     if (!CORE::chdir($path)) {
- 	_croak("Cannot chdir to $path: $!");
+	return undef;
     }
     my $realpath = getcwd();
     if (! ((-d $cwd) && (CORE::chdir($cwd)))) {
