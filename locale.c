@@ -1451,14 +1451,18 @@ S_my_nl_langinfo(const int item, bool toggle)
 
     LOCALE_LOCK;
 
+    {
+        DECLARATION_FOR_LC_NUMERIC_MANIPULATION;
+
     if (toggle) {
-            do_setlocale_c(LC_NUMERIC, PL_numeric_name);
+            STORE_LC_NUMERIC_FORCE_TO_UNDERLYING();
     }
 
     save_to_buffer(nl_langinfo(item), &PL_langinfo_buf, &PL_langinfo_bufsize, 0);
 
     if (toggle) {
-        do_setlocale_c(LC_NUMERIC, "C");
+            RESTORE_LC_NUMERIC();
+    }
     }
 
     LOCALE_UNLOCK;
@@ -1506,6 +1510,7 @@ S_my_nl_langinfo(const int item, bool toggle)
 #  ifdef HAS_LOCALECONV
 
         const struct lconv* lc;
+        DECLARATION_FOR_LC_NUMERIC_MANIPULATION;
 
 #  endif
 #  ifdef HAS_STRFTIME
@@ -1584,7 +1589,7 @@ S_my_nl_langinfo(const int item, bool toggle)
                 LOCALE_LOCK;
 
                 if (toggle) {
-                        do_setlocale_c(LC_NUMERIC, PL_numeric_name);
+                    STORE_LC_NUMERIC_FORCE_TO_UNDERLYING();
                 }
 
                 lc = localeconv();
@@ -1604,7 +1609,7 @@ S_my_nl_langinfo(const int item, bool toggle)
                                &PL_langinfo_bufsize, 0);
 
                 if (toggle) {
-                    do_setlocale_c(LC_NUMERIC, "C");
+                    RESTORE_LC_NUMERIC();
                 }
 
                 LOCALE_UNLOCK;
