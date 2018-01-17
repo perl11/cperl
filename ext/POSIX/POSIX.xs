@@ -2151,6 +2151,8 @@ localeconv()
 	RETVAL = newHV();
 	sv_2mortal((SV*)RETVAL);
 
+        LOCALE_LOCK;    /* Prevent interference with other threads using
+                           localeconv() */
         lcbuf = localeconv();
 
 	if (lcbuf) {
@@ -2204,6 +2206,7 @@ localeconv()
             }
 	}
 
+        LOCALE_UNLOCK;
         RESTORE_LC_NUMERIC();
 #endif  /* HAS_LOCALECONV */
     OUTPUT:
