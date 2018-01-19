@@ -1246,8 +1246,12 @@ S_pushav(pTHX_ AV* const av)
     EXTEND(SP, elems);
     if (UNLIKELY(SvRMAGICAL(av))) {
         for (i=0; i < elems; i++) {
-            SV ** const svp = av_fetch(av, i, TRUE); /* lvalue */
-            SP[i+1] = svp ? *svp : UNDEF;
+            SV ** const svp = av_fetch(av, i, FALSE);
+            SP[i+1] = LIKELY(svp)
+                       ? *svp
+                       : UNLIKELY(PL_op->op_flags & OPf_MOD)
+                          ? newSVavdefelem(av,i,1)
+                          : UNDEF;
         }
     }
     else {
@@ -1255,7 +1259,11 @@ S_pushav(pTHX_ AV* const av)
             SV * sv = AvARRAY(av)[i];
 	    if (!LIKELY(sv))
 		AvARRAY(av)[i] = sv = newSV(0);
-	    SP[i+1] = sv;
+	    SP[i+1] = LIKELY(sv)
+                       ? sv
+                       : UNLIKELY(PL_op->op_flags & OPf_MOD)
+                          ? newSVavdefelem(av,i,1)
+                          : UNDEF;
         }
     }
     SP += elems;
