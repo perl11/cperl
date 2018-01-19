@@ -822,12 +822,12 @@ PP(pp_trans)
 	STRLEN len;
 	const char * const pv = SvPV(sv,len);
 	SV * const newsv = newSVpvn_flags(pv, len, SVs_TEMP|SvUTF8(sv));
-	do_trans(newsv);
+	(void)do_trans(newsv);
 	PUSHs(newsv);
     }
     else {
-	I32 i = do_trans(sv);
-	mPUSHi(i);
+	Size_t i = do_trans(sv);
+	mPUSHi((UV)i);
         DEBUG_t(PerlIO_printf(Perl_debug_log, " %d", (int)i));
     }
     DEBUG_t(PerlIO_printf(Perl_debug_log, "\n"));

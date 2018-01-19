@@ -1426,7 +1426,7 @@ PERL_CALLCONV Off_t	Perl_do_tell(pTHX_ GV* gv)
 #define PERL_ARGS_ASSERT_DO_TELL	\
 	assert(gv)
 
-PERL_CALLCONV I32	Perl_do_trans(pTHX_ SV* sv)
+PERL_CALLCONV Size_t	Perl_do_trans(pTHX_ SV* sv)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DO_TRANS	\
 	assert(sv)
@@ -8211,37 +8211,37 @@ STATIC IO *	S_openn_setup(pTHX_ GV *gv, char *mode, PerlIO **saveifp, PerlIO **s
 
 #endif
 #if defined(PERL_IN_DOOP_C)
-STATIC I32	S_do_trans_complex(pTHX_ SV * const sv)
+STATIC Size_t	S_do_trans_complex(pTHX_ SV * const sv)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DO_TRANS_COMPLEX	\
 	assert(sv)
 
-STATIC I32	S_do_trans_complex_utf8(pTHX_ SV * const sv)
+STATIC Size_t	S_do_trans_complex_utf8(pTHX_ SV * const sv)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DO_TRANS_COMPLEX_UTF8	\
 	assert(sv)
 
-STATIC I32	S_do_trans_count(pTHX_ SV * const sv)
+STATIC Size_t	S_do_trans_count(pTHX_ SV * const sv)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DO_TRANS_COUNT	\
 	assert(sv)
 
-STATIC I32	S_do_trans_count_utf8(pTHX_ SV * const sv)
+STATIC Size_t	S_do_trans_count_utf8(pTHX_ SV * const sv)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DO_TRANS_COUNT_UTF8	\
 	assert(sv)
 
-STATIC I32	S_do_trans_simple(pTHX_ SV * const sv)
+STATIC Size_t	S_do_trans_simple(pTHX_ SV * const sv)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DO_TRANS_SIMPLE	\
 	assert(sv)
 
-STATIC I32	S_do_trans_simple_utf8(pTHX_ SV * const sv)
+STATIC Size_t	S_do_trans_simple_utf8(pTHX_ SV * const sv)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DO_TRANS_SIMPLE_UTF8	\
