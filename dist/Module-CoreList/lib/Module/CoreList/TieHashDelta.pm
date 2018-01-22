@@ -1,9 +1,7 @@
 # For internal Module::CoreList use only.
 package Module::CoreList::TieHashDelta;
 use strict;
-use vars qw($VERSION);
-
-$VERSION = '5.20180108c';
+our $VERSION = '5.20180222c';
 $VERSION =~ s/c$//;
 
 sub TIEHASH {

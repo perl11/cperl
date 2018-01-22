@@ -2,11 +2,11 @@ package Module::CoreList::Utils;
 
 use strict;
 use warnings;
-use vars qw[$VERSION %utilities];
 use Module::CoreList;
 
-$VERSION = '5.20180108c';
+our $VERSION = '5.20180222c';
 $VERSION =~ s/c$//;
+our %utilities;
 
 sub utilities {
     my $perl = shift;
@@ -1464,7 +1464,7 @@ our %delta :const = (
     },
 );
 
-our %utilities = Module::CoreList::_undelta(\%delta);
+%utilities = Module::CoreList::_undelta(\%delta);
 
 # Create aliases with trailing zeros for $] use
 

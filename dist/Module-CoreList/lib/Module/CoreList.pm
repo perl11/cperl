@@ -1,10 +1,10 @@
 package Module::CoreList;
 use strict;
-use vars qw/$VERSION %released %version %families %upstream
-	    %bug_tracker %deprecated %delta/;
 use version;
-$VERSION = '5.20180108c';
+our $VERSION = '5.20180222c';
 $VERSION =~ s/c$//;
+our (%version, %released, %families, %upstream,
+     %bug_tracker, %deprecated, %delta);
 
 sub PKG_PATTERN () { q#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z# }
 sub _looks_like_invocant ($) { local $@; !!eval { $_[0]->isa(__PACKAGE__) } }
@@ -171,7 +171,7 @@ sub changes_between {
 # NB. If you put version numbers with trailing zeroes here, you
 # should also add an alias for the numerical ($]) version; see
 # just before the __END__ of this module.
-our %released = (
+%released = (
     5.000    => '1994-10-17',
     5.001    => '1995-03-14',
     5.002    => '1996-02-29',
@@ -375,7 +375,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
     push @{ $families{ $family }} , $version;
 }
 
-our %delta = (
+%delta = (
     5 => {
         changed => {
             'AnyDBM_File'           => undef,
@@ -16433,6 +16433,11 @@ sub is_core
     # On the way if we pass the required module version, we can
     # short-circuit and return true
     if (defined($module_version)) {
+        my $module_version_object = eval { version->parse($module_version) };
+        if (!defined($module_version_object)) {
+            (my $err = $@) =~ s/^Invalid version format\b/Invalid version '$module_version' specified/;
+            die $err;
+        }
         # The Perl releases aren't a linear sequence, but a tree. We need to build the path
         # of releases from 5 to the specified release, and follow the module's version(s)
         # along that path.
@@ -16450,7 +16455,7 @@ sub is_core
             last RELEASE if $prn > $perl_version;
             next unless defined(my $next_module_version
                                    = $delta{$prn}->{changed}->{$module});
-            return 1 if version->parse($next_module_version) >= version->parse($module_version);
+            return 1 if eval { version->parse($next_module_version) >= $module_version_object };
         }
         return 0;
     }
@@ -16460,9 +16465,9 @@ sub is_core
     return $perl_version <= $final_release;
 }
 
-our %version = _undelta(\%delta);
+%version = _undelta(\%delta);
 
-our %deprecated = (
+%deprecated = (
     5.011    => {
         changed => { map { $_ => 1 } qw/
             Class::ISA
@@ -17319,7 +17324,7 @@ our %deprecated = (
 
 %deprecated = _undelta(\%deprecated);
 
-our %upstream :const = (
+%upstream = (
     'App::Cpan'             => 'cpan',
     'App::Prove'            => 'cpan',
     'App::Prove::State'     => 'cpan',
@@ -17643,7 +17648,7 @@ our %upstream :const = (
     'version::vpp'          => 'cpan',
 );
 
-our %bug_tracker :const = (
+%bug_tracker = (
     'App::Cpan'             => undef,
     'App::Prove'            => 'http://rt.cpan.org/Public/Dist/Display.html?Name=Test-Harness',
     'App::Prove::State'     => 'http://rt.cpan.org/Public/Dist/Display.html?Name=Test-Harness',
