@@ -1,7 +1,7 @@
 package Module::CoreList;
 use strict;
 use version;
-our $VERSION = '5.20180222c';
+our $VERSION = '5.20180220c';
 $VERSION =~ s/c$//;
 our (%version, %released, %families, %upstream,
      %bug_tracker, %deprecated, %delta);
