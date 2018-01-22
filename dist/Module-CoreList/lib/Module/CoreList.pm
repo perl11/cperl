@@ -1,10 +1,11 @@
 package Module::CoreList;
 use strict;
+
+our ( %released, %version, %families, %upstream, %bug_tracker, %deprecated, %delta );
+
 use version;
 our $VERSION = '5.20180220c';
 $VERSION =~ s/c$//;
-our (%version, %released, %families, %upstream,
-     %bug_tracker, %deprecated, %delta);
 
 sub PKG_PATTERN () { q#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z# }
 sub _looks_like_invocant ($) { local $@; !!eval { $_[0]->isa(__PACKAGE__) } }
@@ -16339,9 +16340,8 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
         delta_from => '5.027002c',
         changed => {
             'B::Op_private'         => '5.027003',
-            'Module::CoreList'      => '5.20180105c',
-            'Module::CoreList::Utils'=> '5.20180105c',
-            'Module::CoreList::TieHashDelta'=> '5.20171205',
+            'Module::CoreList'      => '5.20180220c',
+            'Module::CoreList::Utils'=> '5.20180220c',
             'Attribute::Handlers'   => '1.00_01',
             'B::C'                  => '1.55_08',
             'B::CC'                 => '1.16_02',
@@ -16380,6 +16380,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'XSLoader'              => '1.04c',
         },
         removed => {
+            'Module::CoreList::TieHashDelta'=> '5.20180220c',
             'Locale::Codes'         => '3.55',
             'Locale::Codes::Constants'=> '3.55',
             'Locale::Codes::Country'=> '3.55',
