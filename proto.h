@@ -399,6 +399,11 @@ PERL_CALLCONV AV*	Perl_av_make(pTHX_ SSize_t size, SV **strp)
 #define PERL_ARGS_ASSERT_AV_MAKE	\
 	assert(strp)
 
+PERL_CALLCONV SV*	Perl_av_nonelem(pTHX_ AV *av, SSize_t ix)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_AV_NONELEM	\
+	assert(av)
+
 PERL_CALLCONV SV*	Perl_av_pop(pTHX_ AV *av)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
@@ -3420,6 +3425,12 @@ PERL_CALLCONV int	Perl_magic_setnkeys(pTHX_ SV* sv, MAGIC* mg)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_MAGIC_SETNKEYS	\
+	assert(sv); assert(mg)
+
+PERL_CALLCONV int	Perl_magic_setnonelem(pTHX_ SV* sv, MAGIC* mg)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_MAGIC_SETNONELEM	\
 	assert(sv); assert(mg)
 
 PERL_CALLCONV int	Perl_magic_setpack(pTHX_ SV* sv, MAGIC* mg)

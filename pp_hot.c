@@ -1250,7 +1250,7 @@ S_pushav(pTHX_ AV* const av)
             SP[i+1] = LIKELY(svp)
                        ? *svp
                        : UNLIKELY(PL_op->op_flags & OPf_MOD)
-                          ? newSVavdefelem(av,i,1)
+                          ? av_nonelem(av,i)
                           : UNDEF;
         }
     }
@@ -1260,7 +1260,7 @@ S_pushav(pTHX_ AV* const av)
 	    SP[i+1] = LIKELY(sv)
                        ? sv
                        : UNLIKELY(PL_op->op_flags & OPf_MOD)
-                          ? newSVavdefelem(av,i,1)
+                          ? av_nonelem(av,i)
                           : UNDEF;
         }
     }
