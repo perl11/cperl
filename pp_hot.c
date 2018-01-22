@@ -1257,8 +1257,6 @@ S_pushav(pTHX_ AV* const av)
     else {
         for (i=0; i < elems; i++) {
             SV * sv = AvARRAY(av)[i];
-	    if (!LIKELY(sv))
-		AvARRAY(av)[i] = sv = newSV(0);
 	    SP[i+1] = LIKELY(sv)
                        ? sv
                        : UNLIKELY(PL_op->op_flags & OPf_MOD)
