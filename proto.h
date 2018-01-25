@@ -7600,10 +7600,9 @@ STATIC const regnode*	S_dumpuntil(pTHX_ const regexp *r, const regnode *start, c
 
 STATIC bool	S_put_charclass_bitmap_innards(pTHX_ SV* sv, char* bitmap, SV* nonbitmap_invlist, SV* only_utf8_locale_invlist, const regnode * const node, const bool force_as_is_display)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2);
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_PUT_CHARCLASS_BITMAP_INNARDS	\
-	assert(sv); assert(bitmap)
+	assert(sv)
 
 STATIC SV*	S_put_charclass_bitmap_innards_common(pTHX_ SV* invlist, SV* posixes, SV* only_utf8, SV* not_utf8, SV* only_utf8_locale, const bool invert)
 			__attribute__global__
@@ -10198,12 +10197,18 @@ STATIC char *	S_find_next_non_ascii(char* s, const char * send, const bool is_ut
 	assert(s); assert(send)
 
 STATIC char *	S_find_span_end(char* s, const char * send, const char span_byte)
-			__attribute__warn_unused_result__;
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(1)
+			__attribute__nonnull__(2);
 #define PERL_ARGS_ASSERT_FIND_SPAN_END	\
 	assert(s); assert(send)
 
 STATIC U8 *	S_find_span_end_mask(U8 * s, const U8 * send, const U8 span_byte, const U8 mask)
-			__attribute__warn_unused_result__;
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(1)
+			__attribute__nonnull__(2);
 #define PERL_ARGS_ASSERT_FIND_SPAN_END_MASK	\
 	assert(s); assert(send)
 
