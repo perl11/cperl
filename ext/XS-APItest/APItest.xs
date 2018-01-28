@@ -1469,13 +1469,12 @@ test_utf8n_to_uvchr_msgs(s, len, flags)
 AV *
 test_utf8n_to_uvchr_error(s, len, flags)
 
-        SV *s
-        SV *len
-        SV *flags
+        char *s
+        STRLEN len
+        U32 flags
     PREINIT:
         STRLEN retlen;
         UV ret;
-        STRLEN slen;
         U32 errors;
 
     CODE:
@@ -1488,10 +1487,10 @@ test_utf8n_to_uvchr_error(s, len, flags)
         RETVAL = newAV();
         sv_2mortal((SV*)RETVAL);
 
-        ret = utf8n_to_uvchr_error((U8*) SvPV(s, slen),
-                                         SvUV(len),
+        ret = utf8n_to_uvchr_error((U8*) s,
+                                         len,
                                          &retlen,
-                                         SvUV(flags),
+                                         flags,
                                          &errors);
 
         /* Returns the return value in [0]; <retlen> in [1], <errors> in [2] */
