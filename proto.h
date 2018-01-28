@@ -6719,6 +6719,12 @@ PERL_CALLCONV UV	Perl_utf8n_to_uvchr_error(pTHX_ const U8 *s, STRLEN curlen, STR
 #define PERL_ARGS_ASSERT_UTF8N_TO_UVCHR_ERROR	\
 	assert(s)
 
+PERL_CALLCONV UV	Perl_utf8n_to_uvchr_msgs(pTHX_ const U8 *s, STRLEN curlen, STRLEN *retlen, const U32 flags, U32 * errors, AV ** msgs)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_UTF8N_TO_UVCHR_MSGS	\
+	assert(s)
+
 PERL_CALLCONV UV	Perl_utf8n_to_uvuni(pTHX_ const U8 *s, STRLEN curlen, STRLEN *retlen, U32 flags)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
