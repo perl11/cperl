@@ -241,10 +241,14 @@ fix autovivification bug with hash slice args to a function.
 fix upstream deflate.
 See L<https://github.com/madler/zlib/pull/327>
 
-=item L<Cpanel::JSON::XS> 3.0240
+=item L<Cpanel::JSON::XS> 4.01
 
 Simplify C<allow_singlequote> check, coverity cid #165321.
 Remove logical dead code.
+
+Added Cpanel::JSON::XS::Type as 2nd optional encode argument.
+Removed calling get magic hooks twice in encode.
+Fix setlocale thread race for older perls.
 
 =item L<Data::Dumper>  2.167_03
 

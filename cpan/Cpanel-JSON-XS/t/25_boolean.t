@@ -1,6 +1,7 @@
 use strict;
 use Test::More tests => 32;
 use Cpanel::JSON::XS ();
+use Config;
 
 my $booltrue  = q({"is_true":true});
 my $boolfalse = q({"is_false":false});
@@ -60,22 +61,28 @@ SKIP: {
   is( $nonref_cjson->encode( do{utf8::is_utf8($utf8)} ), "true", "map do{utf8::is_utf8(\$utf8)} to true");
 }
 
-# GH #39
-# perl expression which evaluates to sv_no or sv_yes
-SKIP: {
-  # implemented in 5.16 but broken, works since 5.20
-  skip 'Perl 5.20 is needed for boolean tests based on !1 and !0', 4 if $] < 5.020;
-  is( $nonref_cjson->encode( !1 ), "false", "map !1 to false");
-  is( $nonref_cjson->encode( !1 ), "false", "map !1 to false");
-  is( $nonref_cjson->encode( !0 ), "true", "map !0 to true");
-  is( $nonref_cjson->encode( !0 ), "true", "map !0 to true");
+# GH #39 stringification. enabled with 5.16, stable fix with 5.20
+if ($] < 5.020 && $Config{useithreads}) {
+  # random results threaded
+  my ($strue, $sfalse) = (qr/^(1|true)$/, qr/^(""||false)$/);
+  like( $nonref_cjson->encode( !1 ), $sfalse, "map !1 to false");
+  like( $nonref_cjson->encode( !1 ), $sfalse, "map !1 to false");
+  like( $nonref_cjson->encode( !0 ), $strue, "map !0 to 1/true");
+  like( $nonref_cjson->encode( !0 ), $strue, "map !0 to 1/true");
+} else {
+  # perl expression which evaluates to stable sv_no or sv_yes
+  my ($strue, $sfalse) = ("true", "false");
+  is( $nonref_cjson->encode( !1 ), $sfalse, "map !1 to false");
+  is( $nonref_cjson->encode( !1 ), $sfalse, "map !1 to false");
+  is( $nonref_cjson->encode( !0 ), $strue, "map !0 to true");
+  is( $nonref_cjson->encode( !0 ), $strue, "map !0 to true");
 }
 
 $js = $cjson->decode( $truefalse );
 ok ($js->[0] == $true,  "decode true to yes");
 ok ($js->[1] == $false, "decode false to no");
-ok( Cpanel::JSON::XS::is_bool($js->[0]) );
-ok( Cpanel::JSON::XS::is_bool($js->[1]) );
+ok( Cpanel::JSON::XS::is_bool($js->[0]), "true is_bool");
+ok( Cpanel::JSON::XS::is_bool($js->[1]), "false is_bool");
 
 # GH #53
-ok( !Cpanel::JSON::XS::is_bool( [] ) );
+ok( !Cpanel::JSON::XS::is_bool( [] ), "[] !is_bool");

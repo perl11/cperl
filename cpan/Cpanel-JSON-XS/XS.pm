@@ -1,5 +1,5 @@
 package Cpanel::JSON::XS;
-our $VERSION = '3.0240';
+our $VERSION = '4.01';
 our $XS_VERSION = $VERSION;
 # $VERSION = eval $VERSION;
 
@@ -231,7 +231,7 @@ exported by default:
 
 =over 4
 
-=item $json_text = encode_json $perl_scalar
+=item $json_text = encode_json $perl_scalar, [json_type]
 
 Converts the given Perl data structure to a UTF-8 encoded, binary string
 (that is, the string contains octets only). Croaks on error.
@@ -241,6 +241,8 @@ This function call is functionally identical to:
    $json_text = Cpanel::JSON::XS->new->utf8->encode ($perl_scalar)
 
 Except being faster.
+
+For the type argument see L<Cpanel::JSON::XS::Type>.
 
 =item $perl_scalar = decode_json $json_text [, $allow_nonref ]
 
@@ -1336,6 +1338,11 @@ See also L<http://www.unicode.org/faq/utf_bom.html#BOM>.
 Beware that Cpanel::JSON::XS is currently the only JSON module which
 does accept and decode a BOM.
 
+The latest JSON spec
+L<https://www.greenbytes.de/tech/webdav/rfc8259.html#character.encoding>
+forbid the usage of UTF-16 or UTF-32, the character encoding is UTF-8.
+Thus in subsequent updates BOM's of UTF-16 or UTF-32 will throw an error.
+
 =head1 MAPPING
 
 This section describes how Cpanel::JSON::XS maps Perl values to JSON
@@ -1403,6 +1410,13 @@ the C<Cpanel::JSON::XS::is_bool> function.
 The other round, from perl to JSON, C<!0> which is represented as
 C<yes> becomes C<true>, and C<!1> which is represented as
 C<no> becomes C<false>.
+
+Via L<Cpanel::JSON::XS::Type> you can now even force negation in C<encode>,
+without overloading of C<!>:
+
+    my $false = Cpanel::JSON::XS::false;
+    print($json->encode([!$false], [JSON_TYPE_BOOL]));
+    => [true]
 
 =item null
 
@@ -1967,7 +1981,8 @@ JSON::XS, Cpanel::JSON::XS produce JSON::PP::Boolean objects, just
 Mojo and JSON::YAJL not.  Mojo produces Mojo::JSON::_Bool and
 JSON::YAJL::Parser just an unblessed IV.
 
-Cpanel::JSON::XS accepts JSON::PP::Boolean and Mojo::JSON::_Bool objects as booleans.
+Cpanel::JSON::XS accepts JSON::PP::Boolean and Mojo::JSON::_Bool
+objects as booleans.
 
 I cannot think of any reason to still use JSON::XS anymore.
 
@@ -2181,35 +2196,12 @@ sub allow_bigint {
     Carp::carp("allow_bigint() is obsoleted. use allow_bignum() instead.");
 }
 
-our ($true, $false);
 BEGIN {
-  if ($INC{'JSON/XS.pm'}
-      and $INC{'Types/Serialiser.pm'}
-      and $JSON::XS::VERSION ge "3.00") {
-    $true  = $Types::Serialiser::true; # readonly if loaded by JSON::XS
-    $false = $Types::Serialiser::false;
-  } else {
-    $true  = do { bless \(my $dummy = 1), "JSON::PP::Boolean" };
-    $false = do { bless \(my $dummy = 0), "JSON::PP::Boolean" };
-  }
-}
+  package
+    JSON::PP::Boolean;
 
-sub true()  { $true  }
-sub false() { $false }
-sub is_bool($) {
-  shift if @_ == 2; # as method call
-  (ref($_[0]) and UNIVERSAL::isa( $_[0], JSON::PP::Boolean::))
-  or (exists $INC{'Types/Serialiser.pm'} and Types::Serialiser::is_bool($_[0]))
-}
+  require overload;
 
-XSLoader::load 'Cpanel::JSON::XS', $XS_VERSION;
-
-package
-  JSON::PP::Boolean;
-
-use overload ();
-
-BEGIN {
   local $^W; # silence redefine warnings. no warnings 'redefine' does not help
   &overload::import( 'overload', # workaround 5.6 reserved keyword warning
     "0+"     => sub { ${$_[0]} },
@@ -2227,6 +2219,34 @@ BEGIN {
     },
     fallback => 1);
 }
+
+our ($true, $false);
+BEGIN {
+  if ($INC{'JSON/XS.pm'}
+      and $INC{'Types/Serialiser.pm'}
+      and $JSON::XS::VERSION ge "3.00") {
+    $true  = $Types::Serialiser::true; # readonly if loaded by JSON::XS
+    $false = $Types::Serialiser::false;
+  } else {
+    $true  = do { bless \(my $dummy = 1), "JSON::PP::Boolean" };
+    $false = do { bless \(my $dummy = 0), "JSON::PP::Boolean" };
+  }
+}
+
+BEGIN {
+  my $const_true  = $true;
+  my $const_false = $false;
+  *true  = sub () { $const_true  };
+  *false = sub () { $const_false };
+}
+
+sub is_bool($) {
+  shift if @_ == 2; # as method call
+  (ref($_[0]) and UNIVERSAL::isa( $_[0], JSON::PP::Boolean::))
+  or (exists $INC{'Types/Serialiser.pm'} and Types::Serialiser::is_bool($_[0]))
+}
+
+XSLoader::load 'Cpanel::JSON::XS', $XS_VERSION;
 
 1;
 
@@ -2246,9 +2266,9 @@ L<https://tools.ietf.org/html/rfc4627>
 
 =head1 AUTHOR
 
-Marc Lehmann <schmorp@schmorp.de>, http://home.schmorp.de/
-
 Reini Urban <rurban@cpan.org>
+
+Marc Lehmann <schmorp@schmorp.de>, http://home.schmorp.de/
 
 =head1 MAINTAINER
 

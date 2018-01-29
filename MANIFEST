@@ -402,6 +402,7 @@ cpan/Cpanel-JSON-XS/t/114_decode_prefix.t
 cpan/Cpanel-JSON-XS/t/115_tie_ixhash.t
 cpan/Cpanel-JSON-XS/t/116_incr_parse_fixed.t
 cpan/Cpanel-JSON-XS/t/117_numbers.t
+cpan/Cpanel-JSON-XS/t/118_type.t
 cpan/Cpanel-JSON-XS/t/11_pc_expo.t
 cpan/Cpanel-JSON-XS/t/12_blessed.t
 cpan/Cpanel-JSON-XS/t/13_limit.t
@@ -437,6 +438,7 @@ cpan/Cpanel-JSON-XS/typemap
 cpan/Cpanel-JSON-XS/XS.pm
 cpan/Cpanel-JSON-XS/XS.xs
 cpan/Cpanel-JSON-XS/XS/Boolean.pm
+cpan/Cpanel-JSON-XS/XS/Type.pm
 cpan/DB_File/config.in		Part of Berkeley DB configuration
 cpan/DB_File/DB_File.pm		Berkeley DB extension Perl module
 cpan/DB_File/DB_File.xs		Berkeley DB extension external subroutines
