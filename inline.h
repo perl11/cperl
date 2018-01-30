@@ -516,8 +516,6 @@ S_is_utf8_invariant_string_loc(const U8* const s, STRLEN len, const U8 ** ep)
     return TRUE;
 }
 
-#ifndef EBCDIC
-
 PERL_STATIC_INLINE unsigned int
 S__variant_byte_number(PERL_UINTMAX_T word)
 {
@@ -625,7 +623,6 @@ S__variant_byte_number(PERL_UINTMAX_T word)
     return (unsigned int) word;
 }
 
-#endif /* ! EBCDIC */
 #if defined(PERL_CORE) || defined(PERL_EXT)
 
 /*
