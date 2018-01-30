@@ -61,6 +61,7 @@ typedef struct yy_parser {
 				   1 = @{...}  2 = ->@ */
     expectation	expect;		/* how to interpret ambiguous tokens. <5.6 enum, <5.10 int */
     bool	preambled;
+    bool        sub_no_recover; /* can't recover from a sublex error */
     I32		lex_formbrack;	/* bracket count at outer format level */
     OP		*lex_inpat;	/* in pattern $) and $| are special */
     OP		*lex_op;	/* extra info to pass back on op */
@@ -107,6 +108,7 @@ typedef struct yy_parser {
     line_t	preambling;	/* line # when processing $ENV{PERL5DB} */
     U8		lex_state;	/* next token is determined */
     U8		error_count;	/* how many compile errors so far, max 10 */
+    U8		sub_error_count; /* the number of errors before sublexing */
     U8		in_my;		/* we're compiling a "my"/"our" declaration */
     U8		form_lex_state;	/* remember lex_state when parsing fmt */
     U8		nexttoke;
