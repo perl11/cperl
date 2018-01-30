@@ -46,7 +46,7 @@ Devel::PPPort dist/Devel-PPPort/parts/inc/ppphbin e700553a5f9b790f3f712394658a86
 Devel::PPPort dist/Devel-PPPort/parts/todo/5013007 0446df4a31dcd58b8e27ab9e810711f0e4840fee
 Devel::PPPort dist/Devel-PPPort/parts/todo/5015004 4bdb7b2545380ade42e22dbb097f7fbf07737393
 Devel::PPPort dist/Devel-PPPort/ppport_h.PL 3aa0b958adf67a9b9385bf2b5b89ecf8cdd391c7
-Devel::PPPort dist/Devel-PPPort/PPPort_pm.PL 120fd697c0905b292938ca1394cd5dc4b6ea9a32
+Devel::PPPort dist/Devel-PPPort/PPPort_pm.PL 7c68bfe6327a8a397f99ad88263e4d280f2a0e33
 Devel::PPPort dist/Devel-PPPort/PPPort_xs.PL 034cce281a0017fe0ba05d9060f34a8c65781553
 Devel::PPPort dist/Devel-PPPort/t/testutil.pl 6d9502a22d0df23ba42f6b808c9c7d5fe65f5024
 Digest::MD5 cpan/Digest-MD5/Makefile.PL 3b5b9693e5a22f5189878d84833b10f98136e619
