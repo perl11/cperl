@@ -7,9 +7,9 @@
 # See also t/porting/bench_selftest.t
 
 BEGIN {
-    chdir '..' if -f 'test.pl' && -f 'thread_it.pl';
+    chdir '..' if -f 'test.pl';
+    @INC = ( './lib' );
     require './t/test.pl';
-    push @INC, 'lib';
 }
 
 use warnings;
