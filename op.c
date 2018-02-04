@@ -11764,9 +11764,12 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	   Also, we may be called from load_module at run time, so
 	   PL_curstash (which sets CvSTASH) may not point to the stash the
 	   sub is stored in.  */
+	/* XXX This optimization is currently disabled for packages other
+	       than main, since there was too much CPAN breakage.  */
 	const I32 flags =
 	   ec ? GV_NOADD_NOINIT
-	      :   PL_curstash != CopSTASH(PL_curcop)
+	      :   (IN_PERL_RUNTIME && PL_curstash != CopSTASH(PL_curcop))
+	       || PL_curstash != PL_defstash
 	       || memchr(name, ':', namlen)
 #ifndef PERL_NO_QUOTE_PKGSEPERATOR
                || memchr(name, '\'', namlen)

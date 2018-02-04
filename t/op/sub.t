@@ -415,7 +415,7 @@ is ref($main::{rt_129916}), 'CODE', 'simple sub stored as CV in stash (main::)';
     sub foo { $lex }
 }
 {
-    local $TODO = "CV symbol table optimization only works in main:: [perl #129916]";
+    local $::TODO = "disabled for now [perl #129916]";
     is ref($RT129916::{foo}), 'CODE', 'simple sub stored as CV in stash (non-main::)';
 }
 
