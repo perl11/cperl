@@ -6741,10 +6741,20 @@ PERL_CALLCONV void	Perl_utilize(pTHX_ int aver, I32 floor, OP* version, OP* idop
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1); */
 
+/* PERL_CALLCONV U8*	uvchr_to_utf8_flags_msgs(pTHX_ U8 *d, UV uv, UV flags, HV ** msgs)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1); */
+
 PERL_CALLCONV U8*	Perl_uvoffuni_to_utf8_flags(pTHX_ U8 *d, UV uv, const UV flags)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_UVOFFUNI_TO_UTF8_FLAGS	\
+	assert(d)
+
+PERL_CALLCONV U8*	Perl_uvoffuni_to_utf8_flags_msgs(pTHX_ U8 *d, UV uv, const UV flags, HV** msgs)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_UVOFFUNI_TO_UTF8_FLAGS_MSGS	\
 	assert(d)
 
 PERL_CALLCONV U8*	Perl_uvuni_to_utf8(pTHX_ U8 *d, UV uv)
@@ -10851,7 +10861,8 @@ PERL_STATIC_INLINE int	S_is_utf8_overlong_given_start_byte_ok(const U8 * const s
 #endif
 
 STATIC HV *	S_new_msg_hv(pTHX_ const char * const message, U32 categories, U32 flag)
-			__attribute__warn_unused_result__;
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_NEW_MSG_HV	\
 	assert(message)
 
