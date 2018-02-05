@@ -2717,6 +2717,7 @@ PP(pp_redo)
 }
 
 #define UNENTERABLE (OP *)1
+#define GOTO_DEPTH 64
 
 STATIC OP *
 S_dofindlabel(pTHX_ OP *o, const char *label, STRLEN len, U32 flags, OP **opstack, OP **oplimit)
@@ -2739,18 +2740,20 @@ S_dofindlabel(pTHX_ OP *o, const char *label, STRLEN len, U32 flags, OP **opstac
         assert(has_kids);
 	*ops++ = OpFIRST(o);
     }
-    else if (has_kids && OpFIRST(o)->op_type == OP_PUSHMARK) {
-	*ops++ = UNENTERABLE;
-    }
-    else if (has_kids && PL_opargs[o->op_type]
-	  && OP_CLASS(o) != OA_LOGOP
-	  && o->op_type != OP_LINESEQ
-	  && o->op_type != OP_SREFGEN
-	  && o->op_type != OP_ENTEREVAL
-	  && o->op_type != OP_RV2CV) {
-	OP * const kid = OpFIRST(o);
-	if (OP_GIMME(kid, 0) != G_SCALAR || OpHAS_SIBLING(kid))
-	    *ops++ = UNENTERABLE;
+    else if (oplimit - opstack < GOTO_DEPTH) {
+        if (has_kids && OpFIRST(o)->op_type == OP_PUSHMARK) {
+            *ops++ = UNENTERABLE;
+        }
+        else if (has_kids && PL_opargs[o->op_type]
+                 && OP_CLASS(o) != OA_LOGOP
+                 && o->op_type != OP_LINESEQ
+                 && o->op_type != OP_SREFGEN
+                 && o->op_type != OP_ENTEREVAL
+                 && o->op_type != OP_RV2CV) {
+            OP * const kid = OpFIRST(o);
+            if (OP_GIMME(kid, 0) != G_SCALAR || OpHAS_SIBLING(kid))
+                *ops++ = UNENTERABLE;
+        }
     }
     if (ops >= oplimit)
 	Perl_croak(aTHX_ "%s", too_deep);
@@ -2763,7 +2766,7 @@ S_dofindlabel(pTHX_ OP *o, const char *label, STRLEN len, U32 flags, OP **opstac
                 STRLEN kid_label_len;
                 U32 kid_label_flags;
 		const char *kid_label = CopLABEL_len_flags(kCOP,
-                                                    &kid_label_len, &kid_label_flags);
+                                            &kid_label_len, &kid_label_flags);
 		if (kid_label && (
                     ( (kid_label_flags & SVf_UTF8) != (flags & SVf_UTF8) ) ?
                         (flags & SVf_UTF8)
@@ -2805,9 +2808,10 @@ S_check_op_type(pTHX_ OP * const o)
     /* Eventually we may want to stack the needed arguments
      * for each op.  For now, we punt on the hard ones. */
     /* XXX This comment seems to me like wishful thinking.  --sprout */
-    if (o == UNENTERABLE)
+    if (o == UNENTERABLE) {
 	Perl_croak(aTHX_
                   "Can't \"goto\" into a binary or list expression");
+    }
     if (o->op_type == OP_ENTERITER)
         Perl_croak(aTHX_
                   "Can't \"goto\" into the middle of a foreach loop");
@@ -2824,7 +2828,6 @@ PP(pp_goto)
     OP *retop = NULL;
     I32 ix;
     PERL_CONTEXT *cx;
-#define GOTO_DEPTH 64
     OP *enterops[GOTO_DEPTH];
     const char *label = NULL;
     STRLEN label_len = 0;
@@ -3323,6 +3326,9 @@ PP(pp_goto)
 
 	if (*enterops && enterops[1]) {
 	    OP * const oldop = PL_op;
+            if (enterops[0] == UNENTERABLE) {
+                enterops[0] = newOP(OP_NULL, 0);
+            }
 	    ix = enterops[1] != UNENTERABLE
 	      && enterops[1]->op_type == OP_ENTER && in_block
 		   ? 2
@@ -3330,6 +3336,8 @@ PP(pp_goto)
 	    for (; enterops[ix]; ix++) {
 		PL_op = enterops[ix];
 		S_check_op_type(aTHX_ PL_op);
+                if (PL_op == UNENTERABLE)
+                    PL_op = newOP(OP_NULL, 0);
 		DEBUG_l( Perl_deb(aTHX_ "pp_goto: Entering %s\n",
 					 OP_NAME(PL_op)));
 		PL_op->op_ppaddr(aTHX);
