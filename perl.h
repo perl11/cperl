@@ -828,7 +828,6 @@
                              || (PL_lex_encoding && _get_encoding() != NULL))
 
 #ifdef USE_LOCALE /* These locale things are all subject to change */
-
 #  if      defined(HAS_NEWLOCALE)               \
       &&   defined(LC_ALL_MASK)                 \
       &&   defined(HAS_FREELOCALE)              \
@@ -840,6 +839,15 @@
      * above makes sure that assumption is valid */
 
 #    define HAS_POSIX_2008_LOCALE
+#  endif
+#  if     defined(USE_ITHREADS)                                             \
+      && (    defined(HAS_POSIX_2008_LOCALE)                                \
+          || (defined(WIN32) && defined(_MSC_VER) && _MSC_VER >= 1400))     \
+      && ! defined(NO_THREAD_SAFE_LOCALE)
+#    define USE_THREAD_SAFE_LOCALE
+#    ifdef HAS_POSIX_2008_LOCALE
+#      define USE_POSIX_2008_LOCALE
+#    endif
 #  endif
 #endif
 
@@ -5984,10 +5992,6 @@ typedef struct am_table_short AMTS;
                         MUTEX_DESTROY(&PL_lc_numeric_mutex);                \
                         _LOCALE_TERM_POSIX_2008;                            \
                     } STMT_END
-#    ifdef HAS_POSIX_2008_LOCALE
-#      define USE_POSIX_2008_LOCALE
-#      define USE_THREAD_SAFE_LOCALE
-#    endif
 #  endif
 
 /* Returns TRUE if the plain locale pragma without a parameter is in effect
@@ -6137,8 +6141,9 @@ argument list, like this:
 The private variable is used to save the current locale state, so
 that the requisite matching call to L</RESTORE_LC_NUMERIC> can restore it.
 
-On threaded perls, this macro uses a mutex to force a critical section.
-Therefore the matching RESTORE should be close by, and guaranteed to be called.
+On threaded perls not operating with thread-safe functionality, this macro uses
+a mutex to force a critical section.  Therefore the matching RESTORE should be
+close by, and guaranteed to be called.
 
 =for apidoc Am|void|STORE_LC_NUMERIC_SET_TO_NEEDED
 
@@ -6170,8 +6175,9 @@ argument list, like this:
      ...
  }
 
-On threaded perls, this macro uses a mutex to force a critical section.
-Therefore the matching RESTORE should be close by, and guaranteed to be called.
+On threaded perls not operating with thread-safe functionality, this macro uses
+a mutex to force a critical section.  Therefore the matching RESTORE should be
+close by, and guaranteed to be called.
 
 =for apidoc Am|void|RESTORE_LC_NUMERIC
 

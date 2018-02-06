@@ -177,11 +177,11 @@ bignum dist/bignum/t/scope_f.t 2b8cc7daffe1092e3bf550b64a37e808b2abc5f5
 bignum dist/bignum/t/scope_i.t ca81c61aff43fee8b6bf89fc698834d721825488
 bignum dist/bignum/t/scope_r.t 531216cbede50c3dbc82795c549a439e2c8ac627
 lib dist/lib/lib_pm.PL 04a3dedbc657cac6c8db1faf2f0c6a7af328a23f
-threads dist/threads/lib/threads.pm d368e09746fcb6d9056b4b02d974ed3904233ca0
+threads dist/threads/lib/threads.pm 41851eadf0a612abbbf47bd5ee8c7583f72d8933
 threads dist/threads/t/locale.t 9a2a5b43a39867590eb288d4a1759abac2052aa8
-threads dist/threads/threads.xs 200e3e2fb76e1e56d79168291ff58edc251a4b1c
+threads dist/threads/threads.xs cc16715b45fe84724d97fb6cbfe1aaa5b5b49430
 threads::shared dist/threads-shared/t/waithires.t dc867159fd2fa8c09326cd7627f5a0635ca5e3b5
 version cpan/version/lib/version.pm 2a13001de38b343b29720bd432612472dfd3f265
 version cpan/version/lib/version/regex.pm 78326aeeff8b3603558da9f9b86822a04c0b7be2
-version vutil.c 1bef0f55dc19184832ef2dfa85b8c2506dac0d97
+version vutil.c 75ff6e16083c211230b17952dcb441e99b332607
 version vxs.inc 4d5b01db64de0e6f54db11baa30aac9ecc0b2788
