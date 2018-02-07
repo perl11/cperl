@@ -1231,9 +1231,16 @@ Perl_re_intuit_start(pTHX_
             && prog->intflags & PREGf_ANCH
             && prog->check_offset_max != SSize_t_MAX)
         {
-            SSize_t len = SvCUR(check) - !!SvTAIL(check);
+            SSize_t check_len = SvCUR(check) - !!SvTAIL(check);
             const char * const anchor =
                         (prog->intflags & PREGf_ANCH_GPOS ? strpos : strbeg);
+            SSize_t targ_len = (char*)end_point - anchor;
+
+            if (check_len > targ_len) {
+                DEBUG_EXECUTE_r(Perl_re_printf( aTHX_
+			      "Target string too short to match required substring...\n"));
+                goto fail_finish;
+            }
 
             /* do a bytes rather than chars comparison. It's conservative;
              * so it skips doing the HOP if the result can't possibly end
@@ -1242,8 +1249,11 @@ Perl_re_intuit_start(pTHX_
             if ((char*)end_point - anchor > prog->check_offset_max) {
                 end_point = HOP3lim((U8*)anchor,
                                 prog->check_offset_max,
-                                end_point -len)
-                            + len;
+                                end_point - check_len
+                            )
+                            + check_len;
+                if (end_point < start_point)
+                    goto fail_finish;
             }
         }
 
