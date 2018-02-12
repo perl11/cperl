@@ -13,7 +13,7 @@ BEGIN {
         or skip_all("XS::APItest not available");
 }
 
-plan tests => 148;
+plan tests => 149;
 use Config;
 
 # run some code N times. If the number of SVs at the end of loop N is
@@ -211,6 +211,14 @@ leak_expr(5, 0, q{"YYYYYa" =~ /.+?(a(.+?)|b)/ }, "trie leak");
     @a = map { qr/1/ && ($count[$_] = sv_count()) && 99 }  0..$_3;
     is(@count[3] - @count[0], 3, "list   map block: one new tmp per iter");
 
+}
+
+# Map plus sparse array
+{
+    my @a;
+    $a[10] = 10;
+    leak(3, 0, sub { my @b = map 1, @a },
+     'map reading from sparse array');
 }
 
 SKIP:
