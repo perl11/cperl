@@ -6,7 +6,7 @@ BEGIN {
     set_up_inc('../lib');
 }
 
-plan(tests => 63);
+plan(tests => 64);
 
 sub empty_sub {}
 
@@ -417,6 +417,16 @@ is ref($main::{rt_129916}), 'CODE', 'simple sub stored as CV in stash (main::)';
 {
     local $::TODO = "disabled for now [perl #129916]";
     is ref($RT129916::{foo}), 'CODE', 'simple sub stored as CV in stash (non-main::)';
+}
+
+# Calling xsub via ampersand syntax when @_ has holes
+SKIP: {
+    skip "no XS::APItest on miniperl" if is_miniperl;
+    require XS::APItest;
+    local *_;
+    $_[1] = 1;
+    &XS::APItest::unshift_and_set_defav;
+    is "@_", "42 43 1"
 }
 
 # [perl #129090] Crashes and hangs

@@ -5678,7 +5678,7 @@ PP(pp_enterxssub)
 		    else {
                         sv = AvARRAY(av)[i];
                     }
-                    SP[i+1] = sv ? sv : newSVavdefelem(av, i, 1);
+                    SP[i+1] = sv ? sv : av_nonelem(av, i);
 		}
 		SP += items;
 		PUTBACK;

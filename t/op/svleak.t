@@ -13,7 +13,7 @@ BEGIN {
         or skip_all("XS::APItest not available");
 }
 
-plan tests => 149;
+plan tests => 150;
 use Config;
 
 # run some code N times. If the number of SVs at the end of loop N is
@@ -324,6 +324,10 @@ sub Recursive::Redefinition::DESTROY {
 leak(2, 0, sub {
     bless \&recredef, "Recursive::Redefinition"; eval "sub recredef{}"
 }, 'recursive sub redefinition');
+
+# Sub calls
+leak(2, 0, sub { local *_; $_[1]=1; &re::regname },
+    'passing sparse array to xsub via ampersand call');
 
 # Syntax errors
 eleak(2, 0, '"${<<END}"
