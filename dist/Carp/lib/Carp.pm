@@ -117,7 +117,7 @@ BEGIN {
 	;
 }
 
-our $VERSION = '1.45c';
+our $VERSION = '1.46c';
 $VERSION =~ tr/_//d;
 $VERSION =~ tr/_c//d;
 
@@ -280,6 +280,20 @@ sub caller_info {
     return wantarray() ? %call_info : \%call_info;
 }
 
+sub _univisa_loaded {
+    return 0 unless exists($::{"UNIVERSAL::"});
+    for ($::{"UNIVERSAL::"}) {
+	return 0 unless ref \$_ eq "GLOB" && *$_{HASH} && exists $$_{"isa::"};
+	for ($$_{"isa::"}) {
+	    return 0 unless ref \$_ eq "GLOB" && *$_{HASH} && exists $$_{"VERSION"};
+	    for ($$_{"VERSION"}) {
+		return 0 unless ref \$_ eq "GLOB";
+		return ${*$_{SCALAR}};
+	    }
+	}
+    }
+}
+
 # Transform an argument to a function into a string.
 our $in_recurse;
 sub format_arg {
@@ -289,7 +303,7 @@ sub format_arg {
 
         # lazy check if the CPAN module UNIVERSAL::isa is used or not
         #   if we use a rogue version of UNIVERSAL this would lead to infinite loop
-        my $isa = $UNIVERSAL::isa::VERSION ? sub { 1 } : \&UNIVERSAL::isa;
+        my $isa = _univisa_loaded() ? sub { 1 } : _fetch_sub(UNIVERSAL => "isa");
 
          # legitimate, let's not leak it.
         if (!$in_recurse && $isa->( $arg, 'UNIVERSAL' ) &&
