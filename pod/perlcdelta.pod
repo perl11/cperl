@@ -36,6 +36,13 @@ C<my @a[];> without assignment is still a syntax error.
 
 See L<[cperl #210]|https://github.com/perl11/cperl/issues/210>
 
+=head2 New read-only predefined variable C<${^SAFE_LOCALES}>
+
+This variable is 1 if the Perl interpreter is operating in an
+environment where it is safe to use and change locales (see
+L<perllocale>.)  Currently this is true only when the perl is
+unthreaded.
+
 =head1 Security
 
 =head2 Disallow illegal glob with embedded NUL
