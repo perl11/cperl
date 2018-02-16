@@ -1,7 +1,7 @@
 package PerlIO::encoding;
 
 use strict;
-our $VERSION = '0.25_01';
+our $VERSION = '0.26_01';
 our $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 our $DEBUG = 0;
