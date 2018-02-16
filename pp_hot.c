@@ -283,73 +283,88 @@ PPt(pp_unstack, "():Void")
     return NORMAL;
 }
 
+/* The main body of pp_concat, not including the magic/overload and
+ * stack handling.
+ * It does targ = left . right.
+ * Moved into a separate function so that pp_multiconcat() can use it
+ * too.
+ */
+
+PERL_STATIC_INLINE void
+S_do_concat(pTHX_ SV *left, SV *right, SV *targ, U8 targmy)
+{
+    STRLEN rlen;
+    const char *rpv = NULL;
+    bool lbyte = FALSE;
+    bool rbyte = FALSE;
+    bool rcopied = FALSE;
+
+    if (TARG == right && right != left) { /* $r = $l.$r */
+	rpv = SvPV_nomg_const(right, rlen);
+	rbyte = !DO_UTF8(right);
+	right = newSVpvn_flags(rpv, rlen, SVs_TEMP);
+	rpv = SvPV_const(right, rlen);	/* no point setting UTF-8 here */
+	rcopied = TRUE;
+    }
+
+    if (TARG != left) { /* not $l .= $r */
+        STRLEN llen;
+        const char* const lpv = SvPV_nomg_const(left, llen);
+	lbyte = !DO_UTF8(left);
+	sv_setpvn(TARG, lpv, llen);
+	if (!lbyte)
+	    SvUTF8_on(TARG);
+	else
+	    SvUTF8_off(TARG);
+    }
+    else { /* $l .= $r   and   left == TARG */
+	if (!SvOK(left)) {
+            if ((left == right                          /* $l .= $l */
+                 || targmy)                             /* $l = $l . $r */
+                && ckWARN(WARN_UNINITIALIZED)
+                )
+                report_uninit(left);
+            if (SvIS_FREED(left))
+                left = newSVpvs("");
+            else
+                SvPVCLEAR(left);            
+	}
+        else {
+            SvPV_force_nomg_nolen(left);
+        }
+        lbyte = !DO_UTF8(left);
+        if (IN_BYTES)
+            SvUTF8_off(left);        
+    }
+
+    if (!rcopied) {
+	rpv = SvPV_nomg_const(right, rlen);
+	rbyte = !DO_UTF8(right);
+    }
+    if (lbyte != rbyte) {
+	if (lbyte)
+	    sv_utf8_upgrade_nomg(TARG);
+	else {
+	    if (!rcopied)
+		right = newSVpvn_flags(rpv, rlen, SVs_TEMP);
+	    sv_utf8_upgrade_nomg(right);
+	    rpv = SvPV_nomg_const(right, rlen);
+	}
+    }
+    sv_catpvn_nomg(TARG, rpv, rlen);
+    SvSETMAGIC(TARG);
+}
+
+
 PPt(pp_concat, "(:Any,:Any):Str")
 {
-    dSP; dATARGET; tryAMAGICbin_MG(concat_amg, AMGf_assign);
-    {
-        dPOPTOPssrl;
-        const char *rpv = NULL;
-        STRLEN rlen;
-        bool lbyte;
-        bool rbyte = FALSE;
-        bool rcopied = FALSE;
-
-        if (TARG == right && right != left) { /* $r = $l.$r */
-            rpv = SvPV_nomg_const(right, rlen);
-            rbyte = !DO_UTF8(right);
-            right = newSVpvn_flags(rpv, rlen, SVs_TEMP);
-            rpv = SvPV_const(right, rlen);	/* no point setting UTF-8 here */
-            rcopied = TRUE;
-        }
-
-        if (TARG != left) { /* not $l .= $r */
-            STRLEN llen;
-            const char* const lpv = SvPV_nomg_const(left, llen);
-            lbyte = !DO_UTF8(left);
-            sv_setpvn(TARG, lpv, llen);
-            if (!lbyte)
-                SvUTF8_on(TARG);
-            else
-                SvUTF8_off(TARG);
-        }
-        else { /* $l .= $r   and   left == TARG */
-            if (!SvOK(left)) {
-                if ((left == right                          /* $l .= $l */
-                     || (PL_op->op_private & OPpTARGET_MY)) /* $l = $l . $r */
-                    && ckWARN(WARN_UNINITIALIZED))
-                    report_uninit(left);
-                if (SvIS_FREED(left))
-                    left = newSVpvs("");
-                else
-                    SvPVCLEAR(left);
-            }
-            else {
-                SvPV_force_nomg_nolen(left);
-            }
-            lbyte = !DO_UTF8(left);
-            if (IN_BYTES)
-                SvUTF8_off(left);
-        }
-
-        if (!rcopied) {
-            rpv = SvPV_nomg_const(right, rlen);
-            rbyte = !DO_UTF8(right);
-        }
-        if (lbyte != rbyte) {
-            if (lbyte)
-                sv_utf8_upgrade_nomg(TARG);
-            else {
-                if (!rcopied)
-                    right = newSVpvn_flags(rpv, rlen, SVs_TEMP);
-                sv_utf8_upgrade_nomg(right);
-                rpv = SvPV_nomg_const(right, rlen);
-            }
-        }
-        sv_catpvn_nomg(TARG, rpv, rlen);
-
-        SETTARG;
-        RETURN;
-    }
+  dSP; dATARGET; tryAMAGICbin_MG(concat_amg, AMGf_assign);
+  {
+    dPOPTOPssrl;
+    S_do_concat(aTHX_ left, right, targ, PL_op->op_private & OPpTARGET_MY);
+    SETs(targ);
+    RETURN;
+  }
 }
 
 
