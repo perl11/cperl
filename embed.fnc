@@ -1394,7 +1394,7 @@ Adm	|SV*	|get_svs	|NN const char *name|I32 flags
 Adm	|AV*	|get_avs	|NN const char *name|I32 flags
 Adm	|HV*	|get_hvs	|NN const char *name|I32 flags
 Adm	|CV*	|get_cvs	|NN const char* name|I32 flags
-EXnpo	|char*	|setlocale	|int category|NULLOK const char* locale
+Ando	|const char*|Perl_setlocale|const int category|NULLOK const char* locale
 #if defined(HAS_NL_LANGINFO) && defined(PERL_LANGINFO_H)
 Ando	|const char*|Perl_langinfo|const nl_item item
 #else

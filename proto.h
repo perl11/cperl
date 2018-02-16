@@ -58,6 +58,9 @@ PERL_CALLCONV int	Perl_PerlLIO_open_cloexec(pTHX_ const char *file, int flag)
 #define PERL_ARGS_ASSERT_PERLLIO_OPEN_CLOEXEC	\
 	assert(file)
 
+PERL_CALLCONV const char*	Perl_setlocale(const int category, const char* locale)
+			__attribute__global__;
+
 PERL_CALLCONV void*	Perl_Slab_Alloc(pTHX_ size_t sz)
 			__attribute__global__
 			__attribute__warn_unused_result__;
@@ -5346,9 +5349,6 @@ PERL_CALLCONV void	Perl_setfd_cloexec_for_nonsysfd(pTHX_ int fd);
 PERL_CALLCONV void	Perl_setfd_cloexec_or_inhexec_by_sysfdness(pTHX_ int fd);
 PERL_CALLCONV void	Perl_setfd_inhexec(int fd);
 PERL_CALLCONV void	Perl_setfd_inhexec_for_sysfd(pTHX_ int fd);
-PERL_CALLCONV char*	Perl_setlocale(int category, const char* locale)
-			__attribute__global__;
-
 PERL_CALLCONV HEK*	Perl_share_hek(pTHX_ const char* str, I32 len, U32 hash)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
