@@ -6440,7 +6440,7 @@ PERL_CALLCONV SV*	Perl_swash_init(pTHX_ const char* pkg, const char* name, SV* l
 #define PERL_ARGS_ASSERT_SWASH_INIT	\
 	assert(pkg); assert(name); assert(listsv)
 
-PERL_CALLCONV void	Perl_sync_locale(pTHX)
+PERL_CALLCONV bool	Perl_sync_locale(void)
 			__attribute__global__;
 
 PERL_CALLCONV void	Perl_sys_init(int* argc, char*** argv)
