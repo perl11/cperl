@@ -1,8 +1,35 @@
 Revision history for Perl distribution PathTools.
 
+4.73c - 2018-04-21 14:53:10 rurban
+- Define NEED_croak_xs_usage, fixing usage of croak_xs_usage()
+- [perl #132853] Add metadata (ABSTRACT, LICENSE, AUTHOR)
+- [perl #132733] Skip cwd_enoent test on Cygwin
+- [perl #132651] Avoid infinite recursion in _perl_abs_path()
+
 4.68c - 2017-04-28 14:43:14 rurban
 - Support getcwd with long paths.
 - Use libc realpath with possible long path support.
+
+3.73
+- Define NEED_croak_xs_usage, fixing usage of croak_xs_usage()
+- [perl #132853] Add metadata (ABSTRACT, LICENSE, AUTHOR)
+- [perl #132733] Skip cwd_enoent test on Cygwin
+- [perl #132651] Avoid infinite recursion in _perl_abs_path()
+
+3.72
+- [perl #132648] Correct error returns from fast_abs_path()
+
+3.71
+- [perl #130818] Remove support for running PathTools on MacOS
+  and EPOC
+
+3.70
+- Change strcmp into the easier to read strEQ
+
+3.69
+- avoid loading modules repeatedly at runtime
+- replace 'use vars' by 'our'
+- Switch to XSLoader from Dynaloader
 
 3.68
 - avoid warning from pre-5.8 code for detecting tainted values
