@@ -577,6 +577,13 @@ have reentrant versions varies from system to system.
 The C<PERL_NO_OP_PARENT> build define is no longer supported, which means
 that perl is now always built with C<PERL_OP_PARENT> enabled.
 
+=item *
+
+A new compiler C<#define>, C<dTHX_DEBUGGING>. has been added.  This is
+useful for XS or C code that only need the thread context because their
+debugging statements that get compiled only under C<-DDEBUGGING> need
+one.
+
 =back
 
 =head1 Selected Bug Fixes
