@@ -117,7 +117,7 @@ BEGIN {
 	;
 }
 
-our $VERSION = '1.47_01c';
+our $VERSION = '1.47_02c';
 $VERSION =~ tr/_//d;
 $VERSION =~ tr/_c//d;
 
@@ -309,7 +309,7 @@ our $in_recurse;
 sub format_arg {
     my $arg = shift;
 
-    if ( ref($arg) ) {
+    if ( my $pack= ref($arg) ) {
 
         # lazy check if the CPAN module UNIVERSAL::isa is used or not
         #   if we use a rogue version of UNIVERSAL this would lead to infinite loop
@@ -339,8 +339,22 @@ sub format_arg {
         }
         else
         {
-	    my $sub = _fetch_sub(overload => 'StrVal');
-	    return $sub ? &$sub($arg) : "$arg";
+            # this particular bit of magic looking code is responsible for disabling overloads
+            # while we are stringifing arguments, otherwise if an overload calls a Carp sub we
+            # could end up in infinite recursion, which means we will exhaust the C stack and
+            # then segfault. Calling Carp obviously should not trigger an untrappable exception
+            # from Carp itself! - Yves
+            if ($pack->can("((")) {
+                # this eval is required, or fail the overload test
+                # in dist/Carp/t/vivify_stash.t, which is really quite weird.
+                # Even if we never enter this block, the presence of the require
+                # causes the test to fail. This seems like it might be a bug
+                # in require. Needs further investigation - Yves
+                eval "require overload; 1"
+                    or return "use overload failed";
+            }
+            my $sub = _fetch_sub(overload => 'StrVal');
+            return $sub ? &$sub($arg) : "$arg";
         }
     }
     return "undef" if !defined($arg);
