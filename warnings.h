@@ -123,12 +123,13 @@
 
 /* Warnings Categories added in Perl 5.027 */
 
-#define WARN_EXPERIMENTAL__SCRIPT_RUN	 70
-#define WARN_SHADOW			 71
+#define WARN_EXPERIMENTAL__ALPHA_ASSERTIONS 70
+#define WARN_EXPERIMENTAL__SCRIPT_RUN	 71
+#define WARN_SHADOW			 72
 
-#define WARNsize			 18
-#define WARN_ALLstring			 "\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125"
-#define WARN_NONEstring			 "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+#define WARNsize			 19
+#define WARN_ALLstring			 "\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125"
+#define WARN_NONEstring			 "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
 
 #define isLEXWARN_on	cBOOL(PL_curcop->cop_warnings != pWARN_STD)
 #define isLEXWARN_off	cBOOL(PL_curcop->cop_warnings == pWARN_STD)
