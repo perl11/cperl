@@ -2,7 +2,7 @@ package File::Spec;
 
 use strict;
 
-our $VERSION = '4.73c'; # modernized
+our $VERSION = '4.74c'; # modernized
 $VERSION =~ s/c$//;
 #$VERSION =~ tr/_//d;
 

@@ -1,5 +1,8 @@
 Revision history for Perl distribution PathTools.
 
+4.74c
+- No changes.
+
 4.73c - 2018-04-21 14:53:10 rurban
 - Define NEED_croak_xs_usage, fixing usage of croak_xs_usage()
 - [perl #132853] Add metadata (ABSTRACT, LICENSE, AUTHOR)
@@ -9,6 +12,9 @@ Revision history for Perl distribution PathTools.
 4.68c - 2017-04-28 14:43:14 rurban
 - Support getcwd with long paths.
 - Use libc realpath with possible long path support.
+
+3.74
+- No changes.
 
 3.73
 - Define NEED_croak_xs_usage, fixing usage of croak_xs_usage()
