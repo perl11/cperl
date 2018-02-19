@@ -3689,12 +3689,12 @@ S_maybe_multiconcat(pTHX_ OP *o)
             OP *prev;
 
             /* set prev to the sibling *before* the arg to be cut out,
-             * e.g.:
+             * e.g. when cutting EXPR:
              *
              *         |
-             * kid=  CONST
+             * kid=  CONCAT
              *         |
-             * prev= CONST -- EXPR
+             * prev= CONCAT -- EXPR
              *         |
              */
             if (argp == args && ISNT_TYPE(kid, CONCAT)) {
