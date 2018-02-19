@@ -51,6 +51,17 @@ environment where it is safe to use and change locales (see
 L<perllocale>.)  Currently this is true only when the perl is
 unthreaded.
 
+=head2 Script runs now are specified with a different syntax
+
+This isn't really an enhancement, but is being put in this category
+because it changes an enhancement from 5.27.8, and there is a new
+abbreviated form for it.  The syntax is now either of:
+
+ (*script_run:...)
+ (*sr:...)
+
+Previously a C<"+"> was used instead of the C<"*">.
+
 =head1 Security
 
 XXX Any security-related notices go here.  In particular, any security
