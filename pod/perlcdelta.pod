@@ -530,6 +530,13 @@ L<[perl #133314]|https://rt.perl.org/Public/Bug/Display.html?id=133314>
 
 =item *
 
+Warnings produced from constant folding operations on overloaded
+values no longer produce spurious "Use of uninitialized value"
+warnings.
+L<[perl #132683]|https://rt.perl.org/Public/Bug/Display.html?id=132683>
+
+=item *
+
 Fix for multiconcat "mutator not seen in (lex = ...) .= ..."
 L<[perl #133441]|https://rt.perl.org/Public/Bug/Display.html?id=133441>
 
