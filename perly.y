@@ -274,22 +274,7 @@ barestmt:	PLUGSTMT
 			}
 	|	subdecl subname startsub
 			{
-			  if ($2->op_type == OP_CONST) {
-			    const char *const name =
-				SvPV_nolen_const(((SVOP*)$2)->op_sv);
-			    if (strEQc(name, "BEGIN") || strEQc(name, "END")
-                             || strEQc(name, "INIT")  || strEQc(name, "CHECK")
-                             || strEQ(name, "UNITCHECK"))
-			      CvSPECIAL_on(PL_compcv);
-			  }
-			  else
-                              /* State subs inside anonymous subs need to be
-                                 clonable themselves. */
-                              if (CvANON(CvOUTSIDE(PL_compcv))
-                                  || CvCLONE(CvOUTSIDE(PL_compcv))
-                                  || !PadnameIsSTATE(PadlistNAMESARRAY(CvPADLIST(
-                                         CvOUTSIDE(PL_compcv)))[$2->op_targ]))
-                                  CvCLONE_on(PL_compcv);
+                          init_named_cv(PL_compcv, $2);
 			  parser->in_my = 0;
 			  parser->in_my_stash = NULL;
                           CvFLAGS(PL_compcv) |= $<ival>1;

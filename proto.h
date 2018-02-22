@@ -2511,6 +2511,13 @@ PERL_CALLCONV int	Perl_init_i18nl10n(pTHX_ int printwarn)
 PERL_CALLCONV int	Perl_init_i18nl14n(pTHX_ int printwarn)
 			__attribute__global__;
 
+PERL_CALLCONV void	Perl_init_named_cv(pTHX_ CV *cv, OP *nameop)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_INIT_NAMED_CV	\
+	assert(cv); assert(nameop)
+
 PERL_CALLCONV void	Perl_init_stacks(pTHX)
 			__attribute__global__;
 
