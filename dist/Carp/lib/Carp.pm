@@ -117,7 +117,7 @@ BEGIN {
 	;
 }
 
-our $VERSION = '1.48c';
+our $VERSION = '1.49c';
 $VERSION =~ tr/_//d;
 $VERSION =~ tr/_c//d;
 
@@ -235,7 +235,18 @@ sub caller_info {
 
     my $sub_name = Carp::get_subname( \%call_info );
     if ( $call_info{has_args} ) {
-        # guard our serialization of the stack from stack refcounting bugs
+        # Guard our serialization of the stack from stack refcounting bugs
+        # NOTE this is NOT a complete solution, we cannot 100% guard against
+        # these bugs.  However in many cases Perl *is* capable of detecting
+        # them and throws an error when it does.  Unfortunately serializing
+        # the arguments on the stack is a perfect way of finding these bugs,
+        # even when they would not affect normal program flow that did not
+        # poke around inside the stack.  Inside of Carp.pm it makes little
+        # sense reporting these bugs, as Carp's job is to report the callers
+        # errors, not the ones it might happen to tickle while doing so.
+        # See: https://rt.perl.org/Public/Bug/Display.html?id=131046
+        # and: https://rt.perl.org/Public/Bug/Display.html?id=52610
+        # for more details and discussion. - Yves
         my @args = map {
                 my $arg;
                 local $@= $@;
