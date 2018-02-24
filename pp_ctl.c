@@ -2760,6 +2760,7 @@ S_dofindlabel(pTHX_ OP *o, const char *label, STRLEN len, U32 flags, OP **opstac
     *ops = 0;
     if (has_kids) {
 	OP *kid;
+	OP * const kid1 = cUNOPo->op_first;
 	/* First try all the kids at this level, since that's likeliest. */
 	for (kid = OpFIRST(o); kid; kid = OpSIBLING(kid)) {
 	    if (OP_IS_COP(kid->op_type)) {
@@ -2782,6 +2783,7 @@ S_dofindlabel(pTHX_ OP *o, const char *label, STRLEN len, U32 flags, OP **opstac
 	    }
 	}
 	for (kid = OpFIRST(o); kid; kid = OpSIBLING(kid)) {
+	    bool first_kid_of_binary = FALSE;
 	    if (kid == PL_lastgotoprobe)
 		continue;
 	    if (OP_IS_COP(kid->op_type)) {
@@ -2793,8 +2795,14 @@ S_dofindlabel(pTHX_ OP *o, const char *label, STRLEN len, U32 flags, OP **opstac
 		else
 		    *ops++ = kid;
 	    }
+	    if (kid == kid1 && ops != opstack && ops[-1] == UNENTERABLE) {
+		first_kid_of_binary = TRUE;
+		ops--;
+	    }
 	    if ((o = dofindlabel(kid, label, len, flags, ops, oplimit)))
 		return o;
+	    if (first_kid_of_binary)
+		*ops++ = UNENTERABLE;
 	}
     }
     *ops = 0;
