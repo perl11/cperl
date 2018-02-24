@@ -117,7 +117,7 @@ BEGIN {
 	;
 }
 
-our $VERSION = '1.47c';
+our $VERSION = '1.48c';
 $VERSION =~ tr/_//d;
 $VERSION =~ tr/_c//d;
 
@@ -339,16 +339,22 @@ sub format_arg {
         }
         else
         {
-            if ($pack->can("((")) {
-		# Argument is blessed into a class with overloading, and
-		# so might have an overloaded stringification.	We don't
-		# want to risk getting the overloaded stringification,
-		# so we need to use overload::StrVal() below.  But it's
-		# possible that the overload module hasn't been loaded:
-		# overload methods can be installed without it.  So load
-		# the module here.  The eval layer here avoids the
-		# compile-time effect of require vivifying the target
-		# module's stash.
+            # overload uses the presence of a special "method" name "((" to signal
+            # it is in effect.  This test seeks to see if it has been set up.
+            # In theory we should be able to use 'can' without the $in_recurse guard,
+            # but this breaks modules that call overloads or croak during can(), for
+            # instance Class::Std v0.013, so if we end up here twice, we will just
+            # load overload outright.
+            if ($in_recurse || do{ local $in_recurse = 1; $pack->can("((") }) {
+                # Argument is blessed into a class with overloading, and
+                # so might have an overloaded stringification.  We don't
+                # want to risk getting the overloaded stringification,
+                # so we need to use overload::StrVal() below.  But it's
+                # possible that the overload module hasn't been loaded:
+                # overload methods can be installed without it.  So load
+                # the module here.  The bareword form of require is here
+                # eschewed to avoid this compile-time effect of vivifying
+                # the target module's stash.
                 eval "require overload; 1"
                     or return "use overload failed";
             }
