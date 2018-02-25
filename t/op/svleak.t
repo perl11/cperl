@@ -13,7 +13,7 @@ BEGIN {
         or skip_all("XS::APItest not available");
 }
 
-plan tests => 150;
+plan tests => 151;
 use Config;
 
 # run some code N times. If the number of SVs at the end of loop N is
@@ -637,3 +637,8 @@ leak 2,2,\&XS::APItest::PerlIO_stdin, 'T_IN in default typemap';
 leak 2,2,\&XS::APItest::PerlIO_stdout,'T_OUT in default typemap';
 leak 2,2,sub{XS::APItest::PerlIO_exportFILE(*STDIN,"");0},
                                       'T_STDIO in default typemap';
+{
+    my %rh= ( qr/^foo/ => 1);
+    sub Regex_Key_Leak { my ($r)= keys %rh; "foo"=~$r; }
+    leak 2, 0, \&Regex_Key_Leak,"RT #132892 - regex patterns should not leak";
+}
