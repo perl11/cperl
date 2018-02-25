@@ -1388,7 +1388,7 @@ S_new_ctype(pTHX_ const char *newctype)
      * POSIX::setlocale() */
 
     dVAR;
-    UV i;
+    unsigned int i;
 
     /* Don't check for problems if we are suppressing the warnings */
     bool check_for_problems = ckWARN_d(WARN_LOCALE) || UNLIKELY(DEBUG_L_TEST);
