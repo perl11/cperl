@@ -166,7 +166,7 @@ use Getopt::Long;
 use Archive::Tar;
 use File::Path qw( remove_tree );
 use File::Find;
-use File::Spec::Functions qw( tmpdir );
+use File::Spec::Functions qw( tmpdir rel2abs );
 use Config qw( %Config ); # for make and _exe only. so it can be another perl
 
 $| = 1;
@@ -288,6 +288,9 @@ for my $module (@modules) {
     say "--force is in effect, so we'll soldier on. Wish me luck!";
   }
 
+  use Cwd 'cwd';
+  my $orig_pwd = cwd();
+
   if (!$dryrun and $info->{CUSTOMIZED}) {
     print <<"EOF";
 $module has a CUSTOMIZED entry in Porting/Maintainers.pl.
@@ -387,7 +390,8 @@ sub wget {
     }
   }
   else {
-    if (!$dryrun and (!-e $tarball or !-f _)) {
+    $new_file = rel2abs( $tarball, $orig_pwd );
+    if (!$dryrun and (!-e $new_file or !-f _)) {
       warn "Tarball $tarball does not exist\n";
       chdir "..";
       next MODULES;
