@@ -1,3 +1,8 @@
+# tests for RT 131211
+#
+# non-matching glob("a*a*a*...") went exponential time on number of a*'s
+
+
 use strict;
 use warnings;
 use v5.16.0;
@@ -49,11 +54,12 @@ while (++$count < 10) {
     $elapsed_fail -= time;
     @no_files= glob catfile $path, "x".("a*" x $count) . "c";
     $elapsed_fail += time;
-    last if $elapsed_fail > $elapsed_match * 100;
+    last if $elapsed_fail > ($elapsed_match < 0.2 ? 0.2 : $elapsed_match) * 100;
 }
 
 is $count,10,
-    "tried all the patterns without bailing out";
+    "tried all the patterns without bailing out"
+    or diag("elapsed_match=$elapsed_match elapsed_fail=$elapsed_fail");
 
 if ($elapsed_fail/$elapsed_match < 4) {
     cmp_ok $elapsed_fail/$elapsed_match,"<",4,
