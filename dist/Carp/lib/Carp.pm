@@ -25,6 +25,9 @@ BEGIN {
     }
 }
 
+# hardcoded with cperl
+sub _maybe_isa ($$) { 1 }
+
 # no signature! it is called without fixing up OP_SIGNATURE.
 sub _fetch_sub { # fetch sub without autovivifying
     my ($pack, $sub) = @_;
@@ -140,7 +143,7 @@ BEGIN {
 }
 
 
-our $VERSION = '1.49c';
+our $VERSION = '1.49_01c';
 $VERSION =~ tr/_//d;
 $VERSION =~ tr/_c//d;
 
@@ -331,14 +334,8 @@ sub format_arg {
 
     if ( my $pack= ref($arg) ) {
 
-        # lazy check if the CPAN module UNIVERSAL::isa is used or not
-        #   if we use a rogue version of UNIVERSAL this would lead to infinite loop
-        my $isa = _univ_mod_loaded('isa')
-            ? sub { 1 }
-            : _fetch_sub(UNIVERSAL => "isa");
-
          # legitimate, let's not leak it.
-        if (!$in_recurse && $isa->( $arg, 'UNIVERSAL' ) &&
+        if (!$in_recurse && _maybe_isa( $arg, 'UNIVERSAL' ) &&
 	    do {
                 local $@;
 	        local $in_recurse = 1;
