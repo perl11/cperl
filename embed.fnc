@@ -929,8 +929,7 @@ AMpR	|bool	|_is_utf8_mark		|NN const U8 *p
 AMpR	|bool	|_is_decomposed_string	|NN const U8 *p|STRLEN len
 #if defined(PERL_CORE) || defined(PERL_EXT)
 EXdpR	|bool	|isSCRIPT_RUN	|NN const U8 *s|NN const U8 *send   \
-				|const bool utf8_target		    \
-				|NULLOK SCX_enum * ret_script
+				|const bool utf8_target
 #endif
 AMp	|bool	|valid_ident		|NN SV* sv|bool strict_names \
     		        		|bool allow_package|NN int *normalizep
