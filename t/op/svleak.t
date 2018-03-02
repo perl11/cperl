@@ -15,7 +15,7 @@ BEGIN {
 
 use Config;
 
-plan tests => 143;
+plan tests => 144;
 
 # run some code N times. If the number of SVs at the end of loop N is
 # greater than (N-1)*delta at the end of loop 1, we've got a leak
@@ -588,7 +588,7 @@ EOF
     require B;
     my $op = B::svref_2object(\&foo)->ROOT->first;
     sub lk { { my $d = $op->hints_hash->HASH } }
-    ::leak(3, 0, \&lk, q!B::RHE->HASH shoudln't leak!);
+    ::leak(3, 0, \&lk, q!B::RHE->HASH shouldn't leak!);
 }
 
 
@@ -612,4 +612,10 @@ EOF
         re::regname("foo", 1);
     }
     ::leak(2, 0, \&named, "Perl_reg_named_buff_fetch() on no-name RE");
+}
+
+{
+    my %rh= ( qr/^foo/ => 1);
+    sub Regex_Key_Leak { my ($r)= keys %rh; "foo"=~$r; }
+    leak 2, 0, \&Regex_Key_Leak,"RT #132892 - regex patterns should not leak";
 }
