@@ -146,6 +146,7 @@ ioctl(2)
 IPC::Run
 IPC::Shareable
 IPC::Signal
+ispunct(2)
 kill(3)
 langinfo(3)
 LaTeX::Encode
@@ -460,15 +461,13 @@ pod/perlbook.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlce.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlclass.pod	Apparent broken link	1
 pod/perlclass.pod	Verbatim line length including indents exceeds 79 by	2
-pod/perlcn.pod	Verbatim line length including indents exceeds 79 by	4
 pod/perlcperl.pod	? Should you be using F<...> or maybe L<...> instead of	1
 pod/perlcperl.pod	Apparent broken link	1
 pod/perlcperl.pod	Verbatim line length including indents exceeds 79 by	11
 pod/perldebguts.pod	Verbatim line length including indents exceeds 79 by	27
 pod/perldebtut.pod	Verbatim line length including indents exceeds 79 by	3
-pod/perldelta.pod	Apparent broken link	4
+pod/perldelta.pod	Apparent broken link	5
 pod/perldtrace.pod	Verbatim line length including indents exceeds 79 by	12
-pod/perlebcdic.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlgit.pod	? Should you be using F<...> or maybe L<...> instead of	1
 pod/perlgit.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlguts.pod	? Should you be using L<...> instead of	1
@@ -495,12 +494,10 @@ pod/perlsolaris.pod	Verbatim line length including indents exceeds 79 by	13
 pod/perlsymbian.pod	Verbatim line length including indents exceeds 79 by	20
 pod/perltie.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perltru64.pod	Verbatim line length including indents exceeds 79 by	1
-pod/perltw.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perltypes.pod	Apparent broken link	4
 pod/perltypes.pod	Verbatim line length including indents exceeds 79 by	3
-pod/perlunicook.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlwin32.pod	Verbatim line length including indents exceeds 79 by	7
-porting/epigraphs.pod	Verbatim line length including indents exceeds 79 by	24
+porting/epigraphs.pod	Verbatim line length including indents exceeds 79 by	26
 porting/release_cperl.pod	Verbatim line length including indents exceeds 79 by	4
 porting/release_cperl.pod	line containing nothing but whitespace in paragraph	2
 porting/release_managers_guide.pod	Verbatim line length including indents exceeds 79 by	1
