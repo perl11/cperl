@@ -36,7 +36,7 @@ $ENV{LANGUAGE} = 'C';		# Ditto in GNU.
 my $Is_VMS   = $^O eq 'VMS';
 my $Is_Win32 = $^O eq 'MSWin32';
 
-plan(tests => 27);
+plan(tests => 38);
 
 my $Perl = which_perl();
 
@@ -107,13 +107,13 @@ is( system(qq{$Perl "-I../lib" -e "use vmsish qw(hushed); exit 1"}), $exit_one,
     'Explicit exit of 1' );
 
 $rc = system { "lskdfj" } "lskdfj";
-unless( ok($rc == 255 << 8 or $rc == -1 or $rc == 256 or $rc == 512) ) {
+unless( ok($rc == 255 << 8 or $rc == -1 or $rc == 256 or $rc == 512, "wrong system {}") ) {
     print "# \$rc == $rc\n";
 }
 
 unless ( ok( $! == 2  or  $! =~ /\bno\b.*\bfile/i or  
              $! == 13 or  $! =~ /permission denied/i or
-             $! == 22 or  $! =~ /invalid argument/i  ) ) {
+             $! == 22 or  $! =~ /invalid argument/i, 'system $!' ) ) {
     printf "# \$! eq %d, '%s'\n", $!, $!;
 }
 
@@ -128,9 +128,40 @@ is( <<~`END`,                   "ok\n",     '<<~`HEREDOC`' );
   END
 
 {
-    no warnings 'experimental::lexical_topic';
+    #no warnings 'experimental::lexical_topic';
     my $_ = qq($Perl -le "print 'ok'");
-    is( readpipe, "ok\n", 'readpipe default argument' );
+    is( readpipe, "ok\n", 'readpipe default my $_ argument' );
+}
+{
+    local $_ = qq($Perl -le "print 'ok'");
+    is( readpipe, "ok\n", 'readpipe default local $_ argument' );
+
+    sub rpecho { qq($Perl -le "print '$_[0]'") }
+    is scalar(readpipe(rpecho("b"))), "b\n",
+	"readpipe with one argument in scalar context";
+    is join(",", "a", readpipe(rpecho("b")), "c"), "a,b\n,c",
+        "readpipe with one argument in list context";
+
+    local $_ = rpecho("f");
+    is scalar(readpipe), "f\n",
+	"readpipe default argument in scalar context";
+    is join(",", "a", readpipe, "c"), "a,f\n,c",
+        "readpipe default argument in list context";
+
+    sub rpechocxt {
+	rpecho(wantarray ? "list" : defined(wantarray) ? "scalar" : "void");
+    }
+    is scalar(readpipe(rpechocxt())), "scalar\n",
+	"readpipe argument context in scalar context";
+    is join(",", "a", readpipe(rpechocxt()), "b"), "a,scalar\n,b",
+	"readpipe argument context in list context";
+    foreach my $args ("(\$::p,\$::q)", "((\$::p,\$::q))") {
+	foreach my $lvalue ("my \$r", "my \@r") {
+	    eval("$lvalue = readpipe$args if 0");
+	    like $@, qr/\AToo many arguments for /,
+              "Too many arguments for $args with $lvalue";
+	}
+    }
 }
 
 package o {
