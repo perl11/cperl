@@ -89,7 +89,10 @@ XXX
 
 =item *
 
-XXX
+The C<readpipe()> built-in function now checks at compile time that it has only
+one parameter expression, and puts it in scalar context, thus ensuring that it
+doesn't corrupt the stack at runtime.
+L<[perl #4574]|https://rt.perl.org/Public/Bug/Display.html?id=4574>
 
 =back
 
