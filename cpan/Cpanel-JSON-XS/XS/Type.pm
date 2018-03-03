@@ -9,7 +9,7 @@ Cpanel::JSON::XS::Type - Type support for JSON encode
 =head1 SYNOPSIS
 
  use Cpanel::JSON::XS;
- use Cpanel::JSON::XS::Type
+ use Cpanel::JSON::XS::Type;
 
  encode_json([10, "10", 10.25], [JSON_TYPE_INT, JSON_TYPE_INT, JSON_TYPE_STRING]);
  # '[10,10,"10.25"]'
