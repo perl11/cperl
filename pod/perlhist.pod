@@ -661,10 +661,13 @@ the strings?).
  Steve     5.27.5       2017-Oct-20
  Ether     5.27.6       2017-Nov-20
  BinGOs    5.27.7       2017-Dec-20
+ Abigail   5.27.8       2018-Jan-20
+ Renee     5.27.9       2018-Feb-20
 
  rurban    5.27.0c      2017-May-17
  rurban    5.27.1c      2017-Aug-15
  rurban    5.27.2c      2017-Dec-05
+ rurban    5.27.3c      2018-Mar-14
 
 =head2 SELECTED RELEASE MEMORY USAGE
 
