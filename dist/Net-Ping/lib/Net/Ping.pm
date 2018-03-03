@@ -23,7 +23,7 @@ use Time::HiRes;
 @EXPORT_OK = qw(wakeonlan);
 # perl5 has a bogus version 2.62, where they claim they are still maintaining it,
 # and broke v5.6.
-$VERSION = "2.63";
+$VERSION = "2.64";
 
 # Globals
 
@@ -44,6 +44,7 @@ my $AF_UNSPEC = eval { Socket::AF_UNSPEC() };
 my $AI_NUMERICHOST = eval { Socket::AI_NUMERICHOST() } || 4;
 my $NI_NUMERICHOST = eval { Socket::NI_NUMERICHOST() } || 2;
 my $IPPROTO_IPV6   = eval { Socket::IPPROTO_IPV6() }   || 41;
+my $NIx_NOSERV = eval { Socket::NIx_NOSERV() } || 2;
 #my $IPV6_HOPLIMIT  = eval { Socket::IPV6_HOPLIMIT() };  # ping6 -h 0-255
 my $qr_family = qr/^(?:(?:(:?ip)?v?(?:4|6))|${\AF_INET}|$AF_INET6)$/;
 my $qr_family4 = qr/^(?:(?:(:?ip)?v?4)|${\AF_INET})$/;
@@ -1843,7 +1844,7 @@ sub _resolv {
 
     my ($err, @getaddr) = Socket::getaddrinfo($h{host}, undef, \%hints);
     if (defined($getaddr[0])) {
-      my ($err, $address) = Socket::getnameinfo($getaddr[0]->{addr}, $NI_NUMERICHOST);
+      my ($err, $address) = Socket::getnameinfo($getaddr[0]->{addr}, $NI_NUMERICHOST, $NIx_NOSERV);
       if (defined($address)) {
         $h{addr} = $address;
         $h{addr} =~ s/\%(.)*$//; # remove %ifID if IPv6

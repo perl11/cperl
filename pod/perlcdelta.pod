@@ -308,6 +308,10 @@ Suppress new Autovivified hash slice warning
 
 formatting, cperl enhancements
 
+=item L<Net::Ping> 2.64
+
+use NIx_NOSERV flag for windows
+
 =item L<OS2::Process>  1.12_01
 
 =item L<PerlIO::scalar> 0.29_01

@@ -16361,6 +16361,7 @@ our %delta = (
             'List::Util::XS'        => '1.49_10',
             'Module::Load::Conditional' => '0.68_02',
             'mro'                   => '1.21_01',
+            'Net::Ping'             => '2.64',
             'PerlIO::scalar'        => '0.29_01',
             'PerlIO::via'           => '0.17_01',
             'Pod::Checker'          => '1.73_01',
