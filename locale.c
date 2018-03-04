@@ -934,9 +934,7 @@ S_emulate_setlocale(const int category,
             PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale creating new object failed: %d\n", __FILE__, __LINE__, GET_ERRNO);
         }
 #  endif
-
         if (! uselocale(old_obj)) {
-            SAVE_ERRNO;
 #  ifdef DEBUGGING
             if (DEBUG_L_TEST || debug_initialization) {
                 PerlIO_printf(Perl_debug_log, "%s:%d: switching back failed: %d\n", __FILE__, __LINE__, GET_ERRNO);
