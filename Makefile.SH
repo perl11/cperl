@@ -1552,15 +1552,15 @@ _cleaner2:
 	-rmdir lib/Parse/CPAN lib/Parse lib/Params lib/Net/FTP
 	-rmdir lib/Module/Load lib/Module/CoreList lib/Module lib/Memoize
 	-rmdir lib/Math/BigInt lib/Math/BigFloat lib/Math lib/MIME
-	-rmdir lib/Locale/Maketext lib/Locale/Codes lib/Locale
-	-rmdir lib/List/Util lib/List lib/LibYAML/lib/YAML/XS
-	-rmdir lib/LibYAML/lib/YAML lib/LibYAML/lib lib/LibYAML lib/JSON/PP
-	-rmdir lib/JSON lib/Internals lib/IPC lib/IO/Uncompress/Adapter
-	-rmdir lib/IO/Uncompress lib/IO/Socket lib/IO/Compress/Zlib
-	-rmdir lib/IO/Compress/Zip lib/IO/Compress/Gzip
-	-rmdir lib/IO/Compress/Base lib/IO/Compress/Adapter lib/IO/Compress
-	-rmdir lib/IO lib/I18N/LangTags lib/I18N lib/Hash/Util lib/Hash
-	-rmdir lib/HTTP lib/Filter/Util lib/Filter lib/File/Spec
+	-rmdir lib/Locale/Maketext lib/Locale lib/List/Util lib/List
+	-rmdir lib/LibYAML/lib/YAML/XS lib/LibYAML/lib/YAML lib/LibYAML/lib
+	-rmdir lib/LibYAML lib/JSON/PP lib/JSON lib/Internals lib/IPC
+	-rmdir lib/IO/Uncompress/Adapter lib/IO/Uncompress lib/IO/Socket
+	-rmdir lib/IO/Compress/Zlib lib/IO/Compress/Zip
+	-rmdir lib/IO/Compress/Gzip lib/IO/Compress/Base
+	-rmdir lib/IO/Compress/Adapter lib/IO/Compress lib/IO
+	-rmdir lib/I18N/LangTags lib/I18N lib/Hash/Util lib/Hash lib/HTTP
+	-rmdir lib/Filter/Util lib/Filter lib/File/Spec
 	-rmdir lib/ExtUtils/Typemaps lib/ExtUtils/ParseXS
 	-rmdir lib/ExtUtils/MakeMaker/version lib/ExtUtils/MakeMaker
 	-rmdir lib/ExtUtils/Liblist lib/ExtUtils/Constant
