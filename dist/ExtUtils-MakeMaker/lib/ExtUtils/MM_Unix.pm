@@ -465,9 +465,9 @@ MAN3PODS = ".$self->wraplist(sort keys %{$self->{MAN3PODS}})."
     my $configdep = $Config{usecperl} ? 'Config_heavy.pl' : 'Config.pm';
     push @m, q{
 # Where is the Config information that we are using/depend on
-CONFIGDEP = $(PERL_ARCHLIBDEP)$(DFSEP)}.$configdep.q{ $(PERL_INCDEP)$(DFSEP)config.h
-} if -e $self->catfile( $self->{PERL_INC}, 'config.h' );
-
+CONFIGDEP = $(PERL_ARCHLIBDEP)}.$self->{DFSEP}.$configdep.
+            q{ $(PERL_INCDEP)}.$self->{DFSEP}."config.h"
+      if -e $self->catfile( $self->{PERL_INC}, 'config.h' );
 
     push @m, qq{
 # Where to build things

@@ -8,8 +8,10 @@ my $version = MM->parse_version('Config.pm');
 WriteMakefile(
     'ABSTRACT'		=> 'Fast XS drop-in replacement for Config.pm with perfect hashing',
     'AUTHOR'		=> ($ExtUtils::MakeMaker::VERSION >= '6.58'
-                                ? ['Daniel Dragan <bulkdd@cpan.org>', 'Reini Urban <rurban@cpan.org>']
-                                : 'Daniel Dragan <bulkdd@cpan.org>, Reini Urban <rurban@cpan.org>'),
+                            ? ['Daniel Dragan <bulkdd@cpan.org>',
+                               'Reini Urban <rurban@cpan.org>']
+                            : 'Daniel Dragan <bulkdd@cpan.org>, '
+                              .'Reini Urban <rurban@cpan.org>'),
     'DISTNAME'		=> 'XSConfig',
     'LICENSE'		=> 'perl',
     'NAME'		=> 'Config',
