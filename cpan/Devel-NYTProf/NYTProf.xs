@@ -591,7 +591,11 @@ output_header(pTHX)
     const char *const basetime_str = ctime(&basetime);
     const STRLEN basetime_str_len = strlen(basetime_str);
     const char version[] = STRINGIFY(PERL_REVISION) "."
-        STRINGIFY(PERL_VERSION) "." STRINGIFY(PERL_SUBVERSION);
+        STRINGIFY(PERL_VERSION) "." STRINGIFY(PERL_SUBVERSION)
+#ifdef USE_CPERL
+        "c"
+#endif
+        ;
     STRLEN len;
     const char *argv0 = SvPV(sv, len);
 
