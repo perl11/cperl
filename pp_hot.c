@@ -4648,7 +4648,7 @@ PP(pp_subst)
 	    }
 	    SPAGAIN;
             if (PL_op->op_private & OPpTRUEBOOL)
-                PUSHs(iters ? &PL_sv_yes : &PL_sv_zero);
+                PUSHs(iters ? SV_YES : SV_ZERO);
             else
                 mPUSHi(iters);
 	}
