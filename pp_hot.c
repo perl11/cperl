@@ -5326,7 +5326,10 @@ PP(pp_entersub)
         }
     }
     if (CvISXSUB(cv) && CvROOT(cv)
-        /* do not switch from PP cv to XS cd back to PP:DBsub with -d */
+        /* do not switch from PP cv to XS cd back to PP:DBsub with -d.
+         * The !CvNODEBUG(cv) check also ensures that an empty Devel::*->import call
+         * may never be called as DB::sub callback.
+         */
         && !UNLIKELY((PL_op->op_private & OPpENTERSUB_DB) && GvCV(PL_DBsub)
                      && !CvNODEBUG(cv))) {
         /* dynamically bootstrapped XS. goto to the XS variant */
@@ -5388,6 +5391,8 @@ PP(pp_entersub)
     if (UNLIKELY((CvFLAGS(cv) & (CVf_CLONE|CVf_CLONED)) == CVf_CLONE))
 	DIE(aTHX_ "Closure prototype called");
 
+    /* Ensure that we don't mix up DB::sub with an empty Devel::*->import call
+     * which has CvNODEBUG set */
     if (UNLIKELY((PL_op->op_private & OPpENTERSUB_DB) && GvCV(PL_DBsub)
                  && !CvNODEBUG(cv)))
     {

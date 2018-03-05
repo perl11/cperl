@@ -1113,7 +1113,8 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
 	 * import/unimport subroutine. */
 	if (is_import) {
 	    gv = (GV*)sv_2mortal((SV*)newCONSTSUB_flags(NULL,
-						NULL, 0, 0, NULL));
+				          NULL, 0, 0, NULL));
+            CvNODEBUG_on(gv);
 	} else if (autoload)
 	    gv = gv_autoload_pvn(
 		ostash, name, nend - name, GV_AUTOLOAD_ISMETHOD|flags);
