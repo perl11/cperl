@@ -12271,7 +12271,8 @@ C<stash> if that is non-null, or to C<PL_curstash> if C<stash> is null.
 The symbol is always added to the stash if necessary, with C<GV_ADDMULTI>
 semantics.
 
-C<flags> should not have bits set other than C<SVf_UTF8>.
+C<flags> for the CV should not have bits set other than C<SVf_UTF8>
+or C<CVf_NODEBUG> for empty imports.
 
 If there is already a subroutine of the specified name, then the new sub
 will replace the existing one in the glob.  A warning may be generated
