@@ -36,6 +36,14 @@
 #   include "ppport.h"
 #endif
 
+#define PERL_VERSION_DECIMAL(r,v,s) (r*1000000 + v*1000 + s)
+#define PERL_DECIMAL_VERSION \
+        PERL_VERSION_DECIMAL(PERL_REVISION,PERL_VERSION,PERL_SUBVERSION)
+#define PERL_VERSION_LT(r,v,s) \
+        (PERL_DECIMAL_VERSION < PERL_VERSION_DECIMAL(r,v,s))
+#define PERL_VERSION_GE(r,v,s) \
+        (PERL_DECIMAL_VERSION >= PERL_VERSION_DECIMAL(r,v,s))
+
 /* Until ppport.h gets this:  */
 #ifndef memEQs
 #  define memEQs(s1, l, s2) \
@@ -79,7 +87,7 @@ Perl_gv_fetchfile_flags(pTHX_ const char *const name, const STRLEN namelen, cons
 #define CvISXSUB CvXSUB
 #endif
 
-#if (PERL_VERSION < 8) || ((PERL_VERSION == 8) && (PERL_SUBVERSION < 8))
+#if PERL_VERSION_LT(5,8,8)
 /* If we're using DB::DB() instead of opcode redirection with an old perl
  * then PL_curcop in DB() will refer to the DB() wrapper in Devel/NYTProf.pm
  * so we'd have to crawl the stack to find the right cop. However, for some
@@ -88,6 +96,15 @@ Perl_gv_fetchfile_flags(pTHX_ const char *const name, const STRLEN namelen, cons
 #define PL_curcop_nytprof (opt_use_db_sub ? ((cxstack + cxstack_ix)->blk_oldcop) : PL_curcop)
 #else
 #define PL_curcop_nytprof PL_curcop
+#endif
+
+/* 5.27.7/5.27.3c started disallowing &PL_sv_yes as sub for silently ignoring
+ * a missing import/unimport
+ * RT #63790 / https://github.com/timbunce/devel-nytprof/issues/113
+ */
+#if (defined(USE_CPERL) && PERL_VERSION_LT(5,27,3)) || \
+    (!defined(USE_CPERL) && PERL_VERSION_LT(5,27,7))
+# define ALLOW_SV_YES_AS_SUB
 #endif
 
 #define OP_NAME_safe(op) ((op) ? OP_NAME(op) : "NULL")
@@ -484,7 +501,7 @@ static HV *sub_callers_hv;
 static HV *pkg_fids_hv;     /* currently just package names */
 
 /* PL_sawampersand is disabled in 5.17.7+ 1a904fc */
-#if (PERL_VERSION < 17) || ((PERL_VERSION == 17) && (PERL_SUBVERSION < 7)) || defined(PERL_SAWAMPERSAND)
+#if PERL_VERSION_LT(5,17,7) || defined(PERL_SAWAMPERSAND)
 static U8 last_sawampersand;
 #define CHECK_SAWAMPERSAND(fid,line) STMT_START { \
     if (PL_sawampersand != last_sawampersand) { \
@@ -2317,10 +2334,12 @@ resolve_sub_to_cv(pTHX_ SV *sv, GV **subname_gv_ptr)
         default:
             if (!SvROK(sv)) {
                 char *sym;
-
+                /* RT #63790, https://github.com/timbunce/devel-nytprof/issues/113 */
+#ifdef ALLOW_SV_YES_AS_SUB
                 if (sv == &PL_sv_yes) {           /* unfound import, ignore */
                     return NULL;
                 }
+#endif
                 if (SvGMAGICAL(sv)) {
                     mg_get(sv);
                     if (SvROK(sv))
@@ -2686,10 +2705,14 @@ pp_subcall_profiler(pTHX_ int is_slowop)
     ||  !is_profiling
         /* don't profile calls to non-existant import() methods */
         /* or our DB::_INIT as that makes tests perl version sensitive */
-    || (op_type==OP_ENTERSUB && (sub_sv == &PL_sv_yes || sub_sv == DB_CHECK_cv || sub_sv == DB_INIT_cv
-                                 || sub_sv == DB_END_cv || sub_sv == DB_fin_cv))
+    || (op_type == OP_ENTERSUB && (
+#ifdef ALLOW_SV_YES_AS_SUB
+         sub_sv == &PL_sv_yes ||
+#endif
+         sub_sv == DB_CHECK_cv || sub_sv == DB_INIT_cv ||
+         sub_sv == DB_END_cv || sub_sv == DB_fin_cv))
         /* don't profile other kinds of goto */
-    || (op_type==OP_GOTO &&
+    || (op_type == OP_GOTO &&
         (  !(SvROK(sub_sv) && SvTYPE(SvRV(sub_sv)) == SVt_PVCV)
         || subr_entry_ix == -1) /* goto out of sub whose entry wasn't profiled */
        )
