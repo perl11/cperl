@@ -2976,7 +2976,7 @@ pp_subcall_profiler(pTHX_ int is_slowop)
 
 
 static OP *
-pp_stmt_profiler(pTHX)                            /* handles OP_DBSTATE, OP_SETSTATE, etc */
+pp_stmt_profiler(pTHX)                            /* handles OP_DBSTATE, OP_NEXTSTATE */
 {
     OP *op = run_original_op(PL_op->op_type);
     DB_stmt(aTHX_ NULL, op);
@@ -3264,7 +3264,7 @@ init_profiler(pTHX)
     if (profile_stmts && !opt_use_db_sub) {
         PL_ppaddr[OP_NEXTSTATE]  = pp_stmt_profiler;
         PL_ppaddr[OP_DBSTATE]    = pp_stmt_profiler;
-#ifdef OP_SETSTATE
+#if (PERL_VERSION < 11) && defined(OP_SETSTATE)
         PL_ppaddr[OP_SETSTATE]   = pp_stmt_profiler;
 #endif
         if (profile_leave) {
