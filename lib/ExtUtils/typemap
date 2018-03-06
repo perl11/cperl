@@ -393,13 +393,13 @@ T_ARRAY
 	    EXTEND(SP, extend_size);
 	    for (ix_$var = 0; ix_$var < size_$var; ix_$var++) {
 		ST(ix_$var) = sv_newmortal();
-	DO_ARRAY_ELEM
+		DO_ARRAY_ELEM
 	    }
         }
 T_STDIO
 	{
-	    GV *gv = (GV *)sv_newmortal();
 	    PerlIO *fp = PerlIO_importFILE($var,0);
+	    GV *gv = (GV *)sv_newmortal();
 	    gv_init_pvn(gv, gv_stashpvs("$Package",1),"__ANONIO__",10,0);
 	    if ( fp && do_openn(gv, "+<&", 3, FALSE, 0, 0, fp, NULL, 0) ) {
 		SV *rv = newRV_inc((SV*)gv);

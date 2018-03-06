@@ -472,7 +472,7 @@ PerlIO_allocate(pTHX)
     }
     *last = (PerlIOl*) f++;
 
-    good_exit:
+  good_exit:
     f->flags = 0; /* lockcnt */
     f->tab = NULL;
     f->head = f;
@@ -504,14 +504,15 @@ PerlIO_cleantable(pTHX_ PerlIOl **tablep)
     PerlIOl * const table = *tablep;
     if (table) {
 	int i;
-	PerlIO_cleantable(aTHX_(PerlIOl **) & (table[0]));
+	PerlIO_cleantable(aTHX_ (PerlIOl **)&(table[0]));
 	for (i = PERLIO_TABLE_SIZE - 1; i > 0; i--) {
 	    PerlIOl * const f = table + i;
 	    if (f->next) {
                 DEBUG_I(PerlIO_debug(
                     "cleantable: close table[%d] next=%p flags=%d tab=%p err=%d\n",
                     i, f->next, (int)f->flags, f->tab, f->err));
-		PerlIO_close(&(f->next));
+                PerlIO_close(&(f->next));
+                f->next = NULL;
 	    }
 	}
 	Safefree(table);
@@ -1684,9 +1685,9 @@ PerlIOBase_flush_linebuf(pTHX)
 	table = (PerlIOl **) (f++);
 	for (i = 1; i < PERLIO_TABLE_SIZE; i++) {
 	    if (f->next
-		&& (PerlIOBase(&(f->next))->
-		    flags & (PERLIO_F_LINEBUF | PERLIO_F_CANWRITE))
-		== (PERLIO_F_LINEBUF | PERLIO_F_CANWRITE))
+		&& (PerlIOBase(&(f->next))->flags
+		        & (PERLIO_F_LINEBUF | PERLIO_F_CANWRITE))
+		       == (PERLIO_F_LINEBUF | PERLIO_F_CANWRITE))
 		PerlIO_flush(&(f->next));
 	    f++;
 	}
@@ -2833,7 +2834,7 @@ PerlIOUnix_close(pTHX_ PerlIO *f)
     const int fd = PerlIOSelf(f, PerlIOUnix)->fd;
     int code = 0;
     if (PerlIOBase(f)->flags & PERLIO_F_OPEN) {
-	if (PerlIOUnix_refcnt_dec(fd) > 0) {
+	if (fd >= 0 && PerlIOUnix_refcnt_dec(fd) > 0) {
 	    PerlIOBase(f)->flags &= ~PERLIO_F_OPEN;
 	    return 0;
 	}
@@ -3280,7 +3281,7 @@ PerlIOStdio_close(pTHX_ PerlIO *f)
     else {
         const int fd = fileno(stdio);
 	int invalidate = 0;
-	IV result = 0;
+	int result = 0;
 	int dupfd = -1;
 	dSAVEDERRNO;
 #ifdef USE_ITHREADS
@@ -3314,6 +3315,21 @@ PerlIOStdio_close(pTHX_ PerlIO *f)
 		return 0;
 	    if (stdio == stdout || stdio == stderr)
 		return PerlIO_flush(f);
+        }
+        /* Was already closed and freed (i.e. stdio not being std{in,out,err} anymore)
+         * This might happen in global destruction. */
+        else if (fd == -1 &&
+                 !(PerlIOBase(f)->flags & PERLIO_F_OPEN) &&
+                 (PL_phase == PERL_PHASE_DESTRUCT))
+        {
+            DEBUG_I(PerlIO_debug("PerlIOStdio_close: f=%p %s already closed\n",
+                                 stdio,
+                                 stdio == stdin  ? "stdin"
+                                 : stdio == stdout ? "stdout"
+                                 : stdio == stderr ? "stderr"
+                                 : "?"));
+            errno = EBADF;
+            return -1;
         }
         MUTEX_LOCK(&PL_perlio_mutex);
         /* Right. We need a mutex here because for a brief while we
