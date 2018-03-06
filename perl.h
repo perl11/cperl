@@ -863,17 +863,17 @@ EXTERN_C int usleep(unsigned int);
  * let's define them if necessary. */
 #ifndef UINT16_C
 #  if INTSIZE >= 2
-#    define UINT16_C(x) ((U16_TYPE)x##U)
+#    define UINT16_C(x) ((U16TYPE)x##U)
 #  else
-#    define UINT16_C(x) ((U16_TYPE)x##UL)
+#    define UINT16_C(x) ((U16TYPE)x##UL)
 #  endif
 #endif
 
 #ifndef UINT32_C
 #  if INTSIZE >= 4
-#    define UINT32_C(x) ((U32_TYPE)x##U)
+#    define UINT32_C(x) ((U32TYPE)x##U)
 #  else
-#    define UINT32_C(x) ((U32_TYPE)x##UL)
+#    define UINT32_C(x) ((U32TYPE)x##UL)
 #  endif
 #endif
 
