@@ -926,7 +926,7 @@ match(Char *name, Char *pat, Char *patend, int nocase)
 	Char *nextp = NULL;
 	Char *nextn = NULL;
 
-    loop:
+    redo:
 	while (pat < patend) {
 		c = *pat++;
 		switch (c & M_MASK) {
@@ -977,7 +977,7 @@ match(Char *name, Char *pat, Char *patend, int nocase)
 	if (nextn) {
 		pat = nextp;
 		name = nextn;
-		goto loop;
+		goto redo;
 	}
 	return 0;
 }
