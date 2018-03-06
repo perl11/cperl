@@ -6561,8 +6561,9 @@ subroutine will be called to act as a simple source filter, with the
 line as read in L<C<$_>|perlvar/$_>.
 Again, return 1 for each valid line, and 0 after all lines have been
 returned.
-For historical reasons the subroutine will receive a meaningless argument
-(in fact always the numeric value zero) as C<$_[0]>.
+In older perls the subroutine received a meaningless argument
+(in fact always the numeric value zero) as C<$_[0]>. It should be the
+reference to the subroutine itself.
 
 =item 4
 
