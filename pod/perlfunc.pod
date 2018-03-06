@@ -904,12 +904,13 @@ method doing the blessing.  See L<perlobj> for more about the blessing
 
 Consider always blessing objects in CLASSNAMEs that are mixed case.
 Namespaces with all lowercase names are considered reserved for
-Perl pragmas.  Builtin types have all uppercase names.  To prevent
-confusion, you may wish to avoid such package names as well.
+Perl pragmas.  Builtin types in perl5 had all uppercase names,
+with cperl and perl6 types are named conventionally.
+To prevent confusion, you may wish to avoid all uppercase names as well.
 It is advised to avoid the class name C<0>, because much code erroneously
 uses the result of L<C<ref>|/ref EXPR> as a truth value.
 
-See L<perlmod/"Perl Modules">.
+See L<perlmod/"Perl Modules">, L<perltypes> and L<perlclass>
 
 =item break
 
