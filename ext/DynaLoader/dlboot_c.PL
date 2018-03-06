@@ -1,5 +1,5 @@
 use Config;
-our $VERSION = "2.07c";
+our $VERSION = "2.08c";
 
 sub to_string {
     my ($value) = @_;
@@ -127,7 +127,7 @@ dl_boot (pTHX) {
     dl_library_path = get_avs("DynaLoader::dl_library_path", GV_ADDMULTI);
     inc_hv = GvHVn(PL_incgv);
     (void)hv_store(inc_hv, "DynaLoader.pm", sizeof("DynaLoader.pm")-1,
-                   SvREFCNT_inc_simple_NN(newSVpvs(__FILE__)), 0);
+                   SvREFCNT_inc_NN(newSVpvs(__FILE__)), 0);
 EOT
 my $NUMVER = 0+$VERSION;
 print OUT line_prefix(__LINE__, <<"EOT");
@@ -149,9 +149,9 @@ print OUT line_prefix(__LINE__, <<'EOT');
     newXS("XSLoader::load_file",           XS_XSLoader_load_file, xsloaderfile);
     newXS("XSLoader::bootstrap_inherit",   XS_XSLoader_bootstrap_inherit, xsloaderfile);
     /* TODO CM-604: broke t/comp/require.t test 53: require does not localise %^H at run time */
-    Perl_set_version(aTHX_ STR_WITH_LEN("XSLoader::VERSION"), STR_WITH_LEN("1.03c"), 1.03);
+    Perl_set_version(aTHX_ STR_WITH_LEN("XSLoader::VERSION"), STR_WITH_LEN("1.04c"), 1.04);
     (void)hv_store(inc_hv, "XSLoader.pm", sizeof("XSLoader.pm")-1,
-                   SvREFCNT_inc_simple_NN(newSVpvs("XSLoader.c")), 0);
+                   SvREFCNT_inc_NN(newSVpvs("XSLoader.c")), 0);
 
     /* with duplicates removed and symlinks resolved from $Config{libpth} */
 EOT
