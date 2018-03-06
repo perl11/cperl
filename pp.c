@@ -1984,8 +1984,9 @@ PP(pp_repeat)
     SV *sv;
     bool infnan = FALSE;
     bool is_negative = FALSE;
+    const U8 gimme = GIMME_V;
 
-    if (GIMME_V == G_ARRAY && PL_op->op_private & OPpREPEAT_DOLIST) {
+    if (gimme == G_ARRAY && PL_op->op_private & OPpREPEAT_DOLIST) {
 	/* TODO: think of some way of doing list-repeat overloading ??? */
 	sv = POPs;
 	SvGETMAGIC(sv);
@@ -2050,7 +2051,7 @@ PP(pp_repeat)
                        "Negative repeat count does nothing");
     }
 
-    if (GIMME_V == G_ARRAY && PL_op->op_private & OPpREPEAT_DOLIST) {
+    if (gimme == G_ARRAY && PL_op->op_private & OPpREPEAT_DOLIST) {
 	dMARK;
 	const SSize_t items = SP - MARK;
 	const U8 mod = PL_op->op_flags & OPf_MOD;
