@@ -368,15 +368,15 @@ typedef uint64_t time_of_day_t;
 
 #ifdef HAS_QPC
 
-#  ifndef U64_CONST
+#  ifndef UINT64_C
 #    ifdef _MSC_VER
-#      define U64_CONST(x) x##UI64
+#      define UINT64_C(x) x##UI64
 #    else
-#      define U64_CONST(x) x##ULL
+#      define UINT64_C(x) x##ULL
 #    endif
 #  endif
 
-unsigned __int64 time_frequency = U64_CONST(0);
+unsigned __int64 time_frequency = UINT64_C(0);
 typedef unsigned __int64 time_of_day_t;
 #  define TICKS_PER_SEC time_frequency
 #  define get_time_of_day(into) QueryPerformanceCounter((LARGE_INTEGER*)&into)
@@ -389,8 +389,8 @@ typedef unsigned __int64 time_of_day_t;
   implemented, use signed __int64" on VC 6 */
 #  if defined(_MSC_VER) && _MSC_VER < 1300 /* < VC 7/2003*/
 #    define NYTPIuint642NV(x) \
-       ((NV)(__int64)((x) & U64_CONST(0x7FFFFFFFFFFFFFFF)) \
-       + -(NV)(__int64)((x) & U64_CONST(0x8000000000000000)))
+       ((NV)(__int64)((x) & UINT64_C(0x7FFFFFFFFFFFFFFF)) \
+       + -(NV)(__int64)((x) & UINT64_C(0x8000000000000000)))
 #    define get_NV_ticks_between(s, e, ticks, overflow) STMT_START { \
     overflow = 0; /* XXX whats this? */ \
     ticks = NYTPIuint642NV(e-s); \
