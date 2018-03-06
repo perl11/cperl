@@ -275,6 +275,10 @@ skip C<PUTBACK;return;> on XSRETURN in PPCODE
 remove perl5 incompatible C<__attribute__global__> needed for -flto.
 C<XS_EXTERNAL> has it already.
 
+=item C<ExtUtils::Typemap> 3.37
+
+Avoid leaking C<newGVgen>
+
 =item L<I18N::LangTags>  0.42_01
 
 Linkify docs.

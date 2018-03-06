@@ -16352,6 +16352,7 @@ our %delta = (
             'ExtUtils::ParseXS::CountLines'=> '3.36_03',
             'ExtUtils::ParseXS::Eval' => '3.36_03',
             'ExtUtils::ParseXS::Utilities'=> '3.36_03',
+            'ExtUtils::Typemap'     => '3.37',
             'Hash::Util'            => '0.22_01',
             'I18N::LangTags'        => '0.42_01',
             'IO'                    => '1.38_01',
