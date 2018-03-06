@@ -10,7 +10,7 @@ $|  = 1;
 use warnings;
 use Config;
 
-plan tests => 163;
+plan tests => 164;
 
 my $Perl = which_perl();
 
@@ -518,7 +518,7 @@ SKIP: {
 SKIP: {
     # The bug doesn't depend on perlio, but perlio provides this nice
     # way of discerning when a handle actually closes.
-    skip("These tests use perlio", 5) unless $Config{useperlio};
+    skip("These tests use perlio", 5) if !$Config{useperlio} or is_miniperl();
     my($a, $b, $s, $t);
     $s = "";
     open($a, ">:scalar:perlio", \$s) or die;

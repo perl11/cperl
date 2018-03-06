@@ -582,7 +582,7 @@ package main;
 
   my $coderef = eval "my sub foo (\$\x{30cd}) {1}; \\&foo";
   my $proto = prototype $coderef;
-  if (!$Config::Config{usecperl}) {
+  if ($^V !~ /c$/) { # not cperl
     ok(utf8::is_utf8($proto), "my sub with UTF8 proto maintains the UTF8ness");
     is($proto, "\$\x{30cd}", "check the prototypes actually match");
   } else {
