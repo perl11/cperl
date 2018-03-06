@@ -348,8 +348,7 @@ if (defined &DynaLoader::boot_DynaLoader) {
     write_file('bleah.pm',"require re; re->import('/x'); 1;\n");
     my $not = eval 'use bleah; "ab" =~ /a b/' ? "" : "not ";
     $i++;
-    #cperl only
-    print "not ok $i # TODO CM-833 require does not localise %^H at run time\n";
+    print "${not}ok $i - require does not localise %^H at run time\n";
 }
 
 ##########################################

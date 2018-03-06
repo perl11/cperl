@@ -259,6 +259,10 @@ XS improvements
 mkppport called PPPort_pm.PL without
 passing through MAKEFLAGS. Add --quiet support there
 
+=item L<DynaLoader> 2.09c
+
+Fix wrong usage of SvREFCNT_inc_simple_NN with a function, fixes a memory leak.
+
 =item L<ExtUtils::Miniperl> 1.08
 
 Support B<afl-fuzz> with L<afl-clang-fast|perlhacktips/"afl-fuzz">
@@ -342,6 +346,10 @@ Skip redefinition warnings on cperl since 5.27.2
 =item L<Unicode::UCD>  0.68_01
 
 =item L<Win32>  0.52_01
+
+=item L<XSLoader> 1.04c
+
+Fix wrong usage of SvREFCNT_inc_simple_NN with a function, fixes a memory leak.
 
 =back
 

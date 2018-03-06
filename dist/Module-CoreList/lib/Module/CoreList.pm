@@ -16346,6 +16346,7 @@ our %delta = (
             'Cpanel::JSON::XS'      => '4.01',
             'Data::Dumper'          => '2.167_03',
             'Devel::PPPort'         => '3.36_04',
+            'DynaLoader'            => '2.08c',
             'ExtUtils::ParseXS'     => '3.36_03',
             'ExtUtils::ParseXS::Constants'=> '3.36_03',
             'ExtUtils::ParseXS::CountLines'=> '3.36_03',
@@ -16373,6 +16374,7 @@ our %delta = (
             'Unicode::Collate'      => '1.25_01',
             'Unicode::UCD'          => '0.68_01',
             'Win32'                 => '0.52_01',
+            'XSLoader'              => '1.04c',
         },
         removed => {
             'Locale::Codes'         => '3.55',
