@@ -1366,6 +1366,44 @@ XS(XS_fields_set_value)
     }
 }
 
+#ifdef TEST_PERLIO_EXPORTFILE
+XS(XS_PerlIO_exportFILE);
+XS(XS_PerlIO_exportFILE)
+{
+    dVAR; dXSARGS;
+    if (items != 2)
+       croak_xs_usage(cv,  "f, mode");
+    {
+	FILE *	RETVAL;
+	PerlIO *	f = IoIFP(sv_2io(ST(0)));
+	const char *	mode = (const char *)SvPV_nolen(ST(1));
+
+	RETVAL = PerlIO_exportFILE(f, mode);
+	{
+	    SV * RETVALSV;
+	    RETVALSV = sv_newmortal();
+	    {
+		PerlIO *fp = PerlIO_importFILE(RETVAL,0);
+#if 1
+		GV *gv = (GV *)sv_newmortal();
+		gv_init_pvn(gv, gv_stashpvs("XS::APItest",1),"__ANONIO__",10,0);
+#else
+                /* This leaks a typeglob [perl #115814] */
+                GV *gv = newGVgen("XS::APItest");
+#endif
+		if ( fp && do_openn(gv, "+<&", 3, FALSE, 0, 0, fp, NULL, 0) ) {
+		    SV *rv = newRV_inc((SV*)gv);
+		    rv = sv_bless(rv, GvSTASH(gv));
+		    RETVALSV = sv_2mortal(rv);
+		}
+	    }
+	    ST(0) = RETVALSV;
+	}
+    }
+    XSRETURN(1);
+}
+#endif
+
 #include "vutil.h"
 #include "vxs.inc"
 
@@ -1410,6 +1448,9 @@ static const struct xsub_details details[] = {
     {"fields::type", XS_fields_type, "$"},
     {"fields::get_value", XS_fields_get_value, "$"},
     {"fields::set_value", XS_fields_set_value, "$$"},
+#ifdef TEST_PERLIO_EXPORTFILE
+    {"XS::APItest::PerlIO_exportFILE", XS_PerlIO_exportFILE, "$$"},
+#endif
 };
 
 STATIC OP*
