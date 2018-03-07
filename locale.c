@@ -2314,7 +2314,8 @@ S_my_nl_langinfo(const int item, bool toggle)
 
 #if defined(HAS_NL_LANGINFO) /* nl_langinfo() is available.  */
 #  if   ! defined(HAS_THREAD_SAFE_NL_LANGINFO_L)      \
-     || ! defined(HAS_POSIX_2008_LOCALE)
+     || ! defined(HAS_POSIX_2008_LOCALE)              \
+     || ! defined(DUPLOCALE)
 
     /* Here, use plain nl_langinfo(), switching to the underlying LC_NUMERIC
      * for those items dependent on it.  This must be copied to a buffer before
@@ -4959,7 +4960,9 @@ Perl_my_strerror(pTHX_ const int errnum)
         do_setlocale_c(LC_MESSAGES, save_locale);
     }
 
-#  elif defined(HAS_POSIX_2008_LOCALE) && defined(HAS_STRERROR_L)
+#  elif defined(HAS_POSIX_2008_LOCALE)                      \
+     && defined(HAS_STRERROR_L)                             \
+     && defined(HAS_DUPLOCALE)
 
     /* This function is also trivial if we don't have to worry about thread
      * safety and have strerror_l(), as it handles the switch of locales so we
