@@ -4426,8 +4426,11 @@ PerlIO_stdin()
 #undef FILE
 #define FILE NativeFile
 
+#ifndef TEST_PERLIO_EXPORTFILE
 FILE *
 PerlIO_exportFILE(PerlIO *f, const char *mode)
+
+#endif
 
 MODULE = XS::APItest PACKAGE = XS::APItest::AUTOLOADtest
 
