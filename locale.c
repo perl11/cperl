@@ -2346,7 +2346,7 @@ Perl_langinfo(const int item)
     return my_nl_langinfo(item, TRUE);
 }
 
-const char *
+STATIC const char *
 #ifdef HAS_NL_LANGINFO
 S_my_nl_langinfo(const nl_item item, bool toggle)
 #else
