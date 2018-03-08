@@ -607,6 +607,7 @@ Perl_do_trans(pTHX_ SV *sv)
     PERL_ARGS_ASSERT_DO_TRANS;
 
     if (SvREADONLY(sv) && !(flags & OPpTRANS_IDENTICAL)) {
+        DEBUG_t(PerlIO_printf(Perl_debug_log, "(ro) err\n"));
         croak_no_modify_sv(sv);
     }
     (void)SvPV_const(sv, len);
@@ -618,16 +619,17 @@ Perl_do_trans(pTHX_ SV *sv)
 	(void)SvPOK_only_UTF8(sv);
     }
 
-    DEBUG_t( Perl_deb(aTHX_ "2.TBL\n"));
-
     /* If we use only OPpTRANS_IDENTICAL to bypass the READONLY check,
      * we must also rely on it to choose the readonly strategy.
      */
     if (flags & OPpTRANS_IDENTICAL) {
+        DEBUG_t(PerlIO_printf(Perl_debug_log, "(count%s)", hasutf ? "_utf8" : ""));
         return hasutf ? do_trans_count_utf8(sv) : do_trans_count(sv);
     } else if (flags & (OPpTRANS_SQUASH|OPpTRANS_DELETE|OPpTRANS_COMPLEMENT)) {
+        DEBUG_t(PerlIO_printf(Perl_debug_log, "(complex%s)", hasutf ? "_utf8" : ""));
         return hasutf ? do_trans_complex_utf8(sv) : do_trans_complex(sv);
     } else {
+        DEBUG_t(PerlIO_printf(Perl_debug_log, "(simple%s)", hasutf ? "_utf8" : ""));
         return hasutf ? do_trans_simple_utf8(sv) : do_trans_simple(sv);
     }
 }
