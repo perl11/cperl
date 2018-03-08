@@ -273,6 +273,14 @@ L<Unicode::UCD> has been upgraded from version 0.69 to 0.70.
 The function C<num> now accepts an optional parameter to help in
 diagnosing error returns.
 
+L<I18N::Langinfo> has been upgraded from version 0.15 to 0.16.
+
+This module is now available on all platforms, emulating the system
+L<nl_langinfo(3)> on systems that lack it.  Some caveats apply, as
+L<detailed in its documentation|I18N::Langinfo>, the most severe being
+that the C<CODESET> item is not implemented on those systems, always
+returning C<"">.
+
 =back
 
 =head2 Removed Modules and Pragmata

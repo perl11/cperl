@@ -349,28 +349,30 @@ The Symbian port is licensed under the same terms as Perl itself.
 
 (This will show as "0.01" in the Symbian Installer.)
 
-  - The console window is a very simple console indeed: one can
-    get the newline with "000" and the "C" button is a backspace.
-    Do not expect a terminal capable of vt100 or ANSI sequences.
-    The console is also "ASCII", you cannot input e.g. any accented
-    letters.  Because of obvious physical constraints the console is
-    also very small: (in Nokia 6600) 22 columns, 17 rows.
-  - The following libraries are available:
-    AnyDBM_File AutoLoader base Carp Config Cwd constant
-    DynaLoader Exporter File::Spec integer lib strict Symbol
-    vars warnings XSLoader
-  - The following extensions are available:
-    Compress::Zlib Cwd Data::Dumper Devel::Peek Digest::MD5 DynaLoader
-    Fcntl File::Glob Filter::Util::Call IO List::Util MIME::Base64
-    PerlIO::scalar PerlIO::via SDBM_File Socket Storable Time::HiRes
-  - The following extensions are missing for various technical reasons:
-    B ByteLoader Devel::DProf Devel::PPPort Encode GDBM_File
-    I18N::Langinfo IPC::SysV NDBM_File Opcode PerlIO::encoding POSIX
-    re Safe Sys::Hostname Sys::Syslog
-    threads threads::shared Unicode::Normalize
-  - Using MakeMaker or the Module::* to build and install modules
-    is not supported.
-  - Building XS other than the ones in the core is not supported.
+ - The console window is a very simple console indeed: one can
+   get the newline with "000" and the "C" button is a backspace.
+   Do not expect a terminal capable of vt100 or ANSI sequences.
+   The console is also "ASCII", you cannot input e.g. any accented
+   letters.  Because of obvious physical constraints the console is
+   also very small: (in Nokia 6600) 22 columns, 17 rows.
+ - The following libraries are available:
+   AnyDBM_File AutoLoader base Carp Config Cwd constant
+   DynaLoader Exporter File::Spec integer lib strict Symbol
+   vars warnings XSLoader
+ - The following extensions are available:
+   attributes Compress::Zlib Cwd Data::Dumper Devel::Peek
+   Digest::MD5 DynaLoader Fcntl File::Glob Filter::Util::Call
+   IO List::Util MIME::Base64
+   PerlIO::scalar PerlIO::via SDBM_File Socket Storable Time::HiRes
+ - The following extensions are missing for various technical
+   reasons:
+   B ByteLoader Devel::DProf Devel::PPPort Encode GDBM_File
+   IPC::SysV NDBM_File Opcode PerlIO::encoding POSIX
+   re Safe Sys::Hostname Sys::Syslog
+   threads threads::shared Unicode::Normalize
+ - Using MakeMaker or the Module::* to build and install modules
+   is not supported.
+ - Building XS other than the ones in the core is not supported.
 
 Since this is 0.something release, any future releases are almost
 guaranteed to be binary incompatible.  As a sign of this the Symbian
