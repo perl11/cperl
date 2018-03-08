@@ -23,7 +23,7 @@ use Time::HiRes;
 @EXPORT_OK = qw(wakeonlan);
 # perl5 has a bogus version 2.62, where they claim they are still maintaining it,
 # and broke v5.6.
-$VERSION = "2.64";
+$VERSION = "2.66";
 
 # Globals
 
@@ -135,7 +135,7 @@ sub new
     unless $proto =~ m/^(icmp|icmpv6|udp|tcp|syn|stream|external)$/;
   $self->{proto} = $proto;
 
-  $timeout = $def_timeout unless $timeout;    # Determine the timeout
+  $timeout = $def_timeout unless defined $timeout;    # Determine the timeout
   croak("Default timeout for ping must be greater than 0 seconds")
     if $timeout <= 0;
   $self->{timeout} = $timeout;
@@ -178,7 +178,11 @@ sub new
       croak('Family must be "ipv4" or "ipv6"')
     }
   } else {
-    $self->{family} = $def_family;
+    if ($self->{proto} eq 'icmpv6') {
+      $self->{family} = $AF_INET6;
+    } else {
+      $self->{family} = $def_family;
+    }
   }
 
   $min_datasize = ($proto eq "udp") ? 1 : 0;  # Determine data size
@@ -230,7 +234,7 @@ sub new
   }
   elsif ($self->{proto} eq "icmpv6")
   {
-    croak("icmpv6 ping requires root privilege") if !_isroot();
+    #croak("icmpv6 ping requires root privilege") if !_isroot();
     croak("Wrong family $self->{family} for icmpv6 protocol")
       if $self->{family} and $self->{family} != $AF_INET6;
     $self->{family} = $AF_INET6;
@@ -694,7 +698,7 @@ sub ping_icmp
                 $checksum, $self->{pid}, $self->{seq}, $self->{data});
   } else {
                                           # how to get SRC
-    my $pseudo_header = pack('a16a16Nnn', $ip->{addr_in}, $ip->{addr_in}, 8+length($self->{data}), "\0", 0x003a);
+    my $pseudo_header = pack('a16a16Nnn', $ip->{addr_in}, $ip->{addr_in}, 8+length($self->{data}), 0, 0x003a);
     $msg = pack(ICMP_STRUCT . $self->{data_size}, ICMPv6_ECHO, SUBCODE,
                 $checksum, $self->{pid}, $self->{seq}, $self->{data});
     $msg = $pseudo_header.$msg
@@ -737,13 +741,25 @@ sub ping_icmp
       ($from_port, $from_ip) = _unpack_sockaddr_in($from_saddr, $ip->{family});
       ($from_type, $from_subcode) = unpack("C2", substr($recv_msg, 20, 2));
       if ($from_type == ICMP_ECHOREPLY) {
-        ($from_pid, $from_seq) = unpack("n3", substr($recv_msg, 24, 4))
-          if length $recv_msg >= 28;
+        #warn "ICMP_ECHOREPLY: ", $ip->{family}, " ",$recv_msg, ":", length($recv_msg);
+        ($from_pid, $from_seq) = unpack("n2", substr($recv_msg, 24, 4))
+          if ($ip->{family} == AF_INET && length $recv_msg == 28);
+        ($from_pid, $from_seq) = unpack("n2", substr($recv_msg, 4, 4))
+          if ($ip->{family} == $AF_INET6 && length $recv_msg == 8);
       } elsif ($from_type == ICMPv6_ECHOREPLY) {
-        ($from_pid, $from_seq) = unpack("n3", substr($recv_msg, 24, 4))
-          if length $recv_msg >= 28;
+        #($from_pid, $from_seq) = unpack("n3", substr($recv_msg, 24, 4))
+        #  if length $recv_msg >= 28;
+        #($from_pid, $from_seq) = unpack("n2", substr($recv_msg, 24, 4))
+        #  if ($ip->{family} == AF_INET && length $recv_msg == 28);
+        #warn "ICMPv6_ECHOREPLY: ", $ip->{family}, " ",$recv_msg, ":", length($recv_msg);
+        ($from_pid, $from_seq) = unpack("n2", substr($recv_msg, 4, 4))
+          if ($ip->{family} == $AF_INET6 && length $recv_msg == 8);
+      #} elsif ($from_type == ICMPv6_NI_REPLY) {
+      #  ($from_pid, $from_seq) = unpack("n2", substr($recv_msg, 4, 4))
+      #    if ($ip->{family} == $AF_INET6 && length $recv_msg == 8);
       } else {
-        ($from_pid, $from_seq) = unpack("n3", substr($recv_msg, 52, 4))
+        #warn "ICMP: ", $from_type, " ",$ip->{family}, " ",$recv_msg, ":", length($recv_msg);
+        ($from_pid, $from_seq) = unpack("n2", substr($recv_msg, 52, 4))
           if length $recv_msg >= 56;
       }
       $self->{from_ip} = $from_ip;
@@ -1803,7 +1819,7 @@ sub _resolv {
 
   # address check
   # new way
-  if ($Socket::VERSION >= 1.94) {
+  if (eval($Socket::VERSION) > 1.94) {
     my %hints = (
       family   => $AF_UNSPEC,
       protocol => IPPROTO_TCP,
@@ -2444,7 +2460,7 @@ kinds of ICMP packets.
 
 The latest source tree is available via git:
 
-  git clone https://github.com/rurban/net-ping.git Net-Ping
+  git clone https://github.com/rurban/Net-Ping.git
   cd Net-Ping
 
 The tarball can be created as follows:
@@ -2458,10 +2474,12 @@ The latest Net::Ping releases are included in cperl and perl5.
 For a list of known issues, visit:
 
 L<https://rt.cpan.org/NoAuth/Bugs.html?Dist=Net-Ping>
+and
+L<https://github.com/rurban/Net-Ping/issues>
 
 To report a new bug, visit:
 
-L<https://rt.cpan.org/NoAuth/ReportBug.html?Queue=Net-Ping> (stale)
+L<https://github.com/rurban/Net-Ping/issues>
 
 =head1 AUTHORS
 
@@ -2491,7 +2509,7 @@ L<https://rt.cpan.org/NoAuth/ReportBug.html?Queue=Net-Ping> (stale)
 
 =head1 COPYRIGHT
 
-Copyright (c) 2017, Reini Urban.  All rights reserved.
+Copyright (c) 2017-2018, Reini Urban.  All rights reserved.
 
 Copyright (c) 2016, cPanel Inc.  All rights reserved.
 

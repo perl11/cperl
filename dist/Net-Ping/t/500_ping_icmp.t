@@ -6,34 +6,43 @@ use strict;
 use Config;
 
 use Test::More;
+use Net::Ping;
 BEGIN {
-  unless (eval "require Socket") {
+  unless (eval "require Socket;") {
     plan skip_all => 'no Socket';
   }
   unless ($Config{d_getpbyname}) {
     plan skip_all => 'no getprotobyname';
   }
-  # Note this code is considered anti-social in p5p and was removed in
-  # their variant.
-  # See http://nntp.perl.org/group/perl.perl5.porters/240707
-  # Problem is that ping_icmp needs root perms, and previous bugs were
-  # never caught. So I rather execute it via sudo in the core test suite
-  # than not at all and risk further bitrot of this API.
-  require Net::Ping;
-  if (!Net::Ping::_isroot()) {
+}
+
+my $is_devel = $ENV{PERL_CORE} or -d ".git" ? 1 : 0;
+# Note this rawsocket test code is considered anti-social in p5p and was removed in
+# their variant.
+# See http://nntp.perl.org/group/perl.perl5.porters/240707
+# Problem is that ping_icmp needs root perms, and previous bugs were
+# never caught. So I rather execute it via sudo in the core test suite
+# and on devel CPAN dirs, than not at all and risk further bitrot of this API.
+if (!Net::Ping::_isroot()) {
     my $file = __FILE__;
     my $lib = $ENV{PERL_CORE} ? '-I../../lib' : '-Mblib';
+    if ($is_devel and $Config{ccflags} =~ /fsanitize=address/ and $^O eq 'linux') {
+      plan skip_all => 'asan leak detector';
+    }
     # -n prevents from asking for a password. rather fail then
     # A technical problem is with leak-detectors, like asan, which
     # require PERL_DESTRUCT_LEVEL=2 to be set in the root env.
-    if ($ENV{PERL_CORE} and
-        system("sudo -n PERL_DESTRUCT_LEVEL=2 \"$^X\" $lib $file") == 0)
+    my $env = "PERL_DESTRUCT_LEVEL=2";
+    if ($ENV{TEST_PING_HOST}) {
+      $env .= " TEST_PING_HOST=$ENV{TEST_PING_HOST}";
+    }
+    if ($is_devel and
+        system("sudo -n $env \"$^X\" $lib $file") == 0)
     {
       exit;
     } else {
       plan skip_all => 'no sudo/failed';
     }
-  }
 }
 
 SKIP: {
@@ -45,8 +54,13 @@ SKIP: {
     is($result, 1, "icmp ping 127.0.0.1");
   } else {
   TODO: {
-      local $TODO = "icmp firewalled?";
-      is($result, 1, "icmp ping 127.0.0.1");
+      local $TODO = "localhost icmp firewalled?";
+      if (exists $ENV{TEST_PING_HOST}) {
+        my $result = $p->ping($ENV{TEST_PING_HOST});
+        is($result, 1, "icmp ping $ENV{TEST_PING_HOST}");
+      } else {
+        is($result, 1, "icmp ping 127.0.0.1");
+      }
     }
   }
 }
