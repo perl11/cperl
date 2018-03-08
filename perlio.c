@@ -1989,6 +1989,9 @@ IV
 PerlIOBase_pushed(pTHX_ PerlIO *f, const char *mode, SV *arg, PerlIO_funcs *tab)
 {
     PerlIOl * const l = PerlIOBase(f);
+#ifdef EBCDIC
+    int comma = 0;
+#endif
     PERL_UNUSED_CONTEXT;
     PERL_UNUSED_ARG(arg);
 
@@ -2014,25 +2017,25 @@ PerlIOBase_pushed(pTHX_ PerlIO *f, const char *mode, SV *arg, PerlIO_funcs *tab)
 	    return -1;
 	}
 #ifdef EBCDIC
-	{
         /* The mode variable contains one positional parameter followed by
          * optional keyword parameters.  The positional parameters must be
          * passed as lowercase characters.  The keyword parameters can be
          * passed in mixed case. They must be separated by commas. Only one
-         * instance of a keyword can be specified.  */
-	int comma = 0;
+         * instance of a keyword can be specified.
+         * The keywords are ignored.
+         */
 	while (*mode) {
 	    switch (*mode++) {
 	    case '+':
-		if(!comma)
+		if (!comma)
 		  l->flags |= PERLIO_F_CANREAD | PERLIO_F_CANWRITE;
 		break;
 	    case 'b':
-		if(!comma)
+		if (!comma)
 		  l->flags &= ~PERLIO_F_CRLF;
 		break;
 	    case 't':
-		if(!comma)
+		if (!comma)
 		  l->flags |= PERLIO_F_CRLF;
 		break;
 	    case ',':
@@ -2041,7 +2044,6 @@ PerlIOBase_pushed(pTHX_ PerlIO *f, const char *mode, SV *arg, PerlIO_funcs *tab)
 	    default:
 		break;
 	    }
-	}
 	}
 #else
 	while (*mode) {
@@ -2986,14 +2988,14 @@ PerlIO_importFILE(FILE *stdio, const char *mode)
         int fd0 = fileno(stdio);
         if (fd0 < 0) {
 #ifdef EBCDIC
-			  rc = fldata(stdio,filename,&fileinfo);
-			  if(rc != 0){
-				  return NULL;
-			  }
-			  if(fileinfo.__dsorgHFS){
-            return NULL;
-        }
-			  /*This MVS dataset , OK!*/
+            rc = fldata(stdio,filename,&fileinfo);
+            if (rc != 0) {
+                return NULL;
+            }
+            if (fileinfo.__dsorgHFS) {
+                return NULL;
+            }
+            /* This MVS dataset , OK! */
 #else
             return NULL;
 #endif
@@ -3029,20 +3031,20 @@ PerlIO_importFILE(FILE *stdio, const char *mode)
 	    s = PerlIOSelf(f, PerlIOStdio);
 	    s->stdio = stdio;
 #ifdef EBCDIC
-		fd0 = fileno(stdio);
-		if(fd0 != -1){
-			PerlIOUnix_refcnt_inc(fd0);
-		}
-		else{
-			rc = fldata(stdio,filename,&fileinfo);
-			if(rc != 0){
-				PerlIOUnix_refcnt_inc(fd0);
-			}
-			if(fileinfo.__dsorgHFS){
-				PerlIOUnix_refcnt_inc(fd0);
-			}
-			  /*This MVS dataset , OK!*/
-		}
+            fd0 = fileno(stdio);
+            if (fd0 != -1) {
+                PerlIOUnix_refcnt_inc(fd0);
+            }
+            else {
+                rc = fldata(stdio, filename, &fileinfo);
+                if (rc != 0) {
+                    PerlIOUnix_refcnt_inc(fd0);
+                }
+                if (fileinfo.__dsorgHFS) {
+                    PerlIOUnix_refcnt_inc(fd0);
+                }
+                /* This MVS dataset , OK! */
+            }
 #else
 	    PerlIOUnix_refcnt_inc(fileno(stdio));
 #endif
