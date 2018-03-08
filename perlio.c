@@ -508,6 +508,9 @@ PerlIO_cleantable(pTHX_ PerlIOl **tablep)
 	for (i = PERLIO_TABLE_SIZE - 1; i > 0; i--) {
 	    PerlIOl * const f = table + i;
 	    if (f->next) {
+                DEBUG_I(PerlIO_debug(
+                    "cleantable: close table[%d] next=%p flags=%d tab=%p err=%d\n",
+                    i, f->next, (int)f->flags, f->tab, f->err));
 		PerlIO_close(&(f->next));
 	    }
 	}
@@ -2161,6 +2164,8 @@ PerlIOBase_close(pTHX_ PerlIO *f)
 	    if (tab && tab->Close) {
 		if ((*tab->Close)(aTHX_ n) != 0)
 		    code = -1;
+                DEBUG_I(PerlIO_debug("PerlIOBase_close: f=%p => %" IVdf "\n",
+                                     n, code));
 		break;
 	    }
 	    else {
@@ -2838,6 +2843,8 @@ PerlIOUnix_close(pTHX_ PerlIO *f)
 	return -1;
     }
     while (PerlLIO_close(fd) != 0) {
+        DEBUG_I(PerlIO_debug("PerlIOUnix_close: f=%p fd=%d errno=%d\n",
+                             f, fd, errno));
 	if (errno != EINTR) {
 	    code = -1;
 	    break;
@@ -2846,6 +2853,8 @@ PerlIOUnix_close(pTHX_ PerlIO *f)
 	if (PL_sig_pending && S_perlio_async_run(aTHX_ f))
 	    return -1;
     }
+    DEBUG_I(PerlIO_debug("PerlIOUnix_close: f=%p fd=%d => %d\n",
+                         f, fd, code));
     if (code == 0) {
 	PerlIOBase(f)->flags &= ~PERLIO_F_OPEN;
     }
@@ -3287,6 +3296,9 @@ PerlIOStdio_close(pTHX_ PerlIO *f)
 	if (getsockopt(fd, SOL_SOCKET, SO_TYPE, (void *) &optval, &optlen) == 0)
 	    invalidate = 1;
 #endif
+        /* refcnt croaks on invalid -1 */
+        DEBUG_I(PerlIO_debug("PerlIOStdio_close: f=%p fd %d refcnt=%d\n",
+                             stdio, fd, fd >= 0 ? PerlIOUnix_refcnt(fd) : -1));
 	/* Test for -1, as *BSD stdio (at least) on fclose sets the FILE* such
 	   that a subsequent fileno() on it returns -1. Don't want to croak()
 	   from within PerlIOUnix_refcnt_dec() if some buggy caller code is
@@ -3343,6 +3355,8 @@ PerlIOStdio_close(pTHX_ PerlIO *f)
 	    SAVE_ERRNO;   /* This is here only to silence compiler warnings */
 	}
         result = PerlSIO_fclose(stdio);
+        DEBUG_I(PerlIO_debug("PerlIOStdio_close: f=%p fd %d => %d, dupfd=%d\n",
+                             stdio, fd, result, dupfd));
 	/* We treat error from stdio as success if we invalidated
 	   errno may NOT be expected EBADF
 	 */
@@ -3355,7 +3369,7 @@ PerlIOStdio_close(pTHX_ PerlIO *f)
 	result = close(fd);
 #endif
 	if (dupfd >= 0) {
-	    PerlLIO_dup2(dupfd,fd);
+	    PerlLIO_dup2(dupfd, fd);
 	    PerlLIO_close(dupfd);
 	}
         MUTEX_UNLOCK(&PL_perlio_mutex);

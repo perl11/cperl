@@ -8750,9 +8750,9 @@ Perl_sv_gets(pTHX_ SV *const sv, PerlIO *const fp, STRLEN append)
 
     /* some trace debug output */
     DEBUG_I(PerlIO_printf(Perl_debug_log,
-	"Screamer: entering, ptr=%" UVuf ", cnt=%ld\n",PTR2UV(ptr),(long)cnt));
+	"Screamer: entering, ptr=%" UVxf ", cnt=%ld\n",PTR2UV(ptr),(long)cnt));
     DEBUG_I(PerlIO_printf(Perl_debug_log,
-	"Screamer: entering: PerlIO * thinks ptr=%" UVuf ", cnt=%" IVdf ", base=%"
+	"Screamer: entering: PerlIO * thinks ptr=%" UVxf ", cnt=%" IVdf ", base=%"
 	 UVuf "\n",
 	       PTR2UV(PerlIO_get_ptr(fp)), (IV)PerlIO_get_cnt(fp),
 	       PTR2UV(PerlIO_has_base(fp) ? PerlIO_get_base(fp) : 0)));
@@ -8813,12 +8813,12 @@ Perl_sv_gets(pTHX_ SV *const sv, PerlIO *const fp, STRLEN append)
         /* we need to refill the read-ahead buffer if possible */
 
 	DEBUG_I(PerlIO_printf(Perl_debug_log,
-			     "Screamer: going to getc, ptr=%" UVuf ", cnt=%" IVdf "\n",
+			     "Screamer: going to getc, ptr=0x%" UVxf ", cnt=%" IVdf "\n",
 			      PTR2UV(ptr),(IV)cnt));
 	PerlIO_set_ptrcnt(fp, (STDCHAR*)ptr, cnt); /* deregisterize cnt and ptr */
 
 	DEBUG_Iv(PerlIO_printf(Perl_debug_log,
-	   "Screamer: pre: FILE * thinks ptr=%" UVuf ", cnt=%" IVdf ", base=%" UVuf "\n",
+	   "Screamer: pre: FILE * thinks ptr=0x%" UVxf ", cnt=%" IVdf ", base=%" UVuf "\n",
 	    PTR2UV(PerlIO_get_ptr(fp)), (IV)PerlIO_get_cnt(fp),
 	    PTR2UV(PerlIO_has_base (fp) ? PerlIO_get_base(fp) : 0)));
 
@@ -8834,7 +8834,7 @@ Perl_sv_gets(pTHX_ SV *const sv, PerlIO *const fp, STRLEN append)
 	i   = PerlIO_getc(fp);		/* get more characters */
 
 	DEBUG_Iv(PerlIO_printf(Perl_debug_log,
-	   "Screamer: post: FILE * thinks ptr=%" UVuf ", cnt=%" IVdf ", base=%" UVuf "\n",
+	   "Screamer: post: FILE * thinks ptr=0x%" UVxf ", cnt=%" IVdf ", base=0x%" UVxf "\n",
 	    PTR2UV(PerlIO_get_ptr(fp)), (IV)PerlIO_get_cnt(fp),
 	    PTR2UV(PerlIO_has_base (fp) ? PerlIO_get_base(fp) : 0)));
 
@@ -8842,7 +8842,7 @@ Perl_sv_gets(pTHX_ SV *const sv, PerlIO *const fp, STRLEN append)
 	cnt = PerlIO_get_cnt(fp);
 	ptr = (STDCHAR*)PerlIO_get_ptr(fp);	/* reregisterize cnt and ptr */
 	DEBUG_I(PerlIO_printf(Perl_debug_log,
-	    "Screamer: after getc, ptr=%" UVuf ", cnt=%" IVdf "\n",
+	    "Screamer: after getc, ptr=0x%" UVxf ", cnt=%" IVdf "\n",
 	    PTR2UV(ptr),(IV)cnt));
 
 	if (i == EOF)			/* all done for ever? */
@@ -8872,10 +8872,10 @@ Perl_sv_gets(pTHX_ SV *const sv, PerlIO *const fp, STRLEN append)
     if (shortbuffered)
 	cnt += shortbuffered;
 	DEBUG_I(PerlIO_printf(Perl_debug_log,
-	     "Screamer: quitting, ptr=%" UVuf ", cnt=%" IVdf "\n",PTR2UV(ptr),(IV)cnt));
+	     "Screamer: quitting, ptr=0x%" UVxf ", cnt=%" IVdf "\n",PTR2UV(ptr),(IV)cnt));
     PerlIO_set_ptrcnt(fp, (STDCHAR*)ptr, cnt);	/* put these back or we're in trouble */
     DEBUG_I(PerlIO_printf(Perl_debug_log,
-	"Screamer: end: FILE * thinks ptr=%" UVuf ", cnt=%" IVdf ", base=%" UVuf
+	"Screamer: end: FILE * thinks ptr=0x%" UVxf ", cnt=%" IVdf ", base=0x%" UVxf
 	"\n",
 	PTR2UV(PerlIO_get_ptr(fp)), (IV)PerlIO_get_cnt(fp),
 	PTR2UV(PerlIO_has_base (fp) ? PerlIO_get_base(fp) : 0)));
