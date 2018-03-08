@@ -3644,6 +3644,10 @@ Perl_debop(pTHX_ const OP *o)
             SVfARG(multiconcat_stringify(o)));
         break;
 
+    case OP_TRANS:
+    case OP_TRANSR:
+        return 0; /* Let pp_trans print the optional argument */
+
     default:
 	break;
     }

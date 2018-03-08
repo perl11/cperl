@@ -828,7 +828,9 @@ PP(pp_trans)
     else {
 	I32 i = do_trans(sv);
 	mPUSHi(i);
+        DEBUG_t(PerlIO_printf(Perl_debug_log, " %d", (int)i));
     }
+    DEBUG_t(PerlIO_printf(Perl_debug_log, "\n"));
     RETURN;
 }
 
