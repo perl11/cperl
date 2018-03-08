@@ -317,9 +317,10 @@ Suppress new Autovivified hash slice warning
 
 formatting, cperl enhancements
 
-=item L<Net::Ping> 2.64
+=item L<Net::Ping> 2.66
 
-use NIx_NOSERV flag for windows
+use NIx_NOSERV flag for windows.
+better icmpv6 support.
 
 =item L<OS2::Process>  1.12_01
 
