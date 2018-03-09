@@ -11152,9 +11152,9 @@ PERL_CALLCONV int	Perl_PerlIO_error(pTHX_ PerlIO *f)
 PERL_CALLCONV FILE *	PerlIO_exportFILE(PerlIO *f, const char* mode)
 			__attribute__global__
 			__attribute__warn_unused_result__
-			__attribute__nonnull__(2);
+			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_PERLIO_EXPORTFILE	\
-	assert(mode)
+	assert(f)
 
 PERL_CALLCONV int	Perl_PerlIO_fileno(pTHX_ PerlIO *f)
 			__attribute__global__;

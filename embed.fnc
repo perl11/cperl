@@ -3085,7 +3085,7 @@ ApR	|PerlIO *|PerlIO_stdout
 ApR	|PerlIO *|PerlIO_stderr
 ApR	|PerlIO *|PerlIO_debugio
 : XS API without Perl_ prefix
-AnRd	|FILE *|PerlIO_exportFILE	|NULLOK PerlIO *f|NN const char* mode
+AnRd	|FILE *|PerlIO_exportFILE	|NN PerlIO *f|NULLOK const char* mode
 AnRd	|FILE *|PerlIO_findFILE		|NN PerlIO *f
 And	|void  |PerlIO_releaseFILE	|NN PerlIO *p|NN FILE *f
 : used in perlio.c and the compiler
