@@ -768,7 +768,14 @@
 #endif
 
 #ifdef I_XLOCALE
+/* glibc 2.26 started removing this.
+ * On a system with updated glibc but not updated perl fix it up for XS compilation.
+ */
+# if !defined(__GLIBC__) || \
+    (__GLIBC__ == 2 && __GLIBC_MINOR__ < 26) || \
+    (__GLIBC__ < 2)
 #   include <xlocale.h>
+# endif
 #endif
 
 #if !defined(NO_LOCALE) && defined(HAS_SETLOCALE)
