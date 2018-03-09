@@ -323,23 +323,23 @@ static int bget_swab = 0;
 
 /* ignore backref and refcount checks */
 #if PERL_VERSION > 16 && defined(CvGV_set)
-# define BSET_xcv_gv(sv, arg)	((SvANY((CV*)bstate->bs_sv))->xcv_gv_u.xcv_gv = (GV*)arg)
+# define BSET_xcv_gv(sv, arg)	((SvANY((CV*)bstate->u.bs_sv))->xcv_gv_u.xcv_gv = (GV*)arg)
 #else
 # if PERL_VERSION > 13
-#  define BSET_xcv_gv(sv, arg)	((SvANY((CV*)bstate->bs_sv))->xcv_gv = (GV*)arg)
+#  define BSET_xcv_gv(sv, arg)	((SvANY((CV*)bstate->u.bs_sv))->xcv_gv = (GV*)arg)
 # else
-#  define BSET_xcv_gv(sv, arg)	(*(SV**)&CvGV(bstate->bs_sv) = arg)
+#  define BSET_xcv_gv(sv, arg)	(*(SV**)&CvGV(bstate->u.bs_sv) = arg)
 # endif
 #endif
 #if PERL_VERSION > 13 || defined(GvCV_set)
-# define BSET_gp_cv(sv, arg)	GvCV_set(bstate->bs_sv, (CV*)arg)
+# define BSET_gp_cv(sv, arg)	GvCV_set(bstate->u.bs_sv, (CV*)arg)
 #else
-# define BSET_gp_cv(sv, arg)	(*(SV**)&GvCV(bstate->bs_sv) = arg)
+# define BSET_gp_cv(sv, arg)	(*(SV**)&GvCV(bstate->u.bs_sv) = arg)
 #endif
 #if PERL_VERSION > 13 || defined(CvSTASH_set)
-# define BSET_xcv_stash(sv, arg)	(CvSTASH_set((CV*)bstate->bs_sv, (HV*)arg))
+# define BSET_xcv_stash(sv, arg)	(CvSTASH_set((CV*)bstate->u.bs_sv, (HV*)arg))
 #else
-# define BSET_xcv_stash(sv, arg)	(*(SV**)&CvSTASH(bstate->bs_sv) = arg)
+# define BSET_xcv_stash(sv, arg)	(*(SV**)&CvSTASH(bstate->u.bs_sv) = arg)
 #endif
 
 #ifndef GvCV_set
@@ -701,15 +701,15 @@ static int bget_swab = 0;
 	    (PL_endav = newAV(), PL_endav)), 1);	\
 	    av_store(PL_endav, 0, cv);			\
 	} STMT_END
-#define BSET_OBJ_STORE(obj, ix)			\
-	((I32)ix > bstate->bs_obj_list_fill ?	\
-	 bset_obj_store(aTHX_ bstate, obj, (I32)ix) : \
-	 (bstate->bs_obj_list[ix] = obj),	\
+#define BSET_OBJ_STORE(obj, ix)				\
+	((I32)ix > bstate->bs_obj_list_fill ?		\
+	 bset_obj_store(aTHX_ bstate, obj, (I32)ix) : 	\
+	 (bstate->bs_obj_list[ix] = obj),		\
 	 bstate->bs_ix = ix+1)
-#define BSET_OBJ_STOREX(obj)			\
-	(bstate->bs_ix > bstate->bs_obj_list_fill ?	\
+#define BSET_OBJ_STOREX(obj)                                \
+        (bstate->bs_ix > bstate->bs_obj_list_fill ?         \
 	 bset_obj_store(aTHX_ bstate, obj, bstate->bs_ix) : \
-	 (bstate->bs_obj_list[bstate->bs_ix] = obj),	\
+	 (bstate->bs_obj_list[bstate->bs_ix] = obj),	    \
 	 bstate->bs_ix++)
 
 #define BSET_signal(cv, name)						\
@@ -756,25 +756,25 @@ static int bget_swab = 0;
 #else
 /* unshare_hek not public */
 # if defined(WIN32)
-#  define BSET_gp_file(gv, file) \
-	STMT_START {							\
-	    STRLEN len = strlen(file);					\
-	    U32 hash;							\
-	    PERL_HASH(hash, file, len);					\
-	    GvFILE_HEK(gv) = share_hek(file, len, hash);		\
-	    Safefree(file);						\
+#  define BSET_gp_file(gv, file)                                \
+	STMT_START {						\
+	    STRLEN len = strlen(file);				\
+	    U32 hash;						\
+	    PERL_HASH(hash, file, len);				\
+	    GvFILE_HEK(gv) = share_hek(file, len, hash);	\
+	    Safefree(file);					\
 	} STMT_END
 # else
-#  define BSET_gp_file(gv, file) \
-	STMT_START {							\
-	    STRLEN len = strlen(file);					\
-	    U32 hash;							\
-	    PERL_HASH(hash, file, len);					\
-	    if(GvFILE_HEK(gv)) {					\
-		Perl_unshare_hek(aTHX_ GvFILE_HEK(gv));			\
-	    }								\
-	    GvFILE_HEK(gv) = share_hek(file, len, hash);		\
-	    Safefree(file);						\
+#  define BSET_gp_file(gv, file)                                \
+	STMT_START {						\
+	    STRLEN len = strlen(file);				\
+	    U32 hash;						\
+	    PERL_HASH(hash, file, len);				\
+	    if(GvFILE_HEK(gv)) {				\
+		Perl_unshare_hek(aTHX_ GvFILE_HEK(gv));		\
+	    }							\
+	    GvFILE_HEK(gv) = share_hek(file, len, hash);	\
+	    Safefree(file);					\
 	} STMT_END
 # endif
 #endif
@@ -795,21 +795,21 @@ static int bget_swab = 0;
 
 #if PERL_VERSION >= 17
 #define BSET_newpadlx(padl, arg)  STMT_START {      \
-    padl = (SV*)pad_new(arg);                       \
+    padl = pad_new(arg);                            \
     BSET_OBJ_STOREX(padl);                          \
   } STMT_END
 #if PERL_VERSION >= 22
 /* no binary names of lexvars */
-#define BSET_newpadnx(pn, pv) STMT_START {              \
-    pn = (SV*)newPADNAMEpvn(pv, strlen(pv));            \
-    BSET_OBJ_STOREX(pn);                                \
+#define BSET_newpadnx(pn, pv) STMT_START {    \
+    pn = newPADNAMEpvn(pv, strlen(pv));       \
+    BSET_OBJ_STOREX(pn);                      \
   } STMT_END
-#define BSET_padn_pv(pn, pv) STMT_START {               \
-    PadnamePV((PADNAME*)pn) = pv;                       \
-    PadnameLEN((PADNAME*)pn) = strlen(pv);              \
+#define BSET_padn_pv(pn, pv) STMT_START {     \
+    PadnamePV(pn) = pv;                       \
+    PadnameLEN(pn) = strlen(pv);              \
   } STMT_END
 #define BSET_newpadnlx(padnl, max)  STMT_START {        \
-    padnl = (SV*)newPADNAMELIST(max);                   \
+    padnl = newPADNAMELIST(max);                        \
     BSET_OBJ_STOREX(padnl);                             \
   } STMT_END
 /* Beware: PadnamelistMAX == xpadnl_fill (-1) */

@@ -192,6 +192,7 @@ cpan/B-C/t/stash.t
 cpan/B-C/t/stashes.t
 cpan/B-C/t/test10
 cpan/B-C/t/TestBC.pm
+cpan/B-C/t/testc.sh
 cpan/B-C/t/TESTS
 cpan/B-C/typemap
 cpan/Compress-Raw-Bzip2/Bzip2.xs

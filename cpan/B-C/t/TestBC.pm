@@ -958,6 +958,8 @@ sub run_cc_test {
                    timeout  => 10,
                    progfile => $test);
                 if (! $? and $got =~ /^$expect$/) {
+                    $expect =~ s/\n//msg;
+                    $out =~ s/\n//msg;
                     ok(1, "$todo wanted: \"$expect\", got: \"$out\"");
                 } else {
                     ok(1, "skip also fails uncompiled");
@@ -975,9 +977,13 @@ sub run_cc_test {
       TODO:
         {
 	    local $TODO = $todo ? $todo : $];
+            $expect =~ s/\n//msg;
+            $out =~ s/\n//msg;
             ok(0, "wanted: \"$expect\", \$\? = $?, got: \"$out\"");
 	}
     } else {
+        $expect =~ s/\n//msg;
+        $out =~ s/\n//msg;
         ok(0, "wanted: \"$expect\", \$\? = $?, got: \"$out\"");
     }
     if ($stderr) {

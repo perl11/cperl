@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.55_06';
+our $VERSION = '1.55_07';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -1272,14 +1272,17 @@ sub nvx ($) {
     $nvgformat = 'g';
   }
   my $dblmax = "1.79769313486232e+308";
+  my $ll = $Config{d_longdbl} ? "LL" : "L";
   my $ldblmax = "1.18973149535723176502e+4932";
   if ($nvgformat eq 'g') { # a very poor choice to keep precision
     # on intel 17-18, on ppc 31, on sparc64/s390 34
     # TODO: rather use the binary representation of our union
     $nvgformat = $Config{uselongdouble} ? '.18Lg' : '.17g';
   }
-  my $sval = sprintf("%${nvgformat}%s", $nvx, $nvx > $dblmax ? "L" : "");
-  $sval = sprintf("%${nvgformat}%s", $nvx, "L") if $nvx < -$dblmax;
+  my $sval = sprintf("%${nvgformat}%s", $nvx, $nvx > $dblmax ? $ll : "");
+  if ($nvx < -$dblmax) {
+    $sval = sprintf("%${nvgformat}%s", $nvx, $ll);
+  }
   if ($INC{'POSIX.pm'}) {
     if ($nvx == POSIX::DBL_MIN()) {
       $sval = "DBL_MIN";
@@ -6442,7 +6445,8 @@ sub output_all {
       }
     }
   }
-
+  # avoid stack allocation of the cur_env chain, esp. for CC. use only one global PL_top_env
+  print "dJMPENV;\n";
   # hack for when Perl accesses PVX of GVs
   print 'Static const char emptystring[] = "\0";',"\n";
   # newXS for core XS needs a filename
@@ -7128,7 +7132,6 @@ static int fast_perl_destruct( PerlInterpreter *my_perl ) {
 #endif
 
     if (PL_exit_flags & PERL_EXIT_DESTRUCT_END) {
-        dJMPENV;
         int x = 0;
 
         JMPENV_PUSH(x);

@@ -581,63 +581,57 @@ print BYTERUN_H $c_header, <<'EOT';
 #endif
 
 /* macros for correct constant construction */
-#ifndef UINT16_C
 # if INTSIZE >= 2
-#  define UINT16_C(x) ((U16)x##U)
+#  define U16_CONST(x) ((U16)x##U)
 # else
-#  define UINT16_C(x) ((U16)x##UL)
+#  define U16_CONST(x) ((U16)x##UL)
 # endif
-#endif
 
-#ifndef UINT32_C
 # if INTSIZE >= 4
-#  define UINT32_C(x) ((U32)x##U)
+#  define U32_CONST(x) ((U32)x##U)
 # else
-#  define UINT32_C(x) ((U32)x##UL)
+#  define U32_CONST(x) ((U32)x##UL)
 # endif
-#endif
 
-#ifdef HAS_QUAD
+# ifdef HAS_QUAD
 #  if PERL_VERSION < 24
 typedef I64TYPE I64;
 typedef U64TYPE U64;
 #  endif
-# ifndef UINT64_C
 #  if INTSIZE >= 8
-#   define UINT64_C(x) ((U64)x##U)
+#   define U64_CONST(x) ((U64)x##U)
 #  elif LONGSIZE >= 8
-#   define UINT64_C(x) ((U64)x##UL)
+#   define U64_CONST(x) ((U64)x##UL)
 #  elif QUADKIND == QUAD_IS_LONG_LONG
-#   define UINT64_C(x) ((U64)x##ULL)
+#   define U64_CONST(x) ((U64)x##ULL)
 #  else /* best guess we can make */
-#   define UINT64_C(x) ((U64)x##UL)
+#   define U64_CONST(x) ((U64)x##UL)
 #  endif
 # endif
-#endif
 
 /* byte-swapping functions for big-/little-endian conversion */
 # define _swab_16_(x) ((U16)( \
-         (((U16)(x) & UINT16_C(0x00ff)) << 8) | \
-         (((U16)(x) & UINT16_C(0xff00)) >> 8) ))
+         (((U16)(x) & U16_CONST(0x00ff)) << 8) | \
+         (((U16)(x) & U16_CONST(0xff00)) >> 8) ))
 
 # define _swab_32_(x) ((U32)( \
-         (((U32)(x) & UINT32_C(0x000000ff)) << 24) | \
-         (((U32)(x) & UINT32_C(0x0000ff00)) <<  8) | \
-         (((U32)(x) & UINT32_C(0x00ff0000)) >>  8) | \
-         (((U32)(x) & UINT32_C(0xff000000)) >> 24) ))
+         (((U32)(x) & U32_CONST(0x000000ff)) << 24) | \
+         (((U32)(x) & U32_CONST(0x0000ff00)) <<  8) | \
+         (((U32)(x) & U32_CONST(0x00ff0000)) >>  8) | \
+         (((U32)(x) & U32_CONST(0xff000000)) >> 24) ))
 
 # ifdef HAS_QUAD
 #  define _swab_64_(x) ((U64)( \
-          (((U64)(x) & UINT64_C(0x00000000000000ff)) << 56) | \
-          (((U64)(x) & UINT64_C(0x000000000000ff00)) << 40) | \
-          (((U64)(x) & UINT64_C(0x0000000000ff0000)) << 24) | \
-          (((U64)(x) & UINT64_C(0x00000000ff000000)) <<  8) | \
-          (((U64)(x) & UINT64_C(0x000000ff00000000)) >>  8) | \
-          (((U64)(x) & UINT64_C(0x0000ff0000000000)) >> 24) | \
-          (((U64)(x) & UINT64_C(0x00ff000000000000)) >> 40) | \
-          (((U64)(x) & UINT64_C(0xff00000000000000)) >> 56) ))
+          (((U64)(x) & U64_CONST(0x00000000000000ff)) << 56) | \
+          (((U64)(x) & U64_CONST(0x000000000000ff00)) << 40) | \
+          (((U64)(x) & U64_CONST(0x0000000000ff0000)) << 24) | \
+          (((U64)(x) & U64_CONST(0x00000000ff000000)) <<  8) | \
+          (((U64)(x) & U64_CONST(0x000000ff00000000)) >>  8) | \
+          (((U64)(x) & U64_CONST(0x0000ff0000000000)) >> 24) | \
+          (((U64)(x) & U64_CONST(0x00ff000000000000)) >> 40) | \
+          (((U64)(x) & U64_CONST(0xff00000000000000)) >> 56) ))
 # else
-#  define _swab_64_(x) _swab_32_((U32)(x) & UINT32_C(0xffffffff))
+#  define _swab_64_(x) _swab_32_((U32)(x) & U32_CONST(0xffffffff))
 # endif
 
 #  define _swab_iv_(x,size) ((size==4) ? _swab_32_(x) : ((size==8) ? _swab_64_(x) : _swab_16_(x)))
@@ -667,13 +661,29 @@ struct byteloader_header {
 
 struct byteloader_state {
     struct byteloader_fdata	*bs_fdata;
-    SV				*bs_sv;
+    union {
+        SV			*bs_sv;
+        PADLIST			*bs_padl;
+#if PERL_VERSION >= 21
+        PADNAME			*bs_padn;
+#endif
+#if PERL_VERSION >= 17
+        PADNAMELIST		*bs_padnl;
+#endif
+    } u;
     void			**bs_obj_list;
     int				bs_obj_list_fill;
     int				bs_ix;
     struct byteloader_xpv	bs_pv;
     int				bs_iv_overflows;
 };
+
+/*
+  #define bstate->bs_sv	   (bstate->u.bs_sv)
+  #define bstate->bs_padn  bstate->u.bs_padn
+  #define bstate->bs_padnl bstate->u.bs_padnl
+  #define bstate->bs_padl  bstate->u.bs_padl
+*/
 
 int bl_getc(struct byteloader_fdata *);
 int bl_read(struct byteloader_fdata *, char *, size_t, size_t);
@@ -900,15 +910,15 @@ __END__
 #idx version opcode	lvalue				argtype		flags
 #
 0  0	ret		none				none		x
-1  0 	ldsv		bstate->bs_sv			svindex
+1  0 	ldsv		bstate->u.bs_sv			svindex
 2  0 	ldop		PL_op				opindex
-3  0 	stsv		bstate->bs_sv			U32		s
+3  0 	stsv		bstate->u.bs_sv			U32		s
 4  0 	stop		PL_op				U32		s
 5  6.001 stpv		bstate->bs_pv.pv		U32		x
-6  0 	ldspecsv	bstate->bs_sv			U8		x
-7  8 	ldspecsvx	bstate->bs_sv			U8		x
-8  0 	newsv		bstate->bs_sv			U8		x
-9  8 	newsvx		bstate->bs_sv			U32		x
+6  0 	ldspecsv	bstate->u.bs_sv			U8		x
+7  8 	ldspecsvx	bstate->u.bs_sv			U8		x
+8  0 	newsv		bstate->u.bs_sv			U8		x
+9  8 	newsvx		bstate->u.bs_sv			U32		x
 #10 0 	nop		none				none
 11 0 	newop		PL_op				U8		x
 12 8	newopx		PL_op				U16		x
@@ -916,90 +926,92 @@ __END__
 14 0 	newpv		none				U32/PV
 15 0 	pv_cur		bstate->bs_pv.cur		STRLEN
 16 0 	pv_free		bstate->bs_pv			none		x
-17 0 	sv_upgrade	bstate->bs_sv			U8		x
-18 0 	sv_refcnt	SvREFCNT(bstate->bs_sv)		U32
-19 0 	sv_refcnt_add	SvREFCNT(bstate->bs_sv)		I32		x
-20 0 	sv_flags	SvFLAGS(bstate->bs_sv)		U32
-21 0 	xrv		bstate->bs_sv			svindex		x
-22 0 	xpv		bstate->bs_sv			none		x
-23 8	xpv_cur		bstate->bs_sv	 		STRLEN		x
-24 8	xpv_len		bstate->bs_sv			STRLEN		x
-25 8	xiv		bstate->bs_sv			IV		x
-25 <8 	xiv32		SvIVX(bstate->bs_sv)		I32
-0  <8 	xiv64		SvIVX(bstate->bs_sv)		IV64
-26 0	xnv		bstate->bs_sv			NV		x
-27 0 	xlv_targoff	LvTARGOFF(bstate->bs_sv)	STRLEN
-28 0 	xlv_targlen	LvTARGLEN(bstate->bs_sv)	STRLEN
-29 0 	xlv_targ	LvTARG(bstate->bs_sv)		svindex
-30 0 	xlv_type	LvTYPE(bstate->bs_sv)		char
-31 0 	xbm_useful	BmUSEFUL(bstate->bs_sv)		I32
-32 <19 	xbm_previous	BmPREVIOUS(bstate->bs_sv)	U16
-33 <19 	xbm_rare	BmRARE(bstate->bs_sv)		U8
-34 0 	xfm_lines	FmLINES(bstate->bs_sv)		IV
+17 0 	sv_upgrade	bstate->u.bs_sv			U8		x
+18 0 	sv_refcnt	SvREFCNT(bstate->u.bs_sv)	U32
+19 0 	sv_refcnt_add	SvREFCNT(bstate->u.bs_sv)	I32		x
+20 0 	sv_flags	SvFLAGS(bstate->u.bs_sv)	U32
+21 0 	xrv		bstate->u.bs_sv			svindex		x
+22 0 	xpv		bstate->u.bs_sv			none		x
+23 8	xpv_cur		bstate->u.bs_sv	 		STRLEN		x
+24 8	xpv_len		bstate->u.bs_sv			STRLEN		x
+25 8	xiv		bstate->u.bs_sv			IV		x
+25 <8 	xiv32		SvIVX(bstate->u.bs_sv)		I32
+0  <8 	xiv64		SvIVX(bstate->u.bs_sv)		IV64
+26 0	xnv		bstate->u.bs_sv			NV		x
+27 0 	xlv_targoff	LvTARGOFF(bstate->u.bs_sv)	STRLEN
+28 0 	xlv_targlen	LvTARGLEN(bstate->u.bs_sv)	STRLEN
+29 0 	xlv_targ	LvTARG(bstate->u.bs_sv)		svindex
+30 0 	xlv_type	LvTYPE(bstate->u.bs_sv)		char
+31 0 	xbm_useful	BmUSEFUL(bstate->u.bs_sv)	I32
+32 <19 	xbm_previous	BmPREVIOUS(bstate->u.bs_sv)	U16
+33 <19 	xbm_rare	BmRARE(bstate->u.bs_sv)		U8
+34 0 	xfm_lines	FmLINES(bstate->u.bs_sv)	IV
 #35 0 	comment		arg				comment_t
-36 0 	xio_lines	IoLINES(bstate->bs_sv)		IV
-37 0 	xio_page	IoPAGE(bstate->bs_sv)		IV
-38 0 	xio_page_len	IoPAGE_LEN(bstate->bs_sv)	IV
-39 0 	xio_lines_left 	IoLINES_LEFT(bstate->bs_sv)	IV
-40 0 	xio_top_name	IoTOP_NAME(bstate->bs_sv)	pvindex
-41 0 	xio_top_gv	*(SV**)&IoTOP_GV(bstate->bs_sv)	svindex
-42 0 	xio_fmt_name	IoFMT_NAME(bstate->bs_sv)	pvindex
-43 0 	xio_fmt_gv	*(SV**)&IoFMT_GV(bstate->bs_sv)	svindex
-44 0 	xio_bottom_name IoBOTTOM_NAME(bstate->bs_sv)	pvindex
-45 0 	xio_bottom_gv	*(SV**)&IoBOTTOM_GV(bstate->bs_sv) svindex
-46 <10 	xio_subprocess 	IoSUBPROCESS(bstate->bs_sv)	short
-47 0 	xio_type	IoTYPE(bstate->bs_sv)		char
-48 0 	xio_flags	IoFLAGS(bstate->bs_sv)		char
-49 8 	xcv_xsubany	*(SV**)&CvXSUBANY(bstate->bs_sv).any_ptr svindex
-50 <13	xcv_stash	CvSTASH(bstate->bs_sv)		svindex
-50 13	xcv_stash	bstate->bs_sv			svindex		x
-51 0 	xcv_start	CvSTART(bstate->bs_sv)		opindex
-52 0 	xcv_root	CvROOT(bstate->bs_sv)		opindex
-53 0	xcv_gv		bstate->bs_sv			svindex		x
-#  <8   xcv_filegv	*(SV**)&CvFILEGV(bstate->bs_sv)	svindex
-54 0 	xcv_file	CvFILE(bstate->bs_sv)		pvindex
-55 0 	xcv_depth	CvDEPTH(bstate->bs_sv)		long
-56 0 	xcv_padlist	*(SV**)&CvPADLIST(bstate->bs_sv) svindex
-57 0 	xcv_outside	*(SV**)&CvOUTSIDE(bstate->bs_sv) svindex
-58 8 	xcv_outside_seq CvOUTSIDE_SEQ(bstate->bs_sv)	U32
-59 0 	xcv_flags	CvFLAGS(bstate->bs_sv)		U16
-60 0 	av_extend	bstate->bs_sv			SSize_t		x
-61 8	av_pushx	bstate->bs_sv			svindex		x
-62 <8 	av_push		bstate->bs_sv			svindex		x
-63 <8 	xav_fill	AvFILLp(bstate->bs_sv)		SSize_t
-64 <8 	xav_max		AvMAX(bstate->bs_sv)		SSize_t
-65 <10 	xav_flags	AvFLAGS(bstate->bs_sv)		U8
-65 10-12 xav_flags	((XPVAV*)(SvANY(bstate->bs_sv)))->xiv_u.xivu_i32 I32
-66 <10 	xhv_riter	HvRITER(bstate->bs_sv)			I32
-67 0 	xhv_name	bstate->bs_sv				pvindex		x
-68 8-9  xhv_pmroot	*(OP**)&HvPMROOT(bstate->bs_sv)		opindex
-69 0 	hv_store	bstate->bs_sv				svindex		x
-70 0 	sv_magic	bstate->bs_sv				char		x
-71 0 	mg_obj		SvMAGIC(bstate->bs_sv)->mg_obj		svindex
-72 0 	mg_private	SvMAGIC(bstate->bs_sv)->mg_private 	U16
-73 0 	mg_flags	SvMAGIC(bstate->bs_sv)->mg_flags	U8
+36 0 	xio_lines	IoLINES(bstate->u.bs_sv)	IV
+37 0 	xio_page	IoPAGE(bstate->u.bs_sv)		IV
+38 0 	xio_page_len	IoPAGE_LEN(bstate->u.bs_sv)	IV
+39 0 	xio_lines_left 	IoLINES_LEFT(bstate->u.bs_sv)	IV
+40 0 	xio_top_name	IoTOP_NAME(bstate->u.bs_sv)	pvindex
+41 0 	xio_top_gv	*(SV**)&IoTOP_GV(bstate->u.bs_sv)	svindex
+42 0 	xio_fmt_name	IoFMT_NAME(bstate->u.bs_sv)	pvindex
+43 0 	xio_fmt_gv	*(SV**)&IoFMT_GV(bstate->u.bs_sv)	svindex
+44 0 	xio_bottom_name IoBOTTOM_NAME(bstate->u.bs_sv)	pvindex
+45 0 	xio_bottom_gv	*(SV**)&IoBOTTOM_GV(bstate->u.bs_sv) svindex
+46 <10 	xio_subprocess 	IoSUBPROCESS(bstate->u.bs_sv)	short
+47 0 	xio_type	IoTYPE(bstate->u.bs_sv)		char
+48 0 	xio_flags	IoFLAGS(bstate->u.bs_sv)	char
+49 8 	xcv_xsubany	*(SV**)&CvXSUBANY(bstate->u.bs_sv).any_ptr svindex
+50 <13	xcv_stash	CvSTASH(bstate->u.bs_sv)	svindex
+50 13	xcv_stash	bstate->u.bs_sv			svindex		x
+51 0 	xcv_start	CvSTART(bstate->u.bs_sv)        opindex
+52 0 	xcv_root	CvROOT(bstate->u.bs_sv)		opindex
+53 0	xcv_gv		bstate->u.bs_sv			svindex		x
+#  <8   xcv_filegv	*(SV**)&CvFILEGV(bstate->u.bs_sv)	svindex
+54 0 	xcv_file	CvFILE(bstate->u.bs_sv)		pvindex
+55 0 	xcv_depth	CvDEPTH(bstate->u.bs_sv)	long
+56 0 	xcv_padlist	*(SV**)&CvPADLIST(bstate->u.bs_sv) svindex
+57 0 	xcv_outside	*(SV**)&CvOUTSIDE(bstate->u.bs_sv) svindex
+58 8 	xcv_outside_seq CvOUTSIDE_SEQ(bstate->u.bs_sv)	U32
+59 <20 	xcv_flags	CvFLAGS(bstate->u.bs_sv)	U16
+59 20 	xcv_flags	CvFLAGS(bstate->u.bs_sv)	U32
+60 0 	av_extend	bstate->u.bs_sv			SSize_t		x
+61 8	av_pushx	bstate->u.bs_sv			svindex		x
+62 <8 	av_push		bstate->u.bs_sv			svindex		x
+63 <8 	xav_fill	AvFILLp(bstate->u.bs_sv)	SSize_t
+64 <8 	xav_max		AvMAX(bstate->u.bs_sv)		SSize_t
+65 <10 	xav_flags	AvFLAGS(bstate->u.bs_sv)	U8
+65 10-12 xav_flags	((XPVAV*)(SvANY(bstate->u.bs_sv)))->xiv_u.xivu_i32 I32
+66 <10 	xhv_riter	HvRITER(bstate->u.bs_sv)		I32
+67 0 	xhv_name	bstate->u.bs_sv				pvindex		x
+68 8-9  xhv_pmroot	*(OP**)&HvPMROOT(bstate->u.bs_sv)	opindex
+69 0 	hv_store	bstate->u.bs_sv				svindex		x
+70 0 	sv_magic	bstate->u.bs_sv				char		x
+71 0 	mg_obj		SvMAGIC(bstate->u.bs_sv)->mg_obj	svindex
+72 0 	mg_private	SvMAGIC(bstate->u.bs_sv)->mg_private 	U16
+73 0 	mg_flags	SvMAGIC(bstate->u.bs_sv)->mg_flags	U8
 # mg_name <5.8001 called mg_pv
-74 0 	mg_name		SvMAGIC(bstate->bs_sv)			pvcontents	x
-75 8 	mg_namex	SvMAGIC(bstate->bs_sv)			svindex		x
-76 0 	xmg_stash	bstate->bs_sv				svindex		x
-77 0 	gv_fetchpv	bstate->bs_sv				strconst	128x
-78 8	gv_fetchpvx	bstate->bs_sv				strconst	128x
-79 0 	gv_stashpv	bstate->bs_sv				strconst	128x
-80 8 	gv_stashpvx	bstate->bs_sv				strconst	128x
-81 0 	gp_sv		bstate->bs_sv				svindex		x
-82 0 	gp_refcnt	GvREFCNT(bstate->bs_sv)			U32
-83 0 	gp_refcnt_add	GvREFCNT(bstate->bs_sv)			I32		x
-84 0 	gp_av		*(SV**)&GvAV(bstate->bs_sv)		svindex
-85 0 	gp_hv		*(SV**)&GvHV(bstate->bs_sv)		svindex
-86 0 	gp_cv		*(SV**)&GvCV(bstate->bs_sv)		svindex		x
-87 <9 	gp_file		GvFILE(bstate->bs_sv)			pvindex
-87 9 	gp_file		bstate->bs_sv				pvindex		x
-88 0 	gp_io		*(SV**)&GvIOp(bstate->bs_sv)		svindex
-89 0 	gp_form		*(SV**)&GvFORM(bstate->bs_sv)		svindex
-90 0 	gp_cvgen	GvCVGEN(bstate->bs_sv)			U32
-91 0 	gp_line		GvLINE(bstate->bs_sv)			line_t
-92 0 	gp_share	bstate->bs_sv				svindex		x
-93 0 	xgv_flags	GvFLAGS(bstate->bs_sv)			U8
+74 0 	mg_name		SvMAGIC(bstate->u.bs_sv)		pvcontents	x
+75 8 	mg_namex	SvMAGIC(bstate->u.bs_sv)		svindex		x
+76 0 	xmg_stash	bstate->u.bs_sv				svindex		x
+77 0 	gv_fetchpv	bstate->u.bs_sv				strconst	128x
+78 8	gv_fetchpvx	bstate->u.bs_sv				strconst	128x
+79 0 	gv_stashpv	bstate->u.bs_sv				strconst	128x
+80 8 	gv_stashpvx	bstate->u.bs_sv				strconst	128x
+81 0 	gp_sv		bstate->u.bs_sv				svindex		x
+82 0 	gp_refcnt	GvREFCNT(bstate->u.bs_sv)		U32
+83 0 	gp_refcnt_add	GvREFCNT(bstate->u.bs_sv)		I32		x
+84 0 	gp_av		*(SV**)&GvAV(bstate->u.bs_sv)		svindex
+85 0 	gp_hv		*(SV**)&GvHV(bstate->u.bs_sv)		svindex
+86 0 	gp_cv		*(SV**)&GvCV(bstate->u.bs_sv)		svindex		x
+87 <9 	gp_file		GvFILE(bstate->u.bs_sv)			pvindex
+87 9 	gp_file		bstate->u.bs_sv				pvindex		x
+88 0 	gp_io		*(SV**)&GvIOp(bstate->u.bs_sv)		svindex
+89 0 	gp_form		*(SV**)&GvFORM(bstate->u.bs_sv)		svindex
+90 0 	gp_cvgen	GvCVGEN(bstate->u.bs_sv)	        U32
+91 0 	gp_line		GvLINE(bstate->u.bs_sv)			line_t
+92 0 	gp_share	bstate->u.bs_sv				svindex		x
+93 <10 	xgv_flags	GvFLAGS(bstate->u.bs_sv)		U8
+93 10 	xgv_flags	GvFLAGS(bstate->u.bs_sv)		SSize_t
 94 0 	op_next		PL_op->op_next				opindex
 95 0 	op_sibling      PL_op					opindex		x
 96 0 	op_ppaddr	PL_op->op_ppaddr			strconst	24x
@@ -1065,8 +1077,8 @@ __END__
 145 i8 	regex_padav	*(SV**)&PL_regex_padav		svindex
 146 8 	dowarn		PL_dowarn			U8
 147 8 	comppad_name	*(SV**)&PL_comppad_name		svindex
-148 8 	xgv_stash	*(SV**)&GvSTASH(bstate->bs_sv)	svindex
-149 8 	signal		bstate->bs_sv			strconst	24x
+148 8 	xgv_stash	*(SV**)&GvSTASH(bstate->u.bs_sv)  svindex
+149 8 	signal		bstate->u.bs_sv			strconst	24x
 150 8-17 formfeed	PL_formfeed			svindex
 151 9-17 op_latefree	PL_op->op_latefree		U8
 152 9-17 op_latefreed	PL_op->op_latefreed		U8
@@ -1074,36 +1086,36 @@ __END__
 # 5.10.0 misses the RX_EXTFLAGS macro
 154 10-10.5 op_reflags  PM_GETRE(cPMOP)->extflags	U32
 154 11  op_reflags  	RX_EXTFLAGS(PM_GETRE(cPMOP))	U32
-155 10-25.005	cop_seq_low	((XPVNV*)(SvANY(bstate->bs_sv)))->xnv_u.xpad_cop_seq.xlow  U32
-156 10-25.005	cop_seq_high	((XPVNV*)(SvANY(bstate->bs_sv)))->xnv_u.xpad_cop_seq.xhigh U32
-157 8	gv_fetchpvn_flags bstate->bs_sv			U32		x
+155 10-25.005	cop_seq_low	((XPVNV*)(SvANY(bstate->u.bs_sv)))->xnv_u.xpad_cop_seq.xlow  U32
+156 10-25.005	cop_seq_high	((XPVNV*)(SvANY(bstate->u.bs_sv)))->xnv_u.xpad_cop_seq.xhigh U32
+157 8	gv_fetchpvn_flags bstate->u.bs_sv			U32		x
 # restore dup to stdio handles 0-2
-158 0 	xio_ifp		bstate->bs_sv	  		char		x
-159 10	xpvshared	bstate->bs_sv			none		x
-160 18	newpadlx	bstate->bs_sv			U8		x
-161 18  padl_name	bstate->bs_sv			svindex		x
-162 18  padl_sym	bstate->bs_sv			svindex		x
-163 18	xcv_name_hek	bstate->bs_sv			pvindex		x
+158 0 	xio_ifp		bstate->u.bs_sv	  		char		x
+159 10	xpvshared	bstate->u.bs_sv			none		x
+160 18	newpadlx	bstate->u.bs_padl		U8		x
+161 18  padl_name	bstate->u.bs_padl		svindex		x
+162 18  padl_sym	bstate->u.bs_padl		svindex		x
+163 18	xcv_name_hek	bstate->u.bs_sv			pvindex		x
 164 18	op_slabbed	PL_op->op_slabbed		U8
 165 18	op_savefree	PL_op->op_savefree		U8
 166 18	op_static	PL_op->op_static		U8
 167 19.003 op_folded	PL_op->op_folded		U8
 168 21.002-22 op_lastsib PL_op->op_lastsib		U8
 168 22  op_moresib	PL_op->op_moresib		U8
-169 18	newpadnlx	bstate->bs_sv					U8	x
-170 22	padl_outid	((PADLIST*)bstate->bs_sv)->xpadl_outid		U32
-0   22	padl_id		((PADLIST*)bstate->bs_sv)->xpadl_id     	U32
-0   22	padnl_push	bstate->bs_sv					svindex		x
-0   22	padnl_maxnamed	PadnamelistMAXNAMED((PADNAMELIST*)bstate->bs_sv) U32
-0   22	padnl_refcnt	PadnamelistREFCNT((PADNAMELIST*)bstate->bs_sv)	U32
-0   22	newpadnx	bstate->bs_sv					strconst	x
-0   22	padn_stash	*(SV**)PadnameOURSTASH((PADNAME*)bstate->bs_sv) svindex
-0   22	padn_type	*(SV**)PadnameTYPE((PADNAME*)bstate->bs_sv)     svindex
-0   22	padn_seq_low	COP_SEQ_RANGE_LOW((PADNAME*)bstate->bs_sv)	U32
-0   22	padn_seq_high	COP_SEQ_RANGE_HIGH((PADNAME*)bstate->bs_sv)	U32
-0   22	padn_refcnt	PadnameREFCNT((PADNAME*)bstate->bs_sv)		U32
-0   22	padn_pv		PadnamePV((PADNAME*)bstate->bs_sv)		strconst	x
-0   22	padn_flags	PadnameFLAGS((PADNAME*)bstate->bs_sv)		U8
+169 18	newpadnlx	bstate->u.bs_padnl		U8	x
+170 22	padl_outid	((PADLIST*)bstate->u.bs_padl)->xpadl_outid	U32
+0   22	padl_id		((PADLIST*)bstate->u.bs_padl)->xpadl_id     	U32
+0   22	padnl_push	bstate->u.bs_padnl				svindex		x
+0   22	padnl_maxnamed	PadnamelistMAXNAMED(bstate->u.bs_padnl) 	U32
+0   22	padnl_refcnt	PadnamelistREFCNT(bstate->u.bs_padnl)   	U32
+0   22	newpadnx	bstate->u.bs_padn				strconst	x
+0   22	padn_stash	*(SV**)PadnameOURSTASH(bstate->u.bs_padn) 	svindex
+0   22	padn_type	*(SV**)PadnameTYPE(bstate->u.bs_padn)     	svindex
+0   22	padn_seq_low	COP_SEQ_RANGE_LOW(bstate->u.bs_padn)		U32
+0   22	padn_seq_high	COP_SEQ_RANGE_HIGH(bstate->u.bs_padn)		U32
+0   22	padn_refcnt	PadnameREFCNT(bstate->u.bs_padn)		U32
+0   22	padn_pv	        bstate->u.bs_padn				strconst	x
+0   22	padn_flags	PadnameFLAGS(bstate->u.bs_padn)			U8
 0   22	unop_aux	cUNOP_AUX->op_aux				strconst	x
 0   22	methop_methsv	cMETHOPx(PL_op)->op_u.op_meth_sv		svindex
 0 !i22	methop_rclass	cMETHOPx(PL_op)->op_rclass_sv			svindex

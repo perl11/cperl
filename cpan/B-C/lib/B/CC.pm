@@ -292,7 +292,7 @@ Add Flags info to the code.
 
 package B::CC;
 
-our $VERSION = '1.16_01';
+our $VERSION = '1.16_02';
 
 # Start registering the L<types> namespaces.
 use strict;
@@ -518,7 +518,6 @@ sub output_runtime {
 #undef PP_ENTERTRY
 #define PP_ENTERTRY(label)  	        \
 	STMT_START {                    \
-	    dJMPENV;			\
 	    int ret;			\
 	    JMPENV_PUSH(ret);		\
 	    switch (ret) {		\
@@ -539,7 +538,6 @@ sub output_runtime {
     print '
 #undef  PP_EVAL
 #define PP_EVAL(ppaddr, nxt) do {		\
-	dJMPENV;				\
 	int ret;				\
         PUTBACK;				\
 	JMPENV_PUSH(ret);			\

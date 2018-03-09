@@ -49,7 +49,6 @@
 #if PERL_VERSION > 9
 
 #define PP_EVAL(ppaddr, nxt) do {		\
-	dJMPENV;				\
 	int ret;				\
 	PUTBACK;				\
 	JMPENV_PUSH(ret);			\
@@ -73,7 +72,6 @@
 
 #define PP_ENTERTRY(label)  		\
 	STMT_START {                    \
-	    dJMPENV;			\
 	    int ret;			\
 	    JMPENV_PUSH(ret);		\
 	    switch (ret) {		\
@@ -123,4 +121,4 @@
 #endif
 
 #define PP_LEAVETRY \
-	STMT_START{ PL_top_env=PL_top_env->je_prev; }STMT_END
+	STMT_START { PL_top_env = PL_top_env->je_prev; } STMT_END

@@ -15,6 +15,7 @@ cpan/B-C/script/assemble
 cpan/B-C/script/cc_harness
 cpan/B-C/script/disassemble
 cpan/B-C/script/pl2exe.pl
+cpan/B-C/t/testc.sh
 cpan/CPAN-Meta-YAML/t/tml
 cpan/Cpanel-JSON-XS/bin/cpanel_json_xs
 cpan/Devel-NYTProf/bin/flamegraph.pl
