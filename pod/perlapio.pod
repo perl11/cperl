@@ -104,7 +104,7 @@ to remain with a known value while swapping the implementation around
 underneath I<at run time>. In this case all the above are true (but
 very simple) functions which call the underlying implementation.
 
-This is the only implementation for which C<PerlIO_apply_layers()>
+This is the only implementation for which L</PerlIO_apply_layers(f,mode,layers)>
 does anything "interesting".
 
 The USE_PERLIO implementation is described in L<perliol>.
@@ -120,7 +120,8 @@ value (usually C<EOF> which is usually -1) and set C<errno> on error.
 
 =over 4
 
-=item B<PerlIO_stdin()>, B<PerlIO_stdout()>, B<PerlIO_stderr()>
+=item PerlIO_stdin(), PerlIO_stdout(), PerlIO_stderr()
+X<PerlIO_stdin> X<PerlIO_stdout> X<PerlIO_stderr>
 
 Use these rather than C<stdin>, C<stdout>, C<stderr>. They are written
 to look like "function calls" rather than variables because this makes
@@ -128,15 +129,17 @@ it easier to I<make them> function calls if platform cannot export data
 to loaded modules, or if (say) different "threads" might have different
 values.
 
-=item B<PerlIO_open(path, mode)>, B<PerlIO_fdopen(fd,mode)>
+=item PerlIO_open(path, mode), PerlIO_fdopen(fd,mode)
+X<PerlIO_open> X<PerlIO_fdopen>
 
-These correspond to fopen()/fdopen() and the arguments are the same.
+These correspond to C<fopen()>/C<fdopen()> and the arguments are the same.
 Return C<NULL> and set C<errno> if there is an error.  There may be an
 implementation limit on the number of open handles, which may be lower
 than the limit on the number of open files - C<errno> may not be set
 when C<NULL> is returned if this limit is exceeded.
 
-=item B<PerlIO_reopen(path,mode,f)>
+=item PerlIO_reopen(path,mode,f)
+X<PerlIO_reopen>
 
 While this currently exists in all three implementations perl itself
 does not use it. I<As perl does not use it, it is not well tested.>
@@ -145,20 +148,23 @@ Perl prefers to C<dup> the new low-level descriptor to the descriptor
 used by the existing PerlIO. This may become the behaviour of this
 function in the future.
 
-=item B<PerlIO_printf(f,fmt,...)>, B<PerlIO_vprintf(f,fmt,a)>
+=item PerlIO_printf(f,fmt,...), PerlIO_vprintf(f,fmt,a)
+X<PerlIO_printf> X<PerlIO_vprintf>
 
-These are fprintf()/vfprintf() equivalents.
+These are C<fprintf()>/C<vfprintf()> equivalents.
 
-=item B<PerlIO_stdoutf(fmt,...)>
+=item PerlIO_stdoutf(fmt,...)
+X<PerlIO_stdoutf>
 
 This is printf() equivalent. printf is #defined to this function,
 so it is (currently) legal to use C<printf(fmt,...)> in perl sources.
 
-=item B<PerlIO_read(f,buf,count)>, B<PerlIO_write(f,buf,count)>
+=item PerlIO_read(f,buf,count), PerlIO_write(f,buf,count)
+X<PerlIO_read> X<PerlIO_write>
 
 These correspond functionally to fread() and fwrite() but the
-arguments and return values are different.  The PerlIO_read() and
-PerlIO_write() signatures have been modeled on the more sane low level
+arguments and return values are different.  The C<PerlIO_read()> and
+C<PerlIO_write()> signatures have been modeled on the more sane low level
 read() and write() functions instead: The "file" argument is passed
 first, there is only one "count", and the return value can distinguish
 between error and C<EOF>.
@@ -168,58 +174,67 @@ positive), returns negative value and sets C<errno> on error.
 Depending on implementation C<errno> may be C<EINTR> if operation was
 interrupted by a signal.
 
-=item B<PerlIO_close(f)>
+=item PerlIO_close(f)
+X<PerlIO_close>
 
 Depending on implementation C<errno> may be C<EINTR> if operation was
 interrupted by a signal.
 
-=item B<PerlIO_puts(f,s)>, B<PerlIO_putc(f,c)>
+=item PerlIO_puts(f,s), PerlIO_putc(f,c)
+X<PerlIO_puts> X<PerlIO_putc>
 
-These correspond to fputs() and fputc().
+These correspond to C<fputs()> and C<fputc()>.
 Note that arguments have been revised to have "file" first.
 
-=item B<PerlIO_ungetc(f,c)>
+=item PerlIO_ungetc(f,c)
+X<PerlIO_ungetc>
 
-This corresponds to ungetc().  Note that arguments have been revised
+This corresponds to C<ungetc()>.  Note that arguments have been revised
 to have "file" first.  Arranges that next read operation will return
-the byte B<c>.  Despite the implied "character" in the name only
-values in the range 0..0xFF are defined. Returns the byte B<c> on
+the byte C<c>.  Despite the implied "character" in the name only
+values in the range 0..0xFF are defined. Returns the byte C<c> on
 success or -1 (C<EOF>) on error.  The number of bytes that can be
 "pushed back" may vary, only 1 character is certain, and then only if
 it is the last character that was read from the handle.
 
-=item B<PerlIO_getc(f)>
+=item PerlIO_getc(f)
+X<PerlIO_getc>
 
-This corresponds to getc().
+This corresponds to C<getc()>.
 Despite the c in the name only byte range 0..0xFF is supported.
 Returns the character read or -1 (C<EOF>) on error.
 
-=item B<PerlIO_eof(f)>
+=item PerlIO_eof(f)
+X<PerlIO_eof>
 
 This corresponds to feof().  Returns a true/false indication of
 whether the handle is at end of file.  For terminal devices this may
 or may not be "sticky" depending on the implementation.  The flag is
-cleared by PerlIO_seek(), or PerlIO_rewind().
+cleared by L</PerlIO_seek(f,offset,whence)>, or L</PerlIO_rewind(f)>.
 
-=item B<PerlIO_error(f)>
+=item PerlIO_error(f)
+X<PerlIO_error>
 
-This corresponds to ferror().  Returns a true/false indication of
+This corresponds to C<ferror()>.  Returns a true/false indication of
 whether there has been an IO error on the handle.
 
-=item B<PerlIO_fileno(f)>
+=item PerlIO_fileno(f)
+X<PerlIO_fileno>
 
-This corresponds to fileno(), note that on some platforms, the meaning
+This corresponds to C<fileno()>, note that on some platforms, the meaning
 of "fileno" may not match Unix. Returns -1 if the handle has no open
 descriptor associated with it.
 
-=item B<PerlIO_clearerr(f)>
+=item PerlIO_clearerr(f)
+X<PerlIO_clearerr>
 
-This corresponds to clearerr(), i.e., clears 'error' and (usually)
+This corresponds to C<clearerr()>, i.e., clears 'error' and (usually)
 'eof' flags for the "stream". Does not return a value.
 
-=item B<PerlIO_flush(f)>
+=item PerlIO_flush(f)
+X<PerlIO_flush>
 
-This corresponds to fflush().  Sends any buffered write data to the
+This corresponds to C<fflush()>.  Sends any buffered write data to the
 underlying file.  If called with C<NULL> this may flush all open
 streams (or core dump with some USE_STDIO implementations).  Calling
 on a handle open for read only, or on which last operation was a read
@@ -229,44 +244,47 @@ behave better: it flushes all open streams when passed C<NULL>, and
 attempts to retain data on read streams either in the buffer or by
 seeking the handle to the current logical position.
 
-=item B<PerlIO_seek(f,offset,whence)>
+=item PerlIO_seek(f,offset,whence)
+X<PerlIO_seek>
 
-This corresponds to fseek().  Sends buffered write data to the
+This corresponds to C<fseek()>.  Sends buffered write data to the
 underlying file, or discards any buffered read data, then positions
 the file descriptor as specified by B<offset> and B<whence> (sic).
 This is the correct thing to do when switching between read and write
-on the same handle (see issues with PerlIO_flush() above).  Offset is
+on the same handle (see issues with L</PerlIO_flush(f)> above).  Offset is
 of type C<Off_t> which is a perl Configure value which may not be same
 as stdio's C<off_t>.
 
-=item B<PerlIO_tell(f)>
+=item PerlIO_tell(f)
+X<PerlIO_tell>
 
-This corresponds to ftell().  Returns the current file position, or
+This corresponds to C<ftell()>.  Returns the current file position, or
 (Off_t) -1 on error.  May just return value system "knows" without
 making a system call or checking the underlying file descriptor (so
 use on shared file descriptors is not safe without a
-PerlIO_seek()). Return value is of type C<Off_t> which is a perl
+L</PerlIO_seek(f,offset,whence)>). Return value is of type C<Off_t> which is a perl
 Configure value which may not be same as stdio's C<off_t>.
 
-=item B<PerlIO_getpos(f,p)>, B<PerlIO_setpos(f,p)>
+=item PerlIO_getpos(f,p), PerlIO_setpos(f,p)
+X<PerlIO_getpos> X<PerlIO_setpos>
 
-These correspond (loosely) to fgetpos() and fsetpos(). Rather than
+These correspond (loosely) to C<fgetpos()> and C<fsetpos()>. Rather than
 stdio's Fpos_t they expect a "Perl Scalar Value" to be passed. What is
 stored there should be considered opaque. The layout of the data may
 vary from handle to handle.  When not using stdio or if platform does
 not have the stdio calls then they are implemented in terms of
-PerlIO_tell() and PerlIO_seek().
+L</PerlIO_tell(f)> and L</PerlIO_seek(f,offset,whence)>.
 
-=item B<PerlIO_rewind(f)>
+=item PerlIO_rewind(f)
 
-This corresponds to rewind(). It is usually defined as being
+This corresponds to C<rewind()>. It is usually defined as being
 
     PerlIO_seek(f,(Off_t)0L, SEEK_SET);
     PerlIO_clearerr(f);
 
-=item B<PerlIO_tmpfile()>
+=item PerlIO_tmpfile()
 
-This corresponds to tmpfile(), i.e., returns an anonymous PerlIO or
+This corresponds to C<tmpfile()>, i.e. returns an anonymous PerlIO or
 NULL on error.  The system will attempt to automatically delete the
 file when closed.  On Unix the file is usually C<unlink>-ed just after
 it is created so it does not matter how it gets closed. On other
@@ -276,9 +294,9 @@ there may be "race conditions" which allow other processes access to
 the file, though in general it will be safer in this regard than
 ad. hoc. schemes.
 
-=item B<PerlIO_setlinebuf(f)>
+=item PerlIO_setlinebuf(f)
 
-This corresponds to setlinebuf().  Does not return a value. What
+This corresponds to C<setlinebuf()>.  Does not return a value. What
 constitutes a "line" is implementation dependent but usually means
 that writing "\n" flushes the buffer.  What happens with things like
 "this\nthat" is uncertain.  (Perl core uses it I<only> when "dumping";
@@ -308,7 +326,7 @@ changes in this area.
 
 =over 4
 
-=item B<PerlIO_importFILE(f,mode)>
+=item PerlIO_importFILE(f,mode)
 
 Used to get a PerlIO * from a FILE *.
 
@@ -319,14 +337,14 @@ attempt to empirically determine the mode in which I<f> is open, or
 use "r+" to indicate a read/write stream.
 
 Once called the FILE * should I<ONLY> be closed by calling
-C<PerlIO_close()> on the returned PerlIO *.
+L</PerlIO_close(f)> on the returned PerlIO *.
 
 The PerlIO is set to textmode. Use C<PerlIO_binmode> if this is
 not the desired mode.
 
-This is B<not> the reverse of C<PerlIO_exportFILE()>.
+This is B<not> the reverse of L</PerlIO_exportFILE(f,mode)>.
 
-=item B<PerlIO_exportFILE(f,mode)>
+=item PerlIO_exportFILE(f,mode)
 
 Given a PerlIO * create a 'native' FILE * suitable for passing to code
 expecting to be compiled and linked with ANSI C I<stdio.h>.  The mode
@@ -337,28 +355,28 @@ mode as the PerlIO *.
 The fact that such a FILE * has been 'exported' is recorded, (normally
 by pushing a new :stdio "layer" onto the PerlIO *), which may affect
 future PerlIO operations on the original PerlIO *.  You should not
-call C<fclose()> on the file unless you call C<PerlIO_releaseFILE()>
-to disassociate it from the PerlIO *.  (Do not use PerlIO_importFILE()
+call C<fclose()> on the file unless you call L</PerlIO_releaseFILE(f)>
+to disassociate it from the PerlIO *.  (Do not use L</PerlIO_importFILE(f,mode)>
 for doing the disassociation.)
 
 Calling this function repeatedly will create a FILE * on each call
 (and will push an :stdio layer each time as well).
 
-=item B<PerlIO_releaseFILE(p,f)>
+=item PerlIO_releaseFILE(p,f)
 
 Calling PerlIO_releaseFILE informs PerlIO that all use of FILE * is
 complete. It is removed from the list of 'exported' FILE *s, and the
 associated PerlIO * should revert to its original behaviour.
 
 Use this to disassociate a file from a PerlIO * that was associated
-using PerlIO_exportFILE().
+using L</PerlIO_exportFILE(f,mode)>.
 
-=item B<PerlIO_findFILE(f)>
+=item PerlIO_findFILE(f)
 
 Returns a native FILE * used by a stdio layer. If there is none, it
 will create one with PerlIO_exportFILE. In either case the FILE *
 should be considered as belonging to PerlIO subsystem and should
-only be closed by calling C<PerlIO_close()>.
+only be closed by calling L</PerlIO_close(f)>.
 
 
 =back
@@ -378,7 +396,7 @@ traditional way if a handle does not support them.
 
 =over 4
 
-=item B<PerlIO_fast_gets(f)>
+=item PerlIO_fast_gets(f)
 
 Returns true if implementation has all the interfaces required to
 allow perl's C<sv_gets> to "bypass" normal IO mechanism.  This can
@@ -388,57 +406,57 @@ vary from handle to handle.
                         PerlIO_canset_cnt(f) && \
                         'Can set pointer into buffer'
 
-=item B<PerlIO_has_cntptr(f)>
+=item PerlIO_has_cntptr(f)
 
 Implementation can return pointer to current position in the "buffer"
 and a count of bytes available in the buffer.  Do not use this - use
-PerlIO_fast_gets.
+L</PerlIO_fast_gets(f)>.
 
-=item B<PerlIO_get_cnt(f)>
+=item PerlIO_get_cnt(f)
 
 Return count of readable bytes in the buffer. Zero or negative return
 means no more bytes available.
 
-=item B<PerlIO_get_ptr(f)>
+=item PerlIO_get_ptr(f)
 
 Return pointer to next readable byte in buffer, accessing via the
-pointer (dereferencing) is only safe if PerlIO_get_cnt() has returned
+pointer (dereferencing) is only safe if L</PerlIO_get_cnt(f)> has returned
 a positive value.  Only positive offsets up to value returned by
-PerlIO_get_cnt() are allowed.
+C<PerlIO_get_cnt()> are allowed.
 
-=item B<PerlIO_set_ptrcnt(f,p,c)>
+=item PerlIO_set_ptrcnt(f,p,c)
 
 Set pointer into buffer, and a count of bytes still in the
 buffer. Should be used only to set pointer to within range implied by
-previous calls to C<PerlIO_get_ptr> and C<PerlIO_get_cnt>. The two
+previous calls to L</PerlIO_get_ptr(f)> and L</PerlIO_get_cnt(f)>. The two
 values I<must> be consistent with each other (implementation may only
 use one or the other or may require both).
 
-=item B<PerlIO_canset_cnt(f)>
+=item PerlIO_canset_cnt(f)
 
 Implementation can adjust its idea of number of bytes in the buffer.
-Do not use this - use PerlIO_fast_gets.
+Do not use this - use L</PerlIO_fast_gets(f)>.
 
-=item B<PerlIO_set_cnt(f,c)>
+=item PerlIO_set_cnt(f,c)
 
 Obscure - set count of bytes in the buffer. Deprecated.  Only usable
-if PerlIO_canset_cnt() returns true.  Currently used in only doio.c to
-force count less than -1 to -1.  Perhaps should be PerlIO_set_empty or
+if L</PerlIO_canset_cnt(f)> returns true.  Currently used in only F<doio.c> to
+force count less than -1 to -1.  Perhaps should be C</PerlIO_set_empty(f)> or
 similar.  This call may actually do nothing if "count" is deduced from
-pointer and a "limit".  Do not use this - use PerlIO_set_ptrcnt().
+pointer and a "limit".  Do not use this - use L</PerlIO_set_ptrcnt(f,p,c)>.
 
-=item B<PerlIO_has_base(f)>
+=item PerlIO_has_base(f)
 
 Returns true if implementation has a buffer, and can return pointer
 to whole buffer and its size. Used by perl for B<-T> / B<-B> tests.
 Other uses would be very obscure...
 
-=item B<PerlIO_get_base(f)>
+=item PerlIO_get_base(f)
 
 Return I<start> of buffer. Access only positive offsets in the buffer
-up to the value returned by PerlIO_get_bufsiz().
+up to the value returned by L</PerlIO_get_bufsiz(f)>.
 
-=item B<PerlIO_get_bufsiz(f)>
+=item PerlIO_get_bufsiz(f)
 
 Return the I<total number of bytes> in the buffer, this is neither the
 number that can be read, nor the amount of memory allocated to the
