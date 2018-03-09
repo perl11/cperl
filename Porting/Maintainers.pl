@@ -181,7 +181,7 @@ use File::Glob qw(:case);
     },
 
     'B::C' => {
-        'DISTRIBUTION' => 'RURBAN/B-C-1.55_05.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/B-C-1.55_07.tar.gz',
         'FILES'        => q[cpan/B-C],
         'EXCLUDED'     => [
             qr{^.gdb},
@@ -189,7 +189,7 @@ use File::Glob qw(:case);
             qr{^ByteLoader/BcVersions/},
             qr{^log\..*/},
             qr{^ramblings/},
-            qr{^t/.*\.sh},
+            qr{^t/testcc.sh},
             qw( Artistic
                 Changes
                 Copying

@@ -1,7 +1,7 @@
 package ByteLoader;
 
 use XSLoader ();
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 # XSLoader problem:
 # ByteLoader version 0.0601 required--this is only version 0.06_01 at ./bytecode2.plc line 2.
 # on use ByteLoader $ByteLoader::VERSION;

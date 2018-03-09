@@ -16,6 +16,7 @@ B-C/lib/B/C/
 B-C/pcc.plc
 B-C/script/perlcc
 B-C/lib/B/Asmdata.pm
+B-C/t/testcc.sh
 DB_File/dbr*
 Devel-NYTProf/t/nytprof-50-errno.out
 Devel-NYTProf/t/nytprof_readstream.out

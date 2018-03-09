@@ -106,7 +106,7 @@ byteloader_filter(pTHX_ int idx, SV *buf_sv, int maxlen)
     bstate.bs_fdata = &data;
     bstate.bs_obj_list = Null(void**);
     bstate.bs_obj_list_fill = -1;
-    bstate.bs_sv = Nullsv;
+    bstate.u.bs_sv = Nullsv;
     bstate.bs_iv_overflows = 0;
 
 /* KLUDGE */
