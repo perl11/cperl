@@ -1384,13 +1384,24 @@ XS(XS_PerlIO_exportFILE)
 	    RETVALSV = sv_newmortal();
 	    {
 		PerlIO *fp = PerlIO_importFILE(RETVAL,0);
-#if 1
+#if 0
+                SV* in = ST(0);
+                /* TODO: If the 1st arg is a global GV or LV or string
+                   just keep this symbol. */
+                /* Only if it's a lexical (IO, RV) we need to gensym
+                   it. A better name would be resuing the PADNAME as
+                   GEN prefix though. Using this ANONIO is always
+                   wrong, as there may be more than one XS IO handle
+                   per package. */
+                if (SvTYPE(in) == SVt_PVGV)
+                    ;
 		GV *gv = (GV *)sv_newmortal();
 		gv_init_pvn(gv, gv_stashpvs("XS::APItest",1),"__ANONIO__",10,0);
 #else
                 /* This leaks a typeglob [perl #115814] */
                 GV *gv = newGVgen("XS::APItest");
 #endif
+                /* TODO: If the file is already open, just bump its refcnt */
 		if ( fp && do_openn(gv, "+<&", 3, FALSE, 0, 0, fp, NULL, 0) ) {
 		    SV *rv = newRV_inc((SV*)gv);
 		    rv = sv_bless(rv, GvSTASH(gv));
