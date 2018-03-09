@@ -391,19 +391,20 @@ We have attempted to update the documentation to reflect the changes
 listed in this document.  If you find any we have missed, send email
 to L<perlbug@perl.org|mailto:perlbug@perl.org>.
 
-XXX Changes which significantly change existing files in F<pod/> go here.
-However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
-section.
+F<autodoc.pl> now parses F<pod/perlapio.pod> for cross-checking
+against F<pod/perlapi.pod>
 
 Additionally, the following selected changes have been made:
 
-=head3 L<XXX>
+=head3 L<perlapio>
 
 =over 4
 
 =item *
 
-XXX Description of the change here
+Completed the documentation of the PerlIO API.
+Removed wrong missing links from documented PerlIO functions from L<perlapi>.
+Add all missing functions, and inter-linked them.
 
 =back
 

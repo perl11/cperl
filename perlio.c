@@ -1605,6 +1605,14 @@ Perl_PerlIO_read(pTHX_ PerlIO *f, void *vbuf, Size_t count)
      Perl_PerlIO_or_Base(f, Read, read, -1, (aTHX_ f, vbuf, count));
 }
 
+/*
+=for apidoc PerlIO_unread
+
+Calls unread on the given PerlIO handle, skipping back count characters
+from the input handle, if possible. Similar to C<ungetc>.
+
+=cut
+*/
 SSize_t
 Perl_PerlIO_unread(pTHX_ PerlIO *f, const void *vbuf, Size_t count)
 {
@@ -1694,6 +1702,13 @@ PerlIOBase_flush_linebuf(pTHX)
     }
 }
 
+/*
+=for apidoc PerlIO_fill
+
+Returns the fill state of the given PerlIO handle.
+
+=cut
+*/
 int
 Perl_PerlIO_fill(pTHX_ PerlIO *f)
 {
@@ -3827,8 +3842,8 @@ C<fd> file descriptor, and the PerlIO refcount associated with the fd
 will be bumped to avoid closing already open files, when the
 associated variable goes out of scope.
 
-Note that calls to L<perlapio/PerlIO_exportFILE>(f,mode) are reversed
-using L</PerlIO_releaseFILE>(), not L<perlapio/PerlIO_importFILE(f,mode)>.
+Note that calls to L<perlapio/PerlIO_exportFILE(f,mode)> are reversed
+using  L<perlapio/PerlIO_releaseFILE(p,f)>, not L<perlapio/PerlIO_importFILE(f,mode)>.
 
 =cut
 */
@@ -3876,7 +3891,7 @@ PerlIO_exportFILE(PerlIO * f, const char *mode)
 =for apidoc PerlIO_findFILE
 
 Returns a native FILE * used by a stdio layer. If there is none, it
-will create one with PerlIO_exportFILE. In either case the FILE *
+will create one with L</PerlIO_exportFILE>. In either case the FILE *
 should be considered as belonging to the PerlIO subsystem and should
 only be closed by calling L<perlapio/PerlIO_close(f)>.
 
@@ -4991,6 +5006,13 @@ Perl_PerlIO_stderr(pTHX)
     return (PerlIO*)&PL_perlio[3];
 }
 
+/*
+=for apidoc PerlIO_debugio
+
+Returns the current stderr PerlIO handle, used for debugging output.
+
+=cut
+*/
 PerlIO *
 Perl_PerlIO_debugio(pTHX)
 {
@@ -5256,6 +5278,18 @@ Perl_PerlIO_restore_errno(pTHX_ PerlIO *f)
  * Now some functions in terms of above which may be needed even if we are
  * not in true PerlIO mode
  */
+
+/*
+=for apidoc PerlIO_context_layers
+
+Converts the mode char to a layer name, as possibly specified by the open pragma.
+
+E.g.
+  "r" under HINT_LEXICAL_IO_IN  => "open<"
+  "w" under HINT_LEXICAL_IO_OUT => "open>"
+
+=cut
+*/
 const char *
 Perl_PerlIO_context_layers(pTHX_ const char *mode)
 {
