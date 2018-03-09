@@ -236,12 +236,13 @@ XXX
 
 fix autovivification bug with hash slice args to a function.
 
-=item L<B::C> 1.55_07
+=item L<B::C> 1.55_08
 
 One global dJMPENV target, not multiple. Esp. for B::CC.
 ByteLoader 0.12 fix bytecode types, xgv_flags, xcv_flag were too small.
 type bs_sv to also include PADNAME, PADLIST, PADNAMELIST as union.
 Add t/testc.sh
+Fix compile-time REGEXP
 
 =item L<Compress::Raw::Zlib>
 

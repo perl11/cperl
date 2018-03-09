@@ -181,6 +181,7 @@ cpan/B-C/t/c_o3.t
 cpan/B-C/t/cc.t
 cpan/B-C/t/cc_last.t
 cpan/B-C/t/e_perlcc.t
+cpan/B-C/t/issue143.t
 cpan/B-C/t/issue219.t
 cpan/B-C/t/issue245.t
 cpan/B-C/t/modules.pm
