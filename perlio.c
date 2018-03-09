@@ -2972,7 +2972,27 @@ PerlIOStdio_pushed(pTHX_ PerlIO *f, const char *mode, SV *arg, PerlIO_funcs *tab
     return PerlIOBase_pushed(aTHX_ f, mode, arg, tab);
 }
 
+/*
+=for apidoc PerlIO_importFILE
 
+Used to get a PerlIO * from a FILE *.
+
+The mode argument should be a string as would be passed to
+fopen/PerlIO_open.  If it is NULL then - for legacy support - the code
+will (depending upon the platform and the implementation) either
+attempt to empirically determine the mode in which I<f> is open, or
+use "r+" to indicate a read/write stream.
+
+Once called the FILE * should I<ONLY> be closed by calling
+L<perlapio/PerlIO_close(f)> on the returned PerlIO *.
+
+The PerlIO is set to textmode. Use
+L<perlapio/PerlIO_binmode(f,ptype,imode,layers)> if this is not the
+desired mode.
+
+This is B<not> the reverse of L</PerlIO_exportFILE>().
+=cut
+*/
 PerlIO *
 PerlIO_importFILE(FILE *stdio, const char *mode)
 {
@@ -3798,13 +3818,27 @@ PERLIO_FUNCS_DECL(PerlIO_stdio) = {
 #endif /* USE_STDIO_PTR */
 };
 
-/* Note that calls to PerlIO_exportFILE() are reversed using
- * PerlIO_releaseFILE(), not importFILE. */
+/*
+=for apidoc PerlIO_exportFILE
+
+XS API for the C<T_STDIO> typemap, to open an IO handle with the
+C<:stdio> layer. Meaning it has an associated C<FILE*> handle and
+C<fd> file descriptor, and the PerlIO refcount associated with the fd
+will be bumped to avoid closing already open files, when the
+associated variable goes out of scope.
+
+Note that calls to L<perlapio/PerlIO_exportFILE>(f,mode) are reversed
+using L</PerlIO_releaseFILE>(), not L<perlapio/PerlIO_importFILE(f,mode)>.
+
+=cut
+*/
+
 FILE *
 PerlIO_exportFILE(PerlIO * f, const char *mode)
 {
     dTHX;
     FILE *stdio = NULL;
+    PERL_ARGS_ASSERT_PERLIO_EXPORTFILE;
     if (PerlIOValid(f)) {
 	char buf[8];
         int fd = PerlIO_fileno(f);
@@ -3838,11 +3872,24 @@ PerlIO_exportFILE(PerlIO * f, const char *mode)
 }
 
 
+/*
+=for apidoc PerlIO_findFILE
+
+Returns a native FILE * used by a stdio layer. If there is none, it
+will create one with PerlIO_exportFILE. In either case the FILE *
+should be considered as belonging to the PerlIO subsystem and should
+only be closed by calling L<perlapio/PerlIO_close(f)>.
+
+See also L<perlapio/PerlIO_findFILE(f)>.
+=cut
+*/
 FILE *
 PerlIO_findFILE(PerlIO *f)
 {
-    PerlIOl *l = *f;
+    PerlIOl *l;
     FILE *stdio;
+    PERL_ARGS_ASSERT_PERLIO_FINDFILE;
+    l = *f;
     while (l) {
 	if (l->tab == &PerlIO_stdio) {
 	    PerlIOStdio *s = PerlIOSelf(&l, PerlIOStdio);
@@ -3866,11 +3913,20 @@ PerlIO_findFILE(PerlIO *f)
     return stdio;
 }
 
-/* Use this to reverse PerlIO_exportFILE calls. */
+/*
+=for apidoc PerlIO_releaseFILE
+
+XS API for the C<T_STDIO> typemap, to release an :stdio IO handle opened
+with L</PerlIO_exportFILE>.
+
+See L<perlapio/PerlIO_releaseFILE(p,f)>
+=cut
+*/
 void
 PerlIO_releaseFILE(PerlIO *p, FILE *f)
 {
     PerlIOl *l;
+    PERL_ARGS_ASSERT_PERLIO_RELEASEFILE;
     while ((l = *p)) {
 	if (l->tab == &PerlIO_stdio) {
 	    PerlIOStdio *s = PerlIOSelf(&l, PerlIOStdio);

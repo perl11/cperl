@@ -11149,11 +11149,25 @@ PERL_CALLCONV int	Perl_PerlIO_eof(pTHX_ PerlIO *f)
 PERL_CALLCONV int	Perl_PerlIO_error(pTHX_ PerlIO *f)
 			__attribute__global__;
 
+PERL_CALLCONV FILE *	PerlIO_exportFILE(PerlIO *f, const char* mode)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(1);
+#define PERL_ARGS_ASSERT_PERLIO_EXPORTFILE	\
+	assert(f)
+
 PERL_CALLCONV int	Perl_PerlIO_fileno(pTHX_ PerlIO *f)
 			__attribute__global__;
 
 PERL_CALLCONV int	Perl_PerlIO_fill(pTHX_ PerlIO *f)
 			__attribute__global__;
+
+PERL_CALLCONV FILE *	PerlIO_findFILE(PerlIO *f)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(1);
+#define PERL_ARGS_ASSERT_PERLIO_FINDFILE	\
+	assert(f)
 
 PERL_CALLCONV int	Perl_PerlIO_flush(pTHX_ PerlIO *f)
 			__attribute__global__;
@@ -11177,6 +11191,13 @@ PERL_CALLCONV SSize_t	Perl_PerlIO_read(pTHX_ PerlIO *f, void *vbuf, Size_t count
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_PERLIO_READ	\
 	assert(vbuf)
+
+PERL_CALLCONV void	PerlIO_releaseFILE(PerlIO *p, FILE *f)
+			__attribute__global__
+			__attribute__nonnull__(1)
+			__attribute__nonnull__(2);
+#define PERL_ARGS_ASSERT_PERLIO_RELEASEFILE	\
+	assert(p); assert(f)
 
 PERL_CALLCONV void	Perl_PerlIO_restore_errno(pTHX_ PerlIO *f)
 			__attribute__global__;
