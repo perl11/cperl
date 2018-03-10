@@ -12923,7 +12923,7 @@ Perl_ck_backtick(pTHX_ OP *o)
     o = ck_fun(o);
     /* qx and `` have a null pushmark; CORE::readpipe has only one kid. */
     if (OpKIDS(o) && (sibl = OpSIBLING(OpFIRST(o)))
-        && (gv = gv_override("readpipe",8)))
+        && (gv = gv_override("readpipe", 8)))
     {
         /* detach rest of siblings from o and its first child */
         op_sibling_splice(o, OpFIRST(o), -1, NULL);
@@ -12932,13 +12932,15 @@ Perl_ck_backtick(pTHX_ OP *o)
     else if (!OpKIDS(o)) {
 	newop = newUNOP(OP_BACKTICK, 0,	newDEFSVOP());
     }
+    /* ck_fun is better than this. It enforces proper context. */
+#if 0
     else if ( (sibl = OpFIRST(o)) && IS_TYPE(sibl, LIST) &&
               (sibl = OpSIBLING(OpFIRST(sibl))) &&
               OpHAS_SIBLING(sibl) ) /* e.g. readpipe("proc",1,2) */
     {
-        /* DEBUG_kv(op_dump(sibl)); */
         too_many_arguments_pv(o, OP_NAME(o), 0);
     }
+#endif
     if (newop) {
 	op_free(o);
 	return newop;

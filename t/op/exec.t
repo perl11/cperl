@@ -36,7 +36,7 @@ $ENV{LANGUAGE} = 'C';		# Ditto in GNU.
 my $Is_VMS   = $^O eq 'VMS';
 my $Is_Win32 = $^O eq 'MSWin32';
 
-plan(tests => 41);
+plan(tests => 42);
 
 my $Perl = which_perl();
 
@@ -182,24 +182,6 @@ TODO: {
         "exec failure doesn't terminate process");
 }
 
-SKIP: {
-    skip 'Doesn\'t work on Windows/VMS', 2 if $Is_VMS || $Is_Win32;
-    open my $fh, '-|', 'echo', $$;
-    my $pid = <$fh>;
-    chomp $pid;
-    is($pid, $$, 'Pid is as expected in openpipe');
-
-    skip 'Can\'t load POSIX' if not eval { require POSIX };
-    if (my $child = open my $fh, '-|') {
-	my $pid = <$fh>;
-	chomp $pid;
-	is($pid, $child, 'Pid is as expected in system');
-    } else {
-	system 'echo', $$;
-	POSIX::_exit(0);
-    }
-}
-
 {
     local $! = 0;
     ok !exec(), 'empty exec LIST fails';
@@ -211,7 +193,7 @@ SKIP: {
     local $! = 0;
     my $err = $!;
     ok !(exec {""} ()), 'empty exec PROGRAM LIST fails';
-    ok $! == 2 || $! =~ qr/\bno\b.*\bfile\b/, 'errno = ENOENT'
+    ok $! == 2 || $! =~ qr/\bno\b.*\bfile\b/i, 'errno = ENOENT'
         or printf "# \$! eq %d, '%s'\n", $!, $!;
 }
 

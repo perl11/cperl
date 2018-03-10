@@ -239,5 +239,5 @@ Execution of - aborted due to compilation errors.
 # NAME Too many backtick arguments, compile-time
 readpipe("a",2);
 EXPECT
-Too many arguments for backtick at - line 1, near "2)"
+Too many arguments for quoted execution (``, qx) at - line 1, near "2)"
 Execution of - aborted due to compilation errors.
