@@ -41,7 +41,7 @@ my $cp = 0;
 $charinfo = charinfo($cp);    # Null is often problematic, so test it.
 
 is($charinfo->{code},           "0000",
-                        "Next tests are for charinfo and charprop; first NULL");
+                                "Next tests are for charinfo and charprop; first NULL");
 is($charinfo->{name},           "<control>");
 is(charprop($cp, "name"),       "");
 
