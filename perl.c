@@ -1863,7 +1863,10 @@ perl_parse(pTHXx_ XSINIT_t xsinit, int argc, char **argv, char **env)
 	    call_list(oldscope, PL_checkav);
 	}
 	ret = STATUS_EXIT;
-	if (ret == 0) ret = 0x100;
+#ifndef WIN32
+	if (ret == 0)
+            ret = 0x100;
+#endif
 	break;
     case 3:
 	PerlIO_printf(Perl_error_log, "panic: top_env\n");
@@ -2758,7 +2761,10 @@ perl_run(pTHXx)
 #endif
 	if (exit_called) {
 	    ret = STATUS_EXIT;
-	    if (ret == 0) ret = 0x100;
+#ifndef WIN32
+	    if (ret == 0)
+                ret = 0x100;
+#endif
 	} else {
 	    ret = 0;
 	}
