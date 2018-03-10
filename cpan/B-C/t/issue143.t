@@ -10,6 +10,7 @@ BEGIN {
 use Config ();
 # broken on 5.10.1 with 1.48
 my $todo = "TODO #143 " if $]>=5.010 and $]<5.012;
+$todo = "TODO Free to wrong pool with MSVC " if $^O eq 'MSWin32' and $Config{cc} =~ 'cl';
 
 ctestok(1, "C,-O3", 'ccode143i', <<'EOS', "wrong length after double regex compilation");
 BEGIN {
