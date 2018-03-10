@@ -5,7 +5,7 @@ use warnings;
 no warnings 'surrogate';    # surrogates can be inputs to this
 use charnames ();
 
-our $VERSION = '0.69_01';
+our $VERSION = '0.69_02';
 
 require Exporter;
 
@@ -2446,7 +2446,9 @@ sub prop_value_aliases ($$) {
 }
 
 # All 1 bits but the top one is the largest possible IV.
-$Unicode::UCD::MAX_CP = (~0) >> 1;
+# perl5 has this as MAX_INT32, which extends invlists above unicode
+# and slows down invlist searches.
+$Unicode::UCD::MAX_CP = 0x110000;
 
 =pod
 
@@ -2508,10 +2510,11 @@ character "0", and all code points from it through 57 (a "9") are ASCII hex
 digits.  Code points 58 through 64 aren't, but 65 (an "A") through 70 (an "F")
 are, as are 97 ("a") through 102 ("f").  103 starts a range of code points
 that aren't ASCII hex digits.  That range extends to infinity, which on your
-computer can be found in the variable C<$Unicode::UCD::MAX_CP>.  (This
+computer can be found in the variable C<$Unicode::UCD::MAX_CP>.  This
 variable is as close to infinity as Perl can get on your platform, and may be
 too high for some operations to work; you may wish to use a smaller number for
-your purposes.)
+your purposes. With cperl this value is the highest possible unicode codepoint:
+0x10FFFF.
 
 Note that the inversion lists returned by this function can possibly include
 non-Unicode code points, that is anything above 0x10FFFF.  Unicode properties
