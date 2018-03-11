@@ -2393,6 +2393,7 @@ Perl_my_popen_list(pTHX_ const char *mode, int n, SV **args)
     I32 This, that;
     Pid_t pid;
     SV *sv;
+    SV** current;
     I32 did_pipes = 0;
     int pp[2];
 
@@ -2411,12 +2412,10 @@ Perl_my_popen_list(pTHX_ const char *mode, int n, SV **args)
     if (PerlProc_pipe(pp) >= 0)
 	did_pipes = 1;
 
-    {
-	SV** current;
-	for (current = args; current <= args-1+n; current++) {
-	    SvGETMAGIC(*current);
-	}
+    for (current = args; current <= args-1+n; current++) {
+        SvGETMAGIC(*current);
     }
+
     while ((pid = PerlProc_fork()) < 0) {
 	if (errno != EAGAIN) {
 	    PerlLIO_close(p[This]);

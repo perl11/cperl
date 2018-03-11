@@ -4398,7 +4398,7 @@ PP(pp_system)
 	SV *origsv = *MARK, *copysv;
 	STRLEN len;
 	char *pv;
-	SvGETMAGIC(origsv);
+	SvGETMAGIC(origsv); /* twice?! */
         if (TAINT_get)
             break;
 #ifdef WIN32
@@ -4437,12 +4437,14 @@ PP(pp_system)
 	TAINT_ENV();
 	TAINT_PROPER("system");
     }
+#if 0
     else {
 	while (++MARK <= SP) {
 	    (void)SvGETMAGIC(*MARK);      /* For get magic */
 	}
 	MARK = ORIGMARK;
     }
+#endif
     PERL_FLUSHALL_FOR_CHILD;
 #if (defined(HAS_FORK) || defined(__amigaos4__)) && !defined(VMS) && !defined(OS2) || defined(PERL_MICRO)
     {
