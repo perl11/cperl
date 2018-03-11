@@ -10,7 +10,7 @@ BEGIN {
   }
   require TestBC;
 }
-use Test::More tests => 3;
+use Test::More tests => 4;
 my $base = "ccode_last";
 
 # XXX Bogus. This is not the real 'last' failure as described in the README
@@ -68,17 +68,17 @@ if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
   exit;
 }    
 
-#my $script4 = <<'EOF';
-## issue 55 segfault for non local loop exit
-#LOOP:
-#{
-#    my $sub = sub { last LOOP; };
-#    $sub->();
-#}
-#print "ok";
-#EOF
-## TODO
-#ctestok(4, "CC", $base, $script4,
-#	$B::CC::VERSION < 1.11
-#	  ? "TODO B::CC issue 55 non-local exit with last => segv"
-#	  :  "non local loop exit");
+my $script4 = <<'EOF';
+# issue 55 segfault for non local loop exit
+LOOP:
+{
+    my $sub = sub { last LOOP; };
+    $sub->();
+}
+print "ok";
+EOF
+# TODO
+ctestok(4, "CC", $base, $script4,
+	$B::CC::VERSION < 1.11
+	  ? "TODO B::CC issue 55 non-local exit with last => segv"
+	  :  "non local loop exit");
