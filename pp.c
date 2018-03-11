@@ -3613,7 +3613,7 @@ PP(pp_length)
                 len = SvCUR(sv);
                 if (PL_op->op_private & OPpTRUEBOOL) {
                   return_bool:
-                    SETs(len ? &PL_sv_yes : &PL_sv_zero);
+                    SETs(len ? SV_YES : SV_ZERO);
                     return NORMAL;
                 }
             }
@@ -4019,7 +4019,7 @@ PP(pp_index)
     /* OPpTRUEBOOL indicates an '== -1' has been optimised away */
     if (PL_op->op_private & OPpTRUEBOOL) {
         PUSHs( ((retval != -1) ^ cBOOL(PL_op->op_private & OPpINDEX_BOOLNEG))
-                    ? &PL_sv_yes : &PL_sv_no);
+                    ? SV_YES : SV_NO);
         if (PL_op->op_private & OPpTARGET_MY)
             /* $lex = (index() == -1) */
             sv_setsv(TARG, TOPs);

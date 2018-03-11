@@ -16040,26 +16040,26 @@ Perl_init_constants(pTHX)
 {
     SvREFCNT(UNDEF)	= SvREFCNT_IMMORTAL;
     SvFLAGS(UNDEF)	= SVf_READONLY|SVf_PROTECT|SVt_NULL;
-    SvANY(UNDEF)		= NULL;
+    SvANY(UNDEF)	= NULL;
 
-    SvANY(SV_NO)		= new_XPVNV();
-    SvREFCNT(SV_NO)		= SvREFCNT_IMMORTAL;
-    SvFLAGS(SV_NO)		= SVt_PVNV|SVf_READONLY|SVf_PROTECT
-				  |SVp_IOK|SVf_IOK|SVp_NOK|SVf_NOK
-				  |SVp_POK|SVf_POK;
+    SvANY(SV_NO)	= new_XPVNV();
+    SvREFCNT(SV_NO)	= SvREFCNT_IMMORTAL;
+    SvFLAGS(SV_NO)	= SVt_PVNV|SVf_READONLY|SVf_PROTECT
+			  |SVp_IOK|SVf_IOK|SVp_NOK|SVf_NOK
+			  |SVp_POK|SVf_POK;
 
-    SvANY(SV_YES)		= new_XPVNV();
+    SvANY(SV_YES)	= new_XPVNV();
     SvREFCNT(SV_YES)	= SvREFCNT_IMMORTAL;
-    SvFLAGS(SV_YES)		= SVt_PVNV|SVf_READONLY|SVf_PROTECT
-				  |SVp_IOK|SVf_IOK|SVp_NOK|SVf_NOK
-				  |SVp_POK|SVf_POK;
+    SvFLAGS(SV_YES)	= SVt_PVNV|SVf_READONLY|SVf_PROTECT
+			  |SVp_IOK|SVf_IOK|SVp_NOK|SVf_NOK
+			  |SVp_POK|SVf_POK;
 
-    SvANY(SV_ZERO)		= new_XPVNV();
+    SvANY(SV_ZERO)	= new_XPVNV();
     SvREFCNT(SV_ZERO)	= SvREFCNT_IMMORTAL;
     SvFLAGS(SV_ZERO)	= SVt_PVNV|SVf_READONLY|SVf_PROTECT
-				  |SVp_IOK|SVf_IOK|SVp_NOK|SVf_NOK
-				  |SVp_POK|SVf_POK
-                                  |SVs_PADTMP;
+			  |SVp_IOK|SVf_IOK|SVp_NOK|SVf_NOK
+			  |SVp_POK|SVf_POK
+                          |SVs_PADTMP;
 
     SvPV_set(SV_NO, (char*)PL_No);
     SvCUR_set(SV_NO, 0);
@@ -16081,25 +16081,25 @@ Perl_init_constants(pTHX)
 
     PadnamePV(&PL_padname_const) = (char *)PL_No;
 
-    assert(SvIMMORTAL_INTERP(&PL_sv_yes));
-    assert(SvIMMORTAL_INTERP(&PL_sv_undef));
-    assert(SvIMMORTAL_INTERP(&PL_sv_no));
-    assert(SvIMMORTAL_INTERP(&PL_sv_zero));
+    assert(SvIMMORTAL_INTERP(SV_YES));
+    assert(SvIMMORTAL_INTERP(UNDEF));
+    assert(SvIMMORTAL_INTERP(SV_NO));
+    assert(SvIMMORTAL_INTERP(SV_ZERO));
 
-    assert(SvIMMORTAL(&PL_sv_yes));
-    assert(SvIMMORTAL(&PL_sv_undef));
-    assert(SvIMMORTAL(&PL_sv_no));
-    assert(SvIMMORTAL(&PL_sv_zero));
+    assert(SvIMMORTAL(SV_YES));
+    assert(SvIMMORTAL(UNDEF));
+    assert(SvIMMORTAL(SV_NO));
+    assert(SvIMMORTAL(SV_ZERO));
 
-    assert( SvIMMORTAL_TRUE(&PL_sv_yes));
-    assert(!SvIMMORTAL_TRUE(&PL_sv_undef));
-    assert(!SvIMMORTAL_TRUE(&PL_sv_no));
-    assert(!SvIMMORTAL_TRUE(&PL_sv_zero));
+    assert( SvIMMORTAL_TRUE(SV_YES));
+    assert(!SvIMMORTAL_TRUE(UNDEF));
+    assert(!SvIMMORTAL_TRUE(SV_NO));
+    assert(!SvIMMORTAL_TRUE(SV_ZERO));
 
-    assert( SvTRUE_nomg_NN(&PL_sv_yes));
-    assert(!SvTRUE_nomg_NN(&PL_sv_undef));
-    assert(!SvTRUE_nomg_NN(&PL_sv_no));
-    assert(!SvTRUE_nomg_NN(&PL_sv_zero));
+    assert( SvTRUE_nomg_NN(SV_YES));
+    assert(!SvTRUE_nomg_NN(UNDEF));
+    assert(!SvTRUE_nomg_NN(SV_NO));
+    assert(!SvTRUE_nomg_NN(SV_ZERO));
 }
 
 /*

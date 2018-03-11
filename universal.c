@@ -1307,12 +1307,12 @@ XS(XS_fields_const)
     if (AvFILLp(obj) < FIELDS_INDEX_OBJ) {
         PADOFFSET po = S_fields_po(obj);
         PADNAME *pn  = PAD_COMPNAME(po);
-        ST(0) = PadnameCONST(pn) ? &PL_sv_yes : &PL_sv_no;
+        ST(0) = PadnameCONST(pn) ? SV_YES : SV_NO;
     } else {
         U16 ix    = S_fields_ix(obj);
         SV *avref = S_fields_obj(obj);
         SV *sv    = AvARRAY(SvRV(avref))[ix];
-        ST(0)     = SvREADONLY(sv) ? &PL_sv_yes : &PL_sv_no;
+        ST(0)     = SvREADONLY(sv) ? SV_YES : SV_NO;
     }
 }
 XS(XS_fields_type);
