@@ -4397,8 +4397,9 @@ PP(pp_system)
     while (++MARK <= SP) {
 	SV *origsv = *MARK;
 	STRLEN len;
-	char *pv;
-	pv = SvPV(origsv, len);
+	char *pv = SvPV(origsv, len);
+        if (TAINT_get)
+            break;
 	*MARK = newSVpvn_flags(pv, len,
 		    (SvFLAGS(origsv) & SVf_UTF8) | SVs_TEMP);
     }
