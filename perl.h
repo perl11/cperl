@@ -828,6 +828,9 @@
 #define IN_ENCODING UNLIKELY(PL_encoding                                      \
                              || (PL_lex_encoding && _get_encoding() != NULL))
 
+/* XXX The next few defines are unfortunately duplicated in makedef.pl, and
+ * changes here MUST also be made there */
+
 #ifdef USE_LOCALE /* These locale things are all subject to change */
 #  if      defined(HAS_NEWLOCALE)               \
       &&   defined(LC_ALL_MASK)                 \
