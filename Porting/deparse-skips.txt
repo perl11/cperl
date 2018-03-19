@@ -49,6 +49,7 @@ mro/next_skip_utf8.t
 mro/package_aliases.t
 op/aassign.t
 op/aelem_u.t		  #
+op/array.t                # \our(@a) incorrect paren; ->$#* not deparsed
 op/attrhand.t             # Custom attrs ignored; also AH provides none
 op/attrs.t                # [perl #70205] my attrs
 op/blocks.t
@@ -308,6 +309,7 @@ uni/write.t
 ../ext/XS-APItest/t/fetch_pad_names.t
 ../ext/XS-APItest/t/svpeek.t
 ../ext/XS-APItest/t/synthetic_scope.t
+../lib/Config.t                         # Config_heavy.pl fns getting output
 ../lib/charnames.t
 ../lib/dumpvar.t
 ../lib/overload.t
