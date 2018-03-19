@@ -73,7 +73,7 @@ use B qw(main_root main_start main_cv svref_2object opnumber perlstring
         SIGNATURE_SHIFT
     );
 
-$VERSION = '1.46_04c';
+$VERSION = '1.48_04c';
 $VERSION =~ s/c$//;
 use strict;
 our $AUTOLOAD;
