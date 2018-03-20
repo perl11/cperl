@@ -45,11 +45,15 @@ io/open.t
 io/perlio.t
 io/say.t
 mro/basic.t
+mro/basic_01_c3_utf8.t
+mro/basic_01_dfs_utf8.t
+mro/complex_c3_utf8.t
+mro/isarev.t
+mro/isarev_utf8.t
 mro/next_skip_utf8.t
 mro/package_aliases.t
 op/aassign.t
 op/aelem_u.t		  #
-op/array.t                # \our(@a) incorrect paren; ->$#* not deparsed
 op/attrhand.t             # Custom attrs ignored; also AH provides none
 op/attrs.t                # [perl #70205] my attrs
 op/blocks.t
