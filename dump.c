@@ -1211,6 +1211,11 @@ S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o, const CV *c
 
     /* print op common fields */
 
+    if (level == 0) {
+        S_opdump_indent(aTHX_ o, level, bar, file, "PARENT");
+        S_opdump_link(aTHX_ o, op_parent((OP*)o), file);
+    }
+
     if (o->op_targ && optype != OP_NULL)
         S_opdump_indent(aTHX_ o, level, bar, file, "TARG = %ld\n",
                         (long)o->op_targ);

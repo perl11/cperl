@@ -1530,6 +1530,7 @@ for my $test (
     my $e = <<'EODUMP';
 dumpindent is 4 at -e line 1.
 1    leave LISTOP(0xNNN) ===> [0x0]
+     PARENT ===> [0x0]
      TARG = 1
      FLAGS = (VOID,KIDS,PARENS,SLABBED)
      PRIVATE = (REFC)
