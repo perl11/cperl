@@ -4,7 +4,7 @@ use strict;
 
 our $VERSION = '4.71c'; # modernized
 our $XS_VERSION = $VERSION;
-$VERSION =~ tr/_//;
+#$VERSION =~ tr/_//;
 $VERSION =~ s/c$//;
 
 #dont try to load XSLoader and DynaLoader only to ultimately fail on miniperl

@@ -5,7 +5,7 @@ use vars qw(@ISA @EXPORT @EXPORT_OK $VERSION);
 
 $VERSION = '4.68c'; # modernized
 our $XS_VERSION = $VERSION;
-$VERSION =~ tr/_//;
+#$VERSION =~ tr/_//;
 $VERSION =~ s/c$//;
 
 @ISA = qw/ Exporter /;
@@ -82,6 +82,7 @@ if(! defined &getcwd && defined &DynaLoader::boot_DynaLoader) {
   eval {#eval is questionable since we are handling potential errors like
         #"Cwd object version 3.48 does not match bootstrap parameter 3.50
         #at lib/DynaLoader.pm line 216." by having this eval
+    no warnings 'redefine';
     if ( $] >= 5.006 ) {
       require XSLoader;
       XSLoader::load( __PACKAGE__, $XS_VERSION);
