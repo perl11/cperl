@@ -612,6 +612,7 @@ the strings?).
  Steve     5.24.2       2017-Jul-15
  Steve     5.24.3-RC1   2017-Sep-10
  Steve     5.24.3       2017-Sep-22
+ Steve     5.24.4-RC1   2018-Mar-24
 
  rurban    5.24.0c-RC1  2016-Jun-08     cperl 5.24
  rurban    5.24.0c-RC2  2016-Jun-17
@@ -647,6 +648,7 @@ the strings?).
  Sawyer X  5.26.0       2017-May-30
  Steve     5.26.1-RC1   2017-Sep-10
  Steve     5.26.1       2017-Sep-22
+ Steve     5.26.2-RC1   2018-Mar-24
 
  rurban    5.26.0c-RC1  2017-Apr-19     cperl 5.26
  rurban    5.26.0c      2017-Apr-25
