@@ -503,8 +503,8 @@ __UNSUPPORTED_API__
 =head1 BUGS
 
 If you find any bugs, C<Devel::PPPort> doesn't seem to build on your
-system, or any of its tests fail, please file an issue here:
-L<https://github.com/mhx/Devel-PPPort/issues/>
+system, or any of its tests fail, please send a bug report to
+L<perlbug@perl.org|mailto:perlbug@perl.org>.
 
 =head1 AUTHORS
 
@@ -550,7 +550,7 @@ package Devel::PPPort;
 use strict;
 use vars qw($VERSION $data);
 
-$VERSION = '3.39_04';
+$VERSION = '3.40_04';
 
 sub _init_data
 {
