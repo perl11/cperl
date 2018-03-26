@@ -4129,6 +4129,7 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  *	This symbol, if defined, indicates to the C program that it should
  *	include <xlocale.h> to get uselocale() and its friends.
  */
+#$d_duplocale	HAS_DUPLOCALE	/**/
 #$d_newlocale	HAS_NEWLOCALE	/**/
 #$d_freelocale	HAS_FREELOCALE	/**/
 #$d_uselocale	HAS_USELOCALE	/**/

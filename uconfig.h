@@ -4094,6 +4094,7 @@
  *	This symbol, if defined, indicates to the C program that it should
  *	include <xlocale.h> to get uselocale() and its friends.
  */
+/*#define	HAS_DUPLOCALE	/ **/
 /*#define	HAS_NEWLOCALE	/ **/
 /*#define	HAS_FREELOCALE	/ **/
 /*#define	HAS_USELOCALE	/ **/
@@ -5387,6 +5388,6 @@
 #endif
 
 /* Generated from:
- * 08b3fec20526bb4939eec27fc6e016dd5755875f0f8ad79a99c0ec2ab55bfd26 config_h.SH
- * ce3bf6211625664a0aea0153c77e7a96bc35208d44e71379355e05b6f4253b1f uconfig.sh
+ * b72c0edae9a1e5f25687ff4fdb5ea2aad8ff5b3499071648d2b8288af444712a config_h.SH
+ * a5325d65ec676292edec2560ba8807a68cd33f799c7e4d78d42cb8feb4c948f3 uconfig.sh
  * ex: set ro: */

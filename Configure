@@ -697,6 +697,7 @@ d_munmap=''
 d_nan=''
 d_nanosleep=''
 d_nearbyint=''
+d_duplocale=''
 d_freelocale=''
 d_newlocale=''
 d_uselocale=''
@@ -13014,6 +13015,10 @@ eval $inlibc
 
 : see if dup3 exists
 set dup3 d_dup3
+eval $inlibc
+
+: see if duplocale exists
+set duplocale d_duplocale
 eval $inlibc
 
 : see if eaccess exists

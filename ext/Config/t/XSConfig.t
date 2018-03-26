@@ -100,7 +100,7 @@ if (exists $XSConfig{canned_gperf}) { #fix up PP Config to look like XS Config
           d_backtrace d_builtin_arith_overflow d_builtin_choose_expr
           d_builtin_expect d_c99_variadic_macros d_cbrt d_clearenv
           d_copysign d_cplusplus d_ctermid d_ctime64 d_difftime64
-          d_dir_dd_fd d_dladdr d_duplocale d_erf d_erfc d_exp2 d_expm1
+          d_dir_dd_fd d_dladdr d_erf d_erfc d_exp2 d_expm1
           d_fdclose d_fdim d_fegetround d_fma d_fmax d_fmin
           d_fp_classify d_fp_classl d_fpgetround d_freelocale
           d_fs_data_s d_fstatfs d_fstatvfs d_futimes
