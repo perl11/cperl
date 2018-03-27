@@ -4450,11 +4450,7 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv,
 
     SV* retval = UNDEF;
     HV* swash_hv = NULL;
-    const int invlist_swash_boundary =
-        (flags_p && *flags_p & _CORE_SWASH_INIT_ACCEPT_INVLIST)
-        ? 512    /* Based on some benchmarking, but not extensive, see commit
-                    message */
-        : -1;   /* Never return just an inversion list */
+    const bool use_invlist= (flags_p && *flags_p & _CORE_SWASH_INIT_ACCEPT_INVLIST);
 
     DEBUG_U(PerlIO_printf(Perl_debug_log, "swash init %s %s flags=0x%x\n", pkg, name,
                           flags_p ? *flags_p : 0));
@@ -4625,7 +4621,7 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv,
 
                 /* Here, there is no swash already.  Set up a minimal one, if
                  * we are going to return a swash */
-                if ((int) _invlist_len(invlist) > invlist_swash_boundary) {
+                if (! use_invlist) {
                     swash_hv = newHV();
                     retval = newRV_noinc(MUTABLE_SV(swash_hv));
                 }
@@ -4649,9 +4645,7 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv,
         /* Here, we have computed the union of all the passed-in data.  It may
          * be that there was an inversion list in the swash which didn't get
          * touched; otherwise save the computed one */
-	if (! invlist_in_swash_is_valid
-            && (int) _invlist_len(swash_invlist) > invlist_swash_boundary)
-        {
+	if (! invlist_in_swash_is_valid && ! use_invlist) {
 	    if (! hv_stores(MUTABLE_HV(SvRV(retval)), "V", swash_invlist))
 		Perl_croak(aTHX_ "panic: hv_store() unexpectedly failed");
 	    /* We just stole a reference count. */
@@ -4662,8 +4656,7 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv,
         /* The result is immutable.  Forbid attempts to change it. */
         SvREADONLY_on(swash_invlist);
 
-        /* Use the inversion list stand-alone if small enough */
-        if ((int) _invlist_len(swash_invlist) <= invlist_swash_boundary) {
+        if (use_invlist) {
 	    SvREFCNT_dec(retval);
 	    if (!swash_invlist_unclaimed)
 		SvREFCNT_inc_simple_void_NN(swash_invlist);
