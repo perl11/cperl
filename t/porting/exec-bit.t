@@ -64,16 +64,19 @@ my @manifest = sort keys %{ maniread("MANIFEST") };
 # Check that +x files in repo get +x from makerel
 for my $f ( @manifest ) {
   next unless -x $f;
-  if ($^O eq 'cygwin' and has_shebang($f) and !$exe_list{$f}) {
+
+  if ($^O eq 'cygwin' and !has_shebang($f) and !$exe_list{$f}) {
     # has admin perms
     ok(1, 'skip cygwin wrong -x');
     ok(1, 'skip cygwin wrong -x');
-  }
-  
-  ok( has_shebang($f), "File $f has shebang" );
 
-  ok( $exe_list{$f}, "tarball will chmod +x $f" )
-    or diag( "Remove the exec bit or add '$f' to Porting/exec-bit.txt" );
+  } else {
+
+    ok( has_shebang($f), "File $f has shebang" );
+
+    ok( $exe_list{$f}, "tarball will chmod +x $f" )
+      or diag( "Remove the exec bit or add '$f' to Porting/exec-bit.txt" );
+  }
 
   delete $exe_list{$f}; # seen it
 }
