@@ -856,7 +856,7 @@ AnidR	|bool	|is_utf8_string_flags	|NN const U8 *s|STRLEN len|const U32 flags
 AnmdpR	|bool	|is_strict_utf8_string	|NN const U8 *s|STRLEN len
 AnmdpR	|bool	|is_c9strict_utf8_string|NN const U8 *s|STRLEN len
 Anpdmb	|bool	|is_utf8_string_loc					    \
-		|NN const U8 *s|STRLEN len|NN const U8 **ep
+		|NN const U8 *s|const STRLEN len|NN const U8 **ep
 Andm	|bool	|is_utf8_string_loc_flags				    \
 		|NN const U8 *s|STRLEN len|NN const U8 **ep		    \
 		|const U32 flags
