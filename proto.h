@@ -89,6 +89,14 @@ PERL_CALLCONV SV*	Perl__get_encoding(pTHX)
 			__attribute__warn_unused_result__
 			__attribute__pure__;
 
+PERL_CALLCONV Size_t	Perl__inverse_folds(pTHX_ const UV cp, int * first_folds_to, const int ** remaining_folds_to)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT__INVERSE_FOLDS	\
+	assert(first_folds_to); assert(remaining_folds_to)
+
 PERL_CALLCONV bool	Perl__is_decomposed_string(pTHX_ const U8 *p, STRLEN len)
 			__attribute__global__
 			__attribute__warn_unused_result__
