@@ -3627,7 +3627,7 @@ static const U8 CF_AUX_TABLE_lengths[] = {
 	2	/* CF_AUX_TABLE_73 */
 };
 
-static const IV Case_Folding_invmap[] = { /* for ASCII/Latin1 */
+static const int Case_Folding_invmap[] = { /* for ASCII/Latin1 */
 	0,
 	0x61,
 	0,
@@ -6283,7 +6283,7 @@ static const U8 LC_AUX_TABLE_lengths[] = {
 	2	/* LC_AUX_TABLE_1 */
 };
 
-static const IV Lowercase_Mapping_invmap[] = { /* for ASCII/Latin1 */
+static const int Lowercase_Mapping_invmap[] = { /* for ASCII/Latin1 */
 	0,
 	0x61,
 	0,
@@ -35975,7 +35975,7 @@ static const UV Simple_Case_Folding_invlist[] = { /* for ASCII/Latin1 */
 
 #if defined(PERL_IN_UTF8_C)
 
-static const IV Simple_Case_Folding_invmap[] = { /* for ASCII/Latin1 */
+static const int Simple_Case_Folding_invmap[] = { /* for ASCII/Latin1 */
 	0,
 	0x61,
 	0,
@@ -38971,7 +38971,7 @@ static const U8 TC_AUX_TABLE_lengths[] = {
 	2	/* TC_AUX_TABLE_45 */
 };
 
-static const IV Titlecase_Mapping_invmap[] = { /* for ASCII/Latin1 */
+static const int Titlecase_Mapping_invmap[] = { /* for ASCII/Latin1 */
 	0,
 	0x41,
 	0,
@@ -42282,7 +42282,7 @@ static const U8 UC_AUX_TABLE_lengths[] = {
 	2	/* UC_AUX_TABLE_72 */
 };
 
-static const IV Uppercase_Mapping_invmap[] = { /* for ASCII/Latin1 */
+static const int Uppercase_Mapping_invmap[] = { /* for ASCII/Latin1 */
 	0,
 	0x41,
 	0,
@@ -57257,7 +57257,7 @@ static const U8 CF_AUX_TABLE_lengths[] = {
 	2	/* CF_AUX_TABLE_73 */
 };
 
-static const IV Case_Folding_invmap[] = { /* for EBCDIC 1047 */
+static const int Case_Folding_invmap[] = { /* for EBCDIC 1047 */
 	0,
 	CF_use_AUX_TABLE_1,
 	0,
@@ -59950,7 +59950,7 @@ static const U8 LC_AUX_TABLE_lengths[] = {
 	2	/* LC_AUX_TABLE_1 */
 };
 
-static const IV Lowercase_Mapping_invmap[] = { /* for EBCDIC 1047 */
+static const int Lowercase_Mapping_invmap[] = { /* for EBCDIC 1047 */
 	0,
 	0x42,
 	0,
@@ -89982,7 +89982,7 @@ static const UV Simple_Case_Folding_invlist[] = { /* for EBCDIC 1047 */
 
 #if defined(PERL_IN_UTF8_C)
 
-static const IV Simple_Case_Folding_invmap[] = { /* for EBCDIC 1047 */
+static const int Simple_Case_Folding_invmap[] = { /* for EBCDIC 1047 */
 	0,
 	0x42,
 	0,
@@ -93012,7 +93012,7 @@ static const U8 TC_AUX_TABLE_lengths[] = {
 	2	/* TC_AUX_TABLE_45 */
 };
 
-static const IV Titlecase_Mapping_invmap[] = { /* for EBCDIC 1047 */
+static const int Titlecase_Mapping_invmap[] = { /* for EBCDIC 1047 */
 	0,
 	0x62,
 	0,
@@ -96355,7 +96355,7 @@ static const U8 UC_AUX_TABLE_lengths[] = {
 	2	/* UC_AUX_TABLE_72 */
 };
 
-static const IV Uppercase_Mapping_invmap[] = { /* for EBCDIC 1047 */
+static const int Uppercase_Mapping_invmap[] = { /* for EBCDIC 1047 */
 	0,
 	0x62,
 	0,
@@ -111504,7 +111504,7 @@ static const U8 CF_AUX_TABLE_lengths[] = {
 	2	/* CF_AUX_TABLE_73 */
 };
 
-static const IV Case_Folding_invmap[] = { /* for EBCDIC 037 */
+static const int Case_Folding_invmap[] = { /* for EBCDIC 037 */
 	0,
 	CF_use_AUX_TABLE_1,
 	0,
@@ -114189,7 +114189,7 @@ static const U8 LC_AUX_TABLE_lengths[] = {
 	2	/* LC_AUX_TABLE_1 */
 };
 
-static const IV Lowercase_Mapping_invmap[] = { /* for EBCDIC 037 */
+static const int Lowercase_Mapping_invmap[] = { /* for EBCDIC 037 */
 	0,
 	0x42,
 	0,
@@ -144169,7 +144169,7 @@ static const UV Simple_Case_Folding_invlist[] = { /* for EBCDIC 037 */
 
 #if defined(PERL_IN_UTF8_C)
 
-static const IV Simple_Case_Folding_invmap[] = { /* for EBCDIC 037 */
+static const int Simple_Case_Folding_invmap[] = { /* for EBCDIC 037 */
 	0,
 	0x42,
 	0,
@@ -147193,7 +147193,7 @@ static const U8 TC_AUX_TABLE_lengths[] = {
 	2	/* TC_AUX_TABLE_45 */
 };
 
-static const IV Titlecase_Mapping_invmap[] = { /* for EBCDIC 037 */
+static const int Titlecase_Mapping_invmap[] = { /* for EBCDIC 037 */
 	0,
 	0x62,
 	0,
@@ -150532,7 +150532,7 @@ static const U8 UC_AUX_TABLE_lengths[] = {
 	2	/* UC_AUX_TABLE_72 */
 };
 
-static const IV Uppercase_Mapping_invmap[] = { /* for EBCDIC 037 */
+static const int Uppercase_Mapping_invmap[] = { /* for EBCDIC 037 */
 	0,
 	0x62,
 	0,
@@ -162153,5 +162153,5 @@ static const U8 WB_table[24][24] = {
  * 663e853430712260a41ae8b0b4998fedf1d06d983ced9049268152ad2168f193 lib/unicore/mktables
  * 21653d2744fdd071f9ef138c805393901bb9547cf3e777ebf50215a191f986ea lib/unicore/version
  * 913d2f93f3cb6cdf1664db888bf840bc4eb074eef824e082fceda24a9445e60c regen/charset_translations.pl
- * 90f9d3726f5dfaa25d13f513332ba162be34f1cef8623322b3de7cb36b0e3dca regen/mk_invlists.pl
+ * 2bb5298fa931bbd4b5b6b37d87c1e19751030a45dede86cebdc395819b6c6ba4 regen/mk_invlists.pl
  * ex: set ro: */

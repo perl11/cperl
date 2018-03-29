@@ -3684,7 +3684,7 @@ Perl_valid_ident(pTHX_ SV* sv, bool strict_names, bool allow_package,
 STATIC UV
 S__to_utf8_case(pTHX_ const UV uv1, const U8 *p,
                       U8* ustrp, STRLEN *lenp,
-                      SV *invlist, const IV * const invmap,
+                      SV *invlist, const int * const invmap,
                       const int * const * aux_tables,
                       const U8 * const aux_table_lengths,
                       const char * const normal)
