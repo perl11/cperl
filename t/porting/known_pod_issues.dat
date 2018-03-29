@@ -351,6 +351,7 @@ dist/devel-ppport/parts/inc/ppphdoc	Unknown directive: =implementation	1
 dist/devel-ppport/parts/inc/ppphdoc	Unknown directive: =provides	1
 dist/devel-ppport/parts/inc/ppphdoc	Verbatim line length including indents exceeds 79 by	1
 dist/devel-ppport/soak	Verbatim line length including indents exceeds 79 by	1
+dist/exporter/lib/exporter.pm	Verbatim line length including indents exceeds 79 by	2
 dist/extutils-constant/lib/extutils/constant.pm	Apparent broken link	5
 dist/extutils-constant/lib/extutils/constant.pm	Verbatim line length including indents exceeds 79 by	1
 dist/extutils-constant/lib/extutils/constant/proxysubs.pm	Apparent broken link	1
