@@ -9979,9 +9979,6 @@ PERL_CALLCONV SV*	Perl__get_regclass_nonbitmap_data(pTHX_ const regexp *prog, co
 #define PERL_ARGS_ASSERT__GET_REGCLASS_NONBITMAP_DATA	\
 	assert(node)
 
-PERL_CALLCONV void	Perl__load_PL_utf8_foldclosures(pTHX)
-			__attribute__global__;
-
 PERL_CALLCONV int	Perl_re_printf(pTHX_ const char *fmt, ...)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
