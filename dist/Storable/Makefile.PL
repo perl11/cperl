@@ -86,9 +86,10 @@ sub depend {
         # blib.pm needs arch/lib
         $extra_deps = ' Storable.pm';
     }
+    my $linktype = uc($_[0]->{LINKTYPE});
     my $limit_pm = File::Spec->catfile('lib', 'Storable', 'Limit.pm');
     "
-$limit_pm : stacksize \$(INST_DYNAMIC)$extra_deps
+$limit_pm : stacksize \$(INST_$linktype)$extra_deps
 	\$(MKPATH) \$(INST_LIB)
 	\$(FULLPERLRUNINST) stacksize $options
 
