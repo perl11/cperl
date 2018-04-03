@@ -89,7 +89,7 @@ PERL_CALLCONV SV*	Perl__get_encoding(pTHX)
 			__attribute__warn_unused_result__
 			__attribute__pure__;
 
-PERL_CALLCONV Size_t	Perl__inverse_folds(pTHX_ const UV cp, int * first_folds_to, const int ** remaining_folds_to)
+PERL_CALLCONV Size_t	Perl__inverse_folds(pTHX_ const UV cp, unsigned int * first_folds_to, const unsigned int ** remaining_folds_to)
 			__attribute__global__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_2)
@@ -10828,7 +10828,7 @@ STATIC bool	S_isa_lookup(pTHX_ HV *stash, const char * const name, STRLEN len, U
 
 #endif
 #if defined(PERL_IN_UTF8_C)
-STATIC UV	S__to_utf8_case(pTHX_ const UV uv1, const U8 *p, U8* ustrp, STRLEN *lenp, SV *invlist, const int * const invmap, const int * const * const aux_tables, const U8 * const aux_table_lengths, const char * const normal)
+STATIC UV	S__to_utf8_case(pTHX_ const UV uv1, const U8 *p, U8* ustrp, STRLEN *lenp, SV *invlist, const int * const invmap, const unsigned int * const * const aux_tables, const U8 * const aux_table_lengths, const char * const normal)
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3)
 			__attribute__nonnull__(pTHX_5)
