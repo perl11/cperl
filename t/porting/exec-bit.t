@@ -27,9 +27,9 @@ if ( $^O eq "MSWin32" ) {
   skip_all( "-x on MSWin32 only indicates file has executable suffix. Try Cygwin?" );
 }
 
-if ( $^O eq "cygwin" and $ENV{APPVEYOR} and $Config{osvers} =~ /^2\.9\.0/ ) {
+if ( $^O eq "cygwin" and $ENV{APPVEYOR}) { # and $Config{osvers} =~ /^2\.9\.0/ )
   # The windows image with 2.7.0 worked fine
-  skip_all( "New cygwin on appveyor -x problems" );
+  skip_all( "New cygwin on appveyor -x problems with $Config{osvers}" );
 }
 
 if ( $^O eq "VMS" ) {
