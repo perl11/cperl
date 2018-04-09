@@ -38,6 +38,7 @@ my %feature = (
     signatures      => 'signatures',
     shaped_arrays   => 'shaped_arrays'
 );
+my $cperl_default = qr/^signatures|lexsubs|shaped_arrays|fc|current_sub$/;
 
 # NOTE: If a feature is ever enabled in a non-contiguous range of Perl
 #       versions, any code below that uses %BundleRanges will have to
@@ -51,21 +52,17 @@ my %feature_bundle = (
     "5.11"   =>	[qw(say state switch unicode_strings array_base)],
     "5.15"   =>	[qw(say state switch unicode_strings unicode_eval
 		    evalbytes current_sub fc)],
-    "5.21"   =>	[qw(say state switch unicode_strings unicode_eval
-		    evalbytes current_sub fc shaped_arrays)],
     "5.23"   =>	[qw(say state switch unicode_strings unicode_eval
-		    evalbytes current_sub fc shaped_arrays
-                    postderef_qq)],
+		    evalbytes current_sub fc postderef_qq)],
     "5.27"   =>	[qw(say state switch unicode_strings unicode_eval
-		    evalbytes current_sub fc shaped_arrays postderef_qq
-                    bitwise)],
+		    evalbytes postderef_qq bitwise)],
 );
 $feature_bundle{"5.10"} = $feature_bundle{"5.9.5"};
 $feature_bundle{"5.13"} = $feature_bundle{"5.11"};
 $feature_bundle{"5.17"} = $feature_bundle{"5.15"};
 $feature_bundle{"5.19"} = $feature_bundle{"5.15"};
+$feature_bundle{"5.21"} = $feature_bundle{"5.15"};
 $feature_bundle{"5.25"} = $feature_bundle{"5.23"};
-$feature_bundle{"5.27"} = $feature_bundle{"5.23"};
 
 my @noops = qw( postderef lexical_subs );
 
@@ -260,8 +257,7 @@ print $h <<'EOH';
 /* Avoid using ... && Perl_feature_is_enabled(...) as that triggers a bug in
    the HP-UX cc on PA-RISC */
 #define FEATURE_IS_ENABLED(name)				        \
-	((CURRENT_HINTS							 \
-	   & HINT_LOCALIZE_HH)						  \
+	((CURRENT_HINTS & HINT_LOCALIZE_HH)				\
 	    ? Perl_feature_is_enabled(aTHX_ STR_WITH_LEN(name)) : FALSE)
 /* The longest string we pass in.  */
 EOH
@@ -280,7 +276,7 @@ for (
     my $name = $feature{$_};
     my $NAME = uc $name;
 
-    if ($name =~ /^signatures|lexsubs|shaped_arrays$/) {
+    if ($name =~ $cperl_default) {
 	print $h <<EOH5;
 #ifdef USE_CPERL
 #define FEATURE_$NAME\_IS_ENABLED 1
@@ -531,7 +527,8 @@ C<CORE::evalbytes>.
 This provides the C<__SUB__> token that returns a reference to the current
 subroutine or C<undef> outside of a subroutine.
 
-This feature is available starting with Perl 5.16.
+This feature is available starting with Perl 5.16, and enabled per default
+on cperl since 5.27.
 
 =head2 The 'array_base' feature
 
@@ -550,7 +547,8 @@ which implements Unicode casefolding.
 
 See L<perlfunc/fc> for details.
 
-This feature is available from Perl 5.16 onwards.
+This feature is available from Perl 5.16 onwards, and enabled per default
+on cperl since 5.27.
 
 =head2 The 'lexical_subs' feature
 
@@ -596,6 +594,7 @@ versions, using it triggered the C<experimental::postderef> warning in the
 same way as the 'postderef_qq' feature did. As of Perl 5.24, this syntax is
 not only no longer experimental, but it is enabled for all Perl code,
 regardless of what feature declarations are in scope.
+With cperl this syntax is discouraged.
 
 =head2 The 'signatures' feature
 
@@ -605,10 +604,10 @@ of perl experimental signatures. cperl can parse old-style prototypes
 and new-style signatures dynamically, and does not need to disable warnings
 for them.
 
-B<WARNING>: This feature is still experimental and the implementation may
-change in future versions of Perl.  For this reason, Perl will
-warn when you use the feature, unless you have explicitly disabled the
-warning:
+B<WARNING>: With perl5 this feature is still experimental and the
+implementation may change in future versions of Perl.  For this
+reason, Perl will warn when you use the feature, unless you have
+explicitly disabled the warning:
 
     no warnings "experimental::signatures";
 
@@ -621,7 +620,7 @@ by syntax such as
 
 See L<perlsub/Signatures> for details.
 
-This feature is available from Perl 5.20 onwards.
+This feature is available from Perl 5.20 onwards, and recommended with cperl.
 
 =head2 The 'refaliasing' feature
 
@@ -695,7 +694,7 @@ corresponding C<0> values. You can also use native types.
 Note that multidimensional arrays will be supported soon, using the
 same feature name. Similar to perl6.
 
-This feature is available from cperl 5.22 onwards.
+This feature is available from cperl 5.22 onwards, and enabled by default.
 
 =head2 The 'declared_refs' feature
 
@@ -728,6 +727,10 @@ The following feature bundles are available:
 PODTURES
 The C<:default> bundle represents the feature set that is enabled before
 any C<use feature> or C<no feature> declaration.
+
+With cperl the following features are enabled by default:
+
+  signatures lexsubs shaped_arrays fc current_sub
 
 Specifying sub-versions such as the C<0> in C<5.14.0> in feature bundles has
 no effect.  Feature bundles are guaranteed to be the same for all sub-versions.

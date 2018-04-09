@@ -483,6 +483,7 @@ S_tokereport(pTHX_ I32 rv, const YYSTYPE* lvalp)
         int itype = (int)type;
         const char *name = S_toke_name(aTHX_ rv, &itype);
         SV* const report = newSVpvs("<== ");
+        type = (enum token_type)itype;
         if (((U32)rv) & 0xff000000) { /* <<24 */
             Perl_sv_catpvf(aTHX_ report, "%c|", (char)(((U32)rv & 0xff000000) >> 24));
             rv &= 0xffffff;
@@ -6770,7 +6771,8 @@ Perl_yylex(pTHX)
                 CopLINE_inc(PL_curcop);
             }
             d = s;
-            if ((bof = FEATURE_BITWISE_IS_ENABLED) && *s == '.')
+            bof = FEATURE_BITWISE_IS_ENABLED;
+            if (bof && *s == '.')
                 s++;
             if (!PL_lex_allbrackets && PL_lex_fakeeof >=
                     (*s == '=' ? LEX_FAKEEOF_ASSIGN : LEX_FAKEEOF_BITWISE)) {
