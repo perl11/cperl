@@ -3414,8 +3414,8 @@ sub lexwarnsym {
       $init->add( sprintf( "%s = newSVpvn(%s, %u);", $sym, $cstring, $cur));
     } else {
       # if 8 use UVSIZE, if 4 use LONGSIZE
-      my $t = ($Config{longsize} == 8) ? "J" : "L";
-      my ($iv) = unpack($t, $pv); # unsigned longsize
+      my $t = ($Config{sizesize} == 8) ? "J" : "L";
+      my ($iv) = unpack($t, $pv); # size_t
       if ($iv >= 0 and $iv <= 2) { # specialWARN: single STRLEN
         $decl->add( sprintf( "Static const STRLEN* %s = %d;", $sym, $iv ));
         $isint = 1;
