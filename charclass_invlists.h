@@ -7,7 +7,7 @@
 /* See the generating file for comments */
 
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV Latin1_invlist[] = {
 	2,	/* Number of elements */
@@ -27,11 +27,11 @@ static const UV AboveLatin1_invlist[] = {
 	0x100
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #if 'A' == 65 /* ASCII/Latin1 */
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV ASCII_invlist[] = { /* for ASCII/Latin1 */
 	2,	/* Number of elements */
@@ -3005,10 +3005,6 @@ static const UV Case_Folding_invlist[] = { /* for ASCII/Latin1 */
 	0x1E922
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
-
-#if defined(PERL_IN_UTF8_C)
-
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
  * values of the negative enums are indices into a table of the auxiliary
@@ -5003,10 +4999,6 @@ static const int Case_Folding_invmap[] = { /* for ASCII/Latin1 */
 	0
 };
 
-#endif	/* defined(PERL_IN_UTF8_C) */
-
-#if defined(PERL_IN_PERL_C)
-
 static const UV Lowercase_Mapping_invlist[] = { /* for ASCII/Latin1 */
 	1237,	/* Number of elements */
 	148565664, /* Version and data structure type */
@@ -6250,10 +6242,6 @@ static const UV Lowercase_Mapping_invlist[] = { /* for ASCII/Latin1 */
 	0x1E900,
 	0x1E922
 };
-
-#endif	/* defined(PERL_IN_PERL_C) */
-
-#if defined(PERL_IN_UTF8_C)
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -7522,10 +7510,6 @@ static const int Lowercase_Mapping_invmap[] = { /* for ASCII/Latin1 */
 	0x1E922,
 	0
 };
-
-#endif	/* defined(PERL_IN_UTF8_C) */
-
-#if defined(PERL_IN_PERL_C)
 
 static const UV NonL1_Perl_Non_Final_Folds_invlist[] = { /* for ASCII/Latin1 */
 	45,	/* Number of elements */
@@ -12204,7 +12188,7 @@ static const UV _Perl_GCB_invlist[] = { /* for ASCII/Latin1 */
 	0xE1000
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #if defined(PERL_IN_REGEXEC_C)
 
@@ -13925,7 +13909,7 @@ static const GCB_enum _Perl_GCB_invmap[] = { /* for ASCII/Latin1 */
 
 #endif	/* defined(PERL_IN_REGEXEC_C) */
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV _Perl_IDCont_invlist[] = { /* for ASCII/Latin1 */
 	1397,	/* Number of elements */
@@ -17825,10 +17809,6 @@ static const UV _Perl_IVCF_invlist[] = { /* for ASCII/Latin1 */
 	0x1E922
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
-
-#if defined(PERL_IN_UTF8_C)
-
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
  * values of the negative enums are indices into a table of the auxiliary
@@ -19359,10 +19339,6 @@ static const int _Perl_IVCF_invmap[] = { /* for ASCII/Latin1 */
 	0,
 	0x1E900
 };
-
-#endif	/* defined(PERL_IN_UTF8_C) */
-
-#if defined(PERL_IN_PERL_C)
 
 static const UV _Perl_LB_invlist[] = { /* for ASCII/Latin1 */
 	2313,	/* Number of elements */
@@ -21684,7 +21660,7 @@ static const UV _Perl_LB_invlist[] = { /* for ASCII/Latin1 */
 	0xE01F0
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #if defined(PERL_IN_REGEXEC_C)
 
@@ -24048,7 +24024,7 @@ static const LB_enum _Perl_LB_invmap[] = { /* for ASCII/Latin1 */
 
 #endif	/* defined(PERL_IN_REGEXEC_C) */
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV _Perl_SB_invlist[] = { /* for ASCII/Latin1 */
 	3002,	/* Number of elements */
@@ -27059,7 +27035,7 @@ static const UV _Perl_SB_invlist[] = { /* for ASCII/Latin1 */
 	0xE01F0
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #if defined(PERL_IN_REGEXEC_C)
 
@@ -30089,7 +30065,7 @@ static const SB_enum _Perl_SB_invmap[] = { /* for ASCII/Latin1 */
 
 #endif	/* defined(PERL_IN_REGEXEC_C) */
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV _Perl_SCX_invlist[] = { /* for ASCII/Latin1 */
 	1580,	/* Number of elements */
@@ -31678,7 +31654,7 @@ static const UV _Perl_SCX_invlist[] = { /* for ASCII/Latin1 */
 	0xE01F0
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #if defined(PERL_IN_REGEXEC_C)
 
@@ -34043,7 +34019,7 @@ static const SCX_enum _Perl_SCX_invmap[] = { /* for ASCII/Latin1 */
 
 #endif	/* defined(PERL_IN_REGEXEC_C) */
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV _Perl_WB_invlist[] = { /* for ASCII/Latin1 */
 	1721,	/* Number of elements */
@@ -35773,7 +35749,7 @@ static const UV _Perl_WB_invlist[] = { /* for ASCII/Latin1 */
 	0xE01F0
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #if defined(PERL_IN_REGEXEC_C)
 
@@ -37531,7 +37507,7 @@ static const WB_enum _Perl_WB_invmap[] = { /* for ASCII/Latin1 */
 
 #endif	/* defined(PERL_IN_REGEXEC_C) */
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV Simple_Case_Folding_invlist[] = { /* for ASCII/Latin1 */
 	1266,	/* Number of elements */
@@ -38806,10 +38782,6 @@ static const UV Simple_Case_Folding_invlist[] = { /* for ASCII/Latin1 */
 	0x1E922
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
-
-#if defined(PERL_IN_UTF8_C)
-
 static const int Simple_Case_Folding_invmap[] = { /* for ASCII/Latin1 */
 	0,
 	0x61,
@@ -40078,10 +40050,6 @@ static const int Simple_Case_Folding_invmap[] = { /* for ASCII/Latin1 */
 	0x1E922,
 	0
 };
-
-#endif	/* defined(PERL_IN_UTF8_C) */
-
-#if defined(PERL_IN_PERL_C)
 
 static const UV Titlecase_Mapping_invlist[] = { /* for ASCII/Latin1 */
 	1318,	/* Number of elements */
@@ -41407,10 +41375,6 @@ static const UV Titlecase_Mapping_invlist[] = { /* for ASCII/Latin1 */
 	0x1E922,
 	0x1E944
 };
-
-#endif	/* defined(PERL_IN_PERL_C) */
-
-#if defined(PERL_IN_UTF8_C)
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -43127,10 +43091,6 @@ static const int Titlecase_Mapping_invmap[] = { /* for ASCII/Latin1 */
 	0
 };
 
-#endif	/* defined(PERL_IN_UTF8_C) */
-
-#if defined(PERL_IN_PERL_C)
-
 static const UV Uppercase_Mapping_invlist[] = { /* for ASCII/Latin1 */
 	1365,	/* Number of elements */
 	148565664, /* Version and data structure type */
@@ -44502,10 +44462,6 @@ static const UV Uppercase_Mapping_invlist[] = { /* for ASCII/Latin1 */
 	0x1E922,
 	0x1E944
 };
-
-#endif	/* defined(PERL_IN_PERL_C) */
-
-#if defined(PERL_IN_UTF8_C)
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -46484,10 +46440,6 @@ static const int Uppercase_Mapping_invmap[] = { /* for ASCII/Latin1 */
 	0x1E900,
 	0
 };
-
-#endif	/* defined(PERL_IN_UTF8_C) */
-
-#if defined(PERL_IN_PERL_C)
 
 static const UV UpperLatin1_invlist[] = { /* for ASCII/Latin1 */
 	3,	/* Number of elements */
@@ -56390,7 +56342,7 @@ static const UV XPosixXDigit_invlist[] = { /* for ASCII/Latin1 */
 	0xFF47
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #endif	/* ASCII/Latin1 */
 
@@ -56399,7 +56351,7 @@ static const UV XPosixXDigit_invlist[] = { /* for ASCII/Latin1 */
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
      && '$' == 91 && '@' == 124 && '`' == 121
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV ASCII_invlist[] = { /* for EBCDIC 1047 */
 	54,	/* Number of elements */
@@ -59470,10 +59422,6 @@ static const UV Case_Folding_invlist[] = { /* for EBCDIC 1047 */
 	0x1E922
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
-
-#if defined(PERL_IN_UTF8_C)
-
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
  * values of the negative enums are indices into a table of the auxiliary
@@ -61487,10 +61435,6 @@ static const int Case_Folding_invmap[] = { /* for EBCDIC 1047 */
 	0
 };
 
-#endif	/* defined(PERL_IN_UTF8_C) */
-
-#if defined(PERL_IN_PERL_C)
-
 static const UV Lowercase_Mapping_invlist[] = { /* for EBCDIC 1047 */
 	1255,	/* Number of elements */
 	148565664, /* Version and data structure type */
@@ -62752,10 +62696,6 @@ static const UV Lowercase_Mapping_invlist[] = { /* for EBCDIC 1047 */
 	0x1E900,
 	0x1E922
 };
-
-#endif	/* defined(PERL_IN_PERL_C) */
-
-#if defined(PERL_IN_UTF8_C)
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -64042,10 +63982,6 @@ static const int Lowercase_Mapping_invmap[] = { /* for EBCDIC 1047 */
 	0x1E922,
 	0
 };
-
-#endif	/* defined(PERL_IN_UTF8_C) */
-
-#if defined(PERL_IN_PERL_C)
 
 static const UV NonL1_Perl_Non_Final_Folds_invlist[] = { /* for EBCDIC 1047 */
 	45,	/* Number of elements */
@@ -68808,7 +68744,7 @@ static const UV _Perl_GCB_invlist[] = { /* for EBCDIC 1047 */
 	0xE1000
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #if defined(PERL_IN_REGEXEC_C)
 
@@ -70529,7 +70465,7 @@ static const GCB_enum _Perl_GCB_invmap[] = { /* for EBCDIC 1047 */
 
 #endif	/* defined(PERL_IN_REGEXEC_C) */
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV _Perl_IDCont_invlist[] = { /* for EBCDIC 1047 */
 	1421,	/* Number of elements */
@@ -74493,10 +74429,6 @@ static const UV _Perl_IVCF_invlist[] = { /* for EBCDIC 1047 */
 	0x1E922
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
-
-#if defined(PERL_IN_UTF8_C)
-
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
  * values of the negative enums are indices into a table of the auxiliary
@@ -76041,10 +75973,6 @@ static const int _Perl_IVCF_invmap[] = { /* for EBCDIC 1047 */
 	0,
 	0x1E900
 };
-
-#endif	/* defined(PERL_IN_UTF8_C) */
-
-#if defined(PERL_IN_PERL_C)
 
 static const UV _Perl_LB_invlist[] = { /* for EBCDIC 1047 */
 	2325,	/* Number of elements */
@@ -78378,7 +78306,7 @@ static const UV _Perl_LB_invlist[] = { /* for EBCDIC 1047 */
 	0xE01F0
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #if defined(PERL_IN_REGEXEC_C)
 
@@ -80754,7 +80682,7 @@ static const LB_enum _Perl_LB_invmap[] = { /* for EBCDIC 1047 */
 
 #endif	/* defined(PERL_IN_REGEXEC_C) */
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV _Perl_SB_invlist[] = { /* for EBCDIC 1047 */
 	3026,	/* Number of elements */
@@ -83789,7 +83717,7 @@ static const UV _Perl_SB_invlist[] = { /* for EBCDIC 1047 */
 	0xE01F0
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #if defined(PERL_IN_REGEXEC_C)
 
@@ -86843,7 +86771,7 @@ static const SB_enum _Perl_SB_invmap[] = { /* for EBCDIC 1047 */
 
 #endif	/* defined(PERL_IN_REGEXEC_C) */
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV _Perl_SCX_invlist[] = { /* for EBCDIC 1047 */
 	1606,	/* Number of elements */
@@ -88458,7 +88386,7 @@ static const UV _Perl_SCX_invlist[] = { /* for EBCDIC 1047 */
 	0xE01F0
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #if defined(PERL_IN_REGEXEC_C)
 
@@ -90849,7 +90777,7 @@ static const SCX_enum _Perl_SCX_invmap[] = { /* for EBCDIC 1047 */
 
 #endif	/* defined(PERL_IN_REGEXEC_C) */
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV _Perl_WB_invlist[] = { /* for EBCDIC 1047 */
 	1744,	/* Number of elements */
@@ -92602,7 +92530,7 @@ static const UV _Perl_WB_invlist[] = { /* for EBCDIC 1047 */
 	0xE01F0
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #if defined(PERL_IN_REGEXEC_C)
 
@@ -94383,7 +94311,7 @@ static const WB_enum _Perl_WB_invmap[] = { /* for EBCDIC 1047 */
 
 #endif	/* defined(PERL_IN_REGEXEC_C) */
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV Simple_Case_Folding_invlist[] = { /* for EBCDIC 1047 */
 	1284,	/* Number of elements */
@@ -95676,10 +95604,6 @@ static const UV Simple_Case_Folding_invlist[] = { /* for EBCDIC 1047 */
 	0x1E922
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
-
-#if defined(PERL_IN_UTF8_C)
-
 static const int Simple_Case_Folding_invmap[] = { /* for EBCDIC 1047 */
 	0,
 	0x42,
@@ -96966,10 +96890,6 @@ static const int Simple_Case_Folding_invmap[] = { /* for EBCDIC 1047 */
 	0x1E922,
 	0
 };
-
-#endif	/* defined(PERL_IN_UTF8_C) */
-
-#if defined(PERL_IN_PERL_C)
 
 static const UV Titlecase_Mapping_invlist[] = { /* for EBCDIC 1047 */
 	1334,	/* Number of elements */
@@ -98311,10 +98231,6 @@ static const UV Titlecase_Mapping_invlist[] = { /* for EBCDIC 1047 */
 	0x1E922,
 	0x1E944
 };
-
-#endif	/* defined(PERL_IN_PERL_C) */
-
-#if defined(PERL_IN_UTF8_C)
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -100047,10 +99963,6 @@ static const int Titlecase_Mapping_invmap[] = { /* for EBCDIC 1047 */
 	0
 };
 
-#endif	/* defined(PERL_IN_UTF8_C) */
-
-#if defined(PERL_IN_PERL_C)
-
 static const UV Uppercase_Mapping_invlist[] = { /* for EBCDIC 1047 */
 	1381,	/* Number of elements */
 	148565664, /* Version and data structure type */
@@ -101438,10 +101350,6 @@ static const UV Uppercase_Mapping_invlist[] = { /* for EBCDIC 1047 */
 	0x1E922,
 	0x1E944
 };
-
-#endif	/* defined(PERL_IN_PERL_C) */
-
-#if defined(PERL_IN_UTF8_C)
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -103436,10 +103344,6 @@ static const int Uppercase_Mapping_invmap[] = { /* for EBCDIC 1047 */
 	0x1E900,
 	0
 };
-
-#endif	/* defined(PERL_IN_UTF8_C) */
-
-#if defined(PERL_IN_PERL_C)
 
 static const UV UpperLatin1_invlist[] = { /* for EBCDIC 1047 */
 	55,	/* Number of elements */
@@ -113506,7 +113410,7 @@ static const UV XPosixXDigit_invlist[] = { /* for EBCDIC 1047 */
 	0xFF47
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #endif	/* EBCDIC 1047 */
 
@@ -113515,7 +113419,7 @@ static const UV XPosixXDigit_invlist[] = { /* for EBCDIC 1047 */
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
      && '$' == 91 && '@' == 124 && '`' == 121
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV ASCII_invlist[] = { /* for EBCDIC 037 */
 	56,	/* Number of elements */
@@ -116580,10 +116484,6 @@ static const UV Case_Folding_invlist[] = { /* for EBCDIC 037 */
 	0x1E922
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
-
-#if defined(PERL_IN_UTF8_C)
-
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
  * values of the negative enums are indices into a table of the auxiliary
@@ -118593,10 +118493,6 @@ static const int Case_Folding_invmap[] = { /* for EBCDIC 037 */
 	0
 };
 
-#endif	/* defined(PERL_IN_UTF8_C) */
-
-#if defined(PERL_IN_PERL_C)
-
 static const UV Lowercase_Mapping_invlist[] = { /* for EBCDIC 037 */
 	1251,	/* Number of elements */
 	148565664, /* Version and data structure type */
@@ -119854,10 +119750,6 @@ static const UV Lowercase_Mapping_invlist[] = { /* for EBCDIC 037 */
 	0x1E900,
 	0x1E922
 };
-
-#endif	/* defined(PERL_IN_PERL_C) */
-
-#if defined(PERL_IN_UTF8_C)
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -121140,10 +121032,6 @@ static const int Lowercase_Mapping_invmap[] = { /* for EBCDIC 037 */
 	0x1E922,
 	0
 };
-
-#endif	/* defined(PERL_IN_UTF8_C) */
-
-#if defined(PERL_IN_PERL_C)
 
 static const UV NonL1_Perl_Non_Final_Folds_invlist[] = { /* for EBCDIC 037 */
 	45,	/* Number of elements */
@@ -125894,7 +125782,7 @@ static const UV _Perl_GCB_invlist[] = { /* for EBCDIC 037 */
 	0xE1000
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #if defined(PERL_IN_REGEXEC_C)
 
@@ -127615,7 +127503,7 @@ static const GCB_enum _Perl_GCB_invmap[] = { /* for EBCDIC 037 */
 
 #endif	/* defined(PERL_IN_REGEXEC_C) */
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV _Perl_IDCont_invlist[] = { /* for EBCDIC 037 */
 	1417,	/* Number of elements */
@@ -131571,10 +131459,6 @@ static const UV _Perl_IVCF_invlist[] = { /* for EBCDIC 037 */
 	0x1E922
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
-
-#if defined(PERL_IN_UTF8_C)
-
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
  * values of the negative enums are indices into a table of the auxiliary
@@ -133119,10 +133003,6 @@ static const int _Perl_IVCF_invmap[] = { /* for EBCDIC 037 */
 	0,
 	0x1E900
 };
-
-#endif	/* defined(PERL_IN_UTF8_C) */
-
-#if defined(PERL_IN_PERL_C)
 
 static const UV _Perl_LB_invlist[] = { /* for EBCDIC 037 */
 	2325,	/* Number of elements */
@@ -135456,7 +135336,7 @@ static const UV _Perl_LB_invlist[] = { /* for EBCDIC 037 */
 	0xE01F0
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #if defined(PERL_IN_REGEXEC_C)
 
@@ -137832,7 +137712,7 @@ static const LB_enum _Perl_LB_invmap[] = { /* for EBCDIC 037 */
 
 #endif	/* defined(PERL_IN_REGEXEC_C) */
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV _Perl_SB_invlist[] = { /* for EBCDIC 037 */
 	3022,	/* Number of elements */
@@ -140863,7 +140743,7 @@ static const UV _Perl_SB_invlist[] = { /* for EBCDIC 037 */
 	0xE01F0
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #if defined(PERL_IN_REGEXEC_C)
 
@@ -143913,7 +143793,7 @@ static const SB_enum _Perl_SB_invmap[] = { /* for EBCDIC 037 */
 
 #endif	/* defined(PERL_IN_REGEXEC_C) */
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV _Perl_SCX_invlist[] = { /* for EBCDIC 037 */
 	1602,	/* Number of elements */
@@ -145524,7 +145404,7 @@ static const UV _Perl_SCX_invlist[] = { /* for EBCDIC 037 */
 	0xE01F0
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #if defined(PERL_IN_REGEXEC_C)
 
@@ -147911,7 +147791,7 @@ static const SCX_enum _Perl_SCX_invmap[] = { /* for EBCDIC 037 */
 
 #endif	/* defined(PERL_IN_REGEXEC_C) */
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV _Perl_WB_invlist[] = { /* for EBCDIC 037 */
 	1740,	/* Number of elements */
@@ -149660,7 +149540,7 @@ static const UV _Perl_WB_invlist[] = { /* for EBCDIC 037 */
 	0xE01F0
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #if defined(PERL_IN_REGEXEC_C)
 
@@ -151437,7 +151317,7 @@ static const WB_enum _Perl_WB_invmap[] = { /* for EBCDIC 037 */
 
 #endif	/* defined(PERL_IN_REGEXEC_C) */
 
-#if defined(PERL_IN_PERL_C)
+#if defined(PERL_IN_UTF8_C)
 
 static const UV Simple_Case_Folding_invlist[] = { /* for EBCDIC 037 */
 	1280,	/* Number of elements */
@@ -152726,10 +152606,6 @@ static const UV Simple_Case_Folding_invlist[] = { /* for EBCDIC 037 */
 	0x1E922
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
-
-#if defined(PERL_IN_UTF8_C)
-
 static const int Simple_Case_Folding_invmap[] = { /* for EBCDIC 037 */
 	0,
 	0x42,
@@ -154012,10 +153888,6 @@ static const int Simple_Case_Folding_invmap[] = { /* for EBCDIC 037 */
 	0x1E922,
 	0
 };
-
-#endif	/* defined(PERL_IN_UTF8_C) */
-
-#if defined(PERL_IN_PERL_C)
 
 static const UV Titlecase_Mapping_invlist[] = { /* for EBCDIC 037 */
 	1332,	/* Number of elements */
@@ -155355,10 +155227,6 @@ static const UV Titlecase_Mapping_invlist[] = { /* for EBCDIC 037 */
 	0x1E922,
 	0x1E944
 };
-
-#endif	/* defined(PERL_IN_PERL_C) */
-
-#if defined(PERL_IN_UTF8_C)
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -157089,10 +156957,6 @@ static const int Titlecase_Mapping_invmap[] = { /* for EBCDIC 037 */
 	0
 };
 
-#endif	/* defined(PERL_IN_UTF8_C) */
-
-#if defined(PERL_IN_PERL_C)
-
 static const UV Uppercase_Mapping_invlist[] = { /* for EBCDIC 037 */
 	1379,	/* Number of elements */
 	148565664, /* Version and data structure type */
@@ -158478,10 +158342,6 @@ static const UV Uppercase_Mapping_invlist[] = { /* for EBCDIC 037 */
 	0x1E922,
 	0x1E944
 };
-
-#endif	/* defined(PERL_IN_PERL_C) */
-
-#if defined(PERL_IN_UTF8_C)
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -160474,10 +160334,6 @@ static const int Uppercase_Mapping_invmap[] = { /* for EBCDIC 037 */
 	0x1E900,
 	0
 };
-
-#endif	/* defined(PERL_IN_UTF8_C) */
-
-#if defined(PERL_IN_PERL_C)
 
 static const UV UpperLatin1_invlist[] = { /* for EBCDIC 037 */
 	57,	/* Number of elements */
@@ -170532,7 +170388,7 @@ static const UV XPosixXDigit_invlist[] = { /* for EBCDIC 037 */
 	0xFF47
 };
 
-#endif	/* defined(PERL_IN_PERL_C) */
+#endif	/* defined(PERL_IN_UTF8_C) */
 
 #endif	/* EBCDIC 037 */
 
@@ -170714,5 +170570,5 @@ static const U8 WB_table[24][24] = {
  * 9e34957f1d0029fcced8f007533eff821851258d44b90cbc56f834813e3c2eb9 lib/unicore/mktables
  * 21653d2744fdd071f9ef138c805393901bb9547cf3e777ebf50215a191f986ea lib/unicore/version
  * 913d2f93f3cb6cdf1664db888bf840bc4eb074eef824e082fceda24a9445e60c regen/charset_translations.pl
- * daa548b5abfbf007c8fa611869d6d721c52eb1308d902c445b3edd46d6ba9845 regen/mk_invlists.pl
+ * ccbc566fd37824a6f8cdda582ff883b235b2095dea91eb97d00fb206666a388a regen/mk_invlists.pl
  * ex: set ro: */
