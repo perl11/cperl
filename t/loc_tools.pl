@@ -376,7 +376,7 @@ sub find_locales ($;$) {
             my ($locale_name, $language_codes, $country_codes, $encodings) =
                 split /:/, $line;
             _my_diag(__FILE__ . ":" . __LINE__ . ": Unexpected syntax in '$line'")
-                                                     unless defined $locale_name;
+                                                     if $line and !defined $locale_name;
             my @enc = _decode_encodings($encodings);
             foreach my $loc (split(/ /, $locale_name)) {
                 _trylocale($loc, $categories, \@Locale, $allow_incompatible);
