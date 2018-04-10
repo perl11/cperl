@@ -28,9 +28,14 @@ is(ucfirst(undef), "", "ucfirst(undef) is ''");
     is(CORE::fc(undef), "", "fc(undef) is ''");
     is(CORE::fc(''),    "", "fc('') is ''");
 
+    # with cperl fc is now enabled
     local $@;
     eval { fc("eeyup") };
-    like($@, qr/Undefined subroutine &main::fc/, "fc() throws an exception,");
+    if ($^V !~ /c$/) {
+        like($@, qr/Undefined subroutine &main::fc/, "fc() throws an exception,");
+    } else {
+        ok(!$@, "works in cperl without feature");
+    }
 
     {
         use feature 'fc';

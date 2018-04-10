@@ -418,7 +418,7 @@ SKIP:
 		$pass = 0;
 	    }
 	    if (exists $SEEN_STRENGH{$key} and $SEEN_STRENGH{$key} != $strength) {
-		diag("keyword '$key' strengh as seen in $file doen't match here!!");
+		diag("keyword '$key' strength as seen in $file doen't match here!!");
 		$pass = 0;
 	    }
 	}

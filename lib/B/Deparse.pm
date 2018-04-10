@@ -2435,9 +2435,12 @@ my %feature_keywords = (
     default => 'switch',
     break   => 'switch',
     evalbytes=>'evalbytes',
-    __SUB__ => '__SUB__',
-   fc       => 'fc',
 );
+# enabled with cperl
+if ($^V !~ /c$/) {
+    $feature_keywords{__SUB__} = '__SUB__';
+    $feature_keywords{fc}      = 'fc';
+}
 
 # keywords that are strong and also have a prototype
 #

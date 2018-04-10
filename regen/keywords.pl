@@ -44,10 +44,12 @@ my %feature_kw = (
     # continue is already a keyword
     break     => 'switch',
     evalbytes => 'evalbytes',
-    __SUB__   => '__SUB__',
-    fc        => 'fc',
-);
-
+  );
+# enabled with cperl
+if ($^V !~ /c$/) {
+    $feature_kw{__SUB__} = '__SUB__';
+    $feature_kw{fc} = 'fc';
+}
 my %pos = map { ($_ => 1) } @{$by_strength{'+'}};
 
 my $t = Devel::Tokenizer::C->new(TokenFunc     => \&perl_keyword,
