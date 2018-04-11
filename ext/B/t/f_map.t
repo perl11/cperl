@@ -152,7 +152,7 @@ checkOptree(note   => q{},
 	    code   => q{{ %hash = (); foreach $_ (@array) { $hash{getkey($_)} = $_; } } },
 	    expect => <<'EOT_EOT', expect_nt => <<'EONT_EONT');
 # 1  <;> nextstate(main 478 (eval 10):1) v:{
-# 2  <{> enterloop(next->t last->t redo->3) K
+# 2  <{> enterloop(next->t last->t redo->3) 
 # 3  <;> nextstate(main 475 (eval 10):1) v
 # 4  <0> pushmark s
 # 5  <0> pushmark s
@@ -184,7 +184,7 @@ checkOptree(note   => q{},
 # u  <1> leavesub[1 ref] K/REFC,1
 EOT_EOT
 # 1  <;> nextstate(main 562 (eval 15):1) v:{
-# 2  <{> enterloop(next->t last->t redo->3) K
+# 2  <{> enterloop(next->t last->t redo->3) 
 # 3  <;> nextstate(main 559 (eval 15):1) v
 # 4  <0> pushmark s
 # 5  <0> pushmark s

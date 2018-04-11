@@ -10402,7 +10402,6 @@ Perl_newWHILEOP(pTHX_ I32 flags, I32 debuggable PERL_UNUSED_DECL, LOOP *loop,
     if (!loop) {
 	NewOp(1101,loop,1,LOOP);
         OpTYPE_set(loop, OP_ENTERLOOP);
-        loop->op_flags = OPf_KIDS;
 	OpNEXT(loop) = (OP*)loop;
     }
 
@@ -10418,7 +10417,8 @@ Perl_newWHILEOP(pTHX_ I32 flags, I32 debuggable PERL_UNUSED_DECL, LOOP *loop,
 
     if (next) {
 	loop->op_nextop = next;
-        if (0 && expr_is_iter) {
+#if 0
+        if (0 && expr_is_iter && OpFIRST(loop)) {
             bool has_loop_var;
             next = OpSIBLING(OpFIRST(loop));   /* from */
             has_loop_var = OpLAST(loop) != next;
@@ -10438,6 +10438,7 @@ Perl_newWHILEOP(pTHX_ I32 flags, I32 debuggable PERL_UNUSED_DECL, LOOP *loop,
                 OpNEXT(OpLAST(next)) = last; /* end of range -> loopvar */
             }
         }
+#endif
     }
     else {
 	loop->op_nextop = o;
