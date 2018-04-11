@@ -497,7 +497,7 @@ sub _source_location {
 
     return File::Spec->rel2abs(
         File::Spec->catpath(
-            (File::Spec->splitpath($caller_filename))[0, 1]
+            (File::Spec->splitpath($caller_filename))[0, 1], ''
         )
     );
 }
