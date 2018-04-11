@@ -2723,6 +2723,7 @@ S_dofindlabel(pTHX_ OP *o, const char *label, STRLEN len, U32 flags, OP **opstac
 {
     OP **ops = opstack;
     static const char* const too_deep = "Target of goto is too deeply nested";
+    const bool has_kids = (o->op_flags & OPf_KIDS) && OpFIRST(o);
 
     PERL_ARGS_ASSERT_DOFINDLABEL;
 
@@ -2735,29 +2736,29 @@ S_dofindlabel(pTHX_ OP *o, const char *label, STRLEN len, U32 flags, OP **opstac
 	o->op_type == OP_LEAVETRY ||
 	o->op_type == OP_LEAVEGIVEN)
     {
-	*ops++ = cUNOPo->op_first;
+        assert(has_kids);
+	*ops++ = OpFIRST(o);
     }
-    else if (o->op_flags & OPf_KIDS
-	  && cUNOPo->op_first->op_type == OP_PUSHMARK) {
+    else if (has_kids && OpFIRST(o)->op_type == OP_PUSHMARK) {
 	*ops++ = UNENTERABLE;
     }
-    else if (o->op_flags & OPf_KIDS && PL_opargs[o->op_type]
+    else if (has_kids && PL_opargs[o->op_type]
 	  && OP_CLASS(o) != OA_LOGOP
 	  && o->op_type != OP_LINESEQ
 	  && o->op_type != OP_SREFGEN
 	  && o->op_type != OP_RV2CV) {
-	OP * const kid = cUNOPo->op_first;
+	OP * const kid = OpFIRST(o);
 	if (OP_GIMME(kid, 0) != G_SCALAR || OpHAS_SIBLING(kid))
 	    *ops++ = UNENTERABLE;
     }
     if (ops >= oplimit)
 	Perl_croak(aTHX_ "%s", too_deep);
     *ops = 0;
-    if (o->op_flags & OPf_KIDS) {
+    if (has_kids) {
 	OP *kid;
 	/* First try all the kids at this level, since that's likeliest. */
-	for (kid = cUNOPo->op_first; kid; kid = OpSIBLING(kid)) {
-	    if (kid->op_type == OP_NEXTSTATE || kid->op_type == OP_DBSTATE) {
+	for (kid = OpFIRST(o); kid; kid = OpSIBLING(kid)) {
+	    if (OP_IS_COP(kid->op_type)) {
                 STRLEN kid_label_len;
                 U32 kid_label_flags;
 		const char *kid_label = CopLABEL_len_flags(kCOP,
@@ -2776,15 +2777,14 @@ S_dofindlabel(pTHX_ OP *o, const char *label, STRLEN len, U32 flags, OP **opstac
 		    return kid;
 	    }
 	}
-	for (kid = cUNOPo->op_first; kid; kid = OpSIBLING(kid)) {
+	for (kid = OpFIRST(o); kid; kid = OpSIBLING(kid)) {
 	    if (kid == PL_lastgotoprobe)
 		continue;
-	    if (kid->op_type == OP_NEXTSTATE || kid->op_type == OP_DBSTATE) {
+	    if (OP_IS_COP(kid->op_type)) {
 	        if (ops == opstack)
 		    *ops++ = kid;
 		else if (ops[-1] != UNENTERABLE
-		      && (ops[-1]->op_type == OP_NEXTSTATE ||
-		          ops[-1]->op_type == OP_DBSTATE))
+                         && OP_IS_COP(ops[-1]->op_type))
 		    ops[-1] = kid;
 		else
 		    *ops++ = kid;

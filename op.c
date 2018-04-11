@@ -1964,12 +1964,12 @@ S_alloc_LOGOP(pTHX_ I32 type, OP *first, OP* other)
     OpTYPE_set(logop, type);
     OpFIRST(logop) = first;
     OpOTHER(logop) = other;
-    if (first)
+    if (kid) {
         logop->op_flags = OPf_KIDS;
-    while (kid && OpHAS_SIBLING(kid))
-        kid = OpSIBLING(kid);
-    if (kid)
+        while (kid && OpHAS_SIBLING(kid))
+            kid = OpSIBLING(kid);
         OpLASTSIB_set(kid, (OP*)logop);
+    }
     return logop;
 }
 

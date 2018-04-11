@@ -3595,7 +3595,7 @@ Perl_debop(pTHX_ const OP *o)
                         o->op_private & OPpPADRANGE_COUNTMASK, 1);
         break;
 
-    case OP_GOTO:
+    case OP_GOTO: /* a loopexop or PVOP */
         if (PL_op->op_flags & OPf_STACKED) {
             SV* const sv = *PL_stack_sp;
             if (SvROK(sv) && SvTYPE(SvRV(sv)) == SVt_PVCV)
@@ -3608,8 +3608,7 @@ Perl_debop(pTHX_ const OP *o)
             }
         } else if (!(PL_op->op_flags & OPf_SPECIAL)) {
             /* goto LABEL */
-            PerlIO_printf(Perl_debug_log, "(%" SVf ")",
-                          SVfARG(cPVOP->op_pv));
+            PerlIO_printf(Perl_debug_log, "(%s)", cPVOP->op_pv); /* zero-safe */
         }
         break;
     case OP_ENTERSUB:
