@@ -721,7 +721,8 @@ EOD
 	print "NOT found.\n";
     }
 
-    if ($has_futimens or $has_utimensat) {
+    my $has_hires_utime = ($has_futimens && $has_utimensat);
+    if ($has_hires_utime) {
 	$DEFINE .= ' -DTIME_HIRES_UTIME';
     }
 
