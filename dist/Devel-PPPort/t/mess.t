@@ -272,10 +272,11 @@ if ($] ge '5.007003' or ($] ge '5.006001' and $] lt '5.007')) {
 }
 
 ok !defined eval { Devel::PPPort::croak_no_modify() };
-ok $@ =~ /^Modification of a read-only value attempted at $0 line /;
+ok($@, qr/^Modification of a read-only value attempted /,
+  "croak_no_modify");
 
 ok !defined eval { Devel::PPPort::croak_memory_wrap() };
-ok $@ =~ /^panic: memory wrap at $0 line /;
+ok($@, qr/^panic: memory wrap at $0 line /, "croak_memory_wrap");
 
 ok !defined eval { Devel::PPPort::croak_xs_usage("params") };
 ok $@ =~ /^Usage: Devel::PPPort::croak_xs_usage\(params\) at $0 line /;
