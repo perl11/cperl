@@ -166,7 +166,7 @@ L<Announced on 2017-09-20 by John SJ Anderson|https://www.nntp.perl.org/group/pe
 
 =head2 v5.27.3 - Rodgers and Hammerstein, "You'll Never Walk Alone"
 
-L<Announced on 2017-07-20 by Matthew Horsfall|http://www.nntp.perl.org/group/perl.perl5.porters/2017/08/msg245988.html>
+L<Announced on 2017-08-21 by Matthew Horsfall|http://www.nntp.perl.org/group/perl.perl5.porters/2017/08/msg245988.html>
 
   When you walk through a storm
   Hold your head up high
@@ -245,6 +245,49 @@ L<Announced on 2017-05-31 by Sawyer X|http://www.nntp.perl.org/group/perl.perl5.
   pleasure brings no happiness, but only a deeper despair.
 
     -- Bertrand Russell, The Road to Happiness
+
+=head2 v5.26.2 - Desmond Morris, "Catwatching: The Essential Guide to Cat Behaviour"
+
+L<Announced on 2018-04-14 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2018/04/msg250440.html>
+
+How does a cat use its whiskers?  The usual answer is that the whiskers
+are feelers that enable a cat to tell whether a gap is wide enough for
+it to squeeze through, but the truth is more complicated and more
+remarkable.  In addition to their obvious role as feelers sensitive to
+touch, the whiskers also operate as air-current detectors.  As the cat
+moves along in the dark it needs to manoeuvre past solid objects without
+touching them.  Each solid object it approaches causes slight eddies in
+the air, minute disturbances in the currents of air movements, and the
+cat's whiskers are so amazingly sensitive that they can read these air
+changes and respond to the presence of solid obstacles even without
+touching them.
+
+=head2 v5.26.2-RC1 - Desmond Morris, "Catwatching: The Essential Guide to Cat Behaviour"
+
+L<Announced on 2018-03-24 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2018/03/msg250103.html>
+
+Cats have a way of endearing themselves to their owners, not just by
+their 'kittenoid' behaviour, which stimulates strong parental feelings,
+but also by their sheer gracefulness. There is an elegance and a
+composure about them that captivates the human eye. To the sensitive
+human being it becomes a privilege to share a room with a cat, exchange
+its glance, feel its greeting rub, or watch it gently luxuriate itself
+into a snoozing ball on a soft cushion.
+
+=head2 v5.26.1 - Samuel Taylor Coleridge, "The Rime of the Ancient Mariner"
+
+L<Announced on 2017-09-22 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2017/09/msg246408.html>
+
+  And soon I heard a roaring wind:
+  It did not come anear;
+  But with its sound it shook the sails,
+  That were so thin and sere.
+
+  The upper air burst into life!
+  And a hundred fire-flags sheen,
+  To and fro they were hurried about!
+  And to and fro, and in and out,
+  The wan stars danced between.
 
 =head2 v5.26.1-RC1 - Samuel Taylor Coleridge, "The Rime of the Ancient Mariner"
 
@@ -378,7 +421,7 @@ L<Announced on 2016-10-10 by Aaron Crane|http://www.nntp.perl.org/group/perl.per
 
   I'm up on all the pop trivia, says the guy with the stud in his tongue.
       Are you?
-      Yes. Do you know who he lead singer of Echo and the Bunnymen is?
+      Yes. Do you know who the lead singer of Echo and the Bunnymen is?
       Let me guess, is he called Echo?
       Good guess but no, anyway when they played Glastonbury it was so
   muddy he had two roadies to hold up a binliner on each of his legs so
@@ -518,6 +561,47 @@ L<Announced on 2016-05-09 by Ricardo Signes|http://www.nntp.perl.org/group/perl.
     Wide fields of asphodel fore’er,
   To find that the utmost reward
     Of daring should be still to dare.
+
+=head2 v5.24.4 - Desmond Morris, "Catwatching: The Essential Guide to Cat Behaviour"
+
+L<Announced on 2018-04-14 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2018/04/msg250439.html>
+
+Cats hate doors.  Doors simply do not register in the evolutionary story
+of the cat family.  They constantly block patrolling activities and
+prevent cats from exploring their home range and then returning to their
+central, secure base at will.  Humans often do not understand that a cat
+needs to make only a brief survey of its territory before returning with
+all the necessary information about the activities of other cats in the
+vicinity.  It likes to make these tours of inspection at frequent
+intervals, but does not want to stay outside for very long, unless there
+has been some special and unexpected change in the condition of the
+local feline population.
+
+=head2 v5.24.4-RC1 - Desmond Morris, "Catwatching: The Essential Guide to Cat Behaviour"
+
+L<Announced on 2018-03-24 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2018/03/msg250102.html>
+
+The domestic cat is a contradiction. No animal has developed such an
+intimate relationship with mankind, while at the same time demanding and
+getting such independence of movement and action. The dog may be man's
+best friend, but it is rarely allowed out on its own to wander from
+garden to garden or street to street. The obedient dog has to be taken
+for a walk. The headstrong cat walks alone.
+
+=head2 v5.24.3 - Samuel Taylor Coleridge, "The Rime of the Ancient Mariner"
+
+L<Announced on 2017-09-22 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2017/09/msg246407.html>
+
+  Oh sleep! it is a gentle thing,
+  Beloved from pole to pole!
+  To Mary Queen the praise be given!
+  She sent the gentle sleep from Heaven,
+  That slid into my soul.
+
+  The silly buckets on the deck,
+  That had so long remained,
+  I dreamt that they were filled with dew;
+  And when I awoke, it rained.
 
 =head2 v5.24.3-RC1 - Samuel Taylor Coleridge, "The Rime of the Ancient Mariner"
 
