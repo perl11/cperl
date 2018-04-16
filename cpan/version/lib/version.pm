@@ -4,11 +4,10 @@ package version;
 use 5.006002;
 use strict;
 
-use vars qw(@ISA $VERSION $CLASS $STRICT $LAX *declare *qv);
-
-$VERSION = '0.9921_02c';
+our $VERSION = '0.9923_02c';
 $VERSION =~ s/c$//;
-$CLASS = 'version';
+our $CLASS = 'version';
+our (@ISA, $STRICT, $LAX);
 
 # avoid using Exporter
 require version::regex;
