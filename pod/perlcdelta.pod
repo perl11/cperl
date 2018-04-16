@@ -389,8 +389,7 @@ XXX Description of the purpose of the new file here
 =head2 Changes to Existing Documentation
 
 We have attempted to update the documentation to reflect the changes
-listed in this document.  If you find any we have missed, send email
-to L<perlbug@perl.org|mailto:perlbug@perl.org>.
+listed in this document.
 
 F<autodoc.pl> now parses F<pod/perlapio.pod> for cross-checking
 against F<pod/perlapi.pod>
@@ -406,6 +405,28 @@ Additionally, the following selected changes have been made:
 Completed the documentation of the PerlIO API.
 Removed wrong missing links from documented PerlIO functions from L<perlapi>.
 Add all missing functions, and inter-linked them.
+
+=back
+
+=head3 L<perlembed>
+
+=over 4
+
+=item *
+
+An example in L<perlembed> used the string value of C<ERRSV> as a
+format string when calling croak().  If that string contains format
+codes such as C<%s> this could crash the program.
+
+This has been changed to a call to croak_sv().
+
+An alternative could have been to supply a trivial format string:
+
+  croak("%s", SvPV_nolen(ERRSV));
+
+or as a special case for C<ERRSV> simply:
+
+  croak(NULL);
 
 =back
 
