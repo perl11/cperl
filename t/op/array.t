@@ -6,7 +6,7 @@ BEGIN {
     set_up_inc('.', '../lib');
 }
 
-plan (188);
+plan (191);
 
 #
 # @foo, @bar, and @ary are also used from tie-stdarray after tie-ing them
@@ -631,7 +631,7 @@ sub { undef *_; pop   }->();
 { # Some things broken by the initial fix for #8910
     (\my @a)->$#*++;
     my @b = @a;
-    ok !exists $a[0], 'copying an array via = does not vivify elements';
+    ok !exists $a[0], 'copying a magical array via = does not vivify elements';
     delete $a[0];
     @a[1..5] = 1..5;
     $#a++;
@@ -646,7 +646,7 @@ sub { undef *_; pop   }->();
     # Again, but with a package array
     package tmp; (\our @a)->$#*++; package main;
     my @b = @a;
-    ok !exists $a[0], 'copying an array via = does not vivify elements';
+    ok !exists $a[0], 'copying an package array via = does not vivify elements';
     delete $a[0];
     @a[1..5] = 1..5;
     $#a++;
@@ -663,7 +663,7 @@ sub { undef *_; pop   }->();
     my @a = 1;
     delete $a[0];
     my @b = @a;
-    ok !exists $a[0], 'copying an array via = does not vivify elements';
+    ok !exists $a[0], 'copying an non-magical array via = does not vivify elements';
     delete $a[0];
     @a[1..5] = 1..5;
     my $count;
