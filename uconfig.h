@@ -1926,6 +1926,18 @@
  */
 /*#define	HAS_LSEEK_PROTO	/ **/
 
+/* HAS_MBRLEN:
+ *	This symbol, if defined, indicates that the mbrlen routine is
+ *	available to get the length of multi-byte character strings.
+ */
+/*#define HAS_MBRLEN	/ **/
+
+/* HAS_MBRTOWC:
+ *	This symbol, if defined, indicates that the mbrtowc routine is
+ *	available to convert a multi-byte character into a wide character.
+ */
+/*#define HAS_MBRTOWC	/ **/
+
 /* HAS_MKSTEMP:
  *	This symbol, if defined, indicates that the mkstemp routine is
  *	available to exclusively create and open a uniquely named
@@ -1956,6 +1968,12 @@
  *	argument form of open(2) is available.
  */
 /*#define HAS_OPEN3		/ **/
+
+/* HAS_THREAD_SAFE_NL_LANGINFO_L:
+ *	This symbol, when defined, indicates presence of the nl_langinfo_l()
+ *	function, and that it is thread-safe.
+ */
+/*#define HAS_THREAD_SAFE_NL_LANGINFO_L	/ **/
 
 /* OLD_PTHREAD_CREATE_JOINABLE:
  *	This symbol, if defined, indicates how to create pthread
@@ -2861,7 +2879,7 @@
 
 /* Free_t:
  *	This variable contains the return type of free().  It is usually
- * void, but occasionally int.
+ *	void, but occasionally int.
  */
 /* Malloc_t:
  *	This symbol is the type of pointer returned by malloc and realloc.
@@ -3267,10 +3285,10 @@
 /*#define HAS__FWALK		/ **/
 
 /* HAS_ACCEPT4:
- *	This symbol, if defined, indicates that the accept4
- *	system call is available to accept socket connections.
+ *	This symbol, if defined, indicates that the accept4 routine is
+ *	available to accept socket connections.
  */
-/*#define HAS_ACCEPT4		/ **/
+/*#define HAS_ACCEPT4	/ **/
 
 /* HAS_ACOSH:
  *	This symbol, if defined, indicates that the acosh routine is
@@ -3404,13 +3422,13 @@
  *	makes sense if you *have* dlsym, which we will presume is the
  *	case if you're using dl_dlopen.xs.
  */
-/*#define 	DLSYM_NEEDS_UNDERSCORE 	/ **/
+/*#define	DLSYM_NEEDS_UNDERSCORE	/ **/
 
 /* HAS_DUP3:
- *	This symbol, if defined, indicates that the dup3
- *	system call is available to duplicate file descriptors.
+ *	This symbol, if defined, indicates that the dup3 routine is
+ *	available to duplicate file descriptors.
  */
-/*#define HAS_DUP3		/ **/
+/*#define HAS_DUP3	/ **/
 
 /* HAS_ERF:
  *	This symbol, if defined, indicates that the erf routine is
@@ -3562,22 +3580,22 @@
  *	available to classify doubles.  Available for example in HP-UX.
  *	The returned values are defined in <math.h> and are
  *
- *           FP_NORMAL     Normalized
- *           FP_ZERO       Zero
- *           FP_INFINITE   Infinity
- *           FP_SUBNORMAL  Denormalized
- *           FP_NAN        NaN
+ *	  FP_NORMAL     Normalized
+ *	  FP_ZERO       Zero
+ *	  FP_INFINITE   Infinity
+ *	  FP_SUBNORMAL  Denormalized
+ *	  FP_NAN        NaN
  *
  */
 /* HAS_FP_CLASSIFY:
  *	This symbol, if defined, indicates that the fp_classify routine is
  *	available to classify doubles. The values are defined in <math.h>
  *
- *           FP_NORMAL     Normalized
- *           FP_ZERO       Zero
- *           FP_INFINITE   Infinity
- *           FP_SUBNORMAL  Denormalized
- *           FP_NAN        NaN
+ *	  FP_NORMAL     Normalized
+ *	  FP_ZERO       Zero
+ *	  FP_INFINITE   Infinity
+ *	  FP_SUBNORMAL  Denormalized
+ *	  FP_NAN        NaN
  *
  */
 /*#define	HAS_FPCLASSIFY		/ **/
@@ -3610,7 +3628,7 @@
 /* HAS_FPOS64_T:
  *	This symbol will be defined if the C compiler supports fpos64_t.
  */
-/*#define	HAS_FPOS64_T    	/ **/
+/*#define	HAS_FPOS64_T	/ **/
 
 /* HAS_FREXPL:
  *	This symbol, if defined, indicates that the frexpl routine is
@@ -3800,8 +3818,8 @@
 /*#define HAS_INETPTON		/ **/
 
 /* HAS_INT64_T:
- *     This symbol will defined if the C compiler supports int64_t.
- *     Usually the <inttypes.h> needs to be included, but sometimes
+ *	This symbol will defined if the C compiler supports int64_t.
+ *	Usually the <inttypes.h> needs to be included, but sometimes
  *	<sys/types.h> is enough.
  */
 /*#define     HAS_INT64_T               / **/
@@ -3886,7 +3904,7 @@
  *	of significant digits in a long double precision number. Unlike
  *	for DBL_DIG, there's no good guess for LDBL_DIG if it is undefined.
  */
-/*#define HAS_LDBL_DIG 	/ * */
+/*#define HAS_LDBL_DIG	/ * */
 
 /* HAS_LGAMMA:
  *	This symbol, if defined, indicates that the lgamma routine is
@@ -3910,15 +3928,15 @@
 
 /* HAS_LLRINT:
  *	This symbol, if defined, indicates that the llrint routine is
- *	available to return the closest long long value according to
- *	the current rounding mode.
+ *	available to return the long long value closest to a double
+ *	(according to the current rounding mode).
  */
 /*#define HAS_LLRINT		/ **/
 
 /* HAS_LLRINTL:
  *	This symbol, if defined, indicates that the llrintl routine is
- *	available to return the closest long long value of the long double
- *	argument according to the current rounding mode.
+ *	available to return the long long value closest to a long double
+ *	(according to the current rounding mode).
  */
 /*#define HAS_LLRINTL		/ **/
 
@@ -3963,15 +3981,15 @@
 
 /* HAS_LRINT:
  *	This symbol, if defined, indicates that the lrint routine is
- *	available to return the closest integral value according to
- *	the current rounding mode.
+ *	available to return the integral value closest to a double
+ *	(according to the current rounding mode).
  */
 /*#define HAS_LRINT		/ **/
 
 /* HAS_LRINTL:
  *	This symbol, if defined, indicates that the lrintl routine is
- *	available to return the closest integral value of the long double
- *	argument according to the current rounding mode.
+ *	available to return the integral value closest to a long double
+ *	(according to the current rounding mode).
  */
 /*#define HAS_LRINTL		/ **/
 
@@ -4028,10 +4046,10 @@
 
 /* HAS_MKOSTEMP:
  *	This symbol, if defined, indicates that the mkostemp routine is
- *	available to exclusively create and open a uniquely named
- *	temporary file.
+ *	available to exclusively create and open a uniquely named (with a
+ *	suffix) temporary file.
  */
-/*#define HAS_MKOSTEMP		/ **/
+/*#define HAS_MKOSTEMP	/ **/
 
 /* HAS_MKSTEMPS:
  *	This symbol, if defined, indicates that the mkstemps routine is
@@ -4097,6 +4115,10 @@
  *	This symbol, if defined, indicates that the uselocale routine is
  *	available to set the current locale for the calling thread.
  */
+/* HAS_QUERYLOCALE:
+ *	This symbol, if defined, indicates that the querylocale routine is
+ *	available to return the name of the locale for a category mask.
+ */
 /* I_XLOCALE:
  *	This symbol, if defined, indicates to the C program that it should
  *	include <xlocale.h> to get uselocale() and its friends.
@@ -4132,11 +4154,11 @@
 /* HAS_OFF64_T:
  *	This symbol will be defined if the C compiler supports off64_t.
  */
-/*#define	HAS_OFF64_T    		/ **/
+/*#define	HAS_OFF64_T		/ **/
 
 /* HAS_PIPE2:
- *	This symbol, if defined, indicates that the pipe2
- *	system call is available to create inter-process pipes.
+ *	This symbol, if defined, indicates that the pipe2 routine is
+ *	available to create an inter-process channel.
  */
 /*#define HAS_PIPE2		/ **/
 
@@ -4177,7 +4199,7 @@
 /* HAS_PTRDIFF_T:
  *	This symbol will be defined if the C compiler supports ptrdiff_t.
  */
-#define	HAS_PTRDIFF_T    		/**/
+#define	HAS_PTRDIFF_T		/**/
 
 /* HAS_READV:
  *	This symbol, if defined, indicates that the readv routine is
@@ -4586,8 +4608,8 @@
  *	Note that if fflushNULL is defined, fflushall will not
  *	even be probed for and will be left undefined.
  */
-/*#define	FFLUSH_NULL 		/ **/
-/*#define	FFLUSH_ALL 		/ **/
+/*#define	FFLUSH_NULL		/ **/
+/*#define	FFLUSH_ALL		/ **/
 
 /* I_BFD:
  *	This symbol, if defined, indicates that <bfd.h> exists and
@@ -4626,10 +4648,10 @@
  *	For DB version 1 this is always 0.
  */
 #define DB_Hash_t	u_int32_t		/**/
-#define DB_Prefix_t	size_t  	/**/
-#define DB_VERSION_MAJOR_CFG	0  	/**/
-#define DB_VERSION_MINOR_CFG	0  	/**/
-#define DB_VERSION_PATCH_CFG	0  	/**/
+#define DB_Prefix_t	size_t		/**/
+#define DB_VERSION_MAJOR_CFG	0	/**/
+#define DB_VERSION_MINOR_CFG	0	/**/
+#define DB_VERSION_PATCH_CFG	0	/**/
 
 /* I_FENV:
  *	This symbol, if defined, indicates to the C program that it should
@@ -4656,8 +4678,8 @@
 /*#define	I_IEEEFP		/ **/
 
 /* I_INTTYPES:
- *     This symbol, if defined, indicates to the C program that it should
- *     include <inttypes.h>.
+ *	This symbol, if defined, indicates to the C program that it should
+ *	include <inttypes.h>.
  */
 /*#define   I_INTTYPES                / **/
 
@@ -4698,8 +4720,8 @@
 /*#define I_NETINET_IN_SYSTM	/ **/
 
 /* I_NETINET_TCP:
- *     This symbol, if defined, indicates to the C program that it should
- *     include <netinet/tcp.h>.
+ *	This symbol, if defined, indicates to the C program that it should
+ *	include <netinet/tcp.h>.
  */
 /*#define   I_NETINET_TCP                / **/
 
@@ -4811,8 +4833,8 @@
 /*#define	I_USTAT		/ **/
 
 /* I_WCHAR:
- *     This symbol, if defined, indicates to the C program that <wchar.h>
- *     is available for inclusion
+ *	This symbol, if defined, indicates to the C program that <wchar.h>
+ *	is available for inclusion
  */
 /*#define   I_WCHAR	/ **/
 
@@ -5183,7 +5205,7 @@
  *	is either n or 32*ceil(n/32), especially many little-endians do
  *	the latter.  This is only useful if you have select(), naturally.
  */
-#define SELECT_MIN_BITS 	32	/**/
+#define SELECT_MIN_BITS	32	/**/
 
 /* ST_INO_SIZE:
  *	This variable contains the size of struct stat's st_ino in bytes.
@@ -5285,7 +5307,7 @@
 /* USE_KERN_PROC_PATHNAME:
  *	This symbol, if defined, indicates that we can use sysctl with
  *	KERN_PROC_PATHNAME to get a full path for the executable, and hence
- * 	convert $^X to an absolute path.
+ *	convert $^X to an absolute path.
  */
 /*#define USE_KERN_PROC_PATHNAME	/ **/
 
@@ -5395,6 +5417,6 @@
 #endif
 
 /* Generated from:
- * 287915a657f2adced0cf3362be9b041a57e35c8c24561e8b01b1a308d3a027f4 config_h.SH
+ * 813a6c1e42bd49a74bd120271766064ecae33403b8469f03986ca8297bd121d1 config_h.SH
  * e767d2a3f2e32ab66e03f2b9d72457b0cf7e94895e3b759a610eee978b925797 uconfig.sh
  * ex: set ro: */
