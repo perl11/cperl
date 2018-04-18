@@ -163,7 +163,7 @@ if ($gperf_ok) {
           ccwarnflags charsize cf_epoch config_argc config_args
           d_memrchr d_re_comp d_regcmp dlltool dtraceobject
           dtracexnolibs git_ancestor git_commit_date git_remote_branch
-          git_unpushed hostgenerate hostosname hostperl incpth
+          git_unpushed hostgenerate hostosname hostperl i_stdlib incpth
           installhtmldir installhtmlhelpdir ld_can_script
           libdb_needs_pthread mad malloc_cflags passcat sysroot
           targetdir targetenv targethost targetmkdir targetport
@@ -245,6 +245,7 @@ if ($gperf_ok) {
     }
     if (!$in_core and $] < 5.027) { # for older CPAN installs
         # deleted with v5.27.5/v5.27.2c
+        # Note: i_stdlib is still needed for Windows
         push @cannedkeys , qw(
 
             ansi2knr d_bcmp d_bcopy d_bzero d_charvspr d_dbl_dig
@@ -252,7 +253,7 @@ if ($gperf_ok) {
             d_safebcpy d_safemcpy d_sanemcmp d_sprintf_returns_strlen
             d_strchr d_strctcpy d_strerrm d_strerror d_volatile
             d_vprintf i_assert i_float i_limits i_math i_memory
-            i_stdarg i_stdlib i_string i_values i_varargs i_varhdr
+            i_stdarg i_string i_values i_varargs i_varhdr
             prototype strings vaproto
 
         );

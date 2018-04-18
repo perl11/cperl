@@ -266,7 +266,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1280
+#define TOTAL_KEYWORDS 1281
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 37
 #define MIN_HASH_VALUE 3
@@ -969,6 +969,7 @@ struct stringpool_t
     char stringpool_str2374[sizeof ("d_rewinddir")];
     char stringpool_str2377[sizeof ("perl_static_inline")];
     char stringpool_str2378[sizeof ("d_getpgid")];
+    char stringpool_str2385[sizeof ("i_stdlib")];
     char stringpool_str2387[sizeof ("gzip")];
     char stringpool_str2391[sizeof ("d_longlong")];
     char stringpool_str2398[sizeof ("cppflags")];
@@ -2252,6 +2253,7 @@ static const struct stringpool_t stringpool_contents =
     "d_rewinddir",
     "perl_static_inline",
     "d_getpgid",
+    "i_stdlib",
     "gzip",
     "d_longlong",
     "cppflags",
@@ -4622,7 +4624,10 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2377,	T_INV,0,ALN64I"@@perl_static_inline@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2378,		T_INV,0,ALN64I"@@d_getpgid@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2385,		T_INV,0,ALN64I"@@i_stdlib@@"},
+      {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str2387,			T_INV,0,ALN64I"@@gzip@@"},
       {XSCNO}, {XSCNO}, {XSCNO},
@@ -7170,7 +7175,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str10937,	T_INV,0,ALN64I"@@known_extensions@@"}
     };
 
-#line 7173 "Config.xs"
+#line 7178 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);
