@@ -3253,6 +3253,7 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
                                    (int) MB_CUR_MAX,      is_utf8));
 
         Safefree(save_input_locale);
+        save_input_locale = NULL;
 
 #      ifdef HAS_MBTOWC
 
