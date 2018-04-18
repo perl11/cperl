@@ -687,7 +687,7 @@ VER_NV:
         { /* Braces needed because macro just below declares a variable */
             DECLARATION_FOR_LC_NUMERIC_MANIPULATION;
             STORE_LC_NUMERIC_SET_STANDARD();
-            LOCK_NUMERIC_STANDARD();
+            LOCK_LC_NUMERIC_STANDARD();
             if (sv) {
                 Perl_sv_catpvf(aTHX_ sv, "%.9" NVff, SvNVX(ver));
                 len = SvCUR(sv);
@@ -697,7 +697,7 @@ VER_NV:
                 len = my_snprintf(tbuf, sizeof(tbuf), "%.9" NVff, SvNVX(ver));
                 buf = tbuf;
             }
-            UNLOCK_NUMERIC_STANDARD();
+            UNLOCK_LC_NUMERIC_STANDARD();
             RESTORE_LC_NUMERIC();
         }
 	while (buf[len-1] == '0' && len > 0) len--;
