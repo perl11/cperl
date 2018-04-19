@@ -2,7 +2,7 @@ package vars;
 
 use 5.006;
 
-our $VERSION = '1.03_01c';
+our $VERSION = '1.04_01c';
 $VERSION =~ s/c$//;
 
 use warnings::register "vars";
@@ -62,14 +62,15 @@ functionality provided by this pragma has been superseded by C<our>
 declarations, available in Perl v5.6.0 or later, and use of this pragma is
 discouraged.  See L<perlfunc/our>.
 
-This will predeclare all the variables whose names are 
-in the list, allowing you to use them under "use strict", and
-disabling any typo warnings.
+This pragma will predeclare all the variables whose names are
+in the list, allowing you to use them under C<use strict>, and
+disabling any typo warnings for them.
 
-Unlike pragmas that affect the C<$^H> hints variable, the C<use vars> and
-C<use subs> declarations are not BLOCK-scoped.  They are thus effective
-for the entire file in which they appear.  You may not rescind such
-declarations with C<no vars> or C<no subs>.
+Unlike pragmas that affect the C<$^H> hints variable, the C<use vars>
+and C<use subs> declarations are not lexically scoped to the block
+they appear in: they affect the entire package in which they appear.
+It is not possible to rescind these declarations with C<no vars> or
+C<no subs>.
 
 Packages such as the B<AutoLoader> and B<SelfLoader> that delay
 loading of subroutines within packages can create problems with
