@@ -6,6 +6,10 @@
 
 #include "config.h"
 
+#ifdef I_WCHAR
+#  include <wchar.h>
+#endif
+
 #if defined(HAS_NL_LANGINFO) && defined(I_LANGINFO)
 #   include <langinfo.h>
 #endif

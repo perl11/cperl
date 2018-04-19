@@ -41,10 +41,6 @@
 
 #include "reentr.h"
 
-#ifdef I_WCHAR
-#  include <wchar.h>
-#endif
-
 /* If the environment says to, we can output debugging information during
  * initialization.  This is done before option parsing, and before any thread
  * creation, so can be a file-level static */
