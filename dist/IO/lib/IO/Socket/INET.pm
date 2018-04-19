@@ -7,14 +7,14 @@
 package IO::Socket::INET;
 
 use strict;
-our(@ISA, $VERSION);
 use IO::Socket ();
 use Socket;
 use Exporter   ();
 use Errno      ();
 
-@ISA = qw(IO::Socket);
-$VERSION = "1.35_01";
+our @ISA = qw(IO::Socket);
+our $VERSION = "1.39_01";
+$VERSION = eval $VERSION;
 
 BEGIN { sub croak($) { require Carp; Carp::croak(@_) } } 
 

@@ -99,9 +99,9 @@ ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/vstrings.t 62c50e82f1f7afa702773b6
 File::Path cpan/File-Path/lib/File/Path.pm 9abce7ef6597df33fb0cbbd02bf7e34c12157330
 File::Path cpan/File-Path/t/Path_win32.t 46d09109b418a5ee9c3e2d84ee86449103f7a00d
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
-IO dist/IO/lib/IO/Socket.pm 3d66093e85d840248deac734f3651d821c5ec149
-IO dist/IO/lib/IO/Socket/INET.pm 2a9b27038adbded99595ed1ddfd2e00ec7b35a97
-IO dist/IO/lib/IO/Socket/UNIX.pm 5e43fb9b96b9e9e093a0d579e90515365b7c4ecd
+IO dist/IO/lib/IO/Socket.pm 6531020cd155391a097d16ce89f5afe11bdcd86b
+IO dist/IO/lib/IO/Socket/INET.pm cd959cc38f5c9d1440f2d998b8adba968cedf340
+IO dist/IO/lib/IO/Socket/UNIX.pm fbf1a9477f310635f4561da1fa287ece982da496
 IO::Compress::Base cpan/IO-Compress/lib/File/GlobMapper.pm 81f265ee36efb2b9373a8c32e86df1fc56c8e2de
 IO::Compress::Base cpan/IO-Compress/t/compress/encode.pl 776c114af5146d3c328c247c9550e021bb8bac62
 IO::Compress::Base cpan/IO-Compress/t/cz-14gzopen.t dee09dbad5cb1cad6027fd61d14552a192b68060
