@@ -141,7 +141,7 @@ when C<NULL> is returned if this limit is exceeded.
 =item PerlIO_reopen(path,mode,f)
 X<PerlIO_reopen>
 
-While this currently exists in all three implementations perl itself
+While this currently exists in both implementations, perl itself
 does not use it. I<As perl does not use it, it is not well tested.>
 
 Perl prefers to C<dup> the new low-level descriptor to the descriptor
