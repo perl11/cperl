@@ -56,6 +56,14 @@ static int not_here(const char *s);
 #include <unistd.h>
 #endif
 
+#if defined(__CYGWIN__) && !defined(L_cuserid)
+/* on cygwin it is in stdio.h, not unistd.h */
+extern char * ctermid(char *);
+extern char * cuserid(char *);
+#define	L_cuserid	9
+#define L_ctermid       16
+#endif
+
 #ifndef get_svs
 #  define get_svs(str, flags) get_sv((str), (flags))
 #  define get_avs(str, flags) get_av((str), (flags))
@@ -68,6 +76,10 @@ static int not_here(const char *s);
 
 #ifdef I_SYS_RESOURCE
 # include <sys/resource.h>
+#endif
+
+#ifdef I_WCHAR
+#  include <wchar.h>
 #endif
 
 #if defined(USE_QUADMATH) && defined(I_QUADMATH)
@@ -3283,10 +3295,6 @@ write(fd, buffer, nbytes)
 
 void
 abort()
-
-#ifdef I_WCHAR
-#  include <wchar.h>
-#endif
 
 int
 mblen(s, n)
