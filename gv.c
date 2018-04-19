@@ -822,8 +822,7 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
 		      flags & GV_SUPER ? "SUPER " : "",
 		      name ? name : SvPV_nolen(meth),
                       HvPKGTYPE_NN(cstash), HEKfARG(HvNAME_HEK(cstash)) ));
-        gvp = (GV**)hv_common(cstash, meth, name, len,
-                              hv_utf8, action, NULL, 0);
+        gvp = (GV**)hv_common(cstash, meth, name, len, hv_utf8, action, NULL, 0);
         if (!gvp) {
             if (len > 1 && HvNAMELEN_get(cstash) == 4) {
                 const char *hvname = HvNAME(cstash); assert(hvname);
