@@ -1427,18 +1427,19 @@ bytes_cmp_utf8(bytes, utf8)
 	RETVAL
 
 AV *
-test_utf8_to_bytes(bytes, lenp)
+test_utf8_to_bytes(bytes, len)
         unsigned char * bytes
-        STRLEN lenp
+        STRLEN len
     PREINIT:
         char * ret;
     CODE:
         RETVAL = newAV();
         sv_2mortal((SV*)RETVAL);
 
-        ret = (char *) utf8_to_bytes(bytes, &lenp);
+        ret = (char *) utf8_to_bytes(bytes, &len);
         av_push(RETVAL, newSVpv(ret, 0));
-        av_push(RETVAL, newSViv(lenp));
+        /* i.e. 32bit with use64bitint, we need length = -1 */
+        av_push(RETVAL, newSViv(INT2PTR(SSize_t, len)));
         av_push(RETVAL, newSVpv((const char *) bytes, 0));
 
     OUTPUT:
