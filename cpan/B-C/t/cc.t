@@ -21,6 +21,7 @@ my @skip = (14,21,30,
             103, # hangs with non-DEBUGGING
 	    ((!$DEBUGGING and $] > 5.010) ? (105) : ()),
            );
+push @todo, (103) if $^O eq 'cygwin' and $Config{ptrsize} == 4;
 push @skip, (38) if $^O eq 'cygwin'; #hangs
 
 run_c_tests("CC", \@todo, \@skip);
