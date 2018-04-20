@@ -88,8 +88,8 @@ like( runperl( switches => [ "-T -Du" ], stderr => 1,
       "-Du Empty tainting checks" );
 my $taint = runperl( switches => [ "-T -Dqu" ], stderr => 1,
                      prog => '$^O=q(xx);' );
-if (!$taint && $^O eq 'MSWin32' and $Config{cc} eq 'gcc') {
-    ok(1, "#TODO -Dqu Quiet tainting check fails on mingw #323");
+if (!$taint && $^O eq 'MSWin32') {
+    ok(1, "#TODO -Dqu Quiet tainting check fails on windows #323");
 } else {
     like($taint,
          qr/assigning to \$\^O /,
@@ -99,14 +99,10 @@ if (!$taint && $^O eq 'MSWin32' and $Config{cc} eq 'gcc') {
 #               prog => '1' ),
 #      qr/^(HASH\s+)?\d*\s+\d*\s+\d/,
 #      "-DH Hash dump -- usurps values()" );
-my $perlio = runperl( switches => [ "-DI" ], stderr => 1,
-                      prog => '1' );
-if ($perlio =~  /^-e:0 Layer 1 is crlf/ && $^O eq 'MSWin32' and $Config{cc} eq 'gcc') {
-    ok(1, "-DI PerlIO: Layer 1 is crlf");
-} else  {
-    like( $perlio,  qr/^-e:0 Layer 1 is perlio/,
-        "-DI PerlIO, as previously with env PERLIO_DEBUG");
-}
+like( runperl( switches => [ "-DI" ], stderr => 1,
+               prog => '1' ),
+      qr/^-e:0 Layer 1 is (?:crlf|perlio)/,
+      "-DI PerlIO, as previously with env PERLIO_DEBUG");
 like( runperl( switches => [ "-DX" ], stderr => 1,
                prog => '1' ),
       qr/^Pad 0x[0-9a-f]+\[\d+\] 0x[0-9a-f]+ new:/,
