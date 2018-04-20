@@ -1626,7 +1626,9 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
     char smallbuf[128];      /* to avoid a malloc when possible */
 
     PERL_ARGS_ASSERT_PARSE_GV_STASH_NAME;
-    
+
+    if (UNLIKELY(!nambeg || !full_len))
+        return FALSE;
     if (   full_len > 2
         && **name == '*'
         && isIDFIRST_lazy_if_safe(*name + 1, name_end, is_utf8))

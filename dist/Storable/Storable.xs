@@ -3842,7 +3842,7 @@ static int store_hook(
             if (need_large_oids) {
                 ntag_t tag = PTR2TAG(ary[i]);
                 W64LEN(tag);
-                TRACEME(("object %d, tag #%" UVdf, i-1, (UV)tag));
+                TRACEME(("object %d, tag #%" UVuf, i-1, (UV)tag));
             }
             else
 #endif
@@ -4198,7 +4198,7 @@ static int store(pTHX_ stcxt_t *cxt, SV *sv)
         */
 	if (tagval > I32_MAX) {
 
-	    TRACEME(("object 0x%" UVxf " seen as #%" UVdf, PTR2UV(sv),
+	    TRACEME(("object 0x%" UVxf " seen as #%" UVuf, PTR2UV(sv),
 		     tagval));
 
 	    PUTMARK(SX_LOBJECT);
@@ -4211,10 +4211,10 @@ static int store(pTHX_ stcxt_t *cxt, SV *sv)
 	{
 	    I32 ltagval;
 
-	    ltagval = htonl((I32)tagval)
+	    ltagval = htonl((I32)tagval);
 
-	    TRACEME(("object 0x%" UVxf " seen as #%d", PTR2UV(sv),
-		     ntohl(ltagval)));
+            TRACEME(("object 0x%" UVxf " seen as #%d", PTR2UV(sv),
+                  ntohl(ltagval)));
 
 	    PUTMARK(SX_OBJECT);
 	    WRITE_I32(ltagval);
