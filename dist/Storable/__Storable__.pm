@@ -3,6 +3,7 @@
 #  Copyright (c) 2002-2014 by the Perl 5 Porters
 #  Copyright (c) 2015-2016 cPanel Inc
 #  Copyright (c) 2017 Reini Urban
+#  Copyright (c) 2017-2018 by the Perl 5 Porters
 #
 #  You may redistribute only under the same terms as Perl 5, as specified
 #  in the README file that comes with the distribution.
@@ -1147,43 +1148,43 @@ such.
 
 Here are some code samples showing a possible usage of Storable:
 
-	use Storable qw(store retrieve freeze thaw dclone);
+    use Storable qw(store retrieve freeze thaw dclone);
 
-	%color = ('Blue' => 0.1, 'Red' => 0.8, 'Black' => 0, 'White' => 1);
+    %color = ('Blue' => 0.1, 'Red' => 0.8, 'Black' => 0, 'White' => 1);
 
-	store(\%color, 'mycolors') or die "Can't store %a in mycolors!\n";
+    store(\%color, 'mycolors') or die "Can't store %a in mycolors!\n";
 
-	$colref = retrieve('mycolors');
-	die "Unable to retrieve from mycolors!\n" unless defined $colref;
-	printf "Blue is still %lf\n", $colref->{'Blue'};
+    $colref = retrieve('mycolors');
+    die "Unable to retrieve from mycolors!\n" unless defined $colref;
+    printf "Blue is still %lf\n", $colref->{'Blue'};
 
-	$colref2 = dclone(\%color);
+    $colref2 = dclone(\%color);
 
-	$str = freeze(\%color);
-	printf "Serialization of %%color is %d bytes long.\n", length($str);
-	$colref3 = thaw($str);
+    $str = freeze(\%color);
+    printf "Serialization of %%color is %d bytes long.\n", length($str);
+    $colref3 = thaw($str);
 
 which prints (on my machine):
 
-	Blue is still 0.100000
-	Serialization of %color is 102 bytes long.
+    Blue is still 0.100000
+    Serialization of %color is 102 bytes long.
 
 Serialization of CODE references and deserialization in a safe
 compartment:
 
 =for example begin
 
-	use Storable qw(freeze thaw);
-	use Safe;
-	use strict;
-	my $safe = new Safe;
-        # because of opcodes used in "use strict":
-	$safe->permit(qw(:default require));
-	local $Storable::Deparse = 1;
-	local $Storable::Eval = sub { $safe->reval($_[0]) };
-	my $serialized = freeze(sub { 42 });
-	my $code = thaw($serialized);
-	$code->() == 42;
+    use Storable qw(freeze thaw);
+    use Safe;
+    use strict;
+    my $safe = new Safe;
+    # because of opcodes used in "use strict":
+    $safe->permit(qw(:default require));
+    local $Storable::Deparse = 1;
+    local $Storable::Eval = sub { $safe->reval($_[0]) };
+    my $serialized = freeze(sub { 42 });
+    my $code = thaw($serialized);
+    $code->() == 42;
 
 =for example end
 
@@ -1387,23 +1388,24 @@ reading them.
 
 Thank you to (in chronological order):
 
-	Jarkko Hietaniemi <jhi@iki.fi>
-	Ulrich Pfeifer <pfeifer@charly.informatik.uni-dortmund.de>
-	Benjamin A. Holzman <bholzman@earthlink.net>
-	Andrew Ford <A.Ford@ford-mason.co.uk>
-	Gisle Aas <gisle@aas.no>
-	Jeff Gresham <gresham_jeffrey@jpmorgan.com>
-	Murray Nesbitt <murray@activestate.com>
-	Marc Lehmann <pcg@opengroup.org>
-	Justin Banks <justinb@wamnet.com>
-	Jarkko Hietaniemi <jhi@iki.fi> (AGAIN, as perl 5.7.0 Pumpkin!)
-	Salvador Ortiz Garcia <sog@msg.com.mx>
-	Dominic Dunlop <domo@computer.org>
-	Erik Haugan <erik@solbors.no>
-	Benjamin A. Holzman <ben.holzman@grantstreet.com>
-	Reini Urban <rurban@cpan.org>
-	Todd Rinaldo <toddr@cpanel.net>
-	Aaron Crane <arc@cpan.org>
+    Jarkko Hietaniemi <jhi@iki.fi>
+    Ulrich Pfeifer <pfeifer@charly.informatik.uni-dortmund.de>
+    Benjamin A. Holzman <bholzman@earthlink.net>
+    Andrew Ford <A.Ford@ford-mason.co.uk>
+    Gisle Aas <gisle@aas.no>
+    Jeff Gresham <gresham_jeffrey@jpmorgan.com>
+    Murray Nesbitt <murray@activestate.com>
+    Marc Lehmann <pcg@opengroup.org>
+    Justin Banks <justinb@wamnet.com>
+    Jarkko Hietaniemi <jhi@iki.fi> (AGAIN, as perl 5.7.0 Pumpkin!)
+    Salvador Ortiz Garcia <sog@msg.com.mx>
+    Dominic Dunlop <domo@computer.org>
+    Erik Haugan <erik@solbors.no>
+    Benjamin A. Holzman <ben.holzman@grantstreet.com>
+    Reini Urban <rurban@cpan.org>
+    Todd Rinaldo <toddr@cpanel.net>
+    Aaron Crane <arc@cpan.org>
+    Tony Cook <tony@develop-help.com>
 
 for their bug reports, suggestions and contributions.
 
