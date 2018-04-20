@@ -6176,7 +6176,7 @@ un8ifcan.h			Unicode::Normalize generated header
 un8ifcmb.h			Unicode::Normalize generated header
 un8ifcmp.h			Unicode::Normalize generated header
 un8ifexc.h			Unicode::Normalize generated header
-uni_keywords.c			Generated file which parses \p{} property names
+uni_keywords.h			Map unicode property names to numbers
 unicode_constants.h		compile-time macros for Unicode code points
 universal.c			The default UNIVERSAL package methods
 unixish.h			Defines that are assumed on Unix

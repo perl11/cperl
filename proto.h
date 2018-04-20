@@ -6770,12 +6770,6 @@ PERL_CALLCONV bool	Perl_try_amagic_bin(pTHX_ int method, int flags)
 PERL_CALLCONV bool	Perl_try_amagic_un(pTHX_ int method, int flags)
 			__attribute__global__;
 
-PERL_CALLCONV int	Perl_uniprop_lookup(const char * tokstr, const Size_t len)
-			__attribute__global__
-			__attribute__nonnull__(1);
-#define PERL_ARGS_ASSERT_UNIPROP_LOOKUP	\
-	assert(tokstr)
-
 #ifndef NO_MATHOMS
 PERL_CALLCONV SSize_t	Perl_unpack_str(pTHX_ const char *pat, const char *patend, const char *s, const char *strbeg, const char *strend, char **new_s, I32 ocnt, U32 flags)
 			__attribute__global__
