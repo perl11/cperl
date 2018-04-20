@@ -15,6 +15,11 @@
 #define PERL_NO_GET_CONTEXT
 
 #include "EXTERN.h"
+#include "config.h"
+#ifdef I_WCHAR
+#  include <wchar.h>
+#endif
+
 #define PERLIO_NOT_STDIO 1
 #include "perl.h"
 #include "XSUB.h"
@@ -76,10 +81,6 @@ extern char * cuserid(char *);
 
 #ifdef I_SYS_RESOURCE
 # include <sys/resource.h>
-#endif
-
-#ifdef I_WCHAR
-#  include <wchar.h>
 #endif
 
 #if defined(USE_QUADMATH) && defined(I_QUADMATH)
