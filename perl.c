@@ -1249,7 +1249,8 @@ perl_destruct(pTHXx)
     PL_WB_invlist = NULL;
     PL_Assigned_invlist = NULL;
 
-#ifdef USE_THREAD_SAFE_LOCALE
+#if  defined(HAS_POSIX_2008_LOCALE) \
+  && defined(USE_THREAD_SAFE_LOCALE)
     if (PL_C_locale_obj) {
         /* Make sure we aren't using the locale space we are about to free */
         uselocale(LC_GLOBAL_LOCALE);

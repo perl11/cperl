@@ -64,6 +64,7 @@ SKIP: {
 
     my @locales = find_locales( 'LC_NUMERIC' );
     skip("No LC_NUMERIC locales available", 1) unless @locales;
+    skip('not yet thread-safe uselocale on darwin', 1) if $^O eq 'darwin';
 
     my $dot = "";
     my $comma = "";
@@ -119,5 +120,3 @@ SKIP: {
     1, {}, "Verify there were no failures with simultaneous running threads"
     );
 }
-
-done_testing();
