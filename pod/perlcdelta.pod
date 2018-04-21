@@ -40,8 +40,18 @@ See L<[cperl #210]|https://github.com/perl11/cperl/issues/210>
 
 This variable is 1 if the Perl interpreter is operating in an
 environment where it is safe to use and change locales (see
-L<perllocale>.)  Currently this is true only when the perl is
-unthreaded.
+L<perllocale>.)  This variable is true when the perl is
+unthreaded, or compiled in a platform that supports thread-safe locale
+operation (see next item).
+
+=head2 Locales are now thread-safe on systems that support them
+
+These systems include Windows starting with Visual Studio 2005 and
+POSIX 2008 systems.
+
+The implication is that you are now free to use locales and changes them
+in a threaded environment.  Your changes affect only your thread.
+See L<perllocale/Multi-threaded operation>
 
 =head1 Security
 
@@ -615,6 +625,35 @@ default now to C<-Uuseithreads>.
 
 =item *
 
+A new compiler C<#define>, C<dTHX_DEBUGGING>. has been added.  This is
+useful for XS or C code that only need the thread context because their
+debugging statements that get compiled only under C<-DDEBUGGING> need
+one.
+
+=item *
+
+A new API function L<perlapi/Perl_setlocale> has been added.
+
+=item *
+
+L<perlapi/sync_locale> has been revised to return a boolean as to
+whether the system was using the global locale or not.
+
+=item *
+
+A new kind of magic scalar, called a "nonelem" scalar, has been introduced.
+It is stored in an array to denote a nonexistent element, whenever such an
+element is accessed in a potential lvalue context.  It replaces the
+existing "defelem" (deferred element) magic wherever this is possible,
+being significantly more efficient.  This means that
+C<some_sub($sparse_array[$nonelem])> no longer has to create a new magic
+defelem scalar each time, as long as the element is within the array.
+
+It partially fixes the rare bug of deferred elements getting out of sync
+with their arrays when the array is shifted or unshifted.  [perl #132729]
+
+=item *
+
 With a threaded perl, GV's are relocated as READONLY PADs.
 Add an abstraction L<perlintern/op_gv_set> to simplify that.
 
@@ -630,6 +669,14 @@ converted from SVOP's to PADOP's threaded.
 =head1 Selected Bug Fixes
 
 =over 4
+
+=item *
+
+On threaded perls where the decimal point (radix) character is not a
+dot, it has been possible for a race to occur between threads when one
+needs to use the real radix character.  This has now been fixed by use
+of a mutex on systems without thread-safe locales, and the problem just
+doesn't come up on those with thread-safe locales.
 
 =item *
 
