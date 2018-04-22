@@ -502,11 +502,9 @@ S_emulate_setlocale(const int category,
     dTHX;
 
 #  ifdef DEBUGGING
-
     if (DEBUG_Lv_TEST || debug_initialization) {
         PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale input=%d (%s), \"%s\", %d, %d\n", __FILE__, __LINE__, category, category_name(category), locale, index, is_index_valid);
     }
-
 #  endif
 
     /* If the input mask might be incorrect, calculate the correct one */
@@ -514,11 +512,9 @@ S_emulate_setlocale(const int category,
         unsigned int i;
 
 #  ifdef DEBUGGING
-
         if (DEBUG_Lv_TEST || debug_initialization) {
             PerlIO_printf(Perl_debug_log, "%s:%d: finding index of category %d (%s)\n", __FILE__, __LINE__, category, category_name(category));
         }
-
 #  endif
 
         for (i = 0; i <= LC_ALL_INDEX; i++) {
@@ -536,25 +532,19 @@ S_emulate_setlocale(const int category,
         return NULL;
 
       found_index: ;
-
 #  ifdef DEBUGGING
-
         if (DEBUG_Lv_TEST || debug_initialization) {
             PerlIO_printf(Perl_debug_log, "%s:%d: index is %d for %s\n", __FILE__, __LINE__, index, category_name(category));
         }
-
 #  endif
 
     }
-
     mask = category_masks[index];
 
 #  ifdef DEBUGGING
-
     if (DEBUG_Lv_TEST || debug_initialization) {
         PerlIO_printf(Perl_debug_log, "%s:%d: category name is %s; mask is 0x%x\n", __FILE__, __LINE__, category_names[index], mask);
     }
-
 #  endif
 
     /* If just querying what the existing locale is ... */
@@ -562,11 +552,9 @@ S_emulate_setlocale(const int category,
         locale_t cur_obj = uselocale((locale_t) 0);
 
 #  ifdef DEBUGGING
-
         if (DEBUG_Lv_TEST || debug_initialization) {
             PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale querying %p\n", __FILE__, __LINE__, cur_obj);
         }
-
 #  endif
 
         if (cur_obj == LC_GLOBAL_LOCALE) {
@@ -574,9 +562,7 @@ S_emulate_setlocale(const int category,
         }
 
 #  ifdef HAS_QUERYLOCALE
-
         return (char *) querylocale(mask, cur_obj);
-
 #  else
 #    if defined(_NL_LOCALE_NAME) && defined(DEBUGGING)
 
@@ -596,38 +582,27 @@ S_emulate_setlocale(const int category,
                 if (         strNE(PL_curlocales[index], temp_name)
                     && ! (   isNAME_C_OR_POSIX(temp_name)
                           && isNAME_C_OR_POSIX(PL_curlocales[index]))) {
-
 #      ifdef USE_C_BACKTRACE
-
                     dump_c_backtrace(Perl_debug_log, 20, 1);
-
 #      endif
-
                     Perl_croak(aTHX_ "panic: Mismatch between what Perl thinks %s is"
                                      " (%s) and what internal glibc thinks"
                                      " (%s)\n", category_names[index],
                                      PL_curlocales[index], temp_name);
                 }
-
                 return temp_name;
             }
         }
-
 #    endif
 
         /* Without querylocale(), we have to use our record-keeping we've
          *  done. */
-
         if (category != LC_ALL) {
-
 #    ifdef DEBUGGING
-
             if (DEBUG_Lv_TEST || debug_initialization) {
                 PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale returning %s\n", __FILE__, __LINE__, PL_curlocales[index]);
             }
-
 #    endif
-
             return PL_curlocales[index];
         }
         else {  /* For LC_ALL */
@@ -637,15 +612,11 @@ S_emulate_setlocale(const int category,
 
             /* If we have a valid LC_ALL value, just return it */
             if (PL_curlocales[LC_ALL_INDEX]) {
-
 #    ifdef DEBUGGING
-
                 if (DEBUG_Lv_TEST || debug_initialization) {
                     PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale returning %s\n", __FILE__, __LINE__, PL_curlocales[LC_ALL_INDEX]);
                 }
-
 #    endif
-
                 return PL_curlocales[LC_ALL_INDEX];
             }
 
@@ -654,15 +625,11 @@ S_emulate_setlocale(const int category,
              *      LC_NUMERIC=C;LC_TIME=en_US.UTF-8;...
              *  First calculate the needed size. */
             for (i = 0; i < LC_ALL_INDEX; i++) {
-
 #    ifdef DEBUGGING
-
                 if (DEBUG_Lv_TEST || debug_initialization) {
                     PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale i=%d, name=%s, locale=%s\n", __FILE__, __LINE__, i, category_names[i], PL_curlocales[i]);
                 }
-
 #    endif
-
                 names_len += strlen(category_names[i])
                           + 1                       /* '=' */
                           + strlen(PL_curlocales[i])
@@ -674,15 +641,11 @@ S_emulate_setlocale(const int category,
 
             /* Then fill in the string */
             for (i = 0; i < LC_ALL_INDEX; i++) {
-
 #    ifdef DEBUGGING
-
                 if (DEBUG_Lv_TEST || debug_initialization) {
                     PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale i=%d, name=%s, locale=%s\n", __FILE__, __LINE__, i, category_names[i], PL_curlocales[i]);
                 }
-
 #    endif
-
                 my_strlcat(all_string, category_names[i], names_len);
                 my_strlcat(all_string, "=", names_len);
                 my_strlcat(all_string, PL_curlocales[i], names_len);
@@ -690,29 +653,18 @@ S_emulate_setlocale(const int category,
             }
 
 #    ifdef DEBUGGING
-
             if (DEBUG_L_TEST || debug_initialization) {
                 PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale returning %s\n", __FILE__, __LINE__, all_string);
             }
-
-    #endif
-
+#    endif
             return all_string;
         }
-
 #    ifdef EINVAL
-
         SETERRNO(EINVAL, LIB_INVARG);
-
 #    endif
-
         return NULL;
-
 #  endif
-
     }
-
-    assert(PL_C_locale_obj);
 
     /* Otherwise, we are switching locales.  This will generally entail freeing
      * the current one's space (at the C library's discretion).  We need to
@@ -722,34 +674,26 @@ S_emulate_setlocale(const int category,
     old_obj = uselocale(PL_C_locale_obj);
 
 #  ifdef DEBUGGING
-
     if (DEBUG_Lv_TEST || debug_initialization) {
         PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale was using %p\n", __FILE__, __LINE__, old_obj);
     }
-
 #  endif
 
     if (! old_obj) {
-
 #  ifdef DEBUGGING
-
         if (DEBUG_L_TEST || debug_initialization) {
             dSAVE_ERRNO;
             PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale switching to C failed: %d\n", __FILE__, __LINE__, GET_ERRNO);
             RESTORE_ERRNO;
         }
-
 #  endif
-
         return NULL;
     }
 
 #  ifdef DEBUGGING
-
     if (DEBUG_Lv_TEST || debug_initialization) {
         PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale now using %p\n", __FILE__, __LINE__, PL_C_locale_obj);
     }
-
 #  endif
 
     /* If we weren't in a thread safe locale, set so that newlocale() below
@@ -967,24 +911,18 @@ S_emulate_setlocale(const int category,
         dSAVE_ERRNO;
 
 #  ifdef DEBUGGING
-
         if (DEBUG_L_TEST || debug_initialization) {
             PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale creating new object failed: %d\n", __FILE__, __LINE__, GET_ERRNO);
         }
-
 #  endif
 
         if (! uselocale(old_obj)) {
             SAVE_ERRNO;
-
 #  ifdef DEBUGGING
-
             if (DEBUG_L_TEST || debug_initialization) {
                 PerlIO_printf(Perl_debug_log, "%s:%d: switching back failed: %d\n", __FILE__, __LINE__, GET_ERRNO);
             }
-
 #  endif
-
         }
         RESTORE_ERRNO;
         return NULL;
@@ -1003,23 +941,17 @@ S_emulate_setlocale(const int category,
         dSAVE_ERRNO;
 
 #  ifdef DEBUGGING
-
         if (DEBUG_L_TEST || debug_initialization) {
             PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale switching to new object failed\n", __FILE__, __LINE__);
         }
-
 #  endif
 
         if (! uselocale(old_obj)) {
-
 #  ifdef DEBUGGING
-
             if (DEBUG_L_TEST || debug_initialization) {
                 PerlIO_printf(Perl_debug_log, "%s:%d: switching back failed: %d\n", __FILE__, __LINE__, GET_ERRNO);
             }
-
 #  endif
-
         }
         freelocale(new_obj);
         RESTORE_ERRNO;
@@ -1027,11 +959,9 @@ S_emulate_setlocale(const int category,
     }
 
 #  ifdef DEBUGGING
-
     if (DEBUG_Lv_TEST || debug_initialization) {
         PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale now using %p\n", __FILE__, __LINE__, new_obj);
     }
-
 #  endif
 
     /* We are done, except for updating our records (if the system doesn't keep
@@ -1040,11 +970,9 @@ S_emulate_setlocale(const int category,
      * have to find it */
 
 #  ifdef HAS_QUERYLOCALE
-
     if (strEQ(locale, "")) {
         locale = querylocale(mask, new_obj);
     }
-
 #  else
 
     /* Here, 'locale' is the return value */
@@ -1066,7 +994,6 @@ S_emulate_setlocale(const int category,
 
         /* For a single category, if it's not the same as the one in LC_ALL, we
          * nullify LC_ALL */
-
         if (PL_curlocales[LC_ALL_INDEX] && strNE(PL_curlocales[LC_ALL_INDEX], locale)) {
             Safefree(PL_curlocales[LC_ALL_INDEX]);
             PL_curlocales[LC_ALL_INDEX] = NULL;
@@ -1076,7 +1003,6 @@ S_emulate_setlocale(const int category,
         Safefree(PL_curlocales[index]);
         PL_curlocales[index] = savepv(locale);
     }
-
 #  endif
 
     return locale;
