@@ -3073,7 +3073,7 @@ PP(pp_goto)
 			else sv = AvARRAY(arg)[index];
 			SP[index+1] = sv
 			    ? r ? SvREFCNT_inc_NN(sv_2mortal(sv)) : sv
-			    : sv_2mortal(newSVavdefelem(arg, index, 1));
+			    : av_nonelem(arg, index);
 		    }
 		}
 		SP += items;
