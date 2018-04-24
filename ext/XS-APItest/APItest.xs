@@ -6898,8 +6898,8 @@ Comctl32Version()
         if (!dll)
             croak("Comctl32Version: comctl32.dll not in process???");
         hrsc = FindResource(dll,    MAKEINTRESOURCE(VS_VERSION_INFO),
-                                    MAKEINTRESOURCE(VS_FILE_INFO));
-        if (!hrsc)
+                                    MAKEINTRESOURCE((Size_t)VS_FILE_INFO));
+        if(!hrsc)
             croak("Comctl32Version: comctl32.dll no version???");
         ver = LoadResource(dll, hrsc);
         len = SizeofResource(dll, hrsc);
