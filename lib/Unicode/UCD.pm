@@ -5,7 +5,7 @@ use warnings;
 no warnings 'surrogate';    # surrogates can be inputs to this
 use charnames ();
 
-our $VERSION = '0.70_02';
+our $VERSION = '0.71_02';
 
 require Exporter;
 
@@ -3639,15 +3639,18 @@ RETRY:
                 unshift @invlist, 0;
             }
         }
-        foreach my $i (0 .. @invlist - 1) {
-            $invmap[$i] = ($i % 2 == 0) ? 'Y' : 'N'
-        }
 
-        # The map includes lines for all code points; add one for the range
-        # from 0 to the first Y.
-        if ($invlist[0] != 0) {
-            unshift @invlist, 0;
-            unshift @invmap, 'N';
+        if (@invlist) {
+            foreach my $i (0 .. @invlist - 1) {
+                $invmap[$i] = ($i % 2 == 0) ? 'Y' : 'N'
+            }
+
+            # The map includes lines for all code points; add one for the range
+            # from 0 to the first Y.
+            if ($invlist[0] != 0) {
+                unshift @invlist, 0;
+                unshift @invmap, 'N';
+            }
         }
     }
     else {
