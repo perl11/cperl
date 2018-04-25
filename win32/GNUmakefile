@@ -204,6 +204,11 @@ DEFAULT_INC_EXCLUDES_DOT := define
 #__ICC		:= define
 
 #
+# Uncomment this if you want to build everything in C++ mode
+#
+#USE_CPLUSPLUS	:= define
+
+#
 # uncomment next line if you want debug version of perl (big/slow)
 # If not enabled, we automatically try to use maximum optimization
 # with all compilers that are known to have a working optimizer.
@@ -611,6 +616,9 @@ LINK_DBG	= -s
 endif
 
 EXTRACFLAGS	=
+ifeq ($(USE_CPLUSPLUS),define)
+EXTRACFLAGS	+= $(CXX_FLAG)
+endif
 CFLAGS		= $(EXTRACFLAGS) $(INCLUDES) $(DEFINES) $(LOCDEFS) $(OPTIMIZE)
 LINK_FLAGS	= $(LINK_DBG) -L"$(INST_COREDIR)" -L"$(CCLIBDIR)"
 OBJOUT_FLAG	= -o
