@@ -371899,7 +371899,7 @@ static const UV PL__PERL_SURROGATE_invlist[] = { /* for all charsets */
 
 const char * deprecated_property_msgs[] = {
 	"",
-	"Deprecated by Unicode because surrogates should never appear in well-formed text, and therefore shouldn't be the basis for line breaking",
+	"Surrogates should never appear in well-formed text, and therefore shouldn't be the basis for line breaking",
 	"Supplanted by Line_Break property values; see www.unicode.org/reports/tr14"
 };
 
@@ -374315,7 +374315,7 @@ static const U8 WB_table[24][24] = {
 #endif	/* defined(PERL_IN_REGEXEC_C) */
 
 /* Generated from:
- * 22daf2e42dc0c7ab12076cba3bb21be2a88541edc889575c74ce12304e0fa227 lib/Unicode/UCD.pm
+ * 7b415a90fb55af611c67a8de037dc3330e7d2c9dbb0c0081160a4fd321dcf907 lib/Unicode/UCD.pm
  * ff4404ec64f308bdf7714c50f9fdf0d1d0bf3c34db4d0a67e58ef0c6f88e818f lib/unicore/ArabicShaping.txt
  * 292171a0a1c13d7e581e8781eb4cdf248243b1ab267354a63c7a14429dea2740 lib/unicore/BidiBrackets.txt
  * 8f2695cc42989a79a715ab0d2892bd0c998759180cfdfb998674447f48231940 lib/unicore/BidiMirroring.txt
@@ -374363,5 +374363,5 @@ static const U8 WB_table[24][24] = {
  * 21653d2744fdd071f9ef138c805393901bb9547cf3e777ebf50215a191f986ea lib/unicore/version
  * 4bb677187a1a64e39d48f2e341b5ecb6c99857e49d7a79cf503bd8a3c709999b regen/charset_translations.pl
  * 03e51b0f07beebd5da62ab943899aa4934eee1f792fa27c1fb638c33bf4ac6ea regen/mk_PL_charclass.pl
- * d81c145b2ac601a9af7fb2bdd71486d05a46a95c66f1aff191cb5a0543ccced5 regen/mk_invlists.pl
+ * 12f2e00d6b26ce9a0d0780bf0ce6e546ef1f1fb36781a49f0760a9edaf35eb46 regen/mk_invlists.pl
  * ex: set ro: */
