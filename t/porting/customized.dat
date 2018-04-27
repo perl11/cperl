@@ -127,13 +127,13 @@ Test::Harness cpan/Test-Harness/t/nofork.t 17a1bde6de588ca647cd89d3786e84a68164a
 Test::Harness cpan/Test-Harness/t/regression.t 864ce96aff3cac8bb92534cb1967ad4d802d485d
 Test::Harness cpan/Test-Harness/t/sample-tests/switches 350f7e96e4bfb8dbac352200d656e8f52a76ab7e
 Test::Harness cpan/Test-Harness/t/source_handler.t 1b9abe550c8c5383eddefb0811c083605cb66ba4
-Time::HiRes dist/Time-HiRes/HiRes.xs 72f4899482c936a760e904ddafc97dd5591683aa
+Time::HiRes dist/Time-HiRes/HiRes.xs b427d176fb40c069cb75c87d11a39b5df2686745
 Time::HiRes dist/Time-HiRes/t/alarm.t 17b9b7bd758859187e675f0775ad8d9dd9b47c3e
 Time::HiRes dist/Time-HiRes/t/clock.t f8647d46b260557dd7be8ffc38c14e9d65e40834
 Time::HiRes dist/Time-HiRes/t/itimer.t c0989b8987cd73b9edffdd117f2464003b3dfc1d
 Time::HiRes dist/Time-HiRes/t/nanosleep.t 11928d7130c75bfba7f8cae2b1e4af13e8628d2d
 Time::HiRes dist/Time-HiRes/t/usleep.t c5079315f1328877148d7ae1e56f292a42889d7f
-Time::HiRes dist/Time-HiRes/t/utime.t 6116e6b33d2ba8184fd310c5a607210379fca0a9
+Time::HiRes dist/Time-HiRes/t/utime.t d33f300366c9f7f9de58260a20541766ef255a63
 Time::HiRes dist/Time-HiRes/typemap 5da3f9dfd1cac452add4194888173f7b4594e933
 Win32 cpan/Win32/longpath.inc 6a81d65707d11be761285ae3e5d9ae1f91bb1444
 Win32 cpan/Win32/Win32.xs 39725c8892490ccd8fc9ea899f66af39cb9aff92
