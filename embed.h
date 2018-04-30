@@ -512,7 +512,7 @@
 #define mro_set_mro(a,b)	Perl_mro_set_mro(aTHX_ a,b)
 #define mro_set_private_data(a,b,c)	Perl_mro_set_private_data(aTHX_ a,b,c)
 #define my_atof(a)		Perl_my_atof(aTHX_ a)
-#define my_atof2(a,b)		Perl_my_atof2(aTHX_ a,b)
+#define my_atof3(a,b,c)		Perl_my_atof3(aTHX_ a,b,c)
 #define my_dirfd		Perl_my_dirfd
 #define my_exit(a)		Perl_my_exit(aTHX_ a)
 #define my_failure_exit()	Perl_my_failure_exit(aTHX)
