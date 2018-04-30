@@ -3869,12 +3869,12 @@ PERL_CALLCONV NV	Perl_my_atof(pTHX_ const char *s)
 #define PERL_ARGS_ASSERT_MY_ATOF	\
 	assert(s)
 
-PERL_CALLCONV char*	Perl_my_atof2(pTHX_ const char *s, NV* value)
+PERL_CALLCONV char*	Perl_my_atof2(pTHX_ const char *orig, NV* value)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_MY_ATOF2	\
-	assert(s); assert(value)
+	assert(orig); assert(value)
 
 PERL_CALLCONV OP *	Perl_my_attrs(pTHX_ OP *o, OP *attrs)
 			__attribute__nonnull__(pTHX_1);
