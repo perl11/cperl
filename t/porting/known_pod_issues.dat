@@ -22,6 +22,7 @@ Apache::SmallProf
 Archive::Extract
 Array::Base
 atan2(3)
+atoi(3)
 Attribute::Constant
 autobox
 B::Bytecode
@@ -280,6 +281,7 @@ strftime(3)
 strictures
 String::Base
 String::Scanf
+strtol(3)
 Switch
 tar(1)
 Template::Declare

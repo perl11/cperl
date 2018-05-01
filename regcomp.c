@@ -11264,6 +11264,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp, U32 depth)
                         RExC_parse++;
                         is_neg = TRUE;
                     }
+                    endptr = RExC_end;
                     if (grok_atoUV(RExC_parse, &unum, &endptr)
                         && unum <= I32_MAX
                     ) {
@@ -11502,6 +11503,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp, U32 depth)
                     }
                     else if (RExC_parse[0] >= '1' && RExC_parse[0] <= '9' ) {
                         UV uv;
+                        endptr = RExC_end;
                         if (grok_atoUV(RExC_parse, &uv, &endptr)
                             && uv <= I32_MAX
                         ) {
@@ -11537,6 +11539,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp, U32 depth)
                     /* (?(1)...) */
 		    char c;
                     UV uv;
+                    endptr = RExC_end;
                     if (grok_atoUV(RExC_parse, &uv, &endptr)
                         && uv <= I32_MAX
                     ) {
@@ -12051,6 +12054,7 @@ S_regpiece(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 		maxpos = next;
 	    RExC_parse++;
             if (isDIGIT(*RExC_parse)) {
+                endptr = RExC_end;
                 if (!grok_atoUV(RExC_parse, &uv, &endptr))
                     vFAIL("Invalid quantifier in {,}");
                 if (uv >= REG_INFTY)
@@ -12064,6 +12068,7 @@ S_regpiece(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 	    else
 		maxpos = RExC_parse;
             if (isDIGIT(*maxpos)) {
+                endptr = RExC_end;
                 if (!grok_atoUV(maxpos, &uv, &endptr))
                     vFAIL("Invalid quantifier in {,}");
                 if (uv >= REG_INFTY)
@@ -12855,9 +12860,9 @@ S_new_regcurly(const char *s, const char *e)
  * in which case return I32_MAX (rather than possibly 32-bit wrapping) */
 
 static I32
-S_backref_value(char *p)
+S_backref_value(char *p, char *e)
 {
-    const char* endptr;
+    const char* endptr = e;
     UV val;
     if (grok_atoUV(p, &val, &endptr) && val <= I32_MAX)
         return (I32)val;
@@ -13407,7 +13412,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                     if (RExC_parse >= RExC_end) {
                         goto unterminated_g;
                     }
-                    num = S_backref_value(RExC_parse);
+                    num = S_backref_value(RExC_parse, RExC_end);
                     if (num == 0)
                         vFAIL("Reference to invalid group 0");
                     else if (num == I32_MAX) {
@@ -13425,7 +13430,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                     }
                 }
                 else {
-                    num = S_backref_value(RExC_parse);
+                    num = S_backref_value(RExC_parse, RExC_end);
                     /* bare \NNN might be backref or octal - if it is larger
                      * than or equal RExC_npar then it is assumed to be an
                      * octal escape. Note RExC_npar is +1 from the actual
@@ -13809,7 +13814,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                         /* NOTE, RExC_npar is 1 more than the actual number of
                          * parens we have seen so far, hence the < RExC_npar below. */
 
-                        if ( !isDIGIT(p[1]) || S_backref_value(p) < RExC_npar)
+                        if ( !isDIGIT(p[1]) || S_backref_value(p, RExC_end) < RExC_npar)
                         {  /* Not to be treated as an octal constant, go
                                    find backref */
                             --p;
