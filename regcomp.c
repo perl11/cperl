@@ -757,21 +757,21 @@ static const scan_data_t zero_scan_data = {
 } STMT_END
 
 #define	vFAIL4(m,a1,a2,a3) STMT_START {			\
-    if (PASS2)					\
+    if (PASS2)					        \
 	SAVEFREESV(RExC_rx_sv);				\
     Simple_vFAIL4(m, a1, a2, a3);			\
 } STMT_END
 
 /* A specialized version of vFAIL2 that works with UTF8f */
 #define vFAIL2utf8f(m, a1) STMT_START {             \
-    if (!SIZE_ONLY)                                 \
+    if (PASS2)                                      \
         SAVEFREESV(RExC_rx_sv);                     \
     S_re_croak2(aTHX_ UTF, m, REPORT_LOCATION, a1,  \
             REPORT_LOCATION_ARGS(RExC_parse));      \
 } STMT_END
 
 #define vFAIL3utf8f(m, a1, a2) STMT_START {             \
-    if (!SIZE_ONLY)                                     \
+    if (PASS2)					        \
         SAVEFREESV(RExC_rx_sv);                         \
     S_re_croak2(aTHX_ UTF, m, REPORT_LOCATION, a1, a2,  \
             REPORT_LOCATION_ARGS(RExC_parse));          \
@@ -8483,17 +8483,17 @@ S_reg_scan_name(pTHX_ RExC_state_t *pRExC_state, U32 flags)
             )                                                   \
         );                                                      \
     } else                                                      \
-        Perl_re_printf( aTHX_ "%16s","");                                   \
+        Perl_re_printf( aTHX_ "%16s","");                       \
                                                                 \
-    if (SIZE_ONLY)                                              \
+    if (PASS1)                                                  \
        num = RExC_size + 1;                                     \
     else                                                        \
        num=REG_NODE_NUM(RExC_emit);                             \
     if (RExC_lastnum!=num)                                      \
-       Perl_re_printf( aTHX_ "|%4d",num);                                   \
+        Perl_re_printf( aTHX_ "|%4d",num);                      \
     else                                                        \
-       Perl_re_printf( aTHX_ "|%4s","");                                    \
-    Perl_re_printf( aTHX_ "|%*s%-4s",                                       \
+        Perl_re_printf( aTHX_ "|%4s","");                       \
+    Perl_re_printf( aTHX_ "|%*s%-4s",                           \
         (int)((depth*2)), "",                                   \
         (funcname)                                              \
     );                                                          \
@@ -8505,11 +8505,11 @@ S_reg_scan_name(pTHX_ RExC_state_t *pRExC_state, U32 flags)
 
 #define DEBUG_PARSE(funcname)     DEBUG_PARSE_r({           \
     DEBUG_PARSE_MSG((funcname));                            \
-    Perl_re_printf( aTHX_ "%4s","\n");                                  \
+    Perl_re_printf( aTHX_ "%4s","\n");                      \
 })
 #define DEBUG_PARSE_FMT(funcname,fmt,args)     DEBUG_PARSE_r({\
     DEBUG_PARSE_MSG((funcname));                            \
-    Perl_re_printf( aTHX_ fmt "\n",args);                               \
+    Perl_re_printf( aTHX_ fmt "\n",args);                   \
 })
 
 /* This section of code defines the inversion list object and its methods.  The
@@ -10652,7 +10652,7 @@ S_handle_named_backref(pTHX_ RExC_state_t *pRExC_state,
     regnode *ret;
     char* name_start = RExC_parse;
     U32 num = 0;
-    SV *sv_dat = reg_scan_name(pRExC_state, SIZE_ONLY
+    SV *sv_dat = reg_scan_name(pRExC_state, PASS1
                                             ? REG_RSN_RETURN_NULL
                                             : REG_RSN_RETURN_DATA);
     GET_RE_DEBUG_FLAGS_DECL;
@@ -10664,7 +10664,7 @@ S_handle_named_backref(pTHX_ RExC_state_t *pRExC_state,
         vFAIL2("Sequence %.3s... not terminated",parse_start);
     }
 
-    if (!SIZE_ONLY) {
+    if (PASS2) {
         num = add_data( pRExC_state, STR_WITH_LEN("S"));
         RExC_rxi->data->data[num]=(void*)sv_dat;
         SvREFCNT_inc_simple_void(sv_dat);
@@ -11048,7 +11048,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
                 ret = reg2Lanode(pRExC_state, op, 0, internal_argval);
             }
             RExC_seen |= REG_VERBARG_SEEN;
-            if ( ! SIZE_ONLY ) {
+            if (PASS2) {
                 if (start_arg) {
                     SV *sv = newSVpvn( start_arg,
                                        RExC_parse - start_arg);
@@ -11123,7 +11123,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
             case '\'':          /* (?'...') */
                     name_start = RExC_parse;
                     svname = reg_scan_name(pRExC_state,
-                        SIZE_ONLY    /* reverse test from the others */
+                        PASS1    /* reverse test from the others */
                         ? REG_RSN_RETURN_NAME
                         : REG_RSN_RETURN_NULL);
 		    if (   RExC_parse == name_start
@@ -11133,7 +11133,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
 		        vFAIL2("Sequence (?%c... not terminated",
 		            paren=='>' ? '<' : paren);
                     }
-		    if (SIZE_ONLY) {
+		    if (PASS1) {
 			HE *he_str;
 			SV *sv_dat = NULL;
                         if (!svname) /* shouldn't happen */
@@ -11248,7 +11248,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
               named_recursion:
                 {
     		    SV *sv_dat = reg_scan_name(pRExC_state,
-    		        SIZE_ONLY ? REG_RSN_RETURN_NULL : REG_RSN_RETURN_DATA);
+    		        PASS1 ? REG_RSN_RETURN_NULL : REG_RSN_RETURN_DATA);
     		     num = sv_dat ? *((I32 *)SvPVX(sv_dat)) : 0;
                 }
                 if (RExC_parse >= RExC_end || *RExC_parse != ')')
@@ -11326,7 +11326,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
                  */
 
                 ret = reg2Lanode(pRExC_state, GOSUB, num, RExC_recurse_count);
-                if (!SIZE_ONLY) {
+                if (PASS2) {
 		    if (num < 0 || num > (I32)RExC_rx->nparens) {
 			RExC_parse++;
 			vFAIL("Reference to nonexistent group");
@@ -11479,7 +11479,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
 	            char *name_start= RExC_parse++;
 	            U32 num = 0;
 	            SV *sv_dat=reg_scan_name(pRExC_state,
-	                SIZE_ONLY ? REG_RSN_RETURN_NULL : REG_RSN_RETURN_DATA);
+	                PASS1 ? REG_RSN_RETURN_NULL : REG_RSN_RETURN_DATA);
 	            if (   RExC_parse == name_start
                         || RExC_parse >= RExC_end
                         || *RExC_parse != ch)
@@ -11529,19 +11529,19 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
 		        SV *sv_dat;
 		        RExC_parse++;
 		        sv_dat = reg_scan_name(pRExC_state,
-                            SIZE_ONLY
+                            PASS1
                             ? REG_RSN_RETURN_NULL
                             : REG_RSN_RETURN_DATA);
 
-                        /* we should only have a false sv_dat when
-                         * SIZE_ONLY is true, and we always have false
+                        /* we should only have a false sv_dat on PASS1 (when
+                         * SIZE_ONLY is true), and we always have false
                          * sv_dat when SIZE_ONLY is true.
                          * reg_scan_name() will VFAIL() if the name is
-                         * unknown when SIZE_ONLY is false, and otherwise
+                         * unknown on PASS1 when SIZE_ONLY is false, and otherwise
                          * will return something, and when SIZE_ONLY is
                          * true, reg_scan_name() just parses the string,
                          * and doesnt return anything. (in theory) */
-                        assert(SIZE_ONLY ? !sv_dat : !!sv_dat);
+                        assert(PASS1 ? !sv_dat : !!sv_dat);
 
                         if (sv_dat)
                             parno = 1 + *((I32 *)SvPVX(sv_dat));
@@ -11710,7 +11710,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
             Set_Node_Offset_To_R(br-RExC_emit_start, parse_start-RExC_start);
         }
 	have_branch = 1;
-	if (SIZE_ONLY)
+	if (PASS1)
 	    RExC_extralen += 1;		/* For BRANCHJ-BRANCH. */
     }
     else if (paren == ':') {
@@ -11730,7 +11730,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
             /* Append to the previous. */
             REGTAIL(pRExC_state, NEXTOPER(NEXTOPER(lastbr)), ender);
 	}
-	if (SIZE_ONLY)
+	if (PASS1)
 	    RExC_extralen += 2;		/* Account for LONGJMP. */
 	nextchar(pRExC_state);
 	if (freeze_paren) {
@@ -11788,7 +11788,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
 	    break;
 	case 0:
 	    ender = reg_node(pRExC_state, END);
-	    if (!SIZE_ONLY) {
+	    if (PASS2) {
                 assert(!RExC_end_op); /* there can only be one! */
                 RExC_end_op = ender;
                 if (RExC_close_parens) {
@@ -11801,7 +11801,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
             }
 	    break;
 	}
-        DEBUG_PARSE_r(if (!SIZE_ONLY) {
+        DEBUG_PARSE_r(if (PASS2) {
             DEBUG_PARSE_MSG("lsbr");
             regprop(RExC_rx, RExC_mysv1, lastbr, NULL, pRExC_state);
             regprop(RExC_rx, RExC_mysv2, ender, NULL, pRExC_state);
@@ -11952,7 +11952,7 @@ S_regbranch(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, I32 first, U32 depth)
         }
     }
 
-    if (!first && SIZE_ONLY)
+    if (!first && PASS1)
 	RExC_extralen += 1;			/* BRANCHJ */
 
     *flagp = WORST;			/* Tentatively. */
@@ -12141,7 +12141,7 @@ S_regpiece(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 		if (PASS2 && RExC_extralen)
 		    NEXT_OFF(ret) = 3;	/* Go over NOTHING to LONGJMP. */
                 REGTAIL(pRExC_state, ret, reg_node(pRExC_state, NOTHING));
-		if (SIZE_ONLY)
+		if (PASS1)
 		    RExC_whilem_seen++, RExC_extralen += 3;
                 MARK_NAUGHTY_EXP(1, 4);     /* compound interest */
 	    }
@@ -12445,7 +12445,7 @@ S_grok_bslash_N(pTHX_ RExC_state_t *pRExC_state,
             /* No errors in the first pass (See [perl
              * #122671].)  We let the code below find the
              * errors when there are multiple chars. */
-            | ((SIZE_ONLY)
+            | ((PASS1)
                ? PERL_SCAN_SILENT_ILLDIGIT
                : 0);
 
@@ -12769,7 +12769,7 @@ S_alloc_maybe_populate_EXACT(pTHX_ RExC_state_t *pRExC_state,
         }
     }
 
-    if (SIZE_ONLY) {
+    if (PASS1) {
         RExC_size += STR_SZ(len);
     }
     else {
@@ -13458,7 +13458,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                         vFAIL("Unterminated \\g{...} pattern");
                     RExC_parse++;
                 }
-                if (!SIZE_ONLY) {
+                if (PASS2) {
                     if (num > (I32)RExC_rx->nparens)
                         vFAIL("Reference to nonexistent group");
                 }
@@ -13563,7 +13563,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 
             /* In pass1, folded, we use a temporary buffer instead of the
              * actual node, as the node doesn't exist yet */
-	    s = (SIZE_ONLY && FOLD) ? foldbuf : STRING(ret);
+	    s = (PASS1 && FOLD) ? foldbuf : STRING(ret);
 
             s0 = s;
 
@@ -13838,7 +13838,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 			    FAIL("Trailing \\");
 			/* FALLTHROUGH */
 		    default:
-			if (!SIZE_ONLY&& isALPHANUMERIC(*p)) {
+			if (PASS2&& isALPHANUMERIC(*p)) {
 			    /* Include any left brace following the alpha to emphasize
 			     * that it could be part of an escape at some point
 			     * in the future */
@@ -13932,7 +13932,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                     /* In the sizing pass, we need only the size of the
                      * character we are appending, hence we can delay getting
                      * its representation until PASS2. */
-                    if (SIZE_ONLY) {
+                    if (PASS1) {
                         if (UTF && ! UVCHR_IS_INVARIANT(ender)) {
                             const STRLEN unilen = UVCHR_SKIP(ender);
                             s += unilen;
@@ -15351,7 +15351,7 @@ S_handle_regex_sets(pTHX_ RExC_state_t *pRExC_state, SV** return_invlist,
      * upon an unescaped ']' that isn't one ending a regclass.  To do both
      * these things, we need to realize that something preceded by a backslash
      * is escaped, so we have to keep track of backslashes */
-    if (SIZE_ONLY) {
+    if (PASS1) {
         UV nest_depth = 0; /* how many nested (?[...]) constructs */
 
         while (RExC_parse < RExC_end) {
@@ -16496,7 +16496,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
                     : ANYOF,
                    0);
 
-    if (SIZE_ONLY) {
+    if (PASS1) {
 	RExC_size += ANYOF_SKIP;
 	listsv = UNDEF; /* For code scanners: listsv always non-NULL. */
     }
@@ -17134,7 +17134,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
                  * by locale, and hence are dealt with separately */
                 if (! need_class) {
                     need_class = 1;
-                    if (SIZE_ONLY) {
+                    if (PASS1) {
                         RExC_size += ANYOF_POSIXL_SKIP - ANYOF_SKIP;
                     }
                     else {
@@ -17869,7 +17869,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
              * the parse */
             const char * cur_parse = RExC_parse;
             RExC_parse = (char *)orig_parse;
-            if (SIZE_ONLY) {
+            if (PASS1) {
                 if (! LOC) {
 
                     /* To get locale nodes to not use the full ANYOF size would
@@ -17919,7 +17919,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
         }
     }
 
-    if (SIZE_ONLY)
+    if (PASS1)
         return ret;
     /****** !SIZE_ONLY (Pass 2) AFTER HERE *********/
 
@@ -18343,7 +18343,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
         SvREFCNT_dec(swash);
 
         /* Discard the generated node */
-        if (SIZE_ONLY) {
+        if (PASS1) {
             RExC_size = orig_size;
         }
         else {
@@ -19143,7 +19143,7 @@ S_regnode_guts(pTHX_ RExC_state_t *pRExC_state, const U8 op, const STRLEN extra_
 
     assert(extra_size >= regarglen[op]);
 
-    if (SIZE_ONLY) {
+    if (PASS1) {
 	SIZE_ALIGN(RExC_size);
 	RExC_size += 1 + extra_size;
 	return(ret);
@@ -19260,7 +19260,7 @@ S_reginsert(pTHX_ RExC_state_t *pRExC_state, U8 op, regnode *operand, U32 depth)
     PERL_UNUSED_ARG(depth);
 /* (PL_regkind[(U8)op] == CURLY ? EXTRA_STEP_2ARGS : 0); */
     DEBUG_PARSE_FMT("inst"," - %s",PL_reg_name[op]);
-    if (SIZE_ONLY) {
+    if (PASS1) {
 	RExC_size += size;
 	return;
     }
@@ -19358,7 +19358,7 @@ S_regtail(pTHX_ RExC_state_t * pRExC_state,
     PERL_UNUSED_ARG(depth);
 #endif
 
-    if (SIZE_ONLY)
+    if (PASS1)
 	return;
 
     /* Find last node. */
@@ -19418,7 +19418,7 @@ S_regtail_study(pTHX_ RExC_state_t *pRExC_state, regnode *p,
     PERL_ARGS_ASSERT_REGTAIL_STUDY;
 
 
-    if (SIZE_ONLY)
+    if (PASS1)
         return exact;
 
     /* Find last node. */
