@@ -374359,15 +374359,9 @@ static const U8 WB_table[24][24] = {
  * be0f129691d479aa38646e4ca0ec1ee576ae7f75b0300a5624a7fa862fa8abba lib/unicore/extracted/DLineBreak.txt
  * 92449d354d9f6b6f2f97a292ebb59f6344ffdeb83d120d7d23e569c43ba67cd5 lib/unicore/extracted/DNumType.txt
  * e3a319527153b0c6c0c549b40fc6f3a01a7a0dcd6620784391db25901df3b154 lib/unicore/extracted/DNumValues.txt
-<<<<<<< HEAD
- * 93285b4a741ec2b73e1006cdb30a76e9fff59b88f537c96b853381731f30b75d lib/unicore/mktables
-||||||| parent of 46958d96a9... mktables: Add, change some comments
- * b4e74591313b4ffcf8805a45b1a767f8cb6463a11ab401b646e08531c1d5a352 lib/unicore/mktables
-=======
- * 8fb212fd4f5c7d6f46733274784f732bb32d91330ab1d9f50b06d34f4ce6dab0 lib/unicore/mktables
->>>>>>> 46958d96a9... mktables: Add, change some comments
+ * bddccd3e5c0a3f52d56353274223f788485b537ebedb2a228284ca209515eae1 lib/unicore/mktables
  * 21653d2744fdd071f9ef138c805393901bb9547cf3e777ebf50215a191f986ea lib/unicore/version
  * 4bb677187a1a64e39d48f2e341b5ecb6c99857e49d7a79cf503bd8a3c709999b regen/charset_translations.pl
  * 03e51b0f07beebd5da62ab943899aa4934eee1f792fa27c1fb638c33bf4ac6ea regen/mk_PL_charclass.pl
- * c1cd0b2b447e5a2b7a71fce3a5ef65c4ce0caafd534946f02ec2260f15bb14e5 regen/mk_invlists.pl
+ * 119dee2d706b1e9b641ff539eb4c1070c85da151628e50c0de74e9f65f68d58f regen/mk_invlists.pl
  * ex: set ro: */
