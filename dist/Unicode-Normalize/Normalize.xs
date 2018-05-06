@@ -340,7 +340,7 @@ static char* sv_2pvunicode(pTHX_ SV *sv, STRLEN *lp)
     if (!SvUTF8(sv)) {
 	SV* tmpsv = sv_2mortal(newSVpvn(s, len));
 	if (!SvPOK(tmpsv))
-	    s = SvPV_force(tmpsv,len);
+	    (void)SvPV_force(tmpsv,len);
 	sv_utf8_upgrade(tmpsv);
 	s = SvPV(tmpsv,len);
     }
