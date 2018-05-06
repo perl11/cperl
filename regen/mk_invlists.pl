@@ -28,8 +28,9 @@ use re "/aa";
 
 my $VERSION_DATA_STRUCTURE_TYPE = 148565664;
 
-# charclass_invlists.h now also has a partial implementation of inversion
-# maps; enough to generate tables for the LB line break properties, such as GCB,
+# charclass_invlists.h now also contains inversion maps and enum definitions
+# for those maps that have a finite number of possible values;
+# enough to generate tables for the LB line break properties, such as GCB,
 # but also for IVCF, SB, SC, SCX, Case_Folding, Lowercase_Mapping, Simple_Case_Folding,
 # Titlecase_Mapping, Uppercase_Mapping.
 
