@@ -2322,7 +2322,7 @@ incr_sub_inclusive_time_ix(pTHX_ void *subr_entry_ix_void)
 static CV *
 resolve_sub_to_cv(pTHX_ SV *sv, GV **subname_gv_ptr)
 {
-    GV *dummy_gv;
+    GV *dummy_gv = NULL;
     HV *stash;
     CV *cv;
 
