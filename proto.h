@@ -1531,6 +1531,12 @@ PERL_CALLCONV void	Perl_dump_sub(pTHX_ const GV* gv)
 #define PERL_ARGS_ASSERT_DUMP_SUB	\
 	assert(gv)
 
+PERL_CALLCONV void	Perl_dump_sub_cv(pTHX_ const CV* cv)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_DUMP_SUB_CV	\
+	assert(cv)
+
 PERL_CALLCONV void	Perl_dump_sub_perl(pTHX_ const GV* gv, bool justperl)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);

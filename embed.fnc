@@ -558,6 +558,7 @@ XEpd	|void	|cop_dump	|NN const OP *o
 #endif
 Ap	|void	|pmop_dump	|NULLOK PMOP* pm
 Ap	|void	|dump_sub	|NN const GV* gv
+Ap	|void	|dump_sub_cv	|NN const CV* cv
 Ap	|void	|dump_sub_perl	|NN const GV* gv|bool justperl
 Apd	|void	|fbm_compile	|NN SV* sv|U32 flags
 ApdR	|char*	|fbm_instr	|NN unsigned char* big|NN unsigned char* bigend \

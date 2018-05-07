@@ -637,6 +637,11 @@ default now to C<-Uuseithreads>.
 
 =item *
 
+A new API function L<perlapi/dump_sub_cv> has been added
+to avoid faking a slim CV to a full GV. cperl-only.
+
+=item *
+
 A new compiler C<#define>, C<dTHX_DEBUGGING>. has been added.  This is
 useful for XS or C code that only need the thread context because their
 debugging statements that get compiled only under C<-DDEBUGGING> need
@@ -681,6 +686,10 @@ converted from SVOP's to PADOP's threaded.
 =head1 Selected Bug Fixes
 
 =over 4
+
+=item *
+
+C<-Dx> has been fixed to accept slim CVs without fake GV.
 
 =item *
 

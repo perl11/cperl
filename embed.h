@@ -162,6 +162,7 @@
 #define dump_packsubs(a)	Perl_dump_packsubs(aTHX_ a)
 #define dump_packsubs_perl(a,b)	Perl_dump_packsubs_perl(aTHX_ a,b)
 #define dump_sub(a)		Perl_dump_sub(aTHX_ a)
+#define dump_sub_cv(a)		Perl_dump_sub_cv(aTHX_ a)
 #define dump_sub_perl(a,b)	Perl_dump_sub_perl(aTHX_ a,b)
 #define dump_vindent(a,b,c,d)	Perl_dump_vindent(aTHX_ a,b,c,d)
 #define eval_pv(a,b)		Perl_eval_pv(aTHX_ a,b)

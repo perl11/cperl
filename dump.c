@@ -823,8 +823,11 @@ Perl_dump_packsubs_perl(pTHX_ const HV *stash, bool justperl)
 
 /*
 =for apidoc dump_sub
-Dumps the perl-only SUB to C<STDERR>.
-See L</dump_sub_perl>.
+Dumps the perl-only SUB to C<STDERR>. This accepts only a GV, not a CV or CVREF.
+A CVREF will be upgraded to a full GV.
+Rather use L</dump_sub_cv> instead, cperl-only.
+
+See also L</dump_sub_perl>.
 
 =cut
 */
@@ -833,8 +836,47 @@ Perl_dump_sub(pTHX_ const GV *gv)
 {
     PERL_ARGS_ASSERT_DUMP_SUB;
     if (SvROK(gv) && SvTYPE(SvRV(gv)) == SVt_PVCV)
-        (void)CvGV(SvRV(gv)); /* unfake a fake GV */
-    dump_sub_perl(gv, FALSE);
+        dump_sub_cv((CV*)SvRV(gv));
+    else
+        dump_sub_perl(gv, FALSE);
+}
+
+/*
+=for apidoc dump_sub_cv
+Dumps the SUB to C<STDERR>. This accepts only a CV, not a GV or CVREF.
+cperl-only.
+
+See also L</dump_sub>.
+
+=cut
+*/
+void
+Perl_dump_sub_cv(pTHX_ const CV *cv)
+{
+    SV *tmpsv;
+    const char * name;
+    STRLEN len;
+    int isutf8;
+    PERL_ARGS_ASSERT_DUMP_SUB_CV;
+
+    tmpsv = newSVpvs_flags("", SVs_TEMP);
+    name = CvNAMEPV(cv);
+    len = name ? HEK_LEN(CvNAME_HEK(cv)) : 0;
+    isutf8 = name ? HEK_UTF8(CvNAME_HEK(cv)) : 0;
+    Perl_dump_indent(aTHX_ 0, Perl_debug_log, "\n%s %s = ",
+                     CvMETHOD(cv)?"METHOD":CvMULTI(cv)?"MULTI":"SUB",
+                     generic_pv_escape(tmpsv, name, len, isutf8));
+    SV_SET_STRINGIFY_FLAGS(tmpsv,CvFLAGS(cv),cv_flags_names);
+    Perl_dump_indent(aTHX_ 0, Perl_debug_log, "\n    CVFLAGS = 0x%" UVxf " (%s)\n",
+                     (UV)CvFLAGS(cv), SvPVX_const(tmpsv));
+    if (CvISXSUB(cv))
+	Perl_dump_indent(aTHX_ 0, Perl_debug_log, "(xsub 0x%" UVxf " %d)\n",
+	    PTR2UV(CvXSUB(cv)),
+	    (int)CvXSUBANY(cv).any_i32);
+    else if (CvROOT(cv))
+	op_dump_cv(CvROOT(cv), cv);
+    else
+	Perl_dump_indent(aTHX_ 0, Perl_debug_log, "<undef>\n");
 }
 
 /*
