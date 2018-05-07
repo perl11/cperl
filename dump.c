@@ -832,6 +832,8 @@ void
 Perl_dump_sub(pTHX_ const GV *gv)
 {
     PERL_ARGS_ASSERT_DUMP_SUB;
+    if (SvROK(gv) && SvTYPE(SvRV(gv)) == SVt_PVCV)
+        (void)CvGV(SvRV(gv)); /* unfake a fake GV */
     dump_sub_perl(gv, FALSE);
 }
 
