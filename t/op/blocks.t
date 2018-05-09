@@ -164,12 +164,26 @@ fresh_perl_is(
 );
 
 SKIP: {
-    skip "VMS doesn't have the perl #2754 bug", 1 if $^O eq 'VMS';
+    skip "VMS doesn't have the perl #2754 bug", 3 if $^O eq 'VMS'; #cperl: but why skipping then?
     fresh_perl_is(
         "$testblocks BEGIN { exit 0; }",
         "begin\nunitcheck\ncheck\ninit\nend",
         {},
         "BEGIN{exit 0} doesn't exit yet"
+    );
+
+    fresh_perl_is(
+        "$testblocks UNITCHECK { exit 0; }",
+        "begin\nunitcheck\ncheck\ninit\nmain\nend",
+        {},
+        "UNITCHECK{exit 0} doesn't exit yet"
+    );
+
+    fresh_perl_is(
+        "$testblocks CHECK { exit 0; }",
+        "begin\nunitcheck\ncheck\ninit\nmain\nend",
+        {},
+        "CHECK{exit 0} doesn't exit yet"
     );
 }
 
@@ -186,21 +200,6 @@ fresh_perl_like(
     {},
     "BEGIN{die} should exit"
 );
-
-SKIP: {
-  skip "VMS doesn't have the perl #2754 bug", 2 if $^O eq 'VMS'; #cperl: but why skipping then?
-  TODO: {
-    local $TODO = '[perl #2754] exit(0)';
-    fresh_perl_is("$testblocks UNITCHECK { exit 0; }",
-                  "begin\nunitcheck\ncheck\nend",
-                  {},
-                  "UNITCHECK{exit 0} should exit");
-    fresh_perl_is("$testblocks CHECK { exit 0; }",
-                  "begin\nunitcheck\ncheck\nend",
-                  {},
-                  "CHECK{exit 0} should exit");
-  }
-}
 
 fresh_perl_is(
     "$testblocks UNITCHECK { exit 1; }",
