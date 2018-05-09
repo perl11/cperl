@@ -6,7 +6,7 @@ use XSLoader ();
 use strict;
 use warnings;
 
-our $VERSION = "1.40_02";
+our $VERSION = "1.41_02";
 our $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 XSLoader::load 'IO', $XS_VERSION;
@@ -54,7 +54,7 @@ in one go.  The IO modules belonging to the core are:
 
 Some other IO modules don't belong to the perl core but can be loaded
 as well if they have been installed from CPAN.  You can discover which
-ones exist by searching for "^IO::" on http://search.cpan.org.
+ones exist by searching for "^IO::" on L<http://search.cpan.org>.
 
 For more information on any of these modules, please see its respective
 documentation.
