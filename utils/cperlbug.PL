@@ -1179,7 +1179,7 @@ Type C<perl -v> at the command line to find out.
 
 =item Are you running the latest released version of cperl?
 
-Look at http://perl11.org/cperl to find out.  If you are not using the
+Look at L<http://perl11.org/cperl> to find out.  If you are not using the
 latest released version, please try to replicate your bug on the
 latest stable release.
 
