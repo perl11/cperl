@@ -3,7 +3,7 @@ package File::Spec::Win32;
 use strict;
 require File::Spec::Unix;
 
-our $VERSION = '4.78c'; # modernized
+our $VERSION = '4.79c'; # modernized
 #$VERSION =~ tr/_//;
 $VERSION =~ s/c$//;
 
@@ -79,7 +79,7 @@ sub tmpdir ($self) {
 
 Now independent on GetVolumeInformation() $ouFsFlags == FS_CASE_SENSITIVE,
 Since XP FS_CASE_SENSITIVE is effectively disabled for the NT subsubsystem.
-See http://cygwin.com/ml/cygwin/2007-07/msg00891.html
+See L<http://cygwin.com/ml/cygwin/2007-07/msg00891.html>
 GetVolumeInformation() is a major performance hog.
 
 Returns: 1
