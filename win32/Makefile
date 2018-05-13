@@ -124,7 +124,7 @@ USE_NO_REGISTRY = define
 #
 # uncomment exactly one of the following
 #
-# Visual C++ 6.x (aka Visual C++ 98)
+# Visual C++ 6.0 (aka Visual C++ 98)
 #CCTYPE		= MSVC60
 # Visual C++ .NET 2002/2003 (aka Visual C++ 7.0/7.1) (full version)
 #CCTYPE		= MSVC70
@@ -502,7 +502,12 @@ INST_HTML	= $(INST_TOP)$(INST_VER)\html
 # Programs to compile, build .lib files and link
 #
 
-!IF "$(__ICC)" != "define"
+#poison the recipe if no CCTYPE is set, and delete mini config.h if it was
+#written with no sane CC version set so the world is rebuilt
+!IF "$(CCTYPE)" == ""
+CC		= @echo CCTYPE makefile variable not set && del mini\.exists && exit 1 &&
+LINK32	= @echo CCTYPE makefile variable not set && del mini\.exists && exit 1 &&
+!ELSE IF "$(__ICC)" != "define"
 CC		= cl
 LINK32		= link
 !ELSE
