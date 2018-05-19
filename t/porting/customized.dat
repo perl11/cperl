@@ -4,7 +4,7 @@ Archive::Tar cpan/Archive-Tar/t/90_symlink.t 66a29edeff869c6569051aaecfc59b66244
 B::C cpan/B-C/t/test10 0b3ab672868ee49e8539649aad1ad8c940c4c420
 CPAN cpan/CPAN/lib/App/Cpan.pm fcfc8800fa3dbff061da3688ad6a6fdd3716fbc8
 CPAN cpan/CPAN/lib/CPAN.pm 0eb7416798046db5d8f923de1861280698e96634
-CPAN cpan/CPAN/lib/CPAN/Distribution.pm cbafff5b461e23ff88547875d746e7f59f8be8f3
+CPAN cpan/CPAN/lib/CPAN/Distribution.pm 504ffb6195ec4f60e3146b83f4ebb2cd7155d1f4
 CPAN cpan/CPAN/lib/CPAN/FirstTime.pm f65d8af479f6737abca6aace1dacdfbcfdc0fadc
 CPAN cpan/CPAN/lib/CPAN/Version.pm 8f5144fc8c46a1eb9c1b87e5050fc2c2b3506ea4
 CPAN::Meta dist/CPAN-Meta/lib/CPAN/Meta.pm b0f88791eb04e1d0071dbd89f2773fd2a1a14df1
