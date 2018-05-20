@@ -10166,6 +10166,14 @@ Perl__is_grapheme(pTHX_ const U8 * strbeg, const U8 * s, const U8 * strend, cons
 
     PERL_ARGS_ASSERT__IS_GRAPHEME;
 
+    if (   UNLIKELY(UNICODE_IS_SUPER(cp))
+        || UNLIKELY(UNICODE_IS_NONCHAR(cp)))
+    {
+        /* These are considered graphemes */
+        return TRUE;
+    }
+
+    /* Otherwise, unassigned code points are forbidden */
     index = _invlist_search(PL_Assigned_invlist, cp);
     /* Unassigned code points are forbidden */
     if (UNLIKELY(index < 0 ||

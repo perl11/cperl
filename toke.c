@@ -11475,17 +11475,11 @@ S_scan_str(pTHX_ char *start, int keep_bracketed_quoted, int keep_delims, int re
         termlen = 1;
     }
     else {
-        termcode = utf8_to_uvchr_buf((U8*)s, (U8*)PL_bufend, &termlen);
-        if (check_grapheme) {
-            if (   UNLIKELY(UNICODE_IS_SUPER(termcode))
-                || UNLIKELY(UNICODE_IS_NONCHAR(termcode)))
-            {
-                /* These are considered graphemes, and since the ending
-                 * delimiter will be the same, we don't have to check the other
-                 * end */
-                check_grapheme = FALSE;
-            }
-            else if (UNLIKELY(!_is_grapheme((U8*)start, (U8*)s, (U8*)PL_bufend,
+	termcode = utf8_to_uvchr_buf((U8*)s, (U8*)PL_bufend, &termlen);
+        if (UTF) {
+                 if (UNLIKELY(! _is_grapheme((U8 *) start,
+                                             (U8 *) s,
+                                             (U8 *) PL_bufend,
                                              termcode)))
             {
                 Perl_croak(aTHX_ "%s", non_grapheme_msg);
