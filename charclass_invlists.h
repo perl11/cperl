@@ -395291,7 +395291,7 @@ static const U8 WB_table[23][23] = {
 #define MAX_FOLD_FROMS 3
 
 /* Generated from:
- * a816534cdc865dbbae2428a35441c7582b137bcba96192a334d75eb7d762adba lib/Unicode/UCD.pm
+ * 388815c2281e0286d2cafadaa575f68dc4e374c67e4874984c9f8fe6111f7f35 lib/Unicode/UCD.pm
  * 5e91b649379ec79af7cfb6b09410a24557cba4c6d733cd0a2b8a78a1448736d2 lib/unicore/ArabicShaping.txt
  * f5feb19cd084b2b1568fbc0f94f4b4b54941406e7fb36c7570f8352fd5022dbe lib/unicore/BidiBrackets.txt
  * e6cbd8ffe94f2e0fbfa6695d6c06c1e72eef7d3aa93cb6329d111285198b5e62 lib/unicore/BidiMirroring.txt
