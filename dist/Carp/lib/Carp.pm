@@ -2,8 +2,8 @@ package Carp;
 
 { use 5.006; }
 use strict;
-use warnings;
-BEGIN {
+#use warnings;
+#BEGIN {
     # Very old versions of warnings.pm load Carp.  This can go wrong due
     # to the circular dependency.  If warnings is invoked before Carp,
     # then warnings starts by loading Carp, then Carp (above) tries to
@@ -18,15 +18,14 @@ BEGIN {
     # off all warnings ourselves by directly setting ${^WARNING_BITS}.
     # On unaffected versions, we turn off just Unicode warnings, via
     # the proper API.
-    if(!defined($warnings::VERSION) || eval($warnings::VERSION) < 1.06) {
-	${^WARNING_BITS} = "";
-    } else {
-	"warnings"->unimport("utf8");
-    }
-}
-
-# hardcoded with cperl
-sub _maybe_isa ($$) { 1 }
+    #if(!defined($warnings::VERSION) || eval($warnings::VERSION) < 1.06) {
+    # cperl: turn off all warnings within stack traces. We don't want to load
+    # warnings for this.
+    #    ${^WARNING_BITS} = "";
+    #} else {
+    #    "warnings"->unimport("utf8");
+    #}
+#}
 
 # no signature! it is called without fixing up OP_SIGNATURE.
 sub _fetch_sub { # fetch sub without autovivifying
@@ -120,30 +119,7 @@ BEGIN {
 	;
 }
 
-sub _univ_mod_loaded {
-    return 0 unless exists($::{"UNIVERSAL::"});
-    for ($::{"UNIVERSAL::"}) {
-	return 0 unless ref \$_ eq "GLOB" && *$_{HASH} && exists $$_{"$_[0]::"};
-	for ($$_{"$_[0]::"}) {
-	    return 0 unless ref \$_ eq "GLOB" && *$_{HASH} && exists $$_{"VERSION"};
-	    for ($$_{"VERSION"}) {
-		return 0 unless ref \$_ eq "GLOB";
-		return ${*$_{SCALAR}};
-	    }
-	}
-    }
-}
-
-# _mycan is either UNIVERSAL::can, or, in the presence of an override,
-# overload::mycan.
-BEGIN {
-    *_mycan = _univ_mod_loaded('can')
-        ? do { require "overload.pm"; _fetch_sub overload => 'mycan' }
-        : \&UNIVERSAL::can
-}
-
-
-our $VERSION = '1.49_01c';
+our $VERSION = '1.45_01c';
 $VERSION =~ tr/_//d;
 $VERSION =~ tr/_c//d;
 
@@ -261,33 +237,11 @@ sub caller_info {
 
     my $sub_name = Carp::get_subname( \%call_info );
     if ( $call_info{has_args} ) {
-        # Guard our serialization of the stack from stack refcounting bugs
-        # NOTE this is NOT a complete solution, we cannot 100% guard against
-        # these bugs.  However in many cases Perl *is* capable of detecting
-        # them and throws an error when it does.  Unfortunately serializing
-        # the arguments on the stack is a perfect way of finding these bugs,
-        # even when they would not affect normal program flow that did not
-        # poke around inside the stack.  Inside of Carp.pm it makes little
-        # sense reporting these bugs, as Carp's job is to report the callers
-        # errors, not the ones it might happen to tickle while doing so.
-        # See: https://rt.perl.org/Public/Bug/Display.html?id=131046
-        # and: https://rt.perl.org/Public/Bug/Display.html?id=52610
-        # for more details and discussion. - Yves
-        my @args = map {
-                my $arg;
-                local $@= $@;
-                eval {
-                    $arg = $_;
-                    1;
-                } or do {
-                    $arg = '** argument not available anymore **';
-                };
-                $arg;
-            } @DB::args;
-        if (CALLER_OVERRIDE_CHECK_OK && @args == 1
-            && ref $args[0] eq ref \$i
-            && $args[0] == \$i ) {
-            @args = ();    # Don't let anyone see the address of $i
+        my @args;
+        if (CALLER_OVERRIDE_CHECK_OK && @DB::args == 1
+            && ref $DB::args[0] eq ref \$i
+            && $DB::args[0] == \$i ) {
+            @DB::args = ();    # Don't let anyone see the address of $i
             local $@;
             my $where = eval {
                 my $func    = $cgc or return '';
@@ -306,6 +260,7 @@ sub caller_info {
                 = "** Incomplete caller override detected$where; \@DB::args were not set **";
         }
         else {
+            @args = @DB::args;
             my $overflow;
             if ( $MaxArgNums and @args > $MaxArgNums )
             {    # More than we want to show?
@@ -332,10 +287,14 @@ our $in_recurse;
 sub format_arg {
     my $arg = shift;
 
-    if ( my $pack= ref($arg) ) {
+    if ( ref($arg) ) {
+
+        # lazy check if the CPAN module UNIVERSAL::isa is used or not
+        #   if we use a rogue version of UNIVERSAL this would lead to infinite loop
+        my $isa = $UNIVERSAL::isa::VERSION ? sub { 1 } : \&UNIVERSAL::isa;
 
          # legitimate, let's not leak it.
-        if (!$in_recurse && _maybe_isa( $arg, 'UNIVERSAL' ) &&
+        if (!$in_recurse && $isa->( $arg, 'UNIVERSAL' ) &&
 	    do {
                 local $@;
 	        local $in_recurse = 1;
@@ -358,24 +317,8 @@ sub format_arg {
         }
         else
         {
-            # overload uses the presence of a special
-            # "method" named "((" or "()" to signal
-            # it is in effect.  This test seeks to see if it has been set up.
-            if (_mycan($pack, "((") || _mycan($pack, "()")) {
-                # Argument is blessed into a class with overloading, and
-                # so might have an overloaded stringification.  We don't
-                # want to risk getting the overloaded stringification,
-                # so we need to use overload::StrVal() below.  But it's
-                # possible that the overload module hasn't been loaded:
-                # overload methods can be installed without it.  So load
-                # the module here.  The bareword form of require is here
-                # eschewed to avoid this compile-time effect of vivifying
-                # the target module's stash.
-                eval "require overload; 1"
-                    or return "use overload failed";
-            }
-            my $sub = _fetch_sub(overload => 'StrVal');
-            return $sub ? &$sub($arg) : "$arg";
+	    my $sub = _fetch_sub(overload => 'StrVal');
+	    return $sub ? &$sub($arg) : "$arg";
         }
     }
     return "undef" if !defined($arg);
@@ -666,17 +609,17 @@ sub trusts_directly {
     return;
 }
 
-if(!defined($warnings::VERSION) ||
-	do { no warnings "numeric"; $warnings::VERSION < 1.03 }) {
-    # Very old versions of warnings.pm import from Carp.  This can go
-    # wrong due to the circular dependency.  If Carp is invoked before
-    # warnings, then Carp starts by loading warnings, then warnings
-    # tries to import from Carp, and gets nothing because Carp is in
-    # the process of loading and hasn't defined its import method yet.
-    # So we work around that by manually exporting to warnings here.
-    no strict "refs";
-    *{"warnings::$_"} = \&$_ foreach @EXPORT;
-}
+#if (!defined($warnings::VERSION) ||
+#	do { no warnings "numeric"; $warnings::VERSION < 1.03 }) {
+#    # Very old versions of warnings.pm import from Carp.  This can go
+#    # wrong due to the circular dependency.  If Carp is invoked before
+#    # warnings, then Carp starts by loading warnings, then warnings
+#    # tries to import from Carp, and gets nothing because Carp is in
+#    # the process of loading and hasn't defined its import method yet.
+#    # So we work around that by manually exporting to warnings here.
+#    no strict "refs";
+#    *{"warnings::$_"} = \&$_ foreach @EXPORT;
+#}
 
 1;
 

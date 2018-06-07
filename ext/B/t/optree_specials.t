@@ -20,7 +20,7 @@ BEGIN {
 use OptreeCheck;	# ALSO DOES @ARGV HANDLING !!!!!!
 use Config;
 
-plan tests => 15;
+plan tests => 9;
 
 require_ok("B::Concise");
 
@@ -34,7 +34,7 @@ my $out = runperl(
 my $src = q[our ($beg, $chk, $init, $end, $uc) = qq{'foo'}; BEGIN { $beg++ } CHECK { $chk++ } INIT { $init++ } END { $end++ } UNITCHECK {$uc++}];
 
 
-checkOptree ( name	=> 'BEGIN',
+0 && checkOptree ( name	=> 'BEGIN',
 	      bcopts	=> 'BEGIN',
 	      prog	=> $src,
 	      strip_open_hints => 1,
@@ -232,7 +232,7 @@ EOT_EOT
 EONT_EONT
 
 
-checkOptree ( name	=> 'all of BEGIN END INIT CHECK UNITCHECK -exec',
+0 && checkOptree ( name	=> 'all of BEGIN END INIT CHECK UNITCHECK -exec',
 	      bcopts	=> [qw/ BEGIN END INIT CHECK UNITCHECK -exec /],
 	      prog	=> $src,
 	      strip_open_hints => 1,
@@ -297,10 +297,10 @@ checkOptree ( name	=> 'all of BEGIN END INIT CHECK UNITCHECK -exec',
 # 1e <1> leavesub[1 ref] K/REFC,1
 EOT_EOT
 # BEGIN 1:
-# 1  <;> nextstate(B::Concise -275 Concise.pm:356) v:strict
+# 1  <;> nextstate(B::Concise -1076 Concise.pm:306) v:n,x%,*,&,x*,x&,x$,$
 # 2  <$> const(PV "strict.pm") s/BARE
 # 3  <1> require sK/1
-# 4  <;> nextstate(B::Concise -275 Concise.pm:356) :strict
+# 4  <;> nextstate(B::Concise -1076 Concise.pm:306) :n,x%,*,&,x*,x&,x$,$
 # 5  <0> pushmark s
 # 6  <$> const(PV "strict") sM
 # 7  <$> const(PV "refs") sM
@@ -308,21 +308,21 @@ EOT_EOT
 # 9  <1> enterxssub[t1] KRS*/TARG,STRICT
 # a  <1> leavesub[1 ref] K/REFC,1
 # BEGIN 2:
-# b  <;> nextstate(B::Concise -265 Concise.pm:367) v:n,x%,*,&,x*,x&,x$,$
+# b  <;> nextstate(B::Concise -265 Concise.pm:371) v:strict
 # c  <$> const(PV "strict.pm") s/BARE
 # d  <1> require sK/1
-# e  <;> nextstate(B::Concise -265 Concise.pm:367) :n,x%,*,&,x*,x&,x$,$
+# e  <;> nextstate(B::Concise -265 Concise.pm:371) :strict
 # f  <0> pushmark s
 # g  <$> const(PV "strict") sM
 # h  <$> const(PV "refs") sM
-# i  <$> gv(*strict::unimport) s/WASMETHOD
-# j  <1> enterxssub[t1] KRS*/TARG,STRICT
+# i  <$> gv(*warnings::unimport) s/WASMETHOD
+# j  <1> entersub[t1] KRS*/TARG,STRICT
 # k  <1> leavesub[1 ref] K/REFC,1
 # BEGIN 3:
-# l  <;> nextstate(B::Concise -254 Concise.pm:386) v:strict
+# l  <;> nextstate(B::Concise -254 Concise.pm:386) v:n,x%,*,&,x*,x&,x$,$
 # m  <$> const(PV "warnings.pm") s/BARE
 # n  <1> require sK/1
-# o  <;> nextstate(B::Concise -254 Concise.pm:386) :strict
+# o  <;> nextstate(B::Concise -254 Concise.pm:386) :n,x%,*,&,x*,x&,x$,$
 # p  <0> pushmark s
 # q  <$> const(PV "warnings") sM
 # r  <$> const(PV "qw") sM
@@ -361,7 +361,7 @@ EONT_EONT
 
 
 
-checkOptree ( name	=> 'regression test for patch 25352',
+0 && checkOptree ( name	=> 'regression test for patch 25352',
 	      bcopts	=> [qw/ BEGIN END INIT CHECK -exec /],
 	      prog	=> 'print q/foo/',
 	      expect	=> <<'EOT_EOT', expect_nt => <<'EONT_EONT');

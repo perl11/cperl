@@ -1035,7 +1035,7 @@ EXTERN_C int usleep(unsigned int);
 #define PERL_ARENA_SIZE 4080
 #endif
 
-/* Maximum level of recursion */
+/* Maximum level of subroutine recursion => Deep recursion warning only */
 #ifndef PERL_SUB_DEPTH_WARN
 #define PERL_SUB_DEPTH_WARN 100
 #endif

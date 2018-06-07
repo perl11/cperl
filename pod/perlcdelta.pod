@@ -273,6 +273,23 @@ type bs_sv to also include PADNAME, PADLIST, PADNAMELIST as union.
 Add t/testc.sh
 Fix compile-time REGEXP
 
+=item L<Carp> back to 1.45_01c
+
+The perl5.28 Carp 1.49 update broke the B::C compiler by compile-time references
+to too many packages for no apparent reason: warnings, overloading, overload,
+UNIVERSAL::isa. Even the simpliest scripts could not be compiled anymore.
+
+We rather suggest fixing the broken code by checking the warnings, as in the
+changed tests. The infinite recursion bug in t/Carp_overloadless.t is handled
+by use warnings FATAL => 'recursion' in the test, and your code should also.
+
+The t/rt52610_crash.t with refcounted stack corruption is handled by
+eval wrapping in the test as your code should also.
+
+The next Carp written in XS will not have these limitations, but a PP
+Carp should not overdo it. backtraces in critical error cases should
+be stable and perform no additional unstable dynamic loading.
+
 =item L<Compress::Raw::Zlib>
 
 fix upstream deflate.

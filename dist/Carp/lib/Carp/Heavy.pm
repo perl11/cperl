@@ -2,16 +2,16 @@ package Carp::Heavy;
 
 use Carp ();
 
-our $VERSION = '1.49_01c';
+our $VERSION = '1.45_01c';
 $VERSION =~ tr/_//d;
 $VERSION =~ tr/_c//d;
 
 # Carp::Heavy was merged into Carp in version 1.12.  Any mismatched versions
 # after this point are not significant and can be ignored.
-#if(($Carp::VERSION || 0) < 1.12) {
-#    my $cv = defined($Carp::VERSION) ? $Carp::VERSION : "undef";
-#    die "Version mismatch between Carp $cv ($INC{q(Carp.pm)}) and Carp::Heavy $VERSION ($INC{q(Carp/Heavy.pm)}).  Did you alter \@INC after Carp was loaded?\n";
-#}
+if(($Carp::VERSION || 0) < 1.12) {
+    my $cv = defined($Carp::VERSION) ? $Carp::VERSION : "undef";
+    die "Version mismatch between Carp $cv ($INC{q(Carp.pm)}) and Carp::Heavy $VERSION ($INC{q(Carp/Heavy.pm)}).  Did you alter \@INC after Carp was loaded?\n";
+}
 
 1;
 
