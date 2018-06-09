@@ -971,8 +971,8 @@ endif
 
 # makedef.pl must be updated if this changes, and this should normally
 # only change when there is an incompatible revision of the public API.
-PERLIMPLIB	?= $(COREDIR)\cperl$(a)
-PERLIMPLIBBASE	?= cperl$(a)
+PERLIMPLIB	?= $(COREDIR)\cperl$(PV)$(a)
+PERLIMPLIBBASE	?= cperl$(PV)$(a)
 PERLEXPLIB	?= $(COREDIR)\cperl$(PV).exp
 PERLSTATICLIB	?= ..\cperl$(PV)s$(a)
 PERLDLL		= ..\cperl$(PV).dll
