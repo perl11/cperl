@@ -1733,8 +1733,24 @@ S_cx_popgiven(pTHX_ PERL_CONTEXT *cx)
     }
 }
 
-/* Since MSVC 2005 */
-#if defined(_MSC_VER) && _MSC_VER >= 1400
+/* documented since MSVC 2005, undocumented in 2003 */
+#if defined(_MSC_VER)
+#  if _MSC_VER >= 1300 && _MSC_VER < 1400
+BOOLEAN
+_BitScanReverse (
+    OUT DWORD *Index,
+    IN DWORD Mask
+    );
+BOOLEAN
+_BitScanForward (
+    OUT DWORD *Index,
+    IN DWORD Mask
+    );
+
+#  pragma intrinsic(_BitScanReverse)
+#  pragma intrinsic(_BitScanForward)
+#  endif
+
 PERL_STATIC_INLINE U32
 S_clz(U32 n)
 {
@@ -1773,7 +1789,7 @@ S_ceil_to_power2(U32 n)
 {
 #ifdef HAS_BUILTIN_CLZ
     return 1 << (32 - __builtin_clz(n-1));
-#elif defined(_MSC_VER) && _MSC_VER >= 1400
+#elif defined(_MSC_VER)
     return 1 << (32 - S_clz(n-1));
 #elif defined(HAS_LOG2)
     return 1 << (U32)ceil(log2((double)n));
