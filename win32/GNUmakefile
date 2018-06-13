@@ -548,6 +548,7 @@ ifeq ($(CCTYPE),GCC)
 CC		= $(ARCHPREFIX)gcc
 LINK32		= $(ARCHPREFIX)g++
 LIB32		= $(ARCHPREFIX)ar rc
+IMPLIB		= $(ARCHPREFIX)dlltool
 RSC		= $(ARCHPREFIX)windres
 
 ifeq ($(USE_LONG_DOUBLE),define)
@@ -663,7 +664,6 @@ LINK32		= xilink
 endif
 LIB32		= $(LINK32) -lib
 RSC		= rc
-IMPLIB          = dlltool
 
 #
 # Options
@@ -923,7 +923,7 @@ PERLDLL_RES	=
 # This used to be $(PERLEXE), but at worst it is the .dll that they depend
 # on and really only the interface - i.e. the .def file used to export symbols
 # from the .dll
-PERLDEP = $(PERLDLL)
+PERLDEP = $(PERLIMPLIB)
 
 
 PL2BAT		= bin\pl2bat.pl
@@ -1500,17 +1500,16 @@ $(PERLEXPLIB) : $(PERLIMPLIB)
 
 $(PERLIMPLIB) : perldll.def
 ifeq ($(CCTYPE),GCC)
-	$(NOOP)
+	$(IMPLIB) -k -d perldll.def -l $(PERLIMPLIB) -e $(PERLEXPLIB)
 else
 	lib -def:perldll.def -machine:$(ARCHITECTURE) /OUT:$(PERLIMPLIB)
 endif
 
-$(PERLDLL): $(PERLDLL_OBJ) $(PERLDLL_RES) Extensions_static perldll.def
+$(PERLDLL): $(PERLEXPLIB) $(PERLDLL_OBJ) $(PERLDLL_RES) Extensions_static
 ifeq ($(CCTYPE),GCC)
-	$(LINK32) -mdll -o $@ $(BLINK_FLAGS) perldll.def -Wl,--out-implib=$(PERLIMPLIB) \
-	   $(PERLDLL_OBJ) $(shell type Extensions_static) $(LIBFILES)
+	$(LINK32) -mdll -o $@ $(BLINK_FLAGS) \
+	   $(PERLDLL_OBJ) $(shell type Extensions_static) $(LIBFILES) $(PERLEXPLIB)
 else
-	+$(MAKE) $(PERLEXPLIB)
 	$(LINK32) -dll -out:$@ $(BLINK_FLAGS) \
 	    @Extensions_static \
 	    -base:0x28000000 $(DELAYLOAD) $(LIBFILES) \
