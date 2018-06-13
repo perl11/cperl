@@ -984,6 +984,7 @@ PERLIMPLIBBASE	?= cperl$(a)
 PERLEXPLIB	?= $(COREDIR)\cperl$(PV).exp
 PERLSTATICLIB	?= ..\cperl$(PV)s$(a)
 PERLDLL		= ..\cperl$(PV).dll
+PERLDLLBASE	= cperl$(PV).dll
 
 # don't let "gmake -n all" try to run "miniperl.exe make_ext.pl"
 PLMAKE		= gmake
@@ -1500,7 +1501,7 @@ $(PERLEXPLIB) : $(PERLIMPLIB)
 
 $(PERLIMPLIB) : perldll.def
 ifeq ($(CCTYPE),GCC)
-	$(IMPLIB) -k -d perldll.def -l $(PERLIMPLIB) -e $(PERLEXPLIB)
+	$(IMPLIB) -k -d perldll.def -D $(PERLDLLBASE) -l $(PERLIMPLIB) -e $(PERLEXPLIB)
 else
 	lib -def:perldll.def -machine:$(ARCHITECTURE) /OUT:$(PERLIMPLIB)
 endif

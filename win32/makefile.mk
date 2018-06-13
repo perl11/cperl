@@ -953,6 +953,7 @@ PERLIMPLIB	*= $(COREDIR)\cperl$(a)
 PERLEXPLIB	*= $(COREDIR)\cperl.exp
 PERLSTATICLIB	*= ..\cperl$(PV)s$(a)
 PERLDLL		= ..\cperl$(PV).dll
+PERLDLLBASE	= cperl$(PV).dll
 
 #EUMM on Win32 isn't ready for parallel make, so only allow this file to be parallel
 #$(MAKE) will contain the -P that this makefile was called with, which is bad for
@@ -1446,7 +1447,7 @@ perldll.def : $(HAVEMINIPERL) $(CONFIGPM) ..\embed.fnc ..\makedef.pl
 
 $(PERLEXPLIB) $(PERLIMPLIB) .UPDATEALL : perldll.def
 .IF "$(CCTYPE)" == "GCC"
-	$(IMPLIB) -k -d perldll.def -l $(PERLIMPLIB) -e $(PERLEXPLIB)
+	$(IMPLIB) -k -d perldll.def -D $(PERLDLLBASE) -l $(PERLIMPLIB) -e $(PERLEXPLIB)
 .ELSE #VC family
 	lib -def:perldll.def -machine:$(ARCHITECTURE) /OUT:$(PERLIMPLIB)
 .ENDIF
