@@ -250,6 +250,12 @@ PERL_CALLCONV UV	Perl__to_utf8_upper_flags(pTHX_ const U8 *p, const U8 *e, U8* u
 #define PERL_ARGS_ASSERT__TO_UTF8_UPPER_FLAGS	\
 	assert(p); assert(ustrp); assert(file)
 
+PERL_CALLCONV UV	Perl__utf8n_to_uvchr_msgs_helper(const U8 *s, STRLEN curlen, STRLEN *retlen, const U32 flags, U32 * errors, AV ** msgs)
+			__attribute__global__
+			__attribute__nonnull__(1);
+#define PERL_ARGS_ASSERT__UTF8N_TO_UVCHR_MSGS_HELPER	\
+	assert(s)
+
 PERL_CALLCONV void	Perl__warn_problematic_locale(void)
 			__attribute__global__;
 
@@ -6963,23 +6969,24 @@ PERL_CALLCONV UV	Perl_utf8_to_uvuni_buf(pTHX_ const U8 *s, const U8 *send, STRLE
 #define PERL_ARGS_ASSERT_UTF8_TO_UVUNI_BUF	\
 	assert(s); assert(send)
 
-PERL_CALLCONV UV	Perl_utf8n_to_uvchr(pTHX_ const U8 *s, STRLEN curlen, STRLEN *retlen, const U32 flags)
+PERL_CALLCONV UV	Perl_utf8n_to_uvchr(const U8 *s, STRLEN curlen, STRLEN *retlen, const U32 flags)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1);
+			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_UTF8N_TO_UVCHR	\
 	assert(s)
 
-PERL_CALLCONV UV	Perl_utf8n_to_uvchr_error(pTHX_ const U8 *s, STRLEN curlen, STRLEN *retlen, const U32 flags, U32 * errors)
+PERL_CALLCONV UV	Perl_utf8n_to_uvchr_error(const U8 *s, STRLEN curlen, STRLEN *retlen, const U32 flags, U32 * errors)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1);
+			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_UTF8N_TO_UVCHR_ERROR	\
 	assert(s)
 
-PERL_CALLCONV UV	Perl_utf8n_to_uvchr_msgs(pTHX_ const U8 *s, STRLEN curlen, STRLEN *retlen, const U32 flags, U32 * errors, AV ** msgs)
-			__attribute__global__
-			__attribute__nonnull__(pTHX_1);
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE UV	S_utf8n_to_uvchr_msgs(const U8 *s, STRLEN curlen, STRLEN *retlen, const U32 flags, U32 * errors, AV ** msgs)
+			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_UTF8N_TO_UVCHR_MSGS	\
 	assert(s)
+#endif
 
 PERL_CALLCONV UV	Perl_utf8n_to_uvuni(pTHX_ const U8 *s, STRLEN curlen, STRLEN *retlen, U32 flags)
 			__attribute__global__
