@@ -294,6 +294,7 @@
 #ifndef NO_MATHOMS
 #define isIDFIRST_lazy(a)	Perl_isIDFIRST_lazy(aTHX_ a)
 #endif
+#define isSTRICT_UTF8_CHAR	S_isSTRICT_UTF8_CHAR
 #define isUTF8_CHAR		S_isUTF8_CHAR
 #define is_c9strict_utf8_string_loclen	S_is_c9strict_utf8_string_loclen
 #define is_lvalue_sub()		Perl_is_lvalue_sub(aTHX)
