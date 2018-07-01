@@ -2606,6 +2606,15 @@ PERL_CALLCONV bool	Perl_isALNUM_lazy(pTHX_ const char* p)
 	assert(p)
 #endif
 
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE Size_t	S_isC9_STRICT_UTF8_CHAR(const U8 * const s0, const U8 * const e)
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(1)
+			__attribute__nonnull__(2);
+#define PERL_ARGS_ASSERT_ISC9_STRICT_UTF8_CHAR	\
+	assert(s0); assert(e)
+#endif
+
 #ifndef NO_MATHOMS
 PERL_CALLCONV bool	Perl_isIDFIRST_lazy(pTHX_ const char* p)
 			__attribute__global__

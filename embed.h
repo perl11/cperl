@@ -291,6 +291,7 @@
 #ifndef NO_MATHOMS
 #define isALNUM_lazy(a)		Perl_isALNUM_lazy(aTHX_ a)
 #endif
+#define isC9_STRICT_UTF8_CHAR	S_isC9_STRICT_UTF8_CHAR
 #ifndef NO_MATHOMS
 #define isIDFIRST_lazy(a)	Perl_isIDFIRST_lazy(aTHX_ a)
 #endif
