@@ -1789,3 +1789,7 @@ HANGUL: has special normalization rules
 #DECOMPOSED_REST: The remaining 869 non-mark and non-hangul normalizables
 #=> cp_high :fast
 #&regcharclass_multi_char_folds::decomposed_rest()
+
+HANGUL_ED: Hangul syllables whose first character is \xED
+=> UTF8 :only_ascii_platform safe
+0xD000 - 0xD7FF
