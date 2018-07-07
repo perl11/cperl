@@ -4,7 +4,7 @@
  * Any changes made here will be lost!
  */
 
-/* The precisionn to use in "%.*e" formats */
+/* The precision to use in "%.*e" formats */
 #define PL_E_FORMAT_PRECISION 2
 
 #define MPH_VALt I16
@@ -6838,6 +6838,6 @@ MPH_VALt match_uniprop( const unsigned char * const key, const U16 key_len ) {
  * 21653d2744fdd071f9ef138c805393901bb9547cf3e777ebf50215a191f986ea lib/unicore/version
  * 4bb677187a1a64e39d48f2e341b5ecb6c99857e49d7a79cf503bd8a3c709999b regen/charset_translations.pl
  * 03e51b0f07beebd5da62ab943899aa4934eee1f792fa27c1fb638c33bf4ac6ea regen/mk_PL_charclass.pl
- * 6a5348f2e4030391c89b4694af609a98f8576d5b85d4c063a57cd4bcd616f9f5 regen/mk_invlists.pl
+ * f4ae21e040c8ed52e7dd3589bc6ab661396a1751839547fd9cfdb3fedfe156d5 regen/mk_invlists.pl
  * 26c00d30d608c727e1bb719c63507395a4ceb983609122bce2bd9a295fcc2849 regen/mph.pl
  * ex: set ro: */
