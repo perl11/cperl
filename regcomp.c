@@ -5627,6 +5627,7 @@ Perl_re_printf( aTHX_  "LHS=%" UVuf " RHS=%" UVuf "\n",
 
                 case NPOSIXA:   /* For these, we always know the exact set of
                                    what's matched */
+                    invert = 1;
                     /* FALLTHROUGH */
 		case POSIXA:
                     assert(FLAGS(scan) != _CC_ASCII);
