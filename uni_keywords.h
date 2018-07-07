@@ -6839,5 +6839,5 @@ MPH_VALt match_uniprop( const unsigned char * const key, const U16 key_len ) {
  * 4bb677187a1a64e39d48f2e341b5ecb6c99857e49d7a79cf503bd8a3c709999b regen/charset_translations.pl
  * 03e51b0f07beebd5da62ab943899aa4934eee1f792fa27c1fb638c33bf4ac6ea regen/mk_PL_charclass.pl
  * f4ae21e040c8ed52e7dd3589bc6ab661396a1751839547fd9cfdb3fedfe156d5 regen/mk_invlists.pl
- * 26c00d30d608c727e1bb719c63507395a4ceb983609122bce2bd9a295fcc2849 regen/mph.pl
+ * 8402c3ddf5d4e2a640d415f62290d30940feb9853cf05263d767bee8ae7f7e16 regen/mph.pl
  * ex: set ro: */
