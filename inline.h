@@ -1085,7 +1085,7 @@ This uses an adaptation of the table and algorithm given in
 http://bjoern.hoehrmann.de/utf-8/decoder/dfa/, which provides comprehensive
 documentation of the original version.  A copyright notice for the original
 version is given at the beginning of this file.  The Perl adapation is
-documented at the definition of perl_extended_utf8_dfa_tab[].
+documented at the definition of PL_extended_utf8_dfa_tab[].
 
 */
 
@@ -1104,9 +1104,9 @@ S_isUTF8_CHAR(const U8 * const s0, const U8 * const e)
      * helper function for the other platforms. */
 
     while (s < e && LIKELY(state != 1)) {
-        state = perl_extended_utf8_dfa_tab[256
+        state = PL_extended_utf8_dfa_tab[256
                                          + state
-                                         + perl_extended_utf8_dfa_tab[*s]];
+                                         + PL_extended_utf8_dfa_tab[*s]];
         if (state != 0) {
             s++;
             continue;
@@ -1172,7 +1172,7 @@ S_isSTRICT_UTF8_CHAR(const U8 * const s0, const U8 * const e)
     PERL_ARGS_ASSERT_ISSTRICT_UTF8_CHAR;
 
     while (s < e && LIKELY(state != 1)) {
-        state = strict_utf8_dfa_tab[256 + state + strict_utf8_dfa_tab[*s]];
+        state = PL_strict_utf8_dfa_tab[256 + state + PL_strict_utf8_dfa_tab[*s]];
 
         if (state != 0) {
             s++;
@@ -1225,7 +1225,7 @@ This uses an adaptation of the tables and algorithm given in
 http://bjoern.hoehrmann.de/utf-8/decoder/dfa/, which provides comprehensive
 documentation of the original version.  A copyright notice for the original
 version is given at the beginning of this file.  The Perl adapation is
-documented at the definition of C9_utf8_dfa_tab[].
+documented at the definition of PL_c9_utf8_dfa_tab[].
 
 */
 
@@ -1238,7 +1238,7 @@ S_isC9_STRICT_UTF8_CHAR(const U8 * const s0, const U8 * const e)
     PERL_ARGS_ASSERT_ISC9_STRICT_UTF8_CHAR;
 
     while (s < e && LIKELY(state != 1)) {
-        state = C9_utf8_dfa_tab[256 + state + C9_utf8_dfa_tab[*s]];
+        state = PL_c9_utf8_dfa_tab[256 + state + PL_c9_utf8_dfa_tab[*s]];
 
         if (state != 0) {
             s++;
@@ -1837,7 +1837,7 @@ S_utf8n_to_uvchr_msgs(const U8 *s,
      * http://bjoern.hoehrmann.de/utf-8/decoder/dfa/, which provides
      * comprehensive documentation of the original version.  A copyright notice
      * for the original version is given at the beginning of this file.  The
-     * Perl adapation is documented at the definition of strict_utf8_dfa_tab[].
+     * Perl adapation is documented at the definition of PL_strict_utf8_dfa_tab[].
      */
 
     const U8 * const s0 = s;
@@ -1853,12 +1853,12 @@ S_utf8n_to_uvchr_msgs(const U8 *s,
      * cases. */
 
     while (s < send && LIKELY(state != 1)) {
-        UV type = strict_utf8_dfa_tab[*s];
+        UV type = PL_strict_utf8_dfa_tab[*s];
 
         uv = (state == 0)
              ?  ((0xff >> type) & NATIVE_UTF8_TO_I8(*s))
              : UTF8_ACCUMULATE(uv, *s);
-        state = strict_utf8_dfa_tab[256 + state + type];
+        state = PL_strict_utf8_dfa_tab[256 + state + type];
 
         if (state != 0) {
             s++;
