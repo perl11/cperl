@@ -11108,14 +11108,13 @@ STATIC bool	S_isa_lookup(pTHX_ HV *stash, const char * const name, STRLEN len, U
 #endif
 #if defined(PERL_IN_UTF8_C)
 STATIC UV	S__to_utf8_case(pTHX_ const UV uv1, const U8 *p, U8* ustrp, STRLEN *lenp, SV *invlist, const int * const invmap, const unsigned int * const * const aux_tables, const U8 * const aux_table_lengths, const char * const normal)
-			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3)
 			__attribute__nonnull__(pTHX_4)
 			__attribute__nonnull__(pTHX_5)
 			__attribute__nonnull__(pTHX_6)
 			__attribute__nonnull__(pTHX_9);
 #define PERL_ARGS_ASSERT__TO_UTF8_CASE	\
-	assert(p); assert(ustrp); assert(lenp); assert(invlist); assert(invmap); assert(normal)
+	assert(ustrp); assert(lenp); assert(invlist); assert(invmap); assert(normal)
 
 STATIC U32	S_check_and_deprecate(pTHX_ const U8 * p, const U8 ** e, const unsigned type, const bool use_locale, const char * const file, const unsigned line)
 			__attribute__nonnull__(pTHX_1)
