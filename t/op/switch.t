@@ -11,7 +11,7 @@ use warnings;
 no warnings 'experimental::smartmatch';
 use Config ();
 
-plan tests => 205;
+plan tests => 209;
 
 # The behaviour of the feature pragma should be tested by lib/feature.t
 # using the tests in t/lib/feature/*. This file tests the behaviour of
@@ -1439,6 +1439,36 @@ is(f1()->(), 3, 'closed over $_');
         default { $i += 1000 }
     }
     is($i, 111, 'when in for @a');
+}
+
+given("xyz") {
+    no warnings "void";
+    my @a = (qw(a b c), do { when(/abc/) { qw(x y) } }, qw(d e f));
+    is join(",", map { $_ // "u" } @a), "a,b,c,d,e,f",
+      "list value of false when";
+    @a = (qw(a b c), scalar do { when(/abc/) { qw(x y) } }, qw(d e f));
+    is join(",", map { $_ // "u" } @a), "a,b,c,u,d,e,f",
+      "scalar value of false when";
+}
+
+# RT #133368
+# index() and rindex() comparisons such as '> -1' are optimised away. Make
+# sure that they're still treated as a direct boolean expression rather
+# than when(X) being implicitly converted to when($_ ~~ X)
+
+{
+    my $s = "abc";
+    my $ok = 0;
+    given("xyz") {
+        when (index($s, 'a') > -1) { $ok = 1; }
+    }
+    ok($ok, "RT #133368 index");
+
+    $ok = 0;
+    given("xyz") {
+        when (rindex($s, 'a') > -1) { $ok = 1; }
+    }
+    ok($ok, "RT #133368 rindex");
 }
 
 

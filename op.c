@@ -10825,6 +10825,13 @@ S_looks_like_bool(pTHX_ const OP *o)
 	case OP_FLOP:
 
 	    return TRUE;
+
+	case OP_INDEX:
+	case OP_RINDEX:
+            /* optimised-away (index() != -1) or similar comparison */
+            if (o->op_private & OPpTRUEBOOL)
+                return TRUE;
+            return FALSE;
 	
 	case OP_CONST:
 	    /* Detect comparisons that have been optimized away */
@@ -10834,7 +10841,6 @@ S_looks_like_bool(pTHX_ const OP *o)
 		return TRUE;
 	    else
 		return FALSE;
-
 	/* FALLTHROUGH */
 	default:
 	    return FALSE;
