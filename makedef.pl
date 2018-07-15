@@ -997,6 +997,7 @@ if ($ARGS{PLATFORM} =~ /^win(?:32|ce)$/) {
 	win32_open_osfhandle
 	win32_opendir
 	win32_os_id
+	win32_pause
 	win32_pclose
 	win32_perror
 	win32_pipe
