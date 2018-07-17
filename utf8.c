@@ -3700,6 +3700,9 @@ S__to_utf8_case(pTHX_ const UV uv1, const U8 *p,
         unsigned int i;
         const unsigned int * cp_list;
         U8 * d;
+
+        /* 'index' is guaranteed to be non-negative, as this is an inversion
+         * map that covers all possible inputs.  See [perl #133365] */
         SSize_t index = _invlist_search(invlist, uv1);
         IV base;
 
@@ -3778,6 +3781,8 @@ Perl__inverse_folds(pTHX_ const UV cp, unsigned int * first_folds_to,
      * the return can point to them, but single code points aren't, so would
      * need to be constructed if we didn't employ something like this API */
 
+    /* 'index' is guaranteed to be non-negative, as this is an inversion map
+     * that covers all possible inputs.  See [perl #133365] */
     SSize_t index = _invlist_search(PL_utf8_foldclosures, cp);
     int base;
 
