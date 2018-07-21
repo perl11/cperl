@@ -1358,7 +1358,7 @@ esac
 # PREPLIBRARY_LIBPERL is os2 only
 $spitshell >>$Makefile <<'!NO!SUBS!'
 
-.PHONY: preplibrary common_build
+.PHONY: preplibrary common_build unidatafiles
 preplibrary: $(MINIPERL_EXE) $(CONFIGPM) $(PREPLIBRARY_LIBPERL)
 
 $(CONFIGPM_FROM_CONFIG_SH): $(CONFIGPOD)
