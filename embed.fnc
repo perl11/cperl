@@ -3100,23 +3100,19 @@ sR	|HV *	|new_msg_hv |NN const char * const message		    \
 			    |U32 categories				    \
 			    |U32 flag
 sRM	|UV	|check_locale_boundary_crossing				    \
-		|NN const U8* const p					    \
-		|const UV result					    \
-		|NN U8* const ustrp					    \
-		|NN STRLEN *lenp
+			    |NN const U8* const p			    \
+			    |const UV result				    \
+			    |NN U8* const ustrp				    \
+			    |NN STRLEN *lenp
 iR	|bool	|is_utf8_common	|NN const U8 *const p			    \
-				|NULLOK SV **swash			    \
-				|NN const char * const swashname	    \
 				|NULLOK SV* const invlist
-iR	|bool	|is_utf8_common_with_len|NN const U8 *const p		    \
-				    |NN const U8 *const e	    \
-				    |NULLOK SV **swash			    \
-				    |NN const char * const swashname	    \
-				    |NULLOK SV* const invlist
-sR	|SV*	|swatch_get	|NN SV* swash|UV start|UV span
-sRM	|U8*	|swash_scan_list_line|NN U8* l|NN U8* const lend|NN UV* min \
-		|NN UV* max|NN UV* val|const bool wants_value		    \
-		|NN const U8* const typestr
+iR	|bool	|is_utf8_common_with_len |NN const U8 *const p		    \
+				|NN const U8 *const e	    		    \
+				|NULLOK SV* const invlist
+sR	|SV*	|swatch_get		|NN SV* swash|UV start|UV span
+sRM	|U8*	|swash_scan_list_line	|NN U8* l|NN U8* const lend|NN UV* min \
+					|NN UV* max|NN UV* val|const bool wants_value \
+					|NN const U8* const typestr
 i	|void	|utf8_add_script	|NN const char* script
 s	|void	|utf8_error_script	|NN const U8 *s|NULLOK const char* script \
 					|UV uv
