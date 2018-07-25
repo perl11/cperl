@@ -3337,7 +3337,10 @@ Perl__is_utf8_xidstart(pTHX_ const U8 *p)
 
     if (*p == '_')
 	return TRUE;
-    return is_utf8_common(p, &PL_utf8_xidstart, "XIdStart", NULL);
+
+    return is_utf8_common(p, NULL,
+                          "This is buggy if this gets used",
+                          PL_utf8_xidstart);
 }
 
 bool
@@ -3365,7 +3368,9 @@ Perl__is_utf8_idcont(pTHX_ const U8 *p)
 {
     PERL_ARGS_ASSERT__IS_UTF8_IDCONT;
 
-    return is_utf8_common(p, &PL_utf8_idcont, "IdContinue", NULL);
+    return is_utf8_common(p, NULL,
+                          "This is buggy if this gets used",
+                          PL_utf8_idcont);
 }
 
 bool
@@ -3373,7 +3378,9 @@ Perl__is_utf8_xidcont(pTHX_ const U8 *p)
 {
     PERL_ARGS_ASSERT__IS_UTF8_XIDCONT;
 
-    return is_utf8_common(p, &PL_utf8_xidcont, "XIdContinue", NULL);
+    return is_utf8_common(p, NULL,
+                          "This is buggy if this gets used",
+                          PL_utf8_xidcont);
 }
 
 bool
