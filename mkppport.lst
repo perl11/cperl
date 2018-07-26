@@ -12,10 +12,8 @@ cpan/Devel-NYTProf
 cpan/DB_File
 cpan/Internals-DumpArenas
 cpan/IPC-SysV
-cpan/Scalar-List-Utils
 cpan/Term-ReadKey
 cpan/Win32API-File
 cpan/YAML-LibYAML/LibYAML
 dist/IO
-dist/PathTools
-dist/Time-HiRes
+dist/Storable
