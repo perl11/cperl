@@ -4720,13 +4720,6 @@ PERL_CALLCONV U32	Perl_parse_unicode_opts(pTHX_ const char **popt)
 #define PERL_ARGS_ASSERT_PARSE_UNICODE_OPTS	\
 	assert(popt)
 
-PERL_CALLCONV SV *	Perl_parse_uniprop_string(pTHX_ const char * const name, const Size_t len, const bool to_fold, bool * invert)
-			__attribute__global__
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_4);
-#define PERL_ARGS_ASSERT_PARSE_UNIPROP_STRING	\
-	assert(name); assert(invert)
-
 PERL_CALLCONV void	Perl_parser_free(pTHX_ const yy_parser *parser)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_PARSER_FREE	\
@@ -9990,6 +9983,13 @@ STATIC void	S_parse_lparen_question_flags(pTHX_ RExC_state_t *pRExC_state)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_PARSE_LPAREN_QUESTION_FLAGS	\
 	assert(pRExC_state)
+
+PERL_CALLCONV SV *	Perl_parse_uniprop_string(pTHX_ const char * const name, const Size_t len, const bool to_fold, bool * invert)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_4);
+#define PERL_ARGS_ASSERT_PARSE_UNIPROP_STRING	\
+	assert(name); assert(invert)
 
 STATIC void	S_populate_ANYOF_from_invlist(pTHX_ regnode *node, SV** invlist_ptr)
 			__attribute__global__
