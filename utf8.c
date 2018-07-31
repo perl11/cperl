@@ -4156,13 +4156,12 @@ Perl__to_utf8_fold_flags(pTHX_ const U8 *p,
     if (flags & FOLD_FLAGS_LOCALE) {
 
 #define LONG_S_T      LATIN_SMALL_LIGATURE_LONG_S_T_UTF8
-
 #ifdef LATIN_CAPITAL_LETTER_SHARP_S_UTF8
 #  define CAP_SHARP_S   LATIN_CAPITAL_LETTER_SHARP_S_UTF8
 
         /* Special case these two characters, as what normally gets
          * returned under locale doesn't work */
-        if (memEQs((char *) p, UTF8SKIP(p), CAP_SHARP_S))
+        if (memBEGINs((char *) p, e - p, CAP_SHARP_S))
         {
             /* diag_listed_as: Can't do %s("%s") on non-UTF-8 locale; resolved to "%s". */
             Perl_ck_warner(aTHX_ packWARN(WARN_LOCALE),
@@ -4172,12 +4171,12 @@ Perl__to_utf8_fold_flags(pTHX_ const U8 *p,
         }
         else
 #endif
-            if (memEQs((char *) p, UTF8SKIP(p), LONG_S_T))
-            {
-                /* diag_listed_as: Can't do %s("%s") on non-UTF-8 locale; resolved to "%s". */
-                Perl_ck_warner(aTHX_ packWARN(WARN_LOCALE),
-                              "Can't do fc(\"\\x{FB05}\") on non-UTF-8 locale; "
-                              "resolved to \"\\x{FB06}\".");
+        if (memBEGINs((char *) p, e - p, LONG_S_T))
+        {
+            /* diag_listed_as: Can't do %s("%s") on non-UTF-8 locale; resolved to "%s". */
+            Perl_ck_warner(aTHX_ packWARN(WARN_LOCALE),
+                           "Can't do fc(\"\\x{FB05}\") on non-UTF-8 locale; "
+                           "resolved to \"\\x{FB06}\".");
             goto return_ligature_st;
         }
 
@@ -4191,7 +4190,7 @@ Perl__to_utf8_fold_flags(pTHX_ const U8 *p,
          * 255/256 boundary which is forbidden under /l, and so the code
          * wouldn't catch that they are equivalent (which they are only in
          * this release) */
-        else if (memEQs((char *) p, UTF8SKIP(p), DOTTED_I)) {
+        else if (memBEGINs((char *) p, e - p, DOTTED_I)) {
         {
             /* diag_listed_as: Can't do %s("%s") on non-UTF-8 locale; resolved to "%s". */
             Perl_ck_warner(aTHX_ packWARN(WARN_LOCALE),
