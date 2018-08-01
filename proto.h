@@ -7722,11 +7722,6 @@ STATIC bool	S_mderef_uoob_gvsv(pTHX_ OP* o, SV* idx)
 
 #  endif
 #endif
-#if !defined(USE_QUADMATH)
-#  if defined(PERL_IN_NUMERIC_C)
-STATIC NV	S_mulexp10(NV value, I32 exponent);
-#  endif
-#endif
 #if !defined(UV_IS_QUAD)
 #  if defined(PERL_IN_UTF8_C)
 STATIC int	S_is_utf8_cp_above_31_bits(const U8 * const s, const U8 * const e, const bool consider_overlongs)

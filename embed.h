@@ -1749,11 +1749,6 @@
 #define mderef_uoob_gvsv(a,b)	S_mderef_uoob_gvsv(aTHX_ a,b)
 #    endif
 #  endif
-#  if !defined(USE_QUADMATH)
-#    if defined(PERL_IN_NUMERIC_C)
-#define mulexp10		S_mulexp10
-#    endif
-#  endif
 #  if !defined(UV_IS_QUAD)
 #    if defined(PERL_IN_UTF8_C)
 #define is_utf8_cp_above_31_bits	S_is_utf8_cp_above_31_bits
