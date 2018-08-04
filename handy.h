@@ -284,7 +284,7 @@ typedef long intptr_t
 #endif
 
 /*
-=head1 SV-Body Allocation
+=head1 SV Manipulation Functions
 
 =for apidoc Ama|SV*|newSVpvs|"literal string" s
 Like C<newSVpvn>, but takes a literal string instead of a
