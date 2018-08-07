@@ -130,7 +130,7 @@ Test::Harness cpan/Test-Harness/t/source_handler.t 1b9abe550c8c5383eddefb0811c08
 Time::HiRes dist/Time-HiRes/HiRes.xs 72f4899482c936a760e904ddafc97dd5591683aa
 Time::HiRes dist/Time-HiRes/t/alarm.t 17b9b7bd758859187e675f0775ad8d9dd9b47c3e
 Time::HiRes dist/Time-HiRes/t/clock.t f8647d46b260557dd7be8ffc38c14e9d65e40834
-Time::HiRes dist/Time-HiRes/t/itimer.t 659db22bc635177b130e0478aef1fd5e1edf0b6d
+Time::HiRes dist/Time-HiRes/t/itimer.t c0989b8987cd73b9edffdd117f2464003b3dfc1d
 Time::HiRes dist/Time-HiRes/t/nanosleep.t 11928d7130c75bfba7f8cae2b1e4af13e8628d2d
 Time::HiRes dist/Time-HiRes/t/usleep.t c5079315f1328877148d7ae1e56f292a42889d7f
 Time::HiRes dist/Time-HiRes/t/utime.t 6116e6b33d2ba8184fd310c5a607210379fca0a9
