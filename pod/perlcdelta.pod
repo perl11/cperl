@@ -190,6 +190,11 @@ Test fixes
 The 2 sudo tests on PERL_CORE with a shared perl lib.
 Skip failing freebsd localhost resolver tests.
 
+=item L<PerlIO::scalar> 0.30
+
+Allow Off_t smaller than size_t. (Win64 with USE_LARGE_FILES=undef)
+L<[perl #133422]|https://rt.perl.org/Public/Bug/Display.html?id=133422>
+
 =item L<Unicode::UCD> 0.71_03
 
 Preserve old-style casing for C<%SCRIPTS>, i.e.
