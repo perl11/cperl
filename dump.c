@@ -835,8 +835,8 @@ void
 Perl_dump_sub(pTHX_ const GV *gv)
 {
     PERL_ARGS_ASSERT_DUMP_SUB;
-    if (SvROK(gv) && SvTYPE(SvRV(gv)) == SVt_PVCV)
-        dump_sub_cv((CV*)SvRV(gv));
+    if (SvROK(gv) && SvTYPE(SvRV((SV*)gv)) == SVt_PVCV)
+        dump_sub_cv((CV*)SvRV((SV*)gv));
     else
         dump_sub_perl(gv, FALSE);
 }
@@ -851,7 +851,7 @@ See also L</dump_sub>.
 =cut
 */
 void
-Perl_dump_sub_cv(pTHX_ const CV *cv)
+Perl_dump_sub_cv(pTHX_ CV *cv)
 {
     SV *tmpsv;
     const char * name;
