@@ -16,6 +16,9 @@ BEGIN {
     if ($^O eq 'gnukfreebsd') {
 	Test::More::plan(skip_all => "futimens() and utimensat() not working in $^O");
     }
+    if ($^O eq 'darwin' and $ENV{TRAVIS}) {
+	Test::More::plan(skip_all => "slow darwin smoker");
+    }
     if ($^O eq 'linux' && -e '/proc/mounts') {
         # The linux might be wrong when ext3
         # is available in other operating systems,

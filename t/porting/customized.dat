@@ -157,7 +157,7 @@ Time::HiRes dist/Time-HiRes/t/clock.t acb2497e55facb882c41154805e917d1dbe5377c
 Time::HiRes dist/Time-HiRes/t/itimer.t 659db22bc635177b130e0478aef1fd5e1edf0b6d
 Time::HiRes dist/Time-HiRes/t/nanosleep.t 91ff108217547361a527f5438a36c9e09faf7400
 Time::HiRes dist/Time-HiRes/t/usleep.t 573121cfdb26195ed22071e38d50dcdde3c49a66
-Time::HiRes dist/Time-HiRes/t/utime.t fc7bd0876a9d18c8a0fb104fc63c46489bd5ea7c
+Time::HiRes dist/Time-HiRes/t/utime.t 48b4dc358a01350379c491954bd7f5a9696bc232
 Time::HiRes dist/Time-HiRes/typemap 934fdb54bab65b2cfbb3bfcaad8a19873d9eba21
 Win32API::File cpan/Win32API-File/File.xs 44b80cc1a5c598b75628e92e010c270c75cd6f4b
 YAML::LibYAML cpan/YAML-LibYAML/LibYAML/Makefile.PL af46c9ce20b08189cc0fa26b20c69ea051084365
