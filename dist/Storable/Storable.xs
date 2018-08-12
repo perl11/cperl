@@ -2012,7 +2012,6 @@ static SV *pkg_fetchmeth(pTHX_
      * The following code is the same as the one performed by UNIVERSAL::can
      * in the Perl core.
      */
-
     gv = gv_fetchmethod_autoload(pkg, method, FALSE);
     if (gv && isGV(gv)) {
         sv = newRV_inc((SV*) GvCV(gv));
@@ -2026,8 +2025,8 @@ static SV *pkg_fetchmeth(pTHX_
      * Cache the result, ignoring failure: if we can't store the value,
      * it just won't be cached.
      */
-
-    (void) hv_store(cache, hvname, strlen(hvname), sv, 0);
+    if (LIKELY(hvname))
+        (void) hv_store(cache, hvname, strlen(hvname), sv, 0);
 
     return SvOK(sv) ? sv : (SV *) 0;
 }
@@ -2044,8 +2043,9 @@ static void pkg_hide(pTHX_
 {
     const char *hvname = HvNAME_get(pkg);
     PERL_UNUSED_ARG(method);
-    (void) hv_store(cache,
-                    hvname, strlen(hvname), newSVsv(&PL_sv_undef), 0);
+    if (LIKELY(hvname))
+        (void) hv_store(cache, hvname, strlen(hvname),
+                        newSVsv(&PL_sv_undef), 0);
 }
 
 /*
@@ -2060,7 +2060,8 @@ static void pkg_uncache(pTHX_
 {
     const char *hvname = HvNAME_get(pkg);
     PERL_UNUSED_ARG(method);
-    (void) hv_delete(cache, hvname, strlen(hvname), G_DISCARD);
+    if (LIKELY(hvname))
+        (void) hv_delete(cache, hvname, strlen(hvname), G_DISCARD);
 }
 
 /*
@@ -2076,7 +2077,7 @@ static SV *pkg_can(pTHX_
 	HV *pkg,
 	const char *method)
 {
-    SV **svh;
+    SV **svh = NULL;
     SV *sv;
     const char *hvname = HvNAME_get(pkg);
 #ifdef DEBUGME
@@ -2093,7 +2094,8 @@ static SV *pkg_can(pTHX_
      * that only one hook (i.e. always the same) is cached in a given cache.
      */
 
-    svh = hv_fetch(cache, hvname, strlen(hvname), FALSE);
+    if (LIKELY(hvname))
+        svh = hv_fetch(cache, hvname, strlen(hvname), FALSE);
     if (svh) {
         sv = *svh;
         if (!SvOK(sv)) {
@@ -3702,6 +3704,8 @@ static int store_hook(
     flags = SHF_NEED_RECURSE | obj_type;
 
     classname = HvNAME_get(pkg);
+    if (!classname)
+        return 0;
     len = strlen(classname);
 
     /*
@@ -4138,6 +4142,8 @@ static int store_blessed(
      */
 
     classname = HvNAME_get(pkg);
+    if (!classname)
+        return 0;
     len = strlen(classname);
 
     TRACEME(("blessed 0x%" UVxf " in %s, no hook: tagged #%d",
@@ -5490,8 +5496,10 @@ static SV *retrieve_overloaded(pTHX_ stcxt_t *cxt, const char *cname)
     if (!Gv_AMG(stash)) {
         const char *package = HvNAME_get(stash);
         TRACEME(("No overloading defined for package %s", package));
-        TRACEME(("Going to load module '%s'", package));
-        load_module(PERL_LOADMOD_NOIMPORT, newSVpv(package, 0), Nullsv);
+        if (package) {
+            TRACEME(("Going to load module '%s'", package));
+            load_module(PERL_LOADMOD_NOIMPORT, newSVpv(package, 0), Nullsv);
+        }
         if (!Gv_AMG(stash)) {
             CROAK(("Cannot restore overloading on %s(0x%" UVxf
                    ") (package %s) (even after a \"require %s;\")",
