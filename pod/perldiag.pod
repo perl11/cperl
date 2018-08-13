@@ -6197,6 +6197,13 @@ that has gone out of scope, for example,
 Here, when the '\&a' in the eval is being compiled, f() is not currently
 being executed, so its &a is not available for capture.
 
+=item Subroutine &%s::%s masks existing package %s
+
+(W shadow) A subroutine has been added in the outer package with the
+same name of the package, shadowing the package, effectively
+eliminating all access to the package via methods.  This is almost
+always an error, unless you want to override access to the package.
+
 =item "%s" subroutine &%s masks earlier declaration in same %s
 
 (W shadow) A "my" or "state" subroutine has been redeclared in the

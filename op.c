@@ -11587,6 +11587,8 @@ by which the subroutine will be named.
 If there is already a subroutine of the specified name, then the new
 sub will either replace the existing one in the glob or be merged with
 the existing one.  A warning may be generated about redefinition.
+Likewise if a package with the same name exists already, a shadow
+warning is generated about the inaccessibility of the package.
 
 If the subroutine has one of a few special names, such as C<BEGIN> or
 C<END>, then it will be claimed by the appropriate queue for automatic
@@ -11826,13 +11828,14 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	|| CvLVALUE(PL_compcv)
 	) {
 	const_sv = NULL;
-    } else
+    } else {
         /* check the body if it's in-lineable.
            TODO: return an OP* to be able to inline more ops than just one SV*.
            TODO: should :const enforce inlining?
            TODO: has $const :const = 1; method x { $self->{const} }
          */
 	const_sv = op_const_sv(start, PL_compcv, cBOOL(CvCLONE(PL_compcv)));
+    }
 
     if (SvPOK(gv) || (SvROK(gv) && SvTYPE(SvRV(gv)) != SVt_PVCV)) {
 	cv_ckproto_len_flags((const CV *)gv,
@@ -11866,6 +11869,20 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	    SvREFCNT_dec(SvRV(gv));
 	}
     }
+#if 0
+    /* check shadowing an existing package, unless it's a special BLOCK sub: BEGIN...
+       But the HV has :: added, so rather check this in gv_fetchpvn.
+     */
+    if ((SvTYPE(gv) == SVt_PVGV) && GvHV(gv) && GvEGVx(gv) && GvMULTI(gv)) {
+        if (ckWARN(WARN_SHADOW)) {
+            assert(cSVOPo);
+            Perl_warner(aTHX_ packWARN(WARN_SHADOW),
+                        "Subroutine &%s::%" SVf " masks existing package %s::%s",
+                        GvNAME(GvSTASH(gv)), SVfARG(cSVOPo->op_sv),
+                        GvNAME(GvESTASH(gv)), GvENAME(gv));
+        }
+    }
+#endif
 
     if (cv) {
         const bool exists = cBOOL(CvROOT(cv) || CvXSUB(cv));

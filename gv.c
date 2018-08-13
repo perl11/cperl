@@ -2423,6 +2423,33 @@ Perl_gv_fetchpvn_flags(pTHX_ const char *nambeg, STRLEN full_len, I32 flags,
     /* From this point on, addmg means gv has not been inserted in the
        symtab yet. */
 
+    /* Check if a sub shadows a package. Skip UNIVERSAL::isa.
+       TODO: Only if a method is called in this package.
+             Or if the package contains a method.
+     */
+    if (sv_type == SVt_PVCV && add) {
+        char stashname[1024];
+        char *hvname;
+        if (len < 1026) {
+            strcpy(stashname, name);
+            strcat(stashname, "::");
+        } else {
+            assert(!!"stash too long for now"); /* TODO malloc/free */
+        }
+        if (ckWARN(WARN_SHADOW) &&
+            stash != PL_defstash && /* allow &main */
+            stash != PL_debstash && /* and &DB */
+            (hvname = HvNAME(stash)) &&
+            strNEc(hvname, "UNIVERSAL") && /* and &UNIVERSAL::* */
+            hv_fetch(stash, stashname, is_utf8 ? -(I32)(len+2) : (I32)len+2, 0))
+        {
+            /* diag_listed_as: Subroutine &%s::%s masks existing package %s */
+            Perl_warner(aTHX_ packWARN(WARN_SHADOW),
+                        "Subroutine &%s::%s masks existing package %s::%s",
+                        hvname, name, hvname, name);
+        }
+    }
+
     if (SvTYPE(gv) == SVt_PVGV) {
         /* The GV already exists, so return it, but check if we need to do
          * anything else with it before that.
