@@ -105,7 +105,7 @@ IO::Compress::Base cpan/IO-Compress/lib/File/GlobMapper.pm 81f265ee36efb2b9373a8
 IO::Compress::Base cpan/IO-Compress/t/compress/encode.pl 776c114af5146d3c328c247c9550e021bb8bac62
 IO::Compress::Base cpan/IO-Compress/t/cz-14gzopen.t dee09dbad5cb1cad6027fd61d14552a192b68060
 IO::Socket::IP cpan/IO-Socket-IP/lib/IO/Socket/IP.pm db487ebd6f709d306c4a1d55cb3454f24c7e40cc
-IPC::Cmd cpan/IPC-Cmd/t/01_IPC-Cmd.t 3626c405359d5e78c7bbc8245013251920527366
+IPC::Cmd cpan/IPC-Cmd/t/01_IPC-Cmd.t 964f9ba3f491fc34c8c07722772af40124ae6467
 JSON::PP cpan/JSON-PP/lib/JSON/PP.pm e57863a7094f6270810dadfdf596cb55cc86eb97
 JSON::PP cpan/JSON-PP/lib/JSON/PP/Boolean.pm ccc6b9b4daa99ac651e1b65dad2b8508d4e3194a
 Math::BigInt cpan/Math-BigInt/t/bare_mbf.t b56ab2976395fa0621b9433e371c65a796936560
