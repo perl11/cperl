@@ -806,9 +806,8 @@ cperl-only.
 Optimized the loop ITER ops to jump directly to the subsequent AND op.
 For an empty body, this cuts about 20% off the time of an iteration.
 Backported from perl-5.27.3. This is a simplier implementation of
-the cperl F<feature/gh138-iter-and> branch from L<[cperl
-#138]|https://github.com/perl11/cperl/issues/138>.
-cperl-only.
+the cperl F<feature/gh138-iter-and> branch from 
+L<[cperl #138]|https://github.com/perl11/cperl/issues/138>.
 
 Thus inner loops are now smaller and faster: 15%-50%.
 
@@ -880,8 +879,10 @@ specifically optimised,  e.g.
 Slightly improved performance when parsing stash names.
 L<[perl #129990]|https://rt.perl.org/Public/Bug/Display.html?id=129990>
 
-cperl added the optiomization to skip expanding C<'> to C<::>, as using 
-C<'> as package seperator was removed earlier.
+cperl added the optimization to skip expanding C<'> to C<::>. 
+The C<'> as valid perl4-style package seperator was removed.
+In XS you can check for the define PERL_NO_QUOTE_PKGSEPERATOR if the quote as
+package seperator is disallowed.
 
 =item *
 

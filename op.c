@@ -9035,18 +9035,30 @@ Perl_newPVOP(pTHX_ I32 type, I32 flags, char *pv)
     return CHECKOP(type, pvop);
 }
 
+/*
+=for apidoc p|void|package|OP* o
+
+Implements the package keyword, used in C<perly.y>.
+Saves the old current package, and sets the new
+current package and package name (for __PACKAGE__).
+
+On cperl also checks for a shadow method overriding method access to
+this new package.
+Note that L<perlapi/class_role> inlines most of this function also.
+
+=cut
+*/
+
 void
 Perl_package(pTHX_ OP *o)
 {
     SV *const sv = cSVOPo->op_sv;
-
     PERL_ARGS_ASSERT_PACKAGE;
 
     SAVEGENERICSV(PL_curstash);
     save_item(PL_curstname);
 
     PL_curstash = (HV *)SvREFCNT_inc(gv_stashsv(sv, GV_ADD));
-
     sv_setsv(PL_curstname, sv);
 
     PL_hints |= HINT_BLOCK_SCOPE;

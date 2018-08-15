@@ -1628,7 +1628,9 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
     const char *name_cursor;
     const char *const name_end = nambeg + full_len;
     const char *const name_em1 = name_end - 1;
-    char smallbuf[128];      /* to avoid a malloc when possible */
+#ifndef PERL_NO_QUOTE_PKGSEPERATOR
+    char smallbuf[128];      /* to avoid a malloc on expanding ' to :: */
+#endif
 
     PERL_ARGS_ASSERT_PARSE_GV_STASH_NAME;
 
@@ -1661,6 +1663,7 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
                     key = *name;
                     *len += 2;
                 }
+#ifndef PERL_NO_QUOTE_PKGSEPERATOR
                 else { /* using ' for package separator */
                     /* use our pre-allocated buffer when possible to save a malloc */
                     char *tmpbuf;
@@ -1677,6 +1680,7 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
                     tmpbuf[(*len)++] = ':';
                     key = tmpbuf;
                 }
+#endif
                 gvp = (GV**)hv_fetch_ifexists(*stash, key, is_utf8 ? -((I32)*len) : (I32)*len, add);
                 *gv = gvp ? *gvp : NULL;
                 if (!*gv || *gv == (const GV *)UNDEF) {
@@ -1689,7 +1693,7 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
                 else
                     GvMULTI_on(*gv);
 
-                if (!(*stash = GvHV(*gv))) {
+                if (!(*stash = GvHV(*gv))) { /* create the package */
                     *stash = GvHV(*gv) = newHV();
                     if (!HvNAME_get(*stash)) {
                         if (GvSTASH(*gv) == PL_defstash && *len == 6
@@ -1697,10 +1701,10 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
                             hv_name_sets(*stash, "CORE", 0);
                         else
                             hv_name_set(*stash, nambeg, name_cursor-nambeg, is_utf8);
-                    /* If the containing stash has multiple effective
-                       names, see that this one gets them, too. */
-                    if (HvAUX(GvSTASH(*gv))->xhv_name_count)
-                        mro_package_moved(*stash, NULL, *gv, 1);
+                        /* If the containing stash has multiple effective
+                           names, see that this one gets them, too. */
+                        if (HvAUX(GvSTASH(*gv))->xhv_name_count)
+                            mro_package_moved(*stash, NULL, *gv, 1);
                     }
                 }
                 else if (!HvNAME_get(*stash))
