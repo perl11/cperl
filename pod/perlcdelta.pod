@@ -24,6 +24,18 @@ here, but most should go in the L</Performance Enhancements> section.
 
 [ List each enhancement as a =head2 entry ]
 
+=head2 New warning shadow package
+
+When a subroutine with the same name of a package exists, all package
+methods are rerouted through this subroutine, effectively
+eliminating all access to the package via methods.  This is almost
+always an error, unless you want to override access to the package
+or want a data-only package, without any methods.
+cperl added the shadow warnings
+L<perldiag/"Subroutine &%s::%s masks existing package %s::%s">
+and L<perldiag/"Subroutine &%s masks new package %s">.
+Use C<no warnings 'shadow';> to silence these new warnings.
+
 =head1 Security
 
 XXX Any security-related notices go here.  In particular, any security
@@ -209,7 +221,12 @@ XXX L<message|perldiag/"message">
 
 =item *
 
-XXX L<message|perldiag/"message">
+L<Subroutine &%s::%s masks existing package %s::%s|perldiag/"Subroutine &%s::%s masks existing package %s::%s">
+
+=item *
+
+L<Subroutine &%s masks new package %s|perldiag/"Subroutine &%s masks new package %s"> and
+L<Subroutine &%s masks new class %s|perldiag/"Subroutine &%s masks new class %s">
 
 =back
 

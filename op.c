@@ -9053,6 +9053,8 @@ void
 Perl_package(pTHX_ OP *o)
 {
     SV *const sv = cSVOPo->op_sv;
+    GV* gv;
+
     PERL_ARGS_ASSERT_PACKAGE;
 
     SAVEGENERICSV(PL_curstash);
@@ -9060,6 +9062,18 @@ Perl_package(pTHX_ OP *o)
 
     PL_curstash = (HV *)SvREFCNT_inc(gv_stashsv(sv, GV_ADD));
     sv_setsv(PL_curstname, sv);
+
+    /* check for a shadowing sub */
+    if (ckWARN_d(WARN_SHADOW) &&
+        (gv = gv_fetchsv(sv, GV_NOADD_NOINIT, SVt_PVCV)) &&
+        GvCV(gv) &&
+        PL_curstash != PL_defstash && /* but allow &main */
+        PL_curstash != PL_debstash)   /* and &DB */
+    {
+        Perl_warner(aTHX_ packWARN(WARN_SHADOW),
+                    "Subroutine &%" SVf " masks new package %" SVf,
+                    SVfARG(sv), SVfARG(sv));
+    }
 
     PL_hints |= HINT_BLOCK_SCOPE;
     PL_parser->copline = NOLINE;
@@ -11877,9 +11891,9 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
         if (ckWARN(WARN_SHADOW)) {
             assert(cSVOPo);
             Perl_warner(aTHX_ packWARN(WARN_SHADOW),
-                        "Subroutine &%s::%" SVf " masks existing package %s::%s",
+                        "Subroutine &%s::%" SVf " masks existing package %s",
                         GvNAME(GvSTASH(gv)), SVfARG(cSVOPo->op_sv),
-                        GvNAME(GvESTASH(gv)), GvENAME(gv));
+                        GvNAME(GvESTASH(gv)));
         }
     }
 #endif
@@ -21973,6 +21987,7 @@ Perl_class_role(pTHX_ OP* o)
 {
     bool is_role;
     SV *name; HV* stash;
+    GV *gv;
     PERL_ARGS_ASSERT_CLASS_ROLE;
 
     if (IS_TYPE(o, LIST))
@@ -22011,6 +22026,15 @@ Perl_class_role(pTHX_ OP* o)
     save_item(PL_curstname);
     PL_curstash = (HV *)SvREFCNT_inc(gv_stashsv(name, GV_ADD));
     sv_setsv(PL_curstname, name);
+    /* check for a shadowing sub */
+    if (ckWARN_d(WARN_SHADOW) &&
+        (gv = gv_fetchsv(name, GV_NOADD_NOINIT, SVt_PVCV)) &&
+        GvCV(gv)) /* There will be no class main or class DB to skip */
+    {
+        Perl_warner(aTHX_ packWARN(WARN_SHADOW),
+                    "Subroutine &%" SVf " masks new class %" SVf,
+                    SVfARG(name), SVfARG(name));
+    }
     PL_hints |= HINT_BLOCK_SCOPE;
     PL_parser->copline = NOLINE;
     
