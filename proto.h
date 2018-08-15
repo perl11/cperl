@@ -9870,12 +9870,6 @@ STATIC regnode*	S_handle_regex_sets(pTHX_ RExC_state_t *pRExC_state, SV ** retur
 #define PERL_ARGS_ASSERT_HANDLE_REGEX_SETS	\
 	assert(pRExC_state); assert(flagp); assert(oregcomp_parse)
 
-PERL_CALLCONV SV*	Perl_invlist_clone(pTHX_ SV* const invlist, SV* newlist)
-			__attribute__global__
-			__attribute__nonnull__(pTHX_1);
-#define PERL_ARGS_ASSERT_INVLIST_CLONE	\
-	assert(invlist)
-
 STATIC SV*	S_invlist_contents(pTHX_ SV* const invlist, const bool traditional_style)
 			__attribute__global__
 			__attribute__warn_unused_result__
@@ -10340,6 +10334,14 @@ PERL_CALLCONV void	Perl_utf8_check_script(pTHX_ const U8 *s)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_UTF8_CHECK_SCRIPT	\
 	assert(s)
+
+#endif
+#if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_SV_C)
+PERL_CALLCONV SV*	Perl_invlist_clone(pTHX_ SV* const invlist, SV* newlist)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_INVLIST_CLONE	\
+	assert(invlist)
 
 #endif
 #if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_TOKE_C) || defined(PERL_IN_DQUOTE_C)
