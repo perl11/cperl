@@ -1826,7 +1826,6 @@ EiMn	|void	|invlist_trim		|NN SV* invlist
 EiM	|void	|invlist_clear		|NN SV* invlist
 sM	|void	|initialize_invlist_guts|NN SV* invlist|const Size_t initial_size
 #endif
-EiMR	|SV*	|invlist_clone		|NN SV* const invlist|NULLOK SV* new_invlist
 EiMRn	|STRLEN*|get_invlist_iter_addr	|NN SV* invlist
 EiMn	|void	|invlist_iterinit	|NN SV* invlist
 EsMRn	|bool	|invlist_iternext	|NN SV* invlist|NN UV* start|NN UV* end
@@ -1858,8 +1857,10 @@ EXMpR	|SV*	|_setup_canned_invlist	|const STRLEN size|const UV element0 \
 EXMpn	|void	|_invlist_populate_swatch|NN SV* const invlist|const UV start \
 					|const UV end|NN U8* swatch
 #endif
-#if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C) || defined(PERL_IN_UTF8_C) \
-    || defined(PERL_IN_TOKE_C)
+#if defined(PERL_IN_REGCOMP_C)
+EMpX	|SV*	|invlist_clone	|NN SV* const invlist|NULLOK SV* newlist
+#endif
+#if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C) || defined(PERL_IN_UTF8_C) || defined(PERL_IN_TOKE_C)
 EXp	|SV*	|_core_swash_init|NN const char* pkg|NN const char* name \
 				|NN SV* listsv|I32 minbits|I32 none \
 				|NULLOK SV* invlist|NULLOK U8* const flags_p

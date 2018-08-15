@@ -1263,7 +1263,7 @@
 #define handle_named_backref(a,b,c,d)	S_handle_named_backref(aTHX_ a,b,c,d)
 #define handle_possible_posix(a,b,c,d,e)	S_handle_possible_posix(aTHX_ a,b,c,d,e)
 #define handle_regex_sets(a,b,c,d,e)	S_handle_regex_sets(aTHX_ a,b,c,d,e)
-#define invlist_clone(a,b)	S_invlist_clone(aTHX_ a,b)
+#define invlist_clone(a,b)	Perl_invlist_clone(aTHX_ a,b)
 #define invlist_contents(a,b)	S_invlist_contents(aTHX_ a,b)
 #define invlist_highest		S_invlist_highest
 #define invlist_is_iterating	S_invlist_is_iterating
@@ -1335,7 +1335,7 @@
 #define invlist_array		S_invlist_array
 #define is_invlist		S_is_invlist
 #  endif
-#  if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C) || defined(PERL_IN_UTF8_C)     || defined(PERL_IN_TOKE_C)
+#  if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C) || defined(PERL_IN_UTF8_C) || defined(PERL_IN_TOKE_C)
 #define _core_swash_init(a,b,c,d,e,f,g)	Perl__core_swash_init(aTHX_ a,b,c,d,e,f,g)
 #define utf8_check_script(a)	Perl_utf8_check_script(aTHX_ a)
 #  endif
