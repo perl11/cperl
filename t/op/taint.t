@@ -17,7 +17,7 @@ BEGIN {
 use strict;
 use Config;
 
-plan tests => 889+15;
+plan tests => 905;
 
 $| = 1;
 
@@ -2255,6 +2255,22 @@ end
     eval { "A" =~ /\p{$prop}/};
     like($@, qr/Insecure user-defined property "IsA" in regex/,
 	    "user-defined property: tainted case");
+
+}
+
+{
+
+    local $ENV{XX} = '\p{IsB}';   # Making it an environment variable taints it
+
+    fresh_perl_like(<<'EOF',
+        BEGIN { $re = qr/$ENV{XX}/; }
+
+        sub IsB { "42" };
+        "B" =~ $re
+EOF
+     qr/Insecure user-defined property \\p\{main::IsB\}/,
+     { switches => [ "-T" ] },
+    "user-defined property; defn not known until runtime, tainted case");
 }
 
 {
