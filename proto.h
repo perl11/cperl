@@ -9871,7 +9871,7 @@ STATIC regnode*	S_handle_regex_sets(pTHX_ RExC_state_t *pRExC_state, SV ** retur
 	assert(pRExC_state); assert(flagp); assert(oregcomp_parse)
 
 #ifndef PERL_NO_INLINE_FUNCTIONS
-PERL_STATIC_INLINE SV*	S_invlist_clone(pTHX_ SV* const invlist)
+PERL_STATIC_INLINE SV*	S_invlist_clone(pTHX_ SV* const invlist, SV* new_invlist)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_INVLIST_CLONE	\
