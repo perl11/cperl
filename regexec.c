@@ -10667,10 +10667,10 @@ Perl_isSCRIPT_RUN(pTHX_ const U8 * s, const U8 * send, const bool utf8_target)
          *       zero of the run is '0', as that also hasn't narrowed things
          *       down completely */
         if (    cp >= FIRST_NON_ASCII_DECIMAL_DIGIT
-            && (   (          ! SEEN_A_DIGIT
-                    || (  (   script_of_char >= 0
-                           && script_zeros[script_of_char] == 0)
-                        ||    intersection))))
+            && (   intersection
+                || script_of_char < 0   /* Also implies an intersection */
+                || zero_of_run == '0'
+                || script_zeros[script_of_char] == 0))
         {
             SSize_t range_zero_index;
             range_zero_index = _invlist_search(decimals_invlist, cp);
