@@ -3865,7 +3865,7 @@ PerlIO_exportFILE(PerlIO * f, const char *mode)
     dTHX;
     FILE *stdio = NULL;
     PERL_ARGS_ASSERT_PERLIO_EXPORTFILE;
-    if (PerlIOValid(f)) {
+    if (PerlIOBase(f)) { /* i.e. PerlIOValid_NN() */
 	char buf[8];
         int fd = PerlIO_fileno(f);
         if (fd < 0) {
