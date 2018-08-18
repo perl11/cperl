@@ -228,7 +228,7 @@ S_ithread_clear(pTHX_ ithread *thread)
 {
     PerlInterpreter *interp;
 #ifndef WIN32
-    sigset_t origmask;
+    static sigset_t origmask;
 #endif
 
     assert(((thread->state & PERL_ITHR_FINISHED) &&
