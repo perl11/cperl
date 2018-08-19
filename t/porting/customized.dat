@@ -179,7 +179,7 @@ bignum dist/bignum/t/scope_r.t 531216cbede50c3dbc82795c549a439e2c8ac627
 lib dist/lib/lib_pm.PL 04a3dedbc657cac6c8db1faf2f0c6a7af328a23f
 threads dist/threads/lib/threads.pm 41851eadf0a612abbbf47bd5ee8c7583f72d8933
 threads dist/threads/t/locale.t 9a2a5b43a39867590eb288d4a1759abac2052aa8
-threads dist/threads/threads.xs cc16715b45fe84724d97fb6cbfe1aaa5b5b49430
+threads dist/threads/threads.xs 3285711397bddf5b5e8ddc0669744d5f7a2a814f
 threads::shared dist/threads-shared/t/waithires.t dc867159fd2fa8c09326cd7627f5a0635ca5e3b5
 version cpan/version/lib/version.pm 2a13001de38b343b29720bd432612472dfd3f265
 version cpan/version/lib/version/regex.pm 78326aeeff8b3603558da9f9b86822a04c0b7be2
