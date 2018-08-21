@@ -9890,6 +9890,15 @@ STATIC regnode_offset	S_handle_regex_sets(pTHX_ RExC_state_t *pRExC_state, SV **
 #define PERL_ARGS_ASSERT_HANDLE_REGEX_SETS	\
 	assert(pRExC_state); assert(flagp); assert(oregcomp_parse)
 
+PERL_CALLCONV SV *	Perl_handle_user_defined_property(pTHX_ const char * name, const STRLEN name_len, const bool is_utf8, const bool to_fold, const bool runtime, SV* contents, bool *user_defined_ptr, SV * msg, const STRLEN level)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_6)
+			__attribute__nonnull__(pTHX_7)
+			__attribute__nonnull__(pTHX_8);
+#define PERL_ARGS_ASSERT_HANDLE_USER_DEFINED_PROPERTY	\
+	assert(name); assert(contents); assert(user_defined_ptr); assert(msg)
+
 STATIC SV*	S_invlist_contents(pTHX_ SV* const invlist, const bool traditional_style)
 			__attribute__global__
 			__attribute__warn_unused_result__
@@ -9989,12 +9998,13 @@ STATIC void	S_parse_lparen_question_flags(pTHX_ RExC_state_t *pRExC_state)
 #define PERL_ARGS_ASSERT_PARSE_LPAREN_QUESTION_FLAGS	\
 	assert(pRExC_state)
 
-PERL_CALLCONV SV *	Perl_parse_uniprop_string(pTHX_ const char * const name, const Size_t name_len, const bool to_fold, bool * invert)
+PERL_CALLCONV SV *	Perl_parse_uniprop_string(pTHX_ const char * const name, const Size_t name_len, const bool is_utf8, const bool to_fold, const bool runtime, bool * user_defined_ptr, SV * msg, const STRLEN level)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_4);
+			__attribute__nonnull__(pTHX_6)
+			__attribute__nonnull__(pTHX_7);
 #define PERL_ARGS_ASSERT_PARSE_UNIPROP_STRING	\
-	assert(name); assert(invert)
+	assert(name); assert(user_defined_ptr); assert(msg)
 
 STATIC void	S_populate_ANYOF_from_invlist(pTHX_ regnode *node, SV** invlist_ptr)
 			__attribute__global__
