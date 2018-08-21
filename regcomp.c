@@ -18007,10 +18007,9 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
                         UV c = (k == 0)     /* First time through use itself */
                                 ? folded
                                 : (k == 1)  /* 2nd time use, the first fold */
-                                   ? first_folds_to
-
+                                   ? (UV)first_folds_to
                                      /* Then the remaining ones */
-                                   : remaining_folds_to_list[k-2];
+                                   : (UV)remaining_folds_to_list[k-2];
 
                         /* /aa doesn't allow folds between ASCII and non- */
                         if ((   ASCII_FOLD_RESTRICTED

@@ -3425,9 +3425,6 @@ Perl__is_utf8_perl_idstart(pTHX_ const U8 *p)
 
     PERL_ARGS_ASSERT__IS_UTF8_PERL_IDSTART;
 
-    if (! PL_utf8_perl_idstart) {
-        invlist = _new_invlist_C_array(_Perl_IDStart_invlist);
-    }
     return is_utf8_common(p, &PL_utf8_perl_idstart, "_Perl_IDStart", invlist);
 }
 
@@ -3448,9 +3445,6 @@ Perl__is_utf8_perl_idcont(pTHX_ const U8 *p)
 
     PERL_ARGS_ASSERT__IS_UTF8_PERL_IDCONT;
 
-    if (! PL_utf8_perl_idcont) {
-        invlist = _new_invlist_C_array(_Perl_IDCont_invlist);
-    }
     return is_utf8_common(p, &PL_utf8_perl_idcont, "_Perl_IDCont", invlist);
 }
 
