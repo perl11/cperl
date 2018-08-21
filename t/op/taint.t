@@ -2253,7 +2253,7 @@ end
     ok("A" =~ /\p{$prop}/, "user-defined property: non-tainted case");
     $prop = "IsA$TAINT";
     eval { "A" =~ /\p{$prop}/};
-    like($@, qr/Insecure user-defined property \\p\{main::IsA\}/,
+    like($@, qr/Insecure user-defined property "IsA" in regex/,
 	    "user-defined property: tainted case");
 }
 
