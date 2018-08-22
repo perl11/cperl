@@ -1447,9 +1447,6 @@ Apmb	|OP*	|ref		|NULLOK OP* o|I32 type
 s	|OP*	|refkids	|NULLOK OP* o|I32 type
 #endif
 Ap	|void	|regdump	|NN const regexp* r
-ApM	|SV*	|regclass_swash	|NULLOK const regexp *prog \
-				|NN const struct regnode *node|bool doinit \
-				|NULLOK SV **listsvp|NULLOK SV **altsvp
 #if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_PERL_C) || defined(PERL_IN_UTF8_C)
 EXpR	|SV*	|_new_invlist_C_array|NN const UV* const list
 EXMp	|bool	|_invlistEQ	|NN SV* const a|NN SV* const b|const bool complement_b
@@ -1841,30 +1838,20 @@ EsRn	|bool	|new_regcurly		|NN const char *s|NN const char *e
 EXmM	|void	|_invlist_intersection	|NN SV* const a|NN SV* const b \
 					|NN SV** i
 EXpM	|void	|_invlist_intersection_maybe_complement_2nd \
-					|NULLOK SV* const a|NN SV* const b \
-					|const bool complement_b|NN SV** i
-EXmM	|void	|_invlist_union		|NULLOK SV* const a|NN SV* const b|NN SV** output
-EXpM	|void	|_invlist_union_maybe_complement_2nd \
-			|NULLOK SV* const a|NN SV* const b \
-			|const bool complement_b|NN SV** output
-EXmM	|void	|_invlist_subtract	|NN SV* const a|NN SV* const b|NN SV** result
-EXpM	|void	|_invlist_invert	|NN SV* const invlist
-EXMpR	|SV*	|_new_invlist		|IV initial_size
-EXMpR	|SV*	|_swash_to_invlist	|NN SV* const swash
+		|NULLOK SV* const a|NN SV* const b          \
+		|const bool complement_b|NN SV** i
+EXmM	|void	|_invlist_union	|NULLOK SV* const a|NN SV* const b|NN SV** output
+EXpM	|void	|_invlist_union_maybe_complement_2nd        \
+		|NULLOK SV* const a|NN SV* const b          \
+		|const bool complement_b|NN SV** output
+EXmM	|void	|_invlist_subtract|NN SV* const a|NN SV* const b|NN SV** result
+EXpM	|void	|_invlist_invert|NN SV* const invlist
+EXMpR	|SV*	|_new_invlist	|IV initial_size
 EXMpR	|SV*	|_add_range_to_invlist	|NULLOK SV* invlist|UV start|UV end
-EXMpR	|SV*	|_setup_canned_invlist	|const STRLEN size|const UV element0 \
-					|NN UV** other_elements_ptr
-EXMpn	|void	|_invlist_populate_swatch|NN SV* const invlist|const UV start \
-					|const UV end|NN U8* swatch
+EXMpR	|SV*	|_setup_canned_invlist|const STRLEN size|const UV element0|NN UV** other_elements_ptr
 #endif
 #if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_SV_C)
 EMpX	|SV*	|invlist_clone	|NN SV* const invlist|NULLOK SV* newlist
-#endif
-#if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C) || defined(PERL_IN_UTF8_C) || defined(PERL_IN_TOKE_C)
-EXp	|SV*	|_core_swash_init|NN const char* pkg|NN const char* name \
-				|NN SV* listsv|I32 minbits|I32 none \
-				|NULLOK SV* invlist|NULLOK U8* const flags_p
-EXMp	|void	|utf8_check_script|NN const U8 *s
 #endif
 #if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C) || defined(PERL_IN_TOKE_C) || defined(PERL_IN_UTF8_C) || defined(PERL_IN_PP_C)
 EiMRn	|UV*	|invlist_array		|NN SV* const invlist
@@ -1873,7 +1860,6 @@ EiMRn	|bool*	|get_invlist_offset_addr|NN SV* invlist
 EiMRn	|UV	|_invlist_len		|NN SV* const invlist
 EMiRn	|bool	|_invlist_contains_cp	|NN SV* const invlist|const UV cp
 EXpMRn	|SSize_t|_invlist_search	|NN SV* const invlist|const UV cp
-EXMpR	|SV*	|_get_swash_invlist	|NN SV* const swash
 #endif
 #if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C)
 EXpM	|SV*	|_get_regclass_nonbitmap_data				   \
@@ -1888,6 +1874,9 @@ EXpM	|SV*	|_get_regclass_nonbitmap_data				   \
 EXMp	|void	|_invlist_dump	|NN PerlIO *file|I32 level   \
 				|NN const char* const indent \
 				|NN SV* const invlist
+#endif
+#if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C) || defined(PERL_IN_UTF8_C) || defined(PERL_IN_TOKE_C)
+EXMp	|void	|utf8_check_script|NN const U8 *s
 #endif
 Ap	|void	|taint_env
 Ap	|void	|taint_proper	|NULLOK const char* f|NN const char *const s
@@ -2576,10 +2565,8 @@ Es	|regnode_offset|regbranch	|NN RExC_state_t *pRExC_state \
 Es	|void	 |set_ANYOF_arg	|NN RExC_state_t* const pRExC_state \
 				|NN regnode* const node                    \
 				|NULLOK SV* const cp_list                  \
-				|NULLOK SV* const runtime_defns            \
-				|NULLOK SV* const only_utf8_locale_list	   \
-				|NULLOK SV* const swash                    \
-				|const bool has_user_defined_property
+				|NULLOK SV* const runtime_defns		   \
+				|NULLOK SV* const only_utf8_locale_list
 Es	|void	|output_posix_warnings					    \
 				|NN RExC_state_t *pRExC_state		    \
 				|NN AV* posix_warnings
