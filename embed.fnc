@@ -1915,19 +1915,19 @@ s	|UV	|_to_utf8_case  |const UV uv1					\
 				|NULLOK const U8 * const aux_table_lengths	\
 				|NN const char * const normal
 #endif
-ApbmdD	|UV	|to_utf8_lower	|NN const U8 *p|NN U8* ustrp|NULLOK STRLEN *lenp
+ApbdD	|UV	|to_utf8_lower	|NN const U8 *p|NN U8* ustrp|NULLOK STRLEN *lenp
 AMp	|UV	|_to_utf8_lower_flags|NN const U8 *p|NULLOK const U8* e		\
 				|NN U8* ustrp|NULLOK STRLEN *lenp|bool flags	\
 				|NN const char * const file|const int line
-ApbmdD	|UV	|to_utf8_upper	|NN const U8 *p|NN U8* ustrp|NULLOK STRLEN *lenp
+ApbdD	|UV	|to_utf8_upper	|NN const U8 *p|NN U8* ustrp|NULLOK STRLEN *lenp
 AMp	|UV	|_to_utf8_upper_flags	|NN const U8 *p|NULLOK const U8 *e	\
 				|NN U8* ustrp|NULLOK STRLEN *lenp|bool flags	\
 				|NN const char * const file|const int line
-ApbmdD	|UV	|to_utf8_title	|NN const U8 *p|NN U8* ustrp|NULLOK STRLEN *lenp
+ApbdD	|UV	|to_utf8_title	|NN const U8 *p|NN U8* ustrp|NULLOK STRLEN *lenp
 AMp	|UV	|_to_utf8_title_flags	|NN const U8 *p|NULLOK const U8* e	\
 				|NN U8* ustrp|NULLOK STRLEN *lenp|bool flags	\
 				|NN const char * const file|const int line
-ApbmdD	|UV	|to_utf8_fold	|NN const U8 *p|NN U8* ustrp|NULLOK STRLEN *lenp
+ApbdD	|UV	|to_utf8_fold	|NN const U8 *p|NN U8* ustrp|NULLOK STRLEN *lenp
 AMp	|UV	|_to_utf8_fold_flags|NN const U8 *p|NULLOK const U8 *e		\
 				|NN U8* ustrp|NULLOK STRLEN *lenp|U8 flags  \
 				|NN const char * const file|const int line

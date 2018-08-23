@@ -924,6 +924,18 @@
 #define to_uni_upper_lc(a)	Perl_to_uni_upper_lc(aTHX_ a)
 #endif
 #ifndef NO_MATHOMS
+#define to_utf8_fold(a,b,c)	Perl_to_utf8_fold(aTHX_ a,b,c)
+#endif
+#ifndef NO_MATHOMS
+#define to_utf8_lower(a,b,c)	Perl_to_utf8_lower(aTHX_ a,b,c)
+#endif
+#ifndef NO_MATHOMS
+#define to_utf8_title(a,b,c)	Perl_to_utf8_title(aTHX_ a,b,c)
+#endif
+#ifndef NO_MATHOMS
+#define to_utf8_upper(a,b,c)	Perl_to_utf8_upper(aTHX_ a,b,c)
+#endif
+#ifndef NO_MATHOMS
 #define unpack_str(a,b,c,d,e,f,g,h)	Perl_unpack_str(aTHX_ a,b,c,d,e,f,g,h)
 #endif
 #define unpackstring(a,b,c,d,e)	Perl_unpackstring(aTHX_ a,b,c,d,e)

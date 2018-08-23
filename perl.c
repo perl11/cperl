@@ -2789,7 +2789,7 @@ perl_run(pTHXx)
 	if (exit_called) {
 	    ret = STATUS_EXIT;
         /*
-#ifndef WIN32
+#if !defined(WIN32) && !defined(VMS)
 	    if (ret == 0)
                 ret = 0x100;
 #endif

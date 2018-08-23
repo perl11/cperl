@@ -6538,13 +6538,16 @@ test_toLOWER_utf8(SV * p, int type)
             e = input + UTF8SKIP(input) - type;
             resultant_cp = toLOWER_utf8_safe(input, e, s, &len);
         }
+#ifndef NO_MATHOMS
         else if (type == -1) {
             resultant_cp = toLOWER_utf8(input, s, &len);
         }
-#ifndef NO_MATHOMS
         else {
             resultant_cp = Perl_to_utf8_lower(aTHX_ input, s, &len);
         }
+#else
+        else
+            resultant_cp = toLOWER_utf8(input, s, &len);
 #endif
         av_push(av, newSVuv(resultant_cp));
 
@@ -6628,13 +6631,16 @@ test_toFOLD_utf8(SV * p, int type)
             e = input + UTF8SKIP(input) - type;
             resultant_cp = toFOLD_utf8_safe(input, e, s, &len);
         }
+#ifndef NO_MATHOMS
         else if (type == -1) {
             resultant_cp = toFOLD_utf8(input, s, &len);
         }
-#ifndef NO_MATHOMS
         else {
             resultant_cp = Perl_to_utf8_fold(aTHX_ input, s, &len);
         }
+#else
+        else
+            resultant_cp = toFOLD_utf8(input, s, &len);
 #endif
         av_push(av, newSVuv(resultant_cp));
 
@@ -6718,13 +6724,16 @@ test_toUPPER_utf8(SV * p, int type)
             e = input + UTF8SKIP(input) - type;
             resultant_cp = toUPPER_utf8_safe(input, e, s, &len);
         }
+#ifndef NO_MATHOMS
         else if (type == -1) {
             resultant_cp = toUPPER_utf8(input, s, &len);
         }
-#ifndef NO_MATHOMS
         else {
             resultant_cp = Perl_to_utf8_upper(aTHX_ input, s, &len);
         }
+#else
+        else
+            resultant_cp = toUPPER_utf8(input, s, &len);
 #endif
         av_push(av, newSVuv(resultant_cp));
 
@@ -6801,13 +6810,16 @@ test_toTITLE_utf8(SV * p, int type)
             e = input + UTF8SKIP(input) - type;
             resultant_cp = toTITLE_utf8_safe(input, e, s, &len);
         }
+#ifndef NO_MATHOMS
         else if (type == -1) {
             resultant_cp = toTITLE_utf8(input, s, &len);
         }
-#ifndef NO_MATHOMS
         else {
             resultant_cp = Perl_to_utf8_title(aTHX_ input, s, &len);
         }
+#else
+        else
+            resultant_cp = toTITLE_utf8(input, s, &len);
 #endif
         av_push(av, newSVuv(resultant_cp));
 

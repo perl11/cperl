@@ -373,7 +373,7 @@ foreach my $name (sort keys %properties, 'octal') {
                                       . " warning");
                                     if ($warnings_ok) {
                                         $warnings_ok = like($warnings[0],
-                qr/starting in Perl .* will require an additional parameter/,
+                                          qr/starting in Perl .* will require an additional parameter/,
                                             "${tab}The warning was the expected"
                                           . " deprecation one");
                                     }
@@ -553,7 +553,7 @@ foreach my $name (sort keys %to_properties) {
         my $char = chr($n);
         utf8::upgrade($char);
         $char = quotemeta $char if $char eq '\\' || $char eq "'";
-        foreach my $utf8_param("_safe",
+        foreach my $utf8_param ("_safe",
                                 "_safe, malformed",
                                 "deprecated unsafe",
                                 "deprecated mathoms",
@@ -580,34 +580,35 @@ foreach my $name (sort keys %to_properties) {
             elsif (is ($@, "", "$display_call didn't give error")) {
                 is ($ret->[0], $first_ord_should_be,
                     sprintf("${tab}And correctly returned 0x%02X",
-                                                    $first_ord_should_be));
+                            $first_ord_should_be));
                 is ($ret->[1], $utf8_should_be, "${tab}Got correct utf8");
                 use bytes;
                 is ($ret->[2], length $utf8_should_be,
                     "${tab}Got correct number of bytes for utf8 length");
                 if ($utf8_param_code < 0) {
                     my $warnings_ok;
-                    if (! $seen{"${function}_utf8$utf8_param"}++) {
+                    if (! $seen{"${function}_utf8"}++) {
                         $warnings_ok = is(@warnings, 1,
-                                                   "${tab}Got a single warning");
+                                          "${tab}Got a single warning");
                         if ($warnings_ok) {
                             my $expected;
-                            if ($utf8_param_code == -2) {
+                            if ($utf8_param_code == -1 and
+                                $Config{'ccflags'} =~ /-DNO_MATHOMS/)
+                            {
+                                $expected =
+                                    qr/starting in Perl .* will require an additional parameter/;
+                            } else {
                                 my $lc_func = lc $function;
-                                $expected
-                = qr/starting in Perl .* to_utf8_$lc_func\(\) will be removed/;
-                            }
-                            else {
-                                $expected
-                = qr/starting in Perl .* will require an additional parameter/;
+                                $expected =
+                                    qr/starting in Perl .* to_utf8_$lc_func\(\) will be removed/;
                             }
                             $warnings_ok = like($warnings[0], $expected,
-                                      "${tab}Got expected deprecation warning");
+                                "${tab}Got expected $utf8_param deprecation warning");
                         }
                     }
                     else {
                         $warnings_ok = is(@warnings, 0,
-                                  "${tab}Deprecation warned only the one time");
+                                          "${tab}Deprecation warned only the one time");
                     }
                     $warnings_ok or diag("@warnings");
                     undef @warnings;

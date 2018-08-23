@@ -1152,7 +1152,7 @@ Perl_to_utf8_fold(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
 {
     PERL_ARGS_ASSERT_TO_UTF8_FOLD;
 
-    return toFOLD_utf8(p, ustrp, lenp);
+    return _to_utf8_fold_flags (p, NULL, ustrp, lenp, FOLD_FLAGS_FULL, __FILE__, __LINE__);
 }
 
 UV
@@ -1160,7 +1160,7 @@ Perl_to_utf8_lower(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
 {
     PERL_ARGS_ASSERT_TO_UTF8_LOWER;
 
-    return toLOWER_utf8(p, ustrp, lenp);
+    return _to_utf8_lower_flags (p, NULL, ustrp, lenp, 0, __FILE__, __LINE__);
 }
 
 UV
@@ -1168,7 +1168,7 @@ Perl_to_utf8_title(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
 {
     PERL_ARGS_ASSERT_TO_UTF8_TITLE;
 
-    return toTITLE_utf8(p, ustrp, lenp);
+    return _to_utf8_title_flags (p, NULL, ustrp, lenp, 0, __FILE__, __LINE__);
 }
 
 UV
@@ -1176,7 +1176,7 @@ Perl_to_utf8_upper(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
 {
     PERL_ARGS_ASSERT_TO_UTF8_UPPER;
 
-    return toUPPER_utf8(p, ustrp, lenp);
+    return _to_utf8_upper_flags (p, NULL, ustrp, lenp, 0, __FILE__, __LINE__);
 }
 
 SV *
