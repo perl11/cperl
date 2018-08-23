@@ -1209,9 +1209,7 @@ XS(XS_Mu_fields)
         U16 i;
         U16 num = numfields(klass);
         HV* fields = gv_stashpvs("fields", GV_ADD);
-        if (UNLIKELY(PL_stack_max - SP < num))
-            (void)stack_grow(sp,SP,num);
-        /*EXTEND(SP, num);*/
+        EXTEND(SP, num);
         for (i=0; i<num; i++) {
             PADOFFSET po = field_index(klass, i);
             AV* field;
