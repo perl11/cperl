@@ -18,12 +18,13 @@ unless(mkdir("$tmp/testdir") && chdir("$tmp/testdir") && rmdir("$tmp/testdir")){
 
 plan tests => 8;
 require Cwd;
+my $Config_prefix = $Config{prefix};
 
 foreach my $type (qw(regular perl)) {
     SKIP: {
 	skip "_perl_abs_path() not expected to work", 4
 	    if $type eq "perl" &&
-		!(($Config{prefix} =~ m/\//) && $^O ne "cygwin");
+		!(($Config_prefix =~ m/\//) && $^O ne "cygwin");
 	no warnings "redefine";
 	local *Cwd::abs_path = \&Cwd::_perl_abs_path if $type eq "perl";
 	local *Cwd::getcwd = \&Cwd::_perl_getcwd if $type eq "perl";
