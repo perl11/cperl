@@ -6752,6 +6752,8 @@ Perl_utf8_check_script(pTHX_ const U8 *s)
     return;
 }
 
+#define PL_XPERLSPACE_invlist PL_XPOSIXSPACE_invlist
+
 void
 Perl_init_uniprops(pTHX)
 {
