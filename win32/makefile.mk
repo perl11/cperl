@@ -1550,11 +1550,14 @@ Extensions_static_general : ..\make_ext.pl $(CONFIGPM) Extension_lib $(GLOBEXE) 
 Extensions_static : list_static_libs.pl Extensions_static_general
 	$(MINIPERL) -I..\lib list_static_libs.pl > Extensions_static
 
-Extensions_nonxs : ..\make_ext.pl ..\pod\perlfunc.pod $(CONFIGPM) Extension_lib $(GLOBEXE)
+Extensions_nonxs : ..\make_ext.pl ..\pod\perlfunc.pod $(CONFIGPM) Extension_exporter $(GLOBEXE)
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --nonxs !lib
 
 Extension_lib : ..\make_ext.pl $(CONFIGPM)
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --nonxs +lib
+
+Extension_exporter : Extension_lib
+	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(DISTDIR) --nonxs +Exporter
 
 #lib must be built, it can't be buildcustomize.pl-ed, and is required for XS building
 $(DYNALOADER) : ..\make_ext.pl $(CONFIGPM) $(HAVE_COREDIR) Extensions_nonxs

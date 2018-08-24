@@ -1597,17 +1597,17 @@ endif
 # DynaLoader.pm, so this will have to do
 
 #most of deps of this target are in DYNALOADER and therefore omitted here
-Extensions : $(PERLDEP) $(DYNALOADER) $(GLOBEXE) MakePPPort
-	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic
+Extensions : $(PERLDEP) $(DYNALOADER) $(GLOBEXE) MakePPPort Normalize_dynamic
+	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic !Unicode/Normalize
 
-Extensions_normalize : $(PERLDEP) $(DYNALOADER) $(GLOBEXE) $(UNIDATAFILES)
-	$(NOOP)
+Normalize_dynamic : $(PERLDEP) $(DYNALOADER) $(GLOBEXE) $(UNIDATAFILES)
+	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(DISTDIR) --dynamic +Unicode/Normalize
 
-#Extensions_normalize : $(PERLDEP) $(DYNALOADER) $(GLOBEXE) $(UNIDATAFILES)
-#	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR#) --dir=$(EXTDIR) --dynamic +Unicode/Normalize
+Normalize_static : $(CONFIGPM) $(GLOBEXE) $(HAVE_COREDIR) $(UNIDATAFILES)
+	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(DISTDIR) --static +Unicode/Normalize
 
 Extensions_reonly : $(PERLDEP) $(DYNALOADER)
-	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic +re
+	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(EXTDIR) --dynamic +re
 
 Extensions_static_general : ..\make_ext.pl $(CONFIGPM) Extension_lib $(GLOBEXE) $(HAVE_COREDIR) MakePPPort
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --static !Unicode/Normalize
@@ -1615,15 +1615,18 @@ Extensions_static_general : ..\make_ext.pl $(CONFIGPM) Extension_lib $(GLOBEXE) 
 Extensions_static : list_static_libs.pl Extensions_static_general Normalize_static
 	$(MINIPERL) -I..\lib list_static_libs.pl > Extensions_static
 
-Extensions_nonxs : ..\make_ext.pl ..\pod\perlfunc.pod $(CONFIGPM) Extension_lib $(GLOBEXE)
+Extensions_nonxs : ..\make_ext.pl ..\pod\perlfunc.pod $(CONFIGPM) Extension_exporter $(GLOBEXE)
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --nonxs !lib
 
 Extension_lib : ..\make_ext.pl $(CONFIGPM)
-	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --nonxs +lib
+	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(DISTDIR) --nonxs +lib
+
+Extension_exporter : Extension_lib
+	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(DISTDIR) --nonxs +Exporter
 
 #lib must be built, it can't be buildcustomize.pl-ed, and is required for XS building
 $(DYNALOADER) : ..\make_ext.pl $(CONFIGPM) $(HAVE_COREDIR) Extensions_nonxs
-	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(EXTDIR) --dir=$(DISTDIR) --dynaloader
+	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(EXTDIR) --dynaloader
 
 Extensions_clean :
 	-if exist $(MINIPERL) $(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --all --target=clean
@@ -1645,9 +1648,9 @@ PostExt : ..\lib\Storable\Limit.pm
 # be running in parallel like UNIDATAFILES, this target a placeholder for the
 # future
 ifeq ($(PERLSTATIC),static)
-rebasePE : Extensions_normalize Extensions $(PERLDLL) $(PERLEXE) $(PERLEXESTATIC)
+rebasePE : Normalize_static Extensions $(PERLDLL) $(PERLEXE) $(PERLEXESTATIC)
 else
-rebasePE : Extensions_normalize Extensions $(PERLDLL) $(PERLEXE)
+rebasePE : Normalize_dynamic Extensions $(PERLDLL) $(PERLEXE)
 endif
 	$(NOOP)
 
@@ -1704,7 +1707,7 @@ utils: $(HAVEMINIPERL) ..\utils\Makefile
 	$(MINIPERL) -I..\lib ..\autodoc.pl ..
 	$(MINIPERL) -I..\lib ..\pod\perlmodlib.PL -q ..
 
-..\pod\perltoc.pod: $(PERLEXE) $(PERLDLL) Extensions_normalize Extensions Extensions_nonxs utils
+..\pod\perltoc.pod: $(PERLEXE) $(PERLDLL) Extensions Extensions_nonxs utils
 	$(PERLEXE) -f ..\pod\buildtoc -q
 
 # Note that the pod cleanup in this next section is parsed (and regenerated
