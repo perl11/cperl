@@ -683,8 +683,8 @@ sub _loose_name ($) {
     }
 }
 
-# not using the pre-processed Sc/* inversion tables yet
-# matching 41 lib/unicore/lib/Sc/ files.
+# not using the pre-processed Perl_SCX_ invmap tables yet.
+# TODO: add to charclass_invlist.h as mph hashes
 # The short forms are not permitted. (i.e. Tglg for Tagalog)
 our %VALID_SCRIPTS = map {$_ => !!1} qw(
   Adlam Ahom Anatolian_Hieroglyphs Arabic Armenian Avestan Balinese
@@ -697,16 +697,16 @@ our %VALID_SCRIPTS = map {$_ => !!1} qw(
   Inscriptional_Pahlavi Inscriptional_Parthian Javanese Kaithi Kannada
   Katakana Kayah_Li Kharoshthi Khmer Khojki Khudawadi Lao Latin Lepcha
   Limbu Linear_A Linear_B Lisu Lycian Lydian Mahajani Malayalam
-  Mandaic Manichaean Marchen Meetei_Mayek Mende_Kikakui
+  Mandaic Manichaean Marchen Masaram_Gondi Meetei_Mayek Mende_Kikakui
   Meroitic_Cursive Meroitic_Hieroglyphs Miao Modi Mongolian Mro
-  Multani Myanmar Nabataean New_Tai_Lue Newa Nko Ogham Ol_Chiki
+  Multani Myanmar Nabataean New_Tai_Lue Newa Nko Nushu Ogham Ol_Chiki
   Old_Hungarian Old_Italic Old_North_Arabian Old_Permic Old_Persian
   Old_South_Arabian Old_Turkic Oriya Osage Osmanya Pahawh_Hmong
-  Palmyrene Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Rejang
+  Palmyrene Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Qaai Rejang
   Runic Samaritan Saurashtra Sharada Shavian Siddham SignWriting
-  Sinhala Sora_Sompeng Sundanese Syloti_Nagri Syriac Tagalog Tagbanwa
+  Sinhala Sora_Sompeng Soyombo Sundanese Syloti_Nagri Syriac Tagalog Tagbanwa
   Tai_Le Tai_Tham Tai_Viet Takri Tamil Tangut Telugu Thaana Thai
-  Tibetan Tifinagh Tirhuta Ugaritic Vai Warang_Citi Yi);
+  Tibetan Tifinagh Tirhuta Ugaritic Vai Warang_Citi Yi Zanabazar_Square);
 
 # These script need to be declared, are not automatically added on
 # the first encounter.
@@ -715,6 +715,7 @@ our %VALID_SCRIPTS = map {$_ => !!1} qw(
 # plus Cyrillic and Greek to reach the Moderately Restrictive Level
 # minus the Aspirational scripts: Canadian_Aboriginal, Miao
 # Mongolian, Tifinagh, Yi
+# TODO: add to charclass_invlist.h as mph hashes
 our %EXCLUDED_SCRIPTS = map {$_ => !!1} qw(
   Cyrillic Greek
   Ahom Anatolian_Hieroglyphs Avestan Balinese Bamum Bassa_Vah Batak
@@ -724,16 +725,16 @@ our %EXCLUDED_SCRIPTS = map {$_ => !!1} qw(
   Gothic Grantha Hanunoo Hatran Imperial_Aramaic Inherited
   Inscriptional_Pahlavi Inscriptional_Parthian Javanese Kaithi
   Kayah_Li Kharoshthi Khojki Khudawadi Lepcha Limbu Linear_A Linear_B
-  Lisu Lycian Lydian Mahajani Mandaic Manichaean Meetei_Mayek
+  Lisu Lycian Lydian Mahajani Mandaic Manichaean Masaram_Gondi Meetei_Mayek
   Mende_Kikakui Meroitic_Cursive Meroitic_Hieroglyphs Modi
-  Mro Multani Nabataean New_Tai_Lue Nko Ogham Ol_Chiki
+  Mro Multani Nabataean New_Tai_Lue Nko Nushu Ogham Ol_Chiki
   Old_Hungarian Old_Italic Old_North_Arabian Old_Permic Old_Persian
   Old_South_Arabian Old_Turkic Osmanya Pahawh_Hmong Palmyrene
   Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Pau_Cin_Hau Phags_Pa
-  Phoenician Psalter_Pahlavi Rejang Runic Samaritan Saurashtra Sharada
-  Shavian Siddham SignWriting Sora_Sompeng Sundanese Syloti_Nagri
+  Phoenician Psalter_Pahlavi Qaai Rejang Runic Samaritan Saurashtra Sharada
+  Shavian Siddham SignWriting Sora_Sompeng Soyombo Sundanese Syloti_Nagri
   Syriac Tagalog Tagbanwa Tai_Le Tai_Tham Tai_Viet Takri
-  Tirhuta Ugaritic Vai Warang_Citi);
+  Tirhuta Ugaritic Vai Warang_Citi Zanabazar_Square);
 
 Internals::SvREADONLY(%VALID_SCRIPTS);
 Internals::SvREADONLY(%EXCLUDED_SCRIPTS);
@@ -746,6 +747,7 @@ sub charscript {
     $_
 }
 
+# TODO: use Perl_SCX_invlist
 sub valid_script {
     return exists $VALID_SCRIPTS{$_[0]};
 }

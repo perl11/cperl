@@ -119,9 +119,9 @@ sub build_split_words {
     }
     my %res;
 
-    REDO:
+  REDO:
     %res= ();
-    KEY:
+  KEY:
     foreach my $key (
         sort {
             (length($b) <=> length($a)) ||

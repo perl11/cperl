@@ -3685,7 +3685,7 @@ Perl_valid_ident(pTHX_ SV* sv, bool strict_names, bool allow_package,
     return TRUE;
 }
 
-/* change name uv1 to 'from' */
+/* name uv1 is 'from' */
 STATIC UV
 S__to_utf8_case(pTHX_ const UV uv1, const U8 *p,
                       U8* ustrp, STRLEN *lenp,

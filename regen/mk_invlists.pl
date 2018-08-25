@@ -22,12 +22,14 @@ require './lib/unicore/Heavy.pl';
 # any change made to that has to be done here as well.  A random number stored
 # in the headers is used to minimize the possibility of things getting
 # out-of-sync, or the wrong data structure being passed.  Currently that
-# random number is:
-
-# charclass_invlists.h now also has a partial implementation of inversion
-# maps; enough to generate tables for the line break properties, such as GCB
+# random number, the $VERSION_DATA_STRUCTURE_TYPE is:
 
 my $VERSION_DATA_STRUCTURE_TYPE = 148565664;
+
+# charclass_invlists.h now also has a partial implementation of inversion
+# maps; enough to generate tables for the LB line break properties, such as GCB,
+# but also for IVCF, SB, SC, SCX, Case_Folding, Lowercase_Mapping, Simple_Case_Folding,
+# Titlecase_Mapping, Uppercase_Mapping.
 
 # integer or float
 my $numeric_re = qr/ ^ -? \d+ (:? \. \d+ )? $ /ax;
@@ -2765,8 +2767,10 @@ my $keywords_fh = open_new('uni_keywords.h', '>',
 		  {style => '*', by => 'regen/mk_invlists.pl',
                   from => "mph.pl"});
 
-my ($second_level, $seed1, $length_all_keys, $smart_blob, $rows) = MinimalPerfectHash::make_mph_from_hash(\%keywords);
-print $keywords_fh MinimalPerfectHash::make_algo($second_level, $seed1, $length_all_keys, $smart_blob, $rows, undef, undef, undef, 'match_uniprop' );
+my ($second_level, $seed1, $length_all_keys, $smart_blob, $rows)
+  = MinimalPerfectHash::make_mph_from_hash(\%keywords);
+print $keywords_fh MinimalPerfectHash::make_algo($second_level, $seed1, $length_all_keys,
+                       $smart_blob, $rows, undef, undef, undef, 'match_uniprop' );
 
 push @sources, 'regen/mph.pl';
 read_only_bottom_close_and_rename($keywords_fh, \@sources);
