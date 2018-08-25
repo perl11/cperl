@@ -17,7 +17,7 @@
 #ifndef PERL_UTF8_H_      /* Guard against recursive inclusion */
 #define PERL_UTF8_H_ 1
 
-/* Use UTF-8 as the default script encoding?
+/* Use UTF-8 as the default script encoding? (very bad security idea btw)
  * Turning this on will break scripts having non-UTF-8 binary
  * data (such as Latin-1) in string literals. */
 #ifdef USE_UTF8_SCRIPTS

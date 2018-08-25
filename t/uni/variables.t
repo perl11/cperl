@@ -6,7 +6,7 @@
 BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
-    skip_all_if_miniperl("miniperl, no arybase");
+    #skip_all_if_miniperl("miniperl");
     skip_all_without_unicode_tables();
 }
 
@@ -14,6 +14,7 @@ use 5.016;
 use utf8;
 use open qw( :utf8 :std );
 no warnings qw(misc reserved);
+require "utf8_heavy.pl";
 
 plan (tests => 66894);
 
@@ -286,8 +287,8 @@ for my $chr (
        );
 }
 
-# allow all scripts:
-use utf8 keys %utf8::VALID_SCRIPTS;
+# allow all scripts to avoid warnings
+utf8->import(keys %utf8::VALID_SCRIPTS);
 for my $i (0x100..0xffff) {
    my $chr = chr($i);
    my $esc = sprintf("%x", $i);

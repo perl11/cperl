@@ -6737,8 +6737,7 @@ Perl_utf8_check_script(pTHX_ const U8 *s)
 
     PERL_ARGS_ASSERT_UTF8_CHECK_SCRIPT;
 
-    if (!allowed /* utf8_heavy never loaded, use utf8 'Script' never imported */
-        || HvKEYS(allowed) <= 3) { /* Latin,Common,Inherited are always present */
+    if (!allowed || HvKEYS(allowed) <= 3) { /* no utf8 (the first occurance is allowed there) */
         utf8_error_script(s, NULL, 0);
     } else {
         STRLEN len = strlen((char*)s);

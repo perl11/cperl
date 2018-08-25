@@ -10,6 +10,7 @@ $|=1 if DEBUG;
 sub DESTROY {}
 
 my %Cache;
+our %SCRIPTS;
 
 sub croak { require Carp; Carp::croak(@_) }
 
@@ -681,8 +682,6 @@ sub _loose_name ($) {
         return $SWASH;
     }
 }
-
-our %SCRIPTS = ('Common' => !!1, 'Latin' => !!1, 'Inherited' => !!1);
 
 # not using the pre-processed Sc/* inversion tables yet
 # matching 41 lib/unicore/lib/Sc/ files.

@@ -3,10 +3,13 @@ package utf8;
 $utf8::hint_bits = 0x00800000;
 
 our $VERSION = '2.03c';
+our %SCRIPTS;
 
 sub import {
     shift;
     $^H |= $utf8::hint_bits;
+    # since 5.28 utf8_heavy is not loaded anymore by default
+    %SCRIPTS = ('Common' => !!1, 'Latin' => !!1, 'Inherited' => !!1) unless %SCRIPTS;
     if (@_) {
         require "utf8_heavy.pl";
         for my $s (@_) {
