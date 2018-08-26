@@ -7063,7 +7063,7 @@ Perl_parse_uniprop_string(pTHX_ const char * const name, const Size_t len, const
             return NULL;
         }
 
-        starts_with_In_or_Is = true;
+        starts_with_In_or_Is = TRUE;
     }
 
     /* Get the index into our pointer table of the inversion list corresponding
