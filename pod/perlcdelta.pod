@@ -318,6 +318,10 @@ Fix WIDEST_UTYPE
 
 Fix wrong usage of SvREFCNT_inc_simple_NN with a function, fixes a memory leak.
 
+=item L<Encode> 2.98
+
+Fixed deep recursion in Encode::find_encoding when decoding.
+
 =item L<ExtUtils::Miniperl> 1.08
 
 Support B<afl-fuzz> with L<afl-clang-fast|perlhacktips/"afl-fuzz">

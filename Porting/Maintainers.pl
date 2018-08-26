@@ -593,14 +593,13 @@ use File::Glob qw(:case);
     },
 
     'Encode' => {
-        'DISTRIBUTION' => 'DANKOGAI/Encode-2.93.tar.gz',
+        'DISTRIBUTION' => 'DANKOGAI/Encode-2.98.tar.gz',
         'FILES'        => q[cpan/Encode],
         # undeprecate encoding
         # t/truncated_utf8.t: TODO test passes on blead
         'CUSTOMIZED'   => [ qw(
                             encoding.pm
                             t/Aliases.t
-                            t/truncated_utf8.t
                             )],
     },
 

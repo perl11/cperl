@@ -78,7 +78,6 @@ Digest::SHA cpan/Digest-SHA/t/unicode.t f62768510104cde42af8544e04af722ee2cbb85e
 Digest::SHA cpan/Digest-SHA/t/woodbury.t 1efec6fae3600f891d27f944d05d6e363444d9c8
 Encode cpan/Encode/encoding.pm 779656f3a83bf7c39625a9fc3a0b1d6723dc29b5
 Encode cpan/Encode/t/Aliases.t 95bf948f5dbdd4f775904baf2111413b66a5944d
-Encode cpan/Encode/t/truncated_utf8.t 36e6780c20f1d22ed7c97b1a388a63629617451f
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t 30dbb8884acdb910e79649be5c72e350be27eb36
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t 71a03fe898634486a5181ac32b6a98f03bb9a914
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/Liblist/Kid.pm 62563c9fc18ae5ae8f0800ae0554f8258e53eec8

@@ -1,5 +1,5 @@
 /*
- $Id: Encode.xs,v 2.41 2017/06/10 17:23:50 dankogai Exp $
+ $Id: Encode.xs,v 2.44 2018/04/22 09:02:00 dankogai Exp $
  */
 
 #define PERL_NO_GET_CONTEXT
@@ -20,19 +20,15 @@
    encode_method().  1 is recommended. 2 restores NI-S original */
 #define ENCODE_XS_USEFP   1
 
-#define UNIMPLEMENTED(x,y) static y x (SV *sv, char *encoding) {	\
-			Perl_croak_nocontext("panic_unimplemented");	\
-                        PERL_UNUSED_VAR(sv); \
-                        PERL_UNUSED_VAR(encoding); \
-             return (y)0; /* fool picky compilers */ \
-                         }
-/**/
-
-UNIMPLEMENTED(_encoded_utf8_to_bytes, I32)
-UNIMPLEMENTED(_encoded_bytes_to_utf8, I32)
-
 #ifndef SvIV_nomg
 #define SvIV_nomg SvIV
+#endif
+
+#ifndef UTF8_DISALLOW_ILLEGAL_INTERCHANGE
+#  define UTF8_DISALLOW_ILLEGAL_INTERCHANGE 0
+#  define UTF8_ALLOW_NON_STRICT (UTF8_ALLOW_FE_FF|UTF8_ALLOW_SURROGATE|UTF8_ALLOW_FFFF)
+#else
+#  define UTF8_ALLOW_NON_STRICT 0
 #endif
 
 static void
@@ -57,16 +53,6 @@ Encode_XSEncoding(pTHX_ encode_t * enc)
     PUTBACK;
     call_pv("Encode::define_encoding", G_DISCARD);
     SvREFCNT_dec(sv);
-}
-
-static void
-call_failure(SV * routine, U8 * done, U8 * dest, U8 * orig)
-{
-    /* Exists for breakpointing */
-    PERL_UNUSED_VAR(routine);
-    PERL_UNUSED_VAR(done);
-    PERL_UNUSED_VAR(dest);
-    PERL_UNUSED_VAR(orig);
 }
 
 static void
@@ -157,7 +143,7 @@ do_bytes_fallback_cb(pTHX_ U8 *s, STRLEN slen, SV *fallback_cb)
 
 static SV *
 encode_method(pTHX_ const encode_t * enc, const encpage_t * dir, SV * src, U8 * s, STRLEN slen,
-	      int check, STRLEN * offset, SV * term, int * retcode, 
+	      IV check, STRLEN * offset, SV * term, int * retcode, 
 	      SV *fallback_cb)
 {
     STRLEN tlen  = slen;
@@ -177,65 +163,66 @@ encode_method(pTHX_ const encode_t * enc, const encpage_t * dir, SV * src, U8 * 
     if (offset) {
       s += *offset;
       if (slen > *offset){ /* safeguard against slen overflow */
-      slen -= *offset;
+          slen -= *offset;
       }else{
-      slen = 0;
+          slen = 0;
       }
       tlen = slen;
     }
 
     if (slen == 0){
-    SvCUR_set(dst, 0);
-    SvPOK_only(dst);
-    goto ENCODE_END;
+        SvCUR_set(dst, 0);
+        SvPOK_only(dst);
+        goto ENCODE_END;
     }
 
     while( (code = do_encode(dir, s, &slen, d, dlen, &dlen, !check,
-                 trm, trmlen)) ) 
+                 trm, trmlen)) )
     {
-    SvCUR_set(dst, dlen+ddone);
-    SvPOK_only(dst);
-    
-    if (code == ENCODE_FALLBACK || code == ENCODE_PARTIAL ||
-        code == ENCODE_FOUND_TERM) {
-        break;
-    }
-    switch (code) {
-    case ENCODE_NOSPACE:
-    {	
-        STRLEN more = 0; /* make sure you initialize! */
-        STRLEN sleft;
-        sdone += slen;
-        ddone += dlen;
-        sleft = tlen - sdone;
+        SvCUR_set(dst, dlen+ddone);
+        SvPOK_only(dst);
+
+        if (code == ENCODE_FALLBACK || code == ENCODE_PARTIAL ||
+            code == ENCODE_FOUND_TERM) {
+            break;
+        }
+        switch (code) {
+        case ENCODE_NOSPACE:
+        {
+            STRLEN more = 0; /* make sure you initialize! */
+            STRLEN sleft;
+            sdone += slen;
+            ddone += dlen;
+            sleft = tlen - sdone;
 #if ENCODE_XS_PROFILE >= 2
-        Perl_warn(aTHX_
-              "more=%d, sdone=%d, sleft=%d, SvLEN(dst)=%d\n",
-              more, sdone, sleft, SvLEN(dst));
+            Perl_warn(aTHX_
+                  "more=%d, sdone=%d, sleft=%d, SvLEN(dst)=%d\n",
+                  more, sdone, sleft, SvLEN(dst));
 #endif
-        if (sdone != 0) { /* has src ever been processed ? */
+            if (sdone != 0) { /* has src ever been processed ? */
 #if   ENCODE_XS_USEFP == 2
-        more = (1.0*tlen*SvLEN(dst)+sdone-1)/sdone
-            - SvLEN(dst);
+                more = (1.0*tlen*SvLEN(dst)+sdone-1)/sdone
+                    - SvLEN(dst);
 #elif ENCODE_XS_USEFP
-        more = (STRLEN)((1.0*SvLEN(dst)+1)/sdone * sleft);
+                more = (STRLEN)((1.0*SvLEN(dst)+1)/sdone * sleft);
 #else
-        /* safe until SvLEN(dst) == MAX_INT/16 */
-        more = (16*SvLEN(dst)+1)/sdone/16 * sleft;
+            /* safe until SvLEN(dst) == MAX_INT/16 */
+                more = (16*SvLEN(dst)+1)/sdone/16 * sleft;
 #endif
+            }
+            more += UTF8_MAXLEN; /* insurance policy */
+            d = (U8 *) SvGROW(dst, SvLEN(dst) + more);
+            /* dst need to grow need MORE bytes! */
+            if (ddone >= SvLEN(dst)) {
+                Perl_croak(aTHX_ "Destination couldn't be grown.");
+            }
+            dlen = SvLEN(dst)-ddone-1;
+            d   += ddone;
+            s   += slen;
+            slen = tlen-sdone;
+            continue;
         }
-        more += UTF8_MAXLEN; /* insurance policy */
-        d = (U8 *) SvGROW(dst, SvLEN(dst) + more);
-        /* dst need to grow need MORE bytes! */
-        if (ddone >= SvLEN(dst)) {
-        Perl_croak(aTHX_ "Destination couldn't be grown.");
-        }
-        dlen = SvLEN(dst)-ddone-1;
-        d   += ddone;
-        s   += slen;
-        slen = tlen-sdone;
-        continue;
-    }
+
     case ENCODE_NOREP:
         /* encoding */	
         if (dir == enc->f_utf8) {
@@ -319,18 +306,18 @@ encode_method(pTHX_ const encode_t * enc, const encpage_t * dir, SV * src, U8 * 
         }
         /* settle variables when fallback */
         d    = (U8 *)SvEND(dst);
-            dlen = SvLEN(dst) - ddone - 1;
+        dlen = SvLEN(dst) - ddone - 1;
         s    = (U8*)SvPVX(src) + sdone;
         slen = tlen - sdone;
         break;
 
-    default:
-        Perl_croak(aTHX_ "Unexpected code %d converting %s %s",
-               code, (dir == enc->f_utf8) ? "to" : "from",
-               enc->name[0]);
-        return &PL_sv_undef;
-    }
-    }
+        default:
+            Perl_croak(aTHX_ "Unexpected code %d converting %s %s",
+                   code, (dir == enc->f_utf8) ? "to" : "from",
+                   enc->name[0]);
+            return &PL_sv_undef;
+        }
+    }   /* End of looping through the string */
  ENCODE_SET_SRC:
     if (check && !(check & ENCODE_LEAVE_SRC)){
     sdone = SvCUR(src) - (slen+sdone);
@@ -354,7 +341,7 @@ encode_method(pTHX_ const encode_t * enc, const encpage_t * dir, SV * src, U8 * 
     }
 #endif
 
-    if (offset) 
+    if (offset)
       *offset += sdone + slen;
 
  ENCODE_END:
@@ -377,6 +364,13 @@ strict_utf8(pTHX_ SV* sv)
         return 0;
     return SvTRUE(*svp);
 }
+
+/* Modern perls have the capability to do this more efficiently and portably */
+#ifdef utf8n_to_uvchr_msgs
+# define CAN_USE_BASE_PERL
+#endif
+
+#ifndef CAN_USE_BASE_PERL
 
 /*
  * https://github.com/dankogai/p5-encode/pull/56#issuecomment-231959126
@@ -433,18 +427,38 @@ convert_utf8_multi_seq(U8* s, STRLEN len, STRLEN *rlen)
     return uv;
 }
 
+#endif  /* CAN_USE_BASE_PERL */
+
 static U8*
 process_utf8(pTHX_ SV* dst, U8* s, U8* e, SV *check_sv,
              bool encode, bool strict, bool stop_at_partial)
 {
+    /* Copies the purportedly UTF-8 encoded string starting at 's' and ending
+     * at 'e' - 1 to 'dst', checking as it goes along that the string actually
+     * is valid UTF-8.  There are two levels of strictness checking.  If
+     * 'strict' is FALSE, the string is checked for being well-formed UTF-8, as
+     * extended by Perl.  Additionally, if 'strict' is TRUE, above-Unicode code
+     * points, surrogates, and non-character code points are checked for.  When
+     * invalid input is encountered, some action is taken, exactly what depends
+     * on the flags in 'check_sv'.  'encode' gives if this is from an encode
+     * operation (if TRUE), or a decode one.  This function returns the
+     * position in 's' of the start of the next character beyond where it got
+     * to.  If there were no problems, that will be 'e'.  If 'stop_at_partial'
+     * is TRUE, if the final character before 'e' is incomplete, but valid as
+     * far as is available, no action will be taken on that partial character,
+     * and the return value will point to its first byte */
+
     UV uv;
     STRLEN ulen;
     SV *fallback_cb;
-    int check;
+    IV check;
     U8 *d;
     STRLEN dlen;
     char esc[UTF8_MAXLEN * 6 + 1];
     STRLEN i;
+    const U32 flags = (strict)
+                    ? UTF8_DISALLOW_ILLEGAL_INTERCHANGE
+                    : UTF8_ALLOW_NON_STRICT;
 
     if (SvROK(check_sv)) {
 	/* croak("UTF-8 decoder doesn't support callback CHECK"); */
@@ -462,7 +476,44 @@ process_utf8(pTHX_ SV* dst, U8* s, U8* e, SV *check_sv,
     dlen = (s && e && s < e) ? e-s+1 : 1;
     d = (U8 *) SvGROW(dst, dlen);
 
+    stop_at_partial = stop_at_partial || (check & ENCODE_STOP_AT_PARTIAL);
+
     while (s < e) {
+
+#ifdef CAN_USE_BASE_PERL    /* Use the much faster, portable implementation if
+                               available */
+
+        /* If there were no errors, this will be 'e'; otherwise it will point
+         * to the first byte of the erroneous input */
+        const U8* e_or_where_failed;
+        bool valid = is_utf8_string_loc_flags(s, e - s, &e_or_where_failed, flags);
+        STRLEN len = e_or_where_failed - s;
+
+        /* Copy as far as was successful */
+        Move(s, d, len, U8);
+        d += len;
+        s = (U8 *) e_or_where_failed;
+
+        /* Are done if it was valid, or we are accepting partial characters and
+         * the only error is that the final bytes form a partial character */
+        if (    LIKELY(valid)
+            || (   stop_at_partial
+                && is_utf8_valid_partial_char_flags(s, e, flags)))
+        {
+            break;
+        }
+
+        /* Here, was not valid.  If is 'strict', and is legal extended UTF-8,
+         * we know it is a code point whose value we can calculate, just not
+         * one accepted under strict.  Otherwise, it is malformed in some way.
+         * In either case, the system function can calculate either the code
+         * point, or the best substitution for it */
+        uv = utf8n_to_uvchr(s, e - s, &ulen, UTF8_ALLOW_ANY);
+
+#else   /* Use code for earlier perls */
+
+        ((void)sizeof(flags));  /* Avoid compiler warning */
+
         if (UTF8_IS_INVARIANT(*s)) {
             *d++ = *s++;
             continue;
@@ -483,7 +534,7 @@ process_utf8(pTHX_ SV* dst, U8* s, U8* e, SV *check_sv,
                 else
                     ulen = 1;
 
-                if ((stop_at_partial || (check & ENCODE_STOP_AT_PARTIAL)) && ulen == (STRLEN)(e-s))
+                if (stop_at_partial && ulen == (STRLEN)(e-s))
                     break;
 
                 goto malformed_byte;
@@ -512,6 +563,16 @@ process_utf8(pTHX_ SV* dst, U8* s, U8* e, SV *check_sv,
             ulen = 1;
 
     malformed:
+
+#endif  /* The two versions for processing come back together here, for the
+         * error handling code.
+         *
+         * Here, we are looping through the input and found an error.
+         * 'uv' is the code point in error if calculable, or the REPLACEMENT
+         *      CHARACTER if not.
+         * 'ulen' is how many bytes of input this iteration of the loop
+         *        consumes */
+
         if (!encode && (check & (ENCODE_DIE_ON_ERR|ENCODE_WARN_ON_ERR|ENCODE_PERLQQ)))
             for (i=0; i<ulen; ++i) sprintf(esc+4*i, "\\x%02X", s[i]);
         if (check & ENCODE_DIE_ON_ERR){
@@ -601,7 +662,7 @@ PREINIT:
     U8 *e;
     SV *dst;
     bool renewed = 0;
-    int check;
+    IV check;
     bool modify;
     dSP;
 INIT:
@@ -617,7 +678,7 @@ PPCODE:
         utf8_safe_downgrade(aTHX_ &src, &s, &slen, modify);
     e = s+slen;
 
-    /* 
+    /*
      * PerlIO check -- we assume the object is of PerlIO if renewed
      */
     ENTER; SAVETMPS;
@@ -627,7 +688,7 @@ PPCODE:
     if (call_method("renewed",G_SCALAR) == 1) {
     SPAGAIN;
     renewed = (bool)POPi;
-    PUTBACK; 
+    PUTBACK;
 #if 0
     fprintf(stderr, "renewed == %d\n", renewed);
 #endif
@@ -662,7 +723,7 @@ PREINIT:
     U8 *s;
     U8 *e;
     SV *dst;
-    int check;
+    IV check;
     bool modify;
 INIT:
     SvGETMAGIC(src);
@@ -766,7 +827,7 @@ SV *	off
 SV *	term
 SV *    check_sv
 PREINIT:
-    int check;
+    IV check;
     SV *fallback_cb;
     bool modify;
     encode_t *enc;
@@ -804,7 +865,7 @@ SV *	obj
 SV *	src
 SV *	check_sv
 PREINIT:
-    int check;
+    IV check;
     SV *fallback_cb;
     bool modify;
     encode_t *enc;
@@ -835,7 +896,7 @@ SV *	obj
 SV *	src
 SV *	check_sv
 PREINIT:
-    int check;
+    IV check;
     SV *fallback_cb;
     bool modify;
     encode_t *enc;
@@ -906,102 +967,6 @@ MODULE = Encode         PACKAGE = Encode
 
 PROTOTYPES: ENABLE
 
-I32
-_bytes_to_utf8(sv, ...)
-SV *    sv
-PREINIT:
-    SV * encoding;
-INIT:
-    encoding = items == 2 ? ST(1) : Nullsv;
-CODE:
-    if (encoding)
-    RETVAL = _encoded_bytes_to_utf8(sv, SvPV_nolen(encoding));
-    else {
-    STRLEN len;
-    U8*    s = (U8*)SvPV(sv, len);
-    U8*    converted;
-
-    converted = bytes_to_utf8(s, &len); /* This allocs */
-    sv_setpvn(sv, (char *)converted, len);
-    SvUTF8_on(sv); /* XXX Should we? */
-    Safefree(converted);                /* ... so free it */
-    RETVAL = len;
-    }
-OUTPUT:
-    RETVAL
-
-I32
-_utf8_to_bytes(sv, ...)
-SV *    sv
-PREINIT:
-    SV * to;
-    SV * check;
-INIT:
-    to    = items > 1 ? ST(1) : Nullsv;
-    check = items > 2 ? ST(2) : Nullsv;
-CODE:
-    if (to) {
-    RETVAL = _encoded_utf8_to_bytes(sv, SvPV_nolen(to));
-    } else {
-    STRLEN len;
-    U8 *s = (U8*)SvPV(sv, len);
-
-    RETVAL = 0;
-    if (SvTRUE(check)) {
-        /* Must do things the slow way */
-        U8 *dest;
-            /* We need a copy to pass to check() */
-        U8 *src  = s;
-        U8 *send = s + len;
-        U8 *d0;
-
-        New(83, dest, len, U8); /* I think */
-        d0 = dest;
-
-        while (s < send) {
-                if (*s < 0x80){
-            *dest++ = *s++;
-                } else {
-            STRLEN ulen;
-            UV uv = *s++;
-
-            /* Have to do it all ourselves because of error routine,
-               aargh. */
-            if (!(uv & 0x40)){ goto failure; }
-            if      (!(uv & 0x20)) { ulen = 2;  uv &= 0x1f; }
-            else if (!(uv & 0x10)) { ulen = 3;  uv &= 0x0f; }
-            else if (!(uv & 0x08)) { ulen = 4;  uv &= 0x07; }
-            else if (!(uv & 0x04)) { ulen = 5;  uv &= 0x03; }
-            else if (!(uv & 0x02)) { ulen = 6;  uv &= 0x01; }
-            else if (!(uv & 0x01)) { ulen = 7;  uv = 0; }
-            else                   { ulen = 13; uv = 0; }
-        
-            /* Note change to utf8.c variable naming, for variety */
-            while (ulen--) {
-            if ((*s & 0xc0) != 0x80){
-                goto failure;
-            } else {
-                uv = (uv << 6) | (*s++ & 0x3f);
-            }
-          }
-          if (uv > 256) {
-          failure:
-              call_failure(check, s, dest, src);
-              /* Now what happens? */
-          }
-          *dest++ = (U8)uv;
-        }
-        }
-        RETVAL = dest - d0;
-        sv_usepvn(sv, (char *)dest, RETVAL);
-        SvUTF8_off(sv);
-    } else {
-        RETVAL = (utf8_to_bytes(s, &len) ? len : 0);
-    }
-    }
-OUTPUT:
-    RETVAL
-
 bool
 is_utf8(sv, check = 0)
 SV *	sv
@@ -1059,7 +1024,7 @@ CODE:
 
 BOOT:
 {
-    HV *stash = gv_stashpvn("Encode", strlen("Encode"), GV_ADD);
+    HV *stash = gv_stashpvn("Encode", (U32)strlen("Encode"), GV_ADD);
     newCONSTSUB(stash, "DIE_ON_ERR", newSViv(ENCODE_DIE_ON_ERR));
     newCONSTSUB(stash, "WARN_ON_ERR", newSViv(ENCODE_WARN_ON_ERR));
     newCONSTSUB(stash, "RETURN_ON_ERR", newSViv(ENCODE_RETURN_ON_ERR));
