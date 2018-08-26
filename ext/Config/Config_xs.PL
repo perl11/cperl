@@ -156,6 +156,7 @@ if ($gperf_ok) {
         my $k = "config_arg".$_;
         $h{$k} = '' unless exists $h{$k};
     } # needed for cperl and CPAN
+
     #these qw blocks are created with genkeys.PL in the cpan repo
     my @cannedkeys = qw(
 
@@ -167,7 +168,7 @@ if ($gperf_ok) {
           installhtmldir installhtmlhelpdir ld_can_script
           libdb_needs_pthread mad malloc_cflags passcat sysroot
           targetdir targetenv targethost targetmkdir targetport
-          useversionedarchname
+          uselanginfo useversionedarchname
 
       );
     unless ($in_core) { # cperl doesn't need these, CPAN does

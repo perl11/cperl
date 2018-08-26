@@ -85,7 +85,7 @@ if (exists $XSConfig{canned_gperf}) { #fix up PP Config to look like XS Config
           installhtmldir installhtmlhelpdir ld_can_script
           libdb_needs_pthread mad malloc_cflags passcat sysroot
           targetdir targetenv targethost targetmkdir targetport
-          useversionedarchname
+          uselanginfo useversionedarchname
 
   );
     unless ($in_core) { # cperl doesn't need these, CPAN does
