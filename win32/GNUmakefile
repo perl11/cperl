@@ -8,7 +8,7 @@
 #
 # This is set up to build a perl.exe that runs off a shared library
 # (cperl52x.dll).  Also makes individual DLLs for the XS extensions.
-PV := 527
+PV := 528
 
 # The easiest way to customize the build process is to use parameters like this:
 #
@@ -70,7 +70,7 @@ USE_CPERL	:= define
 # versioned installation can be obtained by setting INST_TOP above to a
 # path that includes an arbitrary version string.
 #
-#INST_VER	:= \5.27.3
+#INST_VER	:= \5.28.0
 
 #
 # Comment this out if you DON'T want your perl installation to have
@@ -1705,8 +1705,8 @@ utils: $(HAVEMINIPERL) ..\utils\Makefile
 	copy ..\README.tw       ..\pod\perltw.pod
 	copy ..\README.vos      ..\pod\perlvos.pod
 	copy ..\README.win32    ..\pod\perlwin32.pod
-	copy ..\pod\perlcdelta.pod ..\pod\perl5273cdelta.pod
-	copy ..\pod\perldelta.pod ..\pod\perl5277delta.pod
+	copy ..\pod\perlcdelta.pod ..\pod\perl5280cdelta.pod
+	copy ..\pod\perldelta.pod ..\pod\perl5280delta.pod
 	$(MINIPERL) -I..\lib $(PL2BAT) $(UTILS)
 	$(MINIPERL) -I..\lib ..\autodoc.pl ..
 	$(MINIPERL) -I..\lib ..\pod\perlmodlib.PL -q ..

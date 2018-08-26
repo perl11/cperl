@@ -4,7 +4,7 @@ use strict;
 our ( %released, %version, %families, %upstream, %bug_tracker, %deprecated, %delta );
 
 use version;
-our $VERSION = '5.20180220c';
+our $VERSION = '5.20180622c';
 $VERSION =~ s/c$//;
 
 sub PKG_PATTERN () { q#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z# }
@@ -356,8 +356,11 @@ sub changes_between {
     '5.024003c' => '2018-01-05',
     '5.026002c' => '2018-01-08',
     5.027010 => '2018-03-20',
+    5.024004 => '2018-04-14',
+    5.026002 => '2018-04-14',
     5.027011 => '2018-04-20',
-    '5.027003c' => '????-??-??',
+    5.028000 => '2018-06-22',
+    '5.028000c' => '2018-08-28',
  );
 
 sub version_sort {
@@ -14775,6 +14778,13 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
         removed => {
         }
     },
+    5.026002 => {
+        delta_from => 5.026001,
+        changed => {
+        },
+        removed => {
+        }
+    },
     '5.026000c' => {
         delta_from => '5.025003c',
         changed => {
@@ -15365,6 +15375,13 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Module::CoreList::Utils'=> '5.20170922_24',
             'POSIX'                 => '1.65_01',
             'Time::HiRes'           => '1.9741',
+        },
+        removed => {
+        }
+    },
+    5.024004 => {
+        delta_from => 5.024003,
+        changed => {
         },
         removed => {
         }
@@ -16284,8 +16301,43 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
         removed => {
         }
     },
+    5.027008 => {
+        delta_from => 5.027007,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.027009 => {
+        delta_from => 5.027008,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.027010 => {
+        delta_from => 5.027009,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.024004 => {
+        delta_from => 5.024003,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.026002 => {
+        delta_from => 5.026001,
+        changed => {
+        },
+        removed => {
+        }
+    },
     5.027011 => {
-        delta_from => 5.027010,
+        delta_from => 5.02701,
         changed => {
         },
         removed => {
@@ -17102,7 +17154,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
         removed => {
         }
     },
-    '5.027003c' => {
+    '5.028000c' => {
         delta_from => '5.027002c',
         changed => {
             'B::Op_private'         => '5.027003',
@@ -17174,6 +17226,13 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Locale::Currency'      => '3.55',
             'Locale::Language'      => '3.55',
             'Locale::Script'        => '3.55',
+        }
+    },
+    5.028000 => {
+        delta_from => 5.027011,
+        changed => {
+        },
+        removed => {
         }
     },
 );

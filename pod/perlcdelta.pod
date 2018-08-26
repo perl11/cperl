@@ -2,15 +2,15 @@
 
 =head1 NAME
 
-perlcdelta - what is new for cperl v5.27.3
+perlcdelta - what is new for cperl v5.28.0
 
 =head1 DESCRIPTION
 
-This document describes differences between the cperl 5.27.2 and the cperl
-5.27.3 release.
+This document describes differences between the cperl 5.26.2 and the cperl
+5.28.0 release.
 
-If you are upgrading from an earlier release such as v5.27.1c, first read
-L<perl5272cdelta>, which describes differences between v5.27.1c and v5.27.2c.
+If you are upgrading from an earlier release such as v5.26.1c, first read
+L<perl5262cdelta>, which describes differences between v5.26.1c and v5.26.2c.
 
 =head1 Notice
 

@@ -453,8 +453,8 @@ pod/perl5271cdelta.pod	Apparent internal link is missing its forward slash	2
 pod/perl5271cdelta.pod	Verbatim line length including indents exceeds 79 by	2
 pod/perl5272cdelta.pod	Apparent broken link	5
 pod/perl5272cdelta.pod	Apparent internal link is missing its forward slash	2
-pod/perl5273cdelta.pod	Apparent broken link	3
-pod/perl5273cdelta.pod	Apparent internal link is missing its forward slash	3
+pod/perl5280cdelta.pod	Apparent broken link	3
+pod/perl5280cdelta.pod	Apparent internal link is missing its forward slash	3
 pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlapi.pod	? Should you be using L<...> instead of	1
 pod/perlapi.pod	Verbatim line length including indents exceeds 79 by	14
@@ -467,7 +467,8 @@ pod/perlcperl.pod	Apparent broken link	1
 pod/perlcperl.pod	Verbatim line length including indents exceeds 79 by	11
 pod/perldebguts.pod	Verbatim line length including indents exceeds 79 by	27
 pod/perldebtut.pod	Verbatim line length including indents exceeds 79 by	3
-pod/perldelta.pod	Apparent broken link	6
+pod/perldelta.pod	Apparent broken link	4
+pod/perldelta.pod	Apparent internal link is missing its forward slash	4
 pod/perldiag.pod	Apparent broken link	1
 pod/perldtrace.pod	Verbatim line length including indents exceeds 79 by	12
 pod/perlgit.pod	? Should you be using F<...> or maybe L<...> instead of	1

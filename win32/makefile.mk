@@ -7,7 +7,7 @@
 #	Windows SDK 64-bit compiler and tools
 #
 # This is set up to build a perl.exe that runs off a shared library
-# (cperl527.dll).  Also makes individual DLLs for the XS extensions.
+# (cperl528.dll).  Also makes individual DLLs for the XS extensions.
 #
 PV = 527
 
@@ -51,7 +51,7 @@ USE_CPERL	*= define
 # versioned installation can be obtained by setting INST_TOP above to a
 # path that includes an arbitrary version string.
 #
-#INST_VER	*= \5.27.3
+#INST_VER	*= \5.28.0
 
 #
 # Comment this out if you DON'T want your perl installation to have
@@ -227,7 +227,7 @@ DEFAULT_INC_EXCLUDES_DOT *= define
 # set this to additionally provide a statically linked perl-static.exe.
 # Note that dynamic loading will not work with this perl, so you must
 # include required modules statically using the STATIC_EXT or ALL_STATIC
-# variables below. A static library cperl527s.lib will also be created.
+# variables below. A static library cperl528s.lib will also be created.
 # Ordinary perl.exe is not affected by this option.
 #
 #BUILD_STATIC	*= define
@@ -1642,8 +1642,8 @@ utils: $(HAVEMINIPERL) ..\utils\Makefile
 	copy ..\README.tw       ..\pod\perltw.pod
 	copy ..\README.vos      ..\pod\perlvos.pod
 	copy ..\README.win32    ..\pod\perlwin32.pod
-	copy ..\pod\perlcdelta.pod ..\pod\perl5273cdelta.pod
-	copy ..\pod\perldelta.pod ..\pod\perl5277delta.pod
+	copy ..\pod\perlcdelta.pod ..\pod\perl5280cdelta.pod
+	copy ..\pod\perldelta.pod ..\pod\perl5280delta.pod
 	$(MINIPERL) -I..\lib $(PL2BAT) $(UTILS)
 	$(MINIPERL) -I..\lib ..\autodoc.pl ..
 	$(MINIPERL) -I..\lib ..\pod\perlmodlib.PL -q ..
@@ -1748,7 +1748,7 @@ distclean: realclean
 	-if exist $(LIBDIR)\YAML rmdir /s /q $(LIBDIR)\YAML
 	-if exist $(LIBDIR)\YAML\XS rmdir /s /q $(LIBDIR)\YAML\XS
 	-cd $(PODDIR) && del /f *.html *.bat roffitall \
-	    perl5273cdelta.pod perl5277delta.pod perlaix.pod perlamiga.pod \
+	    perl5280cdelta.pod perl5280delta.pod perlaix.pod perlamiga.pod \
 	    perlandroid.pod perlapi.pod perlbs2000.pod perlce.pod \
 	    perlcn.pod perlcygwin.pod perldos.pod perlfreebsd.pod \
 	    perlhaiku.pod perlhpux.pod perlhurd.pod perlintern.pod \

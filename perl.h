@@ -164,7 +164,7 @@
 /* this used to be off by default, now its on, see perlio.h */
 #define PERLIO_FUNCS_CONST
 
-/* starting with 5.27.3 */
+/* starting with 5.28.0 */
 #define PERL_NO_QUOTE_PKGSEPERATOR
 
 #define pVAR    struct perl_vars* my_vars
@@ -7517,7 +7517,7 @@ END_EXTERN_C
 
 #define MAX_NUMFIELDS 65536 /* U16_MAX */
 
-/* temporarily only. will go away with 5.27.3 */
+/* temporarily only. will go away with 5.28.0 */
 /* #define OLD_FIELDS_GV / **/
 #define FIELDS_DYNAMIC_PADSIZE /* */
 
