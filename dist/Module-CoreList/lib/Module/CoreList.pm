@@ -17158,8 +17158,11 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
         delta_from => '5.027002c',
         changed => {
             'B::Op_private'         => '5.027003',
-            'Module::CoreList'      => '5.20180220c',
-            'Module::CoreList::Utils'=> '5.20180220c',
+            'Module::CoreList'      => '5.20180622c',
+            'Module::CoreList::Utils'=> '5.20180622c',
+            'Archive::Tar'          => '2.30',
+            'Archive::Tar::Constant' => '2.30',
+            'Archive::Tar::File'    => '2.30',
             'Attribute::Handlers'   => '1.00_01',
             'B::C'                  => '1.55_08',
             'B::CC'                 => '1.16_02',

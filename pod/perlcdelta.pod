@@ -261,6 +261,14 @@ XXX
 
 =over 4
 
+=item L<Archive::Tar> 2.30
+
+- fix creating file with trailing whitespace on filename - fixes 103279
+- allow archiving with absolute pathnames - fixes 97748
+- small POD fix
+- Speed up extract when archive contains lots of files
+- CVE-2018-12015 directory traversal vulnerability [RT#125523]
+
 =item L<Attribute::Handlers> 1.00_01
 
 fix autovivification bug with hash slice args to a function.
