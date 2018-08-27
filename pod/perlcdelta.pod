@@ -1136,7 +1136,7 @@ Remove obsolete pod about NBSP
 
 Support pgcc, seperate it from gcc
 
-=item L<Compress::Raw::Zlib> 2.076
+=item L<Compress::Raw::Zlib> 2.081
 
 Support pgcc, seperate it from gcc
 
