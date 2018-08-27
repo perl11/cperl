@@ -18,6 +18,10 @@ Revision history for Perl distribution PathTools.
 - Support getcwd with long paths.
 - Use libc realpath with possible long path support.
 
+3.75
+- Fix t/abs2rel.t on 5.8.8 by changing mkpath call to be
+  compatible with older File::Path
+
 3.74
 - No changes.
 
