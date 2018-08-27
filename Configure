@@ -19639,6 +19639,7 @@ int main() {
     exit(! (strcmp(main_buffer, save_main_buffer) == 0));
 }
 EOCP
+d_thread_safe_nl_langinfo_l="$undef"
 case "$usethreads" in
     define)
         set try
@@ -19656,7 +19657,6 @@ case "$usethreads" in
         fi
         ;;
     *) echo "Since threads aren't selected, we won't bother looking for nl_langinfo_l()" >&4
-       d_thread_safe_nl_langinfo_l="$undef"
     esac
 $rm_try
 
