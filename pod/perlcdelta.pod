@@ -1519,6 +1519,11 @@ run-time load Carp,
 Bump versions of 3 Socket modules.
 Remove 5.6 support
 
+=item L<IO::Compress::Base> 2.081
+
+lots of whitespace fixes in zipdetails
+exclude t/999pod.t also
+
 =item L<IO::Socket::IP> 0.39_02
 
 Fix new Autovivified hash slice warning
