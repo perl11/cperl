@@ -1,5 +1,5 @@
 package Cpanel::JSON::XS;
-our $VERSION = '4.01';
+our $VERSION = '4.06';
 our $XS_VERSION = $VERSION;
 # $VERSION = eval $VERSION;
 
@@ -530,6 +530,13 @@ resulting JSON text is guaranteed not to contain any C<newlines>.
 
 This setting has no effect when decoding JSON texts.
 
+=item $json = $json->indent_length([$number_of_spaces])
+
+=item $length = $json->get_indent_length()
+
+Set the indent length (default C<3>).
+This option is only useful when you also enable indent or pretty.
+The acceptable range is from 0 (no indentation) to 15
 
 =item $json = $json->space_before ([$enable])
 
@@ -1492,6 +1499,14 @@ directly if you want.
    encode_json [Cpanel::JSON::XS::true, Cpanel::JSON::XS::true] # yields [false,true]
    encode_json [!1, !0]      # yields [false,true]
 
+eq/ne comparisons with true, false:
+
+false is eq to the empty string or the string 'false' or the special
+empty string C<!!0>, i.e. C<SV_NO>, or the numbers 0 or 0.0.
+
+true is eq to the string 'true' or to the special string C<!0>
+(i.e. C<SV_YES>) or to the numbers 1 or 1.0.
+
 =item blessed objects
 
 Blessed objects are not directly representable in JSON, but
@@ -2209,13 +2224,23 @@ BEGIN {
     "--"     => sub { $_[0] = ${$_[0]} - 1 },
     '""'     => sub { ${$_[0]} == 1 ? '1' : '0' }, # GH 29
     'eq'     => sub {
-      my ($obj, $op) = ref ($_[0]) ? ($_[0], $_[1]) : ($_[1], $_[0]);
-      if ($op eq 'true' or $op eq 'false') {
-        return "$obj" eq '1' ? 'true' eq $op : 'false' eq $op;
+      my ($obj, $op) = $_[2] ? ($_[1], $_[0]) : ($_[0], $_[1]);
+      #warn "eq obj:$obj op:$op len:", length($op) > 0, " swap:$_[2]";
+      if (ref $op) { # if 2nd also blessed might recurse endlessly
+        return $obj ? 1 == $op : 0 == $op;
+      }
+      # if string, only accept numbers or true|false or "" (e.g. !!0 / SV_NO)
+      elsif ($op !~ /^[0-9]+$/) {
+        return "$obj" eq '1' ? 'true' eq $op : 'false' eq $op || "" eq $op;
       }
       else {
         return $obj ? 1 == $op : 0 == $op;
       }
+    },
+    'ne'     => sub {
+      my ($obj, $op) = $_[2] ? ($_[1], $_[0]) : ($_[0], $_[1]);
+      #warn "ne obj:$obj op:$op";
+      return !($obj eq $op);
     },
     fallback => 1);
 }

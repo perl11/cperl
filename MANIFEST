@@ -436,7 +436,6 @@ cpan/Cpanel-JSON-XS/t/97_unshare_hek.t
 cpan/Cpanel-JSON-XS/t/98_56only.t
 cpan/Cpanel-JSON-XS/t/99_binary.t
 cpan/Cpanel-JSON-XS/t/_unicode_handling.pm
-cpan/Cpanel-JSON-XS/t/gh70-asan.t
 cpan/Cpanel-JSON-XS/t/zero-mojibake.t
 cpan/Cpanel-JSON-XS/typemap
 cpan/Cpanel-JSON-XS/XS.pm

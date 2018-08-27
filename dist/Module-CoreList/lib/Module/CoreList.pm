@@ -17167,7 +17167,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'B::C'                  => '1.55_08',
             'B::CC'                 => '1.16_02',
             'ByteLoader'            => '1.12',
-            'Cpanel::JSON::XS'      => '4.01',
+            'Cpanel::JSON::XS'      => '4.06',
             'Compress::Raw::Bzip2'  => '2.081',
             'Compress::Raw::Zlib'   => '2.081',
             'Data::Dumper'          => '2.167_03',

@@ -11,6 +11,7 @@ Cpanel::JSON::XS::Type - Type support for JSON encode
  use Cpanel::JSON::XS;
  use Cpanel::JSON::XS::Type;
 
+
  encode_json([10, "10", 10.25], [JSON_TYPE_INT, JSON_TYPE_INT, JSON_TYPE_STRING]);
  # '[10,10,"10.25"]'
 
@@ -35,11 +36,27 @@ Cpanel::JSON::XS::Type - Type support for JSON encode
  my $json_string = encode_json($perl_struct, $type_spec);
  # '{"key1":{"key2":[10,10,10]},"key3":10.5}'
 
+
+ my $value = decode_json('false', 1, my $type);
+ # $value is 0 and $type is JSON_TYPE_BOOL
+
+ my $value = decode_json('0', 1, my $type);
+ # $value is 0 and $type is JSON_TYPE_INT
+
+ my $value = decode_json('"0"', 1, my $type);
+ # $value is 0 and $type is JSON_TYPE_STRING
+
+ my $json_string = '{"key1":{"key2":[10,"10",10.6]},"key3":"10.5"}';
+ my $perl_struct = decode_json($json_string, 0, my $type_spec);
+ # $perl_struct is { key1 => { key2 => [ 10, 10, 10.6 ] }, key3 => 10.5 }
+ # $type_spec is { key1 => { key2 => [ JSON_TYPE_INT, JSON_TYPE_STRING, JSON_TYPE_FLOAT ] }, key3 => JSON_TYPE_STRING }
+
 =head1 DESCRIPTION
 
 This module provides stable JSON type support for the
 L<Cpanel::JSON::XS|Cpanel::JSON::XS> encoder which doesn't depend on
-any internal perl scalar flags or characteristics.
+any internal perl scalar flags or characteristics. Also it provides
+real JSON types for L<Cpanel::JSON::XS|Cpanel::JSON::XS> decoder.
 
 In most cases perl structures passed to
 L<encode_json|Cpanel::JSON::XS/encode_json> come from other functions
@@ -47,6 +64,12 @@ or from other modules and caller of Cpanel::JSON::XS module does not
 have control of internals or they are subject of change. So it is not
 easy to support enforcing types as described in the
 L<simple scalars|Cpanel::JSON::XS/simple scalars> section.
+
+For services based on JSON contents it is sometimes needed to correctly
+process and enforce JSON types.
+
+The function L<decode_json|Cpanel::JSON::XS/decode_json> takes optional
+third scalar parameter and fills it with specification of json types.
 
 The function L<encode_json|Cpanel::JSON::XS/encode_json> takes a perl
 structure as its input and optionally also a json type specification in
@@ -83,6 +106,11 @@ Equivalent of perl operation C<+0> is used for conversion.
 =item JSON_TYPE_STRING
 
 It enforces JSON string type in the resulting JSON.
+
+=item JSON_TYPE_NULL
+
+It represents JSON C<null> value. Makes sense only when passing
+perl's C<undef> value.
 
 =back
 
@@ -142,7 +170,28 @@ JSON encoder chooses one that matches.
 Like L<C<json_type_anyof>|/json_type_anyof>, but scalar can be only
 perl's C<undef>.
 
+=item json_type_weaken
+
+This function can be used as an argument for L</json_type_arrayof>,
+L</json_type_hashof> or L</json_type_anyof> functions to create weak
+references suitable for complicated recursive structures. It depends
+on L<the weaken function from Scalar::Util|Scalar::Util/weaken> module.
+See following example:
+
+  my $struct = {
+      type => JSON_TYPE_STRING,
+      array => json_type_arrayof(JSON_TYPE_INT),
+  };
+  $struct->{recursive} = json_type_anyof(
+      json_type_weaken($struct),
+      json_type_arrayof(JSON_TYPE_STRING),
+  );
+
 =back
+
+=head1 AUTHOR
+
+Pali E<lt>pali@cpan.orgE<gt>
 
 =head1 COPYRIGHT & LICENSE
 
@@ -156,6 +205,14 @@ license and the GPL.
 use strict;
 use warnings;
 
+BEGIN {
+  if (eval { require Scalar::Util }) {
+    Scalar::Util->import('weaken');
+  } else {
+    *weaken = sub($) { die 'Scalar::Util is required for weaken' };
+  }
+}
+
 # This exports needed XS constants to perl
 use Cpanel::JSON::XS ();
 
@@ -166,6 +223,8 @@ our @EXPORT = our @EXPORT_OK = qw(
   json_type_hashof
   json_type_anyof
   json_type_null_or_anyof
+  json_type_weaken
+  JSON_TYPE_NULL
   JSON_TYPE_BOOL
   JSON_TYPE_INT
   JSON_TYPE_FLOAT
@@ -179,24 +238,41 @@ our @EXPORT = our @EXPORT_OK = qw(
   JSON_TYPE_ANYOF_CLASS
 );
 
+use constant JSON_TYPE_WEAKEN_CLASS => 'Cpanel::JSON::XS::Type::Weaken';
+
 sub json_type_anyof {
   my ($scalar, $array, $hash);
+  my ($scalar_weaken, $array_weaken, $hash_weaken);
   foreach (@_) {
-    my $type = ref($_);
-    if ($type eq '') {
+    my $type = $_;
+    my $ref = ref($_);
+    my $weaken;
+    if ($ref eq JSON_TYPE_WEAKEN_CLASS) {
+      $type = ${$type};
+      $ref = ref($type);
+      $weaken = 1;
+    }
+    if ($ref eq '') {
       die 'Only one scalar type can be specified in anyof' if defined $scalar;
-      $scalar = $_;
-    } elsif ($type eq 'ARRAY' or $type eq JSON_TYPE_ARRAYOF_CLASS) {
+      $scalar = $type;
+      $scalar_weaken = $weaken;
+    } elsif ($ref eq 'ARRAY' or $ref eq JSON_TYPE_ARRAYOF_CLASS) {
       die 'Only one array type can be specified in anyof' if defined $array;
-      $array = $_;
-    } elsif ($type eq 'HASH' or $type eq JSON_TYPE_HASHOF_CLASS) {
+      $array = $type;
+      $array_weaken = $weaken;
+    } elsif ($ref eq 'HASH' or $ref eq JSON_TYPE_HASHOF_CLASS) {
       die 'Only one hash type can be specified in anyof' if defined $hash;
-      $hash = $_;
+      $hash = $type;
+      $hash_weaken = $weaken;
     } else {
       die 'Only scalar, array or hash can be specified in anyof';
     }
   }
-  return bless [$scalar, $array, $hash], JSON_TYPE_ANYOF_CLASS;
+  my $type = [$scalar, $array, $hash];
+  weaken $type->[0] if $scalar_weaken;
+  weaken $type->[1] if $array_weaken;
+  weaken $type->[2] if $hash_weaken;
+  return bless $type, JSON_TYPE_ANYOF_CLASS;
 }
 
 sub json_type_null_or_anyof {
@@ -208,12 +284,28 @@ sub json_type_null_or_anyof {
 
 sub json_type_arrayof {
   die 'Exactly one type must be specified in arrayof' if scalar @_ != 1;
-  return bless \(my $type = $_[0]), JSON_TYPE_ARRAYOF_CLASS;
+  my $type = $_[0];
+  if (ref($type) eq JSON_TYPE_WEAKEN_CLASS) {
+    $type = ${$type};
+    weaken $type;
+  }
+  return bless \$type, JSON_TYPE_ARRAYOF_CLASS;
 }
 
 sub json_type_hashof {
   die 'Exactly one type must be specified in hashof' if scalar @_ != 1;
-  return bless \(my $type = $_[0]), JSON_TYPE_HASHOF_CLASS;
+  my $type = $_[0];
+  if (ref($type) eq JSON_TYPE_WEAKEN_CLASS) {
+    $type = ${$type};
+    weaken $type;
+  }
+  return bless \$type, JSON_TYPE_HASHOF_CLASS;
+}
+
+sub json_type_weaken {
+  die 'Exactly one type must be specified in weaken' if scalar @_ != 1;
+  die 'Scalar cannot be specfied in weaken' if ref($_[0]) eq '';
+  return bless \(my $type = $_[0]), JSON_TYPE_WEAKEN_CLASS;
 }
 
 1;
