@@ -341,7 +341,7 @@ use File::Glob qw(:case);
     },
 
     'CPAN' => {
-        'DISTRIBUTION' => 'ANDK/CPAN-2.18-TRIAL.tar.gz',
+        'DISTRIBUTION' => 'ANDK/CPAN-2.20-TRIAL.tar.gz',
         'FILES'        => q[cpan/CPAN],
         'EXCLUDED'     => [
             qr{^distroprefs/},
@@ -379,6 +379,7 @@ use File::Glob qw(:case);
         # https://github.com/andk/cpanpm/pull/109
         'CUSTOMIZED'   => [
             qw( lib/CPAN.pm lib/CPAN/FirstTime.pm lib/CPAN/Distribution.pm 
+                lib/CPAN/Mirrors.pm
                 lib/CPAN/Version.pm lib/App/Cpan.pm ),
         ],
     },
