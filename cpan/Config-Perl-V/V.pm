@@ -1,4 +1,4 @@
-#!/pro/bin/perl
+#!/usr/bin/perl
 
 package Config::Perl::V;
 
@@ -7,11 +7,10 @@ use warnings;
 
 use Config;
 use Exporter;
-use vars qw($VERSION @ISA @EXPORT_OK %EXPORT_TAGS);
-$VERSION     = "0.29_01";
-@ISA         = ("Exporter");
-@EXPORT_OK   = qw( plv2hash summary myconfig signature );
-%EXPORT_TAGS = (
+our $VERSION     = "0.30_01";
+our @ISA         = ("Exporter");
+our @EXPORT_OK   = qw( plv2hash summary myconfig signature );
+our %EXPORT_TAGS = (
     all => [ @EXPORT_OK  ],
     sig => [ "signature" ],
     );

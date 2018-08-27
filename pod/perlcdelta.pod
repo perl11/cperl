@@ -1166,7 +1166,7 @@ Fixed upstream deflate. See L<https://github.com/madler/zlib/pull/327>
 
 =item L<Config::Extensions> 0.02
 
-=item L<Config::Perl::V> 0.29_01
+=item L<Config::Perl::V> 0.30_01
 
 Add test for 5.26.1-RC1, and some cperl -V's
 
@@ -1175,6 +1175,8 @@ Fix signature with argument
 Ignore ccache and compiler path in signature
 
 Add default_inc_excludes_dot
+
+use vars => our
 
 =item C<constant> 1.34
 

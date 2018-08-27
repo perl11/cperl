@@ -28,7 +28,9 @@ Compress::Raw::Zlib cpan/Compress-Raw-Zlib/Makefile.PL 269a30b1f30a0a1458b91372c
 Compress::Raw::Zlib cpan/Compress-Raw-Zlib/zlib-src/deflate.c 974203803c81a2616920c6a7ca1f81bec1ba0113
 Compress::Raw::Zlib cpan/Compress-Raw-Zlib/zlib-src/inflate.c bcf34eed20609e7ea824d6c0002ffb71aab6aea7
 Config::Perl::V cpan/Config-Perl-V/t/28_plv522c.t ec21436d9dde53ca06b46dd07476a109b8047464
-Config::Perl::V cpan/Config-Perl-V/V.pm 31c7197ebc05774a24a72d078ac956af7d19e023
+Config::Perl::V cpan/Config-Perl-V/t/28_plv526c.t 5d9dc58138eb7a1bcd6b6f35489180e79ead0738
+Config::Perl::V cpan/Config-Perl-V/t/28_plv5272c.t 0951dae1225b1f6703efe7bbe120e80ccabdd388
+Config::Perl::V cpan/Config-Perl-V/V.pm d00eb08b0d4418be498ecca71a6f89b954bdc63c
 DB_File cpan/DB_File/Makefile.PL 20e1908f4eb938a399daa7fef289ebb0a39b7435
 Devel::NYTProf cpan/Devel-NYTProf/FileHandle.xs 8b8ccd2e6f8f0ddfb13c7360dffccaf2e7dd0573
 Devel::NYTProf cpan/Devel-NYTProf/lib/Devel/NYTProf/FileInfo.pm 913665651ffa5415b71adb39c269559e74c35b0e

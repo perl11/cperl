@@ -321,9 +321,10 @@ use File::Glob qw(:case);
         'FILES'        => q[cpan/Config-Perl-V],
         'EXCLUDED'     => [qw(
 		examples/show-v.pl
+                t/28_plv522c.t t/28_plv526c.t t/28_plv5272c.t
 		)],
-        # added cperl support and 5.22 tests
-        'CUSTOMIZED'   => [ qw[ V.pm t/28_plv522.t t/28_plv522c.t ] ],
+          # added cperl support and 5.22 tests
+        'CUSTOMIZED'   => [ qw[ V.pm t/28_plv522c.t t/28_plv526c.t t/28_plv5272c.t t/28_plv522.t ] ],
     },
 
     'constant' => {
