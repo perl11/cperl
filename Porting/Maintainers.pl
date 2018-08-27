@@ -264,12 +264,14 @@ use File::Glob qw(:case);
     },
 
     'Compress::Raw::Bzip2' => {
-        'DISTRIBUTION' => 'PMQS/Compress-Raw-Bzip2-2.074.tar.gz',
+        'DISTRIBUTION' => 'PMQS/Compress-Raw-Bzip2-2.081.tar.gz',
         'FILES'        => q[cpan/Compress-Raw-Bzip2],
         'EXCLUDED'     => [
             qr{^t/Test/},
             qr{^bzip2-src/.*\.patch},
-        ],
+          ],
+        # pgcc support
+        'CUSTOMIZED'   => [ 'Makefile.PL' ],
     },
 
     'Compress::Raw::Zlib' => {
@@ -282,7 +284,7 @@ use File::Glob qw(:case);
                 t/99pod.t
                 ),
         ],
-        # support make -s
+        # support make -s, pgcc support
         'CUSTOMIZED'   => [ qw( Makefile.PL ) ],
     },
 

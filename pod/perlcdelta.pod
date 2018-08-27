@@ -1132,7 +1132,7 @@ Fix problems introduced by the partial EBCDIC support from version
 
 Remove obsolete pod about NBSP
 
-=item L<Compress::Raw::Bzip2> 2.076
+=item L<Compress::Raw::Bzip2> 2.081
 
 Support pgcc, seperate it from gcc
 
