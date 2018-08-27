@@ -17,6 +17,61 @@ Consult your favorite dictionary for details.
 
 =head1 EPIGRAPHS
 
+=head2 v5.28.0-RC4 - Neil Gaiman, The Graveyard Book
+
+Announced on 2018-06-19 by Sawyer X
+
+  You're alive, Bod. That means you have infinite potential. You can do
+  anything, make anything, dream anything. If you can change the world,
+  the world will change. Potential. Once you're dead, it's gone. Over.
+  You've made what you've made, dreamed your dream, written your name.
+  You may be buried here, you may even walk. But that potential is
+  finished.”
+
+=head2 v5.28.0-RC3 - Anthony Horowitz, Magpie Murders
+
+L<Announced on 2018-06-18 by Sawyer X|http://nntp.perl.org/group/perl.perl5.porters/251204>
+
+  These had been his plans. But if there was one thing that life had
+  taught him, it was the futility of making plans. Life had its own
+  agenda.
+
+=head2 v5.28.0-RC2 - Oliver Sacks, The Man Who Mistook His Wife For A Hat: And Other Clinical Tales
+
+L<Announced on 2018-06-06 by Sawyer X|http://nntp.perl.org/group/perl.perl5.porters/251122>
+
+  Had she not been of exceptional intelligence and literacy, with an
+  imagination filled and sustained, so to speak, by the images of
+  others, images conveyed by language, by the word, she might have
+  remained almost as helpless as a baby.
+
+=head2 v5.28.0-RC1 - Anu Garg, A Word A Day
+
+L<Announced on 2018-05-21 by Sawyer X|https://www.nntp.perl.org/group/perl.perl5.porters/2018/05/msg250999.html>
+
+  One doesn't have to know the unit of pain (dol) to realize that the
+  unit of joy is not the dollar, or any other currency for that matter.
+
+=head2 v5.27.11 - Tana French, In the Woods
+
+L<Announced on 2018-04-20 by Sawyer X|https://www.nntp.perl.org/group/perl.perl5.porters/2018/04/msg250571.html>
+
+  And then, too, I had learned early to assume something dark and
+  lethal hidden at the heart of anything I loved. When I couldn't find
+  it, I responded, bewildered and wary, in the only way I knew how: by
+  planting it there myself.
+
+=head2 v5.27.10 - Robert A. Heinlein, Time Enough for Love, p. 248
+
+L<Announced on 2018-03-20 by Todd Rinaldo|https://www.nntp.perl.org/group/perl.perl5.porters/2018/03/msg250042.html>
+
+  A human being should be able to change a diaper, plan an invasion, butcher
+  a hog, conn a ship, design a building, write a sonnet, balance accounts,
+  build a wall, set a bone, comfort the dying, take orders, give orders,
+  cooperate, act alone, solve equations, analyze a new problem, pitch manure,
+  program a computer, cook a tasty meal, fight efficiently, die gallantly.
+  Specialization is for insects.
+
 =head2 v5.27.9 - Agatha Christie, "The Mysterious Affair at Styles"
 
 L<Announced on 2018-02-20 by Renee Bäcker|https://www.nntp.perl.org/group/perl.perl5.porters/2018/02/msg249549.html>
@@ -119,18 +174,18 @@ L<Announced on 2017-11-20 by Karen Etheridge|https://www.nntp.perl.org/group/per
 
 L<Announced on 2017-10-20 by Steve Hay|https://www.nntp.perl.org/group/perl.perl5.porters/2017/10/msg246785.html>
 
-  'Can I do anything?' Alice suggested timidly, thinking that something
-dreadful must have happened.
-  The Waterflap jumped as if it had been shot. 'What are you doing
-here?' it snapped. 'Take this at once into the Directional room,' and it
-thrust the paper which had caused all the fuss into her hands.
-  'But where is the Directional room?' she inquired, bewildered.
-  'Why, there of course,' howled the Waterflap, pointing to a door.
-  'How could I possibly know that!' Alice exclaimed, angered by his
-rudeness.
-  'Silly girl,' it hissed. 'Why, it's called the Directional room
-because it's in that direction,' and it pushed her roughly through the
-doorway.
+    'Can I do anything?' Alice suggested timidly, thinking that something
+  dreadful must have happened.
+    The Waterflap jumped as if it had been shot. 'What are you doing
+  here?' it snapped. 'Take this at once into the Directional room,' and it
+  thrust the paper which had caused all the fuss into her hands.
+    'But where is the Directional room?' she inquired, bewildered.
+    'Why, there of course,' howled the Waterflap, pointing to a door.
+    'How could I possibly know that!' Alice exclaimed, angered by his
+  rudeness.
+    'Silly girl,' it hissed. 'Why, it's called the Directional room
+  because it's in that direction,' and it pushed her roughly through the
+  doorway.
 
 =head2 v5.27.4 - Richard Brautigan, "All Watched Over By Machines Of Loving Grace"
 
@@ -421,7 +476,7 @@ L<Announced on 2016-10-10 by Aaron Crane|http://www.nntp.perl.org/group/perl.per
 
   I'm up on all the pop trivia, says the guy with the stud in his tongue.
       Are you?
-      Yes. Do you know who the lead singer of Echo and the Bunnymen is?
+      Yes. Do you know who he lead singer of Echo and the Bunnymen is?
       Let me guess, is he called Echo?
       Good guess but no, anyway when they played Glastonbury it was so
   muddy he had two roadies to hold up a binliner on each of his legs so
