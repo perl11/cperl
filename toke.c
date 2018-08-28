@@ -5399,15 +5399,23 @@ Perl_yylex(pTHX)
 
         return yylex();
     case LEX_FORMLINE:
-        assert(PL_lex_formbrack);
-        s = scan_formline(PL_bufptr);
-        if (!PL_lex_formbrack)
-        {
-            formbrack = 1;
-            goto rightbracket;
+        if (PL_parser->sub_error_count != PL_error_count) {
+            /* There was an error parsing a formline, which tends to
+               mess up the parser.
+               Unlike interpolated sub-parsing, we can't treat any of
+               these as recoverable, so no need to check sub_no_recover.
+            */
+            yyquit();
         }
-        PL_bufptr = s;
-        return yylex();
+	assert(PL_lex_formbrack);
+	s = scan_formline(PL_bufptr);
+	if (!PL_lex_formbrack)
+	{
+	    formbrack = 1;
+	    goto rightbracket;
+	}
+	PL_bufptr = s;
+	return yylex();
     }
 
     /* We really do *not* want PL_linestr ever becoming a COW. */
@@ -6981,23 +6989,24 @@ Perl_yylex(pTHX)
 #else
             while (SPACE_OR_TAB(*t) || *t == '\r')
 #endif
-                t++;
-            if (*t == '\n' || *t == '#') {
-                formbrack = 1;
-                ENTER_with_name("lex_format");
-                SAVEI8(PL_parser->form_lex_state);
-                SAVEI32(PL_lex_formbrack);
-                PL_parser->form_lex_state = PL_lex_state;
-                PL_lex_formbrack = PL_lex_brackets + 1;
-                goto leftbracket;
-            }
-        }
-        if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_ASSIGN) {
-            s--;
-            TOKEN(0);
-        }
-        pl_yylval.ival = 0;
-        OPERATOR(ASSIGNOP);
+		t++;
+	    if (*t == '\n' || *t == '#') {
+		formbrack = 1;
+		ENTER_with_name("lex_format");
+		SAVEI8(PL_parser->form_lex_state);
+		SAVEI32(PL_lex_formbrack);
+		PL_parser->form_lex_state = PL_lex_state;
+		PL_lex_formbrack = PL_lex_brackets + 1;
+                PL_parser->sub_error_count = PL_error_count;
+		goto leftbracket;
+	    }
+	}
+	if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_ASSIGN) {
+	    s--;
+	    TOKEN(0);
+	}
+	pl_yylval.ival = 0;
+	OPERATOR(ASSIGNOP);
     case '!':
         s++;
         {

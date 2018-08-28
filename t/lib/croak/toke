@@ -467,3 +467,12 @@ dump;
 CORE::dump;
 EXPECT
 dump() must be written as CORE::dump() as of Perl 5.30 at - line 2.
+########
+# NAME [perl #132158] format with syntax errors
+format=
+@
+=h
+=cut
+EXPECT
+syntax error at - line 4, next token ???
+Execution of - aborted due to compilation errors.
