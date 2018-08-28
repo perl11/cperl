@@ -5127,7 +5127,8 @@ S_swatch_get(pTHX_ SV* swash, UV start, UV span)
     l = (U8*)SvPV(*listsvp, lcur);
     lend = l + lcur;
     while (l < lend) {
-	UV min, max, val, upper;
+	UV min, max, upper;
+        UV val = 0;
 	l = swash_scan_list_line(l, lend, &min, &max, &val,
                                  cBOOL(octets), typestr);
 	if (l > lend) {
@@ -5480,7 +5481,7 @@ Perl__swash_to_invlist(pTHX_ SV* const swash)
             UV val;		/* Not used by this function */
 
             l = swash_scan_list_line(l, lend, &start, &end, &val,
-                                                        cBOOL(octets), typestr);
+                                     cBOOL(octets), typestr);
 
             if (l > lend) {
                 break;
