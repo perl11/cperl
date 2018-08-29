@@ -528,6 +528,11 @@ files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 The new in-place editing code no longer leaks directory handles.
 L<[perl #133314]|https://rt.perl.org/Public/Bug/Display.html?id=133314>
 
+=item *
+
+Fix for multiconcat "mutator not seen in (lex = ...) .= ..."
+L<[perl #133441]|https://rt.perl.org/Public/Bug/Display.html?id=133441>
+
 =back
 
 =head1 Known Problems
