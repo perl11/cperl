@@ -43,6 +43,10 @@ $OS2 = "-DOS2" if $Config{'osname'} eq 'os2' ;
 my $WALL = '' ;
 #$WALL = ' -Wall ';
 
+# Only want ppport.h t to be used by DB_File.xs when not 
+# building this module with the perl source distribution.
+my $CORE = $ENV{PERL_CORE} ? '' : '-D_NOT_CORE';
+
 WriteMakefile(
 	NAME 		=> 'DB_File',
 	LIBS 		=> ["-L${LIB_DIR} $LIBS"],
