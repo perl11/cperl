@@ -475,7 +475,7 @@ use File::Glob qw(:case);
     },
 
     'Devel::NYTProf' => {
-        'DISTRIBUTION' => 'TIMB/Devel-NYTProf-6.04.tar.gz',
+        'DISTRIBUTION' => 'TIMB/Devel-NYTProf-6.06.tar.gz',
         'FILES'        => q[cpan/Devel-NYTProf],
         'EXCLUDED'     => [
             qr{^t/[79].*\.t},
@@ -507,6 +507,7 @@ use File::Glob qw(:case);
                                 t/lib/NYTProfTest.pm
                                 t/00-load.t
                                 t/22-readstream.t
+                                t/80-version.t
                               )],
     },
 

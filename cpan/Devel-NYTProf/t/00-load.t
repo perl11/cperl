@@ -4,10 +4,9 @@ use Config;
 
 use_ok( 'Devel::NYTProf::Core' );
 
-
 # we note the time in the test log here (the first test) and in t/zzz.t
 # so we can judge how fast the set of tests ran and this the rough speed of the system
-diag( "Testing Devel::NYTProf $Devel::NYTProf::Core::VERSION started at ".localtime(time) )
+diag( "Testing Devel::NYTProf $Devel::NYTProf::Core::XS_VERSION started at ".localtime(time) )
   unless $ENV{PERL_CORE};
 
 use_ok( 'Devel::NYTProf::Constants', qw(

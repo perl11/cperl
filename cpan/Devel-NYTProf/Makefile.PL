@@ -171,12 +171,15 @@ WriteMakefile(
         'Test::Differences' => '0.60',
         'XSLoader'     => 0,
         'Getopt::Long' => 0,
-        'Cpanel::JSON::XS' => 0,
+        ($ENV{PERL_CORE} && $Config{usecperl}
+         ? ('Cpanel::JSON::XS' => 0)
+         : ('JSON::MaybeXS' => 0)),
     },
     INST_LIB  => ($ENV{PERL_CORE} ? File::Spec->catfile(qw(.. .. lib)) : 'blib/lib'),
     INST_ARCHLIB => ($ENV{PERL_CORE} ? File::Spec->catfile(qw(.. .. lib)) : 'blib/arch'),
     LIBS      => [join ' ', @libs],
     OBJECT    => q/$(O_FILES)/,
+    FUNCLIST => ['boot_Devel__NYTProf', 'boot_Devel__NYTProf__FileHandle'],
     EXE_FILES => ['bin/nytprofhtml', 'bin/flamegraph.pl', 'bin/nytprofcsv', 'bin/nytprofcalls', 'bin/nytprofcg', 'bin/nytprofmerge', 'bin/nytprofpf'],
     @man,
     INC   => $INCLUDE,

@@ -16,10 +16,10 @@ require Devel::NYTProf::FileHandle;
 require Devel::NYTProf::Data;
 use List::Util qw(min sum);
 
-our $VERSION = '6.03';
+our $VERSION = '6.06_01';
     
-if ($VERSION != $Devel::NYTProf::Core::VERSION) {
-    die "$0 version '$VERSION' doesn't match version '$Devel::NYTProf::Core::VERSION' of $INC{'Devel/NYTProf/Core.pm'}\n";
+if ($VERSION != $Devel::NYTProf::Core::XS_VERSION) {
+    die "$0 version '$VERSION' doesn't match version '$Devel::NYTProf::Core::XS_VERSION' of $INC{'Devel/NYTProf/Core.pm'}\n";
 }
 
 use Getopt::Long;
@@ -219,15 +219,15 @@ my %dispatcher =
         $out->write_call_return($retn_depth, $subname, $incl_time, $excl_time);
     },
 
-     SRC_LINE => sub {
-         my (undef, $fid, $line, $text) = @_;
-         confess("No mapping for $fid") unless defined $fids{$fid};
-         $fid = $fids{$fid};
-         # Is this a subroutine (re)defined in an eval?
-         my $mapped_fid = $map_range{$fid}[$line];
-         $fid = $mapped_fid if defined $mapped_fid;
-         $out->write_src_line($fid, $line, $text);
-     },
+    SRC_LINE => sub {
+        my (undef, $fid, $line, $text) = @_;
+        confess("No mapping for $fid") unless defined $fids{$fid};
+        $fid = $fids{$fid};
+        # Is this a subroutine (re)defined in an eval?
+        my $mapped_fid = $map_range{$fid}[$line];
+        $fid = $mapped_fid if defined $mapped_fid;
+        $out->write_src_line($fid, $line, $text);
+    },
 );
 
 foreach $input (@ARGV) {
@@ -381,7 +381,8 @@ exit 0;
 
 sub usage {
     print <<END;
-usage: [perl] nytprofmerge [opts] nytprof-file [...]
+Merge multiple NYTProf profiles to one
+Usage: [perl] nytprofmerge [opts] nytprof-file [...]
 
  --out <file>,  -o <file>  Name of output file [default: $opt_out]
  --help,        -h         Print this message

@@ -1272,6 +1272,8 @@ Improved the test a bit.
 
 Use cv_set_call_checker_flags
 
+=item L<Devel::NYTProf> 6.06
+
 =item L<Devel::PPPort> 3.40_04
 
 Restore silence under C<make -s>. I broke it in cperl 5.27.0
