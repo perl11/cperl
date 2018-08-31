@@ -12558,6 +12558,7 @@ in the same manner as for C<gv_fetchpvn_flags>.  C<flags> may contain
 flag bits understood by C<gv_fetchpvn_flags> with the same meaning as
 they have there, such as C<GV_ADDWARN>.  The symbol is always added to
 the stash if necessary, with C<GV_ADDMULTI> semantics.
+CvFLAGS are not valid C<flags>, only C<GV_> flags.
 
 If there is already a subroutine of the specified name, then the new sub
 will replace the existing one in the glob.  A warning may be generated
@@ -12604,7 +12605,7 @@ Perl_newXS_len_flags(pTHX_ const char *name, STRLEN len,
 			   const char *const proto, SV **const_svp,
 			   U32 flags)
 {
-    CV *cv;
+    CV *cv = NULL;
     bool interleave = FALSE;
     bool evanescent = FALSE;
 
@@ -12617,7 +12618,7 @@ Perl_newXS_len_flags(pTHX_ const char *name, STRLEN len,
 				sizeof("__ANON__::__ANON__") - 1,
 			    GV_ADDMULTI | flags, SVt_PVCV);
 
-        if ((cv = (name ? GvCV(gv) : NULL))) {
+        if (!(flags & GV_ANON) && (cv = (name ? GvCV(gv) : NULL))) {
             if (GvCVGEN(gv)) {
                 /* just a cached method */
                 SvREFCNT_dec(cv);
@@ -12643,7 +12644,7 @@ Perl_newXS_len_flags(pTHX_ const char *name, STRLEN len,
             }
         }
     
-        if (cv)				/* must reuse cv if autoloaded */
+        if (!(flags & GV_ANON) && cv)		/* must reuse cv if autoloaded */
             cv_undef(cv);
         else {
             cv = MUTABLE_CV(newSV_type(SVt_PVCV));
@@ -12683,19 +12684,19 @@ Perl_newXS_len_flags(pTHX_ const char *name, STRLEN len,
         PoisonPADLIST(cv);
 #endif
 
-        if (name)
+        if (name && !(flags & GV_ANON))
             evanescent = process_special_blocks(0, name, gv, cv);
         else
             CvANON_on(cv);
+
+        assert(cv);
+        assert(evanescent || SvREFCNT((SV*)cv) != 0);
+
+        if (!evanescent) sv_setpv(MUTABLE_SV(cv), proto);
+        if (interleave) LEAVE;
+        assert(evanescent || SvREFCNT((SV*)cv) != 0);
+        return cv;
     } /* <- not a conditional branch */
-
-    assert(cv);
-    assert(evanescent || SvREFCNT((SV*)cv) != 0);
-
-    if (!evanescent) sv_setpv(MUTABLE_SV(cv), proto);
-    if (interleave) LEAVE;
-    assert(evanescent || SvREFCNT((SV*)cv) != 0);
-    return cv;
 }
 
 CV *

@@ -128,6 +128,13 @@ See L<http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods
 This is ~4% faster for each such method call.
 cperl-only.
 
+=head2 Named anonymous CV - usenamedanoncv
+
+Support named anonymous CV names, i.e. orphaned or interim subroutine names
+are not changed to C<__ANON__> anymore, but a C<@> character is appended.
+The C<@> character is also used to identify numbered special blocks like C<BEGIN@1>
+in L<Devel::NYTProf> and later to name and identify B<multi> methods (polymorphism).
+
 =head2 Dump more COP fields
 
 Dump the values of a COP C<$^H>, C<%^H> and the lexical warnings via
@@ -2784,6 +2791,10 @@ d_strtold_l
 =item I_WCHAR
 
 i_wchar
+
+=item USE_NAMED_ANONCV
+
+usenamedanoncv
 
 =back
 

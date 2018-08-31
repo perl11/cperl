@@ -275,7 +275,7 @@ Perl_cvgv_from_hek(pTHX_ CV *cv)
     if (!isGV(gv)) {
         const HEK *hek = CvNAME_HEK(cv);
 	gv_init_pvn(gv, CvSTASH(cv), HEK_KEY(hek),
-		HEK_LEN(hek), SVf_UTF8 * !!HEK_UTF8(hek));
+                    HEK_LEN(hek), SVf_UTF8 * !!HEK_UTF8(hek));
     }
     if (!CvNAMED(cv)) { /* gv_init took care of it */
 	assert (SvANY(cv)->xcv_gv_u.xcv_gv == gv);
@@ -1109,10 +1109,16 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
     if (!gv) {
 	/* This is the special case that exempts Foo->import and
 	 * Foo->unimport from being an error even if there's no
-	 * import/unimport subroutine. */
+	 * import/unimport name found. */
+        /* cperl: name this "import@" and not "__ANON__".
+           We don't want to through away information for no reason. #370 */
 	if (is_import) {
-	    gv = (GV*)sv_2mortal((SV*)newCONSTSUB_flags(NULL,
-				          NULL, 0, 0, NULL));
+#ifdef USE_NAMED_ANONCV
+	    gv = (GV*)sv_2mortal((SV*)newCONSTSUB_flags(
+                     stash, len == 6 ? "import@" : "unimport@", len+1, GV_ANON, NULL));
+#else
+	    gv = (GV*)sv_2mortal((SV*)newCONSTSUB_flags(NULL, NULL, 0, 0, NULL));
+#endif
             CvNODEBUG_on(gv);
 	} else if (autoload)
 	    gv = gv_autoload_pvn(

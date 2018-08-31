@@ -15,8 +15,9 @@ use utf8 qw( Katakana Vai Saurashtra Canadian_Aboriginal Runic Coptic
              Yi Hangul Oriya Ogham Tai_Viet Cyrillic Bopomofo Kannada
              Tamil Hiragana Glagolitic );
 use open qw( :utf8 :std );
+use Config;
 
-plan( tests => 49 );
+plan( tests => 47 );
 
 # These come from op/my_stash.t
 {
@@ -69,7 +70,11 @@ plan( tests => 49 );
     
         object_ok( $gv, "B::GV", "deleted stash entry leaves CV with valid GV");
         is( b($sub)->CvFLAGS & $CVf_ANON, $CVf_ANON, "...and CVf_ANON set");
-        is( eval { $gv->NAME }, "__ANON__", "...and an __ANON__ name");
+        if ($Config{usenamedanoncv}) {
+          is( eval { $gv->NAME }, "온ꪵ@", "...and the 온ꪵ@ name");
+        } else {
+          is( eval { $gv->NAME }, "__ANON__", "...and an __ANON__ name");
+        }
         is( eval { $gv->STASH->NAME }, "온ꪵ", "...but leaves stash intact");
     
         $sub = do {
@@ -81,7 +86,6 @@ plan( tests => 49 );
     
         object_ok( $gv, "B::GV", "cleared stash leaves CV with valid GV");
         is( b($sub)->CvFLAGS & $CVf_ANON, $CVf_ANON, "...and CVf_ANON set");
-        is( eval { $gv->NAME }, "__ANON__", "...and an __ANON__ name");
         is( eval { $gv->STASH->NAME }, "tꖿ", "...but leaves stash intact");
     
         $sub = do {
@@ -93,7 +97,6 @@ plan( tests => 49 );
     
         object_ok( $gv, "B::GV", "undefed stash leaves CV with valid GV");
         is( b($sub)->CvFLAGS & $CVf_ANON, $CVf_ANON, "...and CVf_ANON set");
-        is( eval { $gv->NAME }, "__ANON__", "...and an __ANON__ name");
         is( eval { $gv->STASH->NAME }, "__ANON__", "...and an __ANON__ stash");
     
         my $sub = do {
@@ -163,7 +166,11 @@ plan( tests => 49 );
             my $cv = B::svref_2object($r);
             my $gv = $cv->GV;
             ok($gv->isa("B::GV"), "orphaned CV has valid GV");
-            is($gv->NAME, '__ANON__', "orphaned CV has anon GV");
+            if ($Config{usenamedanoncv}) {
+              is( eval { $gv->NAME }, "Ƒ@", "...and the Ƒ@ name");
+            } else {
+              is($gv->NAME, '__ANON__', "orphaned CV has anon GV");
+            }
         }
 
         # deleting __ANON__ glob shouldn't break things
@@ -175,17 +182,25 @@ plan( tests => 49 );
             package main;
             delete $ＦŌŌ３::{남えㄉ}; # make named anonymous
     
-            delete $ＦŌŌ３::{__ANON__}; # whoops!
+            if ($Config{usenamedanoncv}) {
+              delete $ＦŌŌ３::{"남えㄉ@"}; # whoops!
+            } else {
+              delete $ＦŌŌ３::{__ANON__}; # whoops!
+            }
             my ($cv,$gv);
             $cv = B::svref_2object($남えㄉ);
             $gv = $cv->GV;
             ok($gv->isa(q/B::GV/), "ex-named CV has valid GV");
-            is($gv->NAME, '__ANON__', "ex-named CV has anon GV");
+            if ($Config{usenamedanoncv}) {
+              is($gv->NAME, '남えㄉ@', "anon CV has anon GV '남えㄉ@'");
+            } else {
+              is($gv->NAME, '__ANON__', "ex-named CV has anon GV");
+            }
     
             $cv = B::svref_2object($anon);
             $gv = $cv->GV;
             ok($gv->isa(q/B::GV/), "anon CV has valid GV");
-            is($gv->NAME, '__ANON__', "anon CV has anon GV");
+            is($gv->NAME, '__ANON__', "Empty anon CV has anon GV");
         }
     
         {

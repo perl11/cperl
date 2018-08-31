@@ -6459,7 +6459,7 @@ PP(pp_method_named)
     else { /* RV or CV */
 #if 0
         if (   SvTYPE(gv) == SVt_PVCV && CvISXSUB(gv)
-               && !CvCONST(gv) && CvROOT(cv) && !PL_perldb
+               && !CvCONST(gv) && CvROOT(gv) && !PL_perldb
                && OpTYPE(PL_op->op_next) == OP_ENTERSUB) {
             DEBUG_k(Perl_deb(aTHX_ "method_named -> xs %" SVf "\n",
                              SVfARG(cv_name((CV *)gv, NULL, CV_NAME_NOMAIN))));

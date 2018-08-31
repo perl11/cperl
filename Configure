@@ -1409,6 +1409,7 @@ yaccflags=''
 CONFIG=''
 usecperl=''
 fake_signatures=''
+usenamedanoncv=''
 
 : Detect odd OSs
 define='define'
@@ -23790,6 +23791,32 @@ case "$ans" in
         exit 1 ;;
 esac
 
+case "$usenamedanoncv" in
+$define|true|[yY]*)	dflt='y' ;;
+undef|[nN]*)		dflt='n' ;;
+*) case "$usecperl" in
+       define) 		dflt='y' ;;
+       *)	    	dflt='n' ;;
+   esac
+   ;;
+esac
+cat <<EOM
+
+Would you like to build Perl with named anonymous CVs instead of using
+the old __ANON__ name? With usenamedanoncv every anonymous CV gets the
+old name plus a @ appended, to mark this name as orphaned or anon.
+
+If this doesn't make any sense to you, just accept the default '$dflt'.
+EOM
+rp='Use usenamedanoncv?'
+. ./myread
+case "$ans" in
+y|Y)	val="$define" ;;
+*)	val="$undef"  ;;
+esac
+set usenamedanoncv
+eval $setvar
+
 : Check extensions
 echo " "
 echo "Looking for extensions..." >&4
@@ -25478,6 +25505,7 @@ usemallocwrap='$usemallocwrap'
 usemorebits='$usemorebits'
 usemultiplicity='$usemultiplicity'
 usemymalloc='$usemymalloc'
+usenamedanoncv='$usenamedanoncv'
 usenm='$usenm'
 usensgetexecutablepath='$usensgetexecutablepath'
 useopcode='$useopcode'

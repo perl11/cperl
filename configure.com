@@ -2744,6 +2744,28 @@ $   if ans.eqs."TWO_POT" then use_two_pot_malloc = "Y"
 $   if ans.eqs."PACK_MALLOC" then use_pack_malloc = "Y"
 $ ENDIF
 $!
+$!
+$ echo ""
+$ echo "Would you like to build Perl with named anonymous CVs instead of using"
+$ echo "the old __ANON__ name? With usenamedanoncv every anonymous CV gets the"
+$ echo "old name plus a @ appended, to mark this name as orphaned or anon."
+$ echo ""
+$ bool_dflt = "y"
+$ IF F$TYPE(usenamedanoncv) .nes. ""
+$ then
+$   if usenamedanoncv .and. usenamedanoncv .eqs. "undef" then bool_dflt = "n"
+$ endif
+$ rp = "Use named anoncv? [''bool_dflt'] "
+$ GOSUB myread
+$ usenamedanoncv = ans
+$ IF usenamedanoncv
+$ THEN
+$   usenamedanoncv = "define"
+$ ELSE
+$   usenamedanoncv = "undef"
+$ ENDIF
+$ !
+$ !
 $ xs_extensions = ""
 $ xxx = ""
 $ OPEN/READ CONFIG 'manifestfound'
@@ -6822,6 +6844,7 @@ $ WC "uselongdouble='" + uselongdouble + "'"
 $ WC "usemorebits='" + usemorebits + "'"
 $ WC "usemultiplicity='" + usemultiplicity + "'"
 $ WC "usemymalloc='" + usemymalloc + "'"
+$ WC "usenamedanoncv='" + usenamedanoncv + "'"
 $ WC "useperlio='define'"
 $ WC "useposix='false'"
 $ WC "usequadmath='undef'"

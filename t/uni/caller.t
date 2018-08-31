@@ -12,6 +12,7 @@ use utf8;
 use open qw( :utf8 :std );
 
 package ｍａｉｎ;
+use Config;
 
 {
     local $@;
@@ -28,7 +29,11 @@ sub { @c = caller(0) } -> ();
 sub ｆｏｏ { @c = caller(0) }
 my $fooref = delete $ｍａｉｎ::{ｆｏｏ};
 $fooref -> ();
-::is( $c[3], "ｍａｉｎ::__ANON__", "deleted subroutine name" );
+if ($Config{usenamedanoncv}) {
+  ::is( $c[3], "ｍａｉｎ::ｆｏｏ@", "anonymous deleted subroutine name" );
+} else {
+  ::is( $c[3], "ｍａｉｎ::__ANON__", "anonymous deleted subroutine name" );
+}
 ::ok( $c[4], "hasargs true with deleted sub" );
 
 print "# Tests with caller(1)\n";
@@ -51,13 +56,17 @@ eval q{ ｆ() };
 ::ok( !$c[4], "hasargs false in an eval ''" );
 
 sub { ｆ() } -> ();
-::is( $c[3], "ｍａｉｎ::__ANON__", "anonymous subroutine name" );
+::is( $c[3], "ｍａｉｎ::__ANON__", "anonymous empty subroutine name" );
 ::ok( $c[4], "hasargs true with anon sub" );
 
 sub ｆｏｏ2 { ｆ() }
 my $fooref2 = delete $ｍａｉｎ::{ｆｏｏ2};
 $fooref2 -> ();
-::is( $c[3], "ｍａｉｎ::__ANON__", "deleted subroutine name" );
+if ($Config{usenamedanoncv}) {
+  ::is( $c[3], "ｍａｉｎ::ｆｏｏ2@", "anonymous deleted subroutine name" );
+} else {
+  ::is( $c[3], "ｍａｉｎ::__ANON__", "deleted subroutine name" );
+}
 ::ok( $c[4], "hasargs true with deleted sub" );
 
 sub ｐｂ { return (caller(0))[3] }

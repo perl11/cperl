@@ -6323,7 +6323,7 @@ Perl_sv_kill_backrefs(pTHX_ SV *const sv, AV *const av)
 			assert(CvGV(referrer));
 			assert(CvGV(referrer) == (const GV *)sv);
 			anonymise_cv_maybe(MUTABLE_GV(sv),
-						MUTABLE_CV(referrer));
+                                           MUTABLE_CV(referrer));
 		    }
 
 		} else {
@@ -6544,7 +6544,14 @@ S_anonymise_cv_maybe(pTHX_ GV *gv, CV* cv)
     gvname = (GvSTASH(gv) && HvNAME(GvSTASH(gv)) && HvENAME(GvSTASH(gv)))
                     ? newSVhek(HvENAME_HEK(GvSTASH(gv)))
                     : newSVpvn_flags( "__ANON__", 8, 0 );
+    /* cperl: for an orphan add a @, don't delete the name completely */
+#ifdef USE_NAMED_ANONCV
+    sv_catpvs(gvname, "::");
+    sv_catsv(gvname, newSVhek(GvNAME_HEK(gv)));
+    sv_catpvs(gvname, "@");
+#else
     sv_catpvs(gvname, "::__ANON__");
+#endif
     anongv = gv_fetchsv(gvname, GV_ADDMULTI, SVt_PVCV);
     SvREFCNT_dec_NN(gvname);
 

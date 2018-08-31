@@ -5432,6 +5432,15 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #$fake_signatures	PERL_FAKE_SIGNATURE		/**/
 #endif
 
+/* USE_NAMED_ANONCV:
+ *	This symbol, if defined, indicates that Perl is compiled with usenamedanoncv,
+ *      using name@ instead of __ANON__.
+ *      It is the default since cperl-5.28.0.
+ */
+#ifndef USE_NAMED_ANONCV
+#$usenamedanoncv	USE_NAMED_ANONCV		/**/
+#endif
+
 /* USE_SANITIZE_ADDRESS:
  *	This symbol, if defined, indicates that Perl is compiled with -fsanitize=address
  */

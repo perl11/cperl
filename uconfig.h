@@ -5397,6 +5397,15 @@
 #define	PERL_FAKE_SIGNATURE		/**/
 #endif
 
+/* USE_NAMED_ANONCV:
+ *	This symbol, if defined, indicates that Perl is compiled with usenamedanoncv,
+ *      using name@ instead of __ANON__.
+ *      It is the default since cperl-5.28.0.
+ */
+#ifndef USE_NAMED_ANONCV
+#define	USE_NAMED_ANONCV		/**/
+#endif
+
 /* USE_SANITIZE_ADDRESS:
  *	This symbol, if defined, indicates that Perl is compiled with -fsanitize=address
  */
@@ -5423,6 +5432,6 @@
 #endif
 
 /* Generated from:
- * c14ad4883087af42d6cb700c812fe141604c4ec0217fecdbd99ccec4da9576e6 config_h.SH
- * ade96344f643206c63123edcdb0e0ddb3dfdb6fa6041def5ecbbd11ae792d056 uconfig.sh
+ * 6f5c9ff2cfbe9f85d14524b369a1c8b0ab02a94e8a1484f571565e60dde18c8d config_h.SH
+ * ca9764968f7deccc23ec33397a0c970348572e1530897d780515894a0fa9312b uconfig.sh
  * ex: set ro: */
