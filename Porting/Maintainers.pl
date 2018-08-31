@@ -842,6 +842,8 @@ use File::Glob qw(:case);
             qr/^eg/,
             qr/^xt/
         ],
+        # cperl usenamedanoncv
+        'CUSTOMIZED'   => [ qw( t/001_api.t ) ],
     },
 
     # removed with v5.25.3c

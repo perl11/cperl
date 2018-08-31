@@ -104,6 +104,7 @@ ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/vstrings.t 62c50e82f1f7afa702773b6
 File::Path cpan/File-Path/lib/File/Path.pm 9abce7ef6597df33fb0cbbd02bf7e34c12157330
 File::Path cpan/File-Path/t/Path_win32.t 46d09109b418a5ee9c3e2d84ee86449103f7a00d
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
+HTTP::Tiny cpan/HTTP-Tiny/t/001_api.t f9481f940ee6951b3c17591432760c4246bfc32f
 IO dist/IO/lib/IO/Socket.pm 6531020cd155391a097d16ce89f5afe11bdcd86b
 IO dist/IO/lib/IO/Socket/INET.pm cd959cc38f5c9d1440f2d998b8adba968cedf340
 IO dist/IO/lib/IO/Socket/UNIX.pm fbf1a9477f310635f4561da1fa287ece982da496
