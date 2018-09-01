@@ -1,6 +1,6 @@
 package B::Xref;
 
-our $VERSION = '1.07_01';
+our $VERSION = '1.07_02';
 
 =head1 NAME
 
@@ -76,7 +76,7 @@ A line number may be prefixed by a single letter:
 
 =item i
 
-Lexical variable introduced (declared with my()) for the first time.
+Lexical variable introduced (declared with my,our,state) for the first time.
 
 =item &
 
@@ -136,7 +136,7 @@ reported properly.
 
 =head1 AUTHOR
 
-Malcolm Beattie, mbeattie@sable.ox.ac.uk.
+Malcolm Beattie C<retired>.
 
 =cut
 
@@ -379,7 +379,7 @@ sub pp_entersub {
 sub B::GV::xref {
     my $gv = shift;
     my $cv = $gv->CV;
-    if ($$cv) {
+    if ($$cv and ref $cv eq 'B::CV') {
 	#return if $done{$$cv}++;
 	$file = $gv->FILE;
 	$line = $gv->LINE;

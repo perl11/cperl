@@ -17166,6 +17166,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Attribute::Handlers'   => '1.00_01',
             'B::C'                  => '1.55_08',
             'B::CC'                 => '1.16_02',
+            'B::Xref'               => '1.07_02',
             'ByteLoader'            => '1.12',
             'CPAN'                  => '2.20_01',
             'CPAN::Bundle'          => '5.5002',

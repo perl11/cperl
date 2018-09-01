@@ -1094,9 +1094,9 @@ attributes correctly:
 
 Remove internal links to B::Debug
 
-=item L<B::Xref> 1.07_01
+=item L<B::Xref> 1.07_02
 
-Support sub refs
+Support sub refs, and named anon subs.
 
 =item L<base> 2.27c
 
