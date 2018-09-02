@@ -1275,7 +1275,7 @@ Use cv_set_call_checker_flags
 
 =item L<Devel::NYTProf> 6.06
 
-=item L<Devel::PPPort> 3.40_04
+=item L<Devel::PPPort> 3.42_04
 
 Restore silence under C<make -s>. I broke it in cperl 5.27.0
 
@@ -1283,9 +1283,12 @@ Add C<#if { CPERL && VERSION > 5.26.0 }> support, support parser enum expectatio
 
 mkppport called PPPort_pm.PL without passing through MAKEFLAGS. Add --quiet support there
 
-Fix WIDEST_UTYPE
+Fix WIDEST_UTYPE.
 
 Support strict hashpairs, fix for . in @INC.
+
+Merge with upstream, changed croak/mess/warn_nocontext/...,
+add NEED_ macros ...
 
 =item L<deprecate>  0.03_01
 
