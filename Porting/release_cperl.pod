@@ -27,7 +27,7 @@ or:
     cd ../cperl-5.28.0
     git reset --hard
     git clean -dxf
-    perl Porting/makerel -bx  # src tarball
+    perl Porting/makerel -x  # src tarball
 
     for t in deb rpm osxpkg solaris pkgin; do
       fpm -s dir -t $t -C cperl -p ../cperl-5.28.0-inst/ \

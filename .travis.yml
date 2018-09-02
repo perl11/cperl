@@ -89,7 +89,7 @@ before_deploy:
 - if [ "${TRAVIS_OS_NAME}" = "linux" -a -n "$DEPLOY" ]; then
     make distclean >/dev/null 2>/dev/null ;
     git clean -dxf ;
-    perl Porting/makerel -bx ;
+    perl Porting/makerel -x ;
   elif [ "${TRAVIS_OS_NAME}" = "darwin" -a -n "$DEPLOY" ]; then
     version=`Porting/perl_version` ;
     out=../`git describe --long --tags --always`.pkg ;
