@@ -17224,6 +17224,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'File::Temp'            => '0.2308',
             'Filter::Util::Call'    => '1.59',
             'Hash::Util'            => '0.22_01',
+            'HTTP::Tiny'            => '0.076_01',
             'I18N::LangTags'        => '0.42_01',
             'IO'                    => '1.38_01',
             'IO::Compress::Adapter::Bzip2'=> '2.081',

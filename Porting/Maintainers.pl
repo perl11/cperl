@@ -807,7 +807,7 @@ use File::Glob qw(:case);
     },
 
     'HTTP::Tiny' => {
-        'DISTRIBUTION' => 'DAGOLDEN/HTTP-Tiny-0.070.tar.gz',
+        'DISTRIBUTION' => 'DAGOLDEN/HTTP-Tiny-0.076.tar.gz',
         'FILES'        => q[cpan/HTTP-Tiny],
         'EXCLUDED'     => [
             't/00-report-prereqs.t',
@@ -818,8 +818,8 @@ use File::Glob qw(:case);
             qr/^eg/,
             qr/^xt/
         ],
-        # cperl usenamedanoncv
-        'CUSTOMIZED'   => [ qw( t/001_api.t ) ],
+        # cperl: No autovivification of hash slice anymore, usenamedanoncv
+        'CUSTOMIZED'   => [ qw( lib/HTTP/Tiny.pm t/001_api.t ) ],
     },
 
     # removed with v5.25.3c

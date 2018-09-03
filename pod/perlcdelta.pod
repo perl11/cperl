@@ -1577,9 +1577,10 @@ XS formatting
 
 =item L<Hash::Util::FieldHash> 1.20
 
-=item L<HTTP::Tiny>  0.070_01
+=item L<HTTP::Tiny>  0.076_01
 
-Fix new Autovivified hash slice warning
+Fix new autovivified hash slice warning,
+usenamedanoncv in api test
 
 =item L<I18N::Langinfo> 0.17
 
