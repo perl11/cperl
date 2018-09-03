@@ -1664,10 +1664,12 @@ now up-to-date with upstream
 
 =item L<Math::BigInt::FastCalc> 0.5007
 
-=item L<Math::BigRat> 0.2613
+=item L<Math::BigRat> 0.2614
 
 Fix problem with second operand being changed in multiplication
 L<RT #121139|https://rt.cpan.org/Ticket/Display.html?id=121139>
+
+cperl: Keep omitting Carp imports. Keep t/bigroot.t and t/biglog.t
 
 =item L<Memoize> 1.03
 

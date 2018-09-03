@@ -95,9 +95,11 @@ IPC::Cmd cpan/IPC-Cmd/t/01_IPC-Cmd.t ff641405d0578b4c799c9457bcecec1495046fa1
 JSON::PP cpan/JSON-PP/lib/JSON/PP.pm e57863a7094f6270810dadfdf596cb55cc86eb97
 JSON::PP cpan/JSON-PP/lib/JSON/PP/Boolean.pm ccc6b9b4daa99ac651e1b65dad2b8508d4e3194a
 Math::BigInt cpan/Math-BigInt/t/mbimbf.inc 275f07bef354d2d3c53b1d18a43d3241d194a54e
-Math::BigRat cpan/Math-BigRat/t/bigfltpm.inc 8000c7057453138ff48cf4cba61f0f4a1db2b59a
-Math::BigRat cpan/Math-BigRat/t/bigfltrt.t 5508d55216c52caf26aa2e6478691c50b7856e7d
-Math::BigRat cpan/Math-BigRat/t/bigratpm.t cfd770aabeaf6b742fd942143e816db42db04fba
+Math::BigRat cpan/Math-BigRat/t/bigfltpm.inc 4788d57971a056c31c232ee18984b77618e105f9
+Math::BigRat cpan/Math-BigRat/t/bigfltrt.t 83756157f90ac51fef7b1a151c164ec910685095
+Math::BigRat cpan/Math-BigRat/t/biglog.t 33c04c0c45bc55605dbae8d0744c7157b87cd3ba
+Math::BigRat cpan/Math-BigRat/t/bigratpm.t 9b1d5b07b50b0cd7a87b2ac4bda5cb22cfe95f05
+Math::BigRat cpan/Math-BigRat/t/bigroot.t 0e79d4c8d4b5f94e66a6c464972e51857fdd4107
 Memoize cpan/Memoize/t/expmod_t.t 9386100cd9c95a0e8a4e001bba3aa52eec114d21
 Module::Load::Conditional cpan/Module-Load-Conditional/lib/Module/Load/Conditional.pm 096fcf1ba8e3c783b37465c122c674cd02b0e6f4
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
