@@ -17181,6 +17181,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Devel::NYTProf'        => '6.06_01',
             'Devel::NYTProf::Core'  => '6.06_01',
             'Devel::PPPort'         => '3.42_04',
+            'Digest::SHA'           => '6.02',
             'DynaLoader'            => '2.08c',
             'Encode'                => '2.98',
             'Encode::Alias'         => '2.24',

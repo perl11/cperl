@@ -560,7 +560,7 @@ use File::Glob qw(:case);
     },
 
     'Digest::SHA' => {
-        'DISTRIBUTION' => 'MSHELOR/Digest-SHA-5.98.tar.gz',
+        'DISTRIBUTION' => 'MSHELOR/Digest-SHA-6.02.tar.gz',
         'FILES'        => q[cpan/Digest-SHA],
         'EXCLUDED'     => [
             qw( t/pod.t
@@ -568,32 +568,6 @@ use File::Glob qw(:case);
                 examples/dups
                 ),
         ],
-        # https://rt.cpan.org/Public/Bug/Display.html?id=123863
-        CUSTOMIZED    => [qw[
-                t/allfcns.t
-                t/base64.t
-                t/bitbuf.t
-                t/bitorder.t
-                t/fips180-4.t
-                t/fips198.t
-                t/gg.t
-                t/gglong.t
-                t/hmacsha.t
-                t/inheritance.t
-                t/ireland.t
-                t/methods.t
-                t/nistbit.t
-                t/nistbyte.t
-                t/rfc2202.t
-                t/sha1.t
-                t/sha224.t
-                t/sha256.t
-                t/sha384.t
-                t/sha512.t
-                t/state.t
-                t/unicode.t
-                t/woodbury.t
-        ] ],
     },
 
     'Dumpvalue' => {

@@ -5,7 +5,7 @@ use Digest::SHA qw(sha1_base64 sha224_base64 sha256_base64
 my $in = "abc";
 my @out = map { eval } <DATA>;
 my @fcn = (\&sha1_base64, \&sha224_base64, \&sha256_base64,
-           \&sha384_base64, \&sha512_base64);
+	\&sha384_base64, \&sha512_base64);
 
 print "1..", scalar @out, "\n";
 

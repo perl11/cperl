@@ -18,7 +18,7 @@ print "not " if Digest::SHA->new($NSA);
 print "ok ", $testnum++, "\n";
 
 my $tempfile = "methods.tmp";
-END { 1 while unlink $tempfile }
+END { unlink $tempfile if $tempfile }
 
 	# test OO methods using first two SHA-256 vectors from NIST
 
@@ -38,7 +38,7 @@ $rsp = shift(@out);
 
 	# test addfile with bareword filehandle
 
-open(FILE, "<", $tempfile);
+open(FILE, "<$tempfile");
 binmode(FILE);
 print "not " unless
 	$sha->clone->addfile(*FILE)->hexdigest eq $rsp;

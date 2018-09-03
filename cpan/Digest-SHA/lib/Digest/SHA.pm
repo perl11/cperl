@@ -4,16 +4,16 @@ require 5.003000;
 
 use strict;
 use warnings;
-use vars qw($VERSION @ISA @EXPORT_OK);
-use Fcntl qw(O_RDONLY);
+use vars qw($VERSION @ISA @EXPORT_OK $errmsg);
+use Fcntl qw(O_RDONLY O_RDWR);
 use integer;
 
-$VERSION = '5.98';
+$VERSION = '6.02';
 
 require Exporter;
-require DynaLoader;
-@ISA = qw(Exporter DynaLoader);
+@ISA = qw(Exporter);
 @EXPORT_OK = qw(
+	$errmsg
 	hmac_sha1	hmac_sha1_base64	hmac_sha1_hex
 	hmac_sha224	hmac_sha224_base64	hmac_sha224_hex
 	hmac_sha256	hmac_sha256_base64	hmac_sha256_hex
@@ -68,6 +68,7 @@ sub add_bits {
 sub _bail {
 	my $msg = shift;
 
+	$errmsg = $!;
 	$msg .= ": $!";
 	require Carp;
 	Carp::croak($msg);
@@ -114,17 +115,19 @@ sub addfile {
 		map { $_ eq $mode } ("b", "U", "0");
 
 		## Always interpret "-" to mean STDIN; otherwise use
-		## sysopen to handle full range of POSIX file names
+		##	sysopen to handle full range of POSIX file names.
+		## If $file is a directory, force an EISDIR error
+		##	by attempting to open with mode O_RDWR
 
 	local *FH;
 	$file eq '-' and open(FH, '< -')
-		or sysopen(FH, $file, O_RDONLY)
+		or sysopen(FH, $file, -d $file ? O_RDWR : O_RDONLY)
 			or _bail('Open failed');
 
 	if ($BITS) {
 		my ($n, $buf) = (0, "");
 		while (($n = read(FH, $buf, 4096))) {
-			$buf =~ s/[^01]//g;
+			$buf =~ tr/01//cd;
 			$self->add_bits($buf);
 		}
 		_bail("Read failed") unless defined $n;
@@ -236,7 +239,15 @@ sub load {
 	$class->putstate($str);
 }
 
-Digest::SHA->bootstrap($VERSION);
+eval {
+	require XSLoader;
+	XSLoader::load('Digest::SHA', $VERSION);
+	1;
+} or do {
+	require DynaLoader;
+	push @ISA, 'DynaLoader';
+	Digest::SHA->bootstrap($VERSION);
+};
 
 1;
 __END__
@@ -799,7 +810,7 @@ darkness and moored it in so perfect a calm and in so brilliant a light"
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2003-2017 Mark Shelor
+Copyright (C) 2003-2018 Mark Shelor
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

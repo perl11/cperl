@@ -2,7 +2,6 @@ use strict;
 use Digest::SHA qw(sha512_hex sha512224_hex sha512256_hex);
 
 my @vecs = map { eval } <DATA>;
-# $#vecs -= 2 if $MODULE eq "Digest::SHA::PurePerl";
 
 my $numtests = scalar(@vecs) / 2;
 print "1..$numtests\n";

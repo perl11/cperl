@@ -1294,9 +1294,16 @@ add NEED_ macros ...
 
 Add pod synopsis for modules for older perls.
 
-=item L<Digest::SHA> 6.01
+=item L<Digest::SHA> 6.02
 
-Remove deprecated -p option
+Remove deprecated -p option and PurePerl variant.
+
+Replaced DynaLoader with XSLoader.
+
+Silenced compiler warnings from VS2017 RT #124477
+
+Modified addfile to return error when given a directory name,
+makes behavior consistent with GNU coreutils shaXsum.
 
 =item L<DirHandle> 1.05
 
