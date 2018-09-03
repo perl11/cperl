@@ -17253,6 +17253,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'IO::Uncompress::RawInflate'=> '2.081',
             'IO::Uncompress::Unzip' => '2.081',
             'IO::Socket::IP'        => '0.39_02',
+            'IPC::Cmd'              => '1.02',  
             'JSON::PP'              => '2.97001_04',
             'JSON::PP::Boolean'     => '2.97001_04',
             'List::Util'            => '1.49_10',

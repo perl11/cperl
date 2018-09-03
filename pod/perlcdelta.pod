@@ -1624,12 +1624,20 @@ exclude t/999pod.t also
 
 Fix new Autovivified hash slice warning
 
-=item L<IPC::Cmd> 1.00
+=item L<IPC::Cmd> 1.02
 
 Added C<wait_loop_callback> for C<run_forked()>
 
 Only search in curdir in C<can_run(>) when on Win32
 L<RT #105601|https://rt.cpan.org/Ticket/Display.html?id=105601>
+
+Fixed can't use IPC::Cmd->run_forked in the first process of a container
+L<RT #118424|https://rt.cpan.org/Ticket/Display.html?id=118424>
+
+Fixed run_forked("/usr/bin/echo test") captures no output
+L<RT #91784|https://rt.cpan.org/Ticket/Display.html?id=91784>
+
+HPUX test fixes.
 
 =item L<JSON::PP> 2.97001_04
 
