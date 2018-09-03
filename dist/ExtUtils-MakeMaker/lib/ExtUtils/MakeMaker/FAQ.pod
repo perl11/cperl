@@ -1,7 +1,7 @@
 package ExtUtils::MakeMaker::FAQ;
 
-our $VERSION = '7.30';
-$VERSION = eval $VERSION;
+our $VERSION = '7.35_06';
+$VERSION =~ tr/_//d;
 
 1;
 __END__
@@ -84,7 +84,8 @@ installation.
 =item How do I keep from installing man pages?
 
 Recent versions of MakeMaker will only install man pages on Unix-like
-operating systems.
+operating systems by default. To generate manpages on non-Unix operating
+systems, make the "manifypods" target.
 
 For an individual module:
 
@@ -613,7 +614,7 @@ ExtUtils::Makemaker, ExtUtils::Liblist and ExtUtils::MM_{Current OS}
 NOTE: The methods in MY are simply copied into PACK### rather than
 MY being a superclass of PACK###.  I don't remember the rationale.
 
-NOTE: ExtUtils::Liblist should be removed from the inheritence hiearchy
+NOTE: ExtUtils::Liblist should be removed from the inheritance hierarchy
 and simply be called as functions.
 
 NOTE: Modules like File::Spec and Exporter have been omitted for clarity.

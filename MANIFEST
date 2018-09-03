@@ -3058,6 +3058,7 @@ dist/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Utils.pm		MakeMaker test utilities
 dist/ExtUtils-MakeMaker/t/lib/TieIn.pm				Testing library for dummy input handles
 dist/ExtUtils-MakeMaker/t/lib/TieOut.pm				Testing library to capture prints
 dist/ExtUtils-MakeMaker/t/Liblist.t				See if ExtUtils::Liblist works
+dist/ExtUtils-MakeMaker/t/Liblist_Kid.t				See if ExtUtils::Liblist works
 dist/ExtUtils-MakeMaker/t/make.t				See if make detection works
 dist/ExtUtils-MakeMaker/t/MakeMaker_Parameters.t		test "MakeMaker Parameters" section
 dist/ExtUtils-MakeMaker/t/maketext_filter.t			See if maketext_filter works

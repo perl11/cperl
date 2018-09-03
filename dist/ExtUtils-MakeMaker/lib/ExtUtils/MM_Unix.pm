@@ -14,8 +14,8 @@ use ExtUtils::MakeMaker qw($Verbose neatvalue _sprintf562);
 
 # If we make $VERSION an our variable parse_version() breaks
 use vars qw($VERSION);
-$VERSION = '8.30_04';
-$VERSION = eval $VERSION;  ## no critic [BuiltinFunctions::ProhibitStringyEval]
+$VERSION = '8.35_06';
+$VERSION =~ tr/_//d;
 
 require ExtUtils::MM_Any;
 our @ISA = qw(ExtUtils::MM_Any);
@@ -55,7 +55,7 @@ ExtUtils::MM_Unix - methods used by ExtUtils::MakeMaker
 
 =head1 SYNOPSIS
 
-C<require ExtUtils::MM_Unix;>
+  require ExtUtils::MM_Unix;
 
 =head1 DESCRIPTION
 
@@ -152,8 +152,11 @@ EOF
     my @exts = qw(c cpp cxx cc);
     push @exts, 'C' if !$Is{OS2} and !$Is{Win32} and !$Is{Dos}; #Case-specific
     $m_o = $self->{XSMULTI} ? $self->xs_obj_opt('$*$(OBJ_EXT)') : '';
+    my $dbgout = $self->dbgoutflag;
     for my $ext (@exts) {
-	push @m, "\n.$ext\$(OBJ_EXT) :\n\t$command $flags \$*.$ext" . ( $m_o ? " $m_o" : '' ) . "\n";
+	push @m, "\n.$ext\$(OBJ_EXT) :\n\t$command $flags "
+            .($dbgout?"$dbgout ":'')
+            ."\$*.$ext" . ( $m_o ? " $m_o" : '' ) . "\n";
     }
     return join "", @m;
 }
@@ -171,6 +174,16 @@ sub xs_obj_opt {
     "-o $output_file";
 }
 
+=item dbgoutflag
+
+Returns a CC flag that tells the CC to emit a separate debugging symbol file
+when compiling an object file.
+
+=cut
+
+sub dbgoutflag {
+    '';
+}
 
 =item cflags (o)
 
@@ -1249,7 +1262,10 @@ sub _fixin_replace_shebang {
 
     # Now look (in reverse) for interpreter in absolute PATH (unless perl).
     my $interpreter;
-    if ( $cmd =~ m{^perl(?:\z|[^a-z])} ) {
+    if ( defined $ENV{PERL_MM_SHEBANG} && $ENV{PERL_MM_SHEBANG} eq "relocatable" ) {
+        $interpreter = "/usr/bin/env perl";
+    }
+    elsif ( $cmd =~ m{^perl(?:\z|[^a-z])} ) {
         if ( $Config{startperl} =~ m,^\#!.*/perl, ) {
             $interpreter = $Config{startperl};
             $interpreter =~ s,^\#!,,;
@@ -2531,78 +2547,13 @@ $(MAKE_APERL_FILE) : static $(FIRST_MAKEFILE) pm_to_blib
     $linkcmd =~ s,(perl\.exp),\$(PERL_INC)/$1,;
 
     # Which *.a files could we make use of...
-    my %static;
-    require File::Find;
-    # don't use File::Spec here because on Win32 F::F still uses "/"
-    my $installed_version = join('/',
-	'auto', $self->{FULLEXT}, "$self->{BASEEXT}$self->{LIB_EXT}"
-    );
-    File::Find::find(sub {
-	if ($File::Find::name =~ m{/auto/share\z}) {
-	    # in a subdir of auto/share, prune because e.g.
-	    # Alien::pkgconfig uses File::ShareDir to put .a files
-	    # there. do not want
-	    $File::Find::prune = 1;
-	    return;
-	}
-
-	return unless m/\Q$self->{LIB_EXT}\E$/;
-
-	return unless -f 'extralibs.ld'; # this checks is a "proper" XS installation
-
-        # Skip perl's libraries.
-        return if m/^libperl/ or m/^perl\Q$self->{LIB_EXT}\E$/;
-
-	# Skip purified versions of libraries
-        # (e.g., DynaLoader_pure_p1_c0_032.a)
-	return if m/_pure_\w+_\w+_\w+\.\w+$/ and -f "$File::Find::dir/.pure";
-
-	if( exists $self->{INCLUDE_EXT} ){
-		my $found = 0;
-
-		(my $xx = $File::Find::name) =~ s,.*?/auto/,,s;
-		$xx =~ s,/?$_,,;
-		$xx =~ s,/,::,g;
-
-		# Throw away anything not explicitly marked for inclusion.
-		# DynaLoader is implied.
-		foreach my $incl ((@{$self->{INCLUDE_EXT}},'DynaLoader')){
-			if( $xx eq $incl ){
-				$found++;
-				last;
-			}
-		}
-		return unless $found;
-	}
-	elsif( exists $self->{EXCLUDE_EXT} ){
-		(my $xx = $File::Find::name) =~ s,.*?/auto/,,s;
-		$xx =~ s,/?$_,,;
-		$xx =~ s,/,::,g;
-
-		# Throw away anything explicitly marked for exclusion
-		foreach my $excl (@{$self->{EXCLUDE_EXT}}){
-			return if( $xx eq $excl );
-		}
-	}
-
-	# don't include the installed version of this extension. I
-	# leave this line here, although it is not necessary anymore:
-	# I patched minimod.PL instead, so that Miniperl.pm won't
-	# include duplicates
-
-	# Once the patch to minimod.PL is in the distribution, I can
-	# drop it
-	return if $File::Find::name =~ m:\Q$installed_version\E\z:;
-	use Cwd 'cwd';
-	$static{cwd() . "/" . $_}++;
-    }, grep( -d $_, map { $self->catdir($_, 'auto') } @{$searchdirs || []}) );
-
+    my $staticlib21 = $self->_find_static_libs($searchdirs);
     # We trust that what has been handed in as argument, will be buildable
     $static = [] unless $static;
-    @static{@{$static}} = (1) x @{$static};
+    @$staticlib21{@{$static}} = (1) x @{$static};
 
     $extra = [] unless $extra && ref $extra eq 'ARRAY';
-    for (sort keys %static) {
+    for (sort keys %$staticlib21) {
 	next unless /\Q$self->{LIB_EXT}\E\z/;
 	$_ = dirname($_) . "/extralibs.ld";
 	push @$extra, $_;
@@ -2616,7 +2567,7 @@ $(MAKE_APERL_FILE) : static $(FIRST_MAKEFILE) pm_to_blib
 # MAP_STATIC doesn't look into subdirs yet. Once "all" is made and we
 # regenerate the Makefiles, MAP_STATIC and the dependencies for
 # extralibs.all are computed correctly
-    my @map_static = reverse sort keys %static;
+    my @map_static = reverse sort keys %$staticlib21;
     push @m, "
 MAP_LINKCMD   = $linkcmd
 MAP_STATIC    = ", join(" \\\n\t", map { qq{"$_"} } @map_static), "
@@ -2728,6 +2679,92 @@ map_clean :
 };
 
     join '', @m;
+}
+
+# utility method
+sub _find_static_libs {
+    my ($self, $searchdirs) = @_;
+    # don't use File::Spec here because on Win32 F::F still uses "/"
+    my $installed_version = join('/',
+	'auto', $self->{FULLEXT}, "$self->{BASEEXT}$self->{LIB_EXT}"
+    );
+    my %staticlib21;
+    require File::Find;
+    File::Find::find(sub {
+	if ($File::Find::name =~ m{/auto/share\z}) {
+	    # in a subdir of auto/share, prune because e.g.
+	    # Alien::pkgconfig uses File::ShareDir to put .a files
+	    # there. do not want
+	    $File::Find::prune = 1;
+	    return;
+	}
+
+	return unless m/\Q$self->{LIB_EXT}\E$/;
+
+	return unless -f 'extralibs.ld'; # this checks is a "proper" XS installation
+
+        # Skip perl's libraries.
+        return if m/^libperl/ or m/^perl\Q$self->{LIB_EXT}\E$/;
+
+	# Skip purified versions of libraries
+        # (e.g., DynaLoader_pure_p1_c0_032.a)
+	return if m/_pure_\w+_\w+_\w+\.\w+$/ and -f "$File::Find::dir/.pure";
+
+	if( exists $self->{INCLUDE_EXT} ){
+		my $found = 0;
+
+		(my $xx = $File::Find::name) =~ s,.*?/auto/,,s;
+		$xx =~ s,/?$_,,;
+		$xx =~ s,/,::,g;
+
+		# Throw away anything not explicitly marked for inclusion.
+		# DynaLoader is implied.
+		foreach my $incl ((@{$self->{INCLUDE_EXT}},'DynaLoader')){
+			if( $xx eq $incl ){
+				$found++;
+				last;
+			}
+		}
+		return unless $found;
+	}
+	elsif( exists $self->{EXCLUDE_EXT} ){
+		(my $xx = $File::Find::name) =~ s,.*?/auto/,,s;
+		$xx =~ s,/?$_,,;
+		$xx =~ s,/,::,g;
+
+		# Throw away anything explicitly marked for exclusion
+		foreach my $excl (@{$self->{EXCLUDE_EXT}}){
+			return if( $xx eq $excl );
+		}
+	}
+
+	# don't include the installed version of this extension. I
+	# leave this line here, although it is not necessary anymore:
+	# I patched minimod.PL instead, so that Miniperl.pm won't
+	# include duplicates
+
+	# Once the patch to minimod.PL is in the distribution, I can
+	# drop it
+	return if $File::Find::name =~ m:\Q$installed_version\E\z:;
+	return if !$self->xs_static_lib_is_xs($_);
+	use Cwd 'cwd';
+	$staticlib21{cwd() . "/" . $_}++;
+    }, grep( -d $_, map { $self->catdir($_, 'auto') } @{$searchdirs || []}) );
+    return \%staticlib21;
+}
+
+=item xs_static_lib_is_xs (o)
+
+Called by a utility method of makeaperl. Checks whether a given file
+is an XS library by seeing whether it defines any symbols starting
+with C<boot_>.
+
+=cut
+
+sub xs_static_lib_is_xs {
+    my ($self, $libfile) = @_;
+    my $devnull = File::Spec->devnull;
+    return `nm $libfile 2>$devnull` =~ /\bboot_/;
 }
 
 =item makefile (o)
@@ -2876,7 +2913,7 @@ It will return the string "undef" if it can't figure out what $VERSION
 is. $VERSION should be for all to see, so C<our $VERSION> or plain $VERSION
 are okay, but C<my $VERSION> is not.
 
-C<<package Foo VERSION>> is also checked for.  The first version
+C<package Foo VERSION> is also checked for.  The first version
 declaration found is used, but this may change as it differs from how
 Perl does it.
 
@@ -3265,9 +3302,11 @@ sub processPL {
 
     my $m = '';
     foreach my $plfile (sort keys %$pl_files) {
-        my $list = ref($pl_files->{$plfile})
-                     ?  $pl_files->{$plfile}
-                     : [$pl_files->{$plfile}];
+        my $targets = $pl_files->{$plfile};
+        my $list =
+            ref($targets) eq 'HASH'  ? [ sort keys %$targets ] :
+            ref($targets) eq 'ARRAY' ? $pl_files->{$plfile}   :
+            [$pl_files->{$plfile}];
 
         foreach my $target (@$list) {
             if( $Is{VMS} ) {
@@ -3291,13 +3330,27 @@ sub processPL {
                 $perlrun = 'PERLRUNINST';
             }
 
+            my $extra_inputs = '';
+            if( ref($targets) eq 'HASH' ) {
+                my $inputs = ref($targets->{$target})
+                    ? $targets->{$target}
+                    : [$targets->{$target}];
+
+                for my $input (@$inputs) {
+                    if( $Is{VMS} ) {
+                        $input = vmsify($self->eliminate_macros($input));
+                    }
+                    $extra_inputs .= ' '.$input;
+                }
+            }
+
             $m .= <<MAKE_FRAG;
 
 pure_all :: $target
 	\$(NOECHO) \$(NOOP)
 
-$target :: $plfile $pm_dep
-	\$($perlrun) $plfile $target
+$target :: $plfile $pm_dep $extra_inputs
+	\$($perlrun) $plfile $target $extra_inputs
 MAKE_FRAG
 
         }
@@ -3954,13 +4007,15 @@ sub xs_o {
     my ($self) = @_;
     return '' unless $self->needs_linking();
     my $m_o = $self->{XSMULTI} ? $self->xs_obj_opt('$*$(OBJ_EXT)') : '';
+    my $dbgout = $self->dbgoutflag;
+    $dbgout = $dbgout ? "$dbgout " : '';
     my $frag = '';
     # dmake makes noise about ambiguous rule
-    $frag .= sprintf <<'EOF', $m_o unless $self->is_make_type('dmake');
+    $frag .= sprintf <<'EOF', $dbgout, $m_o unless $self->is_make_type('dmake');
 .xs$(OBJ_EXT) :
 	$(XSUBPPRUN) $(XSPROTOARG) $(XSUBPPARGS) $*.xs > $*.xsc
 	$(MV) $*.xsc $*.c
-	$(CCCMD) $(CCCDLFLAGS) "-I$(PERL_INC)" $(PASTHRU_DEFINE) $(DEFINE) $*.c %s
+	$(CCCMD) $(CCCDLFLAGS) "-I$(PERL_INC)" $(PASTHRU_DEFINE) $(DEFINE) %s$*.c %s
 EOF
     if ($self->{XSMULTI}) {
 	for my $ext ($self->_xs_list_basenames) {
@@ -3974,13 +4029,13 @@ EOF
             $self->_xsbuild_replace_macro($cccmd, 'xs', $ext, 'INC');
             my $define = '$(DEFINE)';
             $self->_xsbuild_replace_macro($define, 'xs', $ext, 'DEFINE');
-            #                             1     2       3     4
-            $frag .= _sprintf562 <<'EOF', $ext, $cccmd, $m_o, $define;
+            #                             1     2       3     4        5
+            $frag .= _sprintf562 <<'EOF', $ext, $cccmd, $m_o, $define, $dbgout;
 
 %1$s$(OBJ_EXT): %1$s.xs
 	$(XSUBPPRUN) $(XSPROTOARG) $(XSUBPPARGS) $*.xs > $*.xsc
 	$(MV) $*.xsc $*.c
-	%2$s $(CCCDLFLAGS) "-I$(PERL_INC)" $(PASTHRU_DEFINE) %4$s $*.c %3$s
+	%2$s $(CCCDLFLAGS) "-I$(PERL_INC)" $(PASTHRU_DEFINE) %4$s %5$s$*.c %3$s
 EOF
 	}
     }

@@ -1414,11 +1414,11 @@ Load Win32API::File for _move_file_at_boot only when needed
 
 Allow disabling autosplit by omitting autosplit dir
 
-=item L<ExtUtils::MakeMaker> 8.34_04
+=item L<ExtUtils::MakeMaker> 8.35_06
 
-Merge our fixes to upstream 7.34 (which has e.g. the dlltool mingw
-fixes). Many fixes were already in, but some new upstream bugs crept
-in.
+Merge our fixes to upstream 7.35_06 (which has e.g. the dlltool mingw
+and parallel MSVC fixes). Many fixes were already in, but some new
+upstream bugs crept in.
 
 Support IO::Scalar handle as $parsefile argument to
 ExtUtils::MM_Unix::parse_version().
@@ -1429,7 +1429,14 @@ while "strict names"
 fix XSMULTI static with strict linkers, avoid duplicate symbol
 _boot_XS__Test in: Test.o blib/arch/auto/XS/Test/Test.a(Test.o)
 
-xsstatic: fixup MAKE_APERL_FILE, which was Makefile.aperl.aperl
+xsstatic: fixup MAKE_APERL_FILE, which was Makefile.aperl.aperl,
+add xs_static_lib_is_xs
+
+MSVC: seperate dbgoutflag
+
+VMS: add static_lib_pure_cmd
+
+Liblist: support libdirs with spaces
 
 =item L<ExtUtils::Miniperl> 1.08
 
