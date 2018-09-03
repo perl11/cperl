@@ -268,12 +268,12 @@ Of course I should still be able to do all this I<with> escape sequences
 too: C<$self-E<gt>method()> and C<$self-E<gt>{FIELDNAME}> and
 C<{FOO=E<gt>BAR}>.
 
-Dont forget C<$self-E<gt>method()-E<gt>{FIELDNAME} = {FOO=E<gt>BAR}>.
+Don't forget C<$self-E<gt>method()-E<gt>{FIELDNAME} = {FOO=E<gt>BAR}>.
 
 And make sure that C<0> works too!
 
 Now, if I use << or >> as my delimiters, then I have to use whitespace.
-So things like C<<$self->method()>> and C<<$self->{FIELDNAME}>> wont end
+So things like C<<$self->method()>> and C<<$self->{FIELDNAME}>> won't end
 up doing what you might expect since the first > will still terminate
 the first < seen.
 
@@ -377,5 +377,16 @@ up.)
 =head1 CONCLUSION
 
 That's all, folks!
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2001, 2004, 2016, 2018 Russ Allbery <rra@cpan.org>
+
+Copying and distribution of this file, with or without modification, are
+permitted in any medium without royalty provided the copyright notice and
+this notice are preserved.  This file is offered as-is, without any
+warranty.
+
+SPDX-License-Identifier: FSFAP
 
 =cut

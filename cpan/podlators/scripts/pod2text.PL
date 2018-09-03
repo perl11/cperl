@@ -45,16 +45,12 @@ PREAMBLE
 # In the following, Perl variables are not expanded during extraction.
 print {$out} <<'SCRIPT_BODY' or die "Cannot write to $file: $!\n";
 
-# pod2text -- Convert POD data to formatted ASCII text.
-#
-# Copyright 1999, 2000, 2001, 2004, 2006, 2008, 2010, 2012, 2013, 2014, 2015,
-#     2016 Russ Allbery <rra@cpan.org>
-#
-# This program is free software; you may redistribute it and/or modify it
-# under the same terms as Perl itself.
+# Convert POD data to formatted ASCII text.
 #
 # The driver script for Pod::Text, Pod::Text::Termcap, and Pod::Text::Color,
 # invoked by perldoc -t among other things.
+#
+# SPDX-License-Identifier: GPL-1.0-or-later OR Artistic-1.0-Perl
 
 use 5.006;
 use strict;
@@ -83,10 +79,8 @@ for (my $i = 0; $i < @ARGV; $i++) {
 my $stdin;
 @ARGV = map { $_ eq '-' && !$stdin++ ? ('--', $_) : $_ } @ARGV;
 
-# Parse our options.  Use the same names as Pod::Text for simplicity, and
-# default to sentence boundaries turned off for compatibility.
+# Parse our options.  Use the same names as Pod::Text for simplicity.
 my %options;
-$options{sentence} = 0;
 Getopt::Long::config ('bundling');
 GetOptions (\%options, 'alt|a', 'code', 'color|c', 'errors=s', 'help|h',
             'indent|i=i', 'loose|l', 'margin|left-margin|m=i', 'nourls',
@@ -124,7 +118,11 @@ do {
     $parser->parse_from_file ($input, $output);
     if ($parser->{CONTENTLESS}) {
         $status = 1;
-        warn "$0: unable to format $input\n";
+        if (defined $input) {
+            warn "$0: unable to format $input\n";
+        } else {
+            warn "$0: unable to format standard input\n";
+        }
         if (defined ($output) and $output ne '-') {
             unlink $output unless (-s $output);
         }
@@ -343,26 +341,26 @@ current terminal device.
 
 =back
 
-=head1 SEE ALSO
-
-L<Pod::Text>, L<Pod::Text::Color>, L<Pod::Text::Overstrike>,
-L<Pod::Text::Termcap>, L<Pod::Simple>, L<perlpod(1)>
-
-The current version of this script is always available from its web site at
-L<http://www.eyrie.org/~eagle/software/podlators/>.  It is also part of the
-Perl core distribution as of 5.6.0.
-
 =head1 AUTHOR
 
 Russ Allbery <rra@cpan.org>.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 1999, 2000, 2001, 2004, 2006, 2008, 2010, 2012, 2013, 2014, 2015,
-2016 Russ Allbery <rra@cpan.org>
+Copyright 1999-2001, 2004, 2006, 2008, 2010, 2012-2018 Russ Allbery
+<rra@cpan.org>
 
 This program is free software; you may redistribute it and/or modify it
 under the same terms as Perl itself.
+
+=head1 SEE ALSO
+
+L<Pod::Text>, L<Pod::Text::Color>, L<Pod::Text::Overstrike>,
+L<Pod::Text::Termcap>, L<Pod::Simple>, L<perlpod(1)>
+
+The current version of this script is always available from its web site at
+L<https://www.eyrie.org/~eagle/software/podlators/>.  It is also part of the
+Perl core distribution as of 5.6.0.
 
 =cut
 SCRIPT_BODY
@@ -373,3 +371,7 @@ chmod(0755, $file) or die "Cannot reset permissions for $file: $!\n";
 if ($Config{'eunicefix'} ne ':') {
     exec("$Config{'eunicefix'} $file");
 }
+
+# Local Variables:
+# copyright-at-end-flag: t
+# End:

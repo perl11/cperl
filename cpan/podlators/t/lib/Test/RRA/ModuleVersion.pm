@@ -3,6 +3,8 @@
 # This module contains the common code for testing and updating Perl module
 # versions for consistency within a Perl module distribution and within a
 # larger package that contains both Perl modules and other code.
+#
+# SPDX-License-Identifier: MIT
 
 package Test::RRA::ModuleVersion;
 
@@ -31,7 +33,7 @@ BEGIN {
     # This version should match the corresponding rra-c-util release, but with
     # two digits for the minor version, including a leading zero if necessary,
     # so that it will sort properly.
-    $VERSION = '6.01';
+    $VERSION = '7.01';
 }
 
 # A regular expression matching the version string for a module using the
@@ -290,6 +292,10 @@ SOFTWARE.
 Test::More(3), Test::RRA::Config(3)
 
 This module is maintained in the rra-c-util package.  The current version
-is available from L<http://www.eyrie.org/~eagle/software/rra-c-util/>.
+is available from L<https://www.eyrie.org/~eagle/software/rra-c-util/>.
 
 =cut
+
+# Local Variables:
+# copyright-at-end-flag: t
+# End:

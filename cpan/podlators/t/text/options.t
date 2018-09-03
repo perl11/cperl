@@ -2,11 +2,13 @@
 #
 # Additional tests for Pod::Text options.
 #
-# Copyright 2002, 2004, 2006, 2008, 2009, 2012, 2013, 2015
+# Copyright 2002, 2004, 2006, 2008-2009, 2012-2013, 2015, 2018
 #     Russ Allbery <rra@cpan.org>
 #
 # This program is free software; you may redistribute it and/or modify it
 # under the same terms as Perl itself.
+#
+# SPDX-License-Identifier: GPL-1.0-or-later OR Artistic-1.0-Perl
 
 BEGIN {
     chdir 't' if -d 't';
@@ -71,7 +73,7 @@ while (<DATA>) {
         last if $_ eq "###\n";
         $expected .= $_;
     }
-    is ($output, $expected, "Ouput correct for test $n");
+    is ($output, $expected, "Output correct for test $n");
     open (ERR, "out$$.err") or die "Cannot open out$$.err: $!\n";
     my $errors;
     {
