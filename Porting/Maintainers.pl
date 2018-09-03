@@ -962,11 +962,12 @@ use File::Glob qw(:case);
     },
 
     'Math::BigInt::FastCalc' => {
-        'DISTRIBUTION' => 'PJACKLAM/Math-BigInt-FastCalc-0.5006.tar.gz',
+        'DISTRIBUTION' => 'PJACKLAM/Math-BigInt-FastCalc-0.5007.tar.gz',
         'FILES'        => q[cpan/Math-BigInt-FastCalc],
         'EXCLUDED'     => [
             qr{^inc/},
             qr{^t/author},
+            qr{^t/release-},
             qw( t/00sig.t
                 t/01load.t
                 t/02pod.t
@@ -991,7 +992,8 @@ use File::Glob qw(:case);
         'FILES'        => q[cpan/Math-BigRat],
         'EXCLUDED'     => [
             qr{^inc/},
-            qr{^t/author},
+            qr{^t/author-},
+            qr{^t/release-},
             qw( t/00sig.t
                 t/01load.t
                 t/02pod.t

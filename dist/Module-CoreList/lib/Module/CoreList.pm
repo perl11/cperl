@@ -17262,7 +17262,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Math::BigInt'          => '1.999813',
             'Math::BigInt::Calc'    => '1.999813',
             'Math::BigInt::CalcEmu' => '1.999813',
-            #'Math::BigInt::FastCalc'  => '0.5007',
+            'Math::BigInt::FastCalc'  => '0.5007',
             'Math::BigInt::Lib'     => '1.999813',
             #'Math::BigRat'          => '0.2614',
             #'Math::BigFloat::Trace' => '0.47',

@@ -1662,7 +1662,7 @@ Deprecated from core, moved to cpan.
 
 now up-to-date with upstream
 
-=item L<Math::BigInt::FastCalc> 0.5006
+=item L<Math::BigInt::FastCalc> 0.5007
 
 =item L<Math::BigRat> 0.2613
 
