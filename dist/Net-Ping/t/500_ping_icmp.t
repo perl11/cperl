@@ -16,7 +16,7 @@ BEGIN {
   }
 }
 
-my $is_devel = $ENV{PERL_CORE} or -d ".git" ? 1 : 0;
+my $is_devel = $ENV{PERL_CORE} || -d ".git" ? 1 : 0;
 # Note this rawsocket test code is considered anti-social in p5p and was removed in
 # their variant.
 # See http://nntp.perl.org/group/perl.perl5.porters/240707
@@ -46,9 +46,15 @@ if (!Net::Ping::_isroot()) {
 }
 
 SKIP: {
-  skip "icmp ping requires root privileges.", 1
+  skip "icmp ping requires root privileges.", 2
     if !Net::Ping::_isroot() or $^O eq 'MSWin32';
   my $p = new Net::Ping "icmp";
+  is($p->message_type(), 'echo', "default icmp message type is 'echo'");
+  # message_type fails on wrong message type
+  eval {
+    $p->message_type('information');
+  };
+  like($@, qr/icmp message type are limited to 'echo' and 'timestamp'/, "Failure on wrong message type");
   my $result = $p->ping("127.0.0.1");
   if ($result == 1) {
     is($result, 1, "icmp ping 127.0.0.1");

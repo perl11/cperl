@@ -1696,7 +1696,7 @@ formatting, cperl enhancements
 Implemented L<Mu/fields> returning fields objects.
 cperl-only.
 
-=item L<Net::Ping> 2.66
+=item L<Net::Ping> 2.70
 
 Fix ping_udp for a started udp echo server (PR#5 by Stephan Loyd)
 
