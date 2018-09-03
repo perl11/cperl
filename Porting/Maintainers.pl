@@ -734,13 +734,15 @@ use File::Glob qw(:case);
     },
 
     'File::Temp' => {
-        'DISTRIBUTION' => 'DAGOLDEN/File-Temp-0.2304.tar.gz',
+        'DISTRIBUTION' => 'DAGOLDEN/File-Temp-0.2308.tar.gz',
         'FILES'        => q[cpan/File-Temp],
         'EXCLUDED'     => [
             qw( misc/benchmark.pl
                 misc/results.txt
-                ),
-            qw[t/00-report-prereqs.t],
+                README.mkdn
+                t/00-report-prereqs.dd
+                t/00-report-prereqs.t
+            ),
             qr{^xt},
         ],
     },
