@@ -1658,7 +1658,9 @@ Deprecated from core, moved to cpan.
 
 =item L<Locale::Maketext> 1.29
 
-=item L<Math::BigInt> 1.999811
+=item L<Math::BigInt> 1.999813
+
+now up-to-date with upstream
 
 =item L<Math::BigInt::FastCalc> 0.5006
 
