@@ -1387,7 +1387,9 @@ Fix C++ compiler detection (RT #131749)
 
 =item L<ExtUtils::Constant> 0.25_01
 
-Minor updates from p5p
+Minor updates from p5p, but they are still distributing a broken module,
+bumping their version higher than ours. And worse, their version creates
+broken CPAN modules.
 
 =item L<ExtUtils::Embed> 1.35
 
