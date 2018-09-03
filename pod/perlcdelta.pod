@@ -1538,11 +1538,15 @@ In this case it should simply not filter anything.
 
 - update distribution tooling
 
-=item L<Filter::Util::Call> 1.58
+=item L<Filter::Util::Call> 1.59
 
 XSLoader, our. defer Carp.
 
 Add filter_read_exact tests.
+
+Improve tests using FindBin for filter-util.pl [atoomic #9]
+
+Add int casts, assert on 2GB limitation.
 
 =item L<GDBM_File> 1.17
 
