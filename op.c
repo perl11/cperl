@@ -8737,30 +8737,33 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
 
     if (block) {
 	if (PERLDB_SUBLINE && PL_curstash != PL_debstash) {
-	    SV * const tmpstr = sv_newmortal();
+	    SV * const cvname = sv_newmortal();
 	    GV * const db_postponed = gv_fetchpvs("DB::postponed",
 						  GV_ADDMULTI, SVt_PVHV);
-	    HV *hv;
+	    HV * const hv = GvHVn(db_postponed);
 	    SV * const sv = Perl_newSVpvf(aTHX_ "%s:%ld-%ld",
 					  CopFILE(PL_curcop),
 					  (long)PL_subline,
 					  (long)CopLINE(PL_curcop));
-	    if (HvNAME_HEK(PL_curstash)) {
-		sv_sethek(tmpstr, HvNAME_HEK(PL_curstash));
-		sv_catpvs(tmpstr, "::");
+	    if (PL_curstash == PL_defstash) {
+                sv_setpvs(cvname, "");
+            }
+            else if (HvNAME_HEK(PL_curstash)) {
+		sv_sethek(cvname, HvNAME_HEK(PL_curstash));
+		sv_catpvs(cvname, "::");
 	    }
-	    else sv_setpvs(tmpstr, "__ANON__::");
-	    sv_catpvn_flags(tmpstr, PadnamePV(name)+1, PadnameLEN(name)-1,
+	    else
+                sv_setpvs(cvname, "__ANON__::");
+
+	    sv_catpvn_flags(cvname, PadnamePV(name)+1, PadnameLEN(name)-1,
 			    PadnameUTF8(name) ? SV_CATUTF8 : SV_CATBYTES);
-	    (void)hv_store(GvHV(PL_DBsub), SvPVX_const(tmpstr),
-		    SvUTF8(tmpstr) ? -(I32)SvCUR(tmpstr) : (I32)SvCUR(tmpstr), sv, 0);
-	    hv = GvHVn(db_postponed);
-	    if (HvTOTALKEYS(hv) > 0 && hv_exists(hv, SvPVX_const(tmpstr), SvUTF8(tmpstr) ? -(I32)SvCUR(tmpstr) : (I32)SvCUR(tmpstr))) {
+	    (void)hv_store_ent(GvHV(PL_DBsub), cvname, sv, 0);
+	    if (HvTOTALKEYS(hv) > 0 && hv_exists_ent(hv, cvname, 0)) {
 		CV * const pcv = GvCV(db_postponed);
 		if (pcv) {
 		    dSP;
 		    PUSHMARK(SP);
-		    XPUSHs(tmpstr);
+		    XPUSHs(cvname);
 		    PUTBACK;
 		    call_sv(MUTABLE_SV(pcv), G_DISCARD);
 		}
@@ -9242,23 +9245,21 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 
     if (block && has_name) {
 	if (PERLDB_SUBLINE && PL_curstash != PL_debstash) {
-	    SV * const tmpstr = cv_name(cv, NULL, CV_NAME_NOMAIN);
+	    SV * const cvname = cv_name(cv, NULL, CV_NAME_NOMAIN);
 	    GV * const db_postponed = gv_fetchpvs("DB::postponed",
 						  GV_ADDMULTI, SVt_PVHV);
-	    HV *hv;
+	    HV * const hv = GvHVn(db_postponed);
 	    SV * const sv = Perl_newSVpvf(aTHX_ "%s:%ld-%ld",
 					  CopFILE(PL_curcop),
 					  (long)PL_subline,
 					  (long)CopLINE(PL_curcop));
-	    (void)hv_store(GvHV(PL_DBsub), SvPVX_const(tmpstr),
-		    SvUTF8(tmpstr) ? -(I32)SvCUR(tmpstr) : (I32)SvCUR(tmpstr), sv, 0);
-	    hv = GvHVn(db_postponed);
-	    if (HvTOTALKEYS(hv) > 0 && hv_exists(hv, SvPVX_const(tmpstr), SvUTF8(tmpstr) ? -(I32)SvCUR(tmpstr) : (I32)SvCUR(tmpstr))) {
+	    (void)hv_store_ent(GvHV(PL_DBsub), cvname, sv, 0);
+	    if (HvTOTALKEYS(hv) > 0 && hv_exists_ent(hv, cvname, 0)) {
 		CV * const pcv = GvCV(db_postponed);
 		if (pcv) {
 		    dSP;
 		    PUSHMARK(SP);
-		    XPUSHs(tmpstr);
+		    XPUSHs(cvname);
 		    PUTBACK;
 		    call_sv(MUTABLE_SV(pcv), G_DISCARD);
 		}

@@ -416,6 +416,14 @@ See L<[cperl #354]|https://github.com/perl11/cperl/issues/354>.
 
 =item *
 
+Harmonize skipped C<main::> prefix in C<%DB::sub>. In cperl the
+debugger uses no C<main::> prefixes for global functions.
+This enables entering debugger breakpoints and c without C<main::>,
+C<newMYSUB> still had C<main::>
+Backported from 5.28.0c
+
+=item *
+
 The C<readpipe()> built-in function now checks at compile time that it has only
 one parameter expression, and puts it in scalar context, thus ensuring that it
 doesn't corrupt the stack at runtime.

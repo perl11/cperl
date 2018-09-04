@@ -2409,9 +2409,9 @@ An SV may be passed as a second argument.  If so, the name will be assigned
 to it and it will be returned.  Otherwise the returned SV will be a new
 mortal.
 
-If C<flags> has the C<CV_NAME_NOTQUAL> bit set, then the package name will not be
-included.  If the first argument is neither a CV nor a GV, this flag is
-ignored (subject to change).
+If C<flags> has the C<CV_NAME_NOTQUAL> bit set, then the package name
+will not be included.  If the first argument is neither a CV nor a GV,
+this flag is ignored (subject to change).
 
 If the I<flags> include CV_NAME_NOMAIN, then "main:::" will be omitted
 as package name.
