@@ -3807,7 +3807,11 @@ S__to_utf8_case(pTHX_ const UV uv1, const U8 *p,
         const unsigned int * cp_list;
         U8 * d;
         SSize_t index = _invlist_search(invlist, uv1);
-        IV base = invmap[index];
+        IV base;
+
+        if (UNLIKELY(index < 0))
+            goto cases_to_self; /* or assert? */
+        base = invmap[index];
 
         /* The data structures are set up so that if 'base' is non-negative,
          * the case change is 1-to-1; and if 0, the change is to itself */
@@ -3853,7 +3857,6 @@ S__to_utf8_case(pTHX_ const UV uv1, const U8 *p,
 	 *lenp = len;
 
     return uv1;
-
 }
 
 Size_t
@@ -3879,10 +3882,16 @@ Perl__inverse_folds(pTHX_ const UV cp, unsigned int * first_folds_to,
      * need to be constructed if we didn't employ something like this API */
 
     SSize_t index = _invlist_search(PL_utf8_foldclosures, cp);
-    int base = _Perl_IVCF_invmap[index];
+    int base;
 
     PERL_ARGS_ASSERT__INVERSE_FOLDS;
 
+    if (UNLIKELY(index < 0)) { /* not found, illegal codepoint */
+        *first_folds_to = 0;
+        *remaining_folds_to = NULL;
+        return 0;
+    }
+    base = _Perl_IVCF_invmap[index];
     if (base == 0) {            /* No fold */
         *first_folds_to = 0;
         *remaining_folds_to = NULL;
@@ -3890,11 +3899,8 @@ Perl__inverse_folds(pTHX_ const UV cp, unsigned int * first_folds_to,
     }
 
 #ifndef HAS_IVCF_AUX_TABLES     /* This Unicode version only has 1-1 folds */
-
     assert(base > 0);
-
 #else
-
     if (UNLIKELY(base < 0)) {   /* Folds to more than one character */
 
         /* The data structure is set up so that the absolute value of 'base' is
@@ -3908,7 +3914,6 @@ Perl__inverse_folds(pTHX_ const UV cp, unsigned int * first_folds_to,
                                                                 */
         return IVCF_AUX_TABLE_lengths[-base];
     }
-
 #endif
 
     /* Only the single code point.  This works like 'fc(G) = G - A + a' */
