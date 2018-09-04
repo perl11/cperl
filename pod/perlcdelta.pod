@@ -241,7 +241,11 @@ files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 
 =item *
 
-XXX
+Harmonize skipped C<main::> prefix in C<%DB::sub>. In cperl the
+debugger uses no C<main::> prefixes for global functions.
+This enables entering debugger breakpoints and c without C<main::>,
+C<newMYSUB> still had C<main::>
+Backported from 5.28.0c
 
 =back
 
