@@ -2063,37 +2063,32 @@ STMT_START {                                                                    
  * points */
 #define FBC_BOUND(TEST_NON_UTF8, TEST_UV, TEST_UTF8)                           \
     FBC_BOUND_COMMON(                                                          \
-          FBC_UTF8(TEST_UV, TEST_UTF8, REXEC_FBC_TRYIT, RXPLACEHOLDER),          \
+          FBC_UTF8(TEST_UV, TEST_UTF8, REXEC_FBC_TRYIT, RXPLACEHOLDER),        \
           TEST_NON_UTF8, REXEC_FBC_TRYIT, RXPLACEHOLDER)
 
 #define FBC_BOUND_A(TEST_NON_UTF8)                                             \
     FBC_BOUND_COMMON(                                                          \
-            FBC_UTF8_A(TEST_NON_UTF8, REXEC_FBC_TRYIT, RXPLACEHOLDER),           \
+            FBC_UTF8_A(TEST_NON_UTF8, REXEC_FBC_TRYIT, RXPLACEHOLDER),         \
             TEST_NON_UTF8, REXEC_FBC_TRYIT, RXPLACEHOLDER)
 
 #define FBC_NBOUND(TEST_NON_UTF8, TEST_UV, TEST_UTF8)                          \
     FBC_BOUND_COMMON(                                                          \
-          FBC_UTF8(TEST_UV, TEST_UTF8, RXPLACEHOLDER, REXEC_FBC_TRYIT),          \
+          FBC_UTF8(TEST_UV, TEST_UTF8, RXPLACEHOLDER, REXEC_FBC_TRYIT),        \
           TEST_NON_UTF8, RXPLACEHOLDER, REXEC_FBC_TRYIT)
 
 #define FBC_NBOUND_A(TEST_NON_UTF8)                                            \
     FBC_BOUND_COMMON(                                                          \
-            FBC_UTF8_A(TEST_NON_UTF8, RXPLACEHOLDER, REXEC_FBC_TRYIT),           \
+            FBC_UTF8_A(TEST_NON_UTF8, RXPLACEHOLDER, REXEC_FBC_TRYIT),         \
             TEST_NON_UTF8, RXPLACEHOLDER, REXEC_FBC_TRYIT)
 
-#ifdef DEBUGGING
-static SSize_t
+PERL_STATIC_INLINE SSize_t
 S_get_break_val_cp_checked(SV* const invlist, const UV cp_in) {
   SSize_t cp_out = Perl__invlist_search(invlist, cp_in);
-  assert(cp_out >= 0);
-  return cp_out >= 0 ? cp_out : (SSize_t)LB_EDGE;
+  assert(cp_out >= 0); /* abort with invalid codepoint? */
+  return LIKELY(cp_out >= 0) ? cp_out : (SSize_t)LB_EDGE;
 }
 #define _generic_GET_BREAK_VAL_CP_CHECKED(invlist, invmap, cp) \
 	invmap[S_get_break_val_cp_checked(invlist, cp)]
-#else
-#  define _generic_GET_BREAK_VAL_CP_CHECKED(invlist, invmap, cp) \
-	invmap[_invlist_search(invlist, cp)]
-#endif
 
 /* Takes a pointer to an inversion list, a pointer to its corresponding
  * inversion map, and a code point, and returns the code point's value
@@ -10167,12 +10162,14 @@ Perl__is_grapheme(pTHX_ const U8 * strbeg, const U8 * s, const U8 * strend, cons
 
     GCB_enum cp_gcb_val, prev_cp_gcb_val, next_cp_gcb_val;
     const U8 * prev_cp_start;
+    SSize_t index;
 
     PERL_ARGS_ASSERT__IS_GRAPHEME;
 
+    index = _invlist_search(PL_Assigned_invlist, cp);
     /* Unassigned code points are forbidden */
-    if (UNLIKELY(! ELEMENT_RANGE_MATCHES_INVLIST(
-                                    _invlist_search(PL_Assigned_invlist, cp))))
+    if (UNLIKELY(index < 0 ||
+                 ! ELEMENT_RANGE_MATCHES_INVLIST(index)))
     {
         return FALSE;
     }
@@ -10393,8 +10390,12 @@ Perl_isSCRIPT_RUN(pTHX_ const U8 * s, const U8 * send, const bool utf8_target)
             }
         }
         else {
-            script_of_char = _Perl_SCX_invmap[
-                                       _invlist_search(PL_SCX_invlist, cp)];
+            SSize_t index = _invlist_search(PL_SCX_invlist, cp);
+            if (UNLIKELY(index < 0)) {
+                retval = FALSE;
+                break;
+            }
+            script_of_char = _Perl_SCX_invmap[index];
         }
 
         /* We arbitrarily accept a single unassigned character, but not in
