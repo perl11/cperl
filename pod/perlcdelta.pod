@@ -151,6 +151,21 @@ C<⋅> U+022C5 (dot operator) and C<∙> U+2219 (multiplication dot),
 which binds the same as C<*>.
 cperl-only.
 
+=head2 C<'> is a valid part of a subroutine name
+
+
+Accept C<'> as valid subroutine name character in declarations,
+if in the middle, just don't expand it to C<::>.
+This allows: C<sub don't { ... }> but not C<sub do' {}> nor C<sub 'do {}>.
+
+Unfortunately using this name is not yet as easy as before, when the
+C<'> was expanded to C<::>. C<print don't;> is illegal, as the quote
+looks for the 2nd string delimiter pair, and doesn't yet check for the
+existing subroutine name.
+
+In XS you can check for the define C<PERL_NO_QUOTE_PKGSEPERATOR> how
+the quote is handled.
+
 =head2 L<delete|perlfunc/delete EXPR> on key/value slices
 
 L<delete|perlfunc/delete EXPR> can now be used on key/value slices,
@@ -883,6 +898,7 @@ cperl added the optimization to skip expanding C<'> to C<::>.
 The C<'> as valid perl4-style package seperator was removed.
 In XS you can check for the define PERL_NO_QUOTE_PKGSEPERATOR if the quote as
 package seperator is disallowed.
+C<'> is now a valid part of a subroutine name.
 
 =item *
 

@@ -10042,14 +10042,16 @@ S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_package,
                 *(*d)++ = *(*s)++;
             } while (isWORDCHAR_A(**s) && *d < e);
         }
-#ifndef PERL_NO_QUOTE_PKGSEPERATOR
         else if (allow_package && **s == '\''
                  && isIDFIRST_lazy_if_safe((*s)+1, PL_bufend, is_utf8)) {
+#ifndef PERL_NO_QUOTE_PKGSEPERATOR
             *(*d)++ = ':';
             *(*d)++ = ':';
             (*s)++;
-        }
+#else /* Keep treating ' as valid subname char with cperl, just unexpanded */
+            *(*d)++ = *(*s)++;
 #endif
+        }
         else if (allow_package && **s == ':' && (*s)[1] == ':'
            /* Disallow things like Foo::$bar. For the curious, this is
             * the code path that triggers the "Bad name after" warning
