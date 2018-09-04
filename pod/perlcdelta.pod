@@ -1805,16 +1805,22 @@ threaded applications.
 
 Faster. add DEBUGGING_RE_ONLY define
 
-=item L<Scalar::Util> 2.50_09
+=item L<Scalar::Util> 1.50_11
 
 fix find_rundefsvoffset logic
 
-Fix t/subname.t for unstrict names. perl5.26 started defining $Config{usecperl} 
+Fix t/subname.t and t/exotic_names.t for unstrict names.
+perl5.26 started defining $Config{usecperl} 
 as 'UNKNOWN', hence this check is now unreliable.
 
 Merge with 1.50 upstream:
 Ensure pairmap extends its stack correctly (davem)
 Fix name of List::Util::unpairs in its error messages
+
+added head/tail
+honor PERL_NO_QUOTE_PKGSEPERATOR
+merged %DB::sub tests
+merge with upstream %DB::sub support (main:: or not, utf8)
 
 =item L<Search::Dict> 1.07_01
 
