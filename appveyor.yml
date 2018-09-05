@@ -6,6 +6,8 @@ version: 5.28.0.{build}
 #build:
 #  verbosity: minimal
 max_jobs: 4
+build:
+  parallel: true
 platform:
   - x64
   - x86
