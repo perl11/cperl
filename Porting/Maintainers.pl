@@ -1274,7 +1274,7 @@ use File::Glob qw(:case);
     },
 
     'Socket' => {
-        'DISTRIBUTION' => 'RURBAN/Socket-2.024_04.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Socket-2.027_04.tar.gz',
         'FILES'        => q[cpan/Socket],
     },
 

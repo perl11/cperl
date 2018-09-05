@@ -1832,7 +1832,7 @@ Bump version
 
 =item L<SelfLoader> 1.25
 
-=item L<Socket> 2.027
+=item L<Socket> 2.027_04
 
 =item L<sort> 2.04
 
