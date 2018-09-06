@@ -3072,6 +3072,13 @@ F<harness> no longer waits for 30 seconds when running F<t/io/openpid.t>.
 L<[perl #121028]|https://rt.perl.org/Ticket/Display.html?id=121028>
 L<[perl #132867]|https://rt.perl.org/Ticket/Display.html?id=132867>
 
+=item *
+
+Improved some tests which depend in counting (eval \d)'s to use regex.
+Print the compiled regex when failing, not just the expected string.
+In this case F<t/lib/warnings/pad> Storable used in Unicode::UCD, used
+by utf8 added another eval.
+
 =back
 
 =head1 Packaging
