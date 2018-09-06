@@ -16,14 +16,15 @@ use File::Glob qw(:case);
 # complain if it can't find them)
 
 @IGNORABLE = qw(
-    .cvsignore .dualLivedDiffConfig .gitignore .perlcriticrc .perltidyrc
-    .travis.yml ANNOUNCE Announce Artistic AUTHORS BENCHMARK BUGS Build.PL
-    CHANGELOG ChangeLog Changelog CHANGES Changes CONTRIBUTING CONTRIBUTING.md
-    CONTRIBUTING.mkdn COPYING Copying cpanfile CREDITS dist.ini GOALS HISTORY
-    INSTALL INSTALL.SKIP LICENCE LICENSE Makefile.PL MANIFEST MANIFEST.SKIP
-    META.json META.yml MYMETA.json MYMETA.yml NEW NEWS NOTES perlcritic.rc
-    ppport.h README README.md README.pod README.PATCHING SIGNATURE THANKS TODO
-    Todo VERSION WHATSNEW
+    .cvsignore .dualLivedDiffConfig .gitignore .perlcriticrc
+    .perltidyrc .travis.yml appveyor.yml ANNOUNCE Announce Artistic
+    AUTHORS BENCHMARK BUGS Build.PL CHANGELOG ChangeLog Changelog
+    CHANGES Changes CONTRIBUTING CONTRIBUTING.md CONTRIBUTING.mkdn
+    COPYING Copying cpanfile CREDITS dist.ini GOALS HISTORY INSTALL
+    INSTALL.SKIP LICENCE LICENSE Makefile.PL MANIFEST MANIFEST.SKIP
+    META.json META.yml MYMETA.json MYMETA.yml NEW NEWS NOTES
+    perlcritic.rc ppport.h README README.md README.pod README.PATCHING
+    SIGNATURE THANKS TODO Todo VERSION WHATSNEW
 );
 
 # Each entry in the  %Modules hash roughly represents a distribution,
@@ -1519,7 +1520,7 @@ use File::Glob qw(:case);
     },
 
     'Time::Local' => {
-        'DISTRIBUTION' => 'DROLSKY/Time-Local-1.25.tar.gz',
+        'DISTRIBUTION' => 'DROLSKY/Time-Local-1.28.tar.gz',
         'FILES'        => q[cpan/Time-Local],
         'EXCLUDED'     => [
             qr{^t/release-.*\.t},
