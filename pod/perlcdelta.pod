@@ -598,6 +598,11 @@ sailed already over a decade ago.
 Regexp script runs were failing to permit ASCII digits in some cases.
 L<[perl #133547]|https://rt.perl.org/Public/Bug/Display.html?id=133547>
 
+=item *
+
+Improve the debugging output for calloc() calls with C<-Dm>.
+L<[perl #133439]|https://rt.perl.org/Public/Bug/Display.html?id=133439>
+
 =back
 
 =head1 Known Problems
