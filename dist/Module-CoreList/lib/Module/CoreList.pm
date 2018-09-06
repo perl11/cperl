@@ -17280,6 +17280,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'OS2::Process'          => '1.12_01',
             'Scalar::Util'          => '1.50_11',
             'Socket'                => '2.027_04',
+            'Storable'              => '3.11_01',
             'Sub::Util'             => '1.50_11',
             'Term::ReadKey'         => '2.37_03',
             'Tie::Hash::NamedCapture' => '0.10_01',

@@ -3580,7 +3580,7 @@ dist/Storable/Makefile.PL		Storable extension
 dist/Storable/README			Storable extension
 dist/Storable/stacksize			compute stack sizes
 dist/Storable/Storable.xs		Storable extension
-dist/Storable/Storable.pm.PL		Storable extension
+dist/Storable/Storable_pm.PL		Storable extension
 dist/Storable/t/attach.t		Check STORABLE_attach doesn't create objects unnecessarily
 dist/Storable/t/attach_errors.t		Trigger and test STORABLE_attach errors
 dist/Storable/t/attach_singleton.t	Test STORABLE_attach for the Singleton pattern

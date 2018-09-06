@@ -1279,8 +1279,11 @@ use File::Glob qw(:case);
     },
 
     'Storable' => {
-        'DISTRIBUTION' => 'TONYC/Storable-3.06.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Storable-3.11_01.tar.gz',
         'FILES'        => q[dist/Storable],
+        'EXCLUDED'     => [
+            qw( ptr_table.h t/leaks_refcnt.t .travis.yml appveyor.yml ),
+        ]
     },
 
     'Sys::Syslog' => {

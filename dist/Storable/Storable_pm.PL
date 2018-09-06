@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+package Storable; # for regen/lib_cleanup
 
 use Config;
 
@@ -22,7 +23,7 @@ sub CAN_FLOCK {
 my $CAN_FLOCK = CAN_FLOCK();
 
 # populate the sub and preserve it if used outside
-$template =~ s{^sub CAN_FLOCK;.*$}{sub CAN_FLOCK { ${CAN_FLOCK} } # computed by Storable.pm.PL}m;
+$template =~ s{^sub CAN_FLOCK;.*$}{sub CAN_FLOCK { ${CAN_FLOCK} } # computed by Storable_pm.PL}m;
 # alternatively we could remove the sub
 #$template =~ s{^sub CAN_FLOCK;.*$}{}m;
 # replace local function calls to hardcoded value

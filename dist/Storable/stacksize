@@ -101,6 +101,22 @@ if (PARALLEL) {
     sleep(2.0);
 }
 
+my $use_W32J = 0;
+if ($^O eq 'MSWin32' && $^V ge v5.18.0) {
+    eval { require Win32::Job;$use_W32J=1;}
+}
+sub runcmd {
+    my $cmd = shift;
+    unless ($use_W32J) {
+      return `$cmd` =~ /\bok\b/ ? 0 : 1;
+    }
+    my $job = Win32::Job->new;
+    my $pid = $job->spawn(q{perl}, $cmd);
+    $job->run(5);
+    my $status = $job->status;
+    return $job->status->{$pid}{exitcode};
+}
+
 sub cmd {
     my ($i, $try, $limit_name) = @_;
     die unless $i;
@@ -152,7 +168,7 @@ unless ($ENV{STORABLE_NOISY}) {
 while (!$found) {
     my $cmd = array_cmd($n);
     #print "$cmd\n" unless $QUIET;
-    if (`$cmd` =~ /\bok\b/) {
+    if (runcmd($cmd) == 0) {
         $n = good($n);
     } else {
         $n = bad($n);
@@ -172,7 +188,7 @@ $bad = $max if $bad > $max;
 while (!$found) {
     my $cmd = cmd($n, '$t={1=>$t}', 'recursion_limit_hash');
     #print "$cmd\n" unless $QUIET;
-    if (`$cmd` =~ /\bok\b/) {
+    if (runcmd($cmd) == 0) {
         $n = good($n);
     } else {
         $n = bad($n);
@@ -217,8 +233,8 @@ write_limits($max_depth, $max_depth_hash);
 
 sub write_limits {
     my ($max_depth, $max_depth_hash) = @_;
-    chmod 0644, $fn if -e $fn && !-w $fn;
     my $f;
+    chmod 0644, $fn if -e $fn && !-w $fn;
     open $f, ">", $fn or die "$fn $!";
     print $f <<EOS;
 # bisected by stacksize

@@ -304,13 +304,12 @@ sub STORABLE_freeze {
 sub STORABLE_thaw { } # Not really used
 
 package main;
-use vars qw($refcount_ok);
 
 my $o = CLASS_OTHER->make();
 my $c2 = CLASS_2->make($o);
 my $so = thaw freeze $o;
 
-$refcount_ok = 0;
+our $refcount_ok = 0;
 thaw freeze(Foo3->new);
 is($refcount_ok, 1, "check refcount");
 
@@ -346,7 +345,7 @@ sub OVERFLOW () { 35000 }
 eval {
     my $t;
     $t = [$t] for 1 .. MAX_DEPTH*2;
-    note 'trying catching recursive aref stack overflow';
+    diag('trying catching recursive aref stack overflow');
     dclone $t;
 };
 like $@, qr/Max\. recursion depth with nested structures exceeded/,
@@ -361,7 +360,7 @@ else {
         my $t;
         # 35.000 will cause appveyor 64bit windows to fail earlier
         $t = {1=>$t} for 1 .. MAX_DEPTH * 2;
-        note 'trying catching recursive href stack overflow';
+        diag('trying catching recursive href stack overflow');
         dclone $t;
     };
     like $@, qr/Max\. recursion depth with nested structures exceeded/,

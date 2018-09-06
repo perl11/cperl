@@ -1854,9 +1854,9 @@ Bump version
 
 no sort stable; SORTf_UNSTABLE flag
 
-=item L<Storable> 3.08
+=item L<Storable> 3.11_01
 
-perl5 merged with us, with some minor internal architecural changes.
+perl5 merged with us, with some minor internal architectural changes.
 
 mingw fix: use safe defaults, not segfaulting defaults.
 mingw fails on the stacksize binary search, leaving it empty.

@@ -2025,7 +2025,7 @@ static SV *pkg_fetchmeth(pTHX_
      * Cache the result, ignoring failure: if we can't store the value,
      * it just won't be cached.
      */
-    if (LIKELY(hvname))
+    if (LIKELY(hvname != NULL))
         (void) hv_store(cache, hvname, strlen(hvname), sv, 0);
 
     return SvOK(sv) ? sv : (SV *) 0;
@@ -2043,7 +2043,7 @@ static void pkg_hide(pTHX_
 {
     const char *hvname = HvNAME_get(pkg);
     PERL_UNUSED_ARG(method);
-    if (LIKELY(hvname))
+    if (LIKELY(hvname != NULL))
         (void) hv_store(cache, hvname, strlen(hvname),
                         newSVsv(&PL_sv_undef), 0);
 }
@@ -2060,7 +2060,7 @@ static void pkg_uncache(pTHX_
 {
     const char *hvname = HvNAME_get(pkg);
     PERL_UNUSED_ARG(method);
-    if (LIKELY(hvname))
+    if (LIKELY(hvname != NULL))
         (void) hv_delete(cache, hvname, strlen(hvname), G_DISCARD);
 }
 
@@ -2094,7 +2094,7 @@ static SV *pkg_can(pTHX_
      * that only one hook (i.e. always the same) is cached in a given cache.
      */
 
-    if (LIKELY(hvname))
+    if (LIKELY(hvname != NULL))
         svh = hv_fetch(cache, hvname, strlen(hvname), FALSE);
     if (svh) {
         sv = *svh;
