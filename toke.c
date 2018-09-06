@@ -7363,9 +7363,11 @@ Perl_yylex(pTHX)
         TERM(THING);
 
     case '\'':
+        DEBUG_T(printbuf("### Scan ' at %s\n", s));
         s = scan_str(s,FALSE,FALSE,FALSE,NULL);
-        if (!s)
+        if (!s) {
             missingterm(NULL, 0);
+        }
         COPLINE_SET_FROM_MULTI_END;
         DEBUG_T(printbuf("### Saw string before %s\n", s));
         if (PL_expect == XOPERATOR) {
@@ -7713,14 +7715,9 @@ Perl_yylex(pTHX)
                 const char lastchar = (PL_bufptr == PL_oldoldbufptr ? 0 : PL_bufptr[-1]);
                 bool safebw;
 
-
-                /* Get the rest if it looks like a package qualifier */
-
-                if ((*s == ':' && s[1] == ':')
-#ifndef PERL_NO_QUOTE_PKGSEPERATOR
-                    || *s == '\''
-#endif
-                    )
+                /* Get the rest if it looks like a package qualifier,
+                   resp. in cperl ' is a valid bareword letter */
+                if ((*s == ':' && s[1] == ':') || *s == '\'')
                 {
                     STRLEN morelen;
                     int normalize;

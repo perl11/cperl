@@ -1,6 +1,6 @@
 #!./perl
 
-print "1..14\n";
+print "1..15\n";
 
 $blurfl = 123;
 $foo = 3;
@@ -72,3 +72,6 @@ package bug32562;
 print       __PACKAGE__  eq 'bug32562' ? "ok 13\n" : "not ok 13\n";
 print eval '__PACKAGE__' eq 'bug32562' ? "ok 14\n" : "not ok 14\n";
 
+package main;
+# cperl since 5.28.0c
+sub don't { $Q } print don't =~ /^__ANON__=/ ? "ok 15\n" : "not ok 15 # quote in subname\n";
