@@ -17331,6 +17331,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'TAP::Parser::YAMLish::Writer'=> '3.42_01',
             'Test::Harness'         => '3.42_01',
             'Term::ReadKey'         => '2.37_03',
+            'Thread::Queue'         => '3.13',
             'Tie::Hash::NamedCapture' => '0.10_01',
             'Unicode::Collate'      => '1.25_01',
             'Unicode::UCD'          => '0.68_01',
