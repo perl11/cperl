@@ -1347,8 +1347,9 @@ use File::Glob qw(:case);
         'FILES'        => q[dist/Test],
     },
 
+    # see https://github.com/rurban/Test-Harness/commits/cperl-rebased
     'Test::Harness' => {
-        'DISTRIBUTION' => 'LEONT/Test-Harness-3.39.tar.gz',
+        'DISTRIBUTION' => 'LEONT/Test-Harness-3.42.tar.gz',
         'FILES'        => q[cpan/Test-Harness],
         'EXCLUDED'     => [
             qr{^examples/},
@@ -1374,7 +1375,8 @@ use File::Glob qw(:case);
                 t/sample-tests/switches
 		t/source_handler.t
 		t/lib/NoFork.pm
-                
+                t/regression.t
+
                 t/compat/env.t
                 t/compat/inc-propagation.t
               )],

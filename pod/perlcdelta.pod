@@ -1902,6 +1902,20 @@ Reformatted.
 
 fix for empty &STDERR files, RT #132008
 
+=item L<Test::Harness> 3.42_01
+
+Enable rulesfile.t to run in core
+
+Return handle for pipes and sockets #58 (Erik Huelsmann)
+TAP v13 plan allows trailing whitespace (Steffen Schwigon)
+prove: add a --statefile=<path> option to customize the .prove file
+(Ævar Arnfjörð Bjarmason)
+Avoid non-deterministic source handling, make a SourceHandler tie an
+error. (Michael Schwern, Leon Timmermans)
+Fix and simplify MSWin32 colorization (Roy Ivy III)
+Fix file source handler to accept single extensions option (Tomoki Aonuma)
+Spelling fixes (Brian Wightman)
+
 =item L<threads> 2.22_01
 
 Fix Clang macro backward compatibility per patch by Andy Grundman.
