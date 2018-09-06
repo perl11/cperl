@@ -11,10 +11,15 @@ use bignum;
 
 my @WARNINGS;
 {
-    # catch warnings:
-    require Carp;
-    no warnings 'redefine';
-    *Carp::carp = sub { push @WARNINGS, $_[0]; };
+    use Math::BigInt ();
+    # This hack is to catch warnings. Math::BigInt imports 'carp' from 'Carp',
+    # so we redefine it to catch the warnings.
+    if (defined &Math::BigInt::carp) {
+      *Math::BigInt::carp = sub { push @WARNINGS, $_[0]; };
+    } else {
+      # but some cperl 5.28 Math::BigInt does not import carp
+      *Carp::carp = sub { push @WARNINGS, $_[0]; };
+    }
 }
 
 my $rc;

@@ -1126,7 +1126,9 @@ derive from base.
 
 Limit dotless-INC effect on base.pm with guard
 
-=item L<bignum> 0.49
+=item L<bignum> 0.50c
+
+merge with upstream
 
 =item L<blib> 1.07
 
