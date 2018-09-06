@@ -1349,10 +1349,12 @@ sub run_multiple_progs {
 	        $ok = "@got" eq "@expected";
 	    }
 	    elsif ($option_regex) {
-	        $ok = $results =~ /^$expected/;
+                $ok = $results =~ /^$expected/;
+                $expected = qr/^$expected/;
 	    }
 	    elsif ($prefix) {
 	        $ok = $results =~ /^\Q$expected/;
+                $expected = qr/^\Q$expected/;
 	    }
 	    else {
 	        $ok = $results eq $expected;

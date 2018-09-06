@@ -442,7 +442,7 @@ sub {
 }->();
 f();
 EXPECT
-Variable "$に" is not available at (eval 10) line 1.
+Variable "$に" is not available at (eval 11) line 1.
 ########
 # pad.c
 # see bugid 1754
@@ -455,7 +455,7 @@ sub f {
 }
 f()->();
 EXPECT
-Variable "$に" is not available at (eval 10) line 1.
+Variable "$に" is not available at (eval 11) line 1.
 ########
 use warnings 'closure' ;
 BEGIN { binmode STDERR, 'utf8'; }
@@ -467,7 +467,7 @@ BEGIN { binmode STDERR, 'utf8'; }
 }
 f2();
 EXPECT
-Variable "$に" is not available at (eval 10) line 1.
+Variable "$に" is not available at (eval 11) line 1.
 ########
 use warnings 'closure' ;
 BEGIN { binmode STDERR, 'utf8'; }
@@ -478,7 +478,7 @@ for my $に (1,2,3) {
 }
 f();
 EXPECT
-Variable "$に" is not available at (eval 13) line 1.
+Variable "$に" is not available at (eval 14) line 1.
 ########
 # pad.c
 use warnings 'closure' ;
