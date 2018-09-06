@@ -26,7 +26,7 @@ ok ($one == $two || $two == $three, "nanosleep not measurable")
     or diag "slept too long, $one $two $three";
 
 SKIP: {
-    skip "no gettimeofday", 1 unless &Time::HiRes::d_gettimeofday;
+    skip "no gettimeofday", 2 unless &Time::HiRes::d_gettimeofday;
     my $f = Time::HiRes::time();
     Time::HiRes::nanosleep(500_000_000);
     my $f2 = Time::HiRes::time();

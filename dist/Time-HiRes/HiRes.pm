@@ -1,15 +1,15 @@
 package Time::HiRes;
 
-{ use 5.006; }
+use 5.006;
 use strict;
 
 require Exporter;
 use XSLoader ();
 
 our @ISA = qw(Exporter);
-
 our @EXPORT = qw( );
-# More or less this same list is in Makefile.PL.  Should unify.
+# TODO: this list is a superset of the @names in
+# Makefile.PL:doConstants(), automate this somehow.
 our @EXPORT_OK = qw (usleep sleep ualarm alarm gettimeofday time tv_interval
 		 getitimer setitimer nanosleep clock_gettime clock_getres
 		 clock clock_nanosleep
@@ -21,6 +21,7 @@ our @EXPORT_OK = qw (usleep sleep ualarm alarm gettimeofday time tv_interval
 		 CLOCK_MONOTONIC_FAST
 		 CLOCK_MONOTONIC_PRECISE
 		 CLOCK_MONOTONIC_RAW
+		 CLOCK_MONOTONIC_RAW_APPROX
 		 CLOCK_PROCESS_CPUTIME_ID
 		 CLOCK_PROF
 		 CLOCK_REALTIME
@@ -37,6 +38,7 @@ our @EXPORT_OK = qw (usleep sleep ualarm alarm gettimeofday time tv_interval
 		 CLOCK_UPTIME_FAST
 		 CLOCK_UPTIME_PRECISE
 		 CLOCK_UPTIME_RAW
+		 CLOCK_UPTIME_RAW_APPROX
 		 CLOCK_VIRTUAL
 		 ITIMER_PROF
 		 ITIMER_REAL
@@ -44,12 +46,13 @@ our @EXPORT_OK = qw (usleep sleep ualarm alarm gettimeofday time tv_interval
 		 ITIMER_VIRTUAL
 		 TIMER_ABSTIME
 		 d_usleep d_ualarm d_gettimeofday d_getitimer d_setitimer
-		 d_nanosleep d_clock_gettime d_clock_getres d_hires_utime
-		 d_clock d_clock_nanosleep
+		 d_nanosleep d_clock_gettime d_clock_getres
+		 d_clock d_clock_nanosleep d_hires_stat
+		 d_futimens d_utimensat d_hires_utime
 		 stat lstat utime
 		);
 
-our $VERSION = '1.9748_01';
+our $VERSION = '1.9758_01';
 our $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -93,13 +96,6 @@ sub import {
 XSLoader::load( 'Time::HiRes', $XS_VERSION );
 
 # Preloaded methods go here.
-
-sub tv_interval {
-    # probably could have been done in C
-    my ($a, $b) = @_;
-    $b = [gettimeofday()] unless defined($b);
-    (${$b}[0] - ${$a}[0]) + ((${$b}[1] - ${$a}[1]) / 1_000_000);
-}
 
 # Autoload methods go after =cut, and are processed by the autosplit program.
 
@@ -475,8 +471,10 @@ time stamp from t1: it may be equal or I<less>.
 
 As L<perlfunc/utime>
 but with the ability to set the access/modify file timestamps
-in subsecond resolution, if the operating system and the filesystem
-both support such timestamps.  To override the standard utime():
+in subsecond resolution, if the operating system and the filesystem,
+and the mount options of the filesystem, all support such timestamps.
+
+To override the standard utime():
 
     use Time::HiRes qw(utime);
 
@@ -488,6 +486,10 @@ call the syscall with a NULL argument.
 
 The actual achievable subsecond resolution depends on the combination
 of the operating system and the filesystem.
+
+Modifying the timestamps may not be possible at all: for example, the
+C<noatime> filesystem mount option may prohibit you from changing the
+access time timestamp.
 
 Returns the number of files successfully changed.
 

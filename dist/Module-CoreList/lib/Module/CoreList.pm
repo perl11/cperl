@@ -17333,6 +17333,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Term::ReadKey'         => '2.37_03',
             'Thread::Queue'         => '3.13',
             'Tie::Hash::NamedCapture' => '0.10_01',
+            'Time::HiRes'           => '1.9758_01',
             'Unicode::Collate'      => '1.25_01',
             'Unicode::UCD'          => '0.68_01',
             'Win32'                 => '0.52_01',

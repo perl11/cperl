@@ -1949,9 +1949,13 @@ use C<croak_no_modify_sv()>
 
 =item L<Time::gmtime> 1.04
 
-=item L<Time::HiRes> 1.9747_01
+=item L<Time::HiRes> 1.9758_01
 
-upstream:
+Updated from upstream since 1.9744:
+
+See L<https://metacpan.org/changes/distribution/Time-HiRes>
+
+fix MSVC by adding a fake struct timezone.
 
 add more potential clock constants, like CLOCK_MONOTONIC_FAST
 (available in FreeBSD), and not all potentially found clock constants
@@ -1962,7 +1966,7 @@ correct declared minimum Perl version (should be 5.6, was declared as
 5.8 since 1.9727_03): blead af94b3ac
 
 merged with our cperl test fixes.
-See L<https://github.com/rurban/Time-HiRes/tree/cperl>
+See L<https://github.com/rurban/Time-HiRes/commits/cperl>
 
 Drop 5.005 support.
 Replace DynaLoader with XSLoader.
