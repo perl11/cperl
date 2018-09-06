@@ -2,13 +2,12 @@ package Time::Piece;
 
 use strict;
 
-require DynaLoader;
+use XSLoader ();
 use Time::Seconds;
 use Carp;
 use Time::Local;
+use Scalar::Util qw/ blessed /;
 
-our @ISA = qw(DynaLoader);
- 
 use Exporter ();
 
 our @EXPORT = qw(
@@ -20,9 +19,9 @@ our %EXPORT_TAGS = (
     ':override' => 'internal',
     );
 
-our $VERSION = '1.3202';
+our $VERSION = '1.33';
 
-bootstrap Time::Piece $VERSION;
+XSLoader::load( 'Time::Piece', $VERSION );
 
 my $DATE_SEP = '-';
 my $TIME_SEP = ':';
@@ -65,13 +64,30 @@ sub gmtime {
     $class->_mktime($time, 0);
 }
 
+
+# Check if the supplied param is either a normal array (as returned from
+# localtime in list context) or a Time::Piece-like wrapper around one.
+#
+# We need to differentiate between an array ref that we can interrogate and
+# other blessed objects (like overloaded values).
+sub _is_time_struct {
+    return 1 if ref($_[1]) eq 'ARRAY';
+    return 1 if blessed($_[1]) && $_[1]->isa('Time::Piece');
+
+    return 0;
+}
+
+
 sub new {
     my $class = shift;
     my ($time) = @_;
 
     my $self;
 
-    if (defined($time)) {
+    if ($class->_is_time_struct($time)) {
+        $self = $time->[c_islocal] ? $class->localtime($time) : $class->gmtime($time);
+    }
+    elsif (defined($time)) {
         $self = $class->localtime($time);
     }
     elsif (ref($class) && $class->isa(__PACKAGE__)) {
@@ -105,14 +121,14 @@ sub parse {
 sub _mktime {
     my ($class, $time, $islocal) = @_;
 
-    $class = eval { (ref $class) && (ref $class)->isa('Time::Piece') }
-           ? ref $class
-           : $class;
-    if (ref($time)) {
-        my @tm_parts = (@{$time}[c_sec .. c_mon], $time->[c_year]+1900);
-        $time->[c_epoch] = $islocal ? timelocal(@tm_parts) : timegm(@tm_parts);
+    $class = blessed($class) || $class;
 
-        return wantarray ? @$time : bless [@$time[0..9], $islocal], $class;
+    if ($class->_is_time_struct($time)) {
+        my @new_time = @$time;
+        my @tm_parts = (@new_time[c_sec .. c_mon], $new_time[c_year]+1900);
+        $new_time[c_epoch] = $islocal ? timelocal(@tm_parts) : timegm(@tm_parts);
+
+        return wantarray ? @new_time : bless [@new_time[0..9], $islocal], $class;
     }
     _tzset();
     my @time = $islocal ?
@@ -637,7 +653,8 @@ sub cdate {
 
 sub str_compare {
     my ($lhs, $rhs, $reverse) = @_;
-    if (UNIVERSAL::isa($rhs, 'Time::Piece')) {
+
+    if (blessed($rhs) && $rhs->isa('Time::Piece')) {
         $rhs = "$rhs";
     }
     return $reverse ? $rhs cmp $lhs->cdate : $lhs->cdate cmp $rhs;
@@ -650,9 +667,6 @@ use overload
 sub subtract {
     my $time = shift;
     my $rhs = shift;
-    if (UNIVERSAL::isa($rhs, 'Time::Seconds')) {
-        $rhs = $rhs->seconds;
-    }
 
     if (shift)
     {
@@ -665,7 +679,7 @@ sub subtract {
 	return $rhs - "$time";
     }
 
-    if (UNIVERSAL::isa($rhs, 'Time::Piece')) {
+    if (blessed($rhs) && $rhs->isa('Time::Piece')) {
         return Time::Seconds->new($time->epoch - $rhs->epoch);
     }
     else {
@@ -677,10 +691,6 @@ sub subtract {
 sub add {
     my $time = shift;
     my $rhs = shift;
-    if (UNIVERSAL::isa($rhs, 'Time::Seconds')) {
-        $rhs = $rhs->seconds;
-    }
-    croak "Invalid rhs of addition: $rhs" if ref($rhs);
 
     return $time->_mktime(($time->epoch + $rhs), $time->[c_islocal]);
 }
@@ -690,7 +700,7 @@ use overload
 
 sub get_epochs {
     my ($lhs, $rhs, $reverse) = @_;
-    if (!UNIVERSAL::isa($rhs, 'Time::Piece')) {
+    unless (blessed($rhs) && $rhs->isa('Time::Piece')) {
         $rhs = $lhs->new($rhs);
     }
     if ($reverse) {

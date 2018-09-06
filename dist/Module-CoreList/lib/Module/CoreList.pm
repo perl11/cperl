@@ -16480,7 +16480,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'threads'               => '2.18_01',
             'Term::ReadLine'        => '1.17',
             'Time::HiRes'           => '1.9747_01',
-            'Time::Piece'           => '1.3202',
+            'Time::Piece'           => '1.33',
             'Unicode::Collate'      => '1.25',
             'Unicode::Collate::CJK::Big5'=> '1.25',
             'Unicode::Collate::CJK::GB2312'=> '1.25',
