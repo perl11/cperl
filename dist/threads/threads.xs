@@ -20,6 +20,7 @@
 #endif
 #ifdef HAS_PPPORT_H
 #  define NEED_PL_signals
+#  define NEED_newRV_noinc
 #  define NEED_sv_2pv_flags
 #  include "ppport.h"
 #  include "threads.h"
@@ -35,6 +36,11 @@
 #  endif
 #endif
 
+#if PERL_VERSION < 28
+#define thread_locale_init()
+#define thread_locale_term()
+#endif
+
 #ifndef CLANG_DIAG_IGNORE
 # define CLANG_DIAG_IGNORE(x)
 # define CLANG_DIAG_RESTORE
@@ -42,6 +48,8 @@
 #ifndef CLANG_DIAG_IGNORE_STMT
 # define CLANG_DIAG_IGNORE_STMT(x) CLANG_DIAG_IGNORE(x) NOOP
 # define CLANG_DIAG_RESTORE_STMT CLANG_DIAG_RESTORE NOOP
+# define CLANG_DIAG_IGNORE_DECL(x) CLANG_DIAG_IGNORE(x) dNOOP
+# define CLANG_DIAG_RESTORE_DECL CLANG_DIAG_RESTORE dNOOP
 #endif
 
 #ifdef USE_ITHREADS
@@ -141,9 +149,9 @@ typedef struct {
     IV page_size;
 } my_pool_t;
 
-#define dMY_POOL \
-    SV *my_pool_sv = *hv_fetch(PL_modglobal, MY_POOL_KEY,               \
-                               sizeof(MY_POOL_KEY)-1, TRUE);            \
+#define dMY_POOL                                                    \
+    SV *my_pool_sv = *hv_fetch(PL_modglobal, MY_POOL_KEY,           \
+                               sizeof(MY_POOL_KEY)-1, TRUE);        \
     my_pool_t *my_poolp = INT2PTR(my_pool_t*, SvUV(my_pool_sv))
 
 #define MY_POOL_set                                                 \
@@ -1046,10 +1054,10 @@ S_ithread_create(
     MUTEX_UNLOCK(&my_pool->create_destruct_mutex);
     return (thread);
 
-    CLANG_DIAG_IGNORE(-Wthread-safety)
+    CLANG_DIAG_IGNORE_STMT(-Wthread-safety);
     /* warning: mutex 'thread->mutex' is not held on every path through here [-Wthread-safety-analysis] */
 }
-CLANG_DIAG_RESTORE
+CLANG_DIAG_RESTORE_DECL;
 
 #endif /* USE_ITHREADS */
 
@@ -1852,7 +1860,6 @@ BOOT:
     SV *my_pool_sv = *hv_fetch(PL_modglobal, MY_POOL_KEY,
                                sizeof(MY_POOL_KEY)-1, TRUE);
     my_pool_t *my_poolp = (my_pool_t*)SvPVX(newSV(sizeof(my_pool_t)-1));
-
     MY_CXT_INIT;
 
     Zero(my_poolp, 1, my_pool_t);

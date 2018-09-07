@@ -1473,7 +1473,8 @@ use File::Glob qw(:case);
     },
 
     'threads' => {
-        'DISTRIBUTION' => 'JDHEDDEN/threads-2.16.tar.gz',
+        # https://github.com/rurban/threads/commits/cperl really
+        'DISTRIBUTION' => 'RURBAN/threads-2.22_01.tar.gz',
         'FILES'        => q[dist/threads],
         'EXCLUDED'     => [
             qr{^examples/},
@@ -1485,7 +1486,7 @@ use File::Glob qw(:case);
           # test locale race #127708
           # use old pod, tech. explanation: slow, rather use fork
           # fix my_pool init in global destruction
-        'CUSTOMIZED'   => [
+         'CUSTOMIZED'   => [
             qw( t/locale.t
                 lib/threads.pm
                 threads.xs

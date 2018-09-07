@@ -5,7 +5,7 @@ use 5.008;
 use strict;
 use warnings;
 
-our $VERSION = '2.22_01';
+our $VERSION = '2.22_01';      # remember to update version in POD!
 my $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -29,8 +29,7 @@ $threads::threads = 1;
 
 # Load the XS code
 require XSLoader;
-XSLoader::load('threads', $XS_VERSION);
-
+XSLoader::load("threads", $XS_VERSION);
 
 ### Export ###
 
@@ -134,7 +133,7 @@ threads - Perl interpreter-based threads
 
 =head1 VERSION
 
-This document describes threads version 2.21_01
+This document describes threads version 2.22_01 (with fixes from cperl)
 
 =head1 WARNING
 
@@ -953,11 +952,14 @@ setting.
 
 =item Locales
 
-Prior to Perl 5.28, locales could not be used with threads, due to various
-race conditions.  Starting in that release, on systems that implement
-thread-safe locale functions, threads can be used, with some caveats.
-This includes Windows starting with Visual Studio 2005, and systems compatible
-with POSIX 2008.  See L<perllocale/Multi-threaded operation>.
+Prior to Perl 5.28 or cperl 5.24 locales could not be used with
+threads, due to various race conditions.  Starting with Perl 5.28 on
+systems that implement thread-safe locale functions, threads can be
+used even on perl5 with some caveats. Previously only with cperl,
+but perl5 still has many unsolved issues.
+This includes Windows starting with Visual Studio 2005, and systems
+compatible with POSIX 2008.  See L<perllocale/Multi-threaded
+operation>.
 
 Each thread (except the main thread) is started using the C locale.  The main
 thread is started like all other Perl programs; see L<perllocale/ENVIRONMENT>.

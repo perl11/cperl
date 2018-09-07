@@ -17339,6 +17339,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Test::Harness'         => '3.42_01',
             'Term::ReadKey'         => '2.37_03',
             'Thread::Queue'         => '3.13',
+            'threads'               => '2.22_01',
             'Tie::Hash::NamedCapture' => '0.10_01',
             'Time::HiRes'           => '1.9758_01',
             'Time::Local'           => '1.28',
