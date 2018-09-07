@@ -680,7 +680,7 @@ the strings?).
  Sawyer X  5.28.0-RC4   2018-Jun-19
  Sawyer X  5.28.0       2018-Jun-22
 
- rurban    5.28.0c-RC1  2018-Aug-29
+ rurban    5.28.0c-RC1  2018-Sep-10
 
 
 =head2 SELECTED RELEASE MEMORY USAGE
