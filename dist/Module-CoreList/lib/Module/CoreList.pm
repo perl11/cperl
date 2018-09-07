@@ -17340,6 +17340,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Term::ReadKey'         => '2.37_03',
             'Thread::Queue'         => '3.13',
             'threads'               => '2.22_01',
+            'threads::shared'       => '1.58',
             'Tie::Hash::NamedCapture' => '0.10_01',
             'Time::HiRes'           => '1.9758_01',
             'Time::Local'           => '1.28',
