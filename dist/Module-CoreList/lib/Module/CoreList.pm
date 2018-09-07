@@ -17191,6 +17191,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Encode'                => '2.98',
             'Encode::Alias'         => '2.24',
             'Encode::Unicode'       => '2.17',
+            'experimental'          => '0.020_01',
             'ExtUtils::Command'     => '7.35_06',
             'ExtUtils::Liblist'     => '7.35_06',
             'ExtUtils::Liblist::Kid' => '8.35_06',

@@ -1393,9 +1393,11 @@ https://github.com/dankogai/p5-encode/pull/121
 
 Fixed deep recursion in Encode::find_encoding when decoding.
 
-=item L<experimental> 0.019_01c
+=item L<experimental> 0.020_01
 
 eval use feature, minor test fix.
+Add the declared_refs feature.
+Enable lexical_topic for cperl 5.24, added perl5 compat.
 
 =item L<Exporter> 5.73
 
