@@ -1572,7 +1572,8 @@ use File::Glob qw(:case);
     },
 
     'version' => {
-        'DISTRIBUTION' => 'JPEACOCK/version-0.9918.tar.gz',
+        # https://github.com/rurban/version/commits/cperl
+        'DISTRIBUTION' => 'RURBAN/version-0.9923_02.tar.gz',
         'FILES'        => q[cpan/version vutil.c vutil.h vxs.inc],
         'EXCLUDED' => [
             qr{^vutil/lib/},

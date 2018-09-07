@@ -4,8 +4,8 @@ package version;
 use 5.006002;
 use strict;
 
-our $VERSION = '0.9923_02c';
-$VERSION =~ s/c$//;
+our $VERSION = '0.9923_02';
+#$VERSION =~ s/c$//;
 our $CLASS = 'version';
 our (@ISA, $STRICT, $LAX);
 

@@ -262,4 +262,17 @@ const char * Perl_prescan_version(pTHX_ const char *s, bool strict, const char**
 #  define UNLOCK_LC_NUMERIC_STANDARD() UNLOCK_NUMERIC_STANDARD()
 #endif
 
+/* from cperl */
+#ifndef strNEs
+#  define strNEs(s1,s2) (strncmp(s1,"" s2 "", sizeof(s2)-1))
+#endif
+#ifndef strEQc
+#  define strEQc(s, c) memEQ(s, ("" c ""), sizeof(c))
+#  define strNEc(s, c) memNE(s, ("" c ""), sizeof(c))
+#endif
+#ifndef hv_existss
+#  define hv_existss(hv, key) \
+          hv_exists((hv), ("" key ""), (sizeof(key)-1))
+#endif
+
 /* ex: set ro: */

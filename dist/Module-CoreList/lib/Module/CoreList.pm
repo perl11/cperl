@@ -17346,6 +17346,8 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Time::Local'           => '1.28',
             'Unicode::Collate'      => '1.25_01',
             'Unicode::UCD'          => '0.68_01',
+            'version'               => '0.9923_02',
+            'version::regex'        => '0.9923_02',
             'Win32'                 => '0.52_01',
             'XSLoader'              => '1.04c',
         },
