@@ -1115,9 +1115,14 @@ use File::Glob qw(:case);
     },
 
     'parent' => {
-        'DISTRIBUTION' => 'CORION/parent-0.236.tar.gz',
+        'DISTRIBUTION' => 'CORION/parent-0.237.tar.gz',
         'FILES'        => q[cpan/parent],
         'EXCLUDED'     => [qr{^xt/}],
+        'CUSTOMIZED'   => [ qw(
+                            t/compile-time-file.t
+                            t/parent-classfromclassfile.t
+                            t/parent-classfromfile.t
+                            ) ],
     },
 
     # merged upstream with CPAN-Meta

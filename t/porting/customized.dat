@@ -151,6 +151,9 @@ bignum dist/bignum/t/scope_f.t 2b8cc7daffe1092e3bf550b64a37e808b2abc5f5
 bignum dist/bignum/t/scope_i.t ca81c61aff43fee8b6bf89fc698834d721825488
 bignum dist/bignum/t/scope_r.t 531216cbede50c3dbc82795c549a439e2c8ac627
 lib dist/lib/lib_pm.PL 04a3dedbc657cac6c8db1faf2f0c6a7af328a23f
+parent cpan/parent/t/compile-time-file.t 3e77ec70c6e73121129f93cb35b7c64eb2244a52
+parent cpan/parent/t/parent-classfromclassfile.t 35cd01cc132734c0c6b3f078449d5f389d8ec330
+parent cpan/parent/t/parent-classfromfile.t d07fa9c555256958565b22bc6b7ac191a3de8f96
 threads dist/threads/lib/threads.pm 41851eadf0a612abbbf47bd5ee8c7583f72d8933
 threads dist/threads/t/locale.t 9a2a5b43a39867590eb288d4a1759abac2052aa8
 threads dist/threads/threads.xs 3285711397bddf5b5e8ddc0669744d5f7a2a814f
