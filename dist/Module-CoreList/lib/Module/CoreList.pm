@@ -17274,6 +17274,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Module::Load::Conditional' => '0.68_02',
             'mro'                   => '1.21_01',
             'Net::Ping'             => '2.70',
+            'perlfaq'               => '5.20180605',
             'PerlIO::scalar'        => '0.29_01',
             'PerlIO::via'           => '0.17_01',
             'Pod::Checker'          => '1.73_01',
