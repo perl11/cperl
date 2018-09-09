@@ -433,6 +433,10 @@ pod/perl5261cdelta.pod	Pod NAME already used	2
 pod/perl5262cdelta.pod	Apparent broken link	3
 pod/perl5263cdelta.pod	Apparent broken link	2
 pod/perl5263cdelta.pod	Pod NAME already used	1
+pod/perl5280cdelta.pod	Apparent broken link	50
+pod/perl5280cdelta.pod	Apparent internal link is missing its forward slash	7
+pod/perl5280cdelta.pod	Verbatim line length including indents exceeds 79 by	4
+pod/perl5280cdelta.pod	alternative text. contains non-escaped | or /	1
 pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlapi.pod	Verbatim line length including indents exceeds 79 by	6
 pod/perlbook.pod	Verbatim line length including indents exceeds 79 by	1
@@ -445,7 +449,8 @@ pod/perlcperl.pod	Verbatim line length including indents exceeds 79 by	11
 pod/perlcperl.pod	unresolved internal link	1
 pod/perldebguts.pod	Verbatim line length including indents exceeds 79 by	27
 pod/perldebtut.pod	Verbatim line length including indents exceeds 79 by	3
-pod/perldelta.pod	Apparent broken link	2
+pod/perldelta.pod	Apparent broken link	1
+pod/perldelta.pod	Pod NAME already used	1
 pod/perldtrace.pod	Verbatim line length including indents exceeds 79 by	8
 pod/perlgit.pod	? Should you be using F<...> or maybe L<...> instead of	1
 pod/perlgit.pod	Verbatim line length including indents exceeds 79 by	1
@@ -488,3 +493,4 @@ lib/fake_signatures.pm	Apparent broken link	2
 lib/perl5db.pl	? Should you be using L<...> instead of	1
 lib/perl5db.pl	Unterminated C<...> sequence	1
 lib/types.pm	Verbatim line length including indents exceeds 79 by	1
+pod/perl5280delta.pod	Pod NAME already used	1

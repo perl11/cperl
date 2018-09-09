@@ -207,6 +207,9 @@ GRPATH
 GRTAGS
 GTAGS
 
+/.analysis
+.cquery
+/.cquery_cached_index/
 .git-rr-cache/DUMMY
 log.test-*
 log.bench-*

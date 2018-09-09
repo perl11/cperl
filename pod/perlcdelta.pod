@@ -6,12 +6,12 @@ perlcdelta - what is new for cperl v5.26.3
 
 =head1 DESCRIPTION
 
-This document describes the differences between the cperl 5.26.3c
-and the cperl 5.26.2c releases.
+This document describes the differences between the cperl 5.26.2c
+and the cperl 5.26.3c releases.
 
 If you are upgrading from an earlier release such as v5.26.1c, first
 read the L<perl5262cdelta> documentation, which describes differences
-between v5.26.2c and v5.26.1c.
+between v5.26.1c and v5.26.2c.
 
 =head1 Performance Enhancements
 
