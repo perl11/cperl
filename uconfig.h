@@ -5432,6 +5432,6 @@
 #endif
 
 /* Generated from:
- * 6f5c9ff2cfbe9f85d14524b369a1c8b0ab02a94e8a1484f571565e60dde18c8d config_h.SH
+ * 55d30699c70b2bf837d350eaf5549c950ac796d0d48df564dfc04ec343bd09ee config_h.SH
  * ca9764968f7deccc23ec33397a0c970348572e1530897d780515894a0fa9312b uconfig.sh
  * ex: set ro: */
