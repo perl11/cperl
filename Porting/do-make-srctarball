@@ -10,4 +10,4 @@ cd ../cperl-${ver}-build
 git reset --hard
 git clean -dxf
 #cp ../cperl/Porting/makerel Porting/
-perl Porting/makerel -bx
+perl Porting/makerel -x

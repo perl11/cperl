@@ -4,7 +4,7 @@ use strict;
 our ( %released, %version, %families, %deprecated, %delta );
 
 use version;
-our $VERSION = '5.20180909c';
+our $VERSION = '5.20180910c';
 $VERSION =~ s/c$//;
 
 sub PKG_PATTERN () { q#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z# }
@@ -361,7 +361,7 @@ sub changes_between {
     5.027011 => '2018-04-20',
     5.028000 => '2018-06-22',
     '5.028000c' => '2018-09-10',
-    '5.026003c' => '2018-09-14',
+    '5.026003c' => '2018-09-10',
  );
 
 sub version_sort {
@@ -17394,8 +17394,8 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
         delta_from => '5.026002c',
         changed => {
             'B::Op_private'         => '5.026003',
-            'Module::CoreList'      => '5.20180909c',
-            'Module::CoreList::Utils'=> '5.20180909c',
+            'Module::CoreList'      => '5.20180910c',
+            'Module::CoreList::Utils'=> '5.20180910c',
             'PerlIO::via'    => '0.17',
             'Term::ReadLine' => '1.17',
             'Unicode::UCD'   => '0.69_02',

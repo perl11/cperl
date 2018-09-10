@@ -14,12 +14,12 @@ stopped, even if it will cause a massive blame game.
 Currently it is about 20% faster than perl5 overall, >2x faster then
 5.14 and uses the least amount of memory measured since 5.6, i.e. less
 than 5.10 and 5.6.2, which were the previous leaders. While perl5.22
-uses the most memory yet measured. cperl 5.24 and 5.26 is about 2x
+uses the most memory yet measured. cperl 5.24-5.28 are about 2x
 faster than 5.22 in bigger real-world applications. Esp. function
 calls with signatures are 2x faster, normal functions with a `my(..) =
 @_;` prolog are automatically promoted to signatures.
 
-But only a small number of needed features are yet merged.  The plan
+But only a minor number of needed features are yet merged.  The plan
 was to support most perl5-compatible perl6 features (*"do not break
 CPAN"*), improve performance and memory usage, re-establish compiler
 (`B::C`) support, re-establish perl5 core development which
@@ -42,7 +42,7 @@ The current stable release is
   
 the latest development release:
 
-* [5.27.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.27.2) - [perl5272cdelta](perl5272cdelta.html).
+* [5.28.0c-RC1](https://github.com/perl11/cperl/releases/tag/cperl-5.28.0-RC1) - [perl5280cdelta](perl5280cdelta.html).
 
 We also have:
 
@@ -50,7 +50,7 @@ We also have:
 * [5.22.5c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.5), [perl5225cdelta](perl5225cdelta.html).
 
 All tests pass. CPAN works.
-Some fixes in my `rurban/distroprefs` repo for certain CPAN modules are needed.
+Some fixes in my [rurban/distroprefs](https://github.com/rurban/distroprefs/) repo for certain CPAN modules are needed.
 
 v5.24.0c, v5.24.1c and v5.24.3c have
 [about 24 fixes](perldelta.html#Known-Problems-fixed-elsewhere),
@@ -68,7 +68,7 @@ increase over time.
 
 ![Memory usage with unicode s///i](cperl-p1.png)
 
-![Benchmarks](cperl-bench27.png)
+![Benchmarks](cperl-bench28.png)
 For all versions see [bench-all/](bench-all/index.html)
 
 # In the latest stable releases are the following major features:
@@ -150,6 +150,7 @@ For all versions see [bench-all/](bench-all/index.html)
   multi, has, is, does keywords, proper fields, Mu superclass.
 * thread-safety on darwin for uselocale
 * hash slice consistency, no autovivification as sub args
+* no perl4 `'` package seperator, `'` is not expanded to `::`
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.
@@ -217,14 +218,14 @@ The -d debugger fails on most signatures.
 
 See the github issues: [github.com/perl11/cperl/issues](https://github.com/perl11/cperl/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
 
-The following CPAN modules have no patches for 5.26.1c yet:
+The following CPAN modules have no patches for 5.28.0c yet:
 
 * autovivification (mderef rpeep changes)
 * TryCatch
 * Catalyst::Runtime
 
 Time::Tiny, Date::Tiny, DateTime::Tiny feature DateTime::locale broken
-since 5.22.  unrelated to cperl, -f force install.
+since 5.22.  Unrelated to cperl, -f force install.
 
 Many other packages clash with an unneeded mix of Test::More in inc/
 or t/.  Some other use wrong undocumented Test-Simple calls, which the
@@ -246,10 +247,11 @@ Patches are needed for `Module::Build`, `IO::Socket::SSL` and `Net::SSLeay`.
   (*also affects perl5 with the XSConfig module*)
 * Readonly use base @ISA
   (*since 5.26.0c*)
-* Missing . in @INC
-  (*cperl removed . from @INC 2 years ago already, but ran the cpan tests and
-  installer with PERL_USE_UNSAFE_INC. This is now a general 5.26 problem.*)
 * %hash = map under [use strict](/blog/strict-hashpairs.html) (hashpairs since 5.27.0)
+* subroutine names with `'` are now illegal. You can declare them as bareword but
+  must call them as string.
+* Incomplete OO: role composition, native classes, eval, mop, inlining not yet fully
+  implemented.
 
 Breakage is much less than with a typical major perl5 release, and the
 patches for most common CPAN modules are provided in
@@ -466,4 +468,4 @@ They also revert some wrong decisions p5p already made.
 
 --
 
-2018-01-05 rurban
+2018-09-08 rurban
