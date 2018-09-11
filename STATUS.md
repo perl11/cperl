@@ -46,7 +46,7 @@ the latest development release:
 
 We also have:
 
-* [5.24.3c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.3) - [perl5243cdelta](perl5243cdelta.html),
+* [5.24.3c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.4) - [perl5243cdelta](perl5243cdelta.html),
 * [5.22.5c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.5), [perl5225cdelta](perl5225cdelta.html).
 
 All tests pass. CPAN works.
