@@ -13,75 +13,38 @@ If you are upgrading from an earlier release such as v5.24.2c, first
 read the L<perl5243cdelta> documentation, which describes differences
 between v5.24.3c and v5.24.2c.
 
-=head1 Performance Enhancements
+=head1 Security
 
-=over 4
+=head2 [CVE-2018-6797] heap-buffer-overflow (WRITE of size 1) in S_regatom (regcomp.c)
 
-=item *
+A crafted regular expression could cause a heap buffer write overflow, with
+control over the bytes written.
+L<[perl #132227]|https://rt.perl.org/Public/Bug/Display.html?id=132227>
 
-XXX
+=head2 [CVE-2018-6798] Heap-buffer-overflow in Perl__byte_dump_string (utf8.c)
 
-=back
+Matching a crafted locale dependent regular expression could cause a heap
+buffer read overflow and potentially information disclosure.
+L<[perl #132063]|https://rt.perl.org/Public/Bug/Display.html?id=132063>
 
-=head1 Modules and Pragmata
+=head2 [CVE-2018-6913] heap-buffer-overflow in S_pack_rec
 
-=head2 Updated Modules and Pragmata
+C<pack()> could cause a heap buffer write overflow with a large item count.
+L<[perl #131844]|https://rt.perl.org/Public/Bug/Display.html?id=131844>
 
-=over 4
+=head2 Assertion failure in Perl__core_swash_init (utf8.c)
 
-=item L<XXX>
+Control characters in a supposed Unicode property name could cause perl to
+crash.  This has been fixed.
+L<[perl #132055]|https://rt.perl.org/Public/Bug/Display.html?id=132055>
+L<[perl #132553]|https://rt.perl.org/Public/Bug/Display.html?id=132553>
+L<[perl #132658]|https://rt.perl.org/Public/Bug/Display.html?id=132658>
 
-XXX
+=head1 Incompatible Changes
 
-=back
-
-=head1 Configuration and Compilation
-
-=over
-
-=item *
-
-XXX
-
-=back
-
-=head1 Utility Changes
-
-=head2 L<XXX>
-
-=over 4
-
-=item *
-
-XXX
-
-=back
-
-=head1 Testing
-
-=over 4
-
-=item *
-
-XXX
-
-=back
-
-=head2 Platform-Specific Notes
-
-=over 4
-
-=item XXX
-
-=over
-
-=item *
-
-XXX
-
-=back
-
-=back
+There are no changes intentionally incompatible with 5.24.3c.  If any exist,
+they are bugs, and we request that you submit a report.  See L</Reporting
+Bugs> below.
 
 =head1 Selected Bug Fixes
 
@@ -93,6 +56,10 @@ The C<readpipe()> built-in function now checks at compile time that it has only
 one parameter expression, and puts it in scalar context, thus ensuring that it
 doesn't corrupt the stack at runtime.
 L<[perl #4574]|https://rt.perl.org/Public/Bug/Display.html?id=4574>
+
+=item *
+
+C<re_intuit_start()> was fixed for non-utf8 targets to ignore the utf8 folding rules.
 
 =back
 
