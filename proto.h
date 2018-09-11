@@ -3367,6 +3367,11 @@ PERL_CALLCONV PADOFFSET	Perl_pad_findmy_pvn(pTHX_ const char* namepv, STRLEN nam
 #define PERL_ARGS_ASSERT_PAD_FINDMY_PVN	\
 	assert(namepv)
 
+PERL_CALLCONV SV*	Perl_pad_findmy_real(pTHX_ PADOFFSET po, CV* cv)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_PAD_FINDMY_REAL	\
+	assert(cv)
+
 PERL_CALLCONV PADOFFSET	Perl_pad_findmy_sv(pTHX_ SV* name, U32 flags)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_PAD_FINDMY_SV	\

@@ -1341,6 +1341,7 @@
 #define package_version(a)	Perl_package_version(aTHX_ a)
 #define pad_add_weakref(a)	Perl_pad_add_weakref(aTHX_ a)
 #define pad_block_start(a)	Perl_pad_block_start(aTHX_ a)
+#define pad_findmy_real(a,b)	Perl_pad_findmy_real(aTHX_ a,b)
 #define pad_fixup_inner_anons(a,b,c)	Perl_pad_fixup_inner_anons(aTHX_ a,b,c)
 #define pad_free(a)		Perl_pad_free(aTHX_ a)
 #define pad_leavemy()		Perl_pad_leavemy(aTHX)

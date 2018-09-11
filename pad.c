@@ -1108,6 +1108,70 @@ Perl_find_rundefsv2(pTHX_ CV *cv, U32 seq)
 }
 
 /*
+=for apidoc pad_find_outer
+
+Search the real pad offset in one of the outer CVs for the fake pad
+entry in the current CV, usually the C<PL_compcv>. See L</pad_findmy_real>.
+
+Backported from 5.28, here not in the public API.
+
+=cut
+*/
+static SV*
+S_pad_find_outer(pTHX_ PADNAME *pn, CV* cv)
+{
+    SV* sv;
+    PADNAME* out_pn;
+    int out_flags;
+
+    if (pad_findlex(PadnamePV(pn), PadnameLEN(pn), padadd_STALEOK,
+                    CvOUTSIDE(cv), CvOUTSIDE_SEQ(cv), 0,
+                    &sv, &out_pn, &out_flags) != NOT_IN_PAD)
+        /* capturing might add a fresh lval pad, so check for NOT_IN_PAD
+           and ignore it then. */
+        return sv;
+    else {
+        /* fresh captured sv is already mortal. just put it back to the free list */
+        if (sv) {
+            SvTEMP_off(sv);
+            Perl_sv_free2(aTHX_ sv, 1);
+        }
+        return NULL;
+    }
+}
+
+#define PAD_COMPNAME_isOUTER(po) (PadnameFLAGS(PAD_COMPNAME(po)) & PADNAMEt_OUTER)
+
+/*
+=for apidoc pad_findmy_real
+
+Search the pad for a real SV in all outer SVs from the current CV up.
+Skip inner FAKE pads until we get the real outer curpad slot.
+
+Note that only with C<PL_compcv> at compile-time we will encounter fake
+pads. At runtime the current cv padlist has proper pads.
+
+Backported from 5.28.0c, here not in the public API.
+
+=cut
+*/
+SV*
+Perl_pad_findmy_real(pTHX_ PADOFFSET po, CV* cv)
+{
+    SV* sv = PAD_SV(po);
+    PERL_ARGS_ASSERT_PAD_FINDMY_REAL;
+
+    /* A nested block has a FAKE pad */
+    if (!SvFLAGS(sv) && PAD_COMPNAME_isOUTER(po)) {
+        PADNAME *pn = PAD_COMPNAME(po);
+        SV* outer = S_pad_find_outer(aTHX_ pn, cv);
+        if (outer)
+            return outer;
+    }
+    return sv;
+}
+
+/*
 =for apidoc m|PADOFFSET|pad_findlex|const char *namepv|STRLEN namelen|U32 flags|const CV* cv|U32 seq|int warn|SV** out_capture|PADNAME** out_name|int *out_flags
 
 Find a named lexical anywhere in a chain of nested pads.  Add fake entries
