@@ -17091,7 +17091,10 @@ Perl_rpeep(pTHX_ OP *o)
                    the last pushmark arg. shift and push can have multiple args. 
                    1-arg push is also not caught here.
                    We also have no MDEREF_AV_padav_aelem_u, only a MDEREF_INDEX_uoob */
-                if (OpNEXT(o2) && o2->op_targ && AvSHAPED(PAD_SV(o2->op_targ))) {
+                if (OpNEXT(o2)
+                    && o2->op_targ
+                    && AvSHAPED(pad_findmy_real(o2->op_targ, PL_compcv)))
+                {
                     /* 1 arg case */
                     OPCODE type = OpNEXT(o2)->op_type;
                     if (type == OP_PUSH  || type == OP_POP
@@ -17720,7 +17723,7 @@ Perl_rpeep(pTHX_ OP *o)
                         o->op_ppaddr = PL_ppaddr[OP_AELEMFAST];
 		    }
 		    else {
-                        SV* av = PAD_SV(o->op_targ);
+                        SV* av = pad_findmy_real(o->op_targ, PL_compcv);
                         if (AvSHAPED(av)) {
 #ifndef AELEMSIZE_RT_NEGATIVE
                             if (i < 0) {

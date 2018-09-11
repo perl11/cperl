@@ -1345,6 +1345,49 @@ my_ck_rv2cv(pTHX_ OP *o)
     return old_ck_rv2cv(aTHX_ o);
 }
 
+static bool
+has_cv_opname(OP *o, char *opname)
+{
+    for (; o; o = OpSIBLING(o)) {
+        if (strEQ(OP_NAME(o), opname)) {
+            return TRUE;
+        }
+        if (o->op_flags & OPf_KIDS) { /* depth-first */
+            if (has_cv_opname(cUNOPo->op_first, opname))
+                return TRUE;
+            /* else continue with siblings */
+        }
+    }
+    return FALSE;
+}
+
+static bool
+has_cv_aelem_u(OP *o)
+{
+    for (; o; o = OpSIBLING(o)) {
+        if (OP_TYPE_IS_NN(o, OP_AELEM_U) ||
+            OP_TYPE_IS_NN(o, OP_AELEMFAST_LEX_U))
+        {
+            return TRUE;
+        }
+#if 0
+        else if (OP_TYPE_IS_NN(o, OP_MULTIDEREF)) {
+            UNOP_AUX_item *items = cUNOP_AUXo->op_aux;
+            UV actions = items->uv;
+            /* See S_mderef_uoob_targ() The pad action is the very first */
+            if (actions & MDEREF_INDEX_uoob)
+                return TRUE;
+        }
+#endif
+        if (o->op_flags & OPf_KIDS) { /* depth-first */
+            if (has_cv_aelem_u(cUNOPo->op_first))
+                return TRUE;
+            /* else continue with siblings */
+        }
+    }
+    return FALSE;
+}
+
 #include "const-c.inc"
 
 MODULE = XS::APItest		PACKAGE = XS::APItest
@@ -4276,6 +4319,20 @@ string_without_null(SV *sv)
         RETVAL = newSVpvn_flags(s, len, SvUTF8(sv));
         *SvEND(RETVAL) = 0xff;
     }
+    OUTPUT:
+        RETVAL
+
+bool
+has_cv_opname(CV *cv, char *opname)
+    CODE:
+        RETVAL = has_cv_opname(CvROOT(cv), opname);
+    OUTPUT:
+        RETVAL
+
+bool
+has_cv_aelem_u(CV *cv)
+    CODE:
+        RETVAL = has_cv_aelem_u(CvROOT(cv));
     OUTPUT:
         RETVAL
 

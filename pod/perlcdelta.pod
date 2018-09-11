@@ -112,6 +112,16 @@ L<[perl #132484]|https://rt.perl.org/Public/Bug/Display.html?id=132484>
 
 =item *
 
+Fixed missing compile-time AvSHAPED detection in nested scopes.
+E.g.:
+
+    my @a[1]; sub { $a[0]->[5] = 1 }->(); # mderef_u
+    my @b[1]; sub { $b[0] = 1 }->();      # aelemfast_lex_u
+
+See L<[cperl #354]|https://github.com/perl11/cperl/issues/354>.
+
+=item *
+
 The C<readpipe()> built-in function now checks at compile time that it has only
 one parameter expression, and puts it in scalar context, thus ensuring that it
 doesn't corrupt the stack at runtime.
