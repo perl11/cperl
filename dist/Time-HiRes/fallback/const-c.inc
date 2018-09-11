@@ -34,6 +34,7 @@ constant_11 (pTHX_ const char *name, IV *iv_return) {
       *iv_return = ITIMER_PROF;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -45,6 +46,7 @@ constant_11 (pTHX_ const char *name, IV *iv_return) {
       *iv_return = ITIMER_REAL;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -96,6 +98,7 @@ constant_11 (pTHX_ const char *name, IV *iv_return) {
     }
     break;
   }
+  *iv_return = 0;
   return PERL_constant_NOTFOUND;
 }
 
@@ -113,6 +116,7 @@ constant_12 (pTHX_ const char *name, IV *iv_return) {
       *iv_return = CLOCK_UPTIME;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -124,6 +128,7 @@ constant_12 (pTHX_ const char *name, IV *iv_return) {
       *iv_return = CLOCK_SECOND;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -141,6 +146,7 @@ constant_12 (pTHX_ const char *name, IV *iv_return) {
     }
     break;
   }
+  *iv_return = 0;
   return PERL_constant_NOTFOUND;
 }
 
@@ -158,6 +164,7 @@ constant_13 (pTHX_ const char *name, IV *iv_return) {
       *iv_return = TIMER_ABSTIME;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -169,6 +176,7 @@ constant_13 (pTHX_ const char *name, IV *iv_return) {
       *iv_return = CLOCK_VIRTUAL;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -180,6 +188,7 @@ constant_13 (pTHX_ const char *name, IV *iv_return) {
       *iv_return = CLOCK_HIGHRES;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -197,6 +206,7 @@ constant_13 (pTHX_ const char *name, IV *iv_return) {
     }
     break;
   }
+  *iv_return = 0;
   return PERL_constant_NOTFOUND;
 }
 
@@ -215,6 +225,7 @@ constant_14 (pTHX_ const char *name, IV *iv_return) {
       *iv_return = CLOCK_REALTIME;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -226,6 +237,7 @@ constant_14 (pTHX_ const char *name, IV *iv_return) {
       *iv_return = CLOCKS_PER_SEC;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -237,6 +249,7 @@ constant_14 (pTHX_ const char *name, IV *iv_return) {
       *iv_return = CLOCK_SOFTTIME;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -248,6 +261,7 @@ constant_14 (pTHX_ const char *name, IV *iv_return) {
       *iv_return = ITIMER_VIRTUAL;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -259,6 +273,7 @@ constant_14 (pTHX_ const char *name, IV *iv_return) {
       *iv_return = CLOCK_BOOTTIME;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -288,6 +303,7 @@ constant_14 (pTHX_ const char *name, IV *iv_return) {
     }
     break;
   }
+  *iv_return = 0;
   return PERL_constant_NOTFOUND;
 }
 
@@ -305,6 +321,7 @@ constant_15 (pTHX_ const char *name, IV *iv_return) {
       *iv_return = CLOCK_TIMEOFDAY;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -316,6 +333,7 @@ constant_15 (pTHX_ const char *name, IV *iv_return) {
       *iv_return = CLOCK_MONOTONIC;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -327,6 +345,7 @@ constant_15 (pTHX_ const char *name, IV *iv_return) {
       *iv_return = ITIMER_REALPROF;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -344,6 +363,7 @@ constant_15 (pTHX_ const char *name, IV *iv_return) {
     }
     break;
   }
+  *iv_return = 0;
   return PERL_constant_NOTFOUND;
 }
 
@@ -391,6 +411,7 @@ constant_19 (pTHX_ const char *name, IV *iv_return) {
     }
     break;
   }
+  *iv_return = 0;
   return PERL_constant_NOTFOUND;
 }
 
@@ -408,6 +429,7 @@ constant_23 (pTHX_ const char *name, IV *iv_return) {
       *iv_return = CLOCK_MONOTONIC_PRECISE;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -430,11 +452,13 @@ constant_23 (pTHX_ const char *name, IV *iv_return) {
       *iv_return = CLOCK_UPTIME_RAW_APPROX;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
     break;
   }
+  *iv_return = 0;
   return PERL_constant_NOTFOUND;
 }
 
@@ -545,6 +569,7 @@ __END__
         *iv_return = CLOCK_PROF;
         return PERL_constant_ISIV;
 #else
+        *iv_return = 0;
         return PERL_constant_NOTDEF;
 #endif
       }
@@ -584,6 +609,7 @@ __END__
       *iv_return = CLOCK_UPTIME_RAW;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -600,6 +626,7 @@ __END__
         *iv_return = CLOCK_UPTIME_FAST;
         return PERL_constant_ISIV;
 #else
+        *iv_return = 0;
         return PERL_constant_NOTDEF;
 #endif
       }
@@ -624,6 +651,7 @@ __END__
       *iv_return = CLOCK_REALTIME_RAW;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -643,6 +671,7 @@ __END__
         *iv_return = CLOCK_MONOTONIC_FAST;
         return PERL_constant_ISIV;
 #else
+        *iv_return = 0;
         return PERL_constant_NOTDEF;
 #endif
       }
@@ -654,6 +683,7 @@ __END__
         *iv_return = CLOCK_UPTIME_PRECISE;
         return PERL_constant_ISIV;
 #else
+        *iv_return = 0;
         return PERL_constant_NOTDEF;
 #endif
       }
@@ -666,6 +696,7 @@ __END__
       *iv_return = CLOCK_REALTIME_COARSE;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -682,6 +713,7 @@ __END__
         *iv_return = CLOCK_REALTIME_PRECISE;
         return PERL_constant_ISIV;
 #else
+        *iv_return = 0;
         return PERL_constant_NOTDEF;
 #endif
       }
@@ -693,6 +725,7 @@ __END__
         *iv_return = CLOCK_MONOTONIC_COARSE;
         return PERL_constant_ISIV;
 #else
+        *iv_return = 0;
         return PERL_constant_NOTDEF;
 #endif
       }
@@ -708,6 +741,7 @@ __END__
       *iv_return = CLOCK_PROCESS_CPUTIME_ID;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
@@ -718,11 +752,13 @@ __END__
       *iv_return = CLOCK_MONOTONIC_RAW_APPROX;
       return PERL_constant_ISIV;
 #else
+      *iv_return = 0;
       return PERL_constant_NOTDEF;
 #endif
     }
     break;
   }
+  *iv_return = 0;
   return PERL_constant_NOTFOUND;
 }
 
