@@ -49,6 +49,8 @@ $feature_bundle{"5.24"} = $feature_bundle{"5.23"};
 $feature_bundle{"5.25"} = $feature_bundle{"5.23"};
 $feature_bundle{"5.26"} = $feature_bundle{"5.23"};
 $feature_bundle{"5.28"} = $feature_bundle{"5.27"};
+$feature_bundle{"5.29"} = $feature_bundle{"5.27"};
+$feature_bundle{"5.30"} = $feature_bundle{"5.27"};
 $feature_bundle{"5.9.5"} = $feature_bundle{"5.10"};
 my %noops = (
     postderef => 1,
@@ -428,6 +430,9 @@ The following feature bundles are available:
             postderef_qq
 
   :5.28     say state switch unicode_strings
+            unicode_eval evalbytes postderef_qq bitwise
+
+  :5.30     say state switch unicode_strings
             unicode_eval evalbytes postderef_qq bitwise
 
 The C<:default> bundle represents the feature set that is enabled before

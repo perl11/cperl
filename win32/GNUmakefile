@@ -8,7 +8,7 @@
 #
 # This is set up to build a perl.exe that runs off a shared library
 # (cperl52x.dll).  Also makes individual DLLs for the XS extensions.
-PV := 528
+PV := 529
 
 # The easiest way to customize the build process is to use parameters like this:
 #
@@ -70,7 +70,7 @@ USE_CPERL	:= define
 # versioned installation can be obtained by setting INST_TOP above to a
 # path that includes an arbitrary version string.
 #
-#INST_VER	:= \5.28.0
+#INST_VER	:= \5.29.0
 
 #
 # Comment this out if you DON'T want your perl installation to have

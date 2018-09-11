@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Module::CoreList;
 
-our $VERSION = '5.20180910c';
+our $VERSION = '5.20180911c';
 $VERSION =~ s/c$//;
 our %utilities;
 
@@ -1533,6 +1533,16 @@ our %delta :const = (
     },
     '5.028000c' => {
         delta_from => '5.027002c',
+        changed => {},
+        removed => {}
+    },
+    '5.024004c' => {
+        delta_from => '5.024003c',
+        changed => {},
+        removed => {}
+    },
+    '5.029000c' => {
+        delta_from => '5.028000c',
         changed => {},
         removed => {}
     },

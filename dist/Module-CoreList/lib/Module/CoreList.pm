@@ -1,10 +1,10 @@
 package Module::CoreList;
 use strict;
 
-our ( %released, %version, %families, %upstream, %bug_tracker, %deprecated, %delta );
+our ( %version, %deprecated, %families );
 
 use version;
-our $VERSION = '5.20180910c';
+our $VERSION = '5.20180911c';
 $VERSION =~ s/c$//;
 
 sub PKG_PATTERN () { q#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z# }
@@ -24,18 +24,6 @@ sub _undelta {
         $expanded{$version} = \%full;
     }
     return %expanded;
-}
-
-sub _released_order {   # Sort helper, to make '?' sort after everything else
-    warn "no $a release" if !exists $released{$a};
-    warn "no $b release" if !exists $released{$b};
-    (substr($released{$a}, 0, 1) eq "?")
-    ? ((substr($released{$b}, 0, 1) eq "?")
-        ? 0
-        : 1)
-    : ((substr($released{$b}, 0, 1) eq "?")
-        ? -1
-        : version_sort($released{$a}, $released{$b} )) # ie string sort
 }
 
 my $dumpinc = 0;
@@ -172,7 +160,7 @@ sub changes_between {
 # NB. If you put version numbers with trailing zeroes here, you
 # should also add an alias for the numerical ($]) version; see
 # just before the __END__ of this module.
-%released = (
+our %released :const = (
     5.000    => '1994-10-17',
     5.001    => '1995-03-14',
     5.002    => '1996-02-29',
@@ -362,7 +350,8 @@ sub changes_between {
     5.028000 => '2018-06-22',
     '5.028000c' => '2018-09-10',
     '5.026003c' => '2018-09-10',
-    '5.024004c => '2018-09-12',
+    '5.024004c' => '2018-09-14',
+    '5.029000c' => '2018-??-??',
  );
 
 sub version_sort {
@@ -386,7 +375,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
     push @{ $families{ $family }} , $version;
 }
 
-%delta = (
+our %delta :const = (
     5 => {
         changed => {
             'AnyDBM_File'           => undef,
@@ -17433,6 +17422,26 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
         removed => {
         }
     },
+    '5.024004c' => {
+        delta_from => '5.024003c',
+        changed => {
+            'B::Op_private'         => '5.024004',
+            'Module::CoreList'      => '5.20180911c',
+            'Module::CoreList::Utils'=> '5.20180911c',
+        },
+        removed => {
+        }
+    },
+    '5.029000c' => {
+        delta_from => '5.028000c',
+        changed => {
+            'B::Op_private'         => '5.029000',
+            'Module::CoreList'      => '5.20180911c',
+            'Module::CoreList::Utils'=> '5.20180911c',
+        },
+        removed => {
+        }
+    },
 );
 
 sub is_core
@@ -18386,8 +18395,23 @@ sub is_core
         removed => {
         }
     },
-    '5.027003c' => {
-        delta_from => '5.027001c',
+    '5.028000c' => {
+        delta_from => '5.027002c',
+        changed => {},
+        removed => {}
+    },
+    '5.026003c' => {
+        delta_from => '5.026002c',
+        changed => {},
+        removed => {}
+    },
+    '5.024004c' => {
+        delta_from => '5.024003c',
+        changed => {},
+        removed => {}
+    },
+    '5.029000c' => {
+        delta_from => '5.028000c',
         changed => {},
         removed => {}
     },
@@ -18395,7 +18419,7 @@ sub is_core
 
 %deprecated = _undelta(\%deprecated);
 
-%upstream = (
+our %upstream :const = (
     'App::Cpan'             => 'cpan',
     'App::Prove'            => 'cpan',
     'App::Prove::State'     => 'cpan',
@@ -18719,7 +18743,7 @@ sub is_core
     'version::vpp'          => 'cpan',
 );
 
-%bug_tracker = (
+our %bug_tracker :const = (
     'App::Cpan'             => undef,
     'App::Prove'            => 'http://rt.cpan.org/Public/Dist/Display.html?Name=Test-Harness',
     'App::Prove::State'     => 'http://rt.cpan.org/Public/Dist/Display.html?Name=Test-Harness',
@@ -19161,6 +19185,18 @@ sub _create_aliases {
         }
     }
     Internals::SvREADONLY($hash);
+}
+
+sub _released_order {   # Sort helper, to make '?' sort after everything else
+    warn "no $a release" if !exists $released{$a};
+    warn "no $b release" if !exists $released{$b};
+    (substr($released{$a}, 0, 1) eq "?")
+    ? ((substr($released{$b}, 0, 1) eq "?")
+        ? 0
+        : 1)
+    : ((substr($released{$b}, 0, 1) eq "?")
+        ? -1
+        : version_sort($released{$a}, $released{$b} )) # ie string sort
 }
 
 1;

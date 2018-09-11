@@ -7,7 +7,7 @@
 # This is set up to build a perl.exe that runs off a shared library
 # (cperl52x.dll).  Also makes individual DLLs for the XS extensions.
 #
-PV = 528
+PV = 529
 
 ##
 ## Make sure you read README.win32 *before* you mess with anything here!
@@ -44,7 +44,7 @@ USE_CPERL	= define
 # versioned installation can be obtained by setting INST_TOP above to a
 # path that includes an arbitrary version string.
 #
-#INST_VER	= \5.28.0
+#INST_VER	= \5.29.0
 
 #
 # Comment this out if you DON'T want your perl installation to have
@@ -198,7 +198,7 @@ USE_NO_REGISTRY = define
 # set this to additionally provide a statically linked perl-static.exe.
 # Note that dynamic loading will not work with this perl, so you must
 # include required modules statically using the STATIC_EXT or ALL_STATIC
-# variables below. A static library cperl528s.lib will also be created.
+# variables below. A static library cperl529s.lib will also be created.
 # Ordinary perl.exe is not affected by this option.
 #
 #BUILD_STATIC	= define
