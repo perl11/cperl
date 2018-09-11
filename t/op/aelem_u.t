@@ -5,7 +5,7 @@ BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
 }
-plan( tests => 16 );
+plan( tests => 20 );
 use coretypes;
 use cperl;
 use v5.22;
@@ -43,11 +43,31 @@ like ($@, qr/^Invalid modification of shaped array: unshift \@a/, "invalid unshi
 eval { splice @a; };
 like ($@, qr/^Invalid modification of shaped array: splice/, "invalid splice (run-time)");
 
+# aelemfast_lex_u
+my $cv = sub { $a[0] = 1 };
+$cv->();
+is($a[0], 1, "set const w/o read-only");
+SKIP: {
+    skip "no XS::APItest with miniperl", 1 if is_miniperl();
+    require XS::APItest;
+    is(XS::APItest::has_cv_opname($cv, "aelemfast_lex_u"), 1, 'contains aelemfast_lex_u');
+}
+
 $a[0] = 1;
 is($a[0], 1, "set const w/o read-only");
 $a[-1] = 2; # compile-time changed to 4
 is($a[4], 2, "negative constant index");
+
+# mderef:
 my $i = 0;
+my $cv = sub { $a[$i] = 1 };
+$cv->();
+SKIP: {
+  skip "no XS::APItest with miniperl", 2 if is_miniperl();
+  is(XS::APItest::has_cv_opname($cv, "multideref"), 1, , 'contains mderef');
+  is(XS::APItest::has_cv_aelem_u($cv), "", 'without uoob elimination');
+}
+
 $a[$i] = 1;
 is($a[$i], 1, "set");
 $i = -1;
