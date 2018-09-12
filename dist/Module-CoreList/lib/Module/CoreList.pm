@@ -17506,7 +17506,8 @@ our %delta = (
             'File::Temp'            => '0.2308',
             'Filter::Util::Call'    => '1.59',
             'GDBM_File'             => '1.17',
-            'if'                    => '0.0608',  
+            'if'                    => '0.0608',
+            'Socket'                => '2.027_04',
             'XSLoader'              => '1.04c',
         },
         removed => {

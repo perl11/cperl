@@ -80,7 +80,7 @@ my %defines = (
     # -Dfoo                func()         $Config{key}
     HAS_GETADDRINFO  => [ "getaddrinfo",  "d_getaddrinfo" ],
     HAS_GETNAMEINFO  => [ "getnameinfo",  "d_getnameinfo" ],
-    HAS_GAI_STRERROR => [ "gai_strerror", "i_netdb" ],
+    HAS_GAI_STRERROR => [ "gai_strerror", "i_netdb" ], # d_gai_strerror came later
     HAS_INET_ATON    => [ "inet_aton",    "d_inetaton" ],
     HAS_INETNTOP     => [ "inet_ntop",    "d_inetntop" ],
     HAS_INETPTON     => [ "inet_pton",    "d_inetpton" ],
@@ -206,7 +206,7 @@ my @names = (
 	IPV6_LEAVE_GROUP IPV6_MTU IPV6_MTU_DISCOVER IPV6_MULTICAST_HOPS
 	IPV6_MULTICAST_IF IPV6_MULTICAST_LOOP IPV6_RECVERR IPV6_ROUTER_ALERT
 	IPV6_UNICAST_HOPS IPV6_V6ONLY
-        IPV6_NEXTHOP IPV6_REACHCONF IPV6_HOPLIMIT IPV6_USE_MIN_MTU IPV6_RECVPATHMTU
+	IPV6_NEXTHOP IPV6_REACHCONF IPV6_HOPLIMIT IPV6_USE_MIN_MTU IPV6_RECVPATHMTU
 
 	MSG_BCAST MSG_BTAG MSG_CTLFLAGS MSG_CTLIGNORE MSG_DONTWAIT MSG_EOF
 	MSG_EOR MSG_ERRQUEUE MSG_ETAG MSG_FASTOPEN MSG_FIN MSG_MAXIOVLEN
@@ -246,21 +246,23 @@ my @names = (
 	TCP_FASTOPEN TCP_INFO TCP_INIT_CWND TCP_KEEPALIVE TCP_KEEPCNT
 	TCP_KEEPIDLE TCP_KEEPINTVL TCP_LINGER2 TCP_MAXRT TCP_MAXSEG
 	TCP_MD5SIG TCP_NODELAY TCP_NOOPT TCP_NOPUSH TCP_QUICKACK
-	TCP_SACK_ENABLE TCP_STDURG TCP_SYNCNT TCP_WINDOW_CLAMP
+	TCP_SACK_ENABLE TCP_STDURG TCP_SYNCNT TCP_USER_TIMEOUT
+	TCP_WINDOW_CLAMP
 
 	UIO_MAXIOV
     ),
-    {name=>"IPPROTO_IP",   type=>"IV", default=>["IV",   0]},
-    {name=>"IPPROTO_IPV6", type=>"IV", default=>["IV",  41]},
-    {name=>"IPPROTO_RAW",  type=>"IV", default=>["IV", 255]},
-    {name=>"IPPROTO_ICMP", type=>"IV", default=>["IV",   1]},
-    {name=>"IPPROTO_IGMP", type=>"IV", default=>["IV",   2]},
-    {name=>"IPPROTO_TCP",  type=>"IV", default=>["IV",   6]},
-    {name=>"IPPROTO_UDP",  type=>"IV", default=>["IV",  17]},
-    {name=>"IPPROTO_GRE",  type=>"IV", default=>["IV",  47]},
-    {name=>"IPPROTO_ESP",  type=>"IV", default=>["IV",  50]},
-    {name=>"IPPROTO_AH",   type=>"IV", default=>["IV",  51]},
-    {name=>"IPPROTO_SCTP", type=>"IV", default=>["IV", 132]},
+    {name=>"IPPROTO_IP",     type=>"IV", default=>["IV",   0]},
+    {name=>"IPPROTO_IPV6",   type=>"IV", default=>["IV",  41]},
+    {name=>"IPPROTO_RAW",    type=>"IV", default=>["IV", 255]},
+    {name=>"IPPROTO_ICMP",   type=>"IV", default=>["IV",   1]},
+    {name=>"IPPROTO_IGMP",   type=>"IV", default=>["IV",   2]},
+    {name=>"IPPROTO_TCP",    type=>"IV", default=>["IV",   6]},
+    {name=>"IPPROTO_UDP",    type=>"IV", default=>["IV",  17]},
+    {name=>"IPPROTO_GRE",    type=>"IV", default=>["IV",  47]},
+    {name=>"IPPROTO_ESP",    type=>"IV", default=>["IV",  50]},
+    {name=>"IPPROTO_AH",     type=>"IV", default=>["IV",  51]},
+    {name=>"IPPROTO_ICMPV6", type=>"IV", default=>["IV",  58]},
+    {name=>"IPPROTO_SCTP",   type=>"IV", default=>["IV", 132]},
     {name=>"SHUT_RD",   type=>"IV", default=>["IV", "0"]},
     {name=>"SHUT_WR",   type=>"IV", default=>["IV", "1"]},
     {name=>"SHUT_RDWR", type=>"IV", default=>["IV", "2"]},
