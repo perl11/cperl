@@ -821,7 +821,7 @@ use File::Glob qw(:case);
     },
 
     'IO::Compress::Base' => {
-        'DISTRIBUTION' => 'PMQS/IO-Compress-2.074.tar.gz',
+        'DISTRIBUTION' => 'PMQS/IO-Compress-2.081.tar.gz',
         'FILES'        => q[cpan/IO-Compress],
         'EXCLUDED'     => [
             qr{^examples/},
@@ -829,7 +829,12 @@ use File::Glob qw(:case);
             't/010examples-bzip2.t',
             't/010examples-zlib.t',
             't/cz-05examples.t',
+            't/999pod.t',
         ],
+        # cperl arity error message
+        'CUSTOMIZED'   => [ qw( lib/File/GlobMapper.pm
+                                t/cz-14gzopen.t
+                                t/compress/encode.pl )],
     },
 
     'IO::Socket::IP' => {
