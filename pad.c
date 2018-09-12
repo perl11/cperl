@@ -1108,8 +1108,6 @@ Perl_find_rundefsv2(pTHX_ CV *cv, U32 seq)
 }
 
 /*
-=for apidoc pad_find_outer
-
 Search the real pad offset in one of the outer CVs for the fake pad
 entry in the current CV, usually the C<PL_compcv>. See L</pad_findmy_real>.
 
