@@ -172,6 +172,19 @@ Fix uselocale() code. Probe for uselocale and xlocale.h with <5.22 threaded.
 Avoid setlocale race in threads with non-C locales, where the threads differ
 in the LC_NUMERIC locale. (#99 pali)
 
+=item L<Data::Dumper>  2.170_03
+
+Attempt to work around XS deparse issues on old perls.
+
+XS improvements
+
+Quoting of glob names now obeys the Useqq option
+L<[perl #119831]|https://rt.perl.org/Ticket/Display.html?id=119831>.
+
+Attempts to set an option to C<undef> through a combined getter/setter
+method are no longer mistaken for getter calls
+L<[perl #113090]|https://rt.perl.org/Ticket/Display.html?id=113090>.
+
 =item L<ExtUtils::Constant> 1.25_01
 
 fix failed to extend arg stack
