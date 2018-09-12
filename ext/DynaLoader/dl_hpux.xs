@@ -42,7 +42,7 @@ dl_private_init(pTHX)
     (void)dl_generic_private_init(aTHX);
     {
 	dMY_CXT;
-	dl_resolve_using = get_av("DynaLoader::dl_resolve_using", GV_ADDMULTI);
+	dl_resolve_using = get_avs("DynaLoader::dl_resolve_using", GV_ADDMULTI);
     }
 }
 
@@ -194,7 +194,7 @@ CLONE(...)
      * own for this thread.
      */
     MY_CXT.x_dl_last_error = newSVpvs("");
-    dl_resolve_using = get_av("DynaLoader::dl_resolve_using", GV_ADDMULTI);
+    dl_resolve_using = get_avs("DynaLoader::dl_resolve_using", GV_ADDMULTI);
 
 #endif
 

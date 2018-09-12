@@ -140,7 +140,7 @@ dl_private_init(pTHX)
     dl_generic_private_init(aTHX);
     {
 	dMY_CXT;
-	dl_require_symbols = get_av("DynaLoader::dl_require_symbols", GV_ADDMULTI);
+	dl_require_symbols = get_avs("DynaLoader::dl_require_symbols", GV_ADDMULTI);
 	/* Set up the static control blocks for dl_expand_filespec() */
 	dl_fab = cc$rms_fab;
 	dl_nam = cc$rms_nam;
@@ -371,7 +371,7 @@ CLONE(...)
      * own for this thread.
      */
     MY_CXT.x_dl_last_error = newSVpvs("");
-    dl_require_symbols = get_av("DynaLoader::dl_require_symbols", GV_ADDMULTI);
+    dl_require_symbols = get_avs("DynaLoader::dl_require_symbols", GV_ADDMULTI);
 
     /* Set up the "static" control blocks for dl_expand_filespec() */
     dl_fab = cc$rms_fab;

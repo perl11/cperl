@@ -64,8 +64,8 @@ dl_private_init(pTHX)
 	int dlderr;
 	dMY_CXT;
 
-	dl_resolve_using   = get_av("DynaLoader::dl_resolve_using", GV_ADDMULTI);
-	dl_require_symbols = get_av("DynaLoader::dl_require_symbols", GV_ADDMULTI);
+	dl_resolve_using   = get_avs("DynaLoader::dl_resolve_using", GV_ADDMULTI);
+	dl_require_symbols = get_avs("DynaLoader::dl_require_symbols", GV_ADDMULTI);
 	dlderr = dld_init("/kern/self/exe");
 	if (dlderr) {
 	    dlderr = dld_init(dld_find_executable(PL_origargv[0]));
@@ -214,8 +214,8 @@ CLONE(...)
      * own for this thread.
      */
     MY_CXT.x_dl_last_error = newSVpvs("");
-    dl_resolve_using   = get_av("DynaLoader::dl_resolve_using", GV_ADDMULTI);
-    dl_require_symbols = get_av("DynaLoader::dl_require_symbols", GV_ADDMULTI);
+    dl_resolve_using   = get_avs("DynaLoader::dl_resolve_using", GV_ADDMULTI);
+    dl_require_symbols = get_avs("DynaLoader::dl_require_symbols", GV_ADDMULTI);
 
 #endif
 

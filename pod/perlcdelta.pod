@@ -224,9 +224,21 @@ Added CLONE_SKIP to DB_File.pm and included the test db-threads.t from the patch
 
 #124944 allow ppport.h-less builds in core
 
+=item L<DynaLoader> 2.09c
+
+Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a memory leak.
+
 =item L<ExtUtils::Constant> 1.25_01
 
 fix failed to extend arg stack
+
+=item L<XSLoader> 1.04c
+
+Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a memory leak.
+
+Its documentation now shows the use of C<__PACKAGE__>, and direct object
+syntax for example C<DynaLoader> usage
+L<[perl #132247]|https://rt.perl.org/Ticket/Display.html?id=132247>.
 
 =back
 

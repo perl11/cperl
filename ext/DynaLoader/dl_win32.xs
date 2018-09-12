@@ -81,7 +81,7 @@ dl_static_linked(char *filename)
         return 0;
 
     /* change all the '\\' to '/' */
-    strcpy(szBuffer, filename);
+    my_strlcpy(szBuffer, filename, sizeof(szBuffer));
     for(ptr = szBuffer; ptr = strchr(ptr, '\\'); ++ptr)
 	*ptr = '/';
 
@@ -101,7 +101,7 @@ dl_static_linked(char *filename)
 	if (hptr = strstr(ptr, *p)) {
 	    /* found substring, need more detailed check if module name match */
 	    if (hptr==ptr) {
-		return strcmp(ptr, *p)==0;
+		return strEQ(ptr, *p);
 	    }
 	    if (hptr[strlen(*p)] == 0)
 		return hptr[-1]=='/';
@@ -115,7 +115,7 @@ MODULE = DynaLoader	PACKAGE = DynaLoader
 BOOT:
     (void)dl_private_init(aTHX);
 
-void
+IV
 dl_load_file(filename,flags=0)
     char *		filename
 #flags is unused
@@ -123,26 +123,22 @@ dl_load_file(filename,flags=0)
     PREINIT:
     void *retv;
     SV * retsv;
-    CODE:
-  {
+  CODE:
     PERL_UNUSED_VAR(flags);
     DLDEBUG(1,PerlIO_printf(Perl_debug_log,"dl_load_file(%s):\n", filename));
-    if (dl_static_linked(filename) == 0) {
+    if (dl_static_linked(filename) == 0)
 	retv = PerlProc_DynaLoad(filename);
-    }
     else
 	retv = (void*) Win_GetModuleHandle(NULL);
     DLDEBUG(2,PerlIO_printf(Perl_debug_log," libref=%x\n", retv));
-
     if (retv == NULL) {
-	SaveError(aTHX_ "load_file:%s",
-		  OS_Error_String(aTHX)) ;
-	retsv = &PL_sv_undef;
+	SaveError(aTHX_ "dl_load_file:%s", OS_Error_String(aTHX)) ;
+	XSRETURN_UNDEF;
     }
     else
-	retsv = sv_2mortal(newSViv((IV)retv));
-    ST(0) = retsv;
-  }
+	RETVAL = (IV)retv;
+  OUTPUT:
+    RETVAL
 
 int
 dl_unload_file(libref)
@@ -151,7 +147,7 @@ dl_unload_file(libref)
     DLDEBUG(1,PerlIO_printf(Perl_debug_log, "dl_unload_file(%lx):\n", PTR2ul(libref)));
     RETVAL = FreeLibrary((HMODULE)libref);
     if (!RETVAL)
-        SaveError(aTHX_ "unload_file:%s", OS_Error_String(aTHX)) ;
+        SaveError(aTHX_ "dl_unload_file:%s", OS_Error_String(aTHX)) ;
     DLDEBUG(2,PerlIO_printf(Perl_debug_log, " retval = %d\n", RETVAL));
   OUTPUT:
     RETVAL
@@ -170,7 +166,7 @@ dl_find_symbol(libhandle, symbolname, ign_err=0)
     DLDEBUG(2,PerlIO_printf(Perl_debug_log,"  symbolref = %x\n", retv));
     ST(0) = sv_newmortal();
     if (retv == NULL) {
-        if (!ign_err) SaveError(aTHX_ "find_symbol:%s", OS_Error_String(aTHX));
+        if (!ign_err) SaveError(aTHX_ "dl_find_symbol:%s", OS_Error_String(aTHX));
     } else
 	sv_setiv( ST(0), (IV)retv);
 

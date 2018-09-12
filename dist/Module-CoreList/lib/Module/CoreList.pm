@@ -17191,7 +17191,7 @@ our %delta = (
             'Devel::NYTProf::Core'  => '6.06_01',
             'Devel::PPPort'         => '3.42_04',
             'Digest::SHA'           => '6.02',
-            'DynaLoader'            => '2.08c',
+            'DynaLoader'            => '2.09c',
             'Encode'                => '2.98',
             'Encode::Alias'         => '2.24',
             'Encode::Unicode'       => '2.17',
@@ -17439,11 +17439,13 @@ our %delta = (
             'Devel::PPPort'         => '3.42_04',
             'Digest::SHA'           => '6.02',
             'DB_File'               => '1.842',
+            'DynaLoader'            => '2.09c',
             'ExtUtils::Constant'            => '0.25_01',
             'ExtUtils::Constant::Base'      => '2.25_01',
             'ExtUtils::Constant::ProxySubs' => '2.25_01',
             'ExtUtils::Constant::Utils'     => '2.25_01',
             'ExtUtils::Constant::XS'        => '2.25_01',
+            'XSLoader'              => '1.04c',
         },
         removed => {
         }
