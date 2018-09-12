@@ -305,6 +305,10 @@ VMS: add static_lib_pure_cmd
 
 Liblist: support libdirs with spaces
 
+=item L<ExtUtils::Miniperl> 1.08
+
+Support B<afl-fuzz> with L<afl-clang-fast|perlhacktips/"afl-fuzz">
+
 =item L<XSLoader> 1.04c
 
 Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a memory leak.

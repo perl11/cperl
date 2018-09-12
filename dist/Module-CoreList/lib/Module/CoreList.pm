@@ -17478,6 +17478,7 @@ our %delta = (
             'ExtUtils::MM_Win32'    => '7.35_06',
             'ExtUtils::MM_Win95'    => '7.35_06',
             'ExtUtils::MY'          => '7.35_06',
+            'ExtUtils::Miniperl'    => '1.08',
             'XSLoader'              => '1.04c',
         },
         removed => {
