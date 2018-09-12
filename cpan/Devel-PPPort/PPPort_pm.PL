@@ -5,6 +5,7 @@
 ################################################################################
 #
 #  Version 3.x, Copyright (C) 2004-2013, Marcus Holland-Moritz.
+#               Copyright (C) 2018, The perl5 porters
 #  Version 2.x, Copyright (C) 2001, Paul Marquess.
 #  Version 1.x, Copyright (C) 1999, Kenneth Albanowski.
 #
@@ -129,6 +130,9 @@ if (@ARGV and $ARGV[0] =~ /--quiet/) {
 }
 elsif (defined $ENV{MAKEFLAGS}
        and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) {
+  $SILENT++;
+}
+elsif ($ENV{PERL_CORE}) {
   $SILENT++;
 }
 
@@ -304,9 +308,9 @@ sub expand_pp_expr
          . "extern $proto;\n"
          . "#endif\n"
          . "\n"
-         . "$embed\n"
+         . "#if defined(NEED_$func) || defined(NEED_${func}_GLOBAL)\n"
          . "\n"
-         . "#if defined(NEED_$func) || defined(NEED_${func}_GLOBAL)";
+         . "$embed\n";
   }
 
   die "cannot expand preprocessor expression '$expr'\n";
@@ -378,6 +382,7 @@ __DATA__
 ################################################################################
 #
 #  Version 3.x, Copyright (C) 2004-2013, Marcus Holland-Moritz.
+#               Copyright (C) 2018, The perl5 porters
 #  Version 2.x, Copyright (C) 2001, Paul Marquess.
 #  Version 1.x, Copyright (C) 1999, Kenneth Albanowski.
 #
@@ -392,12 +397,20 @@ Devel::PPPort - Perl/Pollution/Portability
 
 =head1 SYNOPSIS
 
-    Devel::PPPort::WriteFile();   # defaults to ./ppport.h
-    Devel::PPPort::WriteFile('someheader.h');
+  Devel::PPPort::WriteFile();   # defaults to ./ppport.h
+  Devel::PPPort::WriteFile('someheader.h');
 
-    # Same as above but retrieve contents rather than write file
-    my $contents = Devel::PPPort::GetFileContents();
-    my $contents = Devel::PPPort::GetFileContents('someheader.h');
+  # Same as above but retrieve contents rather than write file
+  my $contents = Devel::PPPort::GetFileContents();
+  my $contents = Devel::PPPort::GetFileContents('someheader.h');
+
+=head1 Start using Devel::PPPort for XS projects
+
+  $ cpan Devel::PPPort
+  $ perl -MDevel::PPPort -e'Devel::PPPort::WriteFile'
+  $ perl ppport.h --compat-version=5.6.1 --patch=diff.patch *.xs
+  $ patch -p0 < diff.patch
+  $ echo ppport.h >>MANIFEST
 
 =head1 DESCRIPTION
 
@@ -503,8 +516,8 @@ __UNSUPPORTED_API__
 =head1 BUGS
 
 If you find any bugs, C<Devel::PPPort> doesn't seem to build on your
-system, or any of its tests fail, please file an issue here:
-L<https://github.com/mhx/Devel-PPPort/issues/>
+system, or any of its tests fail, please send a bug report to
+L<perlbug@perl.org|mailto:perlbug@perl.org>.
 
 =head1 AUTHORS
 
@@ -532,6 +545,8 @@ Versions >= 3.22 are maintained with support from Matthew Horsfall (alh).
 
 Version 3.x, Copyright (C) 2004-2013, Marcus Holland-Moritz.
 
+             Copyright (C) 2018, The perl5 porters
+
 Version 2.x, Copyright (C) 2001, Paul Marquess.
 
 Version 1.x, Copyright (C) 1999, Kenneth Albanowski.
@@ -550,7 +565,7 @@ package Devel::PPPort;
 use strict;
 use vars qw($VERSION $data);
 
-$VERSION = '3.36_04';
+$VERSION = '3.42_04';
 
 sub _init_data
 {
@@ -635,6 +650,10 @@ __DATA__
 
 %include misc
 
+%include format
+
+%include mess
+
 %include variables
 
 %include mPUSH
@@ -646,8 +665,6 @@ __DATA__
 %include newCONSTSUB
 
 %include MY_CXT
-
-%include format
 
 %include SvREFCNT
 

@@ -187,6 +187,19 @@ L<[perl #113090]|https://rt.perl.org/Ticket/Display.html?id=113090>.
 
 =item L<Devel::NYTProf> 6.06_01
 
+=item L<Devel::PPPort> 3.42_04
+
+Add C<#if { CPERL && VERSION > 5.26.0 }> support, support parser enum expectation.
+
+mkppport called PPPort_pm.PL without passing through MAKEFLAGS. Add --quiet support there
+
+Fix WIDEST_UTYPE.
+
+Support strict hashpairs, fix for . in @INC.
+
+Merge with upstream, changed croak/mess/warn_nocontext/...,
+add NEED_ macros ...
+
 =item L<ExtUtils::Constant> 1.25_01
 
 fix failed to extend arg stack

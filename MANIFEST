@@ -804,6 +804,7 @@ cpan/Devel-PPPort/parts/inc/limits	Devel::PPPort include
 cpan/Devel-PPPort/parts/inc/magic	Devel::PPPort include
 cpan/Devel-PPPort/parts/inc/magic_defs	Devel::PPPort include
 cpan/Devel-PPPort/parts/inc/memory	Devel::PPPort include
+cpan/Devel-PPPort/parts/inc/mess	Devel::PPPort include
 cpan/Devel-PPPort/parts/inc/misc	Devel::PPPort include
 cpan/Devel-PPPort/parts/inc/mPUSH	Devel::PPPort include
 cpan/Devel-PPPort/parts/inc/MY_CXT	Devel::PPPort include
@@ -984,6 +985,7 @@ cpan/Devel-PPPort/t/HvNAME.t		Devel::PPPort test file
 cpan/Devel-PPPort/t/limits.t		Devel::PPPort test file
 cpan/Devel-PPPort/t/magic.t		Devel::PPPort test file
 cpan/Devel-PPPort/t/memory.t		Devel::PPPort test file
+cpan/Devel-PPPort/t/mess.t		Devel::PPPort test file
 cpan/Devel-PPPort/t/misc.t		Devel::PPPort test file
 cpan/Devel-PPPort/t/mPUSH.t		Devel::PPPort test file
 cpan/Devel-PPPort/t/MY_CXT.t		Devel::PPPort test file

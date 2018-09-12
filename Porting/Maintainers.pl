@@ -502,15 +502,12 @@ use File::Glob qw(:case);
     },
 
     'Devel::PPPort' => {
-        'DISTRIBUTION' => 'WOLFSAGE/Devel-PPPort-3.36.tar.gz',
-        # RJBS has asked MHX to have UPSTREAM be 'blead'
-        # (i.e. move this from cpan/ to dist/)
+        'DISTRIBUTION' => 'XSAWYERX/Devel-PPPort-3.42.tar.gz',
+        # later moved to dist
         'FILES'        => q[cpan/Devel-PPPort],
         'EXCLUDED'     => [
             'PPPort.pm',    # we use PPPort_pm.PL instead
         ],
-        # cperl fix to support make -s.
-        # 5.16 binary support: https://github.com/rurban/Devel-PPPort/tree/516gvhv
         'CUSTOMIZED'   => [ qw( PPPort_pm.PL
 				PPPort_xs.PL
 				ppport_h.PL
