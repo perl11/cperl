@@ -316,6 +316,12 @@ Skip C<PUTBACK;return;> on XSRETURN in PPCODE
 Remove perl5 incompatible C<__attribute__global__> needed for -flto.
 C<XS_EXTERNAL> has it already.
 
+=item L<File::Copy> 2.33
+
+It will now use the sub-second precision variant of C<utime()> supplied by
+L<Time::HiRes> where available.
+L<[perl #132401]|https://rt.perl.org/Ticket/Display.html?id=132401>.
+
 =item L<XSLoader> 1.04c
 
 Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a memory leak.

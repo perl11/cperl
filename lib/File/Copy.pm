@@ -16,13 +16,15 @@ use Config;
 # And then we need these games to avoid loading overload, as that will
 # confuse miniperl during the bootstrap of perl.
 my $Scalar_Util_loaded = eval q{ require Scalar::Util; require overload; 1 };
+# We want HiRes stat and utime if available
+BEGIN { eval q{ use Time::HiRes qw( stat utime ) } };
 our(@ISA, @EXPORT, @EXPORT_OK, $VERSION, $Too_Big, $Syscopy_is_copy);
 sub copy;
 sub syscopy;
 sub cp;
 sub mv;
 
-$VERSION = '2.30';
+$VERSION = '2.33';
 
 require Exporter;
 @ISA = qw(Exporter);
@@ -478,6 +480,11 @@ then no timestamps are propagated, but if they were taken implicitly
 from the input filespec, then all timestamps other than the
 revision date are propagated.  If this parameter is not supplied,
 it defaults to 0.
+
+C<rmscopy> is VMS specific and cannot be exported; it must be
+referenced by its full name, e.g.:
+
+  File::Copy::rmscopy($from, $to) or die $!;
 
 Like C<copy>, C<rmscopy> returns 1 on success.  If an error occurs,
 it sets C<$!>, deletes the output file, and returns 0.

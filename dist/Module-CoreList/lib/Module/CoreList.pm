@@ -17489,6 +17489,7 @@ our %delta = (
             'ExtUtils::Typemaps::InputMap'  => '3.38',
             'ExtUtils::Typemaps::OutputMap' => '3.38',
             'ExtUtils::Typemaps::Type'      => '3.38',
+            'File::Copy'            => '2.33',
             'XSLoader'              => '1.04c',
         },
         removed => {
