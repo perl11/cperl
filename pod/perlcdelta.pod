@@ -78,6 +78,11 @@ Fix autovivification bug with hash slice args to a function.
 
 Support sub refs, and named anon subs.
 
+=item L<CPAN> 2.20_01
+
+From 5.28.0c
+See L<https://github.com/andk/cpanpm/pull/109>
+
 =item L<ExtUtils::Constant> 1.25_01
 
 fix failed to extend arg stack
