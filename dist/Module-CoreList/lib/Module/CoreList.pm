@@ -17503,6 +17503,7 @@ our %delta = (
             'File::Spec::VMS'       => '3.74',
             'File::Spec::Win32'     => '4.74c',
             'File::Temp'            => '0.2308',
+            'Filter::Util::Call'    => '1.59',
             'XSLoader'              => '1.04c',
         },
         removed => {
