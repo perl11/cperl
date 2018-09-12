@@ -2,7 +2,7 @@
 package Module::CoreList::TieHashDelta;
 use strict;
 
-our $VERSION = '5.20180910c';
+our $VERSION = '5.20180912c';
 $VERSION =~ s/c$//;
 
 sub TIEHASH {

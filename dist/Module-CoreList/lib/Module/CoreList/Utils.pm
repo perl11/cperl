@@ -3,10 +3,10 @@ package Module::CoreList::Utils;
 use strict;
 use warnings;
 use Module::CoreList;
-our %utilities;
 
-our $VERSION = '5.20180910c';
+our $VERSION = '5.20180912c';
 $VERSION =~ s/c$//;
+our %utilities;
 
 sub utilities {
     my $perl = shift;
@@ -1527,6 +1527,21 @@ our %delta :const = (
     },
     '5.026003c' => {
         delta_from => '5.026002c',
+        changed => {},
+        removed => {}
+    },
+    '5.024004c' => {
+        delta_from => '5.024003c',
+        changed => {},
+        removed => {}
+    },
+    '5.026004c' => {
+        delta_from => '5.026003c',
+        changed => {},
+        removed => {}
+    },
+    '5.029000c' => {
+        delta_from => '5.028000c',
         changed => {},
         removed => {}
     },
