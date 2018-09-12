@@ -1,6 +1,6 @@
-# $Id: encoding.pm,v 2.21 2017/10/06 22:21:53 dankogai Exp dankogai $
+# $Id: encoding.pm,v 2.19 2016/11/01 13:30:38 dankogai Exp $
 package encoding;
-our $VERSION = sprintf "%d.%02d", q$Revision: 2.21 $ =~ /(\d+)/g;
+our $VERSION = sprintf "%d.%02d", q$Revision: 2.19 $ =~ /(\d+)/g;
 
 use Encode;
 use strict;
@@ -176,7 +176,7 @@ sub import {
         # implicitly 'use utf8'
         require utf8;      # to fetch $utf8::hint_bits;
         $^H |= $utf8::hint_bits;
-
+        eval {
             require Filter::Util::Call;
             Filter::Util::Call->import;
             filter_add(
@@ -189,6 +189,8 @@ sub import {
                     $status;
                 }
             );
+        };
+        $@ eq '' and DEBUG and warn "Filter installed";
     }
     defined ${^UNICODE} and ${^UNICODE} != 0 and return 1;
     for my $h (qw(STDIN STDOUT)) {
@@ -198,13 +200,19 @@ sub import {
                 Carp::croak(
                     "encoding: Unknown encoding for $h, '$arg{$h}'");
             }
-            binmode( $h, ":raw :encoding($arg{$h})" );
+            eval { binmode( $h, ":raw :encoding($arg{$h})" ) };
         }
         else {
             unless ( exists $arg{$h} ) {
+                eval {
                     no warnings 'uninitialized';
                     binmode( $h, ":raw :encoding($name)" );
+                };
             }
+        }
+        if ($@) {
+            require Carp;
+            Carp::croak($@);
         }
     }
     return 1;    # I doubt if we need it, though
@@ -363,7 +371,7 @@ Note that C<STDERR> WILL NOT be changed, regardless.
 Also note that non-STD file handles remain unaffected.  Use C<use
 open> or C<binmode> to change the layers of those.
 
-=item C<use encoding I<ENCNAME>, Filter=E<gt>1;>
+=item C<use encoding I<ENCNAME> Filter=E<gt>1;>
 
 This operates as above, but the C<Filter> argument with a non-zero
 value causes the entire script, and not just literals, to be translated from
