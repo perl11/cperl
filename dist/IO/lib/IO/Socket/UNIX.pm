@@ -7,12 +7,11 @@
 package IO::Socket::UNIX;
 
 use strict;
-our(@ISA, $VERSION);
 use Socket;
 use IO::Socket ();
 
-@ISA = qw(IO::Socket);
-$VERSION = "1.26_01";
+our @ISA = qw(IO::Socket);
+our $VERSION = "1.39_01";
 $VERSION = eval $VERSION;
 
 BEGIN { sub croak($) { require Carp; Carp::croak(@_) } }
