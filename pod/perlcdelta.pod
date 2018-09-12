@@ -78,6 +78,8 @@ Fix autovivification bug with hash slice args to a function.
 
 Support sub refs, and named anon subs.
 
+=item L<bytes> 1.06
+
 =item L<CPAN> 2.20_01
 
 From 5.28.0c
