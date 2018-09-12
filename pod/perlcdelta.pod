@@ -52,6 +52,22 @@ Bugs> below.
 
 =over 4
 
+=item L<Archive::Tar> 2.30
+
+'0' is a valid name for an archive, change 'iter' to check definedness.
+See L<https://metacpan.org/changes/distribution/Archive-Tar>
+
+Fix creating file with trailing whitespace on filename - fixes 103279
+
+Allow archiving with absolute pathnames - fixes 97748
+
+Small POD fix
+
+Speed up extract when archive contains lots of files
+
+CVE-2018-12015 directory traversal vulnerability
+L<[cpan #125523]|https://rt.cpan.org/Ticket/Display.html?id=125523>
+
 =item L<ExtUtils::Constant> 1.25_01
 
 fix failed to extend arg stack
