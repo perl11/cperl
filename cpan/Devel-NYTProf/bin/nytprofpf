@@ -54,9 +54,9 @@ use Devel::NYTProf::Util qw(
 );
 use Devel::NYTProf::Constants qw(NYTP_SCi_CALLING_SUB);
 
-our $VERSION = '6.03';
+our $VERSION = '6.06_01';
 
-if ($VERSION != $Devel::NYTProf::Core::VERSION) {
+if (eval $VERSION != $Devel::NYTProf::Core::VERSION) {
     die "$0 version '$VERSION' doesn't match version '$Devel::NYTProf::Core::VERSION' of $INC{'Devel/NYTProf/Core.pm'}\n";
 }
 
@@ -71,8 +71,8 @@ GetOptions(
 
 sub usage {
     print <<END;
-
-usage: [perl] nytprofpf [opts]
+Generate a report for plat_forms (L<http://www.plat-forms.org/>) from Devel::NYTProf data
+Usage: [perl] nytprofpf [opts]
  --file <file>, -f <file>  Read profile data from the specified file [default: nytprof.out]
  --delete,      -d         Delete any old report files first
  --lib <lib>,   -l <lib>   Add <lib> to the beginning of \@INC

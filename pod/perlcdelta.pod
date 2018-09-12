@@ -185,6 +185,8 @@ Attempts to set an option to C<undef> through a combined getter/setter
 method are no longer mistaken for getter calls
 L<[perl #113090]|https://rt.perl.org/Ticket/Display.html?id=113090>.
 
+=item L<Devel::NYTProf> 6.06_01
+
 =item L<ExtUtils::Constant> 1.25_01
 
 fix failed to extend arg stack

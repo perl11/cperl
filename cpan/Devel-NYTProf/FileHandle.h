@@ -69,7 +69,7 @@ const char *NYTP_type_of_offset(NYTP_file file);
 #define NYTP_TAG_SUB_RETURN      '<'
 /* also add new items to nytp_tax_index below */
 
-typedef enum {      /* XXX keep in sync with various *_callback strucures */
+typedef enum {      /* XXX keep in sync with various *_callback structures */
     nytp_no_tag,
     nytp_version,   /* Not actually a tag, but needed by the perl callback */
     nytp_attribute,

@@ -146,7 +146,8 @@ if( $ExtUtils::MakeMaker::VERSION >= 6.45 ) {
 if (my $gccversion = $Config{gccversion}) {    # ask gcc to be more pedantic
     print "Your perl was compiled with gcc (version $Config{gccversion}), okay.\n";
     $gccversion =~ s/[^\d\.]//g;               # just a number please
-    $mm_opts{DEFINE} .= ' -W -Wall -Wpointer-arith -Wbad-function-cast';
+    $mm_opts{DEFINE} .= ' -W -Wall -Wpointer-arith';
+    $mm_opts{DEFINE} .= ' -Wbad-function-cast' unless $Config{d_cplusplus};
     $mm_opts{DEFINE} .= ' -Wno-comment -Wno-sign-compare -Wno-cast-qual';
     $mm_opts{DEFINE} .= ' -Wmissing-noreturn -Wno-unused-parameter' if $gccversion ge "3.0";
     if ($is_developer && $opt_g) {
@@ -170,12 +171,15 @@ WriteMakefile(
         'Test::Differences' => '0.60',
         'XSLoader'     => 0,
         'Getopt::Long' => 0,
-        'Cpanel::JSON::XS' => 0,
+        ($ENV{PERL_CORE} && $Config{usecperl}
+         ? ('Cpanel::JSON::XS' => 0)
+         : ('JSON::MaybeXS' => 0)),
     },
     INST_LIB  => ($ENV{PERL_CORE} ? File::Spec->catfile(qw(.. .. lib)) : 'blib/lib'),
     INST_ARCHLIB => ($ENV{PERL_CORE} ? File::Spec->catfile(qw(.. .. lib)) : 'blib/arch'),
     LIBS      => [join ' ', @libs],
     OBJECT    => q/$(O_FILES)/,
+    FUNCLIST => ['boot_Devel__NYTProf', 'boot_Devel__NYTProf__FileHandle'],
     EXE_FILES => ['bin/nytprofhtml', 'bin/flamegraph.pl', 'bin/nytprofcsv', 'bin/nytprofcalls', 'bin/nytprofcg', 'bin/nytprofmerge', 'bin/nytprofpf'],
     @man,
     INC   => $INCLUDE,

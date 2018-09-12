@@ -606,6 +606,7 @@ cpan/Devel-NYTProf/lib/Devel/NYTProf/js/jit/gradient.png
 cpan/Devel-NYTProf/lib/Devel/NYTProf/js/jit/jit.js
 cpan/Devel-NYTProf/lib/Devel/NYTProf/js/jit/jit-yc.js
 cpan/Devel-NYTProf/lib/Devel/NYTProf/js/jit/Treemap.css
+cpan/Devel-NYTProf/lib/Devel/NYTProf/js/jquery.floatThead.min.js
 cpan/Devel-NYTProf/lib/Devel/NYTProf/js/jquery-min.js
 cpan/Devel-NYTProf/lib/Devel/NYTProf/js/jquery-tablesorter-min.js
 cpan/Devel-NYTProf/lib/Devel/NYTProf/js/style-tablesorter.css

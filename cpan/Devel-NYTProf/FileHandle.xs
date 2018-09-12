@@ -219,9 +219,11 @@ NYTP_open(const char *name, const char *mode) {
     if (!raw_file)
         return NULL;
 
-/* MS libc has 4096 as default, this is too slow for GB size profiling data */
-    if (setvbuf(raw_file, NULL, _IOFBF, 16384))
+    /* MS libc has 4096 as default, this is too slow for GB size profiling data */
+    if (setvbuf(raw_file, NULL, _IOFBF, 16384)) {
+        fclose(raw_file);
         return NULL;
+    }
     Newx(file, 1, struct NYTP_file_t);
     file->file = raw_file;
 
@@ -1246,9 +1248,6 @@ NYTP_write_sub_info(NYTP_file ofile, U32 fid,
         return retval;
 
     total += retval = output_u32(ofile, last_line);
-    if (retval < 1)
-        return retval;
-
     if (retval < 1)
         return retval;
 

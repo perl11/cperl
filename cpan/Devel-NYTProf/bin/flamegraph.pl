@@ -106,8 +106,9 @@ my $searchcolor = "rgb(230,0,230)";	# color for search highlighting
 my $help = 0;
 
 sub usage {
-	die <<USAGE_END;
-USAGE: $0 [options] infile > outfile.svg\n
+    die <<USAGE_END;
+flame stack grapher
+Usage: $0 [options] infile > outfile.svg\n
 	--title       # change title text
 	--width       # width of image (default 1200)
 	--height      # height of each frame (default 16)

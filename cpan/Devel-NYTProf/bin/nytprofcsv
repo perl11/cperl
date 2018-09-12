@@ -16,7 +16,7 @@ use Getopt::Long;
 
 use Devel::NYTProf::Reader;
 
-our $VERSION = '4.02';
+our $VERSION = '6.06_01';
 
 use constant NUMERIC_PRECISION => 5;
 
@@ -112,7 +112,8 @@ sub _delete {
 
 sub usage {
     print <<END
-usage: [perl] nytprofcsv [opts]
+Generate CSV reports from Devel::NYTProf data (deprecated)
+Usage: [perl] nytprofcsv [opts]
  --file <file>, -f <file>  Use the specified file as Devel::NYTProf database
                             file. [default: ./nytprof.out]
  --out <dir>,   -o <dir>   Place generated files here [default: ./nytprof]
@@ -191,7 +192,7 @@ Print the help message
  0.00468,3,0.00156,use strict; 
  0,0,0,
  0.00000,1,0,require Exporter; 
- ... thats enough, get the picture? ...
+ ... that's enough, get the picture? ...
 
 Note: The format line indicates what fields the numbers correspond to
 
@@ -202,7 +203,7 @@ the source might be misaligned
 
 Mailing list and discussion at L<http://groups.google.com/group/develnytprof-dev>
 
-Public SVN Repository and hacking instructions at L<http://code.google.com/p/perl-devel-nytprof/>
+Public Github Repository and hacking instructions at L<https://github.com/timbunce/devel-nytprof/>
 
 L<Devel::NYTProf>
 L<Devel::NYTProf::Reader>
