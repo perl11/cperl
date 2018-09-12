@@ -119,3 +119,6 @@ history can be found via http://perl5.git.perl.org/perl.git/tree/HEAD:/lib ]
 
 0.24_01 2017-11-15 rurban
 	better machine code on threaded perl (croak_nocontext)
+
+0.25_01 2018-09-03 rurban
+	fix failed to extend arg stack

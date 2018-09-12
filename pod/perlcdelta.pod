@@ -46,6 +46,18 @@ There are no changes intentionally incompatible with 5.24.3c.  If any exist,
 they are bugs, and we request that you submit a report.  See L</Reporting
 Bugs> below.
 
+=head1 Modules and Pragmata
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item L<ExtUtils::Constant> 1.25_01
+
+fix failed to extend arg stack
+
+=back
+
 =head1 Selected Bug Fixes
 
 =over 4

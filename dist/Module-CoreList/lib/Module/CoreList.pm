@@ -361,7 +361,7 @@ our %released = (
     5.028000 => '2018-06-22',
     '5.028000c' => '2018-09-10',
     '5.026003c' => '2018-09-10',
-    '5.024004c' => '2018-09-11',
+    '5.024004c' => '2018-09-12',
  );
 
 sub version_sort {
@@ -17193,6 +17193,11 @@ our %delta = (
             'Encode::Alias'         => '2.24',
             'Encode::Unicode'       => '2.17',
             'experimental'          => '0.020_01',
+            'ExtUtils::Constant'            => '0.25_01',
+            'ExtUtils::Constant::Base'      => '2.25_01',
+            'ExtUtils::Constant::ProxySubs' => '2.25_01',
+            'ExtUtils::Constant::Utils'     => '2.25_01',
+            'ExtUtils::Constant::XS'        => '2.25_01',
             'ExtUtils::Command'     => '7.35_06',
             'ExtUtils::Liblist'     => '7.35_06',
             'ExtUtils::Liblist::Kid' => '8.35_06',
@@ -17406,9 +17411,14 @@ our %delta = (
     '5.024004c' => {
         delta_from => '5.024003c',
         changed => {
-            'B::Op_private'         => '5.024003',
-            'Module::CoreList'      => '5.20180911c',
-            'Module::CoreList::Utils'=> '5.20180911c',
+            'B::Op_private'           => '5.024004',
+            'Module::CoreList'        => '5.20180911c',
+            'Module::CoreList::Utils' => '5.20180911c',
+            'ExtUtils::Constant'            => '0.25_01',
+            'ExtUtils::Constant::Base'      => '2.25_01',
+            'ExtUtils::Constant::ProxySubs' => '2.25_01',
+            'ExtUtils::Constant::Utils'     => '2.25_01',
+            'ExtUtils::Constant::XS'        => '2.25_01',
         },
         removed => {
         }
