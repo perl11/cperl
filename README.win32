@@ -324,7 +324,7 @@ MinGW64 (version 4.4.3 or later).  It can be downloaded here:
 L<http://www.mingw.org/>
 L<http://www.mingw-w64.org/>
 
-You also need dmake.  See L</"Make"> above on how to get it.
+You also need dmake or gmake.  See L</"Make"> above on how to get it.
 
 =item MinGW from strawberry perl
 
@@ -368,10 +368,10 @@ unlike GCC.
 
 Make sure you are in the "win32" subdirectory under the perl toplevel.
 This directory contains a "Makefile" that will work with versions of
-nmake that come with Visual C++ or the Windows SDK, a gmake
+nmake that come with Visual C++ or the Windows SDK, and a gmake
 "GNUmakefile" for mingw, and a dmake "makefile.mk" that will work for
-all supported compilers.  The defaults in the dmake makefile are setup
-to build using MinGW/gcc.
+all supported compilers.  The defaults in the gmake and dmake makefile
+are setup to build using MinGW/gcc.
 
 The default in the GNUmakefile are set to build using the strawberry
 perl mingw toolchain, i.e. F<CCHOME=c:\strawberry\c>.
@@ -457,6 +457,9 @@ To try dmake's parallel mode, type "dmake -P2", where 2, is the maximum number
 of parallel jobs you want to run. A number of things in the build process will
 run in parallel, but there are serialization points where you will see just 1
 CPU maxed out. This is normal.
+
+Similarly you can build in parallel with GNU make, type "gmake -j2" to
+build with two parallel jobs, or higher for more.
 
 If you are advanced enough with building C code, here is a suggestion to speed
 up building perl, and the later C<make test>. Try to keep your PATH enviromental
@@ -698,7 +701,7 @@ CPAN.
 
 L<http://www.cpan.org/modules/by-module/Make/>
 
-You may also use dmake.  See L</"Make"> above on how to get it.
+You may also use dmake or gmake.  See L</"Make"> above on how to get it.
 
 Note that MakeMaker actually emits makefiles with different syntax
 depending on what 'make' it thinks you are using.  Therefore, it is
