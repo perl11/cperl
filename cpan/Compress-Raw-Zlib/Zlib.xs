@@ -505,7 +505,9 @@ DispStream(s, message)
 voidpf my_zcalloc (voidpf opaque, unsigned items, unsigned size)
 {
     PERL_UNUSED_VAR(opaque);
-    return safecalloc(items, size);
+    /* TODO - put back to calloc */
+    /* return safecalloc(items, size); */
+    return safemalloc(items* size);
 }
 
 

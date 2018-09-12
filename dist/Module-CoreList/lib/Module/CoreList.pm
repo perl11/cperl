@@ -17430,6 +17430,7 @@ our %delta = (
             'CPAN::Shell'           => '5.5007',
             'CPAN::Version'         => '5.5003_01',
             'Compress::Raw::Bzip2'  => '2.081',
+            'Compress::Raw::Zlib'   => '2.081',
             'ExtUtils::Constant'            => '0.25_01',
             'ExtUtils::Constant::Base'      => '2.25_01',
             'ExtUtils::Constant::ProxySubs' => '2.25_01',

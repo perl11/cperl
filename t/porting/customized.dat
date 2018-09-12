@@ -22,7 +22,7 @@ CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/t/accepts.t 35d1924588d5f9f
 CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/t/strings.t 86347bcaac1ccbf0eb5e96a544eba22bbdef9365
 CPAN::Meta::YAML cpan/CPAN-Meta-YAML/t/lib/TestUtils.pm 89535dc9f122a77a8320df27e5929aa574196753
 Compress::Raw::Bzip2 cpan/Compress-Raw-Bzip2/Bzip2.xs e91c3c75664f726792c82eb588bb67b8e6de73fd
-Compress::Raw::Zlib cpan/Compress-Raw-Zlib/Zlib.xs 903c4e2855f200a8ac561159ff4105d93c0744a4
+Compress::Raw::Zlib cpan/Compress-Raw-Zlib/Zlib.xs 346d1e9d8ff6a59ad5cf87b4aa87044e1cab9ebd
 Config::Perl::V cpan/Config-Perl-V/t/28_plv522c.t ec21436d9dde53ca06b46dd07476a109b8047464
 Config::Perl::V cpan/Config-Perl-V/V.pm 31c7197ebc05774a24a72d078ac956af7d19e023
 DB_File cpan/DB_File/Makefile.PL 95dfddb216faea3342e79ec1472be8a500923bed
