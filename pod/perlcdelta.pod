@@ -322,7 +322,14 @@ It will now use the sub-second precision variant of C<utime()> supplied by
 L<Time::HiRes> where available.
 L<[perl #132401]|https://rt.perl.org/Ticket/Display.html?id=132401>.
 
-=item L<XSLoader> 1.04c
+=item L<File::Glob> 1.31
+
+Fixed exponential performance: https://research.swtch.com/glob
+
+Skip a test when File::Glob not used.
+Avoid undefined behaviour in Copy() [perl #131746]
+
+item L<XSLoader> 1.04c
 
 Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a memory leak.
 

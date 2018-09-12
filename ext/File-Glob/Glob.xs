@@ -5,6 +5,11 @@
 #include "XSUB.h"
 
 #include "bsd_glob.h"
+#ifndef get_svs
+#  define get_svs(str, flags) get_sv((str), (flags))
+#  define get_avs(str, flags) get_av((str), (flags))
+#  define get_hvs(str, flags) get_hv((str), (flags))
+#endif
 
 #define MY_CXT_KEY "File::Glob::_guts" XS_VERSION
 
@@ -121,7 +126,7 @@ iterate(pTHX_ bool(*globber)(pTHX_ AV *entries, const char *pat, STRLEN len, boo
 
     /* chuck it all out, quick or slow */
     if (gimme == G_ARRAY) {
-	if (!on_stack) {
+	if (!on_stack && AvFILLp(entries) + 1) {
 	    EXTEND(SP, AvFILLp(entries)+1);
 	    Copy(AvARRAY(entries), SP+1, AvFILLp(entries)+1, SV *);
 	    SP += AvFILLp(entries)+1;
@@ -153,7 +158,7 @@ csh_glob(pTHX_ AV *entries, const char *pat, STRLEN len, bool is_utf8)
 	const char *s = NULL;
 	const char *piece = NULL;
 	SV *word = NULL;
-	SV *flags_sv = get_sv("File::Glob::DEFAULT_FLAGS", GV_ADD);
+	SV *flags_sv = get_svs("File::Glob::DEFAULT_FLAGS", GV_ADD);
 	int const flags = (int)SvIV(flags_sv);
 	U32 const gimme = GIMME_V;
 
@@ -308,7 +313,7 @@ static bool
 doglob_iter_wrapper(pTHX_ AV *entries, const char *pattern, STRLEN len, bool is_utf8)
 {
     dSP;
-    SV * flags_sv = get_sv("File::Glob::DEFAULT_FLAGS", GV_ADD);
+    SV * flags_sv = get_svs("File::Glob::DEFAULT_FLAGS", GV_ADD);
     int const flags = (int)SvIV(flags_sv);
 
     PERL_UNUSED_VAR(len); /* we use \0 termination instead */
@@ -375,7 +380,7 @@ PPCODE:
 	    /* remove unsupported flags */
 	    flags &= ~(GLOB_APPEND | GLOB_DOOFFS | GLOB_ALTDIRFUNC | GLOB_MAGCHAR);
 	} else {
-	    SV * flags_sv = get_sv("File::Glob::DEFAULT_FLAGS", GV_ADD);
+	    SV * flags_sv = get_svs("File::Glob::DEFAULT_FLAGS", GV_ADD);
 	    flags = (int)SvIV(flags_sv);
 	}
 	
