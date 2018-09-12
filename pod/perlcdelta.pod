@@ -377,6 +377,10 @@ It will now retry opening with an acceptable block size if asking gdbm
 to default the block size failed
 L<[perl #119623]|https://rt.perl.org/Ticket/Display.html?id=119623>.
 
+=item L<if> 0.0608
+
+Doc how to import when you want to C<use MODULE ()>
+
 =item L<XSLoader> 1.04c
 
 Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a memory leak.

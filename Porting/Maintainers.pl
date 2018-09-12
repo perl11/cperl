@@ -810,7 +810,7 @@ use File::Glob qw(:case);
     },
 
     'if' => {
-        'DISTRIBUTION' => 'RJBS/if-0.0606.tar.gz',
+        'DISTRIBUTION' => 'RJBS/if-0.0608.tar.gz',
         'FILES'        => q[dist/if],
     },
 
