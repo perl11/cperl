@@ -17417,6 +17417,7 @@ our %delta = (
             'Archive::Tar'          => '2.30',
             'Archive::Tar::Constant'=> '2.30',
             'Archive::Tar::File'    => '2.30',
+            'Attribute::Handlers'   => '1.00_01',
             'ExtUtils::Constant'            => '0.25_01',
             'ExtUtils::Constant::Base'      => '2.25_01',
             'ExtUtils::Constant::ProxySubs' => '2.25_01',

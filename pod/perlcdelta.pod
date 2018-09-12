@@ -68,6 +68,12 @@ Speed up extract when archive contains lots of files
 CVE-2018-12015 directory traversal vulnerability
 L<[cpan #125523]|https://rt.cpan.org/Ticket/Display.html?id=125523>
 
+=item L<Attribute::Handlers> 1.00_01
+
+Remove deprecated no-op attributes :unique, :locked
+
+Fix autovivification bug with hash slice args to a function.
+
 =item L<ExtUtils::Constant> 1.25_01
 
 fix failed to extend arg stack

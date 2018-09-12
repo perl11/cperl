@@ -133,7 +133,7 @@ use File::Glob qw(:case);
     },
 
     'Attribute::Handlers' => {
-        'DISTRIBUTION' => 'RJBS/Attribute-Handlers-0.99.tar.gz',
+        'DISTRIBUTION' => 'RJBS/Attribute-Handlers-1.00.tar.gz',
         'FILES'        => q[dist/Attribute-Handlers],
     },
 
