@@ -2435,7 +2435,7 @@ acos(x)
 #endif
 	    break;
 	case 17:
-	    RETVAL = log10(x); /* C89 math */
+	    RETVAL = Perl_log10(x); /* C89 math */
 	    break;
 	case 18:
 #ifdef c99_log1p
@@ -2847,6 +2847,10 @@ NV
 ldexp(x,exp)
 	NV		x
 	int		exp
+    CODE:
+        RETVAL = Perl_ldexp(x, exp);
+    OUTPUT:
+        RETVAL
 
 void
 modf(x)
