@@ -17436,6 +17436,7 @@ our %delta = (
             'Devel::NYTProf'        => '6.06_01',
             'Devel::NYTProf::Core'  => '6.06_01',
             'Devel::PPPort'         => '3.42_04',
+            'Digest::SHA'           => '6.02',
             'ExtUtils::Constant'            => '0.25_01',
             'ExtUtils::Constant::Base'      => '2.25_01',
             'ExtUtils::Constant::ProxySubs' => '2.25_01',

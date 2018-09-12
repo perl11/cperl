@@ -200,6 +200,17 @@ Support strict hashpairs, fix for . in @INC.
 Merge with upstream, changed croak/mess/warn_nocontext/...,
 add NEED_ macros ...
 
+=item L<Digest::SHA> 6.02
+
+Remove deprecated -p option and PurePerl variant.
+
+Replaced DynaLoader with XSLoader.
+
+Silenced compiler warnings from VS2017 RT #124477
+
+Modified addfile to return error when given a directory name,
+makes behavior consistent with GNU coreutils shaXsum.
+
 =item L<ExtUtils::Constant> 1.25_01
 
 fix failed to extend arg stack
