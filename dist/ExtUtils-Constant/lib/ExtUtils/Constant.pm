@@ -1,6 +1,6 @@
 package ExtUtils::Constant;
 use vars qw (@ISA $VERSION @EXPORT_OK %EXPORT_TAGS);
-$VERSION = '0.24_01';
+$VERSION = '0.25_01';
 $VERSION = eval $VERSION;
 
 =head1 NAME
@@ -294,7 +294,7 @@ EOT
     $xs .= "        case PERL_constant_IS$type:\n";
     if (length $XS_Constant{$type}) {
       $xs .= << "EOT";
-          EXTEND(SP, 1);
+          EXTEND(SP, 2);
           PUSHs(&PL_sv_undef);
           $XS_Constant{$type};
 EOT
