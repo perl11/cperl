@@ -367,6 +367,16 @@ Improve tests using FindBin for filter-util.pl [atoomic #9]
 
 Add int casts, assert on 2GB limitation.
 
+=item L<GDBM_File> 1.17
+
+Its documentation now explains that C<each> and C<delete> don't mix in
+hashes tied to this module
+L<[perl #117449]|https://rt.perl.org/Ticket/Display.html?id=117449>.
+
+It will now retry opening with an acceptable block size if asking gdbm
+to default the block size failed
+L<[perl #119623]|https://rt.perl.org/Ticket/Display.html?id=119623>.
+
 =item L<XSLoader> 1.04c
 
 Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a memory leak.

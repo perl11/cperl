@@ -17238,6 +17238,7 @@ our %delta = (
             'ExtUtils::ParseXS::Utilities'=> '3.36_03',
             'File::Temp'            => '0.2308',
             'Filter::Util::Call'    => '1.59',
+            'GDBM_File'             => '1.17',
             'Hash::Util'            => '0.22_01',
             'HTTP::Tiny'            => '0.076_01',
             'I18N::LangTags'        => '0.42_01',
@@ -17504,6 +17505,7 @@ our %delta = (
             'File::Spec::Win32'     => '4.74c',
             'File::Temp'            => '0.2308',
             'Filter::Util::Call'    => '1.59',
+            'GDBM_File'             => '1.17',
             'XSLoader'              => '1.04c',
         },
         removed => {
