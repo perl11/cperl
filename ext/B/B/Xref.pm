@@ -1,6 +1,6 @@
 package B::Xref;
 
-our $VERSION = '1.05';
+our $VERSION = '1.07_02';
 
 =head1 NAME
 
@@ -76,7 +76,7 @@ A line number may be prefixed by a single letter:
 
 =item i
 
-Lexical variable introduced (declared with my()) for the first time.
+Lexical variable introduced (declared with my,our,state) for the first time.
 
 =item &
 
@@ -136,14 +136,14 @@ reported properly.
 
 =head1 AUTHOR
 
-Malcolm Beattie, mbeattie@sable.ox.ac.uk.
+Malcolm Beattie C<retired>.
 
 =cut
 
 use strict;
 use Config;
-use B qw(peekop class comppadlist main_start svref_2object walksymtable
-         OPpLVAL_INTRO SVf_POK OPpOUR_INTRO cstring
+use B qw(peekop comppadlist main_start svref_2object walksymtable
+         OPpLVAL_INTRO SVf_POK SVf_ROK OPpOUR_INTRO cstring
         );
 
 sub UNKNOWN { ["?", "?", "?"] }
@@ -192,12 +192,12 @@ sub load_pad {
     my $padlist = shift;
     my ($namelistav, $vallistav, @namelist, $ix);
     @pad = ();
-    return if class($padlist) =~ '^(?:SPECIAL|NULL)\z';
+    return if B::class($padlist) =~ '^(?:SPECIAL|NULL)\z';
     ($namelistav,$vallistav) = $padlist->ARRAY;
     @namelist = $namelistav->ARRAY;
     for ($ix = 1; $ix < @namelist; $ix++) {
 	my $namesv = $namelist[$ix];
-	next if class($namesv) eq "SPECIAL";
+	next if B::class($namesv) eq "SPECIAL";
 	my ($type, $name) = $namesv->PV =~ /^(.)([^\0]*)(\0.*)?$/;
 	$pad[$ix] = ["(lexical)", $type || '?', $name || '?'];
     }
@@ -206,8 +206,8 @@ sub load_pad {
 	@vallist = $vallistav->ARRAY;
 	for ($ix = 1; $ix < @vallist; $ix++) {
 	    my $valsv = $vallist[$ix];
-	    next unless class($valsv) eq "GV";
-            next if class($valsv->STASH) eq 'SPECIAL';
+	    next unless B::class($valsv) eq "GV";
+            next if B::class($valsv->STASH) eq 'SPECIAL';
 	    # these pad GVs don't have corresponding names, so same @pad
 	    # array can be used without collisions
 	    $pad[$ix] = [$valsv->STASH->NAME, "*", $valsv->NAME];
@@ -331,7 +331,13 @@ sub pp_gv {
     }
     else {
 	$gv = $op->gv;
-	$top = [$gv->STASH->NAME, "*", $gv->SAFENAME];
+	if ($gv->FLAGS & SVf_ROK) { # sub ref
+	    my $cv = $gv->RV;
+	    $top = [$cv->STASH->NAME, '*', B::safename($cv->NAME_HEK)]
+	}
+	else {
+	    $top = [$gv->STASH->NAME, '*', $gv->SAFENAME];
+	}
     }
     process($top, $op->private & OPpLVAL_INTRO ? "intro" : "used");
 }
@@ -342,7 +348,7 @@ sub pp_const {
     # constant could be in the pad (under useithreads)
     if ($$sv) {
 	$top = ["?", "",
-		(class($sv) ne "SPECIAL" && $sv->FLAGS & SVf_POK)
+		(B::class($sv) ne "SPECIAL" && $sv->FLAGS & SVf_POK)
 		? cstring($sv->PV) : "?"];
     }
     else {
@@ -373,7 +379,7 @@ sub pp_entersub {
 sub B::GV::xref {
     my $gv = shift;
     my $cv = $gv->CV;
-    if ($$cv) {
+    if ($$cv and ref $cv eq 'B::CV') {
 	#return if $done{$$cv}++;
 	$file = $gv->FILE;
 	$line = $gv->LINE;
@@ -449,7 +455,7 @@ sub compile {
 	    last OPTION;
 	} elsif ($opt eq "o") {
 	    $arg ||= shift @options;
-	    open(STDOUT, ">$arg") or return "$arg: $!\n";
+	    open(STDOUT, '>', $arg) or return "$arg: $!\n";
 	} elsif ($opt eq "d") {
 	    $nodefs = 1;
 	} elsif ($opt eq "r") {

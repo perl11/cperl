@@ -74,6 +74,10 @@ Remove deprecated no-op attributes :unique, :locked
 
 Fix autovivification bug with hash slice args to a function.
 
+=item L<B::Xref> 1.07_02
+
+Support sub refs, and named anon subs.
+
 =item L<ExtUtils::Constant> 1.25_01
 
 fix failed to extend arg stack
