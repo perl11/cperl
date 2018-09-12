@@ -29,8 +29,8 @@ our %macro_dep; # whether a macro is a dependency
 use constant SILENT => (defined $ENV{MAKEFLAGS}
                         and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) ? 1 : 0;
 
-our $VERSION = '8.30_04';
-$VERSION = eval $VERSION;  ## no critic [BuiltinFunctions::ProhibitStringyEval]
+our $VERSION = '8.35_06';
+$VERSION =~ tr/_//d;
 
 # Emulate something resembling CVS $Revision$
 (our $Revision = $VERSION) =~ s{_}{};
@@ -321,7 +321,7 @@ sub full_setup {
     PERLRUNINST PERL_CORE
     PERM_DIR PERM_RW PERM_RWX MAGICXS
     PL_FILES PM PM_FILTER PMLIBDIRS PMLIBPARENTDIRS POLLUTE
-    PREREQ_FATAL PREREQ_PM PREREQ_PRINT PRINT_PREREQ
+    PREREQ_FATAL PREREQ_PM PREREQ_PRINT PRINT_PREREQ PUREPERL_ONLY
     SIGN SKIP TEST_REQUIRES TYPEMAPS UNINST VERSION VERSION_FROM XS
     XSBUILD XSMULTI XSOPT XSPROTOARG XS_VERSION
     clean depend dist dynamic_lib linkext macro realclean tool_autosplit
@@ -1837,7 +1837,7 @@ located in the C<x86> directory relative to the PPD itself.
 
 =item BUILD_REQUIRES
 
-Available in version 6.5503 and above.
+Available in version 6.55_03 and above.
 
 A hash of modules that are needed to build your module but not run it.
 
@@ -2089,6 +2089,8 @@ Defaults to $Config{installprivlib}.
 
 =item INSTALLSCRIPT
 
+Available in version 6.30_02 and above.
+
 Used by 'make install' which copies files from INST_SCRIPT to this
 directory if INSTALLDIRS=perl.
 
@@ -2125,7 +2127,9 @@ directory if INSTALLDIRS is set to site (default).
 =item INSTALLVENDORARCH
 
 Used by 'make install', which copies files from INST_ARCHLIB to this
-directory if INSTALLDIRS is set to vendor.
+directory if INSTALLDIRS is set to vendor. Note that if you do not set
+this, the value of INSTALLVENDORLIB will be used, which is probably not
+what you want.
 
 =item INSTALLVENDORBIN
 
@@ -2147,6 +2151,8 @@ INSTALLDIRS=vendor.  Defaults to $(VENDORPREFIX)/man/man$(MAN*EXT).
 If set to 'none', no man pages will be installed.
 
 =item INSTALLVENDORSCRIPT
+
+Available in version 6.30_02 and above.
 
 Used by 'make install' which copies files from INST_SCRIPT to this
 directory if INSTALLDIRS is set to vendor.
@@ -2253,10 +2259,14 @@ linkext below).
 
 =item MAGICXS
 
+Available in version 6.8305 and above.
+
 When this is set to C<1>, C<OBJECT> will be automagically derived from
 C<O_FILES>.
 
 =item MAKE
+
+Available in version 6.30_01 and above.
 
 Variant of make you intend to run the generated Makefile with.  This
 parameter lets Makefile.PL know what make quirks to account for when
@@ -2429,6 +2439,8 @@ Defaults to false.
 
 =item NO_MYMETA
 
+Available in version 6.57_02 and above.
+
 When true, suppresses the generation of MYMETA.yml and MYMETA.json module
 meta-data files during 'perl Makefile.PL'.
 
@@ -2436,11 +2448,15 @@ Defaults to false.
 
 =item NO_PACKLIST
 
+Available in version 6.7501 and above.
+
 When true, suppresses the writing of C<packlist> files for installs.
 
 Defaults to false.
 
 =item NO_PERLLOCAL
+
+Available in version 6.7501 and above.
 
 When true, suppresses the appending of installations to C<perllocal>.
 
@@ -2559,6 +2575,8 @@ avoided, it may be undefined)
 
 =item PERM_DIR
 
+Available in version 6.51_01 and above.
+
 Desired permission for directories. Defaults to C<755>.
 
 =item PERM_RW
@@ -2600,6 +2618,20 @@ In this case the program will be run multiple times using each target file.
 
     perl bin/foobar.PL bin/foobar1
     perl bin/foobar.PL bin/foobar2
+
+If an output file depends on extra input files beside the script itself,
+a hash ref can be used in version 7.36 and above:
+
+    PL_FILES => { 'foo.PL' => {
+        'foo.out' => 'foo.in',
+        'bar.out' => [qw(bar1.in bar2.in)],
+    }
+
+In this case the extra input files will be passed to the program after
+the target file:
+
+   perl foo.PL foo.out foo.in
+   perl foo.PL bar.out bar1.in bar2.in
 
 PL files are normally run B<after> pm_to_blib and include INST_LIB and
 INST_ARCH in their C<@INC>, so the just built modules can be
@@ -2680,9 +2712,13 @@ the installation of a package.
 
 =item PPM_UNINSTALL_EXEC
 
+Available in version 6.8502 and above.
+
 Name of the executable used to run C<PPM_UNINSTALL_SCRIPT> below. (e.g. perl)
 
 =item PPM_UNINSTALL_SCRIPT
+
+Available in version 6.8502 and above.
 
 Name of the script that gets executed by the Perl Package Manager before
 the removal of a package.
@@ -2780,6 +2816,8 @@ $Config{installprefix} will be used.
 Overridable by PREFIX
 
 =item SIGN
+
+Available in version 6.18 and above.
 
 When true, perform the generation and addition to the MANIFEST of the
 SIGNATURE file in the distdir during 'make distdir', via 'cpansign
@@ -2901,6 +2939,8 @@ deleted by a make clean.
 
 =item XSBUILD
 
+Available in version 7.12 and above.
+
 Hashref with options controlling the operation of C<XSMULTI>:
 
   {
@@ -2932,6 +2972,8 @@ make the final SO/SL, almost certainly including the XS basename with
 C<$(OBJ_EXT)> appended.
 
 =item XSMULTI
+
+Available in version 7.12 and above.
 
 When this is set to C<1>, multiple XS files may be placed under F<lib/>
 next to their corresponding C<*.pm> files (this is essential for compiling

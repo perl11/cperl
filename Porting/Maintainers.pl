@@ -646,7 +646,7 @@ use File::Glob qw(:case);
     },
 
     'ExtUtils::MakeMaker' => {
-        'DISTRIBUTION' => 'BINGOS/ExtUtils-MakeMaker-7.30.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/ExtUtils-MakeMaker-8.35_06.tar.gz',
         'FILES'        => q[cpan/ExtUtils-MakeMaker],
         'EXCLUDED'     => [
             qr{^t/lib/Test/},
@@ -660,18 +660,21 @@ use File::Glob qw(:case);
         ],
         # Applied upstream remove customisation when updating EUMM
         # cperl skips the ending 'c'
-        # use -e not -f for solibs  
+        # use -e not -f for solibs
+        # fix for Porting/cmpVERSION.pl with IO::Scalar parse_version() handles
         'CUSTOMIZED'   => 
           [ qw[ lib/ExtUtils/MM_Any.pm
                 lib/ExtUtils/MM_Unix.pm
-                lib/ExtUtils/Command/MM.pm
+                lib/ExtUtils/MM.pm
                 lib/ExtUtils/MakeMaker.pm
+                lib/ExtUtils/MakeMaker/Locale.pm
                 lib/ExtUtils/Mkbootstrap.pm
                 lib/ExtUtils/Liblist/Kid.pm
                 t/basic.t
                 t/Liblist.t
                 t/Mkbootstrap.t
                 t/pm_to_blib.t
+                t/pod2man.t
                 t/prereq.t
                 t/vstrings.t ],
             # Not yet submitted

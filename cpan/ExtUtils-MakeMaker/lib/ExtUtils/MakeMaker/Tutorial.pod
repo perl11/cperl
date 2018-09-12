@@ -1,7 +1,7 @@
 package ExtUtils::MakeMaker::Tutorial;
 
-our $VERSION = '7.30';
-$VERSION = eval $VERSION;
+our $VERSION = '7.35_06';
+$VERSION =~ tr/_//d;
 
 
 =head1 NAME
@@ -128,7 +128,7 @@ You would use the following C<test> directive:
     test => {TESTS => 't/*.t t/*/*/*.t'}
 
 Note that in the above example, tests in the first subdirectory will not be
-run. To run all tests in the intermediary subdirectory preceeding the one
+run. To run all tests in the intermediary subdirectory preceding the one
 the test files are in, you need to explicitly note it:
 
     test => {TESTS => 't/*.t t/*/*.t t/*/*/*.t'}
