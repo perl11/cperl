@@ -211,6 +211,19 @@ Silenced compiler warnings from VS2017 RT #124477
 Modified addfile to return error when given a directory name,
 makes behavior consistent with GNU coreutils shaXsum.
 
+=item L<DB_File> 1.842
+
+Document the MacOS build failures & how MacPort can work around the issue.
+#125238, #125585, RT#133280
+
+Write all test db files into a directory created by File::Temp
+Protects against any possible races if running a parallel build.
+
+#96357: DB_File destructor is not thread-safe
+Added CLONE_SKIP to DB_File.pm and included the test db-threads.t from the patch.
+
+#124944 allow ppport.h-less builds in core
+
 =item L<ExtUtils::Constant> 1.25_01
 
 fix failed to extend arg stack

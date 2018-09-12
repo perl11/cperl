@@ -25,7 +25,7 @@ Compress::Raw::Bzip2 cpan/Compress-Raw-Bzip2/Bzip2.xs e91c3c75664f726792c82eb588
 Compress::Raw::Zlib cpan/Compress-Raw-Zlib/Zlib.xs 346d1e9d8ff6a59ad5cf87b4aa87044e1cab9ebd
 Config::Perl::V cpan/Config-Perl-V/t/28_plv522c.t ec21436d9dde53ca06b46dd07476a109b8047464
 Config::Perl::V cpan/Config-Perl-V/V.pm 31c7197ebc05774a24a72d078ac956af7d19e023
-DB_File cpan/DB_File/Makefile.PL 95dfddb216faea3342e79ec1472be8a500923bed
+DB_File cpan/DB_File/Makefile.PL 9987f06d41a363bb0ee4777c55a9938527f58001
 Devel::NYTProf cpan/Devel-NYTProf/FileHandle.xs 8b8ccd2e6f8f0ddfb13c7360dffccaf2e7dd0573
 Devel::NYTProf cpan/Devel-NYTProf/lib/Devel/NYTProf/FileInfo.pm 913665651ffa5415b71adb39c269559e74c35b0e
 Devel::NYTProf cpan/Devel-NYTProf/Makefile.PL b6bc167c480874deeca0d5d2f119c16b53eb9af7

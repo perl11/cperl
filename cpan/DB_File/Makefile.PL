@@ -3,6 +3,8 @@
 use strict ;
 use ExtUtils::MakeMaker 5.16 ;
 use Config ;
+use constant SILENT
+    => (defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) ? 1 : 0;
 
 die "DB_File needs Perl 5.8.3 or better. This is $]\n" 
     if $] < 5.008003; 
@@ -23,7 +25,7 @@ if (defined $DB_NAME)
   { $LIBS = $DB_NAME }
 else {
     if ($^O eq 'MSWin32')
-      { $LIBS = $Config{cc} =~ /gcc/ ? '-ldb' : '-llibdb' }
+      { $LIBS = ($Config{cc} =~ /\bgcc/ and $Config{gccversion}) ? '-ldb' : '-llibdb' }
     else
       { $LIBS = '-ldb' }
 }
@@ -40,6 +42,10 @@ $OS2 = "-DOS2" if $Config{'osname'} eq 'os2' ;
 
 my $WALL = '' ;
 #$WALL = ' -Wall ';
+
+# Only want ppport.h t to be used by DB_File.xs when not 
+# building this module with the perl source distribution.
+my $CORE = $ENV{PERL_CORE} ? '' : '-D_NOT_CORE';
 
 WriteMakefile(
 	NAME 		=> 'DB_File',
@@ -208,7 +214,7 @@ sub ParseCONFIG
     my %Parsed = %ValidOption ;
     my $CONFIG = 'config.in' ;
 
-    print "Parsing $CONFIG...\n" ;
+    print "Parsing $CONFIG...\n" unless SILENT;
 
     # DBNAME & COMPAT185 are optional, so pretend they  have 
     # been parsed.
@@ -264,7 +270,7 @@ sub ParseCONFIG
 
 EOM
 
-    print "Looks Good.\n" ;
+    print "Looks Good.\n" unless SILENT;
 
 }
 
