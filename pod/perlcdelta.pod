@@ -309,6 +309,13 @@ Liblist: support libdirs with spaces
 
 Support B<afl-fuzz> with L<afl-clang-fast|perlhacktips/"afl-fuzz">
 
+=item L<ExtUtils::ParseXS> 3.39_03
+
+Skip C<PUTBACK;return;> on XSRETURN in PPCODE
+
+Remove perl5 incompatible C<__attribute__global__> needed for -flto.
+C<XS_EXTERNAL> has it already.
+
 =item L<XSLoader> 1.04c
 
 Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a memory leak.
