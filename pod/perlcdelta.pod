@@ -117,6 +117,61 @@ Fixed upstream deflate. See L<https://github.com/madler/zlib/pull/327>
 From 5.28.0c
 See L<https://github.com/andk/cpanpm/pull/109>
 
+=item L<Cpanel::JSON::XS> 4.06
+
+MSVC 14.0 support and higher, changed nan in the runtime.
+
+Stringify true again as "1".
+
+Disallow duplicate keys by default, only allow them in relaxed mode.
+
+De-fragilize t/96_mojo.t false test to "". It mostly is.
+
+Fix and unify utf8 handling with 5.6.2 and improve many utf8 tests.
+
+Add tests for boolean sv_yes and sv_no.
+
+Check for correct module in %INC.
+
+Relax inf/nan detection for newer msvcrt.dll runtime versions
+(it's now almost ANSI).
+
+Fixed locale-insensitive numeric conversion on older perls.
+Fixed compilation under windows.
+
+Simplify C<allow_singlequote> check, coverity cid #165321.
+Remove logical dead code.
+
+Added Cpanel::JSON::XS::Type as 2nd optional encode argument.
+
+Removed calling get magic hooks twice in encode.
+
+Fix setlocale thread race for older perls.
+
+Fix overloaded eq/ne comparisons (GH #116 by demerphq, GH #117 by Graham Knopp):
+detect strings, protect from endless recursion. false is now ne "True".
+clarify eq/ne rules in the docs.
+
+Set decoded type (PR #115 by Pali)
+
+Add json_type_weaken (PR #114 by Pali)
+
+Fix tests for 5.6 (rurban, pali)
+
+Add sereal cpanel_json_xs type (#110 James Rouzier)
+
+Improved bencode/bdecode methods in cpanel_json_xs (#111 Fulvio Scapin)
+
+Add encoder indent_length method (#103 rouzier), previously hard-coded to 3.
+
+Fix centos7 locale crash (#101 McA), fix required for all
+threaded perl's < 5.22 with glibc.
+
+Fix uselocale() code. Probe for uselocale and xlocale.h with <5.22 threaded.
+
+Avoid setlocale race in threads with non-C locales, where the threads differ
+in the LC_NUMERIC locale. (#99 pali)
+
 =item L<ExtUtils::Constant> 1.25_01
 
 fix failed to extend arg stack

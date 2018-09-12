@@ -326,6 +326,7 @@ cpan/Cpanel-JSON-XS/t/114_decode_prefix.t
 cpan/Cpanel-JSON-XS/t/115_tie_ixhash.t
 cpan/Cpanel-JSON-XS/t/116_incr_parse_fixed.t
 cpan/Cpanel-JSON-XS/t/117_numbers.t
+cpan/Cpanel-JSON-XS/t/118_type.t
 cpan/Cpanel-JSON-XS/t/11_pc_expo.t
 cpan/Cpanel-JSON-XS/t/12_blessed.t
 cpan/Cpanel-JSON-XS/t/13_limit.t
@@ -360,6 +361,7 @@ cpan/Cpanel-JSON-XS/typemap
 cpan/Cpanel-JSON-XS/t/zero-mojibake.t
 cpan/Cpanel-JSON-XS/XS/Boolean.pm
 cpan/Cpanel-JSON-XS/XS.pm
+cpan/Cpanel-JSON-XS/XS/Type.pm
 cpan/Cpanel-JSON-XS/XS.xs
 cpan/CPAN/lib/App/Cpan.pm		helper package for CPAN.pm
 cpan/CPAN/lib/CPAN/API/HOWTO.pod		recipe book for programming with CPAN.pm
