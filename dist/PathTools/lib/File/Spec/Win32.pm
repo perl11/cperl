@@ -1,15 +1,13 @@
 package File::Spec::Win32;
 
 use strict;
-
-use vars qw(@ISA $VERSION);
 require File::Spec::Unix;
 
-$VERSION = '4.64c'; # modernized
-$VERSION =~ tr/_//;
+our $VERSION = '4.74c'; # modernized
+#$VERSION =~ tr/_//;
 $VERSION =~ s/c$//;
 
-@ISA = qw(File::Spec::Unix);
+our @ISA = qw(File::Spec::Unix);
 
 # Some regexes we use for path splitting
 my $DRIVE_RX = '[a-zA-Z]:';
@@ -89,14 +87,18 @@ Returns: 1
 =cut
 
 sub case_tolerant () {
-  #eval { require Win32API::File; } or return 1;
+  #eval {
+  #  local @INC = @INC;
+  #  pop @INC if $INC[-1] eq '.';
+  #  require Win32API::File;
+  #} or return 1;
   #my $osFsType = "\0"x256;
   #my $osVolName = "\0"x256;
   #my $ouFsFlags = 0;
   #Win32API::File::GetVolumeInformation($drive, $osVolName, 256, [], [], $ouFsFlags, $osFsType, 256 );
   #if ($ouFsFlags & Win32API::File::FS_CASE_SENSITIVE()) { return 0; }
   #else { return 1; }
-  1;
+  1
 }
 
 =item file_name_is_absolute

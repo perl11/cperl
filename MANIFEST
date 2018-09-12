@@ -3741,6 +3741,7 @@ dist/Net-Ping/t/500_ping_icmp.t		Ping Net::Ping
 dist/Net-Ping/t/510_ping_udp.t		Ping Net::Ping
 dist/Net-Ping/t/520_icmp_ttl.t		Ping Net::Ping
 dist/Net-Ping/t/600_pod.t		Ping Net::Ping
+dist/PathTools/Changes
 dist/PathTools/Cwd.pm				Various cwd routines (getcwd, fastcwd, chdir)
 dist/PathTools/Cwd.xs				Cwd extension external subroutines
 dist/PathTools/lib/File/Spec/AmigaOS.pm
@@ -3756,6 +3757,7 @@ dist/PathTools/lib/File/Spec/Win32.pm		portable operations on Win32 and NetWare 
 dist/PathTools/Makefile.PL			makefile writer for Cwd
 dist/PathTools/t/abs2rel.t		See if File::Spec->abs2rel works
 dist/PathTools/t/crossplatform.t		See if File::Spec works crossplatform
+dist/PathTools/t/cwd_enoent.t
 dist/PathTools/t/cwd.t			See if Cwd works
 dist/PathTools/t/Functions.t			See if File::Spec::Functions works
 dist/PathTools/t/rel2abs2rel.t		See if File::Spec->rel2abs/abs2rel works

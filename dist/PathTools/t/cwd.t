@@ -37,7 +37,7 @@ if ($IsVMS) {
     $vms_mode = 0 if ($vms_unix_rpt);
 }
 
-my $tests = 30;
+my $tests = 32;
 # _perl_abs_path() currently only works when the directory separator
 # is '/', so don't test it when it won't work.
 my int $EXTRA_ABSPATH_TESTS = ($Config{prefix} =~ m/\//) && $^O ne 'cygwin';
@@ -145,7 +145,7 @@ Cwd::chdir $Test_Dir;
 
 foreach my $func (qw(cwd getcwd fastcwd fastgetcwd)) {
   my $result = eval "$func()";
-  is $@, '';
+  is $@, '', "No exception for ${func}() in string eval";
   dir_ends_with( $result, $Test_Dir, "$func()" );
 }
 
@@ -172,7 +172,7 @@ rmtree($test_dirs[0], 0, 0);
   my $check = ($vms_mode ? qr|\b((?i)t)\]$| :
 			   qr|\bt$| );
   
-  like($ENV{PWD}, $check);
+  like($ENV{PWD}, $check, "We're in a 't' directory");
 }
 
 {
@@ -180,7 +180,7 @@ rmtree($test_dirs[0], 0, 0);
   my $start_pwd = $ENV{PWD};
   mkpath([$Test_Dir], 0, 0777);
   Cwd::abs_path($Test_Dir);
-  is $ENV{PWD}, $start_pwd;
+  is $ENV{PWD}, $start_pwd, "abs_path() does not trample \$ENV{PWD}";
   rmtree($test_dirs[0], 0, 0);
 }
 
@@ -193,6 +193,7 @@ SKIP: {
 
     my $abs_path      =  Cwd::abs_path($file);
     my $fast_abs_path =  Cwd::fast_abs_path($file);
+    my $pas           =  Cwd::_perl_abs_path($file);
     my $want          =  quotemeta(
                            File::Spec->rel2abs( $Test_Dir )
                          );
@@ -206,9 +207,9 @@ SKIP: {
        $want = quotemeta($want);
     }
 
-    like($abs_path,      qr|$want$|i);
-    like($fast_abs_path, qr|$want$|i);
-    like(Cwd::_perl_abs_path($file), qr|$want$|i) if $EXTRA_ABSPATH_TESTS;
+    like($abs_path,      qr|$want$|i, "Cwd::abs_path produced $abs_path");
+    like($fast_abs_path, qr|$want$|i, "Cwd::fast_abs_path produced $fast_abs_path");
+    like($pas,           qr|$want$|i, "Cwd::_perl_abs_path produced $pas") if $EXTRA_ABSPATH_TESTS;
 
     rmtree($test_dirs[0], 0, 0);
     1 while unlink $file;
@@ -257,6 +258,28 @@ SKIP: {
   rmdir $dir;
 }
 
+# long paths
+SKIP: {
+  skip "no getcwdnull/d_realpath", 2 if !$Config{getcwdnull} or !$Config{d_realpath};
+  my $long = '.t'."x" x 250;
+  my $root = getcwd();
+  my ($i,$max) = (1,0);
+  for (0..16) { # > 4096
+    $max = $i;
+    if ($i && mkdir($long) && chdir($long)) {
+      $i++;
+    } else {
+      $i = 0; last;
+    }
+  }
+  my $pwd = getcwd() || '';
+  ok (length($pwd)>255, "cwd long path depth=$max len=".length($pwd));
+  my $real = Cwd::abs_path($pwd) || '';
+  # FIXME
+  ok (!$pwd || length($real)>255 || 1, "realpath long path len=".length($real));
+  chdir $root;
+  rmtree $long;
+}
 
 #############################################
 # These routines give us sort of a poor-man's cross-platform

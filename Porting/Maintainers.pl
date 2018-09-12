@@ -1089,10 +1089,11 @@ use File::Glob qw(:case);
 
     # PathTools cannot be cpan'd by sync-with-cpan
     'File::Spec' => {
-        'DISTRIBUTION' => 'RJBS/PathTools-3.62.tar.gz',
+        'DISTRIBUTION' => 'XSAWYERX/PathTools-3.74.tar.gz',
         'FILES'        => q[dist/PathTools],
         'EXCLUDED'     => [qr{^t/lib/Test/}],
         # core needs to update @INC in a chdir
+        # See github.com/rurban/PathTools branch cperl
         'CUSTOMIZED'   => [ qw( t/rel2abs_vs_symlink.t ) ],
     },
 

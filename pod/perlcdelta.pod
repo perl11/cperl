@@ -329,7 +329,14 @@ Fixed exponential performance: https://research.swtch.com/glob
 Skip a test when File::Glob not used.
 Avoid undefined behaviour in Copy() [perl #131746]
 
-item L<XSLoader> 1.04c
+=item PathTools 4.74c
+
+Backported from 5.28.0c, but keep epoc and MacOS.
+
+Support overlong paths for getdcwd(), using the wide API
+for overlong paths.
+
+=item L<XSLoader> 1.04c
 
 Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a memory leak.
 

@@ -61,6 +61,9 @@ my @tests = (
 [ "Unix->catfile('a', do { my \$x = 'b'.chr(0xaf); use utf8 (); utf8::upgrade(\$x); \$x })",   'a/b'.chr(0xaf)   ],
 ) : ()),
 [ "Unix->catfile(substr('foo', 2))", 'o' ],
+# https://rt.cpan.org/Ticket/Display.html?id=121633
+# https://rt.perl.org/Ticket/Display.html?id=131296
+[ "Unix->catfile('.', 'hints', 'Makefile.PL')", 'hints/Makefile.PL' ],
 
 [ "Unix->splitpath('file')",            ',,file'            ],
 [ "Unix->splitpath('/d1/d2/d3/')",      ',/d1/d2/d3/,'      ],
@@ -139,6 +142,7 @@ my @tests = (
 ($] >= 5.008 ? (
 [ "Unix->canonpath(do { my \$x = '///a'.chr(0xaf); use utf8 (); utf8::upgrade(\$x); \$x })",   '/a'.chr(0xaf)   ],
 ) : ()),
+[ "Unix->canonpath(1)",                        '1'              ],
 
 [  "Unix->abs2rel('/t1/t2/t3','/t1/t2/t3')",          '.'                  ],
 [  "Unix->abs2rel('/t1/t2/t4','/t1/t2/t3')",          '../t4'              ],
@@ -448,6 +452,13 @@ my @tests = (
 # During the Perl 5.8 era, FS::Unix stopped eliminating redundant path elements, so mimic that here.
 [ "VMS->canonpath('a/../../b/c.dat')",                  $vms_unix_rpt ? 'a/../../b/c.dat'              : '[-.b]c.dat'                      ],
 [ "VMS->canonpath('^<test^.new.-.caret^ escapes^>')",   $vms_unix_rpt ? '/<test.new.-.caret escapes>' : '^<test^.new.-.caret^ escapes^>'                                                   ],
+# Check that directory specs with caret-dot component is treated correctly
+[ "VMS->canonpath('foo:[bar.coo.kie.--]file.txt')",     $vms_unix_rpt ? '/foo/bar/file.txt'            : "foo:[bar]file.txt" ],
+[ "VMS->canonpath('foo:[bar^.coo.kie.--]file.txt')",    $vms_unix_rpt ? '/foo/file.txt'                : "foo:[000000]file.txt" ],
+[ "VMS->canonpath('foo:[bar.coo^.kie.--]file.txt')",    $vms_unix_rpt ? '/foo/file.txt'                : "foo:[000000]file.txt" ],
+[ "VMS->canonpath('foo:[bar.coo.kie.-]file.txt')",      $vms_unix_rpt ? '/foo/bar/coo/file.txt'        : "foo:[bar.coo]file.txt" ],
+[ "VMS->canonpath('foo:[bar^.coo.kie.-]file.txt')",     $vms_unix_rpt ? '/foo/bar.coo/file.txt'        : "foo:[bar^.coo]file.txt" ],
+[ "VMS->canonpath('foo:[bar.coo^.kie.-]file.txt')",     $vms_unix_rpt ? '/foo/bar/file.txt'            : "foo:[bar]file.txt" ],
 
 [ "VMS->splitdir('')",            ''          ],
 [ "VMS->splitdir('[]')",          ''          ],
