@@ -426,6 +426,10 @@ use NIx_NOSERV flag for windows.
 
 better icmpv6 support.
 
+=item L<NEXT> 0.67_01
+
+Fix for GLOB stubs [cpan #123002].
+
 =item Scalar-List-Util 1.50_11
 
 fix C<find_rundefsvoffset> logic.
