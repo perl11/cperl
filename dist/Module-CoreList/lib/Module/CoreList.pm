@@ -4,7 +4,7 @@ use strict;
 our ( %version, %deprecated, %families );
 
 use version;
-our $VERSION = '5.20180911c';
+our $VERSION = '5.20180913c';
 $VERSION =~ s/c$//;
 
 sub PKG_PATTERN () { q#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z# }
@@ -351,6 +351,7 @@ our %released :const = (
     '5.028000c' => '2018-09-10',
     '5.026003c' => '2018-09-10',
     '5.024004c' => '2018-09-14',
+    '5.028001c' => '????-??-??',
     '5.029000c' => '2018-??-??',
  );
 
@@ -17164,6 +17165,7 @@ our %delta :const = (
             'B::CC'                 => '1.16_02',
             'B::Xref'               => '1.07_02',
             'ByteLoader'            => '1.12',
+            'bytes'                 => '1.06',
             'CPAN'                  => '2.20_01',
             'CPAN::Bundle'          => '5.5003',
             'CPAN::Distribution'    => '2.19_01',
@@ -17174,7 +17176,8 @@ our %delta :const = (
             'Cpanel::JSON::XS'      => '4.06',
             'Compress::Raw::Bzip2'  => '2.081',
             'Compress::Raw::Zlib'   => '2.081',
-            'Data::Dumper'          => '2.167_03',
+            'Data::Dumper'          => '2.170_03',
+            'DB_File'               => '1.842',
             'Devel::NYTProf'        => '6.06_01',
             'Devel::NYTProf::Core'  => '6.06_01',
             'Devel::PPPort'         => '3.42_04',
@@ -17184,6 +17187,11 @@ our %delta :const = (
             'Encode::Alias'         => '2.24',
             'Encode::Unicode'       => '2.17',
             'experimental'          => '0.020_01',
+            'ExtUtils::Constant'            => '0.25_01',
+            'ExtUtils::Constant::Base'      => '2.25_01',
+            'ExtUtils::Constant::ProxySubs' => '2.25_01',
+            'ExtUtils::Constant::Utils'     => '2.25_01',
+            'ExtUtils::Constant::XS'        => '2.25_01',
             'ExtUtils::Command'     => '7.35_06',
             'ExtUtils::Liblist'     => '7.35_06',
             'ExtUtils::Liblist::Kid' => '8.35_06',
@@ -17295,7 +17303,7 @@ our %delta :const = (
             'mro'                   => '1.21_01',
             'Net::Ping'             => '2.70',
             'perlfaq'               => '5.20180605',
-            'PerlIO::scalar'        => '0.29_01',
+            'PerlIO::scalar'        => '0.29',
             'PerlIO::via'           => '0.17_01',
             'Pod::Checker'          => '1.73_01',
             'Pod::Man'              => '4.11',
@@ -17425,9 +17433,217 @@ our %delta :const = (
     '5.024004c' => {
         delta_from => '5.024003c',
         changed => {
-            'B::Op_private'         => '5.024004',
-            'Module::CoreList'      => '5.20180911c',
-            'Module::CoreList::Utils'=> '5.20180911c',
+            'B::Op_private'           => '5.024004',
+            'Module::CoreList'        => '5.20180913c',
+            'Module::CoreList::Utils' => '5.20180913c',
+            'Archive::Tar'          => '2.30',
+            'Archive::Tar::Constant'=> '2.30',
+            'Archive::Tar::File'    => '2.30',
+            'Attribute::Handlers'   => '1.00_01',
+            'B::Xref'               => '1.07_02',
+            'bytes'                 => '1.06',
+            'CPAN'                  => '2.20_01',
+            'CPAN::Bundle'          => '5.5003',
+            'CPAN::Distribution'    => '2.19_01',
+            'CPAN::FirstTime'       => '5.5311_01',
+            'CPAN::Mirrors'         => '2.12_01',
+            'CPAN::Shell'           => '5.5007',
+            'CPAN::Version'         => '5.5003_01',
+            'Cpanel::JSON::XS'      => '4.06',
+            'Compress::Raw::Bzip2'  => '2.081',
+            'Compress::Raw::Zlib'   => '2.081',
+            'Data::Dumper'          => '2.170_03',
+            'Devel::NYTProf'        => '6.06_01',
+            'Devel::NYTProf::Core'  => '6.06_01',
+            'Devel::PPPort'         => '3.42_04',
+            'Digest::SHA'           => '6.02',
+            'DB_File'               => '1.842',
+            'DynaLoader'            => '2.09c',
+            'Encode'                => '2.98',
+            'Encode::Alias'         => '2.24',
+            'Encode::Unicode'       => '2.17',
+            'ExtUtils::Constant'            => '0.25_01',
+            'ExtUtils::Constant::Base'      => '2.25_01',
+            'ExtUtils::Constant::ProxySubs' => '2.25_01',
+            'ExtUtils::Constant::Utils'     => '2.25_01',
+            'ExtUtils::Constant::XS'        => '2.25_01',
+            'ExtUtils::Command'     => '7.35_06',
+            'ExtUtils::Liblist'     => '7.35_06',
+            'ExtUtils::Liblist::Kid' => '8.35_06',
+            'ExtUtils::MakeMaker'   => '8.35_06',
+            'ExtUtils::MakeMaker::Config' => '7.35_06',
+            'ExtUtils::MakeMaker::FAQ'    => '7.35_06',
+            'ExtUtils::MakeMaker::Locale' => '7.35_06',
+            'ExtUtils::MakeMaker::Tutorial' => '7.35_06',
+            'ExtUtils::MakeMaker::version' => '7.35_06',
+            'ExtUtils::MakeMaker::version::regex' => '7.35_06',
+            'ExtUtils::Mkbootstrap' => '8.35_06c',
+            'ExtUtils::Mksymlists'  => '7.35_06',
+            'ExtUtils::MM'          => '8.35_06',
+            'ExtUtils::MM_AIX'      => '7.35_06',
+            'ExtUtils::MM_Any'      => '8.35_06',
+            'ExtUtils::MM_BEOS'     => '7.35_06',
+            'ExtUtils::MM_Cygwin'   => '7.35_06',
+            'ExtUtils::MM_DOS'      => '7.35_06',
+            'ExtUtils::MM_Darwin'   => '7.35_06',
+            'ExtUtils::MM_MacOS'    => '7.35_06',
+            'ExtUtils::MM_NW5'      => '7.35_06',
+            'ExtUtils::MM_OS2'      => '7.35_06',
+            'ExtUtils::MM_QNX'      => '7.35_06',
+            'ExtUtils::MM_UWIN'     => '7.35_06',
+            'ExtUtils::MM_Unix'     => '8.35_06',
+            'ExtUtils::MM_VMS'      => '7.35_06',
+            'ExtUtils::MM_VOS'      => '7.35_06',
+            'ExtUtils::MM_Win32'    => '7.35_06',
+            'ExtUtils::MM_Win95'    => '7.35_06',
+            'ExtUtils::MY'          => '7.35_06',
+            'ExtUtils::Miniperl'    => '1.08',
+            'ExtUtils::ParseXS'             => '3.39_03',
+            'ExtUtils::ParseXS::Constants'  => '3.39_03',
+            'ExtUtils::ParseXS::CountLines' => '3.39_03',
+            'ExtUtils::ParseXS::Eval'       => '3.39_03',
+            'ExtUtils::ParseXS::Utilities'  => '3.39_03',
+            'ExtUtils::Typemaps'            => '3.38',
+            'ExtUtils::Typemaps::Cmd'       => '3.38',
+            'ExtUtils::Typemaps::InputMap'  => '3.38',
+            'ExtUtils::Typemaps::OutputMap' => '3.38',
+            'ExtUtils::Typemaps::Type'      => '3.38',
+            'File::Copy'            => '2.33',
+            'File::Glob'            => '1.31',
+            'Cwd'                   => '4.74c',
+            'File::Spec'            => '4.74c',
+            'File::Spec::AmigaOS'   => '3.74',
+            'File::Spec::Cygwin'    => '3.74',
+            'File::Spec::Epoc'      => '3.74',
+            'File::Spec::Functions' => '3.74',
+            'File::Spec::Mac'       => '3.74',
+            'File::Spec::OS2'       => '3.74',
+            'File::Spec::Unix'      => '4.74c',
+            'File::Spec::VMS'       => '3.74',
+            'File::Spec::Win32'     => '4.74c',
+            'File::Temp'            => '0.2308',
+            'Filter::Util::Call'    => '1.59',
+            'GDBM_File'             => '1.17',
+            'if'                    => '0.0608',
+            'IO'                    => '1.39_01',
+            'IO::Dir'               => '1.39',
+            'IO::File'              => '1.39',
+            'IO::Handle'            => '1.39_01',
+            'IO::Pipe'              => '1.39',
+            'IO::Poll'              => '1.39',
+            'IO::Seekable'          => '1.39',
+            'IO::Select'            => '1.39',
+            'IO::Socket'            => '1.39_01',
+            'IO::Socket::INET'      => '1.39_01',
+            'IO::Socket::UNIX'      => '1.39_01',
+            'IO::Compress::Adapter::Bzip2'=> '2.081',
+            'IO::Compress::Adapter::Deflate'=> '2.081',
+            'IO::Compress::Adapter::Identity'=> '2.081',
+            'IO::Compress::Base'    => '2.081',
+            'IO::Compress::Base::Common'=> '2.081',
+            'IO::Compress::Bzip2'   => '2.081',
+            'IO::Compress::Deflate' => '2.081',
+            'IO::Compress::Gzip'    => '2.081',
+            'IO::Compress::Gzip::Constants'=> '2.081',
+            'IO::Compress::RawDeflate'=> '2.081',
+            'IO::Compress::Zip'     => '2.081',
+            'IO::Compress::Zip::Constants'=> '2.081',
+            'IO::Compress::Zlib::Constants'=> '2.081',
+            'IO::Compress::Zlib::Extra'=> '2.081',
+            'IO::Uncompress::Adapter::Bunzip2'=> '2.081',
+            'IO::Uncompress::Adapter::Identity'=> '2.081',
+            'IO::Uncompress::Adapter::Inflate'=> '2.081',
+            'IO::Uncompress::AnyInflate'=> '2.081',
+            'IO::Uncompress::AnyUncompress'=> '2.081',
+            'IO::Uncompress::Base'  => '2.081',
+            'IO::Uncompress::Bunzip2'=> '2.081',
+            'IO::Uncompress::Gunzip'=> '2.081',
+            'IO::Uncompress::Inflate'=> '2.081',
+            'IO::Uncompress::RawInflate'=> '2.081',
+            'IO::Uncompress::Unzip' => '2.081',
+            'IPC::Cmd'              => '1.02',
+            'Net::Ping'             => '2.70',
+            'NEXT'                  => '0.67_01',
+            'PerlIO::encoding'      => '0.26_01',
+            'PerlIO::scalar'        => '0.29',
+            'PerlIO::via'           => '0.17_01',
+            'Pod::Man'              => '4.11',
+            'Pod::ParseLink'        => '4.11',
+            'Pod::Text'             => '4.11',
+            'Pod::Text::Color'      => '4.11',
+            'Pod::Text::Overstrike' => '4.11',
+            'Pod::Text::Termcap'    => '4.11',
+            'List::Util'            => '1.50_11',
+            'List::Util::XS'        => '1.50_11',
+            'Scalar::Util'          => '1.50_11',
+            'Sub::Util'             => '1.50_11',
+            'Socket'                => '2.027_04',
+            'Term::ReadKey'         => '2.37_03',
+            'Term::ReadLine'        => '1.17',
+            'App::Prove'            => '3.42_01',
+            'App::Prove::State'     => '3.42_01',
+            'App::Prove::State::Result'=> '3.42_01',
+            'App::Prove::State::Result::Test'=> '3.42_01',
+            'TAP::Base'             => '3.42_01',
+            'TAP::Formatter::Base'  => '3.42_01',
+            'TAP::Formatter::Color' => '3.42_01',
+            'TAP::Formatter::Console'=> '3.42_01',
+            'TAP::Formatter::Console::ParallelSession'=> '3.42_01',
+            'TAP::Formatter::Console::Session'=> '3.42_01',
+            'TAP::Formatter::File'  => '3.42_01',
+            'TAP::Formatter::File::Session'=> '3.42_01',
+            'TAP::Formatter::Session'=> '3.42_01',
+            'TAP::Harness'          => '3.42_01',
+            'TAP::Harness::Env'     => '3.42_01',
+            'TAP::Object'           => '3.42_01',
+            'TAP::Parser'           => '3.42_01',
+            'TAP::Parser::Aggregator'=> '3.42_01',
+            'TAP::Parser::Grammar'  => '3.42_01',
+            'TAP::Parser::Iterator' => '3.42_01',
+            'TAP::Parser::Iterator::Array'=> '3.42_01',
+            'TAP::Parser::Iterator::Process'=> '3.42_01',
+            'TAP::Parser::Iterator::Stream'=> '3.42_01',
+            'TAP::Parser::IteratorFactory'=> '3.42_01',
+            'TAP::Parser::Multiplexer'=> '3.42_01',
+            'TAP::Parser::Result'   => '3.42_01',
+            'TAP::Parser::Result::Bailout'=> '3.42_01',
+            'TAP::Parser::Result::Comment'=> '3.42_01',
+            'TAP::Parser::Result::Plan'=> '3.42_01',
+            'TAP::Parser::Result::Pragma'=> '3.42_01',
+            'TAP::Parser::Result::Test'=> '3.42_01',
+            'TAP::Parser::Result::Unknown'=> '3.42_01',
+            'TAP::Parser::Result::Version'=> '3.42_01',
+            'TAP::Parser::Result::YAML'=> '3.42_01',
+            'TAP::Parser::ResultFactory'=> '3.42_01',
+            'TAP::Parser::Scheduler'=> '3.42_01',
+            'TAP::Parser::Scheduler::Job'=> '3.42_01',
+            'TAP::Parser::Scheduler::Spinner'=> '3.42_01',
+            'TAP::Parser::Source'   => '3.42_01',
+            'TAP::Parser::SourceHandler'=> '3.42_01',
+            'TAP::Parser::SourceHandler::Executable'=> '3.42_01',
+            'TAP::Parser::SourceHandler::File'=> '3.42_01',
+            'TAP::Parser::SourceHandler::Handle'=> '3.42_01',
+            'TAP::Parser::SourceHandler::Perl'=> '3.42_01',
+            'TAP::Parser::SourceHandler::RawTAP'=> '3.42_01',
+            'TAP::Parser::YAMLish::Reader'=> '3.42_01',
+            'TAP::Parser::YAMLish::Writer'=> '3.42_01',
+            'Test::Harness'         => '3.42_01',
+            'Time::HiRes'           => '1.9758_01',
+            'Time::Local'           => '1.28',
+            'Time::Piece'           => '1.33',
+            'version'               => '0.9923_02',
+            'version::regex'        => '0.9923_02',
+            'XSLoader'              => '1.04c',
+        },
+        removed => {
+        }
+    },
+    '5.028001c' => {
+        delta_from => '5.028000c',
+        changed => {
+            'B::Op_private'         => '5.028001',
+            'Module::CoreList'      => '5.20180913c',
+            'Module::CoreList::Utils'=> '5.20180913c',
         },
         removed => {
         }
@@ -17436,8 +17652,8 @@ our %delta :const = (
         delta_from => '5.028000c',
         changed => {
             'B::Op_private'         => '5.029000',
-            'Module::CoreList'      => '5.20180911c',
-            'Module::CoreList::Utils'=> '5.20180911c',
+            'Module::CoreList'      => '5.20180913c',
+            'Module::CoreList::Utils'=> '5.20180913c',
         },
         removed => {
         }
@@ -19169,6 +19385,18 @@ _create_aliases(\%released);
 _create_aliases(\%version);
 _create_aliases(\%deprecated);
 
+sub _released_order {   # Sort helper, to make '?' sort after everything else
+    warn "no $a release" if !exists $released{$a};
+    warn "no $b release" if !exists $released{$b};
+    (substr($released{$a}, 0, 1) eq "?")
+    ? ((substr($released{$b}, 0, 1) eq "?")
+        ? 0
+        : 1)
+    : ((substr($released{$b}, 0, 1) eq "?")
+        ? -1
+        : version_sort($released{$a}, $released{$b} )) # ie string sort
+}
+
 sub _create_aliases {
     my ($hash) = @_;
 
@@ -19185,18 +19413,6 @@ sub _create_aliases {
         }
     }
     Internals::SvREADONLY($hash);
-}
-
-sub _released_order {   # Sort helper, to make '?' sort after everything else
-    warn "no $a release" if !exists $released{$a};
-    warn "no $b release" if !exists $released{$b};
-    (substr($released{$a}, 0, 1) eq "?")
-    ? ((substr($released{$b}, 0, 1) eq "?")
-        ? 0
-        : 1)
-    : ((substr($released{$b}, 0, 1) eq "?")
-        ? -1
-        : version_sort($released{$a}, $released{$b} )) # ie string sort
 }
 
 1;
