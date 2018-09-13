@@ -90,8 +90,8 @@ Pod::Usage cpan/Pod-Usage/scripts/pod2usage.PL e78dee490d466191620821446d49794a4
 Safe dist/Safe/Safe.pm fb1cf6efdfcd1d2dac2aca90bccd05cb8d1ac1c4
 Safe dist/Safe/t/safeops.t b962ac5a408e7f911cbcd31c06c6f7acb9986ea5
 Sys::Syslog cpan/Sys-Syslog/t/syslog.t bed4da2de76558f92d354bb83dc01fd7d66cadec
-Term::ReadKey cpan/Term-ReadKey/ReadKey.xs 59b64457d07717565ab7f5163743685f77bb5f4c
-Term::ReadKey cpan/Term-ReadKey/t/02_terminal_functions.t 671ec7870b03ccff5802abd71f29d53d75400b45
+Term::ReadKey cpan/Term-ReadKey/ReadKey.xs 6ae53ab73fe5aaf21b130fc261cbdf6a8c4a8fbb
+Term::ReadKey cpan/Term-ReadKey/t/02_terminal_functions.t b17051b192850c2fce14842f2f469e1ac1895c4d
 Test::Harness cpan/Test-Harness/t/lib/NoFork.pm e96d39d98c176745a317e2d178713708f03e8cae
 Test::Harness cpan/Test-Harness/t/multiplexer.t 059fbbd8529bf73ba0615272ee85f1706cae734d
 Test::Harness cpan/Test-Harness/t/nofork.t 17a1bde6de588ca647cd89d3786e84a68164a45c

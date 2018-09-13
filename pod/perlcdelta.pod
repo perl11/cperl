@@ -468,6 +468,11 @@ Fixup the new pairmap spill code.
 
 =item L<Socket> 2.027_04
 
+=item L<Term::ReadKey> 2.37_03
+
+Protect from fileno returning -1, invalid file arg.
+Reformatted.
+
 =item L<Term::ReadLine> 1.17
 
 fix for empty &STDERR files, RT #132008
