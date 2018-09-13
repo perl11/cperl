@@ -17622,6 +17622,7 @@ our %delta = (
             'Test::Harness'         => '3.42_01',
             'Time::HiRes'           => '1.9758_01',
             'Time::Local'           => '1.28',
+            'Time::Piece'           => '1.33',
             'XSLoader'              => '1.04c',
         },
         removed => {
