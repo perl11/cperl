@@ -515,7 +515,7 @@ use File::Glob qw(:case);
     },
 
     'Devel::PPPort' => {
-        'DISTRIBUTION' => 'WOLFSAGE/Devel-PPPort-3.36.tar.gz',
+        'DISTRIBUTION' => 'XSAWYERX/Devel-PPPort-3.42.tar.gz',
         'FILES'        => q[dist/Devel-PPPort],
         'EXCLUDED'     => [
             'PPPort.pm',    # we use PPPort_pm.PL instead
@@ -711,7 +711,7 @@ use File::Glob qw(:case);
 
     # Note that upstream misses now the 3 xs pods
     'ExtUtils::ParseXS' => {
-        'DISTRIBUTION' => 'RURBAN/ExtUtils-ParseXS-3.36_03.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/ExtUtils-ParseXS-3.39_03.tar.gz',
         'FILES'        => q[dist/ExtUtils-ParseXS],
         #'CUSTOMIZED'   =>
         #  [ 'Changes',

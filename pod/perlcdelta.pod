@@ -1047,7 +1047,7 @@ with deferring the attributes::import call after an assignment.
 
 See L<[cperl #294]|https://github.com/perl11/cperl/issues/294>.
 
-=item L<Attribute::Handlers> 1.01_01
+=item L<Attribute::Handlers> 1.00_01
 
 Remove deprecated no-op attributes :unique, :locked
 
@@ -1086,8 +1086,6 @@ allow @0, &0, ... types.
 Support POK/PVLV REGEXP for v5.27.3/v5.27.2c
 
 VOL => volatile for  v5.27.6/v5.27.2c
-
-Warning: The new multiconcat op is not yet supported.
 
 =item L<B::Concise> 1.003c
 
@@ -1291,7 +1289,7 @@ Improved the test a bit.
 
 Use cv_set_call_checker_flags
 
-=item L<Devel::NYTProf> 6.06
+=item L<Devel::NYTProf> 6.06_01
 
 =item L<Devel::PPPort> 3.42_04
 
@@ -1471,8 +1469,6 @@ C<XS_EXTERNAL> has it already.
 
 Moved xs pods still missing from the CPAN release completely to core.
 
-=item L<ExtUtils::Typemaps> 3.38
-
 =item L<ExtUtils::XSSymSet> 1.4
 
 =item L<feature> 1.52_01
@@ -1633,7 +1629,7 @@ Doc how to import when you want to C<use MODULE ()>
 replace use vars with our,
 run-time load Carp,
 Bump versions of 3 Socket modules.
-Remove 5.6 support
+Remove pre-5.8 support
 
 =item L<IO::Compress::Base> 2.081
 
@@ -1772,9 +1768,9 @@ getcwd, getdcwd and abs_path have now long path support.
 getdcwd (Windows only) also supports unicode paths, using
 the wide API.
 
-=item L<PerlIO::encoding> 0.26
+=item L<PerlIO::encoding> 0.26_01
 
-=item L<PerlIO::scalar> 0.29_01
+=item L<PerlIO::scalar> 0.29
 
 check invariant at compile time.
 
@@ -1794,7 +1790,10 @@ no strict hashpairs
 
 =item L<Pod::Functions> 1.13
 
-=item L<Pod::Man> 4.11
+=item podlators 4.11
+
+Man page references and function names now follow the Linux man page
+formatting standards, instead of the Solaris standard.
 
 Various upstream changes,
 see L<https://metacpan.org/changes/distribution/podlators>
@@ -1810,11 +1809,6 @@ L<[perl #110520]|https://rt.perl.org/Ticket/Display.html?id=110520>.
 =item L<Pod::Perldoc> 3.2801
 
 customize to fix formatters and pager misbehaviour
-
-=item L<podlators> 4.10
-
-Man page references and function names now follow the Linux man page
-formatting standards, instead of the Solaris standard.
 
 =item L<POSIX> 1.84_03
 
