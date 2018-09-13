@@ -24,6 +24,7 @@ cpan/Devel-NYTProf/bin/nytprofcsv
 cpan/Devel-NYTProf/bin/nytprofhtml
 cpan/Devel-NYTProf/bin/nytprofmerge
 cpan/Devel-NYTProf/bin/nytprofpf
+cpan/Test-Harness/bin/prove
 cpan/Test-Harness/t/source_tests/source.sh
 cpan/Test-Harness/t/source_tests/source_args.sh
 cpan/YAML-LibYAML/LibYAML/update.sh

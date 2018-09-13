@@ -92,10 +92,12 @@ Safe dist/Safe/t/safeops.t b962ac5a408e7f911cbcd31c06c6f7acb9986ea5
 Sys::Syslog cpan/Sys-Syslog/t/syslog.t bed4da2de76558f92d354bb83dc01fd7d66cadec
 Term::ReadKey cpan/Term-ReadKey/ReadKey.xs 6ae53ab73fe5aaf21b130fc261cbdf6a8c4a8fbb
 Term::ReadKey cpan/Term-ReadKey/t/02_terminal_functions.t b17051b192850c2fce14842f2f469e1ac1895c4d
+Test::Harness cpan/Test-Harness/t/compat/env.t 2632a5e4226e8fac52a051f37952a79326b8c51f
+Test::Harness cpan/Test-Harness/t/compat/inc-propagation.t b006872243d82ffd447e99ff241b6287c6aed36c
 Test::Harness cpan/Test-Harness/t/lib/NoFork.pm e96d39d98c176745a317e2d178713708f03e8cae
 Test::Harness cpan/Test-Harness/t/multiplexer.t 059fbbd8529bf73ba0615272ee85f1706cae734d
 Test::Harness cpan/Test-Harness/t/nofork.t 17a1bde6de588ca647cd89d3786e84a68164a45c
-Test::Harness cpan/Test-Harness/t/regression.t 4b6448b3d3bae1f406e25c8f61d2656a2338d639
+Test::Harness cpan/Test-Harness/t/regression.t 864ce96aff3cac8bb92534cb1967ad4d802d485d
 Test::Harness cpan/Test-Harness/t/sample-tests/switches 350f7e96e4bfb8dbac352200d656e8f52a76ab7e
 Test::Harness cpan/Test-Harness/t/source_handler.t 1b9abe550c8c5383eddefb0811c083605cb66ba4
 Time::HiRes dist/Time-HiRes/t/nanosleep.t 2739058d39ab3dc66b45fb5a0fb111d09fd643a3
