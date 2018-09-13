@@ -6,6 +6,10 @@
 pool:
   vmImage: 'Ubuntu 16.04'
 
+trigger:
+- master
+- smoke/*
+
 steps:
 - script: |
     ./Configure -des -Uversiononly
