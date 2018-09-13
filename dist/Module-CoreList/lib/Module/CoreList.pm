@@ -17554,6 +17554,7 @@ our %delta = (
             'IO::Uncompress::RawInflate'=> '2.081',
             'IO::Uncompress::Unzip' => '2.081',
             'IPC::Cmd'              => '1.02',
+            'Net::Ping'             => '2.70',
             'List::Util'            => '1.50_11',
             'List::Util::XS'        => '1.50_11',
             'Scalar::Util'          => '1.50_11',

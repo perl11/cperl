@@ -403,6 +403,29 @@ L<RT #91784|https://rt.cpan.org/Ticket/Display.html?id=91784>
 
 HPUX test fixes.
 
+=item L<Net::Ping> 2.70
+
+Fix ping_udp for a started udp echo server (PR#5 by Stephan Loyd)
+
+Fix t/400_ping_syn.t phases
+
+Try to handle Windows Socket::getnameinfo errors
+
+Improve some tests on missing network connections
+
+Keep v5.002 - v5.6 support
+
+Removed outdated demo/fping from the documentation
+(RT #123750 by Steve Morris)
+
+Added t/420_ping_syn_port.t (#4 by Julio Fraire) with fixes.
+
+Added indices and crosslinks to the documentation
+
+use NIx_NOSERV flag for windows.
+
+better icmpv6 support.
+
 =item Scalar-List-Util 1.50_11
 
 fix C<find_rundefsvoffset> logic.
