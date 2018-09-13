@@ -438,6 +438,10 @@ check invariant at compile time.
 
 return EACCES on writing to a read-only scalar
 
+=item L<PerlIO::via> 0.17_01
+
+Protect from NULL arg.
+
 =item Scalar-List-Util 1.50_11
 
 fix C<find_rundefsvoffset> logic.

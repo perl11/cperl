@@ -17558,6 +17558,7 @@ our %delta = (
             'NEXT'                  => '0.67_01',
             'PerlIO::encoding'      => '0.26_01',
             'PerlIO::scalar'        => '0.29',
+            'PerlIO::via'           => '0.17_01',
             'List::Util'            => '1.50_11',
             'List::Util::XS'        => '1.50_11',
             'Scalar::Util'          => '1.50_11',
