@@ -1,5 +1,6 @@
 /* Copyright (c) 1997-2000 Graham Barr <gbarr@pobox.com>. All rights reserved.
  * Copyright (C) 2014, cPanel Inc.  All rights reserved.
+ * Copyright (C) 2017, Reini Urban.  All rights reserved.
  * This program is free software; you can redistribute it and/or
  * modify it under the same terms as Perl itself.
  */
@@ -8,13 +9,10 @@
 #include <perl.h>
 #include <XSUB.h>
 
-/* undef that when perl5 gets rid of the perl4'ism, e.g. main'dump. 
-   see gv.c:S_parse_gv_stash_name */
-#define PERL_HAS_QUOTE_PKGSEPERATOR
-
 #ifdef USE_PPPORT_H
 #  define NEED_sv_2pv_flags 1
 #  define NEED_newSVpvn_flags 1
+#  define NEED_sv_catpvn_flags
 #  include "ppport.h"
 #endif
 
@@ -36,11 +34,11 @@
 
 /* if to disallow \0 in names */
 #if PERL_VERSION_LE(5,16,0) || (defined(USE_CPERL) && PERL_VERSION_GE(5,25,2))
-#define PERL_STRIP_NUL
+# define PERL_STRIP_NUL
 #endif
 
 #if PERL_VERSION_GE(5,6,0)
-#  include "multicall.h"
+# include "multicall.h"
 #endif
 
 #if PERL_VERSION_LE(5,8,8) && PERL_VERSION_GE(5,7,0)
@@ -147,6 +145,34 @@ Perl_find_rundefsvoffset(pTHX)
 
 #ifndef CvISXSUB
 #  define CvISXSUB(cv) CvXSUB(cv)
+#endif
+
+#ifndef HvNAMELEN_get
+#define HvNAMELEN_get(stash) strlen(HvNAME(stash))
+#endif
+
+#ifndef HvNAMEUTF8
+#define HvNAMEUTF8(stash) 0
+#endif
+
+#ifndef GvNAMEUTF8
+#ifdef GvNAME_HEK
+#define GvNAMEUTF8(gv) HEK_UTF8(GvNAME_HEK(gv))
+#else
+#define GvNAMEUTF8(gv) 0
+#endif
+#endif
+
+#ifndef SV_CATUTF8
+#define SV_CATUTF8 0
+#endif
+
+#ifndef SV_CATBYTES
+#define SV_CATBYTES 0
+#endif
+
+#ifndef sv_catpvn_flags
+#define sv_catpvn_flags(b,n,l,f) sv_catpvn(b,n,l)
 #endif
 
 /* Some platforms have strict exports. And before 5.7.3 cxinc (or Perl_cxinc)
@@ -296,8 +322,8 @@ CODE:
     if(!items)
         switch(ix) {
             case 0: XSRETURN_UNDEF;
-            case 1: ST(0) = newSViv(0); XSRETURN(1);
-            case 2: ST(0) = newSViv(1); XSRETURN(1);
+            case 1: ST(0) = sv_2mortal(newSViv(0)); XSRETURN(1);
+            case 2: ST(0) = sv_2mortal(newSViv(1)); XSRETURN(1);
         }
 
     sv    = ST(0);
@@ -706,6 +732,56 @@ PPCODE:
 }
 
 void
+head(size,...)
+PROTOTYPE: $@
+ALIAS:
+    head = 0
+    tail = 1
+PPCODE:
+{
+    int size = 0;
+    int start = 0;
+    int end = 0;
+    int i = 0;
+
+    size = SvIV( ST(0) );
+
+    if ( ix == 0 ) {
+        start = 1;
+        end = start + size;
+        if ( size < 0 ) {
+            end += items - 1;
+        }
+        if ( end > items ) {
+            end = items;
+        }
+    }
+    else {
+        end = items;
+        if ( size < 0 ) {
+            start = -size + 1;
+        }
+        else {
+            start = end - size;
+        }
+        if ( start < 1 ) {
+            start = 1;
+        }
+    }
+
+    if ( end < start ) {
+        XSRETURN(0);
+    }
+    else {
+        EXTEND( SP, end - start );
+        for ( i = start; i <= end; i++ ) {
+            PUSHs( sv_2mortal( newSVsv( ST(i) ) ) );
+        }
+        XSRETURN( end - start );
+    }
+}
+
+void
 pairs(...)
 PROTOTYPE: @
 PPCODE:
@@ -1024,6 +1100,7 @@ PPCODE:
  * Skip it on those versions (RT#87857)
  */
 #if defined(dMULTICALL) && (PERL_VERSION_GE(5,10,1) || PERL_VERSION_LE(5,8,8))
+    assert(cv);
     if(!CvISXSUB(cv)) {
         /* Since MULTICALL is about to move it */
         SV **stack = PL_stack_base + ax;
@@ -1236,7 +1313,7 @@ CODE:
             if(hv_exists(seen, SvPVX(keysv), SvCUR(keysv)))
                 continue;
 
-            hv_store(seen, SvPVX(keysv), SvCUR(keysv), &PL_sv_undef, 0);
+            hv_store(seen, SvPVX(keysv), SvCUR(keysv), &PL_sv_yes, 0);
 #endif
 
             if(GIMME_V == G_ARRAY)
@@ -1279,7 +1356,7 @@ CODE:
             if (hv_exists_ent(seen, arg, 0))
                 continue;
 
-            hv_store_ent(seen, arg, &PL_sv_undef, 0);
+            hv_store_ent(seen, arg, &PL_sv_yes, 0);
 #endif
 
             if(GIMME_V == G_ARRAY)
@@ -1408,7 +1485,10 @@ PROTOTYPE: $
 INIT:
     SV *tsv;
 CODE:
-#ifdef SvWEAKREF
+#if defined(sv_rvunweaken)
+    PERL_UNUSED_VAR(tsv);
+    sv_rvunweaken(sv);
+#elif defined(SvWEAKREF)
     /* This code stolen from core's sv_rvweaken() and modified */
     if (!SvOK(sv))
         return;
@@ -1576,13 +1656,12 @@ PREINIT:
     CV *cv = NULL;
     GV *gv;
     HV *stash = CopSTASH(PL_curcop);
-    const char *s, *end = NULL;
+    const char *s, *end = NULL, *begin = NULL;
     MAGIC *mg;
     STRLEN namelen;
     const char* nameptr = SvPV(name, namelen);
-    const char *begin = nameptr;
-    int seen_quote = 0;
     int utf8flag = SvUTF8(name);
+    int seen_quote = 0;
 PPCODE:
     if (!SvROK(sub) && SvGMAGICAL(sub))
         mg_get(sub);
@@ -1607,7 +1686,7 @@ PPCODE:
     for (s = nameptr; s < nameptr + namelen; s++) {
 #ifdef PERL_STRIP_NUL
         if (!*s) {
-#  if PERL_VERSION >= 25
+#  if defined(USE_CPERL) && PERL_VERSION >= 25
             SV* tmp = newSVpvs_flags("", SVs_TEMP);
             if (Perl_ckwarn(aTHX_ packWARN(WARN_SECURITY)))
                 Perl_warn_security(aTHX_
@@ -1628,8 +1707,8 @@ PPCODE:
             if (seen_quote)
                 seen_quote++;
         }
-#ifdef PERL_HAS_QUOTE_PKGSEPERATOR
-        /* cperl doesnt support the perl4 ' pkg seperator anymore.
+#ifndef PERL_NO_QUOTE_PKGSEPERATOR
+        /* cperl doesn't expand the perl4 ' pkg seperator anymore.
            gv.c:S_parse_gv_stash_name */
         else if (s > nameptr && *s != '\0' && s[-1] == '\'') {
             end = s - 1;
@@ -1639,17 +1718,12 @@ PPCODE:
 #endif
     }
     if (end) {
-        SV* tmp;
         if (seen_quote > 1) {
-            int flags = GV_ADD;
+#ifndef PERL_NO_QUOTE_PKGSEPERATOR
+            int i, j;
             const STRLEN stash_len = end - nameptr + seen_quote;
             char* left;
-            int i, j;
-#if PERL_VERSION >= 10
-            flags |= utf8flag;
-#endif
-#ifdef PERL_HAS_QUOTE_PKGSEPERATOR
-            tmp = newSV(stash_len);
+            SV* tmp = newSV(stash_len);
             left = SvPVX(tmp);
             for (i = 0, j = 0; j <= end - nameptr; ++i, ++j) {
                 if (nameptr[j] == '\'') {
@@ -1674,83 +1748,50 @@ PPCODE:
 
     /* under debugger, provide information about sub location */
     if (PL_DBsub && CvGV(cv)) {
-        /* WIP utf8 support */
-#if 0
-        HV *hv = GvHV(PL_DBsub);
-        GV *oldgv = CvGV(cv);
-        HV *oldpkg = GvSTASH(oldgv);
-        SV *full_name = newSVpvn_flags(HvNAME(oldpkg), HvNAMELEN_get(oldpkg),
-                                       HvNAMEUTF8(oldpkg) ? SVf_UTF8 : 0);
-        SV** old_data;
+        HV* DBsub = GvHV(PL_DBsub);
+        HE* old_data;
 
-        sv_catpvs(full_name, "::");
-        sv_catpvn_flags(full_name, GvNAME(oldgv), GvNAMELEN(oldgv),
+        GV* oldgv = CvGV(cv);
+        HV* oldhv = GvSTASH(oldgv);
+        SV* old_full_name;
+#ifdef USE_CPERL
+        if (oldhv == PL_defstash) {
+          old_full_name = sv_2mortal(newSVpvs(""));
+        }
+        else
+#endif
+        {
+          old_full_name = sv_2mortal(newSVpvn_flags(HvNAME(oldhv), HvNAMELEN_get(oldhv),
+                              HvNAMEUTF8(oldhv) ? SVf_UTF8 : 0));
+          sv_catpvn(old_full_name, "::", 2);
+        }
+        sv_catpvn_flags(old_full_name, GvNAME(oldgv), GvNAMELEN(oldgv),
                         GvNAMEUTF8(oldgv) ? SV_CATUTF8 : SV_CATBYTES);
 
-        old_data = (SV**)hv_fetch_ent(hv, full_name, HV_FETCH_JUST_SV, 0);
-        SvREFCNT_dec(full_name);
-
-        if (old_data && *old_data) {
-            full_name = newSVpvn_flags(HvNAME(stash), HvNAMELEN_get(stash),
-                                       HvNAMEUTF8(stash) ? SVf_UTF8 : 0);
-            sv_catpvs(full_name, "::");
-            sv_catpvn_flags(full_name, nameptr, namelen,
-                            utf8flag ? SV_CATUTF8 : SV_CATBYTES);
-
-            if (hv_store_ent(hv, full_name, *old_data, 0))
-                SvREFCNT_inc(*old_data);
-            SvREFCNT_dec(full_name);
-        }
-#else
-        HV *hv = GvHV(PL_DBsub);
-
-        char *new_pkg = HvNAME(stash);
-
-        char *old_name = GvNAME( CvGV(cv) );
-        char *old_pkg = HvNAME( GvSTASH(CvGV(cv)) );
-
-        int old_len = strlen(old_name) + strlen(old_pkg);
-        int new_len = namelen + strlen(new_pkg);
-
-        SV **old_data;
-        char *full_name;
-
-        Newxz(full_name, (old_len > new_len ? old_len : new_len) + 3, char);
-
-        strcat(full_name, old_pkg);
-        strcat(full_name, "::");
-        strcat(full_name, old_name);
-
-        old_data = hv_fetch(hv, full_name, strlen(full_name), 0);
-
-        if (old_data) {
-            strcpy(full_name, new_pkg);
-            strcat(full_name, "::");
-            strcat(full_name, nameptr);
-
-            SvREFCNT_inc(*old_data);
-            if (!hv_store(hv, full_name, strlen(full_name), *old_data, 0))
-                SvREFCNT_dec(*old_data);
-        }
-        Safefree(full_name);
+        old_data = hv_fetch_ent(DBsub, old_full_name, 0, 0);
+        if (old_data && HeVAL(old_data)) {
+            SV* new_full_name;
+#ifdef USE_CPERL
+            if (stash == PL_defstash) {
+              new_full_name = sv_2mortal(newSVpvs(""));
+            }
+            else
 #endif
+            {
+              new_full_name = sv_2mortal(newSVpvn_flags(HvNAME(stash),
+                                  HvNAMELEN_get(stash), HvNAMEUTF8(stash) ? SVf_UTF8 : 0));
+              sv_catpvn(new_full_name, "::", 2);
+            }
+            sv_catpvn_flags(new_full_name, nameptr, s - nameptr,
+                            utf8flag ? SV_CATUTF8 : SV_CATBYTES);
+            SvREFCNT_inc(HeVAL(old_data));
+            if (hv_store_ent(DBsub, new_full_name, HeVAL(old_data), 0))
+                SvREFCNT_inc(HeVAL(old_data));
+        }
     }
 
     gv = (GV *) newSV(0);
-#if PERL_VERSION >= 16
     gv_init_pvn(gv, stash, nameptr, s - nameptr, GV_ADDMULTI | utf8flag);
-#else
-    gv_init(gv, stash, nameptr, s - nameptr, GV_ADD);
-    /* Cannot fake UTF8 symbols. The HEK can, but older B 5.10-5.16 can not
-       handle this negative HEK_LEN. Must leave it ASCII. */
-#  if 0 && PERL_VERSION >= 10 && PERL_VERSION < 16
-    if (utf8flag) {
-        HEK *namehek = GvNAME_HEK(gv);
-        HEK_LEN(namehek) = -abs(HEK_LEN(namehek));
-        SvUTF8_on(gv);
-    }
-#  endif
-#endif
 
     /*
      * set_subname needs to create a GV to store the name prior to 5.20.
@@ -1782,8 +1823,6 @@ PPCODE:
     CvGV_set(cv, gv);
 #endif
     PUSHs(sub);
-
-# Binary and unicode support from https://github.com/rurban/sub-name/commits/binary
 
 void
 subname(code)

@@ -18,7 +18,7 @@ our @EXPORT_OK = qw(
   subname set_subname
 );
 
-our $VERSION    = "1.49_10";
+our $VERSION    = "1.50_11";
 $VERSION   = eval $VERSION;
 
 require List::Util; # as it has the XS
@@ -105,7 +105,7 @@ This function was inspired by C<sub_fullname> from L<Sub::Identify>. The
 remaining functions that C<Sub::Identify> implements can easily be emulated
 using regexp operations, such as
 
- sub get_code_info { return (subname $_[0]) =~ m/^(.+)::(.+?)$/ }
+ sub get_code_info { return (subname $_[0]) =~ m/^(.+)::(.*?)$/ }
  sub sub_name      { return (get_code_info $_[0])[0] }
  sub stash_name    { return (get_code_info $_[0])[1] }
 

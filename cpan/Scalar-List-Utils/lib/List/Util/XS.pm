@@ -3,8 +3,7 @@ use strict;
 use warnings;
 use List::Util;
 
-our $VERSION = "1.49_10";    # FIXUP
-our $XS_VERSION = $VERSION;
+our $VERSION = "1.50_11";       # FIXUP
 $VERSION = eval $VERSION;    # FIXUP
 
 1;

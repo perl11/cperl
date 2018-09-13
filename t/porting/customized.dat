@@ -74,6 +74,7 @@ File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e284969
 IO::Compress::Base cpan/IO-Compress/lib/File/GlobMapper.pm 81f265ee36efb2b9373a8c32e86df1fc56c8e2de
 IO::Compress::Base cpan/IO-Compress/t/compress/encode.pl 776c114af5146d3c328c247c9550e021bb8bac62
 IO::Compress::Base cpan/IO-Compress/t/cz-14gzopen.t dee09dbad5cb1cad6027fd61d14552a192b68060
+IPC::Cmd cpan/IPC-Cmd/t/01_IPC-Cmd.t ff641405d0578b4c799c9457bcecec1495046fa1
 JSON::PP cpan/JSON-PP/lib/JSON/PP.pm e57863a7094f6270810dadfdf596cb55cc86eb97
 JSON::PP cpan/JSON-PP/lib/JSON/PP/Boolean.pm ccc6b9b4daa99ac651e1b65dad2b8508d4e3194a
 Math::BigInt cpan/Math-BigInt/lib/Math/BigInt.pm 98b3099c00483385f5b0738b6dd839665e53c2fe
