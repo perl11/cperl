@@ -442,6 +442,11 @@ return EACCES on writing to a read-only scalar
 
 Protect from NULL arg.
 
+=item L<Pod::Man> 4.11
+
+Various upstream changes,
+see L<https://metacpan.org/changes/distribution/podlators>
+
 =item Scalar-List-Util 1.50_11
 
 fix C<find_rundefsvoffset> logic.
