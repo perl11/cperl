@@ -17623,6 +17623,8 @@ our %delta = (
             'Time::HiRes'           => '1.9758_01',
             'Time::Local'           => '1.28',
             'Time::Piece'           => '1.33',
+            'version'               => '0.9923_02',
+            'version::regex'        => '0.9923_02',
             'XSLoader'              => '1.04c',
         },
         removed => {

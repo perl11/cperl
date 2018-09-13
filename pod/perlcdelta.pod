@@ -544,6 +544,16 @@ Remove some compile warnings
 
 SP off by 1 in C<_crt_localtime>
 
+=item L<version> 0.9923_02
+
+Add updates from 0.9918: Add LAX_DECIMAL_VERSION, LAX_DOTTED_DECIMAL_VERSION,
+STRICT_DECIMAL_VERSION, STRICT_DOTTED_DECIMAL_VERSION regexes.
+Add updates from 0.9921: pod, safer C locale switching.
+add vpp support for cperl: scmp, c suffix.
+use vars => our.
+
+Add F<t/11_taint.t>
+
 =item L<XSLoader> 1.04c
 
 Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a memory leak.
