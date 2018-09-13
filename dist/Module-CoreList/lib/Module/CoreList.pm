@@ -17556,6 +17556,7 @@ our %delta = (
             'IPC::Cmd'              => '1.02',
             'Net::Ping'             => '2.70',
             'NEXT'                  => '0.67_01',
+            'PerlIO::encoding'      => '0.26_01',
             'PerlIO::scalar'        => '0.29',
             'List::Util'            => '1.50_11',
             'List::Util::XS'        => '1.50_11',

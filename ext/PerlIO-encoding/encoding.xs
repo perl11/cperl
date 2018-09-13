@@ -2,7 +2,16 @@
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
+
 #define U8 U8
+#ifndef get_svs
+#  define get_svs(str, flags) get_sv((str), (flags))
+#  define get_avs(str, flags) get_av((str), (flags))
+#  define get_hvs(str, flags) get_hv((str), (flags))
+#endif
+#ifndef SvPVCLEAR
+# define SvPVCLEAR(sv) sv_setpvs(sv, "")
+#endif
 
 #define OUR_DEFAULT_FB	"Encode::PERLQQ"
 
@@ -163,7 +172,7 @@ PerlIOEncode_pushed(pTHX_ PerlIO * f, const char *mode, SV * arg, PerlIO_funcs *
 	PerlIOBase(f)->flags |= PERLIO_F_UTF8;
     }
 
-    e->chk = newSVsv(get_sv("PerlIO::encoding::fallback", 0));
+    e->chk = newSVsv(get_svs("PerlIO::encoding::fallback", 0));
     e->inEncodeCall = 0;
 
     FREETMPS;
@@ -203,7 +212,7 @@ PerlIOEncode_get_base(pTHX_ PerlIO * f)
 	e->base.bufsiz = 1024;
     if (!e->bufsv) {
 	e->bufsv = newSV(e->base.bufsiz);
-	sv_setpvn(e->bufsv, "", 0);
+	SvPVCLEAR(e->bufsv);
     }
     e->base.buf = (STDCHAR *) SvPVX(e->bufsv);
     if (!e->base.ptr)
@@ -307,42 +316,19 @@ PerlIOEncode_fill(pTHX_ PerlIO * f)
 		goto end_of_file;
 	    }
 	}
-	if (SvCUR(e->dataSV)) {
-	    /* something left over from last time - create a normal
-	       SV with new data appended
-	     */
-	    if (use + SvCUR(e->dataSV) > e->base.bufsiz) {
-		if (e->flags & NEEDS_LINES) {
-		    /* Have to grow buffer */
-		    e->base.bufsiz = use + SvCUR(e->dataSV);
-		    PerlIOEncode_get_base(aTHX_ f);
-		}
-		else {
-	       use = e->base.bufsiz - SvCUR(e->dataSV);
+	if (!SvCUR(e->dataSV))
+	    SvPVCLEAR(e->dataSV);
+	if (use + SvCUR(e->dataSV) > e->base.bufsiz) {
+	    if (e->flags & NEEDS_LINES) {
+		/* Have to grow buffer */
+		e->base.bufsiz = use + SvCUR(e->dataSV);
+		PerlIOEncode_get_base(aTHX_ f);
 	    }
+	    else {
+		use = e->base.bufsiz - SvCUR(e->dataSV);
 	    }
-	    sv_catpvn(e->dataSV,(char*)ptr,use);
 	}
-	else {
-	    /* Create a "dummy" SV to represent the available data from layer below */
-	    if (SvLEN(e->dataSV) && SvPVX_const(e->dataSV)) {
-		Safefree(SvPVX_mutable(e->dataSV));
-	    }
-	    if (use > (SSize_t)e->base.bufsiz) {
-		if (e->flags & NEEDS_LINES) {
-		    /* Have to grow buffer */
-		    e->base.bufsiz = use;
-		    PerlIOEncode_get_base(aTHX_ f);
-		}
-		else {
-	       use = e->base.bufsiz;
-	    }
-	    }
-	    SvPV_set(e->dataSV, (char *) ptr);
-	    SvLEN_set(e->dataSV, 0);  /* Hands off sv.c - it isn't yours */
-	    SvCUR_set(e->dataSV,use);
-	    SvPOK_only(e->dataSV);
-	}
+	sv_catpvn(e->dataSV,(char*)ptr,use);
 	SvUTF8_off(e->dataSV);
 	PUSHMARK(sp);
 	XPUSHs(e->enc);
@@ -661,7 +647,7 @@ PROTOTYPES: ENABLE
 
 BOOT:
 {
-    SV *chk = get_sv("PerlIO::encoding::fallback", GV_ADD|GV_ADDMULTI);
+    SV *chk = get_svs("PerlIO::encoding::fallback", GV_ADD|GV_ADDMULTI);
     /*
      * we now "use Encode ()" here instead of
      * PerlIO/encoding.pm.  This avoids SEGV when ":encoding()"

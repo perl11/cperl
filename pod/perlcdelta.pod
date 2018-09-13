@@ -430,6 +430,8 @@ better icmpv6 support.
 
 Fix for GLOB stubs [cpan #123002].
 
+=item L<PerlIO::encoding> 0.26_01
+
 =item L<PerlIO::scalar> 0.29
 
 check invariant at compile time.
