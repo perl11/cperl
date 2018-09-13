@@ -491,6 +491,28 @@ Fix and simplify MSWin32 colorization (Roy Ivy III)
 Fix file source handler to accept single extensions option (Tomoki Aonuma)
 Spelling fixes (Brian Wightman)
 
+=item L<Time::HiRes> 1.9758_01
+
+Updated from upstream since 1.9751:
+
+See L<https://metacpan.org/changes/distribution/Time-HiRes>
+
+Fix MSVC by adding a fake struct timezone.
+
+Add more potential clock constants, like CLOCK_MONOTONIC_FAST
+(available in FreeBSD), and not all potentially found clock constants
+were properly exported to be available from Perl, see your system's
+L<clock_gettime> documentation for the available ones
+
+Correct declared minimum Perl version (should be 5.6, was declared as
+5.8 since 1.9727_03): blead af94b3ac
+
+Merged with our cperl test fixes,
+see L<https://github.com/rurban/Time-HiRes/commits/cperl>
+
+Drop 5.005 support.
+Replace DynaLoader with XSLoader.
+
 =item L<XSLoader> 1.04c
 
 Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a memory leak.

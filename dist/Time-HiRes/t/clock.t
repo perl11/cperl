@@ -22,13 +22,14 @@ printf("# have_clock           = %d\n", &Time::HiRes::d_clock);
 # Ideally, we'd like to test that the timers are rather precise.
 # However, if the system is busy, there are no guarantees on how
 # quickly we will return.  This limit used to be 10%, but that
-# was occasionally triggered falsely.  
+# was occasionally triggered falsely.
 # So let's try 25%.
 # Another possibility might be to print "ok" if the test completes fine
 # with (say) 10% slosh, "skip - system may have been busy?" if the test
 # completes fine with (say) 30% slosh, and fail otherwise.  If you do that,
 # consider changing over to test.pl at the same time.
 # --A.D., Nov 27, 2001
+# Increase this to 0.60 on CI, overloaded build servers on a VM, or slow machines
 my $limit = 0.25; # 25% is acceptable slosh for testing timers
 
 SKIP: {
@@ -79,10 +80,16 @@ SKIP: {
 
 SKIP: {
     skip "no clock", 1 unless &Time::HiRes::d_clock;
+    skip "no CLOCKS_PER_SEC", 1 unless has_symbol("CLOCKS_PER_SEC"); 
     my @clock = Time::HiRes::clock();
+    # If we have a relatively low precision clock() and we haven't seen much
+    # CPU usage thus far with clock(), we will want to have a bit longer delay.
+    my $delay = $clock[0] < (5 / &Time::HiRes::CLOCKS_PER_SEC) ? 1e7 : 1e6;
+    printf("# CLOCKS_PER_SEC = %d\n", &Time::HiRes::CLOCKS_PER_SEC);
+    printf("# delay = %d\n", $delay);
     print("# clock = @clock\n");
     for my $i (1..3) {
-	for (my $j = 0; $j < 1e6; $j++) { }
+        for (my $j = 0; $j < $delay; $j++) { }
 	push @clock, Time::HiRes::clock();
 	print("# clock = @clock\n");
     }

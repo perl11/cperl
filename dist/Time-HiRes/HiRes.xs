@@ -40,6 +40,14 @@ extern "C" {
 }
 #endif
 
+#ifdef _MSC_VER /* For Visual C */
+struct timezone
+{
+   int tz_minuteswest; /* of Greenwich */
+   int tz_dsttime;     /* type of dst correction to apply */
+};
+#endif
+
 #define PERL_VERSION_DECIMAL(r,v,s) (r*1000000 + v*1000 + s)
 #define PERL_DECIMAL_VERSION \
 	PERL_VERSION_DECIMAL(PERL_REVISION,PERL_VERSION,PERL_SUBVERSION)
@@ -71,9 +79,9 @@ extern "C" {
 #define IV_1E7 10000000
 #define IV_1E9 1000000000
 
-#define NV_1E6 1000000.0
-#define NV_1E7 10000000.0
-#define NV_1E9 1000000000.0
+#define NV_1E6 (NV)1000000.0
+#define NV_1E7 (NV)10000000.0
+#define NV_1E9 (NV)1000000000.0
 
 #ifndef PerlProc_pause
 #   define PerlProc_pause() Pause()
@@ -1011,6 +1019,46 @@ nsec_without_unslept(struct timespec *sleepfor,
 #define IS_SAFE_PATHNAME(pv, len, opname) (((len)>1)&&memchr((pv), 0, (len)-1)?(SETERRNO(ENOENT, LIB_INVARG),WARNEMU(opname),FALSE):(TRUE))
 #endif
 
+/* Mac OS (Classic) (MacOS 9) */
+#ifdef MACOS_TRADITIONAL
+/* has tz values that matter */
+#define GETTIMEOFDAY_TZ
+/* has tz.tz_minuteswest which needs to be added to tv_sec */
+#define ADJUST_BY_TZ_MINUTES
+/* has unsigned time_t */
+#define UNSIGNED_TIME_T
+#endif
+
+#if defined(WIN32) || defined(CYGWIN_WITH_W32API)
+#  define mygettimeofday(tp, not_used) gettimeofday(tp, not_used)
+#else
+static int mygettimeofday(struct timeval *tv, struct timezone *tz)
+{                                 
+  int status;
+#  ifdef GETTIMEOFDAY_TZ
+  status = gettimeofday(tv, tz);
+#  else
+  (void) tz;
+  status = gettimeofday(tv, NULL);
+#  endif /* ifdef GETTIMEOFDAY_TZ */
+#  ifdef ADJUST_BY_TZ_MINUTES
+#    ifndef GETTIMEOFDAY_TZ
+#      error "ADJUST_BY_TZ_MINUTES requires GETTIMEOFDAY_TZ"
+#    endif /* ifndef GETTIMEOFDAY_TZ */
+  tv->tv_sec += tz->tz_minuteswest * 60;	/* adjust for TZ */
+#  endif /* ADJUST_BY_TZ_MINUTES */
+  return status;
+}
+#endif /* if defined(WIN32) || defined(CYGWIN_WITH_W32API) else */
+
+#ifdef UNSIGNED_TIME_T
+#define SvTIME(sv) SvUV(sv)
+#define newSVtimet) newSVuv(t)
+#else
+#define SvTIME(sv) SvIV(sv)
+#define newSVtime(t) newSViv(t)
+#endif
+
 MODULE = Time::HiRes            PACKAGE = Time::HiRes
 
 PROTOTYPES: ENABLE
@@ -1278,7 +1326,6 @@ alarm(seconds,interval=0)
 #endif /* #ifdef HAS_UALARM */
 
 #ifdef HAS_GETTIMEOFDAY
-#    ifdef MACOS_TRADITIONAL	/* fix epoch TZ and use unsigned time_t */
 void
 gettimeofday()
         PREINIT:
@@ -1286,14 +1333,11 @@ gettimeofday()
         struct timezone Tz;
         PPCODE:
         int status;
-        status = gettimeofday (&Tp, &Tz);
-
+	status = mygettimeofday (&Tp, &Tz);
 	if (status == 0) {
-	     Tp.tv_sec += Tz.tz_minuteswest * 60;	/* adjust for TZ */
              if (GIMME == G_ARRAY) {
                  EXTEND(sp, 2);
-                 /* Mac OS (Classic) has unsigned time_t */
-                 PUSHs(sv_2mortal(newSVuv(Tp.tv_sec)));
+                 PUSHs(sv_2mortal(newSVtime(Tp.tv_sec)));
                  PUSHs(sv_2mortal(newSViv(Tp.tv_usec)));
              } else {
                  EXTEND(sp, 1);
@@ -1308,9 +1352,8 @@ time()
         struct timezone Tz;
         CODE:
         int status;
-        status = gettimeofday (&Tp, &Tz);
+        status = mygettimeofday (&Tp, &Tz);
 	if (status == 0) {
-            Tp.tv_sec += Tz.tz_minuteswest * 60;	/* adjust for TZ */
 	    RETVAL = Tp.tv_sec + (Tp.tv_usec / NV_1E6);
         } else {
 	    RETVAL = -1.0;
@@ -1318,41 +1361,66 @@ time()
 	OUTPUT:
 	RETVAL
 
-#    else	/* MACOS_TRADITIONAL */
-void
-gettimeofday()
-        PREINIT:
-        struct timeval Tp;
-        PPCODE:
-	int status;
-        status = gettimeofday (&Tp, NULL);
-	if (status == 0) {
-	     if (GIMME == G_ARRAY) {
-	         EXTEND(sp, 2);
-                 PUSHs(sv_2mortal(newSViv(Tp.tv_sec)));
-                 PUSHs(sv_2mortal(newSViv(Tp.tv_usec)));
-             } else {
-                 EXTEND(sp, 1);
-                 PUSHs(sv_2mortal(newSVnv(Tp.tv_sec + (Tp.tv_usec / NV_1E6))));
-             }
-        }
-
 NV
-time()
-        PREINIT:
-        struct timeval Tp;
-        CODE:
-	int status;
-        status = gettimeofday (&Tp, NULL);
-	if (status == 0) {
-            RETVAL = Tp.tv_sec + (Tp.tv_usec / NV_1E6);
-	} else {
-	    RETVAL = -1.0;
-	}
-	OUTPUT:
-	RETVAL
+tv_interval(SV* start, ...)
+    PREINIT:
+    struct timeval Tp;
+    struct timezone Tz;
+    SV* end;
+    time_t end_sec;
+    IV end_usec;
+    SV** avalue;
 
-#    endif	/* MACOS_TRADITIONAL */
+    CODE:
+
+    end = NULL;
+    if (items >= 2) {
+        end = ST(1);
+    }
+    /* It would be tempting croak on items > 2
+     * but that would probably break some code. */
+
+    if (SvROK(start) && SvTYPE(SvRV(start)) == SVt_PVAV) {
+        start = SvRV(start);
+    } else {
+        croak("tv_interval() 1st argument should be an array reference");
+    }
+
+    if (end != NULL) {
+        if (SvROK(end) && SvTYPE(SvRV(end)) == SVt_PVAV) {
+            end = SvRV(end);
+            /* Resist the temptation to expect exactly
+             * an array of length two: that would
+             * no doubt break some code. */
+            avalue = av_fetch((AV*)end, 0, FALSE);
+            end_sec = avalue ? SvTIME(*avalue) : 0;
+            avalue = av_fetch((AV*)end, 1, FALSE);
+            end_usec = avalue ? SvIV(*avalue) : 0;
+        } else {
+            croak("tv_interval() 2nd argument should be an array reference");
+        }
+    } else {
+        int status;
+        status = mygettimeofday (&Tp, &Tz);
+        if (status == 0) {
+            end_sec = Tp.tv_sec;
+            end_usec = Tp.tv_usec;
+        } else {
+            end_sec = 0;
+            end_usec = 0;
+        }
+    }
+
+    /* Resist temptation to expect exactly an array
+     * of length two: that would no doubt break some code. */
+    avalue = av_fetch((AV*)start, 0, FALSE);
+    RETVAL = end_sec - (avalue ? SvTIME(*avalue) : 0);
+    avalue = av_fetch((AV*)start, 1, FALSE);
+    RETVAL += ((end_usec - (avalue ? SvIV(*avalue) : 0)) / NV_1E6);
+
+    OUTPUT:
+    RETVAL
+
 #endif /* #ifdef HAS_GETTIMEOFDAY */
 
 #if defined(HAS_GETITIMER) && defined(HAS_SETITIMER)
@@ -1423,20 +1491,18 @@ PROTOTYPE: $$@
 	SV* accessed;
 	SV* modified;
 	SV* file;
-
 	struct timespec utbuf[2];
 	struct timespec *utbufp = utbuf;
 	int tot;
-
     CODE:
 	accessed = ST(0);
 	modified = ST(1);
 	items -= 2;
 	tot = 0;
 
-	if ( accessed == &PL_sv_undef && modified == &PL_sv_undef )
-		utbufp = NULL;
-	else {
+        if ( accessed == &PL_sv_undef && modified == &PL_sv_undef ) {
+            utbufp = NULL;
+        } else {
             if (SvNV(accessed) < 0.0 || SvNV(modified) < 0.0)
                 croak("Time::HiRes::utime(%" NVgf ", %" NVgf
                       "): negative time not invented yet",
@@ -1455,7 +1521,8 @@ PROTOTYPE: $$@
                 int fd =  PerlIO_fileno(IoIFP(sv_2io(file)));
                 if (fd < 0) {
                     SETERRNO(EBADF,RMS_IFI);
-                } else {
+                }
+                else {
 #ifdef HAS_FUTIMENS
                     if (FUTIMENS_AVAILABLE) {
                         if (futimens(fd, utbufp) == 0) {
@@ -1464,9 +1531,9 @@ PROTOTYPE: $$@
                     } else {
                         croak("futimens unimplemented in this platform");
                     }
-#else  /* HAS_FUTIMENS */
+#else  /* HAS_FUTIMES */
                     croak("futimens unimplemented in this platform");
-#endif /* HAS_FUTIMENS */
+#endif /* HAS_FUTIMES */
                 }
             }
             else {
@@ -1479,7 +1546,7 @@ PROTOTYPE: $$@
                         tot++;
                     }
                 } else {
-                    croak("futimens unimplemented in this platform");
+                    croak("utimensat unimplemented in this platform");
                 }
 #else  /* HAS_UTIMENSAT */
                 croak("utimensat unimplemented in this platform");
@@ -1548,8 +1615,8 @@ clock_getres(clock_id = CLOCK_REALTIME)
 #ifdef TIME_HIRES_CLOCK_GETRES_SYSCALL
 	status = syscall(SYS_clock_getres, clock_id, &ts);
 #else
-        /* CID 165491:  Error handling issues  (NEGATIVE_RETURNS)
-          "clock_id" is passed to a parameter that cannot be negative. */
+	/* CID 165491:  Error handling issues  (NEGATIVE_RETURNS)
+	   "clock_id" is passed to a parameter that cannot be negative. */
 	status = clock_getres(clock_id, &ts);
 #endif
 	RETVAL = status == 0 ? ts.tv_sec + (NV) ts.tv_nsec / NV_1E9 : -1;
@@ -1661,18 +1728,18 @@ PROTOTYPE: ;$
 	LEAVE;
 	nret = SP+1 - &ST(0);
 	if (nret == 13) {
-	  UV atime = SvUV(ST( 8));
-	  UV mtime = SvUV(ST( 9));
-	  UV ctime = SvUV(ST(10));
-	  UV atime_nsec;
-	  UV mtime_nsec;
-	  UV ctime_nsec;
-	  hrstatns(&atime_nsec, &mtime_nsec, &ctime_nsec);
-	  if (atime_nsec)
-	    ST( 8) = sv_2mortal(newSVnv(atime + (NV) atime_nsec / NV_1E9));
-	  if (mtime_nsec)
-	    ST( 9) = sv_2mortal(newSVnv(mtime + (NV) mtime_nsec / NV_1E9));
-	  if (ctime_nsec)
-	    ST(10) = sv_2mortal(newSVnv(ctime + (NV) ctime_nsec / NV_1E9));
+            UV atime = SvUV(ST( 8));
+            UV mtime = SvUV(ST( 9));
+            UV ctime = SvUV(ST(10));
+            UV atime_nsec;
+            UV mtime_nsec;
+            UV ctime_nsec;
+            hrstatns(&atime_nsec, &mtime_nsec, &ctime_nsec);
+            if (atime_nsec)
+                ST( 8) = sv_2mortal(newSVnv(atime + (NV) atime_nsec / NV_1E9));
+            if (mtime_nsec)
+                ST( 9) = sv_2mortal(newSVnv(mtime + (NV) mtime_nsec / NV_1E9));
+            if (ctime_nsec)
+                ST(10) = sv_2mortal(newSVnv(ctime + (NV) ctime_nsec / NV_1E9));
 	}
 	XSRETURN(nret);
