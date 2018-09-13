@@ -430,6 +430,12 @@ better icmpv6 support.
 
 Fix for GLOB stubs [cpan #123002].
 
+=item L<PerlIO::scalar> 0.29
+
+check invariant at compile time.
+
+return EACCES on writing to a read-only scalar
+
 =item Scalar-List-Util 1.50_11
 
 fix C<find_rundefsvoffset> logic.
