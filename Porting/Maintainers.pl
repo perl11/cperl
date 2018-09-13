@@ -1489,7 +1489,7 @@ use File::Glob qw(:case);
     },
 
     'Time::Local' => {
-        'DISTRIBUTION' => 'DROLSKY/Time-Local-1.25.tar.gz',
+        'DISTRIBUTION' => 'DROLSKY/Time-Local-1.28.tar.gz',
         'FILES'        => q[cpan/Time-Local],
         'EXCLUDED'     => [
             qr{^t/release-.*\.t},

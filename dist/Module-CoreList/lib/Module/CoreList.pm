@@ -17621,6 +17621,7 @@ our %delta = (
             'TAP::Parser::YAMLish::Writer'=> '3.42_01',
             'Test::Harness'         => '3.42_01',
             'Time::HiRes'           => '1.9758_01',
+            'Time::Local'           => '1.28',
             'XSLoader'              => '1.04c',
         },
         removed => {
