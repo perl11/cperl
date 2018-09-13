@@ -600,10 +600,34 @@ C<re_intuit_start()> was fixed for non-utf8 targets to ignore the utf8 folding r
 =back
 
 =head1 Acknowledgements
+cperl 5.24.4 represents approximately 8 months of development since cperl
+5.24.3c and contains approximately 33,000 lines of changes across 560 files
+from 7 authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 14,000 lines of changes to 390 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements that became
+cperl 5.24.4:
+
+Reini Urban, Karl Williamson, Tony Cook, Chris 'BinGOs' Williams, Renee
+Baecker, Yves Orton, Zefram.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history including the perl and cperl repos. In particular,
+it does not include the names of the (very much appreciated) contributors who
+reported issues to the Perl bug tracker and the cperl github issues.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
 
 Generated with:
 
-    cperl Porting/acknowledgements.pl cperl-5.24.3..HEAD
+    cperl Porting/acknowledgements.pl cperl-5.24.3..HEAD -c
 
 =head1 Reporting Bugs
 
