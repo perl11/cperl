@@ -1971,16 +1971,22 @@ L<C<keys>|/keys HASH>, and L<C<values>|/values HASH>.  The iterator is
 implicitly reset when L<C<each>|/each HASH> has reached the end as just
 described; it can be explicitly reset by calling L<C<keys>|/keys HASH>
 or L<C<values>|/values HASH> on the hash or array, or by referencing
-the hash (but not array) in list context.  If you add or delete
-a hash's elements while iterating over it, the effect on the iterator is
-unspecified; for example, entries may be skipped or duplicated--so don't
-do that.  Exception: It is always safe to delete the item most recently
-returned by L<C<each>|/each HASH>, so the following code works properly:
+the hash (but not array) in list context.
 
-    while (my ($key, $value) = each %hash) {
-        print $key, "\n";
-        delete $hash{$key};   # This is safe
-    }
+Destructive operations on the hash keys while iterating over it is now
+disabled by default with B<cperl 5.24.0>. Enable the previous behavior
+with C<use hashiter;> If you add or delete a hash's elements while
+iterating over it with C<use hashiter>, the effect on the iterator is
+unspecified; for example, entries may be skipped or duplicated--so
+don't do that.  Exception: With L<C<use hashiter>|hashiter> it is safe
+to delete the item most recently returned by L<C<each>|/each HASH>, so
+the following code works properly:
+
+        use hashiter;
+        while (($key, $value) = each %hash) {
+          print $key, "\n";
+          delete $hash{$key};   # This is safe
+        }
 
 Tied hashes may have a different ordering behaviour to perl's hash
 implementation.
@@ -2029,6 +2035,7 @@ a recent vintage:
 
     use 5.012;	# so keys/values/each work on arrays
     use 5.018;	# so each assigns to $_ in a lone while test
+    use cperl; use hashiter; # to allow destructive changes in an each() loop.
 
 See also L<C<keys>|/keys HASH>, L<C<values>|/values HASH>, and
 L<C<sort>|/sort SUBNAME LIST>.

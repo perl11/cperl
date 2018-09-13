@@ -1362,6 +1362,7 @@ usenm=''
 usensgetexecutablepath=''
 useperlio=''
 usequadmath=''
+usesafehashiter=''
 usesocks=''
 d_oldpthreads=''
 use5005threads=''
@@ -7461,6 +7462,7 @@ $define)
 	esac
 	;;
 esac
+
 case "$usecperl" in
 $define) usecperl='define'
          echo "cperl variant selected." >&4
@@ -7484,6 +7486,22 @@ $define) usecperl='define'
         ;;
 *)      usecperl='undef';;
 esac
+case "$usesafehashiter" in
+$define) usesafehashiter='define'
+         echo "usesafehashiter defined." >&4
+         set usesafehashiter
+	;;
+'')     if test -f ../lib/hashiter.pm; then
+            usesafehashiter='define'
+            echo "usesafehashiter assumed."
+        else
+            usesafehashiter='undef'
+        fi
+        set usesafehashiter
+        ;;
+*)      usesafehashiter='undef';;
+esac
+
 if $test -f archname.cbu; then
 	echo "Your platform has some specific hints for architecture name, using them..."
 	. ./archname.cbu
@@ -25514,6 +25532,7 @@ useposix='$useposix'
 usequadmath='$usequadmath'
 usereentrant='$usereentrant'
 userelocatableinc='$userelocatableinc'
+usesafehashiter='$usesafehashiter'
 useshrplib='$useshrplib'
 usesitecustomize='$usesitecustomize'
 usesocks='$usesocks'

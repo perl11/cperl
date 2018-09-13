@@ -6850,6 +6850,7 @@ $ WC "useposix='false'"
 $ WC "usequadmath='undef'"
 $ WC "usereentrant='undef'"
 $ WC "userelocatableinc='undef'"
+$ WC "usesafehashiter='define'"
 $ WC "usesecurelog='" + usesecurelog + "'"  ! VMS-specific
 $ WC "useshortenedsymbols='" + useshortenedsymbols + "'"    ! VMS-specific
 $ WC "useshrplib='true'"

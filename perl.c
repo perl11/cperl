@@ -2019,6 +2019,9 @@ S_Internals_V(pTHX_ CV *cv)
 #  ifdef USE_PERL_ATOF
 			     " USE_PERL_ATOF"
 #  endif
+#  ifdef USE_SAFE_HASHITER
+			     " USE_SAFE_HASHITER"
+#  endif
 #  ifdef USE_SITECUSTOMIZE
 			     " USE_SITECUSTOMIZE"
 #  endif

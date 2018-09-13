@@ -130,6 +130,10 @@ struct xpvhv_aux {
     U32         xhv_last_rand;  /* last random value for hash traversal,
                                    used to detect each() after insert for warnings */
 #endif
+#ifdef USE_SAFE_HASHITER
+    U32         xhv_timestamp;  /* inc on every hv key change: store, delete */
+    U32         xhv_savedstamp; /* timestamp state at hv_iterinit */
+#endif
     U32         xhv_aux_flags;  /* assorted extra flags */
     char *      xhv_aux_fields; /* buffer of class field "name\0"pad entries */
 };

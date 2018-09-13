@@ -5526,7 +5526,7 @@ usecbacktrace (usebacktrace.U):
 	This variable indicates whether we are compiling with backtrace
 	support.
 
-usecperl (Devel.U):
+usecperl (usecperl.U):
 	This variable conditionally defines the USE_CPERL symbol,
 	and indicates that Perl is the cperl variant.
 
@@ -5636,6 +5636,12 @@ userelocatableinc (bin.U):
 	Any @INC paths starting ".../" are relocated relative to the directory
 	containing the perl binary, and a logical cleanup of the path is then
 	made around the join point (removing "dir/../" pairs)
+
+usesafehashiter (usecperl.U):
+	This variable conditionally defines the USE_SAFE_HASHITER symbol,
+	and indicates that Perl disallows changes of hash keys during iteration.
+        You need to permit it with 'use hashiter;' or set the key 'unsafe_hashiter'
+        in the current cop hints hash.
 
 useshrplib (libperl.U):
 	This variable is set to 'true' if the user wishes
