@@ -17570,6 +17570,7 @@ our %delta = (
             'Scalar::Util'          => '1.50_11',
             'Sub::Util'             => '1.50_11',
             'Socket'                => '2.027_04',
+            'Term::ReadLine'        => '1.17',
             'XSLoader'              => '1.04c',
         },
         removed => {

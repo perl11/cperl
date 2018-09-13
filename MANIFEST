@@ -3873,6 +3873,7 @@ dist/Term-Complete/t/Complete.t		See if Term::Complete works
 dist/Term-ReadLine/lib/Term/ReadLine.pm		Stub readline library
 dist/Term-ReadLine/t/AE.t			See if Term::ReadLine works
 dist/Term-ReadLine/t/AETk.t			See if Term::ReadLine works
+dist/Term-ReadLine/t/ReadLine-STDERR.t
 dist/Term-ReadLine/t/ReadLine.t			See if Term::ReadLine works
 dist/Term-ReadLine/t/Tk.t			See if Term::ReadLine works
 dist/Test/lib/Test.pm		A simple framework for writing test scripts

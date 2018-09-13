@@ -468,6 +468,10 @@ Fixup the new pairmap spill code.
 
 =item L<Socket> 2.027_04
 
+=item L<Term::ReadLine> 1.17
+
+fix for empty &STDERR files, RT #132008
+
 =item L<XSLoader> 1.04c
 
 Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a memory leak.

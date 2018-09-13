@@ -1302,7 +1302,7 @@ use File::Glob qw(:case);
     },
 
     'Term::ReadLine' => {
-        'DISTRIBUTION' => 'FLORA/Term-ReadLine-1.14.tar.gz',
+        'DISTRIBUTION' => 'FLORA/Term-ReadLine-1.17.tar.gz',
         'FILES'        => q[dist/Term-ReadLine],
         'EXCLUDED'     => [qr{^t/release-.*\.t}],
     },
