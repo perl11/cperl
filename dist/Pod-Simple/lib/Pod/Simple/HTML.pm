@@ -232,7 +232,7 @@ sub __adjust_html_h_levels ($self) :method {
 }
 
 sub batch_mode_page_object_init ($self, $batchconvobj, str $module,
-                                 str $infile, str $outfile, $depth) :method
+                                 str $infile, str $outfile, $depth)
 {
   DEBUG and print STDERR "Initting $self\n  for $module\n",
     "  in $infile\n  out $outfile\n  depth $depth\n";
