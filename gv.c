@@ -1696,6 +1696,7 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
                 if (!(*stash = GvHV(*gv))) { /* create the package */
                     *stash = GvHV(*gv) = newHV();
                     if (!HvNAME_get(*stash)) {
+                        /* GV** cvp; */
                         if (GvSTASH(*gv) == PL_defstash && *len == 6
                             && strEQc(*name, "CORE"))
                             hv_name_sets(*stash, "CORE", 0);
@@ -1705,6 +1706,22 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
                            names, see that this one gets them, too. */
                         if (HvAUX(GvSTASH(*gv))->xhv_name_count)
                             mro_package_moved(*stash, NULL, *gv, 1);
+#if 0
+                        /* check for a shadowing sub?
+                           for now we check this only with the explicit package keyword,
+                           not every implicit creation here.
+                         */
+                        cvp = (GV**)hv_fetch_ifexists(GvSTASH(*gv), key,
+                                           is_utf8 ? -((I32)*len-2) : (I32)*len-2, 0);
+                        if (cvp && *cvp && SvTYPE(*cvp) == SVt_PVCV &&
+                            ckWARN(WARN_SHADOW)) {
+                            char *hvname = HvNAME(*stash);
+                            /* diag_listed_as: Subroutine &%s masks new package %s */
+                            Perl_warner(aTHX_ packWARN(WARN_SHADOW),
+                                        "Subroutine &%s::%s masks new package %s::%s",
+                                        hvname, key, hvname, key);
+                        }
+#endif
                     }
                 }
                 else if (!HvNAME_get(*stash))
@@ -2378,6 +2395,7 @@ Perl_gv_fetchpvn_flags(pTHX_ const char *nambeg, STRLEN full_len, I32 flags,
     GV *gv = NULL;
     GV**gvp;
     HV *stash = NULL;
+    char *hvname;
     STRLEN len;
     const I32 no_init = flags & (GV_NOADD_NOINIT | GV_NOINIT);
     const I32 no_expand = flags & GV_NOEXPAND;
@@ -2408,12 +2426,13 @@ Perl_gv_fetchpvn_flags(pTHX_ const char *nambeg, STRLEN full_len, I32 flags,
         return NULL;
     
     /* By this point we should have a stash and a name */
-    /* On protected stashes and !add try exists first */
-    /*if (SvREADONLY(stash) && !add)
-        if (!hv_exists(stash, name, is_utf8 ? -(I32)len : (I32)len)) {
-            if (addmg) gv = (GV *)newSV(0);
-            else return NULL;
-        }*/
+    /* On protected stashes and !add we might need to try exists first */
+    /*
+    if (SvREADONLY(stash) && !add && !hv_exists(stash, name, is_utf8 ? -(I32)len : (I32)len)) {
+        if (addmg) gv = (GV *)newSV(0);
+        else return NULL;
+    }
+    */
     gvp = (GV**)hv_fetch(stash, name, is_utf8 ? -(I32)len : (I32)len, add);
     if (!gvp || *gvp == (const GV *)UNDEF) {
 	if (addmg) gv = (GV *)newSV(0);
@@ -2422,6 +2441,42 @@ Perl_gv_fetchpvn_flags(pTHX_ const char *nambeg, STRLEN full_len, I32 flags,
     else gv = *gvp, addmg = 0;
     /* From this point on, addmg means gv has not been inserted in the
        symtab yet. */
+
+    /* Check if a sub shadows a package. Skip UNIVERSAL::isa.
+       TODO: Only if a method is called in this package.
+             Or if the package contains a method.
+     */
+    if (sv_type == SVt_PVCV
+        && add
+        && ckWARN(WARN_SHADOW)
+        && stash != PL_defstash         /* allow &main */
+        && stash != PL_debstash         /* and &DB */
+        && (hvname = HvNAME(stash))
+        && strNEc(hvname, "UNIVERSAL")) /* and &UNIVERSAL::* */
+    {
+        char *stashname;
+        char tmpbuf[1024];
+        int stashname_is_dyn = 0;
+        if (UNLIKELY(len > sizeof(tmpbuf) - 1)) {
+            stashname_is_dyn = 1;
+            Newx(stashname, len+3, char);
+            assert(stashname);
+        } else {
+            stashname = tmpbuf;
+        }
+        Copy(name, stashname, len, char);
+        stashname[len]   = ':';
+        stashname[len+1] = ':';
+        stashname[len+2] = 0;
+        if (hv_fetch(stash, stashname, is_utf8 ? -(I32)(len+2) : (I32)len+2, 0)) {
+            /* diag_listed_as: Subroutine &%s::%s masks existing package %s */
+            Perl_warner(aTHX_ packWARN(WARN_SHADOW),
+                        "Subroutine &%s::%s masks existing package %s::%s",
+                        hvname, name, hvname, name);
+        }
+        if (UNLIKELY(stashname_is_dyn))
+            free (stashname);
+    }
 
     if (SvTYPE(gv) == SVt_PVGV) {
         /* The GV already exists, so return it, but check if we need to do

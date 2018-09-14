@@ -450,7 +450,7 @@ pod/perl5280cdelta.pod	Apparent broken link	8
 pod/perl5280cdelta.pod	Apparent internal link is missing its forward slash	4
 pod/perl5280cdelta.pod	Verbatim line length including indents exceeds 79 by	4
 pod/perl5280cdelta.pod	alternative text. contains non-escaped | or /	1
-pod/perl5290cdelta.pod	Apparent broken link	2
+pod/perl5290cdelta.pod	Apparent broken link	3
 pod/perl5290cdelta.pod	Apparent internal link is missing its forward slash	5
 pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlapi.pod	? Should you be using L<...> instead of	1
@@ -477,7 +477,7 @@ pod/perlhacktips.pod	Verbatim line length including indents exceeds 79 by	4
 pod/perlhist.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlhpux.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlintern.pod	Non-ASCII character seen before =encoding. Assuming UTF-8	1
-pod/perlintern.pod	Verbatim line length including indents exceeds 79 by	88
+pod/perlintern.pod	Verbatim line length including indents exceeds 79 by	92
 pod/perlintern.pod	line containing nothing but whitespace in paragraph	4
 pod/perlinterp.pod	? Should you be using L<...> instead of	1
 pod/perlirix.pod	Verbatim line length including indents exceeds 79 by	1

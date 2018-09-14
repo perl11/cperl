@@ -9053,6 +9053,8 @@ void
 Perl_package(pTHX_ OP *o)
 {
     SV *const sv = cSVOPo->op_sv;
+    GV* gv;
+
     PERL_ARGS_ASSERT_PACKAGE;
 
     SAVEGENERICSV(PL_curstash);
@@ -9060,6 +9062,18 @@ Perl_package(pTHX_ OP *o)
 
     PL_curstash = (HV *)SvREFCNT_inc(gv_stashsv(sv, GV_ADD));
     sv_setsv(PL_curstname, sv);
+
+    /* check for a shadowing sub */
+    if (ckWARN_d(WARN_SHADOW) &&
+        (gv = gv_fetchsv(sv, GV_NOADD_NOINIT, SVt_PVCV)) &&
+        GvCV(gv) &&
+        PL_curstash != PL_defstash && /* but allow &main */
+        PL_curstash != PL_debstash)   /* and &DB */
+    {
+        Perl_warner(aTHX_ packWARN(WARN_SHADOW),
+                    "Subroutine &%" SVf " masks new package %" SVf,
+                    SVfARG(sv), SVfARG(sv));
+    }
 
     PL_hints |= HINT_BLOCK_SCOPE;
     PL_parser->copline = NOLINE;
@@ -11587,6 +11601,8 @@ by which the subroutine will be named.
 If there is already a subroutine of the specified name, then the new
 sub will either replace the existing one in the glob or be merged with
 the existing one.  A warning may be generated about redefinition.
+Likewise if a package with the same name exists already, a shadow
+warning is generated about the inaccessibility of the package.
 
 If the subroutine has one of a few special names, such as C<BEGIN> or
 C<END>, then it will be claimed by the appropriate queue for automatic
@@ -11826,13 +11842,14 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	|| CvLVALUE(PL_compcv)
 	) {
 	const_sv = NULL;
-    } else
+    } else {
         /* check the body if it's in-lineable.
            TODO: return an OP* to be able to inline more ops than just one SV*.
            TODO: should :const enforce inlining?
            TODO: has $const :const = 1; method x { $self->{const} }
          */
 	const_sv = op_const_sv(start, PL_compcv, cBOOL(CvCLONE(PL_compcv)));
+    }
 
     if (SvPOK(gv) || (SvROK(gv) && SvTYPE(SvRV(gv)) != SVt_PVCV)) {
 	cv_ckproto_len_flags((const CV *)gv,
@@ -11866,6 +11883,20 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	    SvREFCNT_dec(SvRV(gv));
 	}
     }
+#if 0
+    /* check shadowing an existing package, unless it's a special BLOCK sub: BEGIN...
+       But the HV has :: added, so rather check this in gv_fetchpvn.
+     */
+    if ((SvTYPE(gv) == SVt_PVGV) && GvHV(gv) && GvEGVx(gv) && GvMULTI(gv)) {
+        if (ckWARN(WARN_SHADOW)) {
+            assert(cSVOPo);
+            Perl_warner(aTHX_ packWARN(WARN_SHADOW),
+                        "Subroutine &%s::%" SVf " masks existing package %s",
+                        GvNAME(GvSTASH(gv)), SVfARG(cSVOPo->op_sv),
+                        GvNAME(GvESTASH(gv)));
+        }
+    }
+#endif
 
     if (cv) {
         const bool exists = cBOOL(CvROOT(cv) || CvXSUB(cv));
@@ -21956,6 +21987,7 @@ Perl_class_role(pTHX_ OP* o)
 {
     bool is_role;
     SV *name; HV* stash;
+    GV *gv;
     PERL_ARGS_ASSERT_CLASS_ROLE;
 
     if (IS_TYPE(o, LIST))
@@ -21994,6 +22026,15 @@ Perl_class_role(pTHX_ OP* o)
     save_item(PL_curstname);
     PL_curstash = (HV *)SvREFCNT_inc(gv_stashsv(name, GV_ADD));
     sv_setsv(PL_curstname, name);
+    /* check for a shadowing sub */
+    if (ckWARN_d(WARN_SHADOW) &&
+        (gv = gv_fetchsv(name, GV_NOADD_NOINIT, SVt_PVCV)) &&
+        GvCV(gv)) /* There will be no class main or class DB to skip */
+    {
+        Perl_warner(aTHX_ packWARN(WARN_SHADOW),
+                    "Subroutine &%" SVf " masks new class %" SVf,
+                    SVfARG(name), SVfARG(name));
+    }
     PL_hints |= HINT_BLOCK_SCOPE;
     PL_parser->copline = NOLINE;
     

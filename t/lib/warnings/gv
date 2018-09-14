@@ -297,3 +297,38 @@ Invalid \0 character in string for SYMBOL: "a\0hidden" at - line 5.
 Invalid \0 character in string for SYMBOL: "a\0hidden" at - line 6.
 ok
 ok
+########
+# gv.c
+use warnings 'shadow' ;
+sub new {2}
+package MyPkg::Exists;
+sub new { bless [], "MyPkg::Exists" }; # ignored
+sub MyPkg::Exists {'main'}; # the culprit
+print MyPkg::Exists->new;
+EXPECT
+Subroutine &MyPkg::Exists masks existing package MyPkg::Exists at - line 6.
+2
+########
+package MyPkg;
+sub Exists{__PACKAGE__."::Exists"};
+package MyPkg::Exists;
+sub new{2};
+package main;
+print MyPkg::Exists::new; # calls new directly, but
+print MyPkg::Exists->new(); # calls first Exists, then new
+EXPECT
+Subroutine &MyPkg::Exists masks new package MyPkg::Exists at - line 3.
+22
+########
+# gv.c TODO dont warn if no method is shadowed
+#use warnings 'shadow' ;
+#$MyPkg::Exists::VERSION = 1;
+#sub MyPkg::Exists {};
+#EXPECT
+########
+# gv.c
+sub MyPkg::Shadows {1};
+use warnings 'shadow' ;
+package MyPkg::Shadows;
+EXPECT
+Subroutine &MyPkg::Shadows masks new package MyPkg::Shadows at - line 4.
