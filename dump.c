@@ -1695,7 +1695,10 @@ const struct flag_to_name cv_flags_names[] = {
     {CVf_TYPED, "TYPED,"},
     {CVf_ANONCONST, "ANONCONST,"},
     {CVf_HASSIG, "HASSIG,"},
-    {CVf_PURE, "PURE,"}
+    {CVf_PURE, "PURE,"},
+    {CVf_STATIC, "STATIC,"},
+    {CVf_INLINABLE, "INLINABLE,"},
+    {CVf_MULTI, "MULTI,"}
 };
 
 const struct flag_to_name hv_flags_names[] = {
