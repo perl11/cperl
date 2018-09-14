@@ -2754,7 +2754,6 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
 	    SV * const constant = cv_const_sv((const CV *)sv);
 
 	    Perl_dump_indent(aTHX_ level, file, "  XSUB = 0x%" UVxf "\n", PTR2UV(CvXSUB(sv)));
-
 	    if (constant) {
 		Perl_dump_indent(aTHX_ level, file, "  XSUBANY = 0x%" UVxf
 				 " (CONST SV)\n",
@@ -2817,8 +2816,11 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
 	if (CvOUTSIDE(sv)
          && (nest < maxnest && (CvCLONE(sv) || CvCLONED(sv))))
 	    do_sv_dump(level+1, file, MUTABLE_SV(CvOUTSIDE(sv)), nest+1, maxnest, dumpops, pvlim);
-        if (CvHASSIG(sv))
-            Perl_dump_indent(aTHX_ level, file, "  SIGOP = 0x%" UVxf "\n", PTR2UV(CvSIGOP(sv)));
+        if (CvHASSIG(sv)) {
+            Perl_dump_indent(aTHX_ level, file, "  SIGOP = 0x%" UVxf, PTR2UV(CvSIGOP(sv)));
+            if (CvSIGOP(sv))
+                PerlIO_printf(file, "\t(%" SVf ")\n", SVfARG(signature_stringify((OP*)CvSIGOP(sv), (CV*)sv)));
+        }
 	break;
 
     case SVt_PVGV:
