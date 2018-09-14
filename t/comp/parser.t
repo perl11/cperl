@@ -222,16 +222,9 @@ EOF
 # tests for "Bad name"
 eval q{ foo::$bar };
 like( $@, qr/Bad name after foo::/, 'Bad name after foo::' );
-if ($] < 5.025002) {
-  eval q{ foo''bar };
-  like( $@, qr/Bad name after foo'/, 'Bad name after foo\'' );
-} else {
-  # Disabled with PERL_NO_QUOTE_PKGSEPERATOR
-  local $SIG{__WARN__} = sub {};
-  eval q{ foo''bar };
-  like( $@, qr/syntax error at \(eval \d+\) line 1, near "foo''"/,
-        'syntax error after foo\'' );
-}
+# reenabled with v5.28.1c
+eval q{ foo''bar };
+like( $@, qr/Bad name after foo'/, 'Bad name after foo\'' );
 
 # test for ?: context error
 eval q{($a ? $x : ($y)) = 5};
