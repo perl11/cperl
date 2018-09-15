@@ -224,6 +224,7 @@ extern_C=''
 mistrustnm=''
 usedevel=''
 perllibs=''
+perldll=''
 dynamic_ext=''
 extensions=''
 known_extensions=''
@@ -9127,6 +9128,7 @@ EOM
 	rp='What name do you want to give to the shared libperl?'
 	. ./myread
 	libperl=$ans
+	perldll=$libperl
 	echo "Ok, I'll use $libperl"
 	;;
 *)
@@ -25434,6 +25436,7 @@ perl_patchlevel='$perl_patchlevel'
 perl_static_inline='$perl_static_inline'
 perladmin='$perladmin'
 perllibs='$perllibs'
+perldll='$perldll'
 perlpath='$perlpath'
 pg='$pg'
 phostname='$phostname'

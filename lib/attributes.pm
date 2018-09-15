@@ -377,10 +377,14 @@ are (see F<libffi/src/*/ffitarget.h>):
     x86_64: UNIX64, WIN64
     x86: SYSV, STDCALL, THISCALL, FASTCALL, MS_CDECL, PASCAL, REGISTER
 
+The platform-specific valid ABI's are listed in C<$Config{ffi_targets}> and
+in F<config.h> as HAVE_FFI_*.
+
 Note the the names differ from perl6. perl6 uses the F<dyncall>
 library with different ABI support and names. The only tested perl6
 C<nativeconv> is "thisgnu", i.e. cdecl or SYSV.
-cperl uses F<libffi>.
+cperl uses F<libffi> instead, which is faster and has much better
+platform support.
 
 =item Any other name
 

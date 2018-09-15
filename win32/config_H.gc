@@ -5230,6 +5230,18 @@
 #define PERL_BUILD_DATE "$cf_time"
 #endif
 
+/* PERL_LIBDLL:
+ *	This defines the name of the shared perl dll, needed for ffi/DynaLoader limitations
+ *      on Windows.
+ */
+#define PERL_LIBDLL "$perldll"
+
+/* PERL_LIBS:
+ *	This defines the names of the shared perl libs, needed for ffi/DynaLoader limitations
+ *      on Windows.
+ */
+#define PERL_LIBS 0		/**/
+
 /* USE_FFI:
  *	C header equivalent to \$Config{useffi}, if -lffi is enabled and linked.
  */
@@ -5244,23 +5256,10 @@
  *	These symbols if existing are platform specific alternatives to the
  *      DEFAULT libffi ABI, needed for :nativeconv(STRING).
  */
-#if $useffi
-#define	USE_FFI			/**/
-#endif
+/*#define	USE_FFI		/ **/
 #ifdef USE_FFI
-#define 	I_FFI		/**/
-#define 	D_LIBFFI        /**/
-#ifdef WIN64
-# define HAVE_FFI_WIN64
-#else
-# define HAVE_FFI_SYSV
-# define HAVE_FFI_STDCALL
-# define HAVE_FFI_THISCALL
-# define HAVE_FFI_FASTCALL
-# define HAVE_FFI_MS_CDECL
-# define HAVE_FFI_PASCAL
-# define HAVE_FFI_REGISTER
-#endif
+#define I_FFI		/**/
+#define D_LIBFFI        /**/
 #endif
 
 #endif

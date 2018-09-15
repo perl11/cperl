@@ -793,6 +793,7 @@ otherlibdirs=' '
 package='perl5'
 path_sep=':'
 perl_static_inline='static'
+perldll='undef'
 phostname='hostname'
 pidtype=int
 privlib='/usr/local/lib/perl5/5.29'

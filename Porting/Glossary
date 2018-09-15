@@ -1521,6 +1521,9 @@ d_libm_lib_version (d_libm_lib_version.U):
 	which indicates to the C program that math.h defines _LIB_VERSION
 	being available in libm
 
+d_libffi (ffi.U):
+	This variable indicates if that libffi is usable. See also useffi and i_ffi.
+
 d_libname_unique (so.U):
 	This variable conditionally defines the HAS_LIBNAME_UNIQUE symbol,
         which defines if the target system insists on unique
@@ -3491,6 +3494,9 @@ i_fenv (i_fenv.U):
 	indicates to the C program that <fenv.h> exists and should
 	be included.
 
+i_ffi (ffi.U):
+	This variable indicates if <ffi.h> needs to be included. See also useffi and d_libffi.
+
 i_fp (i_fp.U):
 	This variable conditionally defines the I_FP symbol, and indicates
 	whether a C program should include <fp.h>.
@@ -4645,9 +4651,15 @@ PERL_VERSION (Oldsyms.U):
 perladmin (perladmin.U):
 	Electronic mail address of the perl5 administrator.
 
+perldll (End.U):
+	The name of the shared perl dll, needed for ffi/DynaLoader limitations
+        on Windows.
+
 perllibs (End.U):
 	The list of libraries needed by Perl only (any libraries needed
 	by extensions only will by dropped, if using dynamic loading).
+        Also needed for ffi/DynaLoader limitations on Windows in its
+        PERL_LIBS C define.
 
 perlpath (perlpath.U):
 	This variable contains the eventual value of the PERLPATH symbol,
@@ -5550,6 +5562,9 @@ usefaststdio (usefaststdio.U):
 	This variable conditionally defines the USE_FAST_STDIO symbol,
 	and indicates that Perl should be built to use 'fast stdio'.
 	Defaults to define in Perls 5.8 and earlier, to undef later.
+
+useffi (ffi.U):
+	This variable indicates if the ffi is enabled. See also d_libffi and i_ffi.
 
 useithreads (usethreads.U):
 	This variable conditionally defines the USE_ITHREADS symbol,

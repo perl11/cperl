@@ -17661,6 +17661,7 @@ our %delta :const = (
             'B'                     => '1.71_09',
             'B::Deparse'            => '1.48_05c',
             'Cwd'                   => '4.75c',
+            'DynaLoader'            => '2.09c',
             'Errno'                 => '1.29_01',
             'ffi'                   => '0.01c',
             'hashiter'              => '0.02',

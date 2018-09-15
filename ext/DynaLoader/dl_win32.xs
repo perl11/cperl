@@ -125,7 +125,7 @@ dl_load_file(filename,flags=0)
     SV * retsv;
   CODE:
     PERL_UNUSED_VAR(flags);
-    DLDEBUG(1,PerlIO_printf(Perl_debug_log,"dl_load_file(%s):\n", filename));
+    DLDEBUG(1,PerlIO_printf(Perl_debug_log,"dl_load_file(\"%s\"):\n", filename));
     if (dl_static_linked(filename) == 0)
 	retv = PerlProc_DynaLoad(filename);
     else
@@ -158,18 +158,72 @@ dl_find_symbol(libhandle, symbolname, ign_err=0)
     char *	symbolname
     int	        ign_err
   PREINIT:
-    void *retv;
+    FARPROC retv = NULL;
   CODE:
-    DLDEBUG(2,PerlIO_printf(Perl_debug_log,"dl_find_symbol(handle=%x, symbol=%s)\n",
-		      libhandle, symbolname));
-    retv = (void*) GetProcAddress((HINSTANCE) libhandle, symbolname);
-    DLDEBUG(2,PerlIO_printf(Perl_debug_log,"  symbolref = %x\n", retv));
+    DLDEBUG(2,PerlIO_printf(Perl_debug_log,"dl_find_symbol(%p, \"%s\")\n",
+                            libhandle, symbolname));
+    if (!libhandle) {
+        /* Try GetModuleHandle for all loaded shared libs to mimic POSIX,
+           which does allow a NULL libhandle. Currently we try all compile-time shared libs only,
+           the rest is done in dl_find_symbol_anywhere().
+        */
+        HMODULE hdl = GetModuleHandle(NULL); /* current process */
+        DLDEBUG(2,PerlIO_printf(Perl_debug_log,"GetModuleHandle(NULL) "));
+        if (hdl)
+            retv = GetProcAddress(hdl, symbolname);
+        if (!retv) {
+            /* iterate over perldll and libs */
+#ifdef PERL_LIBDLL
+            DLDEBUG(2,PerlIO_printf(Perl_debug_log,"GetModuleHandle(\"%s\")" ,
+                                    PERL_LIBDLL));
+            hdl = GetModuleHandle(PERL_LIBDLL);
+#else
+# ifdef USE_CPERL
+            hdl = GetModuleHandle("cperl");
+# else
+            hdl = GetModuleHandle("perl");
+# endif
+#endif
+            if (hdl)
+                retv = GetProcAddress(hdl, symbolname);
+            if (!retv) { /* libc and libm not included in perllibs */
+                DLDEBUG(2,PerlIO_printf(Perl_debug_log,"GetModuleHandle(\"msvcrt\") "));
+                if ((hdl = GetModuleHandle("msvcrt")) && (retv = GetProcAddress(hdl, symbolname)))
+                    ;
+                else {
+                    DLDEBUG(2,PerlIO_printf(Perl_debug_log,"GetModuleHandle(\"ucrt\") "));
+                    if ((hdl = GetModuleHandle("ucrt")))
+                        retv = GetProcAddress(hdl, symbolname);
+                }
+            }
+#ifdef PERL_LIBS
+            if (!retv) {
+                /* config_h.PL terminates PERL_LIBS with a NULL */
+                const char * const perl_libs[] = { PERL_LIBS };
+                const char * const *lib;
+                for (lib = perl_libs; *lib; lib++) {
+                    DLDEBUG(2,PerlIO_printf(Perl_debug_log,"GetModuleHandle(\"%s\") ", lib));
+                    if ((hdl = GetModuleHandle((const char *)lib))) {
+                        retv = GetProcAddress(hdl, symbolname);
+                        if (retv)
+                            break;
+                    }
+		}
+            }
+#endif
+        }
+    } else {
+        retv = GetProcAddress((HMODULE) libhandle, symbolname);
+    }
+    DLDEBUG(2,PerlIO_printf(Perl_debug_log," GetProcAddress => %x\n", retv));
     ST(0) = sv_newmortal();
-    if (retv == NULL) {
+    if (!retv) {
         if (!ign_err) SaveError(aTHX_ "dl_find_symbol:%s", OS_Error_String(aTHX));
-    } else
+        XSRETURN_UNDEF;
+    } else {
 	sv_setiv( ST(0), (IV)retv);
-
+        XSRETURN(1);
+    }
 
 void
 dl_undef_symbols()
@@ -185,7 +239,7 @@ dl_install_xsub(perl_name, symref, filename="$Package")
     void *		symref 
     char *		filename
   CODE:
-    DLDEBUG(2,PerlIO_printf(Perl_debug_log,"dl_install_xsub(name=%s, symref=%x)\n",
+    DLDEBUG(2,PerlIO_printf(Perl_debug_log,"dl_install_xsub(name=\"%s\", symref=%x)\n",
 		      perl_name, symref));
     ST(0) = sv_2mortal(newRV((SV*)newXS(perl_name,
 					(void(*)(pTHX_ CV *))symref,

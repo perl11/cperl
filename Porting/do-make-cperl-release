@@ -110,5 +110,6 @@ esac
 # GNU/kFreeBSD, GNU (Hurd), sn5176 (Cray), cygwin ... Do it manually there.
 # Windows/MINGW have different .bat files.
 
-sha1sum $tar $pkg
+sha256sum $tar $pkg
+gpg -a -b $pkg
 cd $curdir

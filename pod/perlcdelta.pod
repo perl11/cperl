@@ -168,6 +168,12 @@ Fixed long pathnames test for getcwd() on older systems, like debian-7.11 i386,
 which still returns ENAMETOOLONG on large enough buffers.
 Fix the HAS_GET_CURRENT_DIR_NAME check, and the is_ENAMETOOLONG macro.
 
+=item L<DynaLoader> 2.09c
+
+Extend C<dl_find_symbol> on dl_win32 to mimic the POSIX behaviour with
+an empty libhandle argument: Search the symbol in all loaded shared
+libraries. This is a convenience platform-compat feature for the L<ffi>.
+
 =item L<Errno> 1.29_01
 
 Protect from including some avx512 intrinsics directly on mingw.
@@ -318,9 +324,20 @@ L</Platform Support> section, instead.
 
 =over 4
 
-=item *
+=item useffi
 
-XXX
+Added if F<ffi.h> is being found. If so the C<incpth>, C<ccflags> and
+C<libs> is extended to include libffi.
+
+=item ffi_targets
+
+With C<useffi> this space-seperated string is filled with the valid and
+supported C<:nativeconv()> ABI's, in uppercase. Matching HAVE_FFI_*
+defines in F<config.h>. See L<attributes/nativeconv(STRING)>.
+
+=item Porting/do-make-cperl-release
+
+Replace C<sha1sum> with C<sha256sum>, add C<gpg -a -b $pkg>.
 
 =back
 
@@ -407,12 +424,30 @@ Install it with C<sudo yum install -y dtrace-utils dtrace-utils-devel>.
 
 =back
 
+=item Windows
+
+=over 4
+
+=item *
+
+Add DynaLoader fallbacks to C<dl_find_symbol> to mimic the POSIX behaviour with
+an empty libhandle argument: Search the symbol in all loaded/most shared
+libraries. This is a convenience platform-compat feature for the L<ffi>.
+
+=back
+
 =item mingw
+
+=over 4
+
+=item *
 
 Fixed Errno from processing some protected intrinsics directly, which fail with
 #error "Never use <avx512vpopcntdqintrin.h>, <avx512ifmaintrin.h> directly; include <immintrin.h> instead."
 #error "Never use <fmaintrin.h> directly; include <immintrin.h> instead."
 #error "Never use <xsavesintrin.h> directly; include <x86intrin.h> instead."
+
+=back
 
 =back
 
@@ -517,7 +552,7 @@ here.
 
 XXX Generate this with:
 
-    cperl Porting/acknowledgements.pl cperl-5.27.2..HEAD -c
+    cperl Porting/acknowledgements.pl cperl-5.28.0..HEAD -c
 
 =head1 Reporting Bugs
 

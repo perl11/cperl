@@ -5483,6 +5483,18 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #define PERL_BUILD_DATE "$cf_time"
 #endif
 
+/* PERL_LIBDLL:
+ *	This defines the name of the shared perl dll, needed for ffi/DynaLoader limitations
+ *      on Windows.
+ */
+#define PERL_LIBDLL "$perldll"
+
+/* PERL_LIBS:
+ *	This defines the names of the shared perl dlls, needed for ffi/DynaLoader limitations
+ *      on Windows.
+ */
+#define PERL_LIBS 0		/**/
+
 /* USE_FFI:
  *	C header equivalent to \$Config{useffi}, if -lffi is enabled and linked.
  */
@@ -5497,11 +5509,11 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  *	These symbols if existing are platform specific alternatives to the
  *      DEFAULT libffi ABI, needed for :nativeconv(STRING). See also F<have_ffi.h>
  */
-#ifndef USE_FFI
 #$useffi	USE_FFI		/**/
-#endif
+#ifdef USE_FFI
 #$i_ffi 	I_FFI		/**/
 #$d_libffi 	D_LIBFFI        /**/
+#endif
 
 #endif
 !GROK!THIS!

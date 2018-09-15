@@ -74,6 +74,14 @@ while (<SH>) {
   elsif (/^\s*#define\s+CPP(STDIN|RUN)\s+"gcc(.*)"\s*$/) {
      $_ = "#define CPP" . $1 . " \"" . $opt{ARCHPREFIX} . "gcc" . $2 . "\"\n";
   }
+  elsif (/^#define\s+PERL_LIBS\s+/) {
+      print H "#define PERL_LIBS\t";
+      for (split(" ", $Config{perllibs})) {
+          s/^-l//;
+          print H "\"$_\", ";
+      }
+      $_ = "0\n";
+  }
   print H;
 }
 close(H);

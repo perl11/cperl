@@ -3311,6 +3311,7 @@ $!
 $! perllibs should be libs with all non-core libs (such as gdbm) removed.
 $!
 $ perllibs=libs
+$ perldll="PERLSHR.EXE"
 $!
 $!
 $ d_PRId64 = "define"
@@ -6747,6 +6748,7 @@ $ WC "path_sep='|'"
 $ WC "perl_root='" + perl_root + "'" ! VMS specific $trnlnm()
 $ WC "perladmin='" + perladmin + "'"
 $ WC "perllibs='" + perllibs + "'"
+$ WC "perldll='" + perldll + "'"
 $ WC "perlpath='" + "''vms_prefix':[000000]Perl''exe_ext'" + "'"
 $ WC "perl_static_inline='static inline'"
 $ WC "perl_symbol='" + perl_symbol + "'"  ! VMS specific

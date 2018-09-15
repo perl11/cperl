@@ -579,11 +579,12 @@ XS(XS_DynaLoader_dl_find_symbol_anywhere)
     dl_find_symbol = (SV*)get_cv("DynaLoader::dl_find_symbol", 0);
     for (i=0; i<=AvFILLp(dl_librefs); i++) {
         SV *libref = AvARRAY(dl_librefs)[i];
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "dl_find_symbol_anywhere(symbol=%s, libref=%p)\n",
-                                SvPVX(sym), libref));
+	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "dl_find_symbol(%p, \"%s\")\n",
+                                libref, SvPVX(sym)));
         PUSHMARK(SP);
         XPUSHs(libref);
         XPUSHs(sym);
+        mXPUSHs(newSViv(1)); /* ignore error, cperl only */
         PUTBACK;
         items = call_sv(dl_find_symbol, G_SCALAR);
         SPAGAIN;
@@ -595,6 +596,24 @@ XS(XS_DynaLoader_dl_find_symbol_anywhere)
             XSRETURN(1);
         }
     }
+#ifdef WIN32
+    DLDEBUG(2,PerlIO_printf(Perl_debug_log, "dl_find_symbol_anywhere(\"%s\")\n",
+                            SvPVX(sym)));
+    PUSHMARK(SP);
+    mXPUSHs(newSViv(0));
+    XPUSHs(sym);
+    mXPUSHs(newSViv(1)); /* ignore error, cperl only */
+    PUTBACK;
+    items = call_sv(dl_find_symbol, G_SCALAR);
+    SPAGAIN;
+    if (items == 1 && SvIOK(TOPs)) {
+        DLDEBUG(2,PerlIO_printf(Perl_debug_log, " symbolref=0x%" UVxf "\n",
+                                (UV)TOPi));
+        SvTEMP_off(TOPs);
+        ST(0) = TOPs;
+        XSRETURN(1);
+    }
+#endif
     XSRETURN_UNDEF;
 }
 

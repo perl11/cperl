@@ -1171,7 +1171,7 @@ endif
 DYNALOADER	= ..\DynaLoader$(o)
 
 # vars must be separated by "\t+~\t+", since we're using the tempfile
-# version of config_sh.pl (we were overflowing someone's buffer by
+# version of config_sh.PL (we were overflowing someone's buffer by
 # trying to fit them all on the command line)
 #	-- BKS 10-17-1999
 CFG_VARS	=					\
@@ -1189,8 +1189,9 @@ CFG_VARS	=					\
 		"incpath=$(subst ",\",$(CCINCDIR))"			\
 		"libperl=$(subst ",\",$(PERLIMPLIBBASE))"		\
 		"libpth=$(subst ",\",$(CCLIBDIR);$(EXTRALIBDIRS))"	\
+                "perldll=$(PERLDLLBASE)"		\
 		"libc=$(LIBC)"				\
-		"make=$(PLMAKE)"				\
+		"make=$(PLMAKE)"			\
 		"_o=$(o)"				\
 		"obj_ext=$(o)"				\
 		"_a=$(a)"				\

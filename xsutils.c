@@ -24,7 +24,7 @@
 #include "perl.h"
 #include "XSUB.h"
 
-#if defined(USE_FFI) && defined(I_FFI)
+#if defined(USE_FFI) && defined(I_FFI) && defined(D_LIBFFI)
 # include <ffi.h>
 #endif
 #if defined(I_DLFCN)
@@ -652,6 +652,34 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
             abi = FFI_ ## conv;          \
         } else
 
+/* This must match ffitarget.h.
+   We could also compare FFI_DEFAULT_ABI == FFI_SYSV|FFI_MS_CDECL|FFI_UNIX64|FFI_WIN64
+ */
+#ifdef USE_FFI
+#if defined(X86_WIN64)
+#  define HAVE_FFI_WIN64
+#elif defined(X86_64) || (defined (__x86_64__) && defined (X86_DARWIN))
+#  define HAVE_FFI_UNIX64
+#  define HAVE_FFI_WIN64
+#elif defined(X86_WIN32)
+#  define HAVE_FFI_SYSV
+#  define HAVE_FFI_STDCALL
+#  define HAVE_FFI_THISCALL
+#  define HAVE_FFI_FASTCALL
+#  define HAVE_FFI_MS_CDECL
+#  define HAVE_FFI_PASCAL
+#  define HAVE_FFI_REGISTER
+#else
+#  define HAVE_FFI_SYSV
+#  define HAVE_FFI_STDCALL
+#  define HAVE_FFI_THISCALL
+#  define HAVE_FFI_FASTCALL
+#  define HAVE_FFI_MS_CDECL
+#  define HAVE_FFI_PASCAL
+#  define HAVE_FFI_REGISTER
+#endif
+#endif
+    
     if (nativeconv && *nativeconv) {
 #ifdef HAVE_FFI_SYSV
         CHK_ABI(SYSV)
@@ -1196,10 +1224,12 @@ S_find_symbol(pTHX_ CV* cv, char *name)
     if (CvSLABBED(cv) && cv == PL_compcv && CvFFILIB(cv))
         handle = (IV)RTLD_DEFAULT;
 #ifdef WIN32
-    /* GetProcAddress(NULL) will fail.
-       dl_load_file already tried GetModuleHandle() and dl_find_symbol_anywhere,
+    /* GetProcAddress(NULL, "foo") will fail.
+       if name dl_load_file already tried GetModuleHandle() and dl_find_symbol_anywhere,
        unless we came from find_native(cv, NULL) */
-    if (!handle && name) {
+    if (!handle) {
+        /* Try GetModuleHandle() for some loaded DLL's. dl_find_symbol_anywhere only tries all dynaloaded
+           dl_librefs, but not cperl.dll nor libc */
         return;
     }
 #endif
@@ -1208,7 +1238,7 @@ S_find_symbol(pTHX_ CV* cv, char *name)
     PUSHMARK(SP);
     mXPUSHs(newSViv(handle));
     XPUSHs(pv);
-    mXPUSHs(newSViv(1)); /* ignore error. supported by cperl-only */
+    mXPUSHs(newSViv(1)); /* ignore error. supported by cperl and newer perl5's */
     PUTBACK;
     nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
     SPAGAIN;
@@ -1256,12 +1286,13 @@ S_find_native(pTHX_ CV* cv, char *libname)
     } else {
         CvFFILIB(cv) = 0;
     }
+
     if (!libname && !CvFFILIB(cv)) {
         /* Desperation: lib not found,
            or no libname provided, and not found by dlopen(0) */
-        CV *dl_find_symbol = get_cvs("DynaLoader::dl_find_symbol_anywhere", 0);
+        CV *dl_find_symbol_anywhere = get_cvs("DynaLoader::dl_find_symbol_anywhere", 0);
         SV *symname;
-        if (!dl_find_symbol) {
+        if (!dl_find_symbol_anywhere) {
             Perl_ck_warner(aTHX_ packWARN(WARN_FFI), "no ffi without DynaLoader");
             return; /* miniperl */
         }
@@ -1271,15 +1302,14 @@ S_find_native(pTHX_ CV* cv, char *libname)
             if (CvXFFI(cv))
                 return;
         }
-        assert(dl_find_symbol);
+        assert(dl_find_symbol_anywhere);
         symname = cv_name(cv, NULL, CV_NAME_NOTQUAL);
 
         SPAGAIN;
         PUSHMARK(SP);
-        mXPUSHs(newSViv(CvFFILIB(cv)));
         XPUSHs(symname);
         PUTBACK;
-        nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
+        nret = call_sv((SV*)dl_find_symbol_anywhere, G_SCALAR);
         SPAGAIN;
         if (nret == 1 && SvIOK(TOPs)) {
 #ifdef __cplusplus

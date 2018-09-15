@@ -5438,6 +5438,18 @@
 #define PERL_BUILD_DATE "Thu Jan  1 00:00:00 GMT 1970"
 #endif
 
+/* PERL_LIBDLL:
+ *	This defines the name of the shared perl dll, needed for ffi/DynaLoader limitations
+ *      on Windows.
+ */
+#define PERL_LIBDLL "undef"
+
+/* PERL_LIBS:
+ *	This defines the names of the shared perl dlls, needed for ffi/DynaLoader limitations
+ *      on Windows.
+ */
+#define PERL_LIBS 0		/**/
+
 /* USE_FFI:
  *	C header equivalent to $Config{useffi}, if -lffi is enabled and linked.
  */
@@ -5452,15 +5464,26 @@
  *	These symbols if existing are platform specific alternatives to the
  *      DEFAULT libffi ABI, needed for :nativeconv(STRING). See also F<have_ffi.h>
  */
-#ifndef USE_FFI
 /*#define	USE_FFI		/ **/
-#endif
+#ifdef USE_FFI
 /*#define 	I_FFI		/ **/
 /*#define 	D_LIBFFI        / **/
+# ifdef WIN64
+#  define HAVE_FFI_WIN64
+# else
+#  define HAVE_FFI_SYSV
+#  define HAVE_FFI_STDCALL
+#  define HAVE_FFI_THISCALL
+#  define HAVE_FFI_FASTCALL
+#  define HAVE_FFI_MS_CDECL
+#  define HAVE_FFI_PASCAL
+#  define HAVE_FFI_REGISTER
+# endif
+#endif
 
 #endif
 
 /* Generated from:
- * fac9e2737c1d8e646e23dce0a169adac17a68ac662bfe87b467559facadd8b1f config_h.SH
- * 9fb6a6c300d0261584a844e1b150252e6ab5208c5bef60c78743522ef123f28a uconfig.sh
+ * 91da70873d5a1217c5894e755466240d22a84ad53ae023677ab153c3236e04ae config_h.SH
+ * 8c426d198fb3d779629e9652bcb55fc5d6e56b80689f6d1e583eb377755875e1 uconfig.sh
  * ex: set ro: */
