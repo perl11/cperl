@@ -3,6 +3,9 @@
 /config.w32
 /perl.base
 bin/*.bat
+bin/libffi*
+lib/libffi*
+include/ffi*
 html/
 mini/
 Extensions_static

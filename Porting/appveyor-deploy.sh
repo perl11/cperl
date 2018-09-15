@@ -34,7 +34,17 @@ else
 fi
 
 export PERL_HASH_SEED=0
-$make -s install DESTDIR=$destdir || exit
+$make -s install $MKOPT DESTDIR=$destdir || exit
+
+# ship libffi on mingw. cygwin has a system pkg
+if [ -z "$CYGWIN" ]; then
+    cp win32/include/ffi*.h $destdir/lib/CORE/
+    cp win32/lib/libffi*.* $destdir/lib/CORE/
+    cp win32/bin/libffi*.dll $destdir/bin/
+    # maybe generate html for this
+    mkdir -p $destdir/share/
+    cp win32/share/info $destdir/share/
+fi
 
 touch $destdir/lib/cperl/site_cperl/$ver/.empty
 for d in `$find $destdir -type d -empty`; do touch "$d"/.empty; done

@@ -76,14 +76,14 @@ sub try_compile_and_link {
 	my $ccflags = $Config{'ccflags'} . ' ' . "-I$COREincdir"
 	 . ' -DPERL_NO_INLINE_FUNCTIONS';
 	if ($^O eq "MSWin32") {
-	    $ccflags .= " -I../../win32 -I../../win32/include";
+	    $ccflags .= ' -I..\..\win32 -I..\..\win32\include';
 	}
 
 	my $libs = '';
 	# Include libs to be sure of linking against bufferoverflowU.lib for
 	# the SDK2003 compiler on Windows. See win32/Makefile for more details.
 	if ($^O eq "MSWin32" && $Config{cc} =~ /\bcl\b/i) {
-	    $libs = " /link $Config{'libs'}";
+	    $libs = " /link $Config{libs}";
 	}
 
 	my $null = File::Spec->devnull;

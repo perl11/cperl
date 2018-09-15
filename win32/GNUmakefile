@@ -164,6 +164,13 @@ DEFAULT_INC_EXCLUDES_DOT := define
 #USE_NO_REGISTRY := define
 
 #
+# Uncomment this if you want to enable libffi and calling extern subs
+# via native call. Should be enabled, but needs libffi.
+# See https://github.com/perl11/cperl/releases/tag/libffi-win or appveyor.yml
+#
+#USE_FFI = define
+
+#
 # uncomment exactly one of the following
 #
 # Visual C++ 6.0 (aka Visual C++ 98)
@@ -298,6 +305,7 @@ PERL_MALLOC	?= undef
 DEBUG_MSTATS	?= undef
 
 USE_CPERL	?= undef
+USE_FFI	        ?= undef
 USE_SITECUST	?= undef
 USE_MULTI	?= undef
 USE_ITHREADS	?= undef
@@ -615,6 +623,11 @@ MINIBUILDOPT	+= -fno-strict-aliasing
 
 TESTPREPGCC	= test-prep-gcc
 
+ifeq ($(USE_FFI),define)
+LIBFILES        += -lffi
+LINK_FLAGS      += -Llib
+endif
+
 else
 
 o = .obj
@@ -719,6 +732,12 @@ LIB_FLAGS	= -ltcg
 endif
 endif
 
+ifeq ($(USE_FFI),define)
+LIBFFI	        = -lffi
+else
+LIBFFI	        =
+endif
+
 ifeq ($(WIN64),define)
 DEFINES		+= -DWIN64 -DCONSERVATIVE
 OPTIMIZE	+= -fp:precise
@@ -786,7 +805,11 @@ ifeq ("$(WIN64) $(CCTYPE)","define SDK2003SP1")
 LIBBASEFILES    += bufferoverflowU.lib
 endif
 
+ifeq ($(USE_FFI),define)
+LIBFILES	= libffi.dll.a $(LIBBASEFILES) $(LIBC)
+else
 LIBFILES	= $(LIBBASEFILES) $(LIBC)
+endif
 
 EXTRACFLAGS	= -nologo -GF -W3
 ifeq ($(__ICC),define)
@@ -806,6 +829,10 @@ EXEOUT_FLAG	= -Fe
 LIBOUT_FLAG	= /out:
 PDBOUT		= -Fd$(*).pdb
 TESTPREPGCC	=
+
+ifeq ($(USE_FFI),define)
+LINK_FLAGS	+= -libpath:lib
+endif
 
 endif
 
@@ -1175,6 +1202,7 @@ CFG_VARS	=					\
 		"usemultiplicity=$(USE_MULTI)"		\
 		"useperlio=$(USE_PERLIO)"		\
 		"use64bitint=$(USE_64_BIT_INT)"		\
+		"useffi=$(USE_FFI)"			\
 		"uselongdouble=$(USE_LONG_DOUBLE)"	\
 		"uselargefiles=$(USE_LARGE_FILES)"	\
 		"usesitecustomize=$(USE_SITECUST)"	\
@@ -1874,6 +1902,7 @@ test-prep : all utils ..\pod\perltoc.pod $(TESTPREPGCC)
 	copy     $(PERLEXE) ..\t\perl.exe
 	$(XCOPY) $(PERLDLL) ..\t\$(NULL)
 	$(XCOPY) $(PERLDLL) ..\cpan\B-C\$(NULL)
+	-$(XCOPY) bin\*.dll  ..\cpan\B-C\$(NULL)
 	$(XCOPY) $(GLOBEXE) ..\t\$(NULL)
 # If building with gcc versions 4.x.x or greater, then
 # the GCC helper DLL will also need copied to the test directory.

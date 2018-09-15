@@ -757,11 +757,11 @@ LIBBASEFILES	+= libircmt.lib libmmd.lib
 LIBBASEFILES    += bufferoverflowU.lib
 .ENDIF
 
+.IF "$(USE_FFI)" == "define"
+LIBFILES	= libffi.dll.a $(LIBBASEFILES) $(LIBC)
+.ELSE
 LIBFILES	= $(LIBBASEFILES) $(LIBC)
-
-!IF "$(USE_FFI)" == "define"
-LIBFILES	+= ffi.dll.a
-!ENDIF
+.ENDIF
 
 EXTRACFLAGS	= -nologo -GF -W3
 .IF "$(__ICC)" == "define"
@@ -1823,6 +1823,7 @@ test-prep : all utils ..\pod\perltoc.pod $(TESTPREPGCC)
 	&& copy  $(PERLEXE) ..\t\perl.exe \
 	&& $(XCOPY) $(GLOBEXE) ..\t\$(NULL)
 	$(XCOPY) $(PERLDLL) ..\cpan\B-C\$(NULL)
+	-$(XCOPY) bin\*.dll ..\cpan\B-C\$(NULL)
 
 # If building with gcc versions 4.x.x or greater, then
 # the GCC helper DLL will also need copied to the test directory.

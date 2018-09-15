@@ -117,7 +117,7 @@ USE_NO_REGISTRY = define
 #
 # Uncomment this if you want to enable libffi and calling extern subs
 # via native call. Should be enabled, but needs libffi.
-# See https://github.com/perl11/cperl/releases/tag/libffi-win
+# See https://github.com/perl11/cperl/releases/tag/libffi-win or appveyor.yml
 #
 #USE_FFI = define
 
@@ -648,7 +648,7 @@ CFLAGS_O	= $(CFLAGS) $(BUILDOPT)
 
 !IF "$(USE_FFI)" == "define"
 LINK_FLAGS	= $(LINK_FLAGS) -libpath:lib
-LIBFILES	= $(LIBFILES) libffi.dll.a
+LIBFILES	= libffi.dll.a $(LIBFILES)
 !ENDIF
 
 !IF "$(PREMSVC80)" == "undef"
@@ -1506,6 +1506,7 @@ test-prep : all utils ../pod/perltoc.pod
 	copy     $(PERLEXE) ..\perl.exe
 	$(XCOPY) $(PERLDLL) ..\t\$(NULL)
 	$(XCOPY) $(PERLDLL) ..\cpan\B-C\$(NULL)
+	-$(XCOPY) bin\*.dll ..\cpan\B-C\$(NULL)
 	$(XCOPY) $(GLOBEXE) ..\t\$(NULL)
 	set PERL_STATIC_EXT=$(STATIC_EXT)
 

@@ -352,8 +352,7 @@ are limited. So they are based on master.
   
   [code](http://github.com/perl11/cperl/commits/smoke/gh22-ffi)
   
-  windows: autoinstall of binary libffi missing.
-  more convenience methods needed.
+  more convenience methods needed. native arrays, classes (struct), :encoded().
 
 * [bugfix/gh311-role-meth](https://github.com/perl11/cperl/issues/311)
 

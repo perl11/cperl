@@ -68,13 +68,14 @@ init:
   #- if "%MINGW%"=="1" rename c:\MinGW\include include.old
   - if "%MINGW%"=="1" rename c:\MinGW MinGW.old
   - if "%MINGW%"=="1" set CCHOME=c:\strawberry\c & set MKOPT="CCHOME=c:\strawberry\c"
+  - set MKOPT=%MKOPT% USE_FFI=define
   - if "%CFG%"=="Debug" set
   - if "%PLATFORM%"=="x86" set WIN64=undef
   - if "%PLATFORM%"=="x86" set BITS=32
   - if "%PLATFORM%"=="x64" set BITS=64
-  - if "%CYGWIN%"=="1" set CYGR=c:\cygwin
-  - if "%CYGWIN%"=="1" set CYGSETUP=setup-x86
+  - set CYGR=c:\cygwin
   - if "%PLATFORM%"=="x64" set CYGR=c:\cygwin64
+  - if "%CYGWIN%"=="1" set CYGSETUP=setup-x86
   - if "%PLATFORM%"=="x64" set CYGSETUP=setup-x86_64
   #- if not "%CYGWIN%"=="1" nuget install libffi
   #- cinst -y wget
@@ -92,13 +93,14 @@ build_script:
   - if not "%CYGWIN%"=="1" %CYGR%\bin\wget -q https://github.com/perl11/cperl/releases/download/libffi-win/libffi-3.2.2dev-mingw%BITS%.tar.gz
   - if not "%CYGWIN%"=="1" %CYGR%\bin\gzip -d libffi-3.2.2dev-mingw%BITS%.tar.gz
   - if not "%CYGWIN%"=="1" %CYGR%\bin\tar -xf libffi-3.2.2dev-mingw%BITS%.tar -C win32/
-  - if not "%CYGWIN%"=="1" copy win32\bin\libffi*.dll .
+  - if not "%CYGWIN%"=="1" copy win32\bin\libffi*.dll *.*
   - if "%MINGW%"=="1"  gmake -s -C win32 %MKOPT%
   #- if "%CFG%"=="Debug" type config.sh
   - if "%CYGWIN%"=="1" sh ./Configure -des -Dusedevel & make
 
 test_script:
   - ps: if ($env:MSVC_VERSION -gt 0) { $env:MSVC = 1 }
+  - if not "%CYGWIN%"=="1" copy win32\bin\libffi*.dll t\
   - if "%MSVC%"=="1"   t\appveyor-smoke.bat
   - if "%CYGWIN%"=="1" make -s test
   - if "%MINGW%"=="1"  gmake -s -C win32 %MKOPT% test
@@ -106,7 +108,7 @@ test_script:
   #- if "%CYGWIN%"=="1" ./cperl -pi -e 's/\r\n/\n/g' Porting/appveyor-deploy.sh
   - if "%CYGWIN%"=="1" sh -c Porting/appveyor-deploy.sh
   - if "%MINGW%"=="1" rename c:\MinGW.old MinGW
-  - if "%MINGW%"=="1" set PATH=c:\Windows\system32;c:\Windows;C:\strawberry\c\bin;C:\strawberry\perl\bin;c:\Windows\system32\Wbem;C:\MinGW\bin;C:\MinGW\msys\1.0\bin;
+  - if "%MINGW%"=="1" set PATH=c:\Windows\system32;c:\Windows;C:\strawberry\c\bin;C:\strawberry\perl\bin;c:\Windows\system32\Wbem;C:\MinGW\bin;C:\MinGW\msys\1.0\bin;C:\projects\cperl;C:\projects\cperl\win32\bin;
   - if "%MINGW%"=="1" sh -c Porting/appveyor-deploy.sh
 
 # appveyor cannot glob * in names
