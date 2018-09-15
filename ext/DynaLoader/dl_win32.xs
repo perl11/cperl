@@ -174,7 +174,7 @@ dl_find_symbol(libhandle, symbolname, ign_err=0)
         if (!retv) {
             /* iterate over perldll and libs */
 #ifdef PERL_LIBDLL
-            DLDEBUG(2,PerlIO_printf(Perl_debug_log,"GetModuleHandle(\"%s\")" ,
+            DLDEBUG(2,PerlIO_printf(Perl_debug_log,"GetModuleHandle(\"%s\") ",
                                     PERL_LIBDLL));
             hdl = GetModuleHandle(PERL_LIBDLL);
 #else
@@ -215,13 +215,13 @@ dl_find_symbol(libhandle, symbolname, ign_err=0)
     } else {
         retv = GetProcAddress((HMODULE) libhandle, symbolname);
     }
-    DLDEBUG(2,PerlIO_printf(Perl_debug_log," GetProcAddress => %x\n", retv));
+    DLDEBUG(2,PerlIO_printf(Perl_debug_log," GetProcAddress => 0x%" UVxf "\n", (UV)retv));
     ST(0) = sv_newmortal();
     if (!retv) {
         if (!ign_err) SaveError(aTHX_ "dl_find_symbol:%s", OS_Error_String(aTHX));
         XSRETURN_UNDEF;
     } else {
-	sv_setiv( ST(0), (IV)retv);
+	sv_setiv( ST(0), INT2PTR(IV, retv));
         XSRETURN(1);
     }
 

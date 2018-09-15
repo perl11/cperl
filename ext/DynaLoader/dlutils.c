@@ -607,8 +607,8 @@ XS(XS_DynaLoader_dl_find_symbol_anywhere)
     items = call_sv(dl_find_symbol, G_SCALAR);
     SPAGAIN;
     if (items == 1 && SvIOK(TOPs)) {
-        DLDEBUG(2,PerlIO_printf(Perl_debug_log, " symbolref=0x%" UVxf "\n",
-                                (UV)TOPi));
+        DLDEBUG(2,PerlIO_printf(Perl_debug_log, " => symbolref 0x%" UVxf "\n",
+                                TOPu));
         SvTEMP_off(TOPs);
         ST(0) = TOPs;
         XSRETURN(1);

@@ -675,7 +675,7 @@ typedef U32 cv_flags_t;
     union {									\
 	OP *	xcv_start;							\
 	ANY	xcv_xsubany;							\
-	unsigned long xcv_ffilib;                                               \
+	IV      xcv_ffilib;                                               	\
     }		xcv_start_u;					    		\
     union {									\
 	OP *	xcv_root;							\
