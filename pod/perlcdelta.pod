@@ -140,9 +140,9 @@ See L</Protected hash iterators>.
 
 =over 4
 
-=item *
+=item L<Errno> 1.29_01
 
-L<XXX> has been upgraded from version A.xx to B.yy.
+Protect from including some avx512 intrinsics directly on mingw.
 
 =back
 
@@ -350,9 +350,12 @@ L</Modules and Pragmata> section.
 
 =over 4
 
-=item XXX-some-platform
+=item mingw
 
-XXX
+Fixed Errno from processing some protected intrinsics directly, which fail with
+#error "Never use <avx512vpopcntdqintrin.h>, <avx512ifmaintrin.h> directly; include <immintrin.h> instead."
+#error "Never use <fmaintrin.h> directly; include <immintrin.h> instead."
+#error "Never use <xsavesintrin.h> directly; include <x86intrin.h> instead."
 
 =back
 

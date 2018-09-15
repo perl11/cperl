@@ -2,7 +2,7 @@ use ExtUtils::MakeMaker;
 use Config;
 use strict;
 
-our $VERSION = "1.29";
+our $VERSION = "1.29_01";
 
 my %err = ();
 
@@ -26,6 +26,8 @@ if ($Config{gccversion} ne '' && $^O eq 'MSWin32') {
     foreach $file (@files) {
 	next if $file eq 'errno.c';
 	next unless -f $file;
+        next if $file =~ /^avx512.*intrin\.h$/;     # never include those directly
+        next if $file =~ /^(fma|xsaves)intrin\.h$/; # never include those directly
 	print INCS qq[#include "$file"\n];
     }
     close INCS;
