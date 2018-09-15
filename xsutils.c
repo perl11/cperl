@@ -1197,8 +1197,9 @@ S_find_symbol(pTHX_ CV* cv, char *name)
         handle = (IV)RTLD_DEFAULT;
 #ifdef WIN32
     /* GetProcAddress(NULL) will fail.
-       dl_load_file already tried GetModuleHandle() and dl_find_symbol_anywhere */
-    if (!handle) {
+       dl_load_file already tried GetModuleHandle() and dl_find_symbol_anywhere,
+       unless we came from find_native(cv, NULL) */
+    if (!handle && name) {
         return;
     }
 #endif
