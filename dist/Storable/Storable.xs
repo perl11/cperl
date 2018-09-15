@@ -4,7 +4,7 @@
  *
  *  Copyright (c) 1995-2000, Raphael Manfredi
  *  Copyright (c) 2016, 2017 cPanel Inc
- *  Copyright (c) 2017 Reini Urban
+ *  Copyright (c) 2017, 2018 Reini Urban
  *
  *  You may redistribute only under the same terms as Perl 5, as specified
  *  in the README file that comes with the distribution.
@@ -3636,7 +3636,7 @@ static int store_hook(
     SV *ref;
     AV *av;
     SV **ary;
-    int count;			/* really len3 + 1 */
+    SSize_t count;		/* really len3 + 1 */
     unsigned char flags;
     char *pv;
     int i;
@@ -3728,7 +3728,7 @@ static int store_hook(
     SvREFCNT_dec(ref);			/* Reclaim temporary reference */
 
     count = AvFILLp(av) + 1;
-    TRACEME(("store_hook, array holds %d items", count));
+    TRACEME(("store_hook, array holds %ld items", (long)count));
 
     /*
      * If they return an empty list, it means they wish to ignore the
@@ -3962,8 +3962,8 @@ static int store_hook(
      */
 
     TRACEME(("SX_HOOK (recursed=%d) flags=0x%x "
-             "class=%" IVdf " len=%" IVdf " len2=%" IVdf " len3=%d",
-             recursed, flags, (IV)classnum, (IV)len, (IV)len2, count-1));
+             "class=%" IVdf " len=%" IVdf " len2=%" IVdf " len3=%ld",
+             recursed, flags, (IV)classnum, (IV)len, (IV)len2, (long)count-1));
 
     /* SX_HOOK <flags> [<extra>] */
     if (!recursed) {

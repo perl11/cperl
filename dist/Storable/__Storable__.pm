@@ -27,7 +27,7 @@ our @EXPORT_OK = qw(
 
 our ($canonical, $forgive_me);
 
-our $VERSION = '3.11_01';
+our $VERSION = '3.11_02';
 our $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 

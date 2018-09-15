@@ -17640,6 +17640,7 @@ our %delta = (
             'Module::CoreList::Utils'=> '5.20180913c',
             'Errno'                 => '1.29_01',
             'hashiter'              => '0.02',
+            'Storable'              => '3.11_02',
         },
         removed => {
         }

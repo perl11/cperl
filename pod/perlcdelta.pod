@@ -119,6 +119,12 @@ XXX
 
 Protect from including some avx512 intrinsics directly on mingw.
 
+=item L<Storable> 3.11_02
+
+Enable >2GB AvFILL check on store_hook (64bit)
+Too many references returned by STORABLE_freeze.
+It wrapped around previously. Fixes Coverity CID #187854.
+
 =back
 
 =head2 Removed Modules and Pragmata
