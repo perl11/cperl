@@ -74,9 +74,13 @@ require "./$ARGS{TARG_DIR}regen/embed_lib.pl";
 
 # Is the following guard strictly necessary? Added during refactoring
 # to keep the same behaviour when merging other code into here.
-process_cc_flags(@Config{qw(ccflags optimize)})
-    if $ARGS{PLATFORM} ne 'win32' && $ARGS{PLATFORM} ne 'wince'
-    && $ARGS{PLATFORM} ne 'netware';
+if ($ARGS{PLATFORM} ne 'win32'
+    && $ARGS{PLATFORM} ne 'wince'
+    && $ARGS{PLATFORM} ne 'netware')
+{
+    my @flags = @Config{qw(ccflags optimize)};
+    process_cc_flags(@flags);
+}
 
 # Add the compile-time options that miniperl was built with to %define.
 # On Win32 these are not the same options as perl itself will be built
