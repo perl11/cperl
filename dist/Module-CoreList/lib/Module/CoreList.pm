@@ -352,6 +352,7 @@ our %released :const = (
     '5.026003c' => '2018-09-10',
     '5.024004c' => '2018-09-14',
     '5.028001c' => '????-??-??',
+    '5.029000c' => '????-??-??',
  );
 
 sub version_sort {
@@ -17624,8 +17625,21 @@ our %delta = (
         delta_from => '5.028000c',
         changed => {
             'B::Op_private'         => '5.028001',
-            'Module::CoreList'      => '5.20180911c',
-            'Module::CoreList::Utils'=> '5.20180911c',
+            'Module::CoreList'      => '5.20180913c',
+            'Module::CoreList::Utils'=> '5.20180913c',
+            'Errno'                 => '1.29_01',
+        },
+        removed => {
+        }
+    },
+    '5.029000c' => {
+        delta_from => '5.028000c',
+        changed => {
+            'B::Op_private'         => '5.029000',
+            'Module::CoreList'      => '5.20180913c',
+            'Module::CoreList::Utils'=> '5.20180913c',
+            'Errno'                 => '1.29_01',
+            'hashiter'              => '0.02',
         },
         removed => {
         }
