@@ -4530,7 +4530,6 @@ haiku/Haiku/Haiku.xs		Haiku extension external subroutines
 haiku/Haiku/Makefile.PL		Haiku extension makefile writer
 haiku/haikuish.h		Header for the Haiku port
 handy.h				Handy definitions
-have_ffi.pl			Generate have_ffi.h enums
 hints/aix.sh			Hints for named architecture
 hints/aix_3.sh			Hints for named architecture
 hints/aix_4.sh			Hints for named architecture

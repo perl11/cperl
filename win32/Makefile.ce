@@ -831,10 +831,6 @@ $(CONFIGPM) : $(HPERL) ..\config.sh config_h.PL ..\git_version.h
 	$(XCOPY) *.h $(COREDIR)\*.*
 	$(RCOPY) include $(COREDIR)\*.*
 	if errorlevel 1 $(MAKE) /$(MAKEFLAGS) $(CONFIGPM)
-.IF "$(USE_FFI)" == "define"
-	$(MINIPERL) -I..\lib have_ffi.pl
-	cd .. && $(HPERL) -Ilib configpm --no-glossary
-.ENDIF
 
 .\config.h: $(CONFIGPM) ..\config.sh
 	-@$(DEL) /f config.h
@@ -902,7 +898,7 @@ clean: Extensions_clean
         -@$(DEL) .\$(MACHINE)\*.lib
         -@$(DEL) .\$(MACHINE)\*.exp
         -@$(DEL) .\$(MACHINE)\*.pdb
-        -@$(DEL) ..\git_version.h ..\have_ffi.h
+        -@$(DEL) ..\git_version.h
         -@$(DEL) config.h perl.res
         -@$(DEL) ..\t\test_state
 

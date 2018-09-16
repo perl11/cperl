@@ -5500,7 +5500,7 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 /* HAVE_FFI_*:
  *	These symbols if existing are platform specific alternatives to the
- *      DEFAULT libffi ABI, needed for :nativeconv(STRING). See F<have_ffi.h>
+ *      DEFAULT libffi ABI, needed for :nativeconv(STRING). Generated via F<config.pm>
  */
 #$useffi	USE_FFI		/**/
 

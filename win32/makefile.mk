@@ -1223,10 +1223,6 @@ regen_config_h:
 $(CONFIGPM) .\config.h .UPDATEALL: ..\config.sh config_h.PL
 	$(MINIPERL) -I..\lib ..\configpm --chdir=..
 	-$(MINIPERL) -I..\lib config_h.PL "ARCHPREFIX=$(ARCHPREFIX)"
-.IF "$(USE_FFI)" == "define"
-	$(MINIPERL) -I..\lib have_ffi.pl
-	$(MINIPERL) -I..\lib ..\configpm --chdir=..
-.ENDIF
 
 # See the comment in Makefile.SH explaining this seemingly cranky ordering
 ..\lib\buildcustomize.pl : $(MINI_OBJ) ..\write_buildcustomize.pl
@@ -1888,7 +1884,6 @@ _clean :
 	-@erase perlmainst$(o)
 	-@erase /f config.h
 	-@erase /f ..\git_version.h
-	-@erase ..\have_ffi.h
 	-@erase $(GLOBEXE)
 	-@erase $(PERLEXE)
 	-@erase $(WPERLEXE)

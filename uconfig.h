@@ -5455,13 +5455,13 @@
  */
 /* HAVE_FFI_*:
  *	These symbols if existing are platform specific alternatives to the
- *      DEFAULT libffi ABI, needed for :nativeconv(STRING). See F<have_ffi.h>
+ *      DEFAULT libffi ABI, needed for :nativeconv(STRING). Generated via F<config.pm>
  */
 /*#define	USE_FFI		/ **/
 
 #endif
 
 /* Generated from:
- * c4361a1d3d30bfcb4e0ad0458494825bf35c94a9d05a6462e55cdf21db650b25 config_h.SH
+ * e013bc0d68c81922e2d705bcae12699014b3b7be2ea930bb7ba15d530e8b03a7 config_h.SH
  * 8c426d198fb3d779629e9652bcb55fc5d6e56b80689f6d1e583eb377755875e1 uconfig.sh
  * ex: set ro: */

@@ -4,6 +4,7 @@
 #
 # Copyright (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001,
 # 2002, 2003, 2004, 2005, 2006, 2007 Larry Wall and others.
+# Copyright (C) 2018 Reini Urban
 #
 #
 # Regenerate the files
@@ -13,7 +14,8 @@
 #    lib/Config_heavy.pl
 #    lib/Config_xs_heavy.pl
 #    lib/Config.pod
-#
+#    config.h
+#    config.sh
 #
 # from the contents of the static files
 #
@@ -34,6 +36,7 @@ sub usage { die <<EOF }
 usage: $0  [ options ]
     --no-glossary       don't include Porting/Glossary in lib/Config.pod
     --chdir=dir         change directory before writing files
+    -v                  be verbose
 EOF
 
 use strict;
@@ -94,6 +97,7 @@ my %Allowed_Opts = (
     'glossary' => 1,  # --no-glossary  - no glossary file inclusion,
                       #                  for compactness
     'chdir'    => '', # --chdir=dir    - change directory before writing files
+    'v'        => 0,  # -v for verbose
 );
 
 sub opts {
@@ -118,8 +122,9 @@ sub opts {
 
 
 my %Opts = opts();
-
+my $olddir;
 if ($Opts{chdir}) {
+    $olddir = `pwd`; # miniperl only
     chdir $Opts{chdir} or die "$0: could not chdir $Opts{chdir}: $!"
 }
 
@@ -210,7 +215,7 @@ my @v_others = ();
 my $in_v     = 0;
 my %Data     = ();
 my $quote;
-
+my (%abi, $ffi_targets);
 
 my %seen_quotes;
 {
@@ -237,19 +242,19 @@ my %seen_quotes;
         # and remove wrong duplicate lowercase versions
         next if $k =~ /^perl_(version|subversion|revision)$/;
         next if $k =~ /^(LANG|LC_ALL)$/;
+        $Config{$k} = $v;
     }
-
-    # We can delimit things in config.sh with either ' or ". 
+    # We can delimit things in config.sh with either ' or ".
     unless ($in_v or m/^(\w+)=(['"])(.*\n)/){
 	push(@non_v, "#$_"); # not a name='value' line
 	next;
     }
-    if ($in_v) { 
+    if ($in_v) {
         $val .= $_;
     }
-    else { 
+    else {
 	$quote = $2;
-        ($name,$val) = ($1,$3); 
+        ($name,$val) = ($1,$3);
     }
     $in_v = $val !~ /$quote\n/;
     next if $in_v;
@@ -258,11 +263,25 @@ my %seen_quotes;
 
     $val =~ s/$quote\n?\z//;
 
+    $Config{$name} = $val;
     my $line = "$name=$quote$val$quote\n";
+    if ($line =~ /useffi='define'/ and $Config{incpth}) {
+        $ffi_targets = ffi_targets();
+        push(@v_others, $ffi_targets);
+    }
+    if ($line =~ /ffi_targets=/) {
+        $ffi_targets = ''; # no need to update
+    }
+
     push(@v_others, $line);
     $seen_quotes{$quote}++;
   }
   close CONFIG_SH;
+}
+
+# Update config.sh with the generated ffi_targets
+if ($ffi_targets) {
+    update_ffi_targets_sh($ffi_targets);
 }
 
 # This is somewhat grim, but I want the code for parsing config.sh here and
@@ -594,7 +613,7 @@ $heavy_txt .= <<'EOT';
 local *_ = \my $a;
 $_ = <<'!END!';
 EOT
-#proper lexicographical order of the keys
+# proper lexicographical order of the keys
 my %seen_var;
 $heavy_txt .= join('',
     map { $_->[-1] }
@@ -1214,8 +1233,138 @@ die "$0: error processing $Config_PM"
 	or eval 'delete $Config{"cc"}'
 	;
 
-
 exit 0;
+
+sub ffi_targets {
+    my ($inc);
+    for (reverse(split ' ', $Config{incpth})) {
+        if (/libffi/) {
+            if (-e "$_/ffitarget.h") {
+                $inc = $_; last;
+            }
+        }
+        if (-e "$_/ffitarget.h") {
+            $inc = $_; last;
+        }
+    }
+    unless ($inc) {
+        warn "libffi incdir not found in $Config{incpth}";
+        return "";
+    }
+    open my $f,'<',"$inc/ffitarget.h" or die "$inc/ffitarget.h $!";
+    my ($def, $in_enum);
+    while (<$f>) {
+        if (!$in_enum) {
+            $in_enum++ if /^typedef enum ffi_abi/;
+            next;
+        }
+        $def++ if /^\s*#\s*if/;
+        if (/^\s+FFI_(FIRST|LAST|DEFAULT)_ABI/) {
+            ;
+        }
+        elsif (/^\s+FFI_(\w+)[, ]/) {
+            $abi{$1}++;
+        }
+        last if /^} ffi_abi;/
+    }
+    close $f;
+
+    unless (%abi) { # easiest case
+        # write_file('have_ffi.h', "/* only default ffi_abi */");
+        return "ffi_targets=''\n";
+    }
+
+    if ($def) { # need to probe all values
+        print "Probing for HAVE_FFI_ targets...\n"
+          unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
+        for my $s (sort keys %abi) {
+            probe_ffi($s);
+        }
+    }
+    else { # no if, can take all
+        for my $s (sort keys %abi) {
+            print "  $s\n"
+              unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
+        }
+    }
+    my $splice = "/* valid libffi targets, available to :nativeconv() */\n";
+    my $ffi_target = "ffi_targets='";
+    for my $s (sort keys %abi) {
+        $splice .= "#define HAVE_FFI_$s\n";
+        $ffi_target .= "$s ";
+    }
+    $ffi_target =~ s/ $//;
+    $ffi_target .= "'\n";
+
+    my $file = 'config.h';
+    $file = 'win32\config.h' if -d 'win32' and $Opts{chdir};
+    # other archs: Netware, Cross, plan9, djgpp, symbian
+    if ($Opts{chdir} and -d 'win32' and $olddir and $olddir !~ /win32/) {
+        $olddir =~ s/\r?\n$//;
+        $file = "$olddir\config.h";
+    }
+    my $content = read_file($file);
+    if ($content !~ m/^\/\* valid libffi targets/m) {
+        $content =~ s{(\t+USE_FFI\t+/ ?\*\*/\n)}{$1$splice};
+        print "Updating $file\n"
+          unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
+        write_file($file, $content);
+    }
+
+    # write_file('have_ffi.h', $splice);
+    return $ffi_target;
+}
+
+sub update_ffi_targets_sh {
+    my $ffi_target = shift or return;
+    my $file = 'config.sh';
+    $file = '..\config.sh' if -d 'mini' and !-f $file;
+    if (-f $file) {
+        print "Updating $file with $ffi_target"
+          unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
+        my $content = read_file($file);
+        $content =~ s{(useffi='define'\n)}{$1$ffi_target}m;
+        write_file($file, $content);
+    }
+}
+
+sub probe_ffi {
+    my $s = shift;
+    my $p = <<EOF;
+#include <ffi.h>
+int main() {
+   ffi_abi abi = FFI_$s;
+}
+EOF
+    open my $f, '>', '_tmp.c';
+    print $f $p;
+    close $f;
+    my $stderr = $Opts{v} ? "" : $^O eq 'MSWin32' ? '>NUL' : '2>/dev/null';
+    my $err = system("$Config{cc} $Config{ccflags} -c _tmp.c $stderr");
+    unlink '_tmp.c', '_tmp.o', '_tmp.obj';
+    if ($err > 0) {
+        delete $abi{$s};
+    }
+    print "  $s $err\n"
+      unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
+}
+
+sub read_file {
+    my $file = shift;
+    return "" unless -e $file;
+    open my $fh, '<', $file
+        or die "Failed to open for read '$file':$!";
+    return do { local $/; <$fh> };
+}
+
+sub write_file {
+    my ($file, $content) = @_;
+    open my $fh, '>', $file
+        or die "Failed to open for write '$file':$!";
+    print $fh $content;
+    close $fh;
+}
+
 # Popularity of various entries in %Config, based on a large build and test
 # run of code in the Fotango build system:
 __DATA__
