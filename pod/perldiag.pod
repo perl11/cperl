@@ -2443,9 +2443,9 @@ is not possible.
 
 (W ffi) The numeric conversion might be lossy. See L<ffi>.
 
-=item ffi_prep_cif error %d
+=item ffi_prep_cif error %d at %s %d
 
-(F) The libffi call failed. See C<man ffi_prep_cif>.
+(F) The libffi signature preparation call failed. See C<man ffi_prep_cif>.
 The error means either FFI_BAD_TYPEDEF (1) or FFI_BAD_ABI (2).
 
 =item Field %s from %s already exists in %s during role composition

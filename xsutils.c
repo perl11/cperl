@@ -645,7 +645,8 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
         /*const bool slurpy      = cBOOL((params >> 15) & 1);*/
         num_args = mand_params + opt_params;
     }
-    argtypes = (ffi_type**)safemalloc(num_args * sizeof(ffi_type*));
+    argtypes = (ffi_type**)safemalloc((num_args ? num_args : 1)
+                                      * sizeof(ffi_type*));
 
 #define CHK_ABI(conv)                    \
         if (strEQc(nativeconv, #conv)) { \
@@ -741,10 +742,12 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
     } else {
         rtype = &ffi_type_void;
     }
-    if (!num_args) {
-        status = ffi_prep_cif(cif, abi, num_args, rtype, argtypes);
+    if (!num_args) { /* 0 is invalid */
+        argtypes[0] = &ffi_type_void;
+        status = ffi_prep_cif(cif, abi, 1, rtype, argtypes);
         if (status != FFI_OK) {
-            Perl_croak(aTHX_ "ffi_prep_cif error %d", status );
+            Perl_croak(aTHX_ "ffi_prep_cif error %d at %s %d",
+                       status, __FILE__, __LINE__);
         }
         CvFFILIB(cv) = PTR2IV(cif);
         return;
@@ -815,7 +818,8 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
 
     status = ffi_prep_cif(cif, abi, num_args, rtype, argtypes);
     if (status != FFI_OK) {
-        Perl_croak(aTHX_ "ffi_prep_cif error %d", status );
+        Perl_croak(aTHX_ "ffi_prep_cif error %d at %s %d",
+                   status, __FILE__, __LINE__);
     }
     CvFFILIB(cv) = PTR2IV(cif);
 
