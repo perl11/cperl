@@ -142,7 +142,11 @@ my $TEST = 'TEST';
     delete @ENV{@MoreEnv};
     $ENV{TERM} = 'dumb';
 
-    is(eval { `$echo 1` }, "1\n");
+    SKIP: {
+        skip "Environment tainting tests skipped with libffi.dll", 1
+          if ($Is_MSWin32 || $Is_NetWare || $Is_VMS || $Is_Dos) and $Config{useffi};
+        is(eval { `$echo 1` }, "1\n");
+    }
 
     SKIP: {
         skip "Environment tainting tests skipped", 4
@@ -1048,6 +1052,9 @@ my $TEST = 'TEST';
 # How about command-line arguments? The problem is that we don't
 # always get some, so we'll run another process with some.
 SKIP: {
+    skip "-T test skipped with libffi.dll", 1
+      if ($Is_MSWin32 || $Is_NetWare || $Is_VMS || $Is_Dos) and $Config{useffi};
+
     my $arg = tempfile();
     open $fh, '>', $arg or die "Can't create $arg: $!";
     print $fh q{
