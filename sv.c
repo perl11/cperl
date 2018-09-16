@@ -11786,6 +11786,9 @@ S_format_hexfp(pTHX_ char * const buf, const STRLEN bufsize, const char c,
              * the top non-zero nybble. */
             for (i = vfnz[0], n = 0; i > 1; i >>= 1, n++) { }
             assert(n < 4);
+            if (UNLIKELY(!vlnz || n >= 4))
+                Perl_croak(aTHX_ "panic: %s: %d: Invalid vlnz (the last non-zero digit) %p, n %d in format_hexfp\n",
+                           __FILE__, __LINE__, vlnz, n);
             assert(vlnz);
             vlnz[1] = 0;
             for (vshr = vlnz; vshr >= vfnz; vshr--) {
