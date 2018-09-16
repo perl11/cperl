@@ -5453,37 +5453,15 @@
 /* USE_FFI:
  *	C header equivalent to $Config{useffi}, if -lffi is enabled and linked.
  */
-/* I_FFI:
- *	This symbol, if defined, indicates to the C program that it should
- *	include <ffi.h>. The incpath is already added to ccflags.
- */
-/* D_LIBFFI:
- *	This symbol, if defined, indicates to the C program that libffi is usable.
- */
 /* HAVE_FFI_*:
  *	These symbols if existing are platform specific alternatives to the
- *      DEFAULT libffi ABI, needed for :nativeconv(STRING). See also F<have_ffi.h>
+ *      DEFAULT libffi ABI, needed for :nativeconv(STRING). See F<have_ffi.h>
  */
 /*#define	USE_FFI		/ **/
-#ifdef USE_FFI
-/*#define 	I_FFI		/ **/
-/*#define 	D_LIBFFI        / **/
-# ifdef WIN64
-#  define HAVE_FFI_WIN64
-# else
-#  define HAVE_FFI_SYSV
-#  define HAVE_FFI_STDCALL
-#  define HAVE_FFI_THISCALL
-#  define HAVE_FFI_FASTCALL
-#  define HAVE_FFI_MS_CDECL
-#  define HAVE_FFI_PASCAL
-#  define HAVE_FFI_REGISTER
-# endif
-#endif
 
 #endif
 
 /* Generated from:
- * 91da70873d5a1217c5894e755466240d22a84ad53ae023677ab153c3236e04ae config_h.SH
+ * c4361a1d3d30bfcb4e0ad0458494825bf35c94a9d05a6462e55cdf21db650b25 config_h.SH
  * 8c426d198fb3d779629e9652bcb55fc5d6e56b80689f6d1e583eb377755875e1 uconfig.sh
  * ex: set ro: */

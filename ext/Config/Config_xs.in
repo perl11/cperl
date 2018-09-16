@@ -1,8 +1,8 @@
 %{/* -*- mode: c; c-basic-offset: 4; -*-
 
 Copyright (C) 2015-2017 cPanel Inc
-Copyright (C) 2015 Daniel Dragan
-Copyright (C) 2017 Reini Urban
+Copyright (C) 2015-2018 Daniel Dragan
+Copyright (C) 2017-2018 Reini Urban
 
 =head1 NAME
 
@@ -982,6 +982,7 @@ extensions,		T_INV,0,ALN64I"@@extensions@@"
 extern_C,		T_INV,0,ALN64I"@@extern_C@@"
 extras,			T_INV,0,ALN64I"@@extras@@"
 fake_signatures,	T_INV,0,ALN64I"@@fake_signatures@@"
+ffi_targets,		T_INV,0,ALN64I"@@ffi_targets@@"
 fflushNULL,		T_INV,0,ALN64I"@@fflushNULL@@"
 fflushall,		T_INV,0,ALN64I"@@fflushall@@"
 find,			T_INV,0,ALN64I"@@find@@"
@@ -1487,6 +1488,7 @@ usedevel,		T_INV,0,ALN64I"@@usedevel@@"
 usedl,			T_INV,0,ALN64I"@@usedl@@"
 usedtrace,		T_INV,0,ALN64I"@@usedtrace@@"
 usefaststdio,		T_INV,0,ALN64I"@@usefaststdio@@"
+useffi,			T_INV,0,ALN64I"@@useffi@@"
 useithreads,		T_INV,0,ALN64I"@@useithreads@@"
 usekernprocpathname,	T_INV,0,ALN64I"@@usekernprocpathname@@"
 uselanginfo,		T_INV,0,ALN64I"@@uselanginfo@@"

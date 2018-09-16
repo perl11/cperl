@@ -732,12 +732,6 @@ LIB_FLAGS	= -ltcg
 endif
 endif
 
-ifeq ($(USE_FFI),define)
-LIBFFI	        = -lffi
-else
-LIBFFI	        =
-endif
-
 ifeq ($(WIN64),define)
 DEFINES		+= -DWIN64 -DCONSERVATIVE
 OPTIMIZE	+= -fp:precise
@@ -1187,6 +1181,7 @@ CFG_VARS	=					\
 		"d_mymalloc=$(PERL_MALLOC)"		\
 		"libs=$(LIBFILES)"			\
 		"incpath=$(subst ",\",$(CCINCDIR))"			\
+		"incpth=$(subst ",\",$(CCINCDIR))"			\
 		"libperl=$(subst ",\",$(PERLIMPLIBBASE))"		\
 		"libpth=$(subst ",\",$(CCLIBDIR);$(EXTRALIBDIRS))"	\
                 "perldll=$(PERLDLLBASE)"		\
@@ -1268,6 +1263,15 @@ endif
 ..\config.sh : $(CFGSH_TMPL) config_sh.PL FindExt.pm $(HAVEMINIPERL)
 	$(MINIPERL) -I..\lib config_sh.PL $(CFG_VARS) $(CFGSH_TMPL) > ..\config.sh
 
+ifeq ($(USE_FFI),define)
+HAVE_FFI = have_ffi.h
+have_ffi.h: $(HAVEMINIPERL) $(CONFIGPM) config.h
+	$(MINIPERL) -I..\lib ..\have_ffi.pl
+	$(MINIPERL) -I..\lib ..\configpm --chdir=..
+else
+HAVE_FFI =
+endif
+
 # This target is for when changes to the main config.sh happen.
 # Edit config.gc, then make perl using GCC in a minimal configuration (i.e.
 # with MULTI, ITHREADS, IMP_SYS, LARGE_FILES and PERLIO off), then make
@@ -1282,6 +1286,10 @@ regen_config_h:
 $(CONFIGPM) ..\lib\Config_heavy.pl: ..\config.sh config_h.PL
 	$(MINIPERL) -I..\lib ..\configpm --chdir=..
 	-$(MINIPERL) -I..\lib config_h.PL "ARCHPREFIX=$(ARCHPREFIX)"
+ifeq ($(USE_FFI),define)
+	$(MINIPERL) -I..\lib ..\have_ffi.pl
+	$(MINIPERL) -I..\lib ..\configpm --chdir=..
+endif
 
 .\config.h : $(CONFIGPM)
 
@@ -1962,6 +1970,7 @@ _clean :
 	-@erase perlmainst$(o)
 	-@erase /f config.h
 	-@erase /f ..\git_version.h
+	-@erase ..\have_ffi.h
 	-@erase $(GLOBEXE)
 	-@erase $(PERLEXE)
 	-@erase $(WPERLEXE)

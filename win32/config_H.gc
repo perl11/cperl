@@ -5245,21 +5245,10 @@
 /* USE_FFI:
  *	C header equivalent to \$Config{useffi}, if -lffi is enabled and linked.
  */
-/* I_FFI:
- *	This symbol, if defined, indicates to the C program that it should
- *	include <ffi.h>. The incpath is already added to ccflags.
- */
-/* D_LIBFFI:
- *	This symbol, if defined, indicates to the C program that libffi is usable.
- */
 /* HAVE_FFI_*:
  *	These symbols if existing are platform specific alternatives to the
  *      DEFAULT libffi ABI, needed for :nativeconv(STRING).
  */
 /*#define	USE_FFI		/ **/
-#ifdef USE_FFI
-#define I_FFI		/**/
-#define D_LIBFFI        /**/
-#endif
 
 #endif

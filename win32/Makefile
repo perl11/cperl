@@ -955,6 +955,7 @@ CFG_VARS	=					\
 		"d_mymalloc=$(PERL_MALLOC)"		\
 		"libs=$(LIBFILES)"			\
 		"incpath=$(CCINCDIR:"=\")"		\
+		"incpth=$(CCINCDIR:"=\")"		\
 		"libperl=$(PERLIMPLIB:..\=)"		\
 		"libpth=$(CCLIBDIR:"=\");$(EXTRALIBDIRS:"=\")"	\
 		"libc=$(LIBC)"				\
@@ -1137,9 +1138,14 @@ $(CONFIGPM) : $(MINIPERL) ..\config.sh config_h.PL
 	$(RCOPY) include $(COREDIR)\*.*
 !IF "$(USE_FFI)" == "define"
 	if exist lib\libffi.dll.a xcopy /f /i /y lib\libffi*.a $(INST_COREDIR)
+	if exist bin\* xcopy /f /i /y bin\* $(INST_COREDIR)
 !ENDIF
 	-$(MINIPERL) -I..\lib config_h.PL
 	if errorlevel 1 $(MAKE) /$(MAKEFLAGS) $(CONFIGPM)
+!IF "$(USE_FFI)" == "define"
+	$(MINIPERL) -I..\lib ..\have_ffi.pl
+	$(MINIPERL) -I..\lib ..\configpm --chdir=..
+!ENDIF
 
 # See the comment in Makefile.SH explaining this seemingly cranky ordering
 $(MINIPERL) : ..\lib\buildcustomize.pl 
@@ -1557,6 +1563,7 @@ _clean :
 	-@$(DEL) perlmainst$(o)
 	-@$(DEL) config.h
 	-@$(DEL) ..\git_version.h
+	-@$(DEL) ..\have_ffi.h
 	-@$(DEL) $(GLOBEXE)
 	-@$(DEL) $(PERLEXE)
 	-@$(DEL) $(WPERLEXE)

@@ -1197,10 +1197,26 @@ makeppport: $(MINIPERL_EXE) $(CONFIGPM) $(nonxs_ext)
 ;;
 esac
 
+if test x$useffi = xdefine
+then
+$spitshell >>$Makefile <<'!NO!SUBS!'
+HAVE_FFI = have_ffi.h
+
+have_ffi.h: $(MINIPERL_EXE) $(CONFIGPM) config.h
+	$(MINIPERL) have_ffi.pl
+	$(MINIPERL) configpm
+
+!NO!SUBS!
+else
+$spitshell >>$Makefile <<'!NO!SUBS!'
+HAVE_FFI =
+!NO!SUBS!
+fi
+
 $spitshell >>$Makefile <<'!NO!SUBS!'
 
 .PHONY: preplibrary common_build
-preplibrary: $(MINIPERL_EXE) $(CONFIGPM) $(PREPLIBRARY_LIBPERL)
+preplibrary: $(MINIPERL_EXE) $(CONFIGPM) $(HAVE_FFI) $(PREPLIBRARY_LIBPERL)
 
 $(CONFIGPM_FROM_CONFIG_SH): $(CONFIGPOD)
 
@@ -1218,16 +1234,6 @@ uni.data: $(MINIPERL_EXE) $(CONFIGPM) lib/unicore/mktables $(nonxs_ext)
 #	touch uni.data
 
 !NO!SUBS!
-
-if test x$useffi = xdefine
-then
-$spitshell >>$Makefile <<'!NO!SUBS!'
-
-have_ffi.h: $(MINIPERL_EXE) $(CONFIGPM) config.h
-	$(MINIPERL) have_ffi.pl
-
-!NO!SUBS!
-fi
 
 $spitshell >>$Makefile <<'!NO!SUBS!'
 
@@ -1522,7 +1528,7 @@ _mopup:
 	-rm -f *perl.xok
 	-rm -f cygwin.c libperl*.def libcperl*.dll cygcperl*.dll *.exe.stackdump
 	-rm -f $(PERL_EXE) $(MINIPERL_EXE) $(LIBPERL) libperl.* microperl
-	-rm -f config.arch config.over $(DTRACE_H)
+	-rm -f config.arch config.over $(DTRACE_H) have_ffi.h git_version.h git_version.sh
 	-rm -f t/$(LIBPERL) cpan/B-C/$(LIBPERL)
 
 _cleaner1:

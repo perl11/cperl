@@ -24,7 +24,7 @@
 #include "perl.h"
 #include "XSUB.h"
 
-#if defined(USE_FFI) && defined(I_FFI) && defined(D_LIBFFI)
+#if defined(USE_FFI)
 # include <ffi.h>
 #endif
 #if defined(I_DLFCN)
@@ -472,7 +472,7 @@ XS_EXTERNAL(XS_strict_unimport)
 
 /* compile-time */
 
-#if defined(D_LIBFFI) && defined(USE_FFI)
+#ifdef USE_FFI
 static ffi_type*
 S_prep_sig(pTHX_ const char *name, int l)
 {
@@ -615,7 +615,7 @@ See C<man ffi_prep_cif>.
 static void
 S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
 {
-#if defined(D_LIBFFI) && defined(USE_FFI)
+#ifdef USE_FFI
     UNOP_AUX *sigop = CvSIGOP(cv);
     ffi_cif* cif = (ffi_cif*)safemalloc(sizeof(ffi_cif));
     unsigned int i;
@@ -651,34 +651,6 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
         if (strEQc(nativeconv, #conv)) { \
             abi = FFI_ ## conv;          \
         } else
-
-/* This must match ffitarget.h.
-   We could also compare FFI_DEFAULT_ABI == FFI_SYSV|FFI_MS_CDECL|FFI_UNIX64|FFI_WIN64
- */
-#ifdef USE_FFI
-#if defined(X86_WIN64)
-#  define HAVE_FFI_WIN64
-#elif defined(X86_64) || (defined (__x86_64__) && defined (X86_DARWIN))
-#  define HAVE_FFI_UNIX64
-#  define HAVE_FFI_WIN64
-#elif defined(X86_WIN32)
-#  define HAVE_FFI_SYSV
-#  define HAVE_FFI_STDCALL
-#  define HAVE_FFI_THISCALL
-#  define HAVE_FFI_FASTCALL
-#  define HAVE_FFI_MS_CDECL
-#  define HAVE_FFI_PASCAL
-#  define HAVE_FFI_REGISTER
-#else
-#  define HAVE_FFI_SYSV
-#  define HAVE_FFI_STDCALL
-#  define HAVE_FFI_THISCALL
-#  define HAVE_FFI_FASTCALL
-#  define HAVE_FFI_MS_CDECL
-#  define HAVE_FFI_PASCAL
-#  define HAVE_FFI_REGISTER
-#endif
-#endif
     
     if (nativeconv && *nativeconv) {
 #ifdef HAVE_FFI_SYSV
@@ -761,7 +733,7 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
         else
             Perl_croak(aTHX_ "Illegal :nativeconv(%s) argument", nativeconv);
     }
-    /* TODO walk sigs to perform compile-time type checks: sample long labs(long) */
+    /* walk sigs to perform compile-time type checks: sample long labs(long) */
     argname = PAD_NAME(0);
     if (argname && PadnameTYPE(argname)) {
         HV *type = PadnameTYPE(argname);
@@ -855,7 +827,7 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
 #endif
 }
 
-#if defined(D_LIBFFI) && defined(USE_FFI)
+#if defined(USE_FFI)
 
 /* run-time */
 /*
@@ -1053,7 +1025,7 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, char *rvalue)
     return
 #endif
 
-        if (!name) { /* default :void */
+        if (!name) { /* treat empty typestash silently as :void? */
             PL_stack_sp--;
             return;
         }

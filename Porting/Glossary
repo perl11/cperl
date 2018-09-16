@@ -1521,9 +1521,6 @@ d_libm_lib_version (d_libm_lib_version.U):
 	which indicates to the C program that math.h defines _LIB_VERSION
 	being available in libm
 
-d_libffi (ffi.U):
-	This variable indicates if that libffi is usable. See also useffi and i_ffi.
-
 d_libname_unique (so.U):
 	This variable conditionally defines the HAS_LIBNAME_UNIQUE symbol,
         which defines if the target system insists on unique
@@ -3089,6 +3086,10 @@ fake_signatures (Devel.U):
         Converts functions entries automatically to use signatures.
         globally enabling use fake_signatures;
 
+ffi_targets (ffi.U):
+	A list of space-seperated uppercase strings, valid ffi
+        :nativeconv() arguments.
+
 fflushall (fflushall.U):
 	This symbol, if defined, tells that to flush
 	all pending stdio output one must loop through all
@@ -3493,9 +3494,6 @@ i_fenv (i_fenv.U):
 	This variable conditionally defines the I_FENV symbol, which
 	indicates to the C program that <fenv.h> exists and should
 	be included.
-
-i_ffi (ffi.U):
-	This variable indicates if <ffi.h> needs to be included. See also useffi and d_libffi.
 
 i_fp (i_fp.U):
 	This variable conditionally defines the I_FP symbol, and indicates
@@ -5564,7 +5562,7 @@ usefaststdio (usefaststdio.U):
 	Defaults to define in Perls 5.8 and earlier, to undef later.
 
 useffi (ffi.U):
-	This variable indicates if the ffi is enabled. See also d_libffi and i_ffi.
+	This variable indicates if the ffi is enabled. See also ffi_targets.
 
 useithreads (usethreads.U):
 	This variable conditionally defines the USE_ITHREADS symbol,

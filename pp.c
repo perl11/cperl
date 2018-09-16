@@ -30,7 +30,7 @@
 
 #include "reentr.h"
 #include "regcharclass.h"
-#if defined(I_FFI) && defined(USE_FFI)
+#ifdef USE_FFI
 #include <ffi.h>
 #endif
 
@@ -575,7 +575,7 @@ PP(pp_enterffi)
         /* TODO: segv signal handler */
         CvXFFI(cv)();
     } else {
-#if defined(D_LIBFFI) && defined(USE_FFI)
+#ifdef USE_FFI
         dMARK;
         void **argvalues;
         ffi_arg rvalue;

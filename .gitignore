@@ -53,6 +53,9 @@ bug*.pl
 # produced by dtrace -H when configured with usedtrace
 perldtrace.h
 
+# generated with -Duseffi
+/have_ffi.h
+
 # general build products
 *.o
 *.a

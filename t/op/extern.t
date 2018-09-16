@@ -7,13 +7,13 @@ BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
     set_up_inc('../lib');
+    skip_all_if_miniperl();
 }
 
-skip_all_if_miniperl;
 use Config;
 use B ();
-skip_all "no ffilib" if !$Config{useffi} or !$Config{d_libffi};
-plan(tests => 40);
+skip_all "no ffilib" if !$Config{useffi};
+plan(tests => 41);
 
 no warnings 'redefine';
 
@@ -65,31 +65,32 @@ eval 'extern sub labs() :int :symbol("abs");';
 note 'extern sub labs() :int :symbol("abs");';
 has_sym(\&labs); # possible name mixup. both do exist
 
-# equivalence of XFFI syms: abs
-SKIP: {
-    skip "Windows abs vs :symbol(abs)", 1 if $^O eq 'MSWin32';
-    eval 'extern sub abs(int $i) :int;';
-    note 'extern sub abs(int $i) :int;';
-    my $ori  = B::svref_2object(\&abs);
-    my $xsym = B::svref_2object(\&labs);
-    ok ((ref $ori->XFFI eq ref $xsym->XFFI) &&
-        (${$ori->XFFI} == ${$xsym->XFFI}), "same CvXFFI sym") # 17
-      or note $ori->XFFI, $xsym->XFFI;
-    undef *labs;
-}
-
 # different code-path than extern above. was broken
 eval 'sub llabs() :native :symbol("labs") :int;';
 note 'sub llabs() :native :symbol("labs") :int;';
 has_sym(\&llabs); # possible name mixup. both do exist
 
-# equivalence of XFFI syms: labs
-$ori  = B::svref_2object(\&ffilabs);
-$xsym = B::svref_2object(\&llabs);
-ok ((ref $ori->XFFI eq ref $xsym->XFFI) &&
-    (${$ori->XFFI} == ${$xsym->XFFI}), "same CvXFFI sym") # 17
-  or note $ori->XFFI, $xsym->XFFI;
-undef *llabs;
+# equivalence of XFFI syms: abs
+TODO: {
+    local $TODO = "Windows abs vs :symbol(abs)" if $^O =~ /^(MSWin32|msys)/;
+
+    eval 'extern sub abs(int $i) :int;';
+    note 'extern sub abs(int $i) :int;';
+    my $ori  = B::svref_2object(\&abs);
+    my $xsym = B::svref_2object(\&labs);
+    ok ((ref $ori->XFFI eq ref $xsym->XFFI) &&
+        (${$ori->XFFI} == ${$xsym->XFFI}), "same CvXFFI sym") # 19
+      or note $ori->XFFI, $xsym->XFFI;
+    undef *labs;
+
+    # equivalence of XFFI syms: labs
+    $ori  = B::svref_2object(\&ffilabs);
+    $xsym = B::svref_2object(\&llabs);
+    ok ((ref $ori->XFFI eq ref $xsym->XFFI) &&
+        (${$ori->XFFI} == ${$xsym->XFFI}), "same CvXFFI sym") # 20
+      or note $ori->XFFI, $xsym->XFFI;
+    undef *llabs;
+}
 
 # now call it with valid sigs and types
 check_abs("extern labs");
@@ -113,3 +114,5 @@ eval '$c="c"; sub abs(int $i) :native($c) :int;';
 check_abs("abs :native(\$name)");
 #}
 
+eval 'extern sub strchr(str $s, int $i) :str;';
+is(strchr("abcd", ord("c")), "cd", "strchr");

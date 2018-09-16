@@ -493,6 +493,10 @@ BUILDOPT	= $(BUILDOPT) -DPERL_IMPLICIT_SYS
 CROSS_NAME	= $(MACHINE)
 !ENDIF
 
+!IF "$(USE_64_BIT_INT)" == ""
+USE_64_BIT_INT = undef
+!ENDIF
+
 # new option - automatically defined in perl.h...
 #BUILDOPT        = $(BUILDOPT) -DUSE_ENVIRON_ARRAY
 
@@ -760,10 +764,10 @@ CFG_VARS = \
  "cppflags=$(OPTIMIZE) $(DEFINES) $(BUILDOPT)" \
  "cf_by=vkon" \
  "cf_email=$(EMAIL)" \
-#9cef8306
  "d_mymalloc=$(PERL_MALLOC)" \
  "libs=$(LIBFILES)" \
  "incpath=$(CCINCDIR)" \
+ "incpth=$(CCINCDIR)" \
  "libperl=$(PERLIMPLIB_EXP)" \
  "libpth=$(LIBPATH)" \
  "libc=$(LIBC)" \
@@ -774,7 +778,8 @@ CFG_VARS = \
  "usethreads=$(USE_ITHREADS)" \
  "useithreads=$(USE_ITHREADS)" \
  "usemultiplicity=$(USE_MULTI)" \
- "use64bitint=undef" \
+ "use64bitint=$(USE_64_BIT_INT)" \
+ "useffi=$(USE_FFI)" \
  "uselargefiles=undef" \
  "default_inc_excludes_dot=$(DEFAULT_INC_EXCLUDES_DOT)" \
  "LINK_FLAGS=$(LDLIBPATH) $(LINK_FLAGS) $(SUBSYS)" \
@@ -826,6 +831,10 @@ $(CONFIGPM) : $(HPERL) ..\config.sh config_h.PL ..\git_version.h
 	$(XCOPY) *.h $(COREDIR)\*.*
 	$(RCOPY) include $(COREDIR)\*.*
 	if errorlevel 1 $(MAKE) /$(MAKEFLAGS) $(CONFIGPM)
+.IF "$(USE_FFI)" == "define"
+	$(MINIPERL) -I..\lib have_ffi.pl
+	cd .. && $(HPERL) -Ilib configpm --no-glossary
+.ENDIF
 
 .\config.h: $(CONFIGPM) ..\config.sh
 	-@$(DEL) /f config.h
@@ -887,15 +896,15 @@ $(PERLEXE_RES): perlexe.rc perl.rc $(PERLEXE_MANIFEST) $(PERLEXE_ICO)
 
 clean: Extensions_clean
         -if exist .\$(MACHINE)\dll rmdir /s /q .\$(MACHINE)\dll
-  -@$(DEL) .\$(MACHINE)\*.obj
-  -@$(DEL) .\$(MACHINE)\*.exe
-  -@$(DEL) .\$(MACHINE)\*.dll
-  -@$(DEL) .\$(MACHINE)\*.lib
+        -@$(DEL) .\$(MACHINE)\*.obj
+        -@$(DEL) .\$(MACHINE)\*.exe
+        -@$(DEL) .\$(MACHINE)\*.dll
+        -@$(DEL) .\$(MACHINE)\*.lib
         -@$(DEL) .\$(MACHINE)\*.exp
         -@$(DEL) .\$(MACHINE)\*.pdb
-	-@$(DEL) ..\git_version.h
-  -@$(DEL) config.h perl.res
-  -@$(DEL) ..\t\test_state
+        -@$(DEL) ..\git_version.h ..\have_ffi.h
+        -@$(DEL) config.h perl.res
+        -@$(DEL) ..\t\test_state
 
 XDLLOBJS = \
 $(DLLDIR)\av.obj \

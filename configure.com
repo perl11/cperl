@@ -5851,15 +5851,19 @@ $   CS
 $   GOSUB compile_ok
 $   IF compile_status .EQ. good_compile
 $   THEN
-$     d_libffi = "define"
 $     useffi = "define"
 $     libs = libs + " ffi"
+$     ffi_targets = "ELFBSD"
 $     echo4 "libffi found."
 $   ELSE
 $     d_tzname = "undef"
 $     useffi = "undef"
+$     ffi_targets = ""
 $     echo4 "libffi NOT found. 3.0.9 port on VAX should work, see OpenVMS Ports."
 $   ENDIF
+$ ELSE
+$   useffi = "undef"
+$   ffi_targets = ""
 $ ENDIF
 $!
 $! Okay, we've got everything configured. Now go write out a config.sh.
@@ -6192,7 +6196,6 @@ $ WC "d_lchown='" + d_lchown + "'"
 $ WC "d_ldbl_dig='define'"
 $ WC "d_ldexpl='" + d_ldexpl + "'"
 $ WC "d_lgamma='" + d_lgamma + "'"
-$ WC "d_libffi='" + d_libffi + "'"
 $ WC "d_libm_lib_version='undef'"
 $ WC "d_libname_unique='undef'"
 $ WC "d_link='" + d_link + "'"
@@ -6576,7 +6579,6 @@ $ WC "i_dlfcn='undef'"
 $ WC "i_execinfo='undef'"
 $ WC "i_fcntl='" + i_fcntl + "'"
 $ WC "i_fenv='undef'"
-$ WC "i_ffi='" + i_ffi + "'"
 $ WC "i_fp='undef'"
 $ WC "i_fp_class='undef'"
 $ WC "i_gdbm='undef'"
@@ -6874,6 +6876,7 @@ $ WC "usedevel='" + usedevel + "'"
 $ WC "usedl='" + usedl + "'"
 $ WC "usedtrace='undef'"
 $ WC "useffi='" + useffi + "'"
+$ WC "ffi_targets=" + ffi_targets + "'"
 $ WC "usefaststdio='" + usefaststdio + "'"
 $ WC "useieee='" + useieee + "'"                    ! VMS-specific
 $ WC "useithreads='" + useithreads + "'"
