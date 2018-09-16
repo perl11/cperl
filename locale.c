@@ -4730,12 +4730,11 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
             /* Here we have to clear something out to make room for this.
              * Start looking at the rightmost place where it could fit and find
              * the beginning of the entry that extends past that. */
-            char * cutoff = (char *) my_memrchr(utf8ness_cache,
-                                                UTF8NESS_SEP[0],
-                                                utf8ness_cache_size
-                                              - input_name_len_with_overhead);
-
-            assert(cutoff);
+            char * cutoff = (char*)my_memrchr(utf8ness_cache, UTF8NESS_SEP[0],
+                                       utf8ness_cache_size - input_name_len_with_overhead);
+            if (UNLIKELY(!cutoff || cutoff < utf8ness_cache))
+                Perl_croak(aTHX_ "panic: %s: %d: UTF8NESS_SEP[0] not found, cutoff %p\n",
+                           __FILE__, __LINE__, cutoff);
             assert(cutoff >= utf8ness_cache);
 
             /* This and all subsequent entries must be removed */
