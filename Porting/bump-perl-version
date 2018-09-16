@@ -194,12 +194,12 @@ my @maps =  (
         qr/uconfig/,
     ],
 
-    # win32/Makefile{,.ce}
+    # win32/[Mm]akefile{,.ce,.mk}
     [
         qr/(PV\s*:?=\s*)(\d\d{2})\b$/,
         sub { $2, "$1$newx$newy" },
         "$oldx$oldy",
-        qr/(GNUm|M)akefile(\.ce)?/,
+        qr/(GNUm|M|m)akefile(\.ce|\.mk)?/,
     ],
 );
 
