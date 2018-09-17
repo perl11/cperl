@@ -11066,9 +11066,9 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp, U32 depth)
                     ARG(ret) = add_data( pRExC_state,
                                          STR_WITH_LEN("S"));
                     RExC_rxi->data->data[ARG(ret)]=(void*)sv;
-                    ret->flags = 1;
+                    FLAGS(ret) = 1;
                 } else {
-                    ret->flags = 0;
+                    FLAGS(ret) = 0;
                 }
                 if ( internal_argval != -1 )
                     ARG2L_SET(ret, internal_argval);
@@ -11425,7 +11425,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp, U32 depth)
                                        RExC_flags & RXf_PMf_COMPILETIME
                                       );
 		    if (PASS2) {
-			ret->flags = 2;
+			FLAGS(ret) = 2;
                     }
                     REGTAIL(pRExC_state, ret, eval);
                     /* deal with the length of this later - MJD */
@@ -11477,7 +11477,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp, U32 depth)
 
                     ret = reg_node(pRExC_state, LOGICAL);
                     if (PASS2)
-                        ret->flags = 1;
+                        FLAGS(ret) = 1;
 
                     tail = reg(pRExC_state, 1, &flag, depth+1);
                     RETURN_FAIL_ON_RESTART(flag,flagp);
@@ -11901,7 +11901,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp, U32 depth)
 	    reginsert(pRExC_state, node,ret, depth+1);
             Set_Node_Cur_Length(ret, parse_start);
 	    Set_Node_Offset(ret, parse_start + 1);
-	    ret->flags = flag;
+	    FLAGS(ret) = flag;
             REGTAIL_STUDY(pRExC_state, ret, reg_node(pRExC_state, TAIL));
 	}
     }
@@ -12145,7 +12145,7 @@ S_regpiece(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 	    else {
 		regnode * const w = reg_node(pRExC_state, WHILEM);
 
-		w->flags = 0;
+		FLAGS(w) = 0;
                 REGTAIL(pRExC_state, ret, w);
 		if (PASS2 && RExC_extralen) {
 		    reginsert(pRExC_state, LONGJMP,ret, depth+1);
@@ -12165,7 +12165,7 @@ S_regpiece(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 		    RExC_whilem_seen++, RExC_extralen += 3;
                 MARK_NAUGHTY_EXP(1, 4);     /* compound interest */
 	    }
-	    ret->flags = 0;
+	    FLAGS(ret) = 0;
 
 	    if (min > 0)
 		*flagp = WORST;
@@ -13098,7 +13098,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
              * /\A/ from /^/ in split. We check ret because first pass we
              * have no regop struct to set the flags on. */
             if (PASS2)
-                ret->flags = 1;
+                FLAGS(ret) = 1;
 	    *flagp |= SIMPLE;
 	    goto finish_meta_pat;
 	case 'G':
@@ -19442,7 +19442,7 @@ S_reginsert(pTHX_ RExC_state_t *pRExC_state, U8 op, regnode *operand, U32 depth)
     }
 #endif
     src = NEXTOPER(place);
-    place->flags = 0;
+    FLAGS(place) = 0;
     FILL_NODE(place, op);
     Zero(src, offset, regnode);
 }
