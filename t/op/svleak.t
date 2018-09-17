@@ -311,7 +311,7 @@ eleak(2, 0, 'no warnings; sub {1 1}', 'anon sub with syntax error');
 eleak(2, 0, 'no warnings; use feature ":all"; my sub a{1 1}',
             'my sub with syntax error');
 {
-  local $::TODO = 'compile-time attrs leaks';
+  local $::TODO = 'compile-time attrs leaks [cperl #372]';
   eleak(2, 0, '+sub:a{}', 'anon subs with invalid attributes');
   eleak(2, 0, 'extern sub labs ();', 'extern sub');
   eleak(2, 0, 'sub labs () :native("c");', 'sub :native("c")');

@@ -1292,9 +1292,9 @@ S_find_native(pTHX_ CV* cv, char *libname)
             CvXFFI(cv) = INT2PTR(XSUBADDR_t, POPi);
 #endif
             DEBUG_v(PerlIO_printf(Perl_debug_log, "CvXFFI(%s)=0x%" UVxf "\n", SvPVX(symname), (UV)CvXFFI(cv)));
-            CvFFILIB(cv) = 0;
             CvSLABBED_off(cv);
         }
+        CvFFILIB(cv) = 0;
     }
 }
 
