@@ -1693,8 +1693,10 @@ void Perl_cop_dump(pTHX_ const OP *o)
     PerlIO *file = Perl_debug_log;
     PERL_ARGS_ASSERT_COP_DUMP;
 
-    if (OpTYPE(o))
-        return op_dump(o);
+    if (OpTYPE(o)) {
+        op_dump(o);
+        return;
+    }
 
     if (CopLINE(cCOPo))
         S_opdump_indent(aTHX_ o, level, bar, file, "LINE = %" UVuf "\n",
@@ -3993,7 +3995,8 @@ void
 Perl_hv_dump(pTHX_ SV* sv, bool with_values)
 {
     PERL_ARGS_ASSERT_HV_DUMP;
-    return _hv_dump(sv, with_values, 0);
+    _hv_dump(sv, with_values, 0);
+    return;
 }
 
 /*
@@ -4035,7 +4038,8 @@ void
 Perl_av_dump(pTHX_ SV* av)
 {
     PERL_ARGS_ASSERT_AV_DUMP;
-    return _av_dump(av, 0);
+    _av_dump(av, 0);
+    return;
 }
 char *
 Perl_pn_peek(pTHX_ PADNAME * pn)
