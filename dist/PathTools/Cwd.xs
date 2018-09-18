@@ -18,6 +18,7 @@
 #endif
 
 /* For special handling of os390 sysplexed systems */
+#undef SYSNAME
 #define SYSNAME "$SYSNAME"
 #define SYSNAME_LEN (sizeof(SYSNAME) - 1)
 
