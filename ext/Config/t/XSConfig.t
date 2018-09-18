@@ -13,6 +13,10 @@ require B;
 *isXSUB = !B->can('CVf_ISXSUB')
   ? sub { shift->XSUB }
   : sub { shift->CvFLAGS & B::CVf_ISXSUB() }; #CVf_ISXSUB added in 5.9.4
+my $in_core = ! -d "regen";
+if (-d "porting") {
+  $in_core = 1;
+}
 
 #is_deeply->overload.pm wants these 2 XS modules
 #can't be required once DynaLoader is removed later on
@@ -20,15 +24,13 @@ require Scalar::Util;
 eval { require mro; };
 my $cv = B::svref_2object(*{'Config::FETCH'}{CODE});
 unless (isXSUB($cv)) {
-  if (-d 'regen') { #on CPAN
+  if (!$in_core) { #on CPAN
     warn "Config:: is not XS Config";
   } else {
     print "1..0 #SKIP Config:: is not XS Config, miniperl?\n";
     exit(0);
   }
 }
-
-my $in_core = ! -d "regen";
 
 # change the class name of XS Config so there can be XS and PP Config at same time
 foreach (qw( TIEHASH DESTROY DELETE CLEAR EXISTS NEXTKEY FIRSTKEY KEYS SCALAR FETCH)) {
@@ -88,8 +90,9 @@ if (exists $XSConfig{canned_gperf}) { #fix up PP Config to look like XS Config
           uselanginfo useversionedarchname
 
   );
-    unless ($in_core) { # cperl doesn't need these, CPAN does
-        push @cannedkeys , qw(
+  unless ($in_core) { # cperl doesn't need these, CPAN does
+
+    push @cannedkeys , qw(
 
           ARCH BuiltWithPatchPerl Mcc PERL_PATCHLEVEL
           ccflags_nolargefiles charbits config_heavy d_acosh
