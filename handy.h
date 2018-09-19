@@ -562,16 +562,16 @@ based on the underlying C library functions):
 #define strBEGINs(s1,s2) (strncmp(s1, "" s2 "", sizeof(s2)-1) == 0)
 
 #define memBEGINs(s1, l, s2)                                                \
-            (   (l) >= sizeof(s2) - 1                                       \
+            (   (Ptrdiff_t) (l) >= (Ptrdiff_t) sizeof(s2) - 1               \
              && memEQc(s1, "" s2 ""))
 #define memBEGINPs(s1, l, s2)                                               \
-            (   (l) > sizeof(s2) - 1                                        \
+            (   (Ptrdiff_t) (l) >= (Ptrdiff_t) sizeof(s2) - 1               \
                 && memEQc(s1, "" s2 ""))
 #define memENDs(s1, l, s2)                                                  \
-            (   (l) >= sizeof(s2) - 1                                       \
+            (   (Ptrdiff_t) (l) >= (Ptrdiff_t) sizeof(s2) - 1               \
                 && memEQc(s1 + (l) - (sizeof(s2) - 1), "" s2 ""))
 #define memENDPs(s1, l, s2)                                                 \
-            (   (l) > sizeof(s2)                                            \
+            (   (Ptrdiff_t) (l) >= (Ptrdiff_t) sizeof(s2)                   \
                 && memEQc(s1 + (l) - (sizeof(s2) - 1), "" s2 ""))
 #endif  /* End of making macros private */
 
