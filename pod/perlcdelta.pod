@@ -335,6 +335,12 @@ With C<useffi> this space-seperated string is filled with the valid and
 supported C<:nativeconv()> ABI's, in uppercase. Matching HAVE_FFI_*
 defines in F<config.h>. See L<attributes/nativeconv(STRING)>.
 
+=item usesafehashiter
+
+Disable destructive hash key modifications during iteration by default.
+C<use hashiter;> to allow it.
+L<[cperl #117]|https://github.com/perl11/cperl/issues/117>
+
 =item Porting/do-make-cperl-release
 
 Replace C<sha1sum> with C<sha256sum>, add C<gpg -a -b $pkg>.
@@ -366,7 +372,9 @@ made:
 
 =item *
 
-XXX
+F<op/hash-rt85026.t> finds now almost ever a collision, and skips the test
+with usesafehashiter enabled (the default). Such not easily detectable
+destructive hash iters are now forbidden, thanks to B<usesafehashiter>.
 
 =back
 

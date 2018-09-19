@@ -8,11 +8,12 @@ BEGIN {
 }
 
 use strict;
+use Config;
 use Devel::Peek;
 use File::Temp qw(tempdir);
 use File::Spec;
 
-my %hash = map +($_ => 1), ("a".."z");
+my %hash = map +($_ => 1), (0..9,"a".."z");
 
 my $tmp_dir = tempdir(CLEANUP => 1);
 my $tmp_file = File::Spec->catfile($tmp_dir, 'dump');
@@ -38,6 +39,12 @@ while (my $key = each %hash) {
     push @{$riters[riter()]}, $key;
 }
 
+# cperl-only:
+if ($Config{usesafehashiter}) {
+    note "disable usesafehashiter";
+}
+use hashiter;
+
 my ($first_key, $second_key);
 my $riter = 0;
 for my $chain (@riters) {
@@ -51,15 +58,13 @@ for my $chain (@riters) {
 $first_key ||
     skip_all "No 2 element chains; need a different initial HASH";
 $| = 1;
+note "Found keys '$first_key' and '$second_key' on chain $riter";
 
 plan(1);
 
 # Ok all preparation is done
-note <<"EOF"
-Found keys '$first_key' and '$second_key' on chain $riter
-Will now iterate to key '$first_key' then delete '$first_key' and '$second_key'.
-EOF
-;
+note "Will now iterate to key '$first_key' then delete '$first_key' and '$second_key'.";
+
 1 until $first_key eq each %hash;
 delete $hash{$first_key};
 delete $hash{$second_key};
