@@ -1056,6 +1056,7 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, char *rvalue)
                     /* if pointing into our original string, a substring,
                        use the efficient OOK offset trick with the shared string. */
                     if (delta >= 0 && (STRLEN)delta <= SvCUR(*sp)) {
+                        /* Avoid sv_force_normal (croak_no_modify, uncow) */
                         int ro = SvREADONLY(*sp);
                         const char* const ptr = (const char* const)rvalue;
                         if (ro)
@@ -1064,14 +1065,11 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, char *rvalue)
                         if (ro)
                             SvREADONLY_on(*sp);
                     } else { /* oops, pointing outside our original string: copy it */
-                        const STRLEN len = strlen(rvalue);
-                        SvGROW(*sp, len + 1);
-                        Move(rvalue,SvPVX(*sp),len,char);
-                        *SvEND(*sp) = '\0';
+                        *sp = newSVpvn_flags(rvalue, strlen(rvalue), SVs_TEMP);
                     }
                 }
                 else
-                    *sp = sv_2mortal(newSVpvn(rvalue, strlen(rvalue)));
+                    *sp = newSVpvn_flags(rvalue, strlen(rvalue), SVs_TEMP);
                 return;
             }
             else if (memEQc(name, "ptr")) {
