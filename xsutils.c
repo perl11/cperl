@@ -1049,15 +1049,29 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, char *rvalue)
             }
             else if (memEQc(name, "str") || /* Uni */
                      memEQc(name, "Str")) {
-                /* TODO encoded layer, as magic */
+                /* TODO encoded layer, as magic: utf8, ucs2 */
                 if (SvPOK(*sp)) {
-                    SvPV_set(*sp, rvalue);
-                    SvCUR_set(*sp, strlen(rvalue));
+                    SSize_t delta = rvalue - SvPVX_const(*sp);
                     SvUTF8_off(*sp);
+                    /* if pointing into our original string, a substring,
+                       use the efficient OOK offset trick with the shared string. */
+                    if (delta >= 0 && (STRLEN)delta <= SvCUR(*sp)) {
+                        int ro = SvREADONLY(*sp);
+                        const char* const ptr = (const char* const)rvalue;
+                        if (ro)
+                            SvREADONLY_off(*sp);
+                        sv_chop(*sp, ptr); /* handles COW better than us */
+                        if (ro)
+                            SvREADONLY_on(*sp);
+                    } else { /* oops, pointing outside our original string: copy it */
+                        const STRLEN len = strlen(rvalue);
+                        SvGROW(*sp, len + 1);
+                        Move(rvalue,SvPVX(*sp),len,char);
+                        *SvEND(*sp) = '\0';
+                    }
                 }
                 else
-                    *sp = sv_2mortal(newSVpvn(rvalue,
-                                              strlen(rvalue)));
+                    *sp = sv_2mortal(newSVpvn(rvalue, strlen(rvalue)));
                 return;
             }
             else if (memEQc(name, "ptr")) {
@@ -1102,10 +1116,10 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, char *rvalue)
 #ifdef HAS_QUAD
                 RET_IV(I64TYPE);
 #else
+                RET_IV(I32TYPE);
                 Perl_warner(aTHX_ packWARN(WARN_FFI),
                             "ffi: Possible %s overflow %" IVdf,
                             name, (I64TYPE)rvalue);
-                return;
 #endif
             }
             else if (memEQc(name, "uint8")) {
@@ -1115,7 +1129,7 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, char *rvalue)
                 RET_UV(unsigned long);
             }
             else if (memEQc(name, "float") ||
-                memEQc(name, "num32")) {
+                     memEQc(name, "num32")) {
                 RET_NV(float);
             }
             else if (memEQc(name, "num64")) {
@@ -1133,10 +1147,10 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, char *rvalue)
 #ifdef HAS_QUAD
                 RET_UV(U64);
 #else
+                RET_UV(U32);
                 Perl_warner(aTHX_ packWARN(WARN_FFI),
                             "ffi: Possible %s overflow %" UVuf,
                             name, (UV)rvalue);
-                return;
 #endif
             }
             else if (memEQc(name, "size_t")) {

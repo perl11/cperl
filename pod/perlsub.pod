@@ -576,14 +576,13 @@ C<$self> is not added with C<sub> and the C<:method> attribute.
     }
 
 
-With extern or :native subroutine declarations the types in the
-signature are mandatory, and the block is empty. Some FFI specific
-types are imported via the L<ffi> module. The functions are searched
-in all loaded shared libraries, a new shared library must be specified
-via the :native argument, are loaded beforehand via
-C<DynaLoader::dl_load_file()>.
-An alternate name for the C function may be declared via the :symbol
-argument.
+With C<extern> or :C<native> subroutine declarations the types in the
+signature are mandatory, and the block is empty. Some non-coretypes,
+FFI specific types are imported via the L<ffi> module. The functions
+are searched in all loaded shared libraries, a new shared library must
+be specified via the C<:native> argument, are loaded beforehand via
+C<DynaLoader::dl_load_file()>.  An alternate name for the C function
+may be declared via the C<:symbol> attribute.
 
     extern sub rand() :int;
 
@@ -593,7 +592,7 @@ argument.
     sub mysql_fetch_row ($result :ptr)
         :native("mysqlclient", 20) :long;
 
-The :native attribute accepts a string for the library name, searched
+The C<:native> attribute accepts a string for the library name, searched
 via C<dl_load_file()>, plus an optional numeric argument for
 the soname version to find it easier on windows-like platforms without
 symlink support, and an optional int for the soname version.
