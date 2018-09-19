@@ -34,7 +34,7 @@ else
 fi
 
 export PERL_HASH_SEED=0
-$make -s install $MKOPT DESTDIR=$destdir || exit
+$make install $MKOPT DESTDIR=$destdir || exit
 
 # ship libffi on mingw. cygwin has a system pkg
 if [ -z "$CYGWIN" ]; then

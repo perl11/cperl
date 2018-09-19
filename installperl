@@ -91,6 +91,12 @@ $opts{destdir} = '';
         $usage = 1;
     }
     $opts{verbose} ||= $opts{notify};
+    # be verbose automatically if called from make, unless -s was given
+    if (defined $ENV{MAKEFLAGS}) {
+        if ($ENV{MAKEFLAGS} !~ /\b(s|silent|quiet)\b/) {
+            $opts{verbose} ||= 1
+        }
+    }
 
     if ($usage || $opts{help}) {
         print <<"EOT";
