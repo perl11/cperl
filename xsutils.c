@@ -485,8 +485,10 @@ S_prep_sig(pTHX_ const char *name, int l)
             memEQc(name, "Int")) {
             return &ffi_type_sint;
         }
-        else if (memEQc(name, "str") || /* Uni */
+        else if (memEQc(name, "str") ||
                  memEQc(name, "Str") ||
+               /*memEQc(name, "uni") ||
+                 memEQc(name, "Uni") || */
                  memEQc(name, "ptr")) {
             return &ffi_type_pointer;
         }
@@ -516,6 +518,11 @@ S_prep_sig(pTHX_ const char *name, int l)
         else if (memEQc(name, "byte")) {
             return &ffi_type_uchar;
         }
+        /*
+        else if (memEQc(name, "wchar")) {
+            return &ffi_type_pointer;
+        }
+        */
     } else if (l == 5) {
         if (memEQc(name, "int32")) {
             return &ffi_type_sint32;
@@ -1047,9 +1054,9 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, char *rvalue)
                 memEQc(name, "Int")) {
                 RET_IV(int);
             }
-            else if (memEQc(name, "str") || /* Uni */
+            else if (memEQc(name, "str") ||
                      memEQc(name, "Str")) {
-                /* TODO encoded layer, as magic: utf8, ucs2 */
+                /* TODO encoded layer, as ffienc magic: utf8, ucs2 */
                 if (SvPOK(*sp)) {
                     SSize_t delta = rvalue - SvPVX_const(*sp);
                     SvUTF8_off(*sp);
@@ -1072,6 +1079,12 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, char *rvalue)
                     *sp = newSVpvn_flags(rvalue, strlen(rvalue), SVs_TEMP);
                 return;
             }
+            /* TODO: Uni, uni, wchar. :encoded() or via type
+            else if (memEQc(name, "Uni") ||
+                     memEQc(name, "uni")) {
+              encoded:
+            }
+            */
             else if (memEQc(name, "ptr")) {
                 RET_IV(long);
             }
@@ -1096,6 +1109,11 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, char *rvalue)
                      memEQc(name, "int8")) {
                 RET_IV(signed char);
             }
+            /* TODO
+            else if (memEQc(name, "wchar")) {
+                goto encoded;
+            }
+            */
             else if (memEQc(name, "bool")) {
                 RET_IV(bool);
             }
@@ -1509,7 +1527,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                 }
 		else if (len >= 8 && memEQc(name, "encoded(") && !negated) {
                     /* TODO: affects the previous argument or the return type if a string.
-                       Need to find it and attach to the SVOP or rettype*/
+                       Need to find it and attach to the SVOP or rettype */
                     CV *cv = MUTABLE_CV(sv);
                     if (!CvEXTERN(cv))
                         Perl_warn(aTHX_ ":%s is only valid for :native or extern sub",
@@ -1524,7 +1542,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                         encoded[0] = '\0';
                     }
                     else {
-                        Copy("utf-8", encoded, 5, char);
+                        Copy("utf-8", encoded, 6, char);
                     }
                     goto next_attr;
                 }
