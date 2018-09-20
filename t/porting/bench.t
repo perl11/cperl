@@ -24,6 +24,8 @@ use Config;
 
 skip_all "not devel"   unless -d ".git";
 skip_all "not linux"   unless $^O eq 'linux'; # works mostly ok with macports or bsd's
+skip_all "not cross"   if $Config{usecrosscompile};
+skip_all "not cross -m32" if $Config{cc} =~ / -m32/ || $Config{ccflags} =~ /-m32 /;
 skip_all "no valgrind" unless -x '/bin/valgrind'
   || -x '/usr/bin/valgrind'
   || -x '/usr/local/bin/valgrind'
