@@ -19443,7 +19443,7 @@ S_reginsert(pTHX_ RExC_state_t *pRExC_state, U8 op, regnode *operand, U32 depth)
 #endif
     src = NEXTOPER(place);
     place->flags = 0;
-    FILL_ADVANCE_NODE(place, op);
+    FILL_NODE(place, op);
     Zero(src, offset, regnode);
 }
 
