@@ -2227,6 +2227,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
 
     /* We know what class it must start with. */
     switch (OP(c)) {
+    case ANYOFPOSIXL:
     case ANYOFL:
         _CHECK_AND_WARN_PROBLEMATIC_LOCALE;
 
@@ -6712,6 +6713,7 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
             }
 	    break;
 
+        case ANYOFPOSIXL:
 	case ANYOFL:  /*  /[abc]/l      */
             _CHECK_AND_WARN_PROBLEMATIC_LOCALE;
 
@@ -9356,6 +9358,7 @@ S_regrepeat(pTHX_ regexp *prog, char **startposp, const regnode *p,
 	}
 	break;
     }
+    case ANYOFPOSIXL:
     case ANYOFL:
         _CHECK_AND_WARN_PROBLEMATIC_LOCALE;
 
@@ -9703,7 +9706,10 @@ S_reginclass(pTHX_ regexp * const prog, const regnode * const n, const U8* const
                                               1 /* 1 means die */ );
             NOT_REACHED; /* NOTREACHED */
         }
-        if (c > 255 && OP(n) == ANYOFL && ! ANYOFL_UTF8_LOCALE_REQD(flags)) {
+        if (     c > 255
+            &&  (OP(n) == ANYOFL || OP(n) == ANYOFPOSIXL)
+            && ! ANYOFL_UTF8_LOCALE_REQD(flags))
+        {
             _CHECK_AND_OUTPUT_WIDE_LOCALE_CP_MSG(c);
         }
     }
