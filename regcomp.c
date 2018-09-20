@@ -15522,7 +15522,6 @@ S_handle_regex_sets(pTHX_ RExC_state_t *pRExC_state, SV** return_invlist,
                         RExC_parse++;
                         if (nest_depth--) break;
                         node = reganode(pRExC_state, ANYOF, 0);
-                        RExC_size += ANYOF_SKIP;
                         nextchar(pRExC_state);
                         Set_Node_Length(node,
                                 RExC_parse - oregcomp_parse + 1); /* MJD */
@@ -18058,13 +18057,10 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
     ret = reganode(pRExC_state, op, 0);
 
     if (PASS1) {
-        RExC_size += (op == ANYOFPOSIXL) ? ANYOF_POSIXL_SKIP : ANYOF_SKIP + 1;
         return ret;
     }
 
     /****** !SIZE_ONLY, i.e. PASS2 AFTER HERE *********/
-    RExC_emit += (op == ANYOFPOSIXL) ? ANYOF_POSIXL_SKIP : ANYOF_SKIP;
-
     ANYOF_FLAGS(ret) = anyof_flags;
     if (posixl) {
         ANYOF_POSIXL_SET_TO_BITMAP(ret, posixl);
@@ -19316,7 +19312,8 @@ S_reganode(pTHX_ RExC_state_t *pRExC_state, U8 op, U32 arg)
 
     PERL_ARGS_ASSERT_REGANODE;
 
-    assert(regarglen[op] == 1);
+    /* ANYOF are special cased to allow non-length 1 args */
+    assert(regarglen[op] == 1 || PL_regkind[op] == ANYOF);
 
     if (PASS2) {
         regnode *ptr = ret;
@@ -21643,13 +21640,6 @@ S_dumpuntil(pTHX_ const regexp *r, const regnode *start, const regnode *node,
 	}
 	else if ( op == PLUS || op == STAR) {
 	    DUMPUNTIL(NEXTOPER(node), NEXTOPER(node) + 1);
-	}
-	else if (PL_regkind[(U8)op] == ANYOF) {
-	    /* arglen 1 + class block */
-	    node += 1 + ((ANYOF_FLAGS(node) & ANYOF_MATCHES_POSIXL)
-                          ? ANYOF_POSIXL_SKIP
-                          : ANYOF_SKIP);
-	    node = NEXTOPER(node);
 	}
 	else if (PL_regkind[(U8)op] == EXACT) {
             /* Literal string, where present. */
