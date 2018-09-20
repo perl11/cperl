@@ -1,8 +1,8 @@
 #!./perl -w
 
 BEGIN {
-    chdir '..' if !-d 'lib' and -d '../lib';
-    @INC = 'lib';
+    chdir '..' if !-d 'Porting' and -d '../Porting';
+    @INC = ('lib');
     $ENV{PERL5LIB} = 'lib';
 
     # This needs to be at BEGIN time, before any use of Config
@@ -12,7 +12,7 @@ BEGIN {
 
 use strict;
 our ($Is_VMS, $Is_W32, $Is_OS2, $Is_Cygwin, $Is_Darwin, $Is_NetWare, $Is_AmigaOS,
-	    %opts, $packlist);
+     %opts, $packlist);
 my $versiononly;
 
 BEGIN {
