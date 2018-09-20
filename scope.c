@@ -1254,7 +1254,7 @@ Perl_leave_scope(pTHX_ I32 base)
                     "Pad 0x%" UVxf "[%ld] 0x%" UVxf " clearsv: %ld sv=0x%" UVxf "<%"
                                        IVdf "> %s 0x%" UVxf " %s\n",
                     PTR2UV(PL_comppad), (long)AvFILLp(PL_comppad), PTR2UV(PL_curpad),
-                    (long)(svp-PL_curpad), PTR2UV(sv), (IV)SvREFCNT(sv), SvPEEK(sv), SvFLAGS(sv),
+                    (long)(svp-PL_curpad), PTR2UV(sv), (IV)SvREFCNT(sv), SvPEEK(sv), (UV)SvFLAGS(sv),
                     (SvREFCNT(sv) <= 1 && !SvOBJECT(sv)) ? "clear" : "abandon"));
 
                 /* Can clear pad variable in place? */

@@ -3228,7 +3228,7 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
 #ifdef USE_SAFE_HASHITER
             if (iter->xhv_timestamp != iter->xhv_savedstamp) {
                 DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH hashiter %" UVuf "\t%" UVuf "\n",
-                                      iter->xhv_timestamp, iter->xhv_savedstamp));
+                                      (UV)iter->xhv_timestamp, (UV)iter->xhv_savedstamp));
                 if (!cophh_fetch_pvs(CopHINTHASH_get(PL_curcop), "unsafe_hashiter",
                                      REFCOUNTED_HE_EXISTS))
                     Perl_croak(aTHX_ "Attempt to change hash while iterating over it");
