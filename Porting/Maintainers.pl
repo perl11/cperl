@@ -1028,7 +1028,7 @@ use File::Glob qw(:case);
     },
 
     'Module::CoreList' => {
-        'DISTRIBUTION' => 'BINGOS/Module-CoreList-5.20170715.tar.gz',
+        'DISTRIBUTION' => 'BINGOS/Module-CoreList-5.20180920.tar.gz',
         'FILES'        => q[dist/Module-CoreList],
         # skip ending 'c' in numeric context on cperl
         #'CUSTOMIZED'   => [ qw( lib/Module/CoreList.pm
