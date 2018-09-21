@@ -132,7 +132,7 @@ if (@ARGV) {
 
         # move dtrace.t before comp, as it causes locking with fresh_perl in run.
         # we have all comp tests in between.
-        if ($^O eq 'darwin') {
+        if ($Config{usedtrace}) {
             push @seq, 'run/dtrace.t';
             @tests = grep{$_ ne 'run/dtrace.t'} @tests;
         }
