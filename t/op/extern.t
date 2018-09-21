@@ -57,16 +57,16 @@ check_labs_fields("extern sub labs() :int;");
 check_labs_fields("sub labs() :native;"); # :void
 check_labs_fields("sub labs() :native :int;");
 
-eval 'extern sub ffilabs() :symbol("labs");';
+extern sub ffilabs() :symbol("labs");
 note 'extern sub ffilabs() :symbol("labs");';
 has_sym(\&ffilabs);
 
-eval 'extern sub labs() :int :symbol("abs");';
+extern sub labs() :int :symbol("abs");
 note 'extern sub labs() :int :symbol("abs");';
 has_sym(\&labs); # possible name mixup. both do exist
 
 # different code-path than extern above. was broken
-eval 'sub llabs() :native :symbol("labs") :int;';
+sub llabs() :native :symbol("labs") :int;
 note 'sub llabs() :native :symbol("labs") :int;';
 has_sym(\&llabs); # possible name mixup. both do exist
 
@@ -74,7 +74,7 @@ has_sym(\&llabs); # possible name mixup. both do exist
 TODO: {
     local $TODO = "Windows abs vs :symbol(abs)" if $^O =~ /^(MSWin32|msys)/;
 
-    eval 'extern sub abs(int $i) :int;';
+    extern sub abs(int $i) :int;
     note 'extern sub abs(int $i) :int;';
     my $ori  = B::svref_2object(\&abs);
     my $xsym = B::svref_2object(\&labs);
@@ -95,24 +95,24 @@ TODO: {
 # now call it with valid sigs and types
 check_abs("extern labs");
 
-eval 'sub abs(int $i) :native :int;';
+sub abs(int $i) :native :int;
 check_abs("abs :native");
 
 # non coretype, see F<lib/ffi.t> for all types
 BEGIN { %long::; }
-eval 'extern sub labs(long $i) :long;';
+extern sub labs(long $i) :long;
 check_labs("extern labs :long");
 undef %long::;
 
-eval 'sub abs(int $i) :native("c") :int;';
+sub abs(int $i) :native("c") :int;
 check_abs("abs :native('c')");
 
 #SKIP: {
 #    skip 'variable native($c) with threads', 4 if $Config{usethreads};
 
-eval '$c="c"; sub abs(int $i) :native($c) :int;';
+$c="c"; sub abs(int $i) :native($c) :int;
 check_abs("abs :native(\$name)");
 #}
 
-eval 'extern sub strchr(str $s, int $i) :str;';
+extern sub strchr(str $s, int $i) :str;
 is(strchr("abcd", ord("c")), "cd", "strchr");

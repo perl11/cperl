@@ -549,12 +549,24 @@ PP(pp_anoncode)
     RETURN;
 }
 
-/* really just callffi, handling also the signature and retval */
+/*
+=for apidoc pp_enterffi
+
+Really just call the ffi, handling also the signature (type checking and conversion)
+and retval (conversion).
+Without useffi we do accept extern () :void subs, without DynaLoader we
+always error with "Null extern sub symbol". We also throw the same error
+if the extern sub symbol was not found.
+=cut
+*/
 PP(pp_enterffi)
 {
     dVAR; dSP; dPOPss;
     CV *cv;
+#ifndef PERL_IS_MINIPERL
     const bool hasargs = (PL_op->op_flags & OPf_STACKED) != 0;
+#endif
+
     if (UNLIKELY(!sv))
 	DIE(aTHX_ "Not a CODE reference");
     /* see enterxssub with argtype dispatch */
@@ -568,11 +580,13 @@ PP(pp_enterffi)
         cv = MUTABLE_CV(sv);
 
     assert(SvTYPE(cv) == SVt_PVCV);
-#ifndef PERL_IS_MINIPERL
     if (UNLIKELY(!CvXFFI(cv)))
         DIE(aTHX_ "Null extern sub symbol");
+#ifndef PERL_IS_MINIPERL
     if (!hasargs && GIMME_V == G_VOID) {
-        /* TODO: segv signal handler */
+        /* Yes, you can call extern subs even without useffi, via DynaLoader.
+           But just void (void) funcs for sideeffects.
+           TODO: segv signal handler */
         CvXFFI(cv)();
     } else {
 # ifdef USE_FFI
@@ -600,7 +614,7 @@ PP(pp_enterffi)
 
         free(argvalues); /* if not alloca */
 # else /* USE_FFI */
-        DIE(aTHX_ "libffi not available");
+        DIE(aTHX_ "Null extern sub symbol");
 # endif
     }
 #endif /* PERL_IS_MINIPERL */

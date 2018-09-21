@@ -833,8 +833,8 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
 #else /* USE_FFI */
     PERL_UNUSED_ARG(cv);
     PERL_UNUSED_ARG(nativeconv);
-    Perl_warner(aTHX_ packWARN(WARN_SYNTAX),
-                "libffi not available");
+    /*Perl_w arner(aTHX_ packWARN(WARN_SYNTAX),
+                  "ffi not available");*/
 #endif
 }
 
@@ -865,7 +865,9 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
     UV   actions;
     PADLIST *padl        = CvPADLIST(cv);
     PADNAMELIST *namepad = padl ? PadlistNAMES(padl) : NULL;
+#if defined(USE_FFI) && !defined(PERL_IS_MINIPERL)
     HV*  type;
+#endif
     PADOFFSET pad_ix = 0;
     bool slurpy      = cBOOL((params >> 15) & 1);
     PERL_ARGS_ASSERT_PREP_FFI_SIG;
@@ -918,8 +920,8 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
         }
         argname = PAD_NAME(pad_ix);
         if (argname && PadnameTYPE(argname)) {
-            type = PadnameTYPE(argname);
 #if defined(USE_FFI) && !defined(PERL_IS_MINIPERL)
+            type = PadnameTYPE(argname);
             argtype = S_prep_sig(aTHX_ HvNAME(type), HvNAMELEN(type));
 #endif
         } else {
@@ -1222,7 +1224,7 @@ S_find_symbol(pTHX_ CV* cv, char *name)
     if (!dl_find_symbol) {
         CvFFILIB(cv) = 0;
         CvXFFI(cv) = NULL;
-        Perl_ck_warner(aTHX_ packWARN(WARN_FFI), "no ffi without DynaLoader");
+        /* Perl_ck_w arner(aTHX_ packWARN(WARN_FFI), "no ffi without DynaLoader"); */
         return; /* miniperl */
     }
     /* still slabbed PL_compcv? */
@@ -1271,7 +1273,7 @@ S_find_native(pTHX_ CV* cv, char *libname)
         CV *dl_load_file = get_cvs("DynaLoader::dl_load_file", 0);
         SV *pv = newSVpvn_flags(libname,strlen(libname),SVs_TEMP);
         if (!dl_load_file) {
-            Perl_ck_warner(aTHX_ packWARN(WARN_FFI), "no ffi without DynaLoader");
+            /* Perl_ck_w arner(aTHX_ packWARN(WARN_FFI), "no ffi without DynaLoader"); */
             return; /* miniperl */
         }
 
@@ -1299,7 +1301,7 @@ S_find_native(pTHX_ CV* cv, char *libname)
         CV *dl_find_symbol_anywhere = get_cvs("DynaLoader::dl_find_symbol_anywhere", 0);
         SV *symname;
         if (!dl_find_symbol_anywhere) {
-            Perl_ck_warner(aTHX_ packWARN(WARN_FFI), "no ffi without DynaLoader");
+            /* Perl_ck_w arner(aTHX_ packWARN(WARN_FFI), "no ffi without DynaLoader"); */
             return; /* miniperl */
         }
 

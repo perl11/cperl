@@ -2439,6 +2439,11 @@ PDP-11 or something?
 (F) A tied array claimed to have a negative number of elements, which
 is not possible.
 
+=item ffi not available
+
+(F) This perl is not linked against libffi. extern sub declarations
+are fine, but calls will fail. Check C<$Config{useffi}>.
+
 =item ffi: Possible %s overflow %d
 
 (W ffi) The numeric conversion might be lossy. See L<ffi>.
@@ -3565,11 +3570,6 @@ it is necessary to stuff, stuffing only plain ASCII is recommended.
 (F) Lexing code supplied by an extension violated the lexer's API in a
 detectable way.
 
-=item libffi not available
-
-(F) This perl is not linked against libffi. extern sub declarations
-are fine, but calls will fail. Check C<$Config{useffi}>.
-
 =item listen() on closed socket %s
 
 (W closed) You tried to do a listen on a closed socket.  Did you forget
@@ -4627,13 +4627,6 @@ an C</l> regular expression modifier, as that would require deferring
 to run-time the calculation of what it should evaluate to, and it is
 regex compile-time only.
 
-=item no ffi without DynaLoader
-
-(W ffi) miniperl has no DynaLoader, but DynaLoader is needed to find the
-shared library and to resolve the function name to the pointer.
-The function declarations do compile with this warning, but run-time calls will
-fail with L</Null extern sub symbol>, caused by the empty function pointer.
-
 =item no UTC offset information; assuming local time is UTC
 
 (S) A warning peculiar to VMS.  Perl was unable to find the local
@@ -4651,8 +4644,8 @@ pointer.
 
 (F) Run-time error when calling extern ffi subroutines with an empty
 function pointer. Either the shared library or the function symbol in it was
-not found, or you are running miniperl, without DynaLoader.
-See L</no ffi without DynaLoader> which is the associated compile-time warning.
+not found, or your configuration is without C<useffi> or are running miniperl,
+without DynaLoader.
 
 =item Null picture in formline
 

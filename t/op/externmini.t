@@ -54,6 +54,10 @@ sub abs(int $i) :native :int;
 check_abs("abs :native");
 
 # TODO: compile-time sig arity and type checking
+eval { abs("0"); };
+like ($@, qr/wrong type/);
+eval { abs(); };
+like ($@, qr/missing arg/);
 
 # non coretype, see F<lib/ffi.t> for all types
 BEGIN { %long::; }
