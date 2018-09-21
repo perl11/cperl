@@ -3,7 +3,7 @@
  *    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
  *    by Larry Wall and others
  *    Copyright (C) 2015 cPanel Inc
- *    Copyright (C) 2017 Reini Urban
+ *    Copyright (C) 2017-2018 Reini Urban
  *
  *    You may distribute under the terms of either the GNU General Public
  *    License or the Artistic License, as specified in the README file.
@@ -24,7 +24,7 @@
 #include "perl.h"
 #include "XSUB.h"
 
-#if defined(USE_FFI)
+#if defined(USE_FFI) && !defined(PERL_IS_MINIPERL)
 # include <ffi.h>
 #endif
 #if defined(I_DLFCN)
@@ -465,14 +465,14 @@ XS_EXTERNAL(XS_strict_unimport)
 /* attributes */
 /*
  * Contributed by Spider Boardman (spider.boardman@orb.nashua.nh.us).
- * Extended by cPanel.
+ * Extended by cPanel and Reini Urban.
  */
 
 /* ffi helpers */
 
 /* compile-time */
 
-#ifdef USE_FFI
+#if defined(USE_FFI) && !defined(PERL_IS_MINIPERL)
 static ffi_type*
 S_prep_sig(pTHX_ const char *name, int l)
 {
@@ -622,12 +622,12 @@ See C<man ffi_prep_cif>.
 static void
 S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
 {
-#ifdef USE_FFI
+#define PAD_NAME(pad_ix) padnamelist_fetch(namepad, pad_ix)
+#if defined(USE_FFI) && !defined(PERL_IS_MINIPERL)
     UNOP_AUX *sigop = CvSIGOP(cv);
     ffi_cif* cif = (ffi_cif*)safemalloc(sizeof(ffi_cif));
     unsigned int i;
     PADNAMELIST *namepad = PadlistNAMES(CvPADLIST(cv));
-#define PAD_NAME(pad_ix) padnamelist_fetch(namepad, pad_ix)
     PADNAME *argname;
     UV  actions;
     PADOFFSET pad_ix = 0;
@@ -838,8 +838,6 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
 #endif
 }
 
-#if defined(USE_FFI)
-
 /* run-time */
 /*
 =for apidoc prep_ffi_sig
@@ -905,7 +903,9 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
     for (i=0; i<num_args; i++) {
         UV action = actions & SIGNATURE_ACTION_MASK;
         PADNAME* argname;
+#if defined(USE_FFI) && !defined(PERL_IS_MINIPERL)
         ffi_type *argtype;
+#endif
         /* if (actions & SIGNATURE_FLAG_ref) yet unhandled: (\$i :int) */
         if (action == SIGNATURE_reload) {
             actions = (++items)->uv;
@@ -919,14 +919,16 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
         argname = PAD_NAME(pad_ix);
         if (argname && PadnameTYPE(argname)) {
             type = PadnameTYPE(argname);
+#if defined(USE_FFI) && !defined(PERL_IS_MINIPERL)
             argtype = S_prep_sig(aTHX_ HvNAME(type), HvNAMELEN(type));
+#endif
         } else {
             Perl_croak(aTHX_ "Type of arg %s to %s must be %s (not %s)",
                        argname ? PadnamePV(argname) : "",
                        SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
                        "declared", "empty");
         }
-
+#if defined(USE_FFI) && !defined(PERL_IS_MINIPERL)
         /* TODO: walk sig items, add run-time type-checks, add missing default values */
         if (SvPOK(*argp)) {
             if (argtype == &ffi_type_pointer)
@@ -960,7 +962,10 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
                        SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
                        "valid", HvNAME(type));
         }
-
+#else
+        PERL_UNUSED_ARG(argp);
+        PERL_UNUSED_ARG(argvalues);
+#endif
         actions >>= SIGNATURE_SHIFT;
         pad_ix++;
     }
@@ -1201,8 +1206,6 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, char *rvalue)
         GCC60_DIAG_RESTORE
     }
 }
-
-#endif
 
 /* ffi helper to find the c symbol */
 static void

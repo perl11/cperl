@@ -4751,6 +4751,21 @@ PERL_CALLCONV void	Perl_pregfree2(pTHX_ REGEXP *rx)
 #define PERL_ARGS_ASSERT_PREGFREE2	\
 	assert(rx)
 
+PERL_CALLCONV void	Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, char *rvalue)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_PREP_FFI_RET	\
+	assert(cv); assert(sp)
+
+PERL_CALLCONV void	Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **argvalues)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_3)
+			__attribute__nonnull__(pTHX_4);
+#define PERL_ARGS_ASSERT_PREP_FFI_SIG	\
+	assert(cv); assert(argp); assert(argvalues)
+
 PERL_CALLCONV const char*	Perl_prescan_version(pTHX_ const char *s, bool strict, const char** errstr, bool *sqv, int *ssaw_decimal, int *swidth, bool *salpha)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
@@ -11289,21 +11304,6 @@ PERL_CALLCONV int	Perl_magic_setffi_encoded(pTHX_ SV* sv, MAGIC* mg)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_MAGIC_SETFFI_ENCODED	\
 	assert(sv); assert(mg)
-
-PERL_CALLCONV void	Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, char *rvalue)
-			__attribute__global__
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2);
-#define PERL_ARGS_ASSERT_PREP_FFI_RET	\
-	assert(cv); assert(sp)
-
-PERL_CALLCONV void	Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **argvalues)
-			__attribute__global__
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_3)
-			__attribute__nonnull__(pTHX_4);
-#define PERL_ARGS_ASSERT_PREP_FFI_SIG	\
-	assert(cv); assert(argp); assert(argvalues)
 
 #endif
 #if defined(USE_ITHREADS)

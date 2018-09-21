@@ -641,6 +641,8 @@
 #define pregexec(a,b,c,d,e,f,g)	Perl_pregexec(aTHX_ a,b,c,d,e,f,g)
 #define pregfree(a)		Perl_pregfree(aTHX_ a)
 #define pregfree2(a)		Perl_pregfree2(aTHX_ a)
+#define prep_ffi_ret(a,b,c)	Perl_prep_ffi_ret(aTHX_ a,b,c)
+#define prep_ffi_sig(a,b,c,d)	Perl_prep_ffi_sig(aTHX_ a,b,c,d)
 #define prescan_version(a,b,c,d,e,f,g)	Perl_prescan_version(aTHX_ a,b,c,d,e,f,g)
 #define ptr_table_clear(a)	Perl_ptr_table_clear(aTHX_ a)
 #define ptr_table_fetch(a,b)	Perl_ptr_table_fetch(aTHX_ a,b)
@@ -1081,10 +1083,6 @@
 #if defined(USE_C_BACKTRACE)
 #define dump_c_backtrace(a,b,c)	Perl_dump_c_backtrace(aTHX_ a,b,c)
 #define get_c_backtrace_dump(a,b)	Perl_get_c_backtrace_dump(aTHX_ a,b)
-#endif
-#if defined(USE_FFI)
-#define prep_ffi_ret(a,b,c)	Perl_prep_ffi_ret(aTHX_ a,b,c)
-#define prep_ffi_sig(a,b,c,d)	Perl_prep_ffi_sig(aTHX_ a,b,c,d)
 #endif
 #if defined(USE_ITHREADS)
 #define alloccopstash(a)	Perl_alloccopstash(aTHX_ a)

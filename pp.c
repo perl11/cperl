@@ -575,7 +575,7 @@ PP(pp_enterffi)
         /* TODO: segv signal handler */
         CvXFFI(cv)();
     } else {
-#ifdef USE_FFI
+# ifdef USE_FFI
         dMARK;
         void **argvalues;
         ffi_arg rvalue;
@@ -599,11 +599,11 @@ PP(pp_enterffi)
             PL_stack_sp--;
 
         free(argvalues); /* if not alloca */
-#else
+# else /* USE_FFI */
         DIE(aTHX_ "libffi not available");
-#endif
+# endif
     }
-#endif
+#endif /* PERL_IS_MINIPERL */
 
     return NORMAL;
 }

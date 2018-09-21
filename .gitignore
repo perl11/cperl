@@ -34,6 +34,8 @@ bug*.pl
 /opmini.c
 /perlmain.c
 /perlmini.c
+/ppmini.c
+/xsutilsmini.c
 /pod/Makefile
 /preload
 /runtests

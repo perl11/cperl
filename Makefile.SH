@@ -44,6 +44,10 @@ shrpldflags='$(LDDLFLAGS)'
 ldlibpth=''
 DPERL_EXTERNAL_GLOB='-DPERL_EXTERNAL_GLOB'
 DPERL_IS_MINIPERL='-DPERL_IS_MINIPERL'
+miniperllibs="$perlibs $cryptlib"
+if [ $useffi = 'define' ]; then
+    miniperllibs="`echo $perllibs|sed 's, -lffi,,'` $cryptlib"
+fi
 case "$useshrplib" in
 true)
 	# Prefix all runs of 'miniperl' and 'perl' with
@@ -384,6 +388,7 @@ DL_SRC = ext/DynaLoader/DynaLoader.xs ext/DynaLoader/dlboot.c ext/DynaLoader/dlu
          ext/DynaLoader/XSLoader.c
 
 libs = $perllibs $cryptlib
+miniperllibs = $miniperllibs
 
 public = \$(PERL_EXE) utilities
 
@@ -532,25 +537,25 @@ h = $(h1) $(h2) $(h3) $(h4) $(h5) $(h6)
 
 inc = mg_names.inc overload.inc packsizetables.inc vxs.inc
 
-c1 = av.c scope.c op.c doop.c doio.c dump.c gv.c hv.c mg.c reentr.c mro_core.c perl.c
+c1 = av.c scope.c op.c doop.c doio.c dump.c gv.c hv.c mg.c reentr.c mro_core.c perl.c xsutils.c
 c2 = perly.c pp_hot.c pp.c pp_type.c pp_ctl.c pp_sys.c regcomp.c regexec.c utf8.c sv.c
-c3 = taint.c toke.c util.c deb.c run.c universal.c xsutils.c pad.c globals.c keywords.c
+c3 = taint.c toke.c util.c deb.c run.c universal.c pad.c globals.c keywords.c
 c4 = perlio.c perlapi.c numeric.c mathoms.c locale.c pp_pack.c pp_sort.c caretx.c dquote.c time64.c
 c5 = $(mallocsrc)
 
-c = $(c1) $(c2) $(c3) $(c4) $(c5) miniperlmain.c opmini.c perlmini.c
+c = $(c1) $(c2) $(c3) $(c4) $(c5) miniperlmain.c opmini.c perlmini.c xsutilsmini.c ppmini.c
 
 obj1 = $(mallocobj) gv$(OBJ_EXT) toke$(OBJ_EXT) perly$(OBJ_EXT) pad$(OBJ_EXT) regcomp$(OBJ_EXT) dump$(OBJ_EXT) util$(OBJ_EXT) mg$(OBJ_EXT) reentr$(OBJ_EXT) mro_core$(OBJ_EXT) keywords$(OBJ_EXT)
-obj2 = hv$(OBJ_EXT) av$(OBJ_EXT) run$(OBJ_EXT) pp_hot$(OBJ_EXT) sv$(OBJ_EXT) pp$(OBJ_EXT) pp_type$(OBJ_EXT) scope$(OBJ_EXT) pp_ctl$(OBJ_EXT) pp_sys$(OBJ_EXT)
-obj3 = doop$(OBJ_EXT) doio$(OBJ_EXT) regexec$(OBJ_EXT) utf8$(OBJ_EXT) taint$(OBJ_EXT) deb$(OBJ_EXT) universal$(OBJ_EXT) xsutils$(OBJ_EXT) globals$(OBJ_EXT) perlio$(OBJ_EXT) perlapi$(OBJ_EXT) numeric$(OBJ_EXT) mathoms$(OBJ_EXT) locale$(OBJ_EXT) pp_pack$(OBJ_EXT) pp_sort$(OBJ_EXT) caretx$(OBJ_EXT) dquote$(OBJ_EXT) time64$(OBJ_EXT)
+obj2 = hv$(OBJ_EXT) av$(OBJ_EXT) run$(OBJ_EXT) pp_hot$(OBJ_EXT) sv$(OBJ_EXT) pp_type$(OBJ_EXT) scope$(OBJ_EXT) pp_ctl$(OBJ_EXT) pp_sys$(OBJ_EXT)
+obj3 = doop$(OBJ_EXT) doio$(OBJ_EXT) regexec$(OBJ_EXT) utf8$(OBJ_EXT) taint$(OBJ_EXT) deb$(OBJ_EXT) universal$(OBJ_EXT) globals$(OBJ_EXT) perlio$(OBJ_EXT) perlapi$(OBJ_EXT) numeric$(OBJ_EXT) mathoms$(OBJ_EXT) locale$(OBJ_EXT) pp_pack$(OBJ_EXT) pp_sort$(OBJ_EXT) caretx$(OBJ_EXT) dquote$(OBJ_EXT) time64$(OBJ_EXT)
 
 # split the objects into 3 exclusive sets: those used by both miniperl and
 # perl, and those used by just one or the other. Doesn't include the
 # actual perl(mini)main.o, nor any dtrace objects.
 
 common_objs    = $(obj1) $(obj2) $(obj3) $(ARCHOBJS)
-mini_only_objs = opmini$(OBJ_EXT) perlmini$(OBJ_EXT)
-main_only_objs = op$(OBJ_EXT)     perl$(OBJ_EXT)
+mini_only_objs = opmini$(OBJ_EXT) perlmini$(OBJ_EXT) xsutilsmini$(OBJ_EXT) ppmini$(OBJ_EXT)
+main_only_objs = op$(OBJ_EXT) perl$(OBJ_EXT) xsutils$(OBJ_EXT) pp$(OBJ_EXT)
 
 miniperl_objs_nodt = $(mini_only_objs) $(common_objs) miniperlmain$(OBJ_EXT)
 perllib_objs_nodt  = $(main_only_objs) $(common_objs)
@@ -701,7 +706,7 @@ FORCE:
 	@sh -c true
 !GROK!THIS!
 
-for file in op perl; do
+for file in op perl xsutils pp; do
     if $issymlink $file.c; then
         $spitshell >>$Makefile <<!GROK!THIS!
 
@@ -756,7 +761,7 @@ bitcount.h: generate_uudmap\$(HOST_EXE_EXT)
 
 $spitshell >>$Makefile <<'!NO!SUBS!'
 generate_uudmap$(HOST_EXE_EXT): generate_uudmap$(OBJ_EXT)
-	$(LD) -o generate_uudmap$(EXE_EXT) $(LDFLAGS) generate_uudmap$(OBJ_EXT) $(libs)
+	$(LD) -o generate_uudmap$(EXE_EXT) $(LDFLAGS) generate_uudmap$(OBJ_EXT) $(miniperllibs)
 
 !NO!SUBS!
 ;;
@@ -831,9 +836,10 @@ $(LIBPERL_NONSHR): $(perllib_objs)
 	$(RMS) $(LIBPERL_NONSHR)
 	$(AR) $(ARFLAGS) $(LIBPERL_NONSHR) $(perllib_objs)
 
-$(MINIPERL_NONSHR): $(LIBPERL_NONSHR) miniperlmain$(OBJ_EXT) opmini$(OBJ_EXT)  perlmini$(OBJ_EXT)
+$(MINIPERL_NONSHR): $(LIBPERL_NONSHR) miniperlmain$(OBJ_EXT) \
+                    opmini$(OBJ_EXT) perlmini$(OBJ_EXT) xsutilsmini$(OBJ_EXT) ppmini$(OBJ_EXT)
 	$(LD) $(LDFLAGS) -o $(MINIPERL_NONSHR) miniperlmain$(OBJ_EXT) \
-	    opmini$(OBJ_EXT) perlmini$(OBJ_EXT) $(LIBPERL_NONSHR) $(LIBS)
+	    opmini$(OBJ_EXT) perlmini$(OBJ_EXT) xsutilsmini$(OBJ_EXT) ppmini$(OBJ_EXT) $(LIBPERL_NONSHR) $(miniperllibs)
 
 MINIPERLEXP		= $(MINIPERL_NONSHR)
 
@@ -993,7 +999,7 @@ $(MINIPERL_EXE): lib/buildcustomize.pl
 		$spitshell >>$Makefile <<'!NO!SUBS!'
 lib/buildcustomize.pl: $& $(miniperl_objs) write_buildcustomize.pl
 	-@rm -f miniperl.xok
-	$(LD) $(CLDFLAGS) -o $(MINIPERL_EXE) $(miniperl_objs) $(libs)
+	$(LD) $(CLDFLAGS) -o $(MINIPERL_EXE) $(miniperl_objs) $(miniperllibs)
 #	$(LDLIBPTH) ./miniperl$(HOST_EXE_EXT) -w -Ilib -Idist/Exporter/lib -MExporter -e '<?>' || sh -c 'echo >&2 Failed to build miniperl.  Please run make minitest; exit 1'
 	$(MINIPERL) -f write_buildcustomize.pl
 !NO!SUBS!
@@ -1001,7 +1007,7 @@ lib/buildcustomize.pl: $& $(miniperl_objs) write_buildcustomize.pl
 	aix*)
 		$spitshell >>$Makefile <<'!NO!SUBS!'
 lib/buildcustomize.pl: $& $(miniperl_objs)
-	$(LD) -o $(MINIPERL_EXE) $(CLDFLAGS) $(miniperl_objs) $(libs)
+	$(LD) -o $(MINIPERL_EXE) $(CLDFLAGS) $(miniperl_objs) $(miniperllibs)
 	$(LDLIBPTH) ./miniperl$(HOST_EXE_EXT) -w -Ilib -Idist/Exporter/lib -MExporter -e '<?>' || sh -c 'echo >&2 Failed to build miniperl.  Please run make minitest; exit 1'
 	$(MINIPERL) make_patchnum.pl && \
 	  $(MINIPERL) configpm && \
@@ -1011,7 +1017,7 @@ lib/buildcustomize.pl: $& $(miniperl_objs)
 	next4*)
 		$spitshell >>$Makefile <<'!NO!SUBS!'
 lib/buildcustomize.pl: $& $(miniperl_objs) write_buildcustomize.pl
-	$(LD) -o $(MINIPERL_EXE) $(miniperl_objs) $(libs)
+	$(LD) -o $(MINIPERL_EXE) $(miniperl_objs) $(miniperllibs)
 	$(LDLIBPTH) ./miniperl$(HOST_EXE_EXT) -w -Ilib -Idist/Exporter/lib -MExporter -e '<?>' || sh -c 'echo >&2 Failed to build miniperl.  Please run make minitest; exit 1'
 	$(MINIPERL) make_patchnum.pl && \
 	  $(MINIPERL) configpm && \
@@ -1036,7 +1042,7 @@ NAMESPACEFLAGS = -force_flat_namespace
 		$spitshell >>$Makefile <<'!NO!SUBS!'
 lib/buildcustomize.pl: $& $(miniperl_objs) write_buildcustomize.pl
 	-@rm -f miniperl.xok
-	$(LD) $(CLDFLAGS) $(NAMESPACEFLAGS) -o $(MINIPERL_EXE) $(miniperl_objs) $(libs)
+	$(LD) $(CLDFLAGS) $(NAMESPACEFLAGS) -o $(MINIPERL_EXE) $(miniperl_objs) $(miniperllibs)
 !NO!SUBS!
                 case "$ccflags" in
                     *-DDEBUGGING*) $spitshell >>$Makefile <<'!NO!SUBS!'
@@ -1067,7 +1073,7 @@ lib/buildcustomize.pl: \$& \$(miniperl_dep) write_buildcustomize.pl
 			$spitshell >>$Makefile <<'!NO!SUBS!'
 lib/buildcustomize.pl: $& $(miniperl_dep) write_buildcustomize.pl
 	-@rm -f miniperl.xok
-	$(LD) $(CLDFLAGS) -o $(MINIPERL_EXE) $(miniperl_objs) $(libs)
+	$(LD) $(CLDFLAGS) -o $(MINIPERL_EXE) $(miniperl_objs) $(miniperllibs)
 	$(LDLIBPTH) ./miniperl$(HOST_EXE_EXT) -w -Ilib -Idist/Exporter/lib -MExporter -e '<?>' || sh -c 'echo >&2 Failed to build miniperl.  Please run make minitest; exit 1'
 	$(MINIPERL) make_patchnum.pl && \
 	  $(MINIPERL) configpm && \
@@ -1504,7 +1510,7 @@ veryclean:	_verycleaner _mopup _clobber
 
 # Do not 'make _mopup' directly.
 _mopup:
-	rm -f *$(OBJ_EXT) *$(LIB_EXT) all perlmain.c opmini.c perlmini.c generate_uudmap$(EXE_EXT) $(generated_headers)
+	rm -f *$(OBJ_EXT) *$(LIB_EXT) all perlmain.c opmini.c perlmini.c xsutilsmini.c ppmini.c generate_uudmap$(EXE_EXT) $(generated_headers)
 	-rmdir .depending
 	-@test -f extra.pods && rm -f `cat extra.pods`
 	-@test -f vms/README_vms.pod && rm -f vms/README_vms.pod
@@ -1513,7 +1519,7 @@ _mopup:
 	-rm -f *perl.xok
 	-rm -f cygwin.c libperl*.def libcperl*.dll cygcperl*.dll *.exe.stackdump
 	-rm -f $(PERL_EXE) $(MINIPERL_EXE) $(LIBPERL) libperl.* microperl
-	-rm -f config.arch config.over $(DTRACE_H) have_ffi.h git_version.h git_version.sh
+	-rm -f config.arch config.over $(DTRACE_H) git_version.h git_version.sh
 	-rm -f t/$(LIBPERL) cpan/B-C/$(LIBPERL)
 
 _cleaner1:
@@ -1896,7 +1902,8 @@ GTAGS: $(c1) $(c2) $(c3) $(c4) $(c5) $(h) $(inc)
 	gtags -v --file gtags.files
 
 ctags:
-	ctags -f Tags -N --totals --languages=c --langmap=c:+.h --exclude=opmini.c --exclude=perlmini.c *.c *.h
+	ctags -f Tags -N --totals --languages=c --langmap=c:+.h \
+          --exclude=opmini.c --exclude=perlmini.c --exclude=xsutilsmini.c --exclude=ppmini.c *.c *.h
 
 # AUTOMATICALLY GENERATED MAKE DEPENDENCIES--PUT NOTHING BELOW THIS LINE
 # If this runs make out of memory, delete /usr/include lines.
