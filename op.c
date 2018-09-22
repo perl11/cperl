@@ -12081,7 +12081,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 
     if (cv) {				/* must reuse cv if autoloaded */
 	/* transfer PL_compcv to cv */
-	if (block) {
+	if (block || CvEXTERN(cv)) {
 	    cv_flags_t existing_builtin_attrs = CvFLAGS(cv) & CVf_BUILTIN_ATTRS;
 	    PADLIST *const temp_av = CvPADLIST(cv);
 	    CV *const temp_cv = CvOUTSIDE(cv);
@@ -12099,12 +12099,8 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 		PERL_HASH(hash, name, namlen);
                 if (UNLIKELY(namlen > I32_MAX))
                     Perl_croak(aTHX_ "panic: name too long (%" UVuf ")", (UV) namlen);
-		CvNAME_HEK_set(cv,
-			       share_hek(name,
-					 name_is_utf8
-					    ? -(I32)namlen
-					    :  (I32)namlen,
-					 hash));
+		CvNAME_HEK_set(cv, share_hek(name, name_is_utf8 ? -(I32)namlen : (I32)namlen,
+                                             hash));
 	    }
 
 	    SvPOK_off(cv);
@@ -12135,13 +12131,6 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	else {
 	    /* Might have had built-in attributes applied -- propagate them. */
 	    CvFLAGS(cv) |= (CvFLAGS(PL_compcv) & CVf_BUILTIN_ATTRS);
-            if (CvEXTERN(cv) && !CvPADLIST(cv)) {
-                if (CvPADLIST(PL_compcv))
-                    CvPADLIST_set(cv, CvPADLIST(PL_compcv));
-                else
-                    CvPADLIST_set(cv, pad_new(0));
-                DEBUG_Xv(padlist_dump(CvPADLIST(cv)));
-            }
 	}
 	/* ... before we throw it away */
 	SvREFCNT_dec(PL_compcv);
@@ -12276,11 +12265,11 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
     assert(!cv || evanescent || SvREFCNT((SV*)cv) != 0);
     if (!evanescent) {
 #ifdef PERL_DEBUG_READONLY_OPS
-    if (slab)
-	Slab_to_ro(slab);
+        if (slab)
+            Slab_to_ro(slab);
 #endif
-    if (cv && name && block && CvOUTSIDE(cv) && !CvEVAL(CvOUTSIDE(cv)))
-	pad_add_weakref(cv);
+        if (cv && name && (block || CvEXTERN(cv)) && CvOUTSIDE(cv) && !CvEVAL(CvOUTSIDE(cv)))
+            pad_add_weakref(cv);
     }
     return cv;
 }
