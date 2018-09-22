@@ -159,6 +159,7 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CVf_EXTERN	0x800000 /* ffi declaration. extern or :native */
 #define CVf_MULTI	0x1000000 /* multi dispatch on types (nyi) */
 #define CVf_LAZYPARSE	0x2000000 /* TODO GH #274 */
+#define CVf_FFILIB_HANDLE 0x4000000 /* If is a DynaLoader libhandle */
 
 /* This symbol for optimised communication between toke.c and op.c: */
 #define CVf_BUILTIN_ATTRS	(CVf_METHOD|CVf_LVALUE|CVf_CONST|CVf_ANONCONST \
@@ -265,6 +266,9 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvEXTERN(cv)		(CvFLAGS(cv) & CVf_EXTERN)
 #ifdef PERL_CORE
 #define CvEXTERN_on(cv)	        (CvFLAGS(cv) |= (CVf_EXTERN|CVf_ISXSUB), CvSLABBED_off(cv))
+#define CvFFILIB_HANDLE(cv)	(CvFLAGS(cv) & CVf_FFILIB_HANDLE)
+#define CvFFILIB_HANDLE_on(cv)  (CvFLAGS(cv) |= CVf_FFILIB_HANDLE)
+#define CvFFILIB_HANDLE_off(cv) (CvFLAGS(cv) &= ~CVf_FFILIB_HANDLE)
 #endif
 
 #define CvMULTI(cv)		(CvFLAGS(cv) & CVf_MULTI)

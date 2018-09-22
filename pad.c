@@ -367,11 +367,13 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
     }
     else { /* dont bother checking if CvXSUB(cv) is true, less branching */
 	CvXSUB(&cvbody) = NULL;
-        /* leak the cif, this was allocated differently.
-           Either a ffi_prep_cif handle, or a temp. DynaLoader::dl_load_file scalar IV */
-        if (CvEXTERN(&cvbody) && CvFFILIB(&cvbody))
+        /* Either a ffi_prep_cif struct, or a temp. DynaLoader::dl_load_file handle (IV) */
+        if (CvEXTERN(&cvbody) && CvFFILIB(&cvbody)) {
+            if (!CvFFILIB_HANDLE(cv)) {
+                safefree(INT2PTR(void*,CvFFILIB(&cvbody))); /* alloced in S_prep_cif() */
+            }
             CvFFILIB(&cvbody) = 0;
-            /*Safefree(INT2PTR(void*,CvFFILIB(cv)));*/
+        }
     }
     SvPOK_off(MUTABLE_SV(cv));		/* forget prototype */
     sv_unmagic((SV *)cv, PERL_MAGIC_checkcall);

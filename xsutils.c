@@ -757,6 +757,7 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
                        status, __FILE__, __LINE__);
         }
         CvFFILIB(cv) = PTR2IV(cif);
+        CvFFILIB_HANDLE_off(cv);
         return;
     }
 
@@ -829,6 +830,7 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
                    status, __FILE__, __LINE__);
     }
     CvFFILIB(cv) = PTR2IV(cif);
+    CvFFILIB_HANDLE_off(cv);
 
 #else /* USE_FFI */
     PERL_UNUSED_ARG(cv);
@@ -1219,10 +1221,10 @@ S_find_symbol(pTHX_ CV* cv, char *name)
     CV *dl_find_symbol = get_cvs("DynaLoader::dl_find_symbol", 0);
     int nret;
     /* can be NULL, searches all libs then */
-    IV handle = CvFFILIB(cv) ? (IV)CvFFILIB(cv) : (IV)RTLD_DEFAULT;
+    IV handle = (CvFFILIB(cv) && CvFFILIB_HANDLE(cv)) ? (IV)CvFFILIB(cv) : (IV)RTLD_DEFAULT;
 
     if (!dl_find_symbol) {
-        CvFFILIB(cv) = 0;
+        if (CvFFILIB_HANDLE(cv)) CvFFILIB(cv) = 0;
         CvXFFI(cv) = NULL;
         /* Perl_ck_w arner(aTHX_ packWARN(WARN_FFI), "no ffi without DynaLoader"); */
         return; /* miniperl */
@@ -1237,6 +1239,7 @@ S_find_symbol(pTHX_ CV* cv, char *name)
     if (!handle) {
         /* Try GetModuleHandle() for some loaded DLL's. dl_find_symbol_anywhere only tries all dynaloaded
            dl_librefs, but not cperl.dll nor libc */
+        if (CvFFILIB_HANDLE(cv)) CvFFILIB(cv) = 0;
         return;
     }
 #endif
@@ -1257,7 +1260,6 @@ S_find_symbol(pTHX_ CV* cv, char *name)
         CvXFFI(cv) = INT2PTR(XSUBADDR_t, POPi);
 #endif
         DEBUG_v(PerlIO_printf(Perl_debug_log, "CvXFFI(%s)=0x%" UVxf "\n", SvPVX(pv), (UV)CvXFFI(cv)));
-        CvFFILIB(cv) = 0;
         CvSLABBED_off(cv);
     }
 }
@@ -1283,8 +1285,10 @@ S_find_native(pTHX_ CV* cv, char *libname)
         PUTBACK;
         nret = call_sv((SV*)dl_load_file, G_SCALAR);
         SPAGAIN;
-        if (nret == 1 && SvIOK(TOPs))
+        if (nret == 1 && SvIOK(TOPs)) {
             CvFFILIB(cv) = POPi;
+            CvFFILIB_HANDLE_on(cv);
+        }
         else
             CvFFILIB(cv) = 0;
 
@@ -1329,7 +1333,6 @@ S_find_native(pTHX_ CV* cv, char *libname)
             DEBUG_v(PerlIO_printf(Perl_debug_log, "CvXFFI(%s)=0x%" UVxf "\n", SvPVX(symname), (UV)CvXFFI(cv)));
             CvSLABBED_off(cv);
         }
-        CvFFILIB(cv) = 0;
     }
 }
 
