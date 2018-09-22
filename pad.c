@@ -836,6 +836,8 @@ Perl_pad_add_anon(pTHX_ CV* func, I32 optype)
 	CvWEAKOUTSIDE_on(func);
 	SvREFCNT_dec_NN(CvOUTSIDE(func));
     }
+    DEBUG_Xv(PerlIO_printf(Perl_debug_log,
+        "Pad add_anon: %ld \"%s\"\n", (long)ix, PadnamePV(name)));
     return ix;
 }
 
@@ -855,6 +857,8 @@ Perl_pad_add_weakref(pTHX_ CV* func)
     padnamelist_store(PL_comppad_name, ix, name);
     sv_rvweaken(rv);
     av_store(PL_comppad, ix, rv);
+    DEBUG_Xv(PerlIO_printf(Perl_debug_log,
+      "Pad add_weakref: %ld \"%s\"\n", (long)ix, PadnamePV(name)));
 }
 
 /*

@@ -148,7 +148,7 @@ typedef enum {
  * whether PL_comppad and PL_curpad are consistent and whether they have
  * active values */
 
-#  define pad_peg(label)
+#define pad_peg(label) DEBUG_Xv(PerlIO_printf(Perl_debug_log, "-pad %s\n", label))
 
 #ifdef DEBUGGING
 #  define ASSERT_CURPAD_LEGAL(label) \
