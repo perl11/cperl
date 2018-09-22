@@ -2241,6 +2241,7 @@ S_cv_clone_pad(pTHX_ CV *proto, CV *cv, CV *outside, HV *cloned,
     }
 
     if (newcv) SvREFCNT_inc_simple_void_NN(cv);
+    DEBUG_Xv(padlist_dump(CvPADLIST(cv)));
     LEAVE;
 
     if (CvCONST(cv)) {

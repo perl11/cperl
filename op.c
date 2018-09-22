@@ -11511,6 +11511,7 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
 	    pad_fixup_inner_anons(CvPADLIST(cv), compcv, cv);
 	    if (PERLDB_INTER)/* Advice debugger on the new sub. */
                 ++PL_sub_generation;
+            DEBUG_Xv(padlist_dump(CvPADLIST(cv)));
 	}
 	else {
 	    /* Might have had built-in attributes applied -- propagate them. */
@@ -12139,6 +12140,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
                     CvPADLIST_set(cv, CvPADLIST(PL_compcv));
                 else
                     CvPADLIST_set(cv, pad_new(0));
+                DEBUG_Xv(padlist_dump(CvPADLIST(cv)));
             }
 	}
 	/* ... before we throw it away */

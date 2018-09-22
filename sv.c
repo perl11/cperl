@@ -14573,6 +14573,7 @@ S_sv_dup_common(pTHX_ const SV *const sstr, CLONE_PARAMS *const param)
 		    if (padlist)
 			padlist = padlist_dup(padlist, param);
 		    CvPADLIST_set(dstr, padlist);
+                    DEBUG_Xv(padlist_dump(padlist));
 		} else
 /* unthreaded perl can't sv_dup so we dont support unthreaded's CvHSCXT */
 		    PoisonPADLIST(dstr);
