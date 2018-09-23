@@ -430,10 +430,11 @@ Perl_Slab_Alloc(pTHX_ size_t sz)
        We find the slab via PL_compcv, hence that must be non-NULL. It could
        also be pointing to a subroutine which is now fully set up (CvROOT()
        pointing to the top of the optree for that sub), or a subroutine
-       which isn't using the slab allocator. If our sanity checks aren't met,
-       don't use a slab, but allocate the OP directly from the heap.  */
-    if (!PL_compcv || CvROOT(PL_compcv)
-     || (CvSTART(PL_compcv) && !CvSLABBED(PL_compcv)))
+       which isn't using the slab allocator, like a block-less ffi decl.
+       If our sanity checks aren't met, don't use a slab, but allocate the
+       OP directly from the heap. */
+    if (!PL_compcv || CvROOT(PL_compcv) || CvEXTERN(PL_compcv)
+        || (CvSTART(PL_compcv) && !CvSLABBED(PL_compcv)))
     {
 	o = (OP*)PerlMemShared_calloc(1, sz);
         goto gotit;
@@ -12081,7 +12082,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 
     if (cv) {				/* must reuse cv if autoloaded */
 	/* transfer PL_compcv to cv */
-	if (block || CvEXTERN(cv)) {
+	if (block) {
 	    cv_flags_t existing_builtin_attrs = CvFLAGS(cv) & CVf_BUILTIN_ATTRS;
 	    PADLIST *const temp_av = CvPADLIST(cv);
 	    CV *const temp_cv = CvOUTSIDE(cv);
@@ -12131,6 +12132,19 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	else {
 	    /* Might have had built-in attributes applied -- propagate them. */
 	    CvFLAGS(cv) |= (CvFLAGS(PL_compcv) & CVf_BUILTIN_ATTRS);
+            if (CvEXTERN(cv)) {
+                CvSLABBED_off(cv);
+                if (!CvPADLIST(cv)) {
+                    if (CvPADLIST(PL_compcv)) {
+                        /* we need a fresh first pad slot for each returntype */
+                        cv_clone_into(PL_compcv, cv);
+                        /*CvPADLIST_set(cv, CvPADLIST(PL_compcv));*/
+                    }
+                    else
+                        CvPADLIST_set(cv, pad_new(0));
+                }
+                DEBUG_Xv(padlist_dump(CvPADLIST(cv)));
+            }
 	}
 	/* ... before we throw it away */
 	SvREFCNT_dec(PL_compcv);
