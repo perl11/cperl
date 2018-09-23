@@ -8366,13 +8366,17 @@ set d_perl_otherlibdirs
 eval $setvar
 
 : DTrace support
-dflt_dtrace='/usr/sbin/dtrace'
-$test -x /usr/bin/dtrace && dflt_dtrace='/usr/bin/dtrace'
+dflt_dtrace='/usr/bin/dtrace'
+# Oracle Linux 7
+$test -x /sbin/dtrace && dflt_dtrace='/sbin/dtrace'
+$test -x /usr/sbin/dtrace && dflt_dtrace='/usr/sbin/dtrace'
 
 cat <<EOM
 
-Perl can be built to support DTrace on platforms that support it.
-DTrace is a diagnosis and performance analysis tool from Sun.
+Perl can be built to support DTrace on platforms that support it:
+Currently Solaris, macOS, Oracle Linux, FreeBSD, NetBSD, QNX.
+DTrace is a diagnosis and performance analysis tool from Sun to
+trace across kernel-, system- and user-level calls.
 
 If this doesn't make any sense to you, just accept the default.
 EOM
@@ -8424,10 +8428,10 @@ while $test 1 ; do
 		else
 			cat >&2 <<EOM
 
-*** $me:  Fatal Error:  $dtrace doesn't support -h flag
+*** $me:  Fatal Error:  $dtrace doesn't support the -h flag
 ***
-*** Your installed dtrace doesn't support the -h switch to compile a D
-*** program into a C header. Can't continue.
+*** Your installed dtrace doesn't support the -h switch, or failed
+*** to compile our perldtrace.d program into a C header file. Can't continue.
 
 EOM
 			exit 1

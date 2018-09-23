@@ -25,11 +25,12 @@ perldtrace - Perl's support for DTrace
 
 DTrace is a framework for comprehensive system- and application-level
 tracing. Perl is a DTrace I<provider>, meaning it exposes several
-I<probes> for instrumentation. You can use these in conjunction
-with kernel-level probes, as well as probes from other providers
-such as MySQL, in order to diagnose software defects, or even just
-your application's bottlenecks, from user-land calls, to binaries,
-up into kernel calls.
+I<probes> for instrumentation. You can use these in conjunction with
+kernel-level probes, system-level probes (such as libc) as well as
+probes from other providers on the user-level such as MySQL, Perl,
+Python, in order to diagnose software defects, or even just your
+application's bottlenecks, from user-land calls, to binaries, up into
+kernel calls.
 
 Perl needs to be compiled with the C<-Dusedtrace> option in order to
 make use of the provided probes. While DTrace aims to have no
@@ -39,10 +40,11 @@ probes under most systems. One notable exception is that Mac OS X
 builds with C<-Dusedtrace> by default, and ships a F</usr/bin/perl>
 with DTrace support enabled.
 
-Currently DTrace is known to be ported to Solaris, Mac OS X, FreeBSD,
-DragonFLY BSD, NetBSD, and on linux there is a unstable port via a
-I<dtrace4linux> at L<https://crtags.blogspot.de/>, but see
-L<https://github.com/agentzh/perl-systemtap-toolkit> instead.
+Currently DTrace is known to be ported to Solaris, macOS, FreeBSD,
+DragonFLY BSD, NetBSD and Oracle Linux. The similar Linux systemtap
+instrumentations are not widely used, are more insecure than DTrace
+and don't work across kernel, system, userland.
+See L<https://github.com/agentzh/perl-systemtap-toolkit>.
 
 On most systems you need to run it as root: C<sudo dtrace>, and beware
 that probes are global. Prefer to use pid-specific probes, beginning

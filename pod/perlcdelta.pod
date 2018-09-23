@@ -356,6 +356,17 @@ L</Modules and Pragmata> section.
 
 =over 4
 
+=item Oracle Linux
+
+=over 4
+
+=item *
+
+DTrace support has been added by also looking for F</sbin/dtrace>.
+Install it with C<sudo yum install -y dtrace-utils dtrace-utils-devel>.
+
+=back
+
 =item mingw
 
 Fixed Errno from processing some protected intrinsics directly, which fail with
