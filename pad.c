@@ -316,9 +316,9 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
     PERL_ARGS_ASSERT_CV_UNDEF_FLAGS;
 
     DEBUG_X(PerlIO_printf(Perl_debug_log,
-	  "CV undef:  cv=0x%" UVxf " comppad=0x%" UVxf " %" SVf "\n",
-                          PTR2UV(cv), PTR2UV(PL_comppad),
-                          SVfARG(cv_name(cv,NULL,0))));
+	  "CV undef %" SVf ": cv=0x%" UVxf " comppad=0x%" UVxf "\n",
+          SVfARG(cv_name(cv, NULL, 0)),
+          PTR2UV(cv), PTR2UV(PL_comppad)));
 
     if (CvFILE(&cvbody)) {
 	char * file = CvFILE(&cvbody);
@@ -327,10 +327,11 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
 	    Safefree(file);
     }
 
-    /* CvSLABBED_off(&cvbody); *//* turned off below */
-    /* release the sub's body */
+    /* CvSLABBED_off(&cvbody); */ /* turned off below */
+    /* release the sub's body and pads */
     if (!CvISXSUB(&cvbody)) {
-        if (CvROOT(&cvbody) && !CvEXTERN(&cvbody)) {
+        assert(!CvEXTERN(&cvbody));
+        if (CvROOT(&cvbody)) {
             assert(SvTYPE(cv) == SVt_PVCV || SvTYPE(cv) == SVt_PVFM); /*unsafe is safe */
             if (CvDEPTHunsafe(&cvbody)) {
                 assert(SvTYPE(cv) == SVt_PVCV);
@@ -348,7 +349,7 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
             LEAVE;
         }
 	else if (CvSLABBED(&cvbody)) {
-            if (CvSTART(&cvbody)) {
+            if (CvSTART(&cvbody) && !CvEXTERN(&cvbody)) {
                 ENTER;
                 PAD_SAVE_SETNULLPAD();
 
@@ -368,11 +369,13 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
     else { /* dont bother checking if CvXSUB(cv) is true, less branching */
 	CvXSUB(&cvbody) = NULL;
         /* Either a ffi_prep_cif struct, or a temp. DynaLoader::dl_load_file handle (IV) */
-        if (CvEXTERN(&cvbody) && CvFFILIB(&cvbody)) {
-            if (!CvFFILIB_HANDLE(cv)) {
-                safefree(INT2PTR(void*,CvFFILIB(&cvbody))); /* alloced in S_prep_cif() */
+        if (CvEXTERN(&cvbody)) {
+            if (CvFFILIB(&cvbody)) {
+                if (!CvFFILIB_HANDLE(cv)) {
+                    safefree(INT2PTR(void*,CvFFILIB(&cvbody))); /* alloced in S_prep_cif() */
+                }
+                CvFFILIB(&cvbody) = 0;
             }
-            CvFFILIB(&cvbody) = 0;
         }
     }
     SvPOK_off(MUTABLE_SV(cv));		/* forget prototype */
@@ -498,7 +501,7 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
      * ref status of CvOUTSIDE and CvGV, and ANON, NAMED and
      * LEXICAL, which are used to determine the sub's name.  */
     CvFLAGS(&cvbody) &= (CVf_WEAKOUTSIDE|CVf_CVGV_RC|CVf_ANON|CVf_LEXICAL
-		   |CVf_NAMED);
+                         |CVf_NAMED);
 }
 
 /*
@@ -872,7 +875,7 @@ Perl_pad_add_weakref(pTHX_ CV* func)
 /*
 =for apidoc pad_check_dup
 
-Check for duplicate declarations: report any of:
+Check for shadow warnings, duplicate declarations. Report any of:
 
      * a 'my' in the current scope with the same name;
      * an 'our' (anywhere in the pad) with the same name and the
@@ -2032,7 +2035,7 @@ static CV *S_cv_clone(pTHX_ CV *proto, CV *cv, CV *outside, HV *cloned);
 
 static CV *
 S_cv_clone_pad(pTHX_ CV *proto, CV *cv, CV *outside, HV *cloned,
-		     bool newcv)
+               bool newcv)
 {
     PADOFFSET ix;
     PADLIST* const protopadlist = CvPADLIST(proto);
@@ -2401,6 +2404,52 @@ Perl_cv_clone_into(pTHX_ CV *proto, CV *target)
     PERL_ARGS_ASSERT_CV_CLONE_INTO;
     cv_undef(target);
     return S_cv_clone(aTHX_ proto, target, NULL, NULL);
+}
+
+/*
+=for apidoc cv_clone_padname0
+
+Clones the first PADNAME slot, just references the other.
+Called by L</cv_type_set> and L</newATTRSUB_x> for an extern sub,
+to set its private return type.
+
+=cut
+*/
+PADNAMELIST *
+Perl_cv_clone_padname0(pTHX_ CV *cv, PADNAMELIST *pnl)
+{
+    PADNAME **pnp;
+    PERL_ARGS_ASSERT_CV_CLONE_PADNAME0;
+
+    pnp = PadnamelistARRAY(pnl);
+    if (pnp) {
+        /* avoiding the padnamelist_dup(pnl, CLONE_param) overhead */
+        SSize_t i, max = PadnamelistMAX(pnl);
+        PADNAMELIST *new_pnl = newPADNAMELIST(max);
+        PadnamelistREFCNT(new_pnl) = 1; /* The caller will increment it.  */
+        PadnamelistMAXNAMED(new_pnl) = PadnamelistMAXNAMED(pnl);
+        PadnamelistMAX(new_pnl) = max;
+        if (PadnamelistARRAY(pnl)[0]) {
+            PADNAME* pn     = PadnamelistARRAY(pnl)[0];
+            PADNAME* new_pn = PadnamelistARRAY(new_pnl)[0]
+                = newPADNAMEpvn_flags(PadnamePV(pn) ? PadnamePV(pn) : "",
+                                      PadnameLEN(pn), PadnameFLAGS(pn));
+            COP_SEQ_RANGE_LOW(new_pn)  = COP_SEQ_RANGE_LOW(pn);
+            COP_SEQ_RANGE_HIGH(new_pn) = COP_SEQ_RANGE_HIGH(pn);
+            PadnameOURSTASH(new_pn)    = PadnameOURSTASH(pn);
+            PadnameTYPE(new_pn)        = PadnameTYPE(pn);
+            PadnameFLAGS(new_pn)       = PadnameFLAGS(pn);
+        }
+        for (i = 1; i <= max; i++) {
+            PadnamelistARRAY(new_pnl)[i] = PadnamelistARRAY(pnl)[i];
+            PadnameREFCNT(PadnamelistARRAY(new_pnl)[i])++;
+        }
+        pnl = new_pnl;
+        PadlistARRAY(CvPADLIST(cv))[0] = (PAD*)pnl;
+        DEBUG_X(cv_dump(cv, "cv_clone_padname0"));
+        DEBUG_Xv(padlist_dump(CvPADLIST(cv)));
+    }
+    return pnl;
 }
 
 /*

@@ -126,7 +126,7 @@ See L<perlguts/Autoloading with XSUBs>.
 
 /* Stashname of the return type at index 0 in the padnames */
 #define CvTYPE(cv)            PadnameTYPE(PadlistNAMESARRAY(CvPADLIST(cv))[0])
-#define CvTYPE_set(cv, stash) PadnameTYPE_set(PadlistNAMESARRAY(CvPADLIST(cv))[0], stash)
+#define CvTYPE_set(cv, stash) cv_type_set(cv, stash)
 
 #define CVf_METHOD	0x0001	/* CV is explicitly marked as a method */
 #define CVf_LVALUE	0x0002  /* CV return value can be used as lvalue */

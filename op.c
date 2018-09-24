@@ -558,8 +558,8 @@ Perl_Slab_to_ro(pTHX_ OPSLAB *slab)
     if (slab->opslab_readonly) return;
     slab->opslab_readonly = 1;
     for (; slab; slab = slab->opslab_next) {
-	/*DEBUG_U(PerlIO_printf(Perl_debug_log,"mprotect ->ro %lu at %p\n",
-			      (unsigned long) slab->opslab_size, slab));*/
+	DEBUG_m(PerlIO_printf(Perl_debug_log,"mprotect ->ro %lu at %p\n",
+			      (unsigned long) slab->opslab_size, slab));
 	if (mprotect(slab, slab->opslab_size * sizeof(I32 *), PROT_READ))
 	    Perl_warn(aTHX_ "mprotect for %p %lu failed with %d", slab,
 			     (unsigned long)slab->opslab_size, errno);
@@ -576,8 +576,8 @@ Perl_Slab_to_rw(pTHX_ OPSLAB *const slab)
     if (!slab->opslab_readonly) return;
     slab2 = slab;
     for (; slab2; slab2 = slab2->opslab_next) {
-	/*DEBUG_U(PerlIO_printf(Perl_debug_log,"mprotect ->rw %lu at %p\n",
-			      (unsigned long) size, slab2));*/
+	DEBUG_m(PerlIO_printf(Perl_debug_log,"mprotect ->rw %lu at %p\n",
+			      (unsigned long) size, slab2));
 	if (mprotect((void *)slab2, slab2->opslab_size * sizeof(I32 *),
 		     PROT_READ|PROT_WRITE)) {
 	    Perl_warn(aTHX_ "mprotect RW for %p %lu failed with %d", slab,
@@ -637,8 +637,16 @@ Perl_Slab_Free(pTHX_ void *op)
     assert(ISNT_TYPE(o, FREED));
 
     if (!o->op_slabbed) {
-        if (!o->op_static)
+        if (!o->op_static) {
+#ifdef DEBUGGING
+            Zero(o, 1, OP*);
+            o->op_type = OP_FREED;
+#endif
+/*#ifndef USE_SANITIZE_ADDRESS*/
+            /* XXX use-after-free at op_free */
 	    PerlMemShared_free(op);
+/*#endif*/
+        }
 	return;
     }
     o->op_type = OP_FREED;
@@ -694,15 +702,29 @@ Perl_opslab_free(pTHX_ OPSLAB *slab)
 #ifdef DEBUGGING
 	slab->opslab_refcnt = ~(size_t)0;
 #endif
-#ifdef PERL_DEBUG_READONLY_OPS
 	DEBUG_m(PerlIO_printf(Perl_debug_log, "Deallocate slab at %p\n",
 					       (void*)slab));
+#ifdef PERL_DEBUG_READONLY_OPS
 	if (munmap(slab, slab->opslab_size * sizeof(I32 *))) {
 	    perror("munmap failed");
 	    abort();
 	}
 #else
+# ifdef DEBUGGING
+        {
+            OPSLOT *slot;
+            for (slot = slab->opslab_first;
+                 slot->opslot_next;
+                 slot = slot->opslot_next) {
+                assert(slot->opslot_op.op_type == OP_FREED);
+                slot->opslot_op.op_type = OP_FREED;
+            }
+        }
+# endif
+/* # ifndef USE_SANITIZE_ADDRESS */
+        /* XXX use-after-free at op_free */
 	PerlMemShared_free(slab);
+/* # endif */
 #endif
         slab = slab2;
     } while (slab);
@@ -1066,18 +1088,18 @@ Perl_op_free(pTHX_ OP *o)
     OP **defer_stack = NULL;
 
     do {
-
+        /* During the forced freeing of ops after compilation failure, kidops
+           may be freed before their parents. ASAN with fail here unless you supress
+           this function. */
+        if (!o || IS_TYPE(o, FREED))
+            continue;
         /* Though ops may be freed twice, freeing the op after its slab is a
            big no-no. */
         assert(!o || !o->op_slabbed || OpSLAB(o)->opslab_refcnt != ~(size_t)0);
-        /* During the forced freeing of ops after compilation failure, kidops
-           may be freed before their parents. */
-        if (!o || IS_TYPE(o, FREED))
-            continue;
 
         type = o->op_type;
 
-        /* an op should only ever acquire op_private flags that we know about.
+        /* An op should only ever acquire op_private flags that we know about.
          * If this fails, you may need to fix something in regen/op_private.
          * Don't bother testing if:
          *   * the op_ppaddr doesn't match the op; someone may have
@@ -1105,16 +1127,16 @@ Perl_op_free(pTHX_ OP *o)
             case OP_SCOPE:
             case OP_LEAVEWRITE:
                 {
-                PADOFFSET refcnt;
-                OP_REFCNT_LOCK;
-                refcnt = OpREFCNT_dec(o);
-                OP_REFCNT_UNLOCK;
-                if (refcnt) {
-                    /* Need to find and remove any pattern match ops from the list
-                       we maintain for reset().  */
-                    find_and_forget_pmops(o);
-                    continue;
-                }
+                    PADOFFSET refcnt;
+                    OP_REFCNT_LOCK;
+                    refcnt = OpREFCNT_dec(o);
+                    OP_REFCNT_UNLOCK;
+                    if (refcnt) {
+                        /* Need to find and remove any pattern match ops from the list
+                           we maintain for reset().  */
+                        find_and_forget_pmops(o);
+                        continue;
+                    }
                 }
                 break;
             default:
@@ -1241,9 +1263,7 @@ free all the SVs (gv, pad, ...) attached to the op.
 void
 Perl_op_clear(pTHX_ OP *o)
 {
-
     dVAR;
-
     PERL_ARGS_ASSERT_OP_CLEAR;
 
     switch (o->op_type) {
@@ -12134,16 +12154,8 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	    CvFLAGS(cv) |= (CvFLAGS(PL_compcv) & CVf_BUILTIN_ATTRS);
             if (CvEXTERN(cv)) {
                 CvSLABBED_off(cv);
-                if (!CvPADLIST(cv)) {
-                    if (CvPADLIST(PL_compcv)) {
-                        /* we need a fresh first pad slot for each returntype */
-                        cv_clone_into(PL_compcv, cv);
-                        /*CvPADLIST_set(cv, CvPADLIST(PL_compcv));*/
-                    }
-                    else
-                        CvPADLIST_set(cv, pad_new(0));
-                }
-                DEBUG_Xv(padlist_dump(CvPADLIST(cv)));
+                /* We need a fresh first pad slot for each return type */
+                (void)cv_clone_padname0(cv, PadlistNAMES(CvPADLIST(cv)));
             }
 	}
 	/* ... before we throw it away */
@@ -19864,6 +19876,36 @@ S_check_for_bool_cxt(OP*o, bool safe_and, U8 bool_flag, U8 maybe_flag)
         if (lop)
             lop = OpNEXT(lop);
     }
+}
+
+/*
+=for apidoc cv_type_set
+
+Set the return type of a sub.
+
+When the padnames are still the default compile-time comppad_name,
+then we have to clone it to be able to set private [0] types for each subroutine,
+to avoid to overwrite them each other.
+If it's a private CvPADLIST already don't clone it.
+
+=cut
+ */
+void Perl_cv_type_set(pTHX_ CV *cv, HV *stash)
+{
+    PADNAMELIST *pnl;
+    PERL_ARGS_ASSERT_CV_TYPE_SET;
+
+    pnl = PadlistNAMES(CvPADLIST(cv));
+    if ((pnl == PL_comppad_name || PadnamelistREFCNT(pnl) > 1) &&
+        ((SV*)PadnamelistARRAY(pnl)[0] != (SV*)stash)) {
+        DEBUG_X(PerlIO_printf(Perl_debug_log, "cv_type_set cv=%p, %s (cloned %s)\n",
+                              cv, HvNAME(stash),
+                              pnl == PL_comppad_name ? "comppad_name" : "refcnt"));
+        pnl = cv_clone_padname0(cv, pnl);
+    } else {
+        DEBUG_X(PerlIO_printf(Perl_debug_log, "cv_type_set cv=%p, %s\n", cv, HvNAME(stash)));
+    }
+    PadnameTYPE_set(PadnamelistARRAY(pnl)[0], stash);
 }
 
 

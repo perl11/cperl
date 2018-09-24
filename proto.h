@@ -9289,6 +9289,14 @@ PERL_CALLCONV void	Perl_report_redefined_cv(pTHX_ const SV *name, const CV *old_
 	assert(name); assert(old_cv)
 
 #endif
+#if defined(PERL_IN_OP_C) || defined(PERL_IN_TOKE_C) || defined(PERL_IN_XSUTILS_C)
+PERL_CALLCONV void	Perl_cv_type_set(pTHX_ CV *cv, HV *stash)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_CV_TYPE_SET	\
+	assert(cv); assert(stash)
+
+#endif
 #if defined(PERL_IN_PAD_C)
 STATIC PADOFFSET	S_pad_alloc_name(pTHX_ PADNAME *name, U32 flags, HV *typestash, HV *ourstash)
 			__attribute__nonnull__(pTHX_1);
@@ -9309,6 +9317,14 @@ STATIC PADOFFSET	S_pad_findlex(pTHX_ const char *namepv, STRLEN namelen, U32 fla
 	assert(namepv); assert(cv); assert(out_name); assert(out_flags)
 
 STATIC void	S_pad_reset(pTHX);
+#endif
+#if defined(PERL_IN_PAD_C) || defined(PERL_IN_OP_C)
+PERL_CALLCONV PADNAMELIST *	Perl_cv_clone_padname0(pTHX_ CV *cv, PADNAMELIST *pnl)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_CV_CLONE_PADNAME0	\
+	assert(cv); assert(pnl)
+
 #endif
 #if defined(PERL_IN_PERL_C)
 STATIC void	S_find_beginning(pTHX_ SV* linestr_sv, PerlIO *rsfp)

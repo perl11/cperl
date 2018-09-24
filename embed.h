@@ -2068,11 +2068,17 @@
 #  if defined(PERL_IN_OP_C) || defined(PERL_IN_SV_C)
 #define report_redefined_cv(a,b,c)	Perl_report_redefined_cv(aTHX_ a,b,c)
 #  endif
+#  if defined(PERL_IN_OP_C) || defined(PERL_IN_TOKE_C) || defined(PERL_IN_XSUTILS_C)
+#define cv_type_set(a,b)	Perl_cv_type_set(aTHX_ a,b)
+#  endif
 #  if defined(PERL_IN_PAD_C)
 #define pad_alloc_name(a,b,c,d)	S_pad_alloc_name(aTHX_ a,b,c,d)
 #define pad_check_dup(a,b,c)	S_pad_check_dup(aTHX_ a,b,c)
 #define pad_findlex(a,b,c,d,e,f,g,h,i)	S_pad_findlex(aTHX_ a,b,c,d,e,f,g,h,i)
 #define pad_reset()		S_pad_reset(aTHX)
+#  endif
+#  if defined(PERL_IN_PAD_C) || defined(PERL_IN_OP_C)
+#define cv_clone_padname0(a,b)	Perl_cv_clone_padname0(aTHX_ a,b)
 #  endif
 #  if defined(PERL_IN_PERL_C)
 #define find_beginning(a,b)	S_find_beginning(aTHX_ a,b)

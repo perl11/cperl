@@ -3241,6 +3241,12 @@ sd	|void	|cv_dump	|NN const CV *cv|NN const char *title
 #endif
 Apd	|CV*	|cv_clone	|NN CV* proto
 p	|CV*	|cv_clone_into	|NN CV* proto|NN CV *target
+#if defined(PERL_IN_PAD_C) || defined(PERL_IN_OP_C)
+Mp	|PADNAMELIST *|cv_clone_padname0|NN CV *cv|NN PADNAMELIST *pnl
+#endif
+#if defined(PERL_IN_OP_C) || defined(PERL_IN_TOKE_C) || defined(PERL_IN_XSUTILS_C)
+Mp	|void	|cv_type_set|NN CV *cv|NN HV *stash
+#endif
 Apd	|void	|cv_study	|NN CV *cv
 pd	|void	|pad_fixup_inner_anons|NN PADLIST *padlist|NN CV *old_cv|NN CV *new_cv
 pdX	|void	|pad_push	|NN PADLIST *padlist|int depth

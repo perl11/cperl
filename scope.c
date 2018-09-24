@@ -279,8 +279,7 @@ Perl_save_generic_svref(pTHX_ SV **sptr)
 {
     PERL_ARGS_ASSERT_SAVE_GENERIC_SVREF;
 
-    DEBUG_lv(Perl_deb(aTHX_ "save GENERIC_SVREF %s\n",
-                      SvPEEK(*sptr)));
+    DEBUG_lv(Perl_deb(aTHX_ "save GENERIC_SVREF %s\n", SvPEEK(*sptr)));
     save_pushptrptr(sptr, SvREFCNT_inc(*sptr), SAVEt_GENERIC_SVREF);
 }
 
@@ -292,8 +291,9 @@ Perl_save_generic_pvref(pTHX_ char **str)
 {
     PERL_ARGS_ASSERT_SAVE_GENERIC_PVREF;
 
-    DEBUG_lv(Perl_deb(aTHX_ "save GENERIC_PVREF \"%s\"\n",
-                      *str));
+#ifndef USE_SANITIZE_ADDRESS /* heap-buffer-overflow with SAVEGENERICPV(PL_lex_brackstack) */
+    DEBUG_lv(Perl_deb(aTHX_ "save GENERIC_PVREF \"%s\"\n", *str));
+#endif
     save_pushptrptr(*str, str, SAVEt_GENERIC_PVREF);
 }
 
@@ -1191,40 +1191,42 @@ Perl_leave_scope(pTHX_ I32 base)
 
 	case SAVEt_FREESV:
             a0 = ap[0];
-            DEBUG_lv(Perl_deb(aTHX_ "restore FREESV %p\n", a0.any_sv));
+            DEBUG_lv(Perl_deb(aTHX_ "FREESV %p\n", a0.any_sv));
 	    SvREFCNT_dec(a0.any_sv);
 	    break;
 
 	case SAVEt_FREEPADNAME:
             a0 = ap[0];
-            DEBUG_lv(Perl_deb(aTHX_ "restore FREEPADNAME %p %s\n", a0.any_ptr,
+            DEBUG_lv(Perl_deb(aTHX_ "FREEPADNAME %p %s\n", a0.any_ptr,
                          a0.any_ptr ? PadnamePV((PADNAME *)a0.any_ptr) : ""));
 	    PadnameREFCNT_dec((PADNAME *)a0.any_ptr);
 	    break;
 
 	case SAVEt_FREECOPHH:
             a0 = ap[0];
-            DEBUG_lv(Perl_deb(aTHX_ "restore FREECOPHH %p\n", a0.any_ptr));
+            DEBUG_lv(Perl_deb(aTHX_ "FREECOPHH %p\n", a0.any_ptr));
 	    cophh_free((COPHH *)a0.any_ptr);
 	    break;
 
 	case SAVEt_MORTALIZESV:
             a0 = ap[0];
-            DEBUG_lv(Perl_deb(aTHX_ "restore MORTALIZESV %p\n", a0.any_sv));
+            DEBUG_lv(Perl_deb(aTHX_ "MORTALIZESV %p\n", a0.any_sv));
 	    sv_2mortal(a0.any_sv);
 	    break;
 
 	case SAVEt_FREEOP:
             a0 = ap[0];
 	    ASSERT_CURPAD_LEGAL("SAVEt_FREEOP");
-            DEBUG_lv(Perl_deb(aTHX_ "restore FREEOP %p %s\n", a0.any_ptr,
+#ifndef USE_SANITIZE_ADDRESS /* heap-use-after-free with ffi */
+            DEBUG_lv(Perl_deb(aTHX_ "FREEOP %p %s\n", a0.any_ptr,
                               OP_NAME((OP*)a0.any_ptr)));
+#endif
 	    op_free((OP*)a0.any_ptr);
 	    break;
 
 	case SAVEt_FREEPV:
             a0 = ap[0];
-            DEBUG_lv(Perl_deb(aTHX_ "restore FREEPV %p\n", a0.any_ptr));
+            DEBUG_lv(Perl_deb(aTHX_ "FREEPV %p\n", a0.any_ptr));
 	    Safefree(a0.any_ptr);
 	    break;
 
@@ -1235,7 +1237,7 @@ Perl_leave_scope(pTHX_ I32 base)
             i = (I32)((uv >> SAVE_TIGHT_SHIFT) & OPpPADRANGE_COUNTMASK);
             svp = &PL_curpad[uv >>
                     (OPpPADRANGE_COUNTSHIFT + SAVE_TIGHT_SHIFT)] + i - 1;
-            DEBUG_lv(Perl_deb(aTHX_ "restore CLEARPADRANGE [%d - %d]\n",
+            DEBUG_lv(Perl_deb(aTHX_ "CLEARPADRANGE [%d - %d]\n",
                               (int)(uv >> (OPpPADRANGE_COUNTSHIFT + SAVE_TIGHT_SHIFT)),
                               (int)i));
             goto clearsv;
@@ -1243,7 +1245,7 @@ Perl_leave_scope(pTHX_ I32 base)
             if (UNLIKELY(!PL_curpad))
                 break;
 	    svp = &PL_curpad[uv >> SAVE_TIGHT_SHIFT];
-            DEBUG_lv(Perl_deb(aTHX_ "restore CLEARSV [%ld]\n",
+            DEBUG_lv(Perl_deb(aTHX_ "CLEARSV [%ld]\n",
                               (long)(uv >> SAVE_TIGHT_SHIFT)));
             i = 1;
           clearsv:
