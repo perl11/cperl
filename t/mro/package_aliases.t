@@ -360,12 +360,16 @@ is eval { 'Subclass'->womp }, 'clumpren',
 }
 
 # Crazy edge cases involving packages ending with a single :
-@Colon::ISA = 'Organ:'; # pun intended!
-bless [], "Organ:"; # autovivify the stash
-ok "Colon"->isa("Organ:"), 'class isa "class:"';
-{ no strict 'refs'; *{"Organ:::"} = *Organ:: }
-ok "Colon"->isa("Organ"),
- 'isa(foo) when inheriting from "class:" which is an alias for foo';
+# This fails in cperl under strict names
+{ 
+  no strict 'names';
+  @Colon::ISA = 'Organ:'; # pun intended!
+  bless [], "Organ:"; # autovivify the stash
+  ok "Colon"->isa("Organ:"), 'class isa "class:"';
+  { no strict 'refs'; *{"Organ:::"} = *Organ:: }
+  ok "Colon"->isa("Organ"),
+    'isa(foo) when inheriting from "class:" which is an alias for foo';
+}
 {
  no warnings;
  # The next line of code is *not* normative. If the structure changes,
@@ -374,14 +378,18 @@ ok "Colon"->isa("Organ"),
  ok !Colon->isa("Organ"),
   'class that isa "class:" no longer isa foo if "class:" has been deleted';
 }
-@Colon::ISA = ':';
-bless [], ":";
-ok "Colon"->isa(":"), 'class isa ":"';
-{ no strict 'refs'; *{":::"} = *Punctuation:: }
-ok "Colon"->isa("Punctuation"),
- 'isa(foo) when inheriting from ":" which is an alias for foo';
-@Colon::ISA = 'Organ:';
-bless [], "Organ:";
+
+{ 
+  no strict 'names';
+  @Colon::ISA = ':';
+  bless [], ":";
+  ok "Colon"->isa(":"), 'class isa ":"';
+  { no strict 'refs'; *{":::"} = *Punctuation:: }
+  ok "Colon"->isa("Punctuation"),
+    'isa(foo) when inheriting from ":" which is an alias for foo';
+  @Colon::ISA = 'Organ:';
+  bless [], "Organ:";
+}
 {
  no strict 'refs';
  my $life_raft = \%{"Organ:::"};
@@ -389,8 +397,11 @@ bless [], "Organ:";
  ok "Colon"->isa("Organ"),
   'isa(foo) when inheriting from "class:" after hash-to-glob assignment';
 }
-@Colon::ISA = 'O:';
-bless [], "O:";
+{ 
+  no strict 'names';
+  @Colon::ISA = 'O:';
+  bless [], "O:";
+}
 {
  no strict 'refs';
  my $life_raft = \%{"O:::"};

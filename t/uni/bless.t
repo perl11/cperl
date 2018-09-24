@@ -6,9 +6,9 @@ BEGIN {
     set_up_inc('../lib');
 }
 
-use utf8;
+use utf8 qw(Ethiopic Kannada Bopomofo);
 use open qw( :utf8 :std );
-plan (84);
+plan (88);
 
 sub expected {
     my($object, $package, $type) = @_;
@@ -33,14 +33,14 @@ expected($a1, "ዐ", "HASH");
 $b1 = bless [], "Ｂ";
 expected($b1, "Ｂ", "ARRAY");
 $c1 = bless \(map "$_", "test"), "ᶜ";
-expected($c1, "ᶜ", "SCALAR");
+expected($c1, "ᶜ", "SCALAR"); # Ethiopic
 $tèst = "foo"; $d1 = bless \*tèst, "ɖ";
 expected($d1, "ɖ", "GLOB");
-$e1 = bless sub { 1 }, "ಎ";
+$e1 = bless sub { 1 }, "ಎ"; # Kannada
 expected($e1, "ಎ", "CODE");
 $f1 = bless \[], "ḟ";
 expected($f1, "ḟ", "REF");
-$g1 = bless \substr("test", 1, 2), "ㄍ";
+$g1 = bless \substr("test", 1, 2), "ㄍ"; # Bopomofo
 expected($g1, "ㄍ", "LVALUE");
 
 # blessing ref to object doesn't modify object
@@ -121,4 +121,27 @@ expected($c4, 'ᶜ4', "SCALAR");
 
     my $a = bless \(keys %h), 'zàp';
     is(ref $a, 'zàp');
+}
+
+# strict names
+{
+  use strict;
+  eval 'bless {}, "à=b";';
+  like $@, qr/Invalid identifier \"\\303\\240=b\" while "strict names" in use/,
+       "Invalid identifier à=b";
+  $@ = '';
+}
+{
+  no strict;
+  eval 'bless {}, "à=b";';
+  is $@, '', "Valid bless under no strict names";
+  $@ = '';
+}
+
+{ # normalized name
+  my $obj = bless {}, "E\x{cc}\x{81}oo";
+  is ref $obj, "E\x{cc}\x{81}oo", "not ut8";
+
+  $obj = bless {}, "Éoo";                      # "E\x{cc}\x{81}oo" E+COMBINING ACUTE ACCENT
+  is ref $obj, "Éoo", "normalized stashnames"; # => "\x{c3}\x{89}oo" E WITH ACUTE
 }

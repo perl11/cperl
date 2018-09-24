@@ -2626,8 +2626,6 @@ string can be computed by having saved the value of C<*lenp> before the call,
 and subtracting the after-call value of C<*lenp> from it.
 
 =cut
-
-
 */
 
 U8 *

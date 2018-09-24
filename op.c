@@ -17997,7 +17997,7 @@ This allows to type the result of the new method.
     sub D3::new {bless[],"D3"};
     my B2 $obj1 = D3->new;
 
-And we disallow the blessing to coretypes. This needs to be done via normal
+We disallow the blessing to coretypes. This needs to be done via normal
 compile-time declarations, not dynamic blessing.
 =cut
 */
@@ -18017,6 +18017,18 @@ Perl_ck_nomg(pTHX_ OP *o)
             a = OpSIBLING(OpNEXT(a));
     }
     if (IS_TYPE(o, BLESS)) {
+#ifdef HINT_M_VMSISH_STATUS
+        HV* const hinthv = PL_hints & HINT_LOCALIZE_HH
+            ? GvHV(PL_hintgv) : NULL;
+        SV ** const svp = hv_fetchs(hinthv, "strict", FALSE);
+        if (svp && SvIOK(*svp)) {
+            if (SvIV(*svp) & HINT_M_VMSISH_STATUS)
+                OpPRIVATE(o) |= OPpHINT_STRICT_NAMES;
+        }
+#else
+        if (PL_hints & HINT_STRICT_NAMES)
+            OpPRIVATE(o) |= OPpHINT_STRICT_NAMES; /* 4 */
+#endif
         if (OP_TYPE_IS(a, OP_NULL))
             a = OpNEXT(a);
         /* maybe we can check which ops are disallowed here */
@@ -18026,15 +18038,19 @@ Perl_ck_nomg(pTHX_ OP *o)
              IS_TYPE(a, LIST)))
             /* diag_listed_as: Can't bless non-reference value */
             Perl_croak(aTHX_ "Can't bless non-reference value (%s)", OP_NAME(a));
+
         if (IS_TYPE(OpLAST(o), CONST)) {
             OP* b = OpLAST(o);
             SV* name = cSVOPx_sv(b);
             if (SvPOK(name)) {
                 /* ignore coretypes: bless $x, "Str" */
-                if (find_in_coretypes(SvPVX(name), SvCUR(name)))
+                if (find_in_coretypes(SvPVX(name), SvCUR(name))) {
                     Perl_warner(aTHX_ packWARN(WARN_TYPES),
                                 "Can't bless to coretype %s", SvPVX(name));
-                else {
+                } else {
+                    int strict_names = OpPRIVATE(o) & OPpHINT_STRICT_NAMES;
+                    int normalize;
+                    (void)valid_ident(name, strict_names, TRUE, &normalize);
                     OpRETTYPE_set(o, type_Object);
                 }
             }
