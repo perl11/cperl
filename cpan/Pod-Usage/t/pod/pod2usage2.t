@@ -20,15 +20,17 @@ sub getoutput
   unless(defined $pid) {
     die "Cannot fork: $!";
   }
-  if($pid) {
+  if ($pid) {
     # parent
     my @out = <TEST_IN>;
     close(TEST_IN);
     my $exit = $?>>8;
     s/^/#/ for @out;
     local $" = "";
-    print "#EXIT=$exit OUTPUT=+++#@out#+++\n";
-    return($exit, join("",@out));
+    my $out = join("",@out);
+    $out =~ s/#==\d+==WARNING: LeakSanitizer is disabled in forked process\.//g;
+    print "#EXIT=$exit OUTPUT=+++#" . $out . "#+++\n";
+    return($exit, $out);
   }
   # child
   open(STDERR, ">&STDOUT");

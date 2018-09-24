@@ -1008,6 +1008,7 @@ sub fresh_perl {
 
     # Clean up the results into something a bit more predictable.
     $results  =~ s/\n+$//;
+    $results =~ s/^==\d+==WARNING: LeakSanitizer is disabled in forked process\.\n//g;
     $results =~ s/at\s+$::tempfile_regexp\s+line/at - line/g;
     $results =~ s/of\s+$::tempfile_regexp\s+aborted/of - aborted/g;
 
@@ -1311,6 +1312,8 @@ sub run_multiple_progs {
 	$results =~ s/^(syntax|parse) error/syntax error/mig;
 	# allow all tests to run when there are leaks
 	$results =~ s/Scalars leaked: \d+\n//g;
+        $results =~ s/\n==\d+==WARNING: LeakSanitizer is disabled in forked process\.//g;
+        $results =~ s/^==\d+==WARNING: LeakSanitizer is disabled in forked process\.\n//;
 
 	$expected =~ s/\n+$//;
 	my $prefix = ($results =~ s#^PREFIX(\n|$)##) ;
