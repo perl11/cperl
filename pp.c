@@ -666,8 +666,7 @@ PP(pp_bless)
     dSP;
     HV *stash;
 
-    if (MAXARG == 1)
-    {
+    if ((OpPRIVATE(PL_op) & OPpARG2_MASK) == 1) {
       curstash:
         stash = CopSTASH(PL_curcop);
         if (SvTYPE(stash) != SVt_PVHV)
@@ -677,8 +676,11 @@ PP(pp_bless)
 	SV * const ssv = POPs;
 	STRLEN len;
 	const char *ptr;
+        int strict_names;
+        int normalize;
 
-	if (!ssv) goto curstash;
+	if (!ssv)
+            goto curstash;
 	SvGETMAGIC(ssv);
 	if (SvROK(ssv)) {
             if (!SvAMAGIC(ssv)) {
@@ -687,15 +689,23 @@ PP(pp_bless)
             }
             /* SvAMAGIC is on here, but it only means potentially overloaded,
                so after stringification: */
-            ptr = SvPV_nomg_const(ssv,len);
+            ptr = SvPV_nomg_const(ssv, len);
             /* We need to check the flag again: */
-            if (!SvAMAGIC(ssv)) goto frog;
+            if (!SvAMAGIC(ssv))
+                goto frog;
 	}
-	else ptr = SvPV_nomg_const(ssv, len);
+	else
+            ptr = SvPV_nomg_const(ssv, len);
 	if (len == 0)
 	    Perl_ck_warner(aTHX_ packWARN(WARN_MISC),
 			   "Explicit blessing to '' (assuming package main)");
-	stash = gv_stashpvn(ptr, len, GV_ADD|SvUTF8(ssv));
+
+        strict_names = OpPRIVATE(PL_op) & OPpHINT_STRICT_NAMES;
+        (void)valid_ident(ssv, strict_names, TRUE, &normalize);
+        if (UNLIKELY(normalize)) /* already normalized in valid_ident() */
+            stash = gv_stashsv(ssv, GV_ADD);
+        else
+            stash = gv_stashpvn(ptr, len, GV_ADD|SvUTF8(ssv));
     }
 
     (void)sv_bless(TOPs, stash);

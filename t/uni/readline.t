@@ -9,7 +9,7 @@ BEGIN {
 
 plan tests => 7;
 
-use utf8;
+use utf8 qw(Canadian_Aboriginal Georgian);
 use open qw( :utf8 :std );
 
 # [perl #19566]: sv_gets writes directly to its argument via

@@ -41,8 +41,13 @@ Null SV pointer.  (No longer available when C<PERL_CORE> is defined.)
 #ifdef FALSE
 #undef FALSE
 #endif
+#ifdef HAS_BOOL
+#define TRUE true
+#define FALSE false
+#else
 #define TRUE (1)
 #define FALSE (0)
+#endif
 
 /* The MUTABLE_*() macros cast pointers to the types shown, in such a way
  * (compiler permitting) that casting away const-ness will give a warning;

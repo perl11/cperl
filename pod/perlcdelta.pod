@@ -398,6 +398,15 @@ XXX
 
 =item *
 
+Check bless name under use strict names.
+
+The second argument to bless, the new classname, is now checked to be a
+valid package name identifier when B<strict names> is in effect, and the
+name is now normalized.
+L<[cperl #376]|https://github.com/perl11/cperl/issues/376>
+
+=item *
+
 Fix cperl 5.28.0c regression disallowing calling subnames with a quote
 in a package qualifier position.
 L<[cperl #371]|https://github.com/perl11/cperl/issues/371>

@@ -2844,10 +2844,15 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
 	    break;
         {
             SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
-            Perl_dump_indent(aTHX_ level, file, "  NAME = \"%s\"\n",
+            Perl_dump_indent(aTHX_ level, file, "  NAME = \"%s\"",
                      generic_pv_escape(tmpsv, GvNAME(sv),
                                        GvNAMELEN(sv),
                                        GvNAMEUTF8(sv)));
+	    if (SvUTF8(sv))
+                PerlIO_printf(file, " [UTF8 \"%s\"]",
+                              sv_uni_display(tmpsv, sv, 6 * SvCUR(sv),
+                                             UNI_DISPLAY_QQ));
+            PerlIO_printf(file, "\n");
         }
 	Perl_dump_indent(aTHX_ level, file, "  NAMELEN = %" IVdf "\n", (IV)GvNAMELEN(sv));
 	do_hv_dump (level, file, "  GvSTASH", GvSTASH(sv));

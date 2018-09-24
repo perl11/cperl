@@ -13,10 +13,10 @@ use strict;
 use warnings;
 use utf8 qw( Devanagari Bopomofo Ethiopic Hangul Cyrillic Katakana
              Canadian_Aboriginal Kannada Thai Runic Ogham Lao Syriac Gujarati
-             Oriya Greek Georgian Malayalam Gurmukhi Cham Hiragana Gurmukhi );
+             Oriya Georgian Malayalam Gurmukhi Cham Hiragana Gurmukhi );
 use open qw( :utf8 :std );
 
-plan(tests => 52);
+plan(tests => 46);
 
 {
     package Ｎeẁ;
@@ -64,7 +64,7 @@ my $prog =    q~
          }
      }
      use utf8 qw( Hangul Gurmukhi Cham Cyrillic Canadian_Aboriginal Kannada
-                  Runic );
+                  Runic Ethiopic );
      use open qw( :utf8 :std );
 
      @숩cਲꩋ::ISA = "ｌㅔf";
@@ -127,7 +127,7 @@ for(
          }
      }
      use utf8 qw( Hangul Gurmukhi Cham Cyrillic Canadian_Aboriginal Kannada
-                  Runic );
+                  Runic Ethiopic );
      use open qw( :utf8 :std );
      @숩cਲꩋ::ISA = "ｌㅔf::Side";
      @ｌㅔf::Side::ISA = "톺ĺФț";
@@ -192,7 +192,7 @@ for(
              @INC = '../lib';
          }
       }
-      use utf8 qw( Cyrillic Hangul Thai Devanagari Bopomofo );
+      use utf8 qw( Cyrillic Hangul Thai Devanagari Bopomofo Ethiopic );
       use open qw( :utf8 :std );
       use Encode ();
 
@@ -228,7 +228,7 @@ for(
              @INC = '../lib';
          }
       }
-      use utf8 qw( Cyrillic Hangul Thai Devanagari Bopomofo );
+      use utf8 qw( Cyrillic Hangul Thai Devanagari Bopomofo Ethiopic );
       use open qw( :utf8 :std );
       use Encode ();
 
@@ -371,7 +371,7 @@ use warnings;
 # This broke Text::Template [perl #78362].
 watchdog 3;
 *ᕘ:: = \%::;
-*Aᶜme::Mῌ::Aᶜme:: = \*Aᶜme::; # indirect self-reference
+*Aᶜme::M::Aᶜme:: = \*Aᶜme::; # indirect self-reference
 pass("mro_package_moved and self-referential packages");
 
 # Deleting a glob whose name does not indicate its location in the symbol
@@ -432,43 +432,10 @@ is eval { '숩cਲꩋ'->ວmᑊ }, 'clumpren',
   'detached stashes lose all names corresponding to the containing stash';
 }
 
-# Crazy edge cases involving packages ending with a single :
-@촐oン::ISA = 'ᚖგ:'; # pun intended!
-bless [], "ᚖგ:"; # autovivify the stash
-ok "촐oン"->isa("ᚖგ:"), 'class isa "class:"';
-{ no strict 'refs'; *{"ᚖგ:::"} = *ᚖგ:: }
-ok "촐oン"->isa("ᚖგ"),
- 'isa(ᕘ) when inheriting from "class:" which is an alias for ᕘ';
-{
- no warnings;
- # The next line of code is *not* normative. If the structure changes,
- # this line needs to change, too.
- my $ᕘ = delete $ᚖგ::{":"};
- ok !촐oン->isa("ᚖგ"),
-  'class that isa "class:" no longer isa ᕘ if "class:" has been deleted';
-}
-@촐oン::ISA = ':';
-bless [], ":";
-ok "촐oン"->isa(":"), 'class isa ":"';
-{ no strict 'refs'; *{":::"} = *ፑňṪu앝ȋ온:: }
-ok "촐oン"->isa("ፑňṪu앝ȋ온"),
- 'isa(ᕘ) when inheriting from ":" which is an alias for ᕘ';
+# Crazy edge cases involving packages ending with a single : are forbidden in cperl
+# under strict names
 @촐oン::ISA = 'ᚖგ:';
-bless [], "ᚖგ:";
-{
- no strict 'refs';
- my $life_raft = \%{"ᚖგ:::"};
- *{"ᚖგ:::"} = \%ᚖგ::;
- ok "촐oン"->isa("ᚖგ"),
-  'isa(ᕘ) when inheriting from "class:" after hash-to-glob assignment';
-}
-@촐oン::ISA = 'ŏ:';
-bless [], "ŏ:";
-{
- no strict 'refs';
- my $life_raft = \%{"ŏ:::"};
- *{"ŏ:::"} = "ᚖგ::";
- ok "촐oン"->isa("ᚖგ"),
-  'isa(ᕘ) when inheriting from "class:" after string-to-glob assignment';
-}
+eval 'bless [], "ᚖგ:";';
+like $@, qr/Invalid identifier \"\\341\\232\\226\\341\\203\\222:\" while "strict names" in use/;
+
 =cut

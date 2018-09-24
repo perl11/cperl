@@ -9584,12 +9584,12 @@ Perl_newSVpvn_share(pTHX_ const char *src, I32 len, U32 hash)
 {
     dVAR;
     SV *sv;
-    bool is_utf8 = FALSE;
+    bool was_utf8 = len < 0 ? TRUE : FALSE;
+    bool is_utf8 = was_utf8;
     const char *const orig_src = src;
 
-    if (len < 0) {
+    if (is_utf8) {
 	STRLEN tmplen = -len;
-        is_utf8 = TRUE;
 	/* See the note in hv.c:hv_fetch() --jhi */
 	src = (char*)bytes_from_utf8((const U8*)src, &tmplen, &is_utf8);
 	len = tmplen;

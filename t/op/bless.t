@@ -6,7 +6,7 @@ BEGIN {
     set_up_inc('../lib');
 }
 
-plan (119);
+plan (123);
 # Please do not eliminate the plan.  We have tests in DESTROY blocks.
 
 sub expected {
@@ -72,6 +72,7 @@ expected($d1, "D", "GLOB");
 "E" =~ /(.)/;
 expected(bless({}, $1), "E", "HASH");
 {
+    no strict;
     local $! = 1;
     my $string = "$!";
     $! = 2;	# attempt to avoid cached string
@@ -183,6 +184,33 @@ undef *Food::;
 my Int $i = 1;
 eval 'bless \$i, "MyInt"';
 like $@, qr/Invalid type Int for bless \$i at \(eval \d+\) line 1./, "Invalid bless to a coretype";
+$@ = '';
+
+# strict names
+{
+  use strict;
+  eval 'bless {}, "\0foo::";';
+  like $@, qr/Invalid identifier \"\\0foo::\" while "strict names" in use/,
+       "Invalid bless with null under strict names";
+  $@ = '';
+
+  eval 'bless {}, "a=b=c";';
+  like $@, qr/Invalid identifier \"a=b=c\" while "strict names" in use/,
+       "Invalid identifier a=b=c";
+  $@ = '';
+}
+{
+  no strict;
+  eval 'bless {}, "\0foo::"';
+  is $@, '', "Valid bless under no strict names";
+  $@ = '';
+}
+
+{ # see t/uni/bless.t for more
+  use utf8;
+  my $obj = bless {}, "Éoo"; # "E\x{cc}\x{81}oo" E+COMBINING ACUTE ACCENT
+  is ref $obj, "Éoo", "normalized stashnames"; # => "\x{c3}\x{89}oo" E WITH ACUTE
+}
 
 TODO: {
     my $ref;

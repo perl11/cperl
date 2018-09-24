@@ -546,6 +546,7 @@ Does not use C<TARG>.  See also C<L</XPUSHu>>, C<L</mPUSHu>> and C<L</PUSHu>>.
 
 #define ARGTARG		PL_op->op_targ
 
+/* This clashes with strict names hint 0x4, rather use OPpARG2_MASK */
 #define MAXARG		(PL_op->op_private & OPpARG4_MASK)
 
 #define SWITCHSTACK(f, t) \
