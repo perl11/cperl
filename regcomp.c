@@ -15778,7 +15778,6 @@ redo_curchar:
                     if (UCHARAT(RExC_parse) != ')')
                         vFAIL("Expecting close paren for wrapper for nested extended charclass");
 
-                    RExC_parse++;
                     RExC_flags = save_flags;
                     goto handle_operand;
                 }
