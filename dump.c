@@ -2790,9 +2790,11 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
             Perl_dump_indent(aTHX_ level, file, "  OUTSIDE_SEQ = %" UVuf "\n",
                              (UV)CvOUTSIDE_SEQ(sv));
 	if (!CvISXSUB(sv)) {
-	    Perl_dump_indent(aTHX_ level, file, "  PADLIST = 0x%" UVxf " [%" IVdf "]\n",
+	    Perl_dump_indent(aTHX_ level, file, "  PADLIST = 0x%" UVxf " [%" IVdf "] :%s\n",
                              PTR2UV(CvPADLIST(sv)),
-                             CvPADLIST(sv) ? (IV)PadlistMAX(CvPADLIST(sv)) : 0);
+                             CvPADLIST(sv) ? (IV)PadlistMAX(CvPADLIST(sv)) : 0,
+                             CvPADLIST(sv) && PadnameTYPE(PadlistNAMESARRAY(CvPADLIST(sv))[0])
+                             ? HvNAME(PadnameTYPE(PadlistNAMESARRAY(CvPADLIST(sv))[0])) : "");
 	    if (nest < maxnest) {
 		do_dump_pad(level+1, file, CvPADLIST(sv), 0);
 	    }

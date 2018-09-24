@@ -325,7 +325,7 @@ do_test('reference to anon sub with empty prototype',
     CVFLAGS = 0x(?:40)?(?:0|1)?490 \\(ANON,WEAKOUTSIDE,CVGV_RC(?:,DYNFILE)?(?:,INLINABLE)?\\)	# $] > 5.022
     OUTSIDE_SEQ = \\d+
     PADLIST = $ADDR				# $] <= 5.022
-    PADLIST = $ADDR \\[\\d+\\]			# $] > 5.022
+    PADLIST = $ADDR \\[\\d+\\] :?		# $] > 5.022
     PADNAME = $ADDR\\($ADDR\\) PAD = $ADDR\\($ADDR\\)
     OUTSIDE = $ADDR \\(MAIN\\)');
 
@@ -352,7 +352,7 @@ do_test('reference to named subroutine without prototype',
     CVFLAGS = $ADDR \\((?:DYNFILE,)?HASEVAL,NAMED\\)	# $] >= 5.021_011
     OUTSIDE_SEQ = \\d+
     PADLIST = $ADDR				# $] < 5.021_011
-    PADLIST = $ADDR \\[\\d+\\]			# $] >= 5.021_011
+    PADLIST = $ADDR \\[\\d+\\] :?		# $] >= 5.021_011
     PADNAME = $ADDR\\($ADDR\\) PAD = $ADDR\\($ADDR\\)
        \\d+\\. $ADDR<\\d+> \\(\\d+,\\d+\\) "\\$todo"
        \\d+\\. $ADDR<\\d+> \\(\\d+,\\d+\\) "\\$repeat_todo"
@@ -794,7 +794,7 @@ do_test('FORMAT',
     OUTSIDE_SEQ = \\d+
     LINES = 0					# $] < 5.017_003
     PADLIST = $ADDR				# $] <= 5.022
-    PADLIST = $ADDR \\[\\d+\\]			# $] > 5.022
+    PADLIST = $ADDR \\[\\d+\\] :?		# $] > 5.022
     PADNAME = $ADDR\\($ADDR\\) PAD = $ADDR\\($ADDR\\)
     OUTSIDE = $ADDR \\(MAIN\\)');
 
