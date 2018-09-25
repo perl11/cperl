@@ -3607,23 +3607,23 @@ Perl_share_hek(pTHX_ const char *str, I32 len, U32 hash)
     PERL_ARGS_ASSERT_SHARE_HEK;
 
     if (len < 0) {
-      STRLEN tmplen = -len;
-      is_utf8 = TRUE;
-      /* See the note in hv_fetch(). --jhi */
-      str = (char*)bytes_from_utf8((U8*)str, &tmplen, &is_utf8);
-      len = tmplen;
-      /* If we were able to downgrade here, then than means that we were passed
-         in a key which only had chars 0-255, but was utf8 encoded.  */
-      if (is_utf8)
-          flags = HVhek_UTF8;
-      /* If we found we were able to downgrade the string to bytes, then
-         we should flag that it needs upgrading on keys or each.  Also flag
-         that we need share_hek_flags to free the string.  */
-      if (str != save) {
-          dVAR;
-          PERL_HASH(hash, str, len);
-          flags |= HVhek_WASUTF8 | HVhek_FREEKEY;
-      }
+        STRLEN tmplen = -len;
+        is_utf8 = TRUE;
+        /* See the note in hv_fetch(). --jhi */
+        str = (char*)bytes_from_utf8((U8*)str, &tmplen, &is_utf8);
+        len = tmplen;
+        /* If we were able to downgrade here, then than means that we were passed
+           in a key which only had chars 0-255, but was utf8 encoded.  */
+        if (is_utf8)
+            flags = HVhek_UTF8;
+        /* If we found we were able to downgrade the string to bytes, then
+           we should flag that it needs upgrading on keys or each.  Also flag
+           that we need share_hek_flags to free the string.  */
+        if (str != save) {
+            dVAR;
+            PERL_HASH(hash, str, len);
+            flags |= HVhek_WASUTF8 | HVhek_FREEKEY;
+        }
     }
 
     return share_hek_flags (str, len, hash, flags);

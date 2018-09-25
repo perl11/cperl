@@ -398,6 +398,14 @@ XXX
 
 =item *
 
+Fix C<newSVpvn_share> to store the HEK_WASUTF8 flag if downgraded.
+Improve C<newSVpvn_share> to downgrade only once, not twice.
+
+A shared string and a GV with chars in the range 128-255 are downgraded to
+bytes without the UTF8 flag. Store at least the HEK_WASUTF8 flag then.
+
+=item *
+
 Check bless name under use strict names.
 
 The second argument to bless, the new classname, is now checked to be a
