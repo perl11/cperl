@@ -9576,6 +9576,9 @@ with the C<SvSHARED_HASH()> macro.  The idea here is
 that as the string table is used for shared hash keys these strings will have
 C<SvPVX_const == HeKEY> and hash lookup will avoid string compare.
 
+For utf8 strings under 255 the string is downgraded, the utf8 flag is
+lost and converted to HEK_WASUTF8.
+
 =cut
 */
 
@@ -9584,32 +9587,22 @@ Perl_newSVpvn_share(pTHX_ const char *src, I32 len, U32 hash)
 {
     dVAR;
     SV *sv;
-    bool was_utf8 = len < 0 ? TRUE : FALSE;
-    bool is_utf8 = was_utf8;
-    const char *const orig_src = src;
+    HEK *hek;
+    STRLEN abslen = len < 0 ? -len : len;
 
-    if (is_utf8) {
-	STRLEN tmplen = -len;
-	/* See the note in hv.c:hv_fetch() --jhi */
-	src = (char*)bytes_from_utf8((const U8*)src, &tmplen, &is_utf8);
-	len = tmplen;
-    }
     if (!hash)
-	PERL_HASH(hash, src, len);
+	PERL_HASH(hash, src, abslen);
     new_SV(sv);
-    /* The logic for this is inlined in S_mro_get_linear_isa_dfs(), so if it
-       changes here, update it there too.  */
+    hek = share_hek(src, len, hash);
     sv_upgrade(sv, SVt_PV);
-    SvPV_set(sv, sharepvn(src, was_utf8?-len:len, hash));
-    SvCUR_set(sv, len);
+    SvPV_set(sv, HEK_KEY(hek));
+    SvCUR_set(sv, abs(HEK_LEN(hek)));
     SvLEN_set(sv, 0);
     SvIsCOW_on(sv);
     SvPOK_on(sv);
     SvTAINT(sv);
-    if (is_utf8)
+    if (HEK_UTF8(hek))
         SvUTF8_on(sv);
-    if (src != orig_src)
-        Safefree(src);
     return sv;
 }
 
