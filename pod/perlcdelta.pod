@@ -76,13 +76,50 @@ L</Selected Bug Fixes> section.
 
 =head1 Incompatible Changes
 
-XXX For a release on a stable branch, this section aspires to be:
+=head2 Assigning non-zero to C<$[> is fatal
 
-    There are no changes intentionally incompatible with 5.XXX.XXX
-    If any exist, they are bugs, and we request that you submit a
-    report.  See L</Reporting Bugs> below.
+Setting L<< C<$[>|perlvar/$[ >> to a non-zero value has been deprecated since
+Perl 5.12 and now throws a fatal error.
+See L<<< perldeprecation/Assigning non-zero to C<< $[ >> is fatal >>>.
 
-[ List each incompatible change as a =head2 entry ]
+=head2 Previously deprecated sysread()/syswrite() on :utf8 handles now fatal
+
+Calling sysread(), syswrite(), send() or recv() on a C<:utf8> handle,
+whether applied explicitly or implicitly, is now fatal.  This was
+deprecated in perl 5.24.
+
+There were two problems with calling these functions on C<:utf8>
+handles:
+
+=over
+
+=item *
+
+All four functions only paid attention to the C<:utf8> flag.  Other
+layers were completely ignored, so a handle with
+C<:encoding(UTF-16LE)> layer would be treated as UTF-8.  Other layers,
+such as compression are completely ignored with or without the
+C<:utf8> flag.
+
+=item *
+
+sysread() and recv() would read from the handle, skipping any
+validation by the layers, and do no validation of their own.  This
+could lead to invalidly encoded perl scalars.
+
+=back
+
+L<[perl #125760]|https://rt.perl.org/Public/Bug/Display.html?id=125760>
+
+=head2 my() in false conditional prohibited
+
+Declarations such as C<my $x if 0> are no longer permitted.
+This feature was deprecated in 5.10 (and replaced by two better constructs,
+one of it backwards compatible) and is now a fatal error.
+L<[perl #133543]|https://rt.perl.org/Public/Bug/Display.html?id=133543>
+
+Note: cperl does not agree that this feature is a bug, but this ship
+sailed already over a decade ago.
 
 =head1 Deprecations
 
@@ -271,7 +308,6 @@ C<Egyptian_hieroglyphs> for C<Egyptian_Hieroglyphs>.
 F<vars.pm> no longer disables non-vars strict when checking if strict
 vars is enabled.
 L<[perl #130674]|https://rt.perl.org/Public/Bug/Display.html?id=130674>
-
 
 =back
 
@@ -581,12 +617,6 @@ L<[perl #133441]|https://rt.perl.org/Public/Bug/Display.html?id=133441>
 Detect more L<perldiag/"This use of C<my()> in a false conditional"> cases,
 esp. scalar assignments like C<my $x = 0 if 0;>
 L<[perl #133543]|https://rt.perl.org/Public/Bug/Display.html?id=133543>
-
-This feature was deprecated in 5.10 (and replaced by two better constructs,
-one of it backwards compatible) and is now a fatal error.
-
-Note: cperl does not agree that this feature is a bug, but this ship
-sailed already over a decade ago.
 
 =item *
 

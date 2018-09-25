@@ -1721,10 +1721,9 @@ PP(pp_sysread)
 
     if ((fp_utf8 = PerlIO_isutf8(IoIFP(io))) && !IN_BYTES) {
         if (op_type == OP_SYSREAD || op_type == OP_RECV) {
-            Perl_ck_warner_d(aTHX_ packWARN(WARN_DEPRECATED),
-                             "%s() is deprecated on :utf8 handles. "
-                             "This will be a fatal error in Perl 5.30",
-                             OP_DESC(PL_op));
+            Perl_croak(aTHX_
+                       "%s() isn't allowed on :utf8 handles",
+                       OP_DESC(PL_op));
         }
 	buffer = SvPVutf8_force(bufsv, blen);
 	/* UTF-8 may not have been set if they are all low bytes */
@@ -1938,7 +1937,6 @@ PP(pp_syswrite)
     IO *const io = GvIO(gv);
     SSize_t retval;
     STRLEN blen;
-    STRLEN orig_blen_bytes;
     int fd;
     const OPCODE op_type = PL_op->op_type;
     bool doing_utf8;
@@ -1981,20 +1979,12 @@ PP(pp_syswrite)
 
     /* Do this first to trigger any overloading.  */
     buffer = SvPV_const(bufsv, blen);
-    orig_blen_bytes = blen;
     doing_utf8 = cBOOL(DO_UTF8(bufsv));
 
     if (PerlIO_isutf8(IoIFP(io))) {
-        Perl_ck_warner_d(aTHX_ packWARN(WARN_DEPRECATED),
-                         "%s() is deprecated on :utf8 handles. "
-                         "This will be a fatal error in Perl 5.30",
-                         OP_DESC(PL_op));
-	if (!SvUTF8(bufsv)) {
-	    /* We don't modify the original scalar.  */
-	    tmpbuf = bytes_to_utf8((const U8*) buffer, &blen);
-	    buffer = (char *) tmpbuf;
-	    doing_utf8 = TRUE;
-	}
+        Perl_croak(aTHX_
+                   "%s() isn't allowed on :utf8 handles",
+                   OP_DESC(PL_op));
     }
     else if (doing_utf8) {
 	STRLEN tmplen = blen;
@@ -2027,25 +2017,10 @@ PP(pp_syswrite)
 #endif
     {
 	Size_t length = 0; /* This length is in characters.  */
-	STRLEN blen_chars;
 	IV offset;
 
-	if (doing_utf8) {
-	    if (tmpbuf) {
-		/* The SV is bytes, and we've had to upgrade it.  */
-		blen_chars = orig_blen_bytes;
-	    } else {
-		/* The SV really is UTF-8.  */
-		/* Don't call sv_len_utf8 on a magical or overloaded
-		   scalar, as we might get back a different result.  */
-		blen_chars = sv_or_pv_len_utf8(bufsv, buffer, blen);
-	    }
-	} else {
-	    blen_chars = blen;
-	}
-
 	if (MARK >= SP) {
-	    length = blen_chars;
+	    length = blen;
 	} else {
 #if Size_t_size > IVSIZE
 	    length = (Size_t)SvNVx(*++MARK);
@@ -2061,43 +2036,21 @@ PP(pp_syswrite)
 	if (MARK < SP) {
 	    offset = SvIVx(*++MARK);
 	    if (offset < 0) {
-		if (-offset > (IV)blen_chars) {
+		if (-offset > (IV)blen) {
 		    Safefree(tmpbuf);
 		    DIE(aTHX_ "Offset outside string");
 		}
-		offset += blen_chars;
-	    } else if (offset > (IV)blen_chars) {
+		offset += blen;
+	    } else if (offset > (IV)blen) {
 		Safefree(tmpbuf);
 		DIE(aTHX_ "Offset outside string");
 	    }
 	} else
 	    offset = 0;
-	if (length > blen_chars - offset)
-	    length = blen_chars - offset;
-	if (doing_utf8) {
-	    /* Here we convert length from characters to bytes.  */
-	    if (tmpbuf || SvGMAGICAL(bufsv) || SvAMAGIC(bufsv)) {
-		/* Either we had to convert the SV, or the SV is magical, or
-		   the SV has overloading, in which case we can't or mustn't
-		   or mustn't call it again.  */
+	if (length > blen - offset)
+	    length = blen - offset;
+        buffer = buffer + offset;
 
-		buffer = (const char*)utf8_hop((const U8 *)buffer, offset);
-		length = utf8_hop((U8 *)buffer, length) - (U8 *)buffer;
-	    } else {
-		/* It's a real UTF-8 SV, and it's not going to change under
-		   us.  Take advantage of any cache.  */
-
-		/* Convert the start and end character positions to bytes.
-		   Remember that the second argument to sv_pos_u2b is relative
-		   to the first. */
-		offset = sv_pos_u2b_flags(bufsv, (STRLEN)offset, &length,
-                                          SV_GMAGIC|SV_CONST_RETURN);
-		buffer += offset;
-	    }
-	}
-	else {
-	    buffer = buffer + offset;
-	}
 #ifdef PERL_SOCK_SYSWRITE_IS_SEND
 	if (IoTYPE(io) == IoTYPE_SOCKET) {
 	    retval = PerlSock_send(fd, buffer, length, 0);
@@ -2113,8 +2066,6 @@ PP(pp_syswrite)
     if (retval < 0)
 	goto say_undef;
     SP = ORIGMARK;
-    if (doing_utf8)
-        retval = utf8_length((U8*)buffer, (U8*)buffer + retval);
 
     Safefree(tmpbuf);
 #if Size_t_size > IVSIZE
