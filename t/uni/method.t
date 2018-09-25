@@ -99,13 +99,11 @@ SKIP: {
 }
 
 package Føø::Bær {
-    no strict 'names';
     sub new { bless {}, shift }
     sub nèw { bless {}, shift }
 }
 
 like( Føø::Bær::new("Føø::Bær"), qr/Føø::Bær=HASH/u, 'Can access new directly through a UTF-8 package.' );
-# FIXME: The arrow syntax strips off the utf8 flag of the GV! (newSVpvn_share)
 like( Føø::Bær->new, qr/Føø::Bær=HASH/u, 'Can access new as a method through a UTF-8 package.' );
 like( Føø::Bær::nèw("Føø::Bær"), qr/Føø::Bær=HASH/u, 'Can access nèw directly through a UTF-8 package.' );
 like( Føø::Bær->nèw, qr/Føø::Bær=HASH/u, 'Can access nèw as a method through a UTF-8 package.' );
