@@ -3518,6 +3518,9 @@ But in toke.c illegal UTF-8 will error with "Unrecognized character".
     ${"एxṰர::ʦፖㄡsȨ"}   => FALSE. Error: Invalid script Tamil in identifier
                              ர::ʦፖㄡsȨ for U+0BB0. Have Devanagari
 
+Maybe if a GV or shared PV have the HEK_WASUTF8 flag set, honor that.
+Though this would be 128-255 chars which are all valid Latin1 identifier chars.
+
 =cut
 */
 
@@ -3633,7 +3636,7 @@ Perl_valid_ident(pTHX_ SV* sv, bool strict_names, bool allow_package,
                 l = UTF8SKIP(s);
                 if (l > 1) {
                     if (UNLIKELY(!(is_LATIN_OR_COMMON_SCRIPT_utf8(s)
-                                || is_INHERITED_SCRIPT_utf8(s))))
+                                   || is_INHERITED_SCRIPT_utf8(s))))
                         utf8_check_script((U8*)s);
                     if (!*normalizep && UNLIKELY(_is_decomposed_string((U8*)s, l)))
                         *normalizep = 1;
@@ -3641,8 +3644,9 @@ Perl_valid_ident(pTHX_ SV* sv, bool strict_names, bool allow_package,
                 s += l;
             }
         }
-        else if (isIDFIRST_A(*s)) {
-            do { s++; } while (isIDCONT_A(*s) && s < e);
+        /* not _LC locale specific, because most likely downgraded from utf8 */
+        else if (!is_utf8 && isIDFIRST_L1(*s)) {
+            do { s++; } while (isIDCONT_L1(*s) && s < e);
         }
         /* Special identifier form 1: L<perldata/Identifier Parsing> */
         else if (*s >= '0' && *s <= '9') {

@@ -398,6 +398,12 @@ XXX
 
 =item *
 
+Fix C<valid_ident()> for 128-255 chars not to use isIDFIRST_A nor
+isIDCONT_A, _A does not match them.  Fixes F<t/uni/method.t> for chars
+like oslash
+
+=item *
+
 Fix C<newSVpvn_share> to store the HEK_WASUTF8 flag if downgraded.
 Improve C<newSVpvn_share> to downgrade only once, not twice.
 
