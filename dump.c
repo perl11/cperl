@@ -979,9 +979,10 @@ Perl_gv_display(pTHX_ GV *gv)
             gv_fullname3(raw, gv, NULL);
         else {
             assert(SvROK(gv));
-            assert(SvTYPE(SvRV(gv)) == SVt_PVCV);
-            Perl_sv_catpvf(aTHX_ raw, "CVREF %s",
+            if (SvTYPE(SvRV(gv)) == SVt_PVCV) {
+                Perl_sv_catpvf(aTHX_ raw, "CVREF %s",
                     SvPV_nolen_const(cv_name((CV *)SvRV(gv), name, 0)));
+            } /* may also be a IV threaded */
         }
         rawpv = SvPV_const(raw, len);
         generic_pv_escape(name, rawpv, len, SvUTF8(raw));
