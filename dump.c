@@ -3242,6 +3242,13 @@ S_append_gv_name(pTHX_ GV *gv, SV *out)
         sv_catpvs_nomg(out, "<NULLGV>");
         return;
     }
+#ifdef USE_ITHREADS
+    /* XXX should not be here, most likely a curpad bug in the ffi */
+    if (SvPOK(gv)) {
+        sv_catsv(out, (SV*)gv);
+        return;
+    }
+#endif
     sv = newSV(0);
     gv_fullname4(sv, gv, NULL, FALSE);
     Perl_sv_catpvf(aTHX_ out, "$%" SVf, SVfARG(sv));
@@ -3252,7 +3259,7 @@ S_append_gv_name(pTHX_ GV *gv, SV *out)
 =for apidoc deb_hek
 Print the HEK key and value, along with the hash and flags.
 
-Only avalaible with C<-DDEBUGGING>.
+Only available with C<-DDEBUGGING>.
 
 =cut
 */
@@ -3361,9 +3368,9 @@ Perl_multideref_stringify(pTHX_ const OP *o, CV *cv)
     }
     else
         comppad = NULL;
-#endif
-
+#else
     PERL_ARGS_ASSERT_MULTIDEREF_STRINGIFY;
+#endif
 
     while (!last) {
         switch (actions & MDEREF_ACTION_MASK) {

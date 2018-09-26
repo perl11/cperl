@@ -1064,6 +1064,25 @@ C<sib> is non-null. For a higher-level interface, see C<L</op_sibling_splice>>.
 /* actions */
 
 /* Load another word of actions/flag bits. Must be 0 */
+#if defined(DEBUGGING) && !defined(__cplusplus)
+typedef enum MDEREF_ACTION MDEREF_ACTION_t;
+enum MDEREF_ACTION {
+    MDEREF_reload                      =  0,
+    MDEREF_AV_pop_rv2av_aelem          =  1,
+    MDEREF_AV_gvsv_vivify_rv2av_aelem  =  2,
+    MDEREF_AV_padsv_vivify_rv2av_aelem =  3,
+    MDEREF_AV_vivify_rv2av_aelem       =  4,
+    MDEREF_AV_padav_aelem              =  5,
+    MDEREF_AV_gvav_aelem               =  6,
+    MDEREF_HV_pop_rv2hv_helem          =  8,
+    MDEREF_HV_gvsv_vivify_rv2hv_helem  =  9,
+    MDEREF_HV_padsv_vivify_rv2hv_helem = 10,
+    MDEREF_HV_vivify_rv2hv_helem       = 11,
+    MDEREF_HV_padhv_helem              = 12,
+    MDEREF_HV_gvhv_helem               = 13
+};
+#else
+typedef UV MDEREF_ACTION_t;
 #define MDEREF_reload                       0
 
 #define MDEREF_AV_pop_rv2av_aelem           1
@@ -1079,6 +1098,7 @@ C<sib> is non-null. For a higher-level interface, see C<L</op_sibling_splice>>.
 #define MDEREF_HV_vivify_rv2hv_helem       11
 #define MDEREF_HV_padhv_helem              12
 #define MDEREF_HV_gvhv_helem               13
+#endif
 
 #define MDEREF_ACTION_MASK                0xf
 

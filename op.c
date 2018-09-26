@@ -19825,7 +19825,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
 #define PASS2 pass
     for (pass = 0; pass < 2; pass++) {
         OP *o                = orig_o;
-        UV action            = orig_action;
+        MDEREF_ACTION_t action = (MDEREF_ACTION_t)orig_action;
         OP *first_elem_op    = NULL;  /* first seen aelem/helem */
         OP *top_op           = NULL;  /* highest [ah]elem/exists/del/rv2[ah]v */
         UNOP_AUX_item *arg        = arg_buf;
@@ -20982,7 +20982,7 @@ Perl_rpeep(pTHX_ OP *o)
          * OP_MULTIDEREF
          */
         {
-            UV action;
+            MDEREF_ACTION_t action;
             OP *o2 = o;
             U8 hints = 0;
 
@@ -21128,7 +21128,7 @@ Perl_rpeep(pTHX_ OP *o)
                             ? MDEREF_AV_padav_aelem
                             : MDEREF_HV_padhv_helem;
                 o2 = OpNEXT(o2);
-                S_maybe_multideref(aTHX_ o, o2, action, 0);
+                S_maybe_multideref(aTHX_ o, o2, (UV)action, 0);
                 break;
 
 
@@ -21160,7 +21160,7 @@ Perl_rpeep(pTHX_ OP *o)
                 hints |= (o2->op_private & OPpHINT_STRICT_REFS);
 
                 o2 = OpNEXT(o2);
-                S_maybe_multideref(aTHX_ o, o2, action, hints);
+                S_maybe_multideref(aTHX_ o, o2, (UV)action, hints);
                 /*DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p mderef\n", o));*/
                 break;
 

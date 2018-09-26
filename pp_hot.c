@@ -3878,9 +3878,6 @@ PP(pp_multideref)
             }
             /* NOTREACHED */
 
-
-
-
         case MDEREF_HV_padhv_helem:                 /* $lex{...} */
             sv = PAD_SVl((++items)->pad_offset);
             goto do_HV_helem;
