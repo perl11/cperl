@@ -5546,7 +5546,8 @@ S_dup_attrlist(pTHX_ OP *o)
                 /* XXX the gv padix is right before our cvref padix,
                    the previously allocated pad. it was allocated in
                    the outer scope. */
-                pad->op_padix = gop->op_padix - 1;
+                /*pad->op_padix = gop->op_padix - 1;*/
+                pad->op_padix = gop->op_padix+1;
                 rop = op_append_elem(OP_LIST, rop, newSVREF((OP*)pad));
 #endif
             }
