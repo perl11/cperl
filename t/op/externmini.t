@@ -9,7 +9,8 @@ BEGIN {
 }
 
 skip_all "only miniperl" unless is_miniperl();
-plan(tests => 10);
+use Config;
+plan(tests => 12);
 
 extern sub ffilabs() :symbol("labs");
 
@@ -38,8 +39,13 @@ undef %long::;
 sub abs(int $i) :native("c") :int;
 check_abs("abs :native('c')");
 
-$c="c"; sub abs(int $i) :native($c) :int;
-check_abs("abs :native(\$name)");
+SKIP: {
+    skip 'variable native($c) with threads', 2 if $Config{usethreads};
+    eval q|
+      my $c="c"; sub abs(int $i) :native($c) :int;
+    |;
+    check_abs("abs :native(\$name)");
+}
 
 check_labs_fields("extern sub labs();");  # :void
 check_labs_fields("extern sub labs() :int;");

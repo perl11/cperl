@@ -5077,15 +5077,19 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 	    o->op_private |= OPpMAYBE_LVSUB;
 	/* FALLTHROUGH */
     case OP_PADSV:
+      {
+        PADNAME *pn = PAD_COMPNAME_SV(o->op_targ); /* the same as PAD_COMPNAME */
 	PL_modcount++;
 	if (!type) /* local() */
 	    Perl_croak(aTHX_ "Can't localize lexical variable %" PNf,
-			      PNfARG(PAD_COMPNAME(o->op_targ)));
-	if (!(o->op_private & OPpLVAL_INTRO)
-	 || (  type != OP_SASSIGN && type != OP_AASSIGN
-	    && PadnameIsSTATE(PAD_COMPNAME_SV(o->op_targ))  ))
-	    S_mark_padname_lvalue(aTHX_ PAD_COMPNAME_SV(o->op_targ));
-	break;
+			      PNfARG(pn));
+	if (pn &&
+            (!(o->op_private & OPpLVAL_INTRO)
+             || ( type != OP_SASSIGN && type != OP_AASSIGN
+                  && PadnameIsSTATE(pn) )))
+	    S_mark_padname_lvalue(aTHX_ pn);
+      }
+      break;
 
     case OP_PUSHMARK:
 	localize = 0;
@@ -5547,7 +5551,7 @@ S_dup_attrlist(pTHX_ OP *o)
                    the previously allocated pad. it was allocated in
                    the outer scope. */
                 /*pad->op_padix = gop->op_padix - 1;*/
-                pad->op_padix = gop->op_padix+1;
+                pad->op_padix = gop->op_padix+1; /* FIXME padix confusion */
                 rop = op_append_elem(OP_LIST, rop, newSVREF((OP*)pad));
 #endif
             }
@@ -5658,7 +5662,13 @@ Perl_attrs_runtime(pTHX_ CV *cv, OP *attrs)
                       : PL_curstash;
         /* check for run-time variables with sub attrs */
         for (; o; o = OpKIDS(o) ? OpFIRST(o) : OpSIBLING(o)) {
-            if (IS_TYPE(o, PADSV) || IS_TYPE(o, GV)) {
+            if (IS_TYPE(o, PADSV)
+                /* FIXME threads padix confusion */
+#ifndef USE_ITHREADS
+                || IS_TYPE(o, GV)
+#endif
+                )
+            {
                 OP *result = NULL;
                 OP *target = newUNOP(OP_RV2CV, 0,
                                  newGVOP(OP_GV, 0,
@@ -5698,9 +5708,13 @@ S_apply_attrs(pTHX_ HV *stash, SV *target, OP *attrs)
         OP *o = attrs;
         /* skip on run-time variables, defer to attrs_runtime */
         for (; o; o = OpKIDS(o) ? OpFIRST(o) : OpSIBLING(o)) {
-            if (IS_TYPE(o, PADSV) || IS_TYPE(o, GV)) {
+            if (IS_TYPE(o, PADSV)
+                /* FIXME threads padix confusion */
+#ifndef USE_ITHREADS
+                || IS_TYPE(o, GV)
+#endif
+                )
                 return;
-            }
         }
 
         /* fake up C<use attributes $pkg,$rv,@attrs> */
@@ -5733,6 +5747,7 @@ Returns the list of attributes in the **imopsp argument.
 Used in cperl with non-constant attrs arguments to defer the import
 to run-time. [cperl #291]
 perl5 cannot handle run-time args like :native($lib).
+threaded cperl cannot handle those variables yet.
 
 =cut
 */

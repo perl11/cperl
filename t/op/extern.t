@@ -98,12 +98,11 @@ check_abs("extern labs");
 eval 'sub abs(int $i) :native("c") :int;';
 check_abs("abs :native('c')");
 
-#SKIP: {
-#    skip 'variable native($c) with threads', 4 if $Config{usethreads};
-
-$c="c"; sub abs(int $i) :native($c) :int;
-check_abs("abs :native(\$name)");
-#}
+SKIP: {
+    skip 'variable native($c) with threads', 4 if $Config{usethreads};
+    my $c="c"; sub abs(int $i) :native($c) :int;
+    check_abs("abs :native(\$name)");
+}
 
 extern sub strchr(str $s, int $i) :str;
 is(strchr("abcd", ord("c")), "cd", "strchr");
