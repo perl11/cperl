@@ -6359,8 +6359,9 @@ Perl_yylex(pTHX)
                                                          SVt_PV)));
                                 }
                                 else {
+                                    /* if FAKE find the real one */
                                     arg = newOP(OP_PADSV, 0);
-                                    arg->op_targ = pad;
+                                    arg->op_targ = pad_findmy_realoffset(pad, PL_compcv);
                                 }
                             }
                             /* compile-time import */

@@ -1125,7 +1125,7 @@ Perl_find_rundefsv2(pTHX_ CV *cv, U32 seq)
 }
 
 /*
-=for apidoc Apd|PADOFFSET|pad_find_outer	|PADNAME *pn|const CV* cv
+=for apidoc Apd|SV*|pad_find_outer	|PADNAME *pn|const CV* cv
 
 Search the real pad offset in one of the outer CVs for the fake pad
 entry in the current CV, usually the C<PL_compcv>. See L</pad_findmy_real>.
@@ -1157,6 +1157,27 @@ Perl_pad_find_outer(pTHX_ PADNAME *pn, CV* cv)
 }
 
 /*
+=for apidoc id|PADOFFSET|pad_find_outeroffset	|PADNAME *pn|const CV* cv
+
+Search the real pad offset in one of the outer CVs for the fake pad
+entry in the current CV, usually the C<PL_compcv>. See L<perlapi/pad_findmy_real>.
+
+=cut
+*/
+PERL_STATIC_INLINE PADOFFSET
+S_pad_find_outeroffset(pTHX_ PADNAME *pn, CV* cv)
+{
+    SV* sv = NULL;
+    PADNAME* out_pn;
+    int out_flags;
+    PERL_ARGS_ASSERT_PAD_FIND_OUTEROFFSET;
+
+    return pad_findlex(PadnamePV(pn), PadnameLEN(pn), padadd_STALEOK,
+                       CvOUTSIDE(cv), CvOUTSIDE_SEQ(cv), 0,
+                       &sv, &out_pn, &out_flags);
+}
+
+/*
 =for apidoc Apd|SV*|pad_findmy_real	|PADOFFSET po|CV* cv
 
 Search the pad for a real SV in all outer SVs from the current CV up.
@@ -1184,6 +1205,29 @@ Perl_pad_findmy_real(pTHX_ PADOFFSET po, CV* cv)
 }
 
 /*
+=for apidoc Apd|PADOFFSET|pad_findmy_realoffset	|PADOFFSET po|CV* cv
+
+Search the pad for a real SV in all outer SVs from the current CV up.
+Skip inner FAKE pads until we get the real outer curpad slot.
+
+Note that only with C<PL_compcv> at compile-time we will encounter fake
+pads. At runtime the current cv padlist has proper pads.
+
+=cut
+*/
+PADOFFSET
+Perl_pad_findmy_realoffset(pTHX_ PADOFFSET po, CV* cv)
+{
+    PERL_ARGS_ASSERT_PAD_FINDMY_REALOFFSET;
+
+    /* A nested block has a FAKE pad */
+    if (PAD_COMPNAME_isOUTER(po) && !SvFLAGS(PAD_SV(po))) {
+        return S_pad_find_outeroffset(aTHX_ PAD_COMPNAME(po), cv);
+    }
+    return po;
+}
+
+/*
 =for apidoc m|PADOFFSET|pad_findlex|const char *namepv|STRLEN namelen|U32 flags|const CV* cv|U32 seq|int warn|SV** out_capture|PADNAME** out_name|int *out_flags
 
 Find a named lexical anywhere in a chain of nested pads.  Add fake entries
@@ -1198,13 +1242,13 @@ instance of the lexical is captured; C<out_name> is set to the innermost
 matched pad name or fake pad name; C<out_flags> returns the flags normally
 associated with the C<PARENT_FAKELEX_FLAGS> field of a fake pad name.
 
-Note that C<pad_findlex()> is recursive; it recurses up the chain of CVs,
-then comes back down, adding fake entries
-as it goes.  It has to be this way
-because fake names in anon protoypes have to store in C<xpadn_low> the
-index into the parent pad.
+Note that C<pad_findlex()> is recursive; it recurses up the chain of
+CVs, then comes back down, adding fake entries as it goes.  It has to
+be this way because fake names in anon protoypes have to store in
+C<xpadn_low> the index into the parent pad.
 
-PADs are with cperl all UTF8 so the flags argument must be 0 or padadd_STALEOK.
+With cperl all PADs are UTF8 so the flags argument must be either 0 or
+padadd_STALEOK.
 
 =cut
 */
@@ -1230,7 +1274,7 @@ S_unavailable(pTHX_ PADNAME *name)
 
 STATIC PADOFFSET
 S_pad_findlex(pTHX_ const char *namepv, STRLEN namelen, U32 flags, const CV* cv, U32 seq,
-	int warn, SV** out_capture, PADNAME** out_name, int *out_flags)
+              int warn, SV** out_capture, PADNAME** out_name, int *out_flags)
 {
     PADOFFSET offset, new_offset;
     SV *new_capture;

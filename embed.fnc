@@ -3208,6 +3208,7 @@ sd	|void	|pad_check_dup	|NN PADNAME *name|U32 flags \
 Apd	|PADOFFSET|pad_findmy_pvn  |NN const char* namepv|STRLEN namelen|U32 flags
 Apd	|PADOFFSET|pad_findmy_pv   |NN const char* name|U32 flags
 Apd	|PADOFFSET|pad_findmy_sv   |NN SV* name|U32 flags
+Apd	|PADOFFSET|pad_findmy_realoffset|PADOFFSET po|NN CV* cv
 Apd	|SV*	  |pad_findmy_real |PADOFFSET po|NN CV* cv
 Apd	|SV*	  |pad_find_outer  |NN PADNAME *pn|NN CV* cv
 Apd	|PADOFFSET|find_rundefsvoffset	|
@@ -3215,6 +3216,7 @@ Apd	|SV*	  |find_rundefsv	|
 : Used in pp.c
 p	|SV*	  |find_rundefsv2	|NN CV *cv|U32 seq
 #if defined(PERL_IN_PAD_C)
+id	|PADOFFSET|pad_find_outeroffset |NN PADNAME *pn|NN CV* cv
 sd	|PADOFFSET|pad_findlex	|NN const char *namepv|STRLEN namelen|U32 flags \
 				|NN const CV* cv|U32 seq|int warn \
 				|NULLOK SV** out_capture \

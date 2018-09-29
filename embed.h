@@ -621,6 +621,7 @@
 #define pad_findmy_pv(a,b)	Perl_pad_findmy_pv(aTHX_ a,b)
 #define pad_findmy_pvn(a,b,c)	Perl_pad_findmy_pvn(aTHX_ a,b,c)
 #define pad_findmy_real(a,b)	Perl_pad_findmy_real(aTHX_ a,b)
+#define pad_findmy_realoffset(a,b)	Perl_pad_findmy_realoffset(aTHX_ a,b)
 #define pad_findmy_sv(a,b)	Perl_pad_findmy_sv(aTHX_ a,b)
 #define pad_new(a)		Perl_pad_new(aTHX_ a)
 #define pad_tidy(a)		Perl_pad_tidy(aTHX_ a)
@@ -2074,6 +2075,7 @@
 #  if defined(PERL_IN_PAD_C)
 #define pad_alloc_name(a,b,c,d)	S_pad_alloc_name(aTHX_ a,b,c,d)
 #define pad_check_dup(a,b,c)	S_pad_check_dup(aTHX_ a,b,c)
+#define pad_find_outeroffset(a,b)	S_pad_find_outeroffset(aTHX_ a,b)
 #define pad_findlex(a,b,c,d,e,f,g,h,i)	S_pad_findlex(aTHX_ a,b,c,d,e,f,g,h,i)
 #define pad_reset()		S_pad_reset(aTHX)
 #  endif
