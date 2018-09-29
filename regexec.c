@@ -10300,7 +10300,8 @@ Perl_isSCRIPT_RUN(pTHX_ const U8 * s, const U8 * send, const bool utf8_target)
     SV * decimals_invlist = PL_XPosix_ptrs[_CC_DIGIT];
     UV * decimals_array = invlist_array(decimals_invlist);
 
-    /* What code point is the digit '0' of the script run? */
+    /* What code point is the digit '0' of the script run? (0 meaning FALSE if
+     * not currently known) */
     UV zero_of_run = 0;
 
     SCX_enum script_of_run  = SCX_INVALID;   /* Illegal value */
@@ -10319,7 +10320,8 @@ Perl_isSCRIPT_RUN(pTHX_ const U8 * s, const U8 * send, const bool utf8_target)
     PERL_ARGS_ASSERT_ISSCRIPT_RUN;
 
     /* All code points in 0..255 are either Common or Latin, so must be a
-     * script run.  We can special case it */
+     * script run.  We can return immediately unless we need to know which
+     * script it is. */
     if (! utf8_target && LIKELY(send > s)) {
         if (ret_script == NULL) {
             return TRUE;
@@ -10333,7 +10335,7 @@ Perl_isSCRIPT_RUN(pTHX_ const U8 * s, const U8 * send, const bool utf8_target)
             }
         }
 
-        /* If all are Common ... */
+        /* Here, all are Common */
         *ret_script = SCX_Common;
         return TRUE;
     }
@@ -10348,9 +10350,9 @@ Perl_isSCRIPT_RUN(pTHX_ const U8 * s, const U8 * send, const bool utf8_target)
 
         /* The code allows all scripts to use the ASCII digits.  This is
          * because they are used in commerce even in scripts that have their
-         * own set.  Hence any ASCII ones found are ok, unless a digit from
-         * another set has already been encountered.  (The other digit ranges
-         * in Common are not similarly blessed) */
+         * own set.  Hence any ASCII ones found are ok, unless and until a
+         * digit from another set has already been encountered.  (The other
+         * digit ranges in Common are not similarly blessed) */
         if (UNLIKELY(isDIGIT(*s))) {
             if (UNLIKELY(script_of_run == SCX_Unknown)) {
                 retval = FALSE;
@@ -10465,7 +10467,6 @@ Perl_isSCRIPT_RUN(pTHX_ const U8 * s, const U8 * send, const bool utf8_target)
             /* By far the most common case */
             goto scripts_match;
         }
-
 
         /* Here, the script of the run isn't Common.  But characters in Common
          * match any script */
