@@ -10313,7 +10313,6 @@ Perl_isSCRIPT_RUN(pTHX_ const U8 * s, const U8 * send, const bool utf8_target)
 
     /* What code point is the digit '0' of the script run? */
     UV zero_of_run = 0;
-#define SEEN_A_DIGIT (zero_of_run != 0)
 
     SCX_enum script_of_run  = SCX_INVALID;   /* Illegal value */
     SCX_enum script_of_char = SCX_INVALID;
@@ -10370,7 +10369,7 @@ Perl_isSCRIPT_RUN(pTHX_ const U8 * s, const U8 * send, const bool utf8_target)
                 retval = FALSE;
                 break;
             }
-            if (SEEN_A_DIGIT) {
+            if (zero_of_run) {
                 if (zero_of_run != '0') {
                     retval = FALSE;
                     break;
@@ -10396,7 +10395,7 @@ Perl_isSCRIPT_RUN(pTHX_ const U8 * s, const U8 * send, const bool utf8_target)
         /* If is within the range [+0 .. +9] of the script's zero, it also is a
          * digit in that script.  We can skip the rest of this code for this
          * character. */
-        if (UNLIKELY(   SEEN_A_DIGIT
+        if (UNLIKELY(   zero_of_run
                      && cp >= zero_of_run
                      && cp - zero_of_run <= 9))
         {
@@ -10465,7 +10464,7 @@ Perl_isSCRIPT_RUN(pTHX_ const U8 * s, const U8 * send, const bool utf8_target)
 
             /* But Common contains several sets of digits.  Only the '0' set
              * can be part of another script. */
-            if (SEEN_A_DIGIT && zero_of_run != '0') {
+            if (zero_of_run && zero_of_run != '0') {
                 retval = FALSE;
                 break;
             }
