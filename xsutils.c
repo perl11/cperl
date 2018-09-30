@@ -754,8 +754,11 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv, const char *encoded)
         argtypes[0] = &ffi_type_void;
         status = ffi_prep_cif(cif, abi, 1, rtype, argtypes);
         if (status != FFI_OK) {
-            Perl_croak(aTHX_ "ffi_prep_cif error %d at %s %d",
-                       status, __FILE__, __LINE__);
+            Perl_croak(aTHX_ "ffi_prep_cif error %d: %s at %s, line %d",
+                   status,
+                   status == 1 ? "bad typedef"
+                     : status == 2 ? "bad ABI"
+                     : "", __FILE__, __LINE__);
         }
         CvFFILIB(cv) = PTR2IV(cif);
         CvFFILIB_HANDLE_off(cv);
@@ -827,8 +830,11 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv, const char *encoded)
 
     status = ffi_prep_cif(cif, abi, num_args, rtype, argtypes);
     if (status != FFI_OK) {
-        Perl_croak(aTHX_ "ffi_prep_cif error %d at %s %d",
-                   status, __FILE__, __LINE__);
+        Perl_croak(aTHX_ "ffi_prep_cif error %d: %s at %s, line %d",
+                   status,
+                   status == 1 ? "bad typedef"
+                     : status == 2 ? "bad ABI"
+                     : "", __FILE__, __LINE__);
     }
     CvFFILIB(cv) = PTR2IV(cif);
     CvFFILIB_HANDLE_off(cv);

@@ -2457,7 +2457,7 @@ are fine, but calls will fail. Check C<$Config{useffi}>.
 
 (W ffi) The numeric conversion might be lossy. See L<ffi>.
 
-=item ffi_prep_cif error %d at %s %d
+=item ffi_prep_cif error %d: %s at %s, line %d
 
 (F) The libffi signature preparation call failed. See C<man ffi_prep_cif>.
 The error means either FFI_BAD_TYPEDEF (1) or FFI_BAD_ABI (2).
