@@ -944,9 +944,12 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
                            "of ptr", HvNAME(type));
         }
         else if (SvIOK(*argp)) {
-            if (argtype != &ffi_type_pointer)
-                *argvalues++ = &SvIVX(*argp++);
-            else
+            if (argtype != &ffi_type_pointer) {
+                if (SvIOK_UV(*argp))
+                    *argvalues++ = &SvUVX(*argp++);
+                else
+                    *argvalues++ = &SvIVX(*argp++);
+            } else
                 Perl_croak(aTHX_ "Type of arg %s to %s must be %s (not %s)",
                            PadnamePV(argname),
                            SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
@@ -1009,19 +1012,25 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, char *rvalue)
 #define RET_IV(type)                                \
     if (!SvIOK(*sp))                                \
         *sp = sv_2mortal(newSViv(0));               \
-    memcpy(&SvIVX(*sp), &rvalue, sizeof(type));     \
+    else                                            \
+        Zero(&SvIVX(*sp), 1, IV);                   \
+    Copy(&rvalue, &SvIVX(*sp), 1, type);            \
     return
 #define RET_UV(type)                                \
     if (!SvIOK(*sp))                                \
         *sp = sv_2mortal(newSVuv(0));               \
-    else                                            \
+    else {                                          \
+        Zero(&SvUVX(*sp), 1, UV);                   \
         SvIsUV_on(*sp);                             \
-    memcpy(&SvUVX(*sp), &rvalue, sizeof(type));     \
+    }                                               \
+    Copy(&rvalue, &SvUVX(*sp), 1, type);            \
     return
 #define RET_NV(type)                                \
     if (!SvNOK(*sp))                                \
         *sp = sv_2mortal(newSVnv(0));               \
-    memcpy(&SvNVX(*sp), &rvalue, sizeof(type));     \
+    else                                            \
+        Zero(&SvIVX(*sp), 1, NV);                   \
+    Copy(&rvalue, &SvNVX(*sp), 1, type);            \
     return
 #else
 #define RET_IV(type)                                \
