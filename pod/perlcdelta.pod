@@ -60,6 +60,12 @@ has happened, (like C<\p{nv=0.5}>).
 The necessary precision is now automatically pre-calculated and the lookup
 normalized.
 
+=head2 The maximum number of times a pattern can match has been doubled
+to 65535
+
+This means if you specify C<qr/a+/> that there can be anywhere from 1
+through 65535 C<"a">'s in a row, instead of 32267 as previously.
+
 =head1 Security
 
 XXX Any security-related notices go here.  In particular, any security
