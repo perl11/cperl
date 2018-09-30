@@ -1,39 +1,56 @@
 version: 5.29.0.{build}
 #skip_tags: true
 #os: MinGW
-#os: Visual Studio 2015
+os: Visual Studio 2015
 #os: Default Azure
 #build:
 #  verbosity: minimal
 max_jobs: 4
 build:
   parallel: true
-platform:
-  - x64
-  - x86
 environment:
   matrix:
+    #- MINGW: 1
+    #  CFG: Debug
+    #  PLATFORM: x86
     - MINGW: 1
-    - MSVC_VERSION: 10
+      PLATFORM: x86
+    - MINGW: 1
+      PLATFORM: x64
+    #- MSVC_VERSION: 10
+    #  PLATFORM: x86
     - CYGWIN: 1
-    - MSVC_VERSION: 12
+      PLATFORM: x86
+    - CYGWIN: 1
+      PLATFORM: x64
+    - MSVC_VERSION: 10
+      PLATFORM: x64
+    #- MSVC_VERSION: 12
+    #  PLATFORM: x86
     - MSVC_VERSION: 14
+      PLATFORM: x86
     #- MSVC_VERSION: 14
     #  CFG: Debug
     #- MSVC_VERSION: 12
     #  CFG: Debug
-    #- MINGW: 1
-    #  CFG: Debug
 matrix:
   exclude:
-    - platform: x64
+    - PLATFORM: x64
       MSVC_VERSION: 14
-    - platform: x64
+    - PLATFORM: x64
       MSVC_VERSION: 12
   allow_failures:
-    - CYGWIN: 1
     - MINGW: 1
       CFG: Debug
+      PLATFORM: x86
+    - MSVC_VERSION: 10
+      PLATFORM: x64
+    - MSVC_VERSION: 10
+      PLATFORM: x86
+    - MSVC_VERSION: 12
+      PLATFORM: x86
+    - MSVC_VERSION: 14
+      PLATFORM: x86
 clone_depth: 1
 branches:
   only:
@@ -61,8 +78,12 @@ init:
   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
   - if "%MINGW%"=="1" set PROCESSOR_ARCHITECTURE=%PLATFORM%
   - if "%PLATFORM%"=="x64" set PROCESSOR_ARCHITECTURE=AMD64
+  - if "%PLATFORM%"=="x86" set WIN64=undef
+  - if "%PLATFORM%"=="x86" set BITS=32
+  - if "%PLATFORM%"=="x64" set BITS=64
   #- if "%MINGW%"=="1" set PATH=%MSYS64%\bin;c:\Windows\system32;c:\Windows;C:\MinGW\msys\1.0\bin;c:\Windows\system32\Wbem;C:\MinGW\bin;C:\Program Files\Git\cmd
-  - if "%MINGW%"=="1" cinst strawberryperl -i
+  - if "%MINGW%"=="1" if "%PLATFORM%"=="x86" cinst --x86 strawberryperl -iy
+  - if "%MINGW%"=="1" if "%PLATFORM%"=="x64" cinst strawberryperl -iy
   - if "%MINGW%"=="1" set PATH=c:\Windows\system32;c:\Windows;C:\strawberry\c\bin;C:\strawberry\perl\bin;c:\Windows\system32\Wbem;C:\Program Files\Git\cmd
   #- if "%MINGW%"=="1" rename c:\MinGW\lib lib.old
   #- if "%MINGW%"=="1" rename c:\MinGW\include include.old
@@ -70,9 +91,6 @@ init:
   - if "%MINGW%"=="1" set CCHOME=c:\strawberry\c & set MKOPT="CCHOME=c:\strawberry\c"
   - set MKOPT=%MKOPT% USE_FFI=define
   - if "%CFG%"=="Debug" set
-  - if "%PLATFORM%"=="x86" set WIN64=undef
-  - if "%PLATFORM%"=="x86" set BITS=32
-  - if "%PLATFORM%"=="x64" set BITS=64
   - set CYGR=c:\cygwin
   - if "%PLATFORM%"=="x64" set CYGR=c:\cygwin64
   - if "%CYGWIN%"=="1" set CYGSETUP=setup-x86
@@ -94,6 +112,8 @@ build_script:
   - if not "%CYGWIN%"=="1" %CYGR%\bin\gzip -d libffi-3.2.2dev-mingw%BITS%.tar.gz
   - if not "%CYGWIN%"=="1" %CYGR%\bin\tar -xf libffi-3.2.2dev-mingw%BITS%.tar -C win32/
   - if not "%CYGWIN%"=="1" copy win32\bin\libffi*.dll *.*
+  - if not "%CYGWIN%"=="1" if not "%MINGW%"=="1" copy win32\lib\libffi.a *.*
+  - if "%MINGW%"=="1"  copy win32\lib\libffi.dll.a *.*
   - if "%MINGW%"=="1"  gmake -s -C win32 %MKOPT%
   #- if "%CFG%"=="Debug" type config.sh
   - if "%CYGWIN%"=="1" sh ./Configure -des -Dusedevel & make
