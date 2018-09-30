@@ -2737,7 +2737,8 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
 	if (SvPOK(sv)) {
             SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
             const char *const proto = CvPROTO(sv);
-	    Perl_dump_indent(aTHX_ level, file, "  PROTOTYPE = \"%s\"\n",
+	    Perl_dump_indent(aTHX_ level, file, "  %s = \"%s\"\n",
+                             !CvEXTERN(sv) ? "PROTOTYPE" : "SYMBOL",
 			     generic_pv_escape(tmpsv, proto, CvPROTOLEN(sv),
                                 SvUTF8(sv)));
 	}

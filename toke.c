@@ -4567,7 +4567,7 @@ S_intuit_method(pTHX_ char *start, SV *ioname, CV *cv)
 
     if (gv && SvTYPE(gv) == SVt_PVGV && GvIO(gv))
         return 0;
-    if (cv && SvPOK(cv)) {
+    if (cv && SvPOK(cv) && !CvEXTERN(cv)) {
         const char *proto = CvPROTO(cv);
         if (proto) {
             while (*proto && (isSPACE(*proto) || *proto == ';'))
@@ -8051,7 +8051,7 @@ Perl_yylex(pTHX)
                     PL_last_lop = PL_oldbufptr;
                     PL_last_lop_op = OP_ENTERSUB;
                     /* Is there a prototype? */
-                    if (SvPOK(cv)) {
+                    if (SvPOK(cv) && !CvEXTERN(cv)) {
                         STRLEN protolen = CvPROTOLEN(cv);
                         const char *proto = CvPROTO(cv);
                         bool optional;

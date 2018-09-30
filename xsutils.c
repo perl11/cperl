@@ -1462,6 +1462,8 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 		    if (name[len-1] != ')')
 			Perl_croak(aTHX_
                             "Unterminated attribute parameter in attribute list");
+                    if (UNLIKELY(CvEXTERN(sv)))
+			Perl_croak(aTHX_ "An extern sub may not have a prototype");
 		    if (hek)
 			subname = sv_2mortal(newSVhek(hek));
 		    else
@@ -1508,28 +1510,43 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                     else {
 #ifdef __cplusplus
                         char *old;
-                        memcpy(&old, &CvXFFI(cv), sizeof(char*));
+                        Copy(&CvXFFI(cv), &old, 1, char*);
 #else
                         char *old = INT2PTR(char*,CvXFFI(cv));
 #endif
                         if (len == 7 && numattrs>1) {
                             attr = *attrlist++;
                             numattrs--;
-                            if (SvPOK(attr))
+                            if (SvPOK(attr)) {
                                 S_find_symbol(aTHX_ cv, SvPVX(attr));
-                            else
+                                len  = SvCUR(attr);
+                                name = SvPVX(attr);
+                            } else
                                 /* diag_listed_as: Invalid :%s(%s) attribute argument type */
                                 Perl_croak(aTHX_
                                     "Invalid :%s%" SVf ") attribute argument type",
                                     name, SVfARG(attr));
                         } else {
                             name[len-1] = '\0';
-                            S_find_symbol(aTHX_ cv, name+7);
+                            name += 7;
+                            S_find_symbol(aTHX_ cv, name);
+                            len -= 7;
                         }
                         /* only warn on superfluous :symbol() redefinition */
                         if (old && old == INT2PTR(char*,CvXFFI(cv)))
                             Perl_ck_warner(aTHX_ packWARN(WARN_REDEFINE),
                                            ":symbol is already resolved");
+                        else { /* abuse the prototype slot for the symbol name */
+                            U32 hash;
+                            /* Note: This could also happen with 2x :symbol() attrs */
+                            if (UNLIKELY(SvCUR(cv)))
+                                Perl_croak(aTHX_ "An extern sub may not have a prototype");
+                            PERL_HASH(hash, name, len);
+                            SvLEN_set(cv, 0);
+                            SvIsCOW_on(cv);
+                            SvCUR_set(cv, len);
+                            SvPV_set(cv, sharepvn(name, len, hash));
+                        }
                     }
                     goto next_attr;
                 }

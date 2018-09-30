@@ -11052,7 +11052,7 @@ Perl_newWHENOP(pTHX_ OP *cond, OP *block)
 
 void
 Perl_cv_ckproto_len_flags(pTHX_ const CV *cv, const GV *gv, const char *p,
-		    const STRLEN len, const U32 flags)
+                          const STRLEN len, const U32 flags)
 {
     SV *name = NULL, *msg;
     const char * cvp = SvROK(cv)
@@ -11066,8 +11066,9 @@ Perl_cv_ckproto_len_flags(pTHX_ const CV *cv, const GV *gv, const char *p,
 
     if (p == NULL && cvp == NULL)
 	return;
-
     if (!ckWARN_d(WARN_PROTOTYPE))
+	return;
+    if (SvTYPE(cv) == SVt_PVCV && (CvISXSUB(cv) && CvEXTERN(cv)))
 	return;
 
     if (p && cvp) {
@@ -11113,8 +11114,7 @@ Perl_cv_ckproto_len_flags(pTHX_ const CV *cv, const GV *gv, const char *p,
 	Perl_sv_catpvf(aTHX_ msg, " sub %" SVf, SVfARG(name));
     if (cvp)
 	Perl_sv_catpvf(aTHX_ msg, " (%" UTF8f ")",
-	    UTF8fARG(SvUTF8(cv),clen,cvp)
-	);
+                       UTF8fARG(SvUTF8(cv),clen,cvp));
     else
 	sv_catpvs(msg, ": none");
     sv_catpvs(msg, " vs ");
@@ -16890,15 +16890,19 @@ Perl_ck_entersub_args_proto(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
     I32 contextclass = 0;
     const char *e = NULL;
     PERL_ARGS_ASSERT_CK_ENTERSUB_ARGS_PROTO;
+
     if (SvTYPE(protosv) == SVt_PVCV ? (!SvPOK(protosv) && !CvHASSIG((CV*)protosv))
                                     : !SvOK(protosv))
 	Perl_croak(aTHX_ "panic: ck_entersub_args_proto CV with no proto, "
 		   "flags=%lx", (unsigned long) SvFLAGS(protosv));
-    if (SvTYPE(protosv) == SVt_PVCV)
+    if (SvTYPE(protosv) == SVt_PVCV) {
         proto = CvPROTO(protosv), proto_len = CvPROTOLEN(protosv);
-    else
+        if (CvEXTERN(protosv))
+            return entersubop;
+    } else {
         proto = SvPV(protosv, proto_len);
-    if (!proto)
+    }
+    if (!proto) /* With extern the proto is the symbol name */
         return entersubop;
     proto = strip_spaces(proto, &proto_len);
     proto_end = proto + proto_len;

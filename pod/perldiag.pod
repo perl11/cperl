@@ -178,6 +178,15 @@ which 'splits' output into two streams, such as
     }
     close OUT;
 
+=item An extern sub may not have a prototype
+
+(F) With an extern sub the prototype slot is reserved for the :symbol() name,
+the name of the resolved sub in the external C library. The extern sub parsing
+is solely defined via its signature. (cperl only)
+
+Note that this error message could also appear with two :symbol() declarations
+for one subroutine.
+
 =item Applying %s to %s will act on scalar(%s)
 
 (W misc) The pattern match (C<//>), substitution (C<s///>), and
