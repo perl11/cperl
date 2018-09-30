@@ -1555,6 +1555,8 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                     if (!CvEXTERN(cv))
                         Perl_warn(aTHX_ ":%s is only valid for :native or extern sub",
                                   "nativeconv");
+                    if (len >= 14+11) /* max space */
+                        Perl_croak(aTHX_ "Illegal :nativeconv(%s) argument", name);
                     name[len-1] = '\0';
                     Copy(&name[11], nativeconv, len-11, char);
                     goto next_attr;
@@ -1567,6 +1569,8 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                         Perl_warn(aTHX_ ":%s is only valid for :native or extern sub",
                                   "encoded");
                     name[len-1] = '\0';
+                    if (len >= 14+8) /* max space */
+                        Perl_croak(aTHX_ "Illegal :encoded(%s) argument", name);
                     Copy(&name[8], encoded, len-8, char);
                     goto next_attr;
                 }
