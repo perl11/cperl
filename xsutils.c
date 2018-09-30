@@ -588,7 +588,7 @@ S_prep_sig(pTHX_ const char *name, int l)
             /* TODO: check overflow => Math::BigInt */
             Perl_warner(aTHX_ packWARN(WARN_FFI),
                         "ffi: Possible %s overflow %" IVdf,
-                        name, (IV)rvalue);
+                        name, INT2PTR(IV,rvalue));
             return &ffi_type_sint64;
 #endif
         }
@@ -620,7 +620,7 @@ See C<man ffi_prep_cif>.
 =cut
 */
 static void
-S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
+S_prep_cif(pTHX_ CV* cv, const char *nativeconv, const char *encoded)
 {
 #define PAD_NAME(pad_ix) padnamelist_fetch(namepad, pad_ix)
 #if defined(USE_FFI) && !defined(PERL_IS_MINIPERL)
@@ -643,6 +643,7 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
     ffi_abi abi = FFI_DEFAULT_ABI;
     PERL_ARGS_ASSERT_PREP_CIF;
 
+    PERL_UNUSED_ARG(encoded);
     if (!CvXFFI(cv)) /* miniperl */
         return;
     if (LIKELY(sigop)) {
@@ -835,6 +836,7 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
 #else /* USE_FFI */
     PERL_UNUSED_ARG(cv);
     PERL_UNUSED_ARG(nativeconv);
+    PERL_UNUSED_ARG(encoded);
     /*Perl_w arner(aTHX_ packWARN(WARN_SYNTAX),
                   "ffi not available");*/
 #endif
@@ -1203,7 +1205,7 @@ Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, char *rvalue)
                 /* TODO: check overflow => Math::BigInt */
                 Perl_warner(aTHX_ packWARN(WARN_FFI),
                             "ffi: Possible %s overflow %" IVdf,
-                            name, (IV)rvalue);
+                            name, INT2PTR(IV,rvalue));
                 RET_IV(long);
 #endif
             }
@@ -1230,7 +1232,8 @@ S_find_symbol(pTHX_ CV* cv, char *name)
     CV *dl_find_symbol = get_cvs("DynaLoader::dl_find_symbol", 0);
     int nret;
     /* can be NULL, searches all libs then */
-    IV handle = (CvFFILIB(cv) && CvFFILIB_HANDLE(cv)) ? (IV)CvFFILIB(cv) : (IV)RTLD_DEFAULT;
+    IV handle = (CvFFILIB(cv) && CvFFILIB_HANDLE(cv))
+        ? INT2PTR(IV,CvFFILIB(cv)) : INT2PTR(IV,RTLD_DEFAULT);
 
     if (!dl_find_symbol) {
         if (CvFFILIB_HANDLE(cv)) CvFFILIB(cv) = 0;
@@ -1240,7 +1243,7 @@ S_find_symbol(pTHX_ CV* cv, char *name)
     }
     /* still slabbed PL_compcv? */
     if (CvSLABBED(cv) && cv == PL_compcv && CvFFILIB(cv))
-        handle = (IV)RTLD_DEFAULT;
+        handle = INT2PTR(IV,RTLD_DEFAULT);
 #ifdef WIN32
     /* GetProcAddress(NULL, "foo") will fail.
        if name dl_load_file already tried GetModuleHandle() and dl_find_symbol_anywhere,
@@ -1268,7 +1271,7 @@ S_find_symbol(pTHX_ CV* cv, char *name)
 #else
         CvXFFI(cv) = INT2PTR(XSUBADDR_t, POPi);
 #endif
-        DEBUG_v(PerlIO_printf(Perl_debug_log, "CvXFFI(%s)=0x%" UVxf "\n", SvPVX(pv), (UV)CvXFFI(cv)));
+        DEBUG_v(PerlIO_printf(Perl_debug_log, "CvXFFI(%s)=0x%" UVxf "\n", SvPVX(pv), INT2PTR(UV, CvXFFI(cv))));
         CvSLABBED_off(cv);
     }
 }
@@ -1339,7 +1342,7 @@ S_find_native(pTHX_ CV* cv, char *libname)
 #else
             CvXFFI(cv) = INT2PTR(XSUBADDR_t, POPi);
 #endif
-            DEBUG_v(PerlIO_printf(Perl_debug_log, "CvXFFI(%s)=0x%" UVxf "\n", SvPVX(symname), (UV)CvXFFI(cv)));
+            DEBUG_v(PerlIO_printf(Perl_debug_log, "CvXFFI(%s)=0x%" UVxf "\n", SvPVX(symname), INT2PTR(UV, CvXFFI(cv))));
             CvSLABBED_off(cv);
         }
     }
@@ -1588,7 +1591,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                     if (negated) {
                         /* update nativeconv ABI */
                         if (!is_native)
-                            prep_cif((CV*)sv, NULL);
+                            prep_cif((CV*)sv, NULL, encoded);
                         else /* handled below */
                             nativeconv[0] = '\0';
                     }
@@ -1647,7 +1650,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
     }
 
     if (is_native)
-        prep_cif((CV*)sv, (const char*)nativeconv);
+        prep_cif((CV*)sv, (const char*)nativeconv, encoded);
     return nret;
 }
 

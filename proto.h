@@ -11225,10 +11225,11 @@ STATIC void	S_mem_log_common(enum mem_log_type mlt, const UV n, const UV typesiz
 #  endif
 #endif
 #if defined(PERL_IN_XSUTILS_C)
-STATIC void	S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
-			__attribute__nonnull__(pTHX_1);
+STATIC void	S_prep_cif(pTHX_ CV* cv, const char *nativeconv, const char *encoded)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_PREP_CIF	\
-	assert(cv)
+	assert(cv); assert(encoded)
 
 #endif
 #if defined(PERL_MEM_LOG)

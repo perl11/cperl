@@ -2288,7 +2288,7 @@
 #    endif
 #  endif
 #  if defined(PERL_IN_XSUTILS_C)
-#define prep_cif(a,b)		S_prep_cif(aTHX_ a,b)
+#define prep_cif(a,b,c)		S_prep_cif(aTHX_ a,b,c)
 #  endif
 #  if defined(PERL_MEM_LOG)
 #define mem_log_alloc		Perl_mem_log_alloc
