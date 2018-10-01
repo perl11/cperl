@@ -37,7 +37,7 @@ Devel::NYTProf cpan/Devel-NYTProf/FileHandle.xs 8b8ccd2e6f8f0ddfb13c7360dffccaf2
 Devel::NYTProf cpan/Devel-NYTProf/lib/Devel/NYTProf/FileInfo.pm 913665651ffa5415b71adb39c269559e74c35b0e
 Devel::NYTProf cpan/Devel-NYTProf/Makefile.PL b6bc167c480874deeca0d5d2f119c16b53eb9af7
 Devel::NYTProf cpan/Devel-NYTProf/MemoryProfiling.pod c7301ff4ec5c0066db64103e9f68fd5fe0397cc6
-Devel::NYTProf cpan/Devel-NYTProf/NYTProf.xs a92930da2717dd1fe71ab58ae1774ce61295d54d
+Devel::NYTProf cpan/Devel-NYTProf/NYTProf.xs ddfde5521a04c27eb5ac4155b7d05b1e02061829
 Devel::NYTProf cpan/Devel-NYTProf/t/00-load.t 2eeff9e8529b50ba11e0b2264a52a328b2bd0d8c
 Devel::NYTProf cpan/Devel-NYTProf/t/22-readstream.t 7bfb169ad304370c5024eef40d145c0e055141f8
 Devel::NYTProf cpan/Devel-NYTProf/t/80-version.t 0ff43f0fc4af1564dd764ac2052baa243273397b
