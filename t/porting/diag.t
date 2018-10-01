@@ -623,9 +623,11 @@ More than one argument to open(,':%s')
 No message queue
 No %s allowed while running setgid
 No %s allowed with (suid) fdscript
+Not an extern subroutine
 Not an XSUB reference
 Not a reference given to mod2fname
 Not array reference given to mod2fname
+Null extern sub FFILIB
 NYI
 Operator or semicolon missing before %c%s
 Out of memory during list extend

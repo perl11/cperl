@@ -568,7 +568,7 @@ PP(pp_enterffi)
 #endif
 
     if (UNLIKELY(!sv))
-	DIE(aTHX_ "Not a CODE reference");
+	DIE(aTHX_ "Not an extern subroutine");
     /* see enterxssub with argtype dispatch */
     if (LIKELY( (SvFLAGS(sv) & (SVf_ROK|SVs_GMG)) == SVf_ROK)) {
         cv = MUTABLE_CV(SvRV(sv));
@@ -576,12 +576,37 @@ PP(pp_enterffi)
     else if (SvTYPE(sv) == SVt_PVGV)
         cv = GvCVu((const GV *)sv);
     /* no PVLV! */
-    else
+    else if (SvTYPE(sv) == SVt_PVCV)
         cv = MUTABLE_CV(sv);
+    else {
+        SvGETMAGIC(sv);
+        if (SvROK(sv)) {
+            if (UNLIKELY(SvAMAGIC(sv))) {
+                sv = amagic_deref_call(sv, to_cv_amg);
+                /* Don't SPAGAIN here.  */
+            }
+            cv = MUTABLE_CV(SvRV(sv));
+        }
+        else {
+            const char *sym;
+            STRLEN len;
+            if (UNLIKELY(!SvOK(sv)))
+                DIE(aTHX_ PL_no_usym, "an extern subroutine");
+
+            sym = SvPV_nomg_const(sv, len);
+            if (PL_op->op_private & OPpHINT_STRICT_REFS)
+                DIE(aTHX_
+                    "Can't use string (\"%" SVf32 "\"%s) as a subroutine ref while \"strict refs\" in use",
+                    sv, len>32 ? "..." : "");
+            cv = get_cvn_flags(sym, len, GV_ADD|SvUTF8(sv));
+        }
+    }
 
     assert(SvTYPE(cv) == SVt_PVCV);
     if (UNLIKELY(!CvXFFI(cv)))
         DIE(aTHX_ "Null extern sub symbol");
+    if (UNLIKELY(!CvFFILIB(cv)))
+        DIE(aTHX_ "Null extern sub FFILIB");
 #ifndef PERL_IS_MINIPERL
     if (!hasargs && GIMME_V == G_VOID) {
         /* Yes, you can call extern subs even without useffi, via DynaLoader.
@@ -620,13 +645,6 @@ PP(pp_enterffi)
 #endif /* PERL_IS_MINIPERL */
 
     return NORMAL;
-}
-
-PP(pp_leaveffi)
-{
-    dVAR; dSP;
-    /* see leavesub with rettype dispatch */
-    RETURN;
 }
 
 PP(pp_srefgen)

@@ -10,15 +10,12 @@ BEGIN {
 
 skip_all "only miniperl" unless is_miniperl();
 use Config;
-plan(tests => 12);
+plan(tests => 16);
 
 extern sub ffilabs() :symbol("labs");
-
 extern sub xlabs(int $i) :int :symbol("abs");
-
 # different code-path than extern above. was broken
 sub llabs() :native :symbol("labs") :int;
-
 sub xabs(int $i) :native :int;
 
 # compile-time sig arity and type checking
@@ -30,21 +27,20 @@ is (eval 'xabs(0,1,2);', undef, "wrong call returns undef");
 like ($@, qr/Too many arguments for extern call xabs exceeding max 1 args/, 'compile-time arity check');
 $@ = '';
 
+check_xlabs('extern sub xlabs(int $i) :int :symbol("abs")');
+
 # non coretype, see F<lib/ffi.t> for all types
 BEGIN { %long::; }
 extern sub labs(long $i) :long;
 check_labs("extern labs :long");
 undef %long::;
 
-sub abs(int $i) :native("c") :int;
-check_abs("abs :native('c')");
-
 SKIP: {
     skip 'variable native($c) with threads', 2 if $Config{usethreads};
     eval q|
-      my $c="c"; sub abs(int $i) :native($c) :int;
+      my $c="c"; sub labs(long $i) :native($c) :long;
     |;
-    check_abs("abs :native(\$name)");
+    check_labs("labs :native(\$name)");
 }
 
 check_labs_fields("extern sub labs();");  # :void
@@ -61,27 +57,25 @@ sub check_labs_fields { # 1
 
 sub check_labs { # 2
   my $msg = shift;
-  eval {
-    is (labs(-1), undef, $msg);
-    like ($@, qr/Null extern sub symbol/);
-  };
+  my $res;
+  eval { $res = labs(-1); };
+  is ($res, undef, $msg);
+  like ($@, qr/Null extern sub symbol/, 'Null');
   undef *labs;
 }
 sub check_xabs { # 1
   my $msg = shift;
-  eval {
-    is(xabs(-1), undef, $msg);
-    like ($@, qr/Null extern sub symbol/);
-  };
+  eval { $res = xabs(-1); };
+  is ($res, undef, $msg);
+  like ($@, qr/Null extern sub symbol/, 'Null');
   undef *xabs;
   $@ = '';
 }
-sub check_abs { # 1
+sub check_xlabs { # 1
   my $msg = shift;
-  eval {
-    is(&abs(-1), undef, $msg);
-    like ($@, qr/Null extern sub symbol/);
-  };
-  undef *abs;
+  eval { $res = xlabs(-1); };
+  is ($res, undef, $msg);
+  like ($@, qr/Null extern sub symbol/, 'Null');
+  undef *xabs;
   $@ = '';
 }
