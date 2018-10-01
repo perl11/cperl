@@ -3107,8 +3107,8 @@ disable_profile(pTHX)
         is_profiling = 0;
     }
     if (trace_level)
-        logwarn("~ disable_profile (previously %s, pid %d, trace %" IVdf ")\n",
-            prev_is_profiling ? "enabled" : "disabled", getpid(), trace_level);
+        logwarn("~ disable_profile (previously %s, pid %d, trace %ld)\n",
+                prev_is_profiling ? "enabled" : "disabled", getpid(), trace_level);
     return prev_is_profiling;
 }
 
