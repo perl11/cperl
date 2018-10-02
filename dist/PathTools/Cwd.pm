@@ -2,7 +2,7 @@ package Cwd;
 use strict;
 use Exporter;
 
-our $VERSION = '4.74c'; # modernized
+our $VERSION = '4.75c'; # modernized and long pathname support
 our $XS_VERSION = $VERSION;
 #$VERSION =~ tr/_//;
 $VERSION =~ s/c$//;

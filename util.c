@@ -4131,7 +4131,7 @@ Perl_getcwd_sv(pTHX_ SV *sv)
         char *ptr;
 	/* Some getcwd()s automatically allocate a buffer of the given
 	 * size from the heap if they are given a NULL buffer pointer. */
-#if defined(HAS_HAS_GET_CURRENT_DIR_NAME)
+#if defined(HAS_GET_CURRENT_DIR_NAME)
         ptr = get_current_dir_name();
 #elif defined(HAS_GETCWDNULL)
         ptr = getcwd(NULL, 0);
@@ -4139,7 +4139,7 @@ Perl_getcwd_sv(pTHX_ SV *sv)
 #  ifdef ENAMETOOLONG
 #   define is_ENAMETOOLONG(x) ((x) == ENAMETOOLONG)
 #  else
-#   define is_ENAMETOOLONG(x) 0
+#   define is_ENAMETOOLONG(x) !(x)
 #  endif
 	char buf[MAXPATHLEN];
 	ptr = getcwd(buf, sizeof(buf) - 1);

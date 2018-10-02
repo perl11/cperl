@@ -17627,7 +17627,9 @@ our %delta = (
             'B::Op_private'         => '5.028001',
             'Module::CoreList'      => '5.20180913c',
             'Module::CoreList::Utils'=> '5.20180913c',
+            'Cwd' 		    => '4.75c',
             'Errno'                 => '1.29_01',
+            'Storable'              => '3.11_02',
         },
         removed => {
         }
