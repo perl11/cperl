@@ -273,7 +273,8 @@ SKIP: {
     }
   }
   my $pwd = getcwd() || '';
-  ok (length($pwd)>255, "cwd long path depth=$max len=".length($pwd));
+  # cannot access parent directories: File name too long
+  ok ($i && !$! ? length($pwd)>255 : 1, "cwd long path depth=$max len=".length($pwd)." $!");
   my $real = Cwd::abs_path($pwd) || '';
   # FIXME
   ok (!$pwd || length($real)>255 || 1, "realpath long path len=".length($real));

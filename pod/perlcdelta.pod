@@ -140,6 +140,12 @@ See L</Protected hash iterators>.
 
 =over 4
 
+=item L<Cwd> 4.75c
+
+Fixed long pathnames test for getcwd() on older systems, like debian-7.11 i386,
+which still returns ENAMETOOLONG on large enough buffers.
+Fix the HAS_GET_CURRENT_DIR_NAME check, and the is_ENAMETOOLONG macro.
+
 =item L<Errno> 1.29_01
 
 Protect from including some avx512 intrinsics directly on mingw.
