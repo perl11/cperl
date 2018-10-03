@@ -162,19 +162,19 @@ S_deb_stack_n(pTHX_ SV** stack_base, I32 stack_min, I32 stack_max,
 I32
 Perl_debstack(pTHX)
 {
-#ifndef SKIP_DEBUGGING
+#ifdef DEBUGGING
     if (CopSTASH_eq(PL_curcop, PL_debstash) && !DEBUG_J_TEST_)
 	return 0;
 
     PerlIO_printf(Perl_debug_log, "    =>  ");
-    deb_stack_n(PL_stack_base,
+    S_deb_stack_n(aTHX_ PL_stack_base,
 		0,
 		PL_stack_sp - PL_stack_base,
 		PL_curstackinfo->si_markoff,
 		PL_markstack_ptr - PL_markstack);
 
 
-#endif /* SKIP_DEBUGGING */
+#endif
     return 0;
 }
 
@@ -298,7 +298,7 @@ Perl_deb_stack_all(pTHX)
 		    mark_max = PL_markstack_ptr - PL_markstack;
 		}
 
-		deb_stack_n(AvARRAY(si->si_stack),
+		S_deb_stack_n(aTHX_ AvARRAY(si->si_stack),
 			stack_min, stack_max, mark_min, mark_max);
 
 		if (CxTYPE(cx) == CXt_EVAL || CxTYPE(cx) == CXt_SUB
