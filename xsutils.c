@@ -625,7 +625,7 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv, const char *encoded)
 #define PAD_NAME(pad_ix) padnamelist_fetch(namepad, pad_ix)
 #if defined(USE_FFI) && !defined(PERL_IS_MINIPERL)
     UNOP_AUX *sigop = CvSIGOP(cv);
-    ffi_cif* cif = (ffi_cif*)safemalloc(sizeof(ffi_cif));
+    ffi_cif* cif;
     unsigned int i;
     PADNAMELIST *namepad = PadlistNAMES(CvPADLIST(cv));
     PADNAME *argname;
@@ -644,8 +644,9 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv, const char *encoded)
     PERL_ARGS_ASSERT_PREP_CIF;
 
     PERL_UNUSED_ARG(encoded);
-    if (!CvXFFI(cv)) /* miniperl */
+    if (!CvXFFI(cv)) { /* miniperl */
         return;
+    }
     if (LIKELY(sigop)) {
         const UV   params      = items[0].uv;
         const UV   mand_params = params >> 16;
@@ -653,8 +654,6 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv, const char *encoded)
         /*const bool slurpy      = cBOOL((params >> 15) & 1);*/
         num_args = mand_params + opt_params;
     }
-    argtypes = (ffi_type**)safemalloc((num_args ? num_args : 1)
-                                      * sizeof(ffi_type*));
 
 #define CHK_ABI(conv)                    \
         if (strEQc(nativeconv, #conv)) { \
@@ -742,6 +741,11 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv, const char *encoded)
         else
             Perl_croak(aTHX_ "Illegal :nativeconv(%s) argument", nativeconv);
     }
+
+    cif = (ffi_cif*)safemalloc(sizeof(ffi_cif));
+    argtypes = (ffi_type**)safemalloc((num_args ? num_args : 1)
+                                      * sizeof(ffi_type*));
+
     /* walk sigs to perform compile-time type checks: sample long labs(long) */
     argname = PAD_NAME(0);
     if (argname && PadnameTYPE(argname)) {
@@ -754,6 +758,9 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv, const char *encoded)
         argtypes[0] = &ffi_type_void;
         status = ffi_prep_cif(cif, abi, 1, rtype, argtypes);
         if (status != FFI_OK) {
+            safefree(cif);
+            safefree(argtypes);
+            CvFFILIB(cv) = 0;
             Perl_croak(aTHX_ "ffi_prep_cif error %d: %s at %s, line %d",
                    status,
                    status == 1 ? "bad typedef"
@@ -808,8 +815,12 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv, const char *encoded)
                     argtypes[i] = S_prep_sig(aTHX_ HvNAME(type), HvNAMELEN(type));
                 }
             } else {
+                safefree(cif);
+                safefree(argtypes);
+                CvFFILIB(cv) = 0;
                 Perl_croak(aTHX_ "Missing type for extern sub argument %s",
                            PadnamePV(argname));
+                return;
             }
             if (UNLIKELY(actions & SIGNATURE_FLAG_skip)) {
                 items--;
@@ -830,11 +841,15 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv, const char *encoded)
 
     status = ffi_prep_cif(cif, abi, num_args, rtype, argtypes);
     if (status != FFI_OK) {
+        safefree(cif);
+        safefree(argtypes);
+        CvFFILIB(cv) = 0;
         Perl_croak(aTHX_ "ffi_prep_cif error %d: %s at %s, line %d",
                    status,
                    status == 1 ? "bad typedef"
                      : status == 2 ? "bad ABI"
                      : "", __FILE__, __LINE__);
+        return;
     }
     CvFFILIB(cv) = PTR2IV(cif);
     CvFFILIB_HANDLE_off(cv);
