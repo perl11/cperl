@@ -42,8 +42,8 @@ SKIP: {
     Time::HiRes::sleep( 0.5 );
     my $f = Time::HiRes::tv_interval $r;
     my $ok = $f > 0.4 && $f < 0.9 ? 1 : 0;
-    if (!$ok and $ENV{TRAVIS_CI}) {
-        ok 1, "SKIP flapping test on overly slow Travis CI. slept $f instead of 0.5 secs";
+    if (!$ok and ($ENV{TRAVIS} || $ENV{APPVEYOR})) {
+        ok 1, "SKIP flapping test on overly slow CI. slept $f instead of 0.5 secs";
     } else {
         ok $ok or diag "slept $f instead of 0.5 secs.";
     }

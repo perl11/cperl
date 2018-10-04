@@ -204,8 +204,8 @@ SKIP: {
 	Time::HiRes::alarm(1.1);
 	my $t0 = Time::HiRes::time();
 	1 while Time::HiRes::time() - $t0 <= 2;
-        if (!$alrm and $ENV{TRAVIS_CI}) {
-            ok 1, "SKIP flapping test on overly slow Travis CI";
+        if (!$alrm and ($ENV{TRAVIS} || $ENV{APPVEYOR})) {
+            ok 1, "SKIP flapping test on overly slow CI";
         } else {
             ok $alrm;
         }

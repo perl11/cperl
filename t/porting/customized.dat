@@ -100,7 +100,7 @@ Math::BigRat cpan/Math-BigRat/t/bigfltrt.t 83756157f90ac51fef7b1a151c164ec910685
 Math::BigRat cpan/Math-BigRat/t/biglog.t 33c04c0c45bc55605dbae8d0744c7157b87cd3ba
 Math::BigRat cpan/Math-BigRat/t/bigratpm.t 9b1d5b07b50b0cd7a87b2ac4bda5cb22cfe95f05
 Math::BigRat cpan/Math-BigRat/t/bigroot.t 0e79d4c8d4b5f94e66a6c464972e51857fdd4107
-Memoize cpan/Memoize/t/expmod_t.t 9386100cd9c95a0e8a4e001bba3aa52eec114d21
+Memoize cpan/Memoize/t/expmod_t.t d72c98a23d46ed14277724be82ff59bfc7d1573c
 Module::Load::Conditional cpan/Module-Load-Conditional/lib/Module/Load/Conditional.pm 096fcf1ba8e3c783b37465c122c674cd02b0e6f4
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 NEXT cpan/NEXT/lib/NEXT.pm 2c83d03ee361816e53ccb931137d314ab878d19f
@@ -125,11 +125,11 @@ Test::Harness cpan/Test-Harness/t/regression.t 864ce96aff3cac8bb92534cb1967ad4d8
 Test::Harness cpan/Test-Harness/t/sample-tests/switches 350f7e96e4bfb8dbac352200d656e8f52a76ab7e
 Test::Harness cpan/Test-Harness/t/source_handler.t 1b9abe550c8c5383eddefb0811c083605cb66ba4
 Time::HiRes dist/Time-HiRes/HiRes.xs 8dede1882ea580170ba6be36cc76244e2a32c3cf
-Time::HiRes dist/Time-HiRes/t/alarm.t d59a81f64ccd62f15f0ab69d7c6a052f4fa2e930
+Time::HiRes dist/Time-HiRes/t/alarm.t 17b9b7bd758859187e675f0775ad8d9dd9b47c3e
 Time::HiRes dist/Time-HiRes/t/clock.t f8647d46b260557dd7be8ffc38c14e9d65e40834
 Time::HiRes dist/Time-HiRes/t/itimer.t 659db22bc635177b130e0478aef1fd5e1edf0b6d
 Time::HiRes dist/Time-HiRes/t/nanosleep.t 11928d7130c75bfba7f8cae2b1e4af13e8628d2d
-Time::HiRes dist/Time-HiRes/t/usleep.t 573121cfdb26195ed22071e38d50dcdde3c49a66
+Time::HiRes dist/Time-HiRes/t/usleep.t c5079315f1328877148d7ae1e56f292a42889d7f
 Time::HiRes dist/Time-HiRes/t/utime.t 6116e6b33d2ba8184fd310c5a607210379fca0a9
 Time::HiRes dist/Time-HiRes/typemap 5da3f9dfd1cac452add4194888173f7b4594e933
 Win32API::File cpan/Win32API-File/File.xs 44b80cc1a5c598b75628e92e010c270c75cd6f4b
