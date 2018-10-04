@@ -4154,10 +4154,18 @@ Perl_getcwd_sv(pTHX_ SV *sv)
             }
             if (!ptr)
                 free(mbuf);
+            else {
+                sv_setpv(sv, ptr);
+                free(mbuf);
+                return TRUE;
+            }
         }
 #endif
         if (ptr) {
 	    sv_setpv(sv, ptr);
+#if defined(HAS_GET_CURRENT_DIR_NAME) || defined(HAS_GETCWDNULL)
+            free(ptr);
+#endif
 	    return TRUE;
 	}
 	else {
