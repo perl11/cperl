@@ -4696,6 +4696,7 @@ PP(pp_getpriority)
     dSP; dTARGET;
     const id_t who   = POPu; /* linux: unsigned int, bsd: u32 */
     const int  which = TOPi;
+    errno = 0;
     SETi( getpriority(PRIORITY_WHICH_T(which), who) );
     RETURN;
 #else
