@@ -794,12 +794,12 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv, const char *encoded)
                 argtypes[i] = &ffi_type_pointer;
                 /* Perl_c roak(aTHX_ "Illegal ref argument for extern sub");*/
             }
-            items--;
+            items--; /* fall thru */
         case SIGNATURE_arg_default_iv:
         case SIGNATURE_arg_default_const:
         case SIGNATURE_arg_default_padsv:
         case SIGNATURE_arg_default_gvsv:
-            items++; /* the default sv/gv */
+            items++; /* the default sv/gv, fall thru */
         case SIGNATURE_arg_default_op:
         case SIGNATURE_arg_default_none:
         case SIGNATURE_arg_default_undef:
