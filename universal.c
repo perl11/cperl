@@ -1172,7 +1172,7 @@ XS(XS_Mu_fields)
         U16 i;
         U16 num = numfields(klass);
         HV* fields = gv_stashpvs("fields", GV_ADD);
-        EXTEND(SP, num);
+        EXTEND_NNEG(SP, num);
         for (i=0; i<num; i++) {
             PADOFFSET po = field_index(klass, i);
             AV* field;
