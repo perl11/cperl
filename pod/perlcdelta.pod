@@ -47,6 +47,28 @@ returned hek, which does the downgrading to bytes already.
 
 =back
 
+=head1 Deprecations
+
+=head2 Undeprecate "Unescaped left brace in regex" warnings and errors
+
+In cperl only the following special unicode groups within regexes are reserved:
+
+   Name:     \N{
+   Property: \p{ \P{
+   Break:    \b{ \B{
+   Code:     \x{ \o{
+   Group:    \g{
+
+All other C</{}/> sequences are allowed in cperl and not deprecated
+anymore. There's no need to quote the literal C<\{> and C<\}>, only if
+it's ambiguous and can be mixed up with those reserved unicode groups.
+
+B<automake> and more widespread utils does not need to be plagued by
+spurious "Unescaped left brace in regex" warnings, when they dont need
+to be quoted.  We undeprecated those new warnings and errors, there's
+nothing more to reserve (yet).
+L<[cperl #362]|https://github.com/perl11/cperl/issues/362>
+
 =head1 Modules and Pragmata
 
 =head2 Updated Modules and Pragmata
