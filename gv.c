@@ -2457,7 +2457,7 @@ Perl_gv_fetchpvn_flags(pTHX_ const char *nambeg, STRLEN full_len, I32 flags,
         char *stashname;
         char tmpbuf[1024];
         int stashname_is_dyn = 0;
-        if (UNLIKELY(len > sizeof(tmpbuf) - 1)) {
+        if (UNLIKELY(len >= sizeof(tmpbuf)-3)) {
             stashname_is_dyn = 1;
             Newx(stashname, len+3, char);
             assert(stashname);
