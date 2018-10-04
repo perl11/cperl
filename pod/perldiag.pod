@@ -6841,7 +6841,9 @@ still just deprecated.  This is because of an oversight:  some uses of a
 literal C<{> that should have raised a deprecation warning starting in
 v5.20 did not warn until v5.26.  By making the already-warned uses fatal
 now, some of the planned extensions can be made to the language sooner.
-The cases which are still allowed will be fatal in Perl 5.30 or 5.32.
+The cases which are still allowed will be fatal in Perl 5.30 or 5.32,
+but cperl allows more. In cperl only the combinations with C<\NpPbBxog{}>
+are illegal.
 
 The contexts where no warnings or errors are raised are:
 
@@ -6868,6 +6870,16 @@ as the first character in a parenthesized grouping like
 as the first character following a quantifier
 
  /\s*{/
+
+=item *
+
+in cperl only if the unicode group is one of the following reserved:
+
+ Name:     /\N{/
+ Property: /\p{/ /\P{/
+ Break:    /\b{/ /\B{/
+ Code:     /\x{/ /\o{/
+ Group:    /\g{/
 
 =back
 
@@ -6927,6 +6939,16 @@ as the first character in a parenthesized grouping like
 as the first character following a quantifier
 
  /\s*{/
+
+=item *
+
+in cperl only if the unicode group is one of the following reserved:
+
+ Name:     /\N{/
+ Property: /\p{/ /\P{/
+ Break:    /\b{/ /\B{/
+ Code:     /\x{/ /\o{/
+ Group:    /\g{/
 
 =back
 

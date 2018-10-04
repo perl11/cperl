@@ -302,9 +302,17 @@ my @death =
  '/(?[\ |!])/' => 'Incomplete expression within \'(?[ ])\' {#} m/(?[\ |!{#}])/',    # [perl #126180]
  '/(?[()-!])/' => 'Incomplete expression within \'(?[ ])\' {#} m/(?[(){#}-!])/',    # [perl #126204]
  '/(?[!()])/' => 'Incomplete expression within \'(?[ ])\' {#} m/(?[!(){#}])/',      # [perl #126404]
- '/\w{/' => 'Unescaped left brace in regex is illegal here {#} m/\w{{#}/',
- '/\q{/' => 'Unescaped left brace in regex is illegal here {#} m/\q{{#}/',
- '/\A{/' => 'Unescaped left brace in regex is illegal here {#} m/\A{{#}/',
+ #'/\N{/' => 'Missing right brace on \\N{} or unescaped left brace after \\N ... {#} m/\N{{#}/',          # [cperl #362]
+ '/\p{/' => 'Missing right brace on \\p{} {#} m/\p{{#}/',          # [cperl #362]
+ '/\P{/' => 'Missing right brace on \\P{} {#} m/\P{{#}/',          # [cperl #362]
+ '/\b{/' => 'Missing right brace on \\b{} {#} m/\b{{#}/',          # [cperl #362]
+ '/\B{/' => 'Missing right brace on \\B{} {#} m/\B{{#}/',          # [cperl #362]
+ '/\x{/' => 'Missing right brace on \\x{} {#} m/\\x{{#}/',         # [cperl #362]
+ '/\o{/' => 'Missing right brace on \\o{ {#} m/\\o{{#}/',          # [cperl #362]
+ '/\g{/' => 'Sequence \\g{... not terminated {#} m/\\g{{#}/',          # [cperl #362]
+ #'/\w{/' => 'Unescaped left brace in regex is illegal here {#} m/\w{{#}/',
+ #'/\q{/' => 'Unescaped left brace in regex is illegal here {#} m/\q{{#}/',
+ #'/\A{/' => 'Unescaped left brace in regex is illegal here {#} m/\A{{#}/',
  '/(?<=/' => 'Sequence (?... not terminated {#} m/(?<={#}/',                        # [perl #128170]
  '/\p{vertical  tab}/' => 'Can\'t find Unicode property definition "vertical  tab" {#} m/\\p{vertical  tab}{#}/', # [perl #132055]
 
@@ -686,13 +694,13 @@ my @deprecated = (
  '/^{/'          => "",
  '/foo|{/'       => "",
  '/foo|^{/'      => "",
- '/foo({bar)/'   => 'Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.32), passed through {#} m/foo({{#}bar)/',
+ #'/foo({bar)/'   => 'Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.32), passed through {#} m/foo({{#}bar)/',
  '/foo(:?{bar)/' => "",
  '/\s*{/'        => "",
  '/a{3,4}{/'     => "",
- '/.{/'         => 'Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.30), passed through {#} m/.{{#}/',
- '/[x]{/'       => 'Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.30), passed through {#} m/[x]{{#}/',
- '/\p{Latin}{/' => 'Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.30), passed through {#} m/\p{Latin}{{#}/',
+ #'/.{/'         => 'Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.30), passed through {#} m/.{{#}/',
+ #'/[x]{/'       => 'Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.30), passed through {#} m/[x]{{#}/',
+ #'/\p{Latin}{/' => 'Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.30), passed through {#} m/\p{Latin}{{#}/',
 );
 
 for my $strict ("", "use re 'strict';") {
