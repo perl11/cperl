@@ -4,7 +4,7 @@ use strict;
 our ( %version, %families, %upstream, %deprecated );
 
 use version;
-our $VERSION = '5.20180913c';
+our $VERSION = '5.20181012c';
 $VERSION =~ s/c$//;
 
 sub PKG_PATTERN () { q#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z# }
@@ -17628,6 +17628,7 @@ our %delta = (
             'Module::CoreList'      => '5.20180913c',
             'Module::CoreList::Utils'=> '5.20180913c',
             'Cwd' 		    => '4.75c',
+            'DynaLoader'            => '2.09c',
             'Errno'                 => '1.29_01',
             'Storable'              => '3.11_02',
         },

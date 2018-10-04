@@ -821,11 +821,12 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
     if (!boot_symbol_ref) {
         Perl_die(aTHX_ "Can't find '%s' symbol in %s\n", SvPVX(bootname), SvPVX(file));
     }
+
+   boot:
     {
         AV *dl_modules = get_avs("DynaLoader::dl_modules", GV_ADDMULTI);
         AV_PUSH(dl_modules, pv_copy(module)); /* record loaded module */
     }
-
     {
         CV *dl_install_xsub = get_cvs("DynaLoader::dl_install_xsub", 0);
         SV *bootstrap = newSVpvs("");
@@ -850,8 +851,6 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
         AV *dl_shared_objects = get_avs("DynaLoader::dl_shared_objects", GV_ADDMULTI);
         AV_PUSH(dl_shared_objects, SvREFCNT_inc_simple_NN(file)); /* record loaded files */
     }
-
-   boot:
     {
         /* Note: the 1st arg must be the package name,
            the opt. 2nd arg the VERSION */
