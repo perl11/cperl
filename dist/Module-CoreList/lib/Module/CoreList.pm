@@ -17630,7 +17630,7 @@ our %delta = (
             'Cwd' 		    => '4.75c',
             'DynaLoader'            => '2.09c',
             'Errno'                 => '1.29_01',
-            'Storable'              => '3.11_02',
+            'Storable'              => '3.12_02',
         },
         removed => {
         }
@@ -17643,7 +17643,9 @@ our %delta = (
             'Module::CoreList::Utils'=> '5.20180913c',
             'Errno'                 => '1.29_01',
             'hashiter'              => '0.02',
-            'Storable'              => '3.11_02',
+            'Opcode'                => '1.40_03c',
+            'Storable'              => '3.12_02',
+            'warnings'              => '1.43',
         },
         removed => {
         }
