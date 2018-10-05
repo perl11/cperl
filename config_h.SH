@@ -32,7 +32,7 @@ case "$CONFIG_H" in
 already-done) echo "Not re-extracting config.h" ;;
 *)
 echo "Extracting $CONFIG_H (with variable substitutions)"
-sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un-def!#undef!'
+sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un-def!#undef!' -e 's!^#define \(.*\) undef !#undef \1!'
 /* This file was produced by running the config_h.SH script, which
  * gets its values from $CONFIG_SH, which is generally produced by
  * running Configure.
@@ -4930,10 +4930,11 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  *	This symbol, if defined, is a comma-separated list of
  *	hexadecimal bytes (0xHH) for the long double precision not-a-number.
  */
-#define DOUBLEINFBYTES  $doubleinfbytes		/**/
-#define DOUBLENANBYTES  $doublenanbytes		/**/
-#define LONGDBLINFBYTES $longdblinfbytes		/**/
-#define LONGDBLNANBYTES $longdblnanbytes		/**/
+/* Do not change the whitespace here! */
+#define DOUBLEINFBYTES $doubleinfbytes 		/**/
+#define DOUBLENANBYTES $doublenanbytes 		/**/
+#define LONGDBLINFBYTES $longdblinfbytes        /**/
+#define LONGDBLNANBYTES $longdblnanbytes 	/**/
 
 /* PERL_PRIfldbl:
  *	This symbol, if defined, contains the string used by stdio to
