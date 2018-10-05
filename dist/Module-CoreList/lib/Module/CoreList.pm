@@ -17666,7 +17666,7 @@ our %delta :const = (
             'ffi'                   => '0.01c',
             'hashiter'              => '0.02',
             'Opcode'                => '1.40_03c',
-            'Storable'              => '3.11_02',
+            'Storable'              => '3.12_02',
             'warnings'              => '1.43',
         },
         removed => {

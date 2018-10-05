@@ -1,6 +1,6 @@
 #
 #  Copyright (c) 1995-2000, Raphael Manfredi
-#  Copyright (c) 2017, Reini Urban
+#  Copyright (c) 2017-2018, Reini Urban
 #  
 #  You may redistribute only under the same terms as Perl 5, as specified
 #  in the README file that comes with the distribution.
@@ -24,21 +24,19 @@ unless ($ENV{PERL_CORE}) {
 }
 
 WriteMakefile(
-    NAME                => 'Storable',
-    AUTHOR              => 'Perl 5 Porters',
-    LICENSE             => 'perl',
-    DISTNAME            => "Storable",
-# We now ship this in t/
-#    PREREQ_PM           => { 'Test::More' => '0.41' },
+    NAME            => 'Storable',
+    AUTHOR          => 'Perl 5 Porters',
+    LICENSE         => 'perl',
+    DISTNAME        => "Storable",
     PL_FILES        => { }, # prevent default behaviour
     PM              => $pm,
-    PREREQ_PM           => { XSLoader => 0 },
-    INSTALLDIRS => ($] >= 5.007 && $] < 5.012) ? 'perl' : 'site',
-    VERSION_FROM    => '__Storable__.pm',
-    ABSTRACT_FROM   => '__Storable__.pm',
+    PREREQ_PM       => { XSLoader => 0 },
+    INSTALLDIRS     => ($] >= 5.007 && $] < 5.012) ? 'perl' : 'site',
+    VERSION_FROM    => 'Storable_pm.PL',
+    ABSTRACT_FROM   => 'Storable_pm.PL',
     ($ExtUtils::MakeMaker::VERSION > 6.45 ?
-     (META_MERGE        => { resources =>
-                               { bugtracker => 'http://rt.perl.org/perlbug/' },
+     (META_MERGE    => { resources =>
+                          { bugtracker => 'http://rt.perl.org/perlbug/' },
                             provides    => {
                                 'Storable'  => {
                                     file        => '__Storable__.pm',
@@ -48,8 +46,8 @@ WriteMakefile(
 
                            },
     ) : ()),
-    dist                => { SUFFIX => 'gz', COMPRESS => 'gzip -f' },
-    clean               => { FILES => 'Storable-* Storable.pm lib' },
+    dist            => { SUFFIX => 'gz', COMPRESS => 'gzip -f' },
+    clean           => { FILES => 'Storable-* Storable.pm lib' },
 );
 
 # Unlink the .pm file included with the distribution
@@ -126,7 +124,7 @@ sub postamble {
 all :: Storable.pm
 	$(NOECHO) $(NOOP)
 
-Storable.pm :: Storable_pm.PL __Storable__.pm
+Storable.pm :: Storable_pm.PL
 	$(PERLRUN) Storable_pm.PL
 '
 }
