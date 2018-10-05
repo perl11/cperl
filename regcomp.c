@@ -10680,7 +10680,7 @@ S_handle_named_backref(pTHX_ RExC_state_t *pRExC_state,
    upgraded to UTF-8.  Otherwise would only return NULL if regbranch() returns
    NULL, which cannot happen.  */
 STATIC regnode *
-S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
+S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp, U32 depth)
     /* paren: Parenthesized? 0=top; 1,2=inside '(': changed to letter.
      * 2 is like 1, but indicates that nextchar() has been called to advance
      * RExC_parse beyond the '('.  Things like '(?' are indivisible tokens, and
@@ -11635,7 +11635,11 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
 	}
 	else {
             /* [cperl #362] */
-            if (*RExC_parse == '{' && PASS2 && strpbrk(RExC_parse-1, "NpPbBxog") == RExC_parse-1) {
+            if (*RExC_parse == '{' && PASS2
+                && RExC_parse - parse_start >= 2
+                && UCHARAT(RExC_parse-2) == '\\'
+                && strpbrk(RExC_parse-1, "NpPbBxog") == RExC_parse-1)
+            {
                 ckWARNregdep(RExC_parse + 1,
                             "Unescaped left brace in regex is "
                             "deprecated here (and will be fatal "
@@ -13280,7 +13284,9 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
           finish_meta_pat:
             if (   UCHARAT(RExC_parse + 1) == '{'
                 && UNLIKELY(! new_regcurly(RExC_parse + 1, RExC_end))
-                && strpbrk(RExC_parse-1, "NpPbBxog") == RExC_parse-1   /* [cperl #362] */
+                && RExC_parse - parse_start >= 1
+                && UCHARAT(RExC_parse-1) == '\\'
+                && strpbrk(RExC_parse, "NpPbBxog") == RExC_parse   /* [cperl #362] */
                )
             {
                 RExC_parse += 2;
@@ -13856,13 +13862,14 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 		    } /* End of switch on '\' */
 		    break;
 		case '{':
-                    /* Currently we allow an lbrace at the start of a construct
-                     * without raising a warning.  
-                     * cperl allows all chars besides \NpPbBxog{} [cperl #362]
-                     * This is because we think we will never want such a brace to be 
-                     * meant to be other than taken literally. */
-		    if (len || (p > RExC_start && strpbrk(p-1, "NpPbBxog") == p-1)) {
-
+                    /* cperl allows an lbrace and rbrace without raising a warning.
+                     * cperl special-cases only \NpPbBxog{} [cperl #362], later ({...}),
+                     * all other cases are legal. */
+#ifndef USE_CPERL
+		    if (!(p - RExC_parse > 1
+                          && UCHARAT(p-2) == '\\'
+                          && strpbrk(p-1, "NpPbBxog") == p-1))
+                    {
                         /* But, we raise a fatal warning otherwise, as the
                          * deprecation cycle has come and gone.  Except that it
                          * turns out that some heavily-relied on upstream
@@ -13871,25 +13878,20 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                          * we anticipate using the '{' for something else.
                          * This happens after any alpha, and for a looser {m,n}
                          * quantifier specification */
-                        if (      RExC_strict
-                            || (  p > parse_start + 1
-                                && strpbrk(p-1, "NpPbBxog") == p-1
-                                && *(p - 2) == '\\')
-                            || new_regcurly(p, RExC_end))
-                        {
+                        if (len && (RExC_strict || new_regcurly(p, RExC_end))) {
                             RExC_parse = p + 1;
-                            vFAIL("Unescaped left brace in regex is "
-                                  "illegal here");
+                            vFAIL("Unescaped left brace in regex is illegal here");
                         }
                         if (PASS2) {
                             ckWARNregdep(p + 1,
                                         "Unescaped left brace in regex is "
                                         "deprecated here (and will be fatal "
                                         "in Perl 5.30), passed through");
-                        }
+                         }
 		    }
+#endif
 		    goto normal_default;
-                case '}':
+                /* case '}': */
                 case ']':
                     if (PASS2 && p > RExC_parse && RExC_strict) {
                         ckWARN2reg(p + 1, "Unescaped literal '%c'", *p);
@@ -14393,11 +14395,13 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 
     /* Position parse to next real character */
     skip_to_be_ignored_text(pRExC_state, &RExC_parse,
-                                            FALSE /* Don't force to /x */ );
+                            FALSE /* Don't force to /x */ );
     if (PASS2
         && *RExC_parse == '{'
         && OP(ret) != SBOL
         && ! regcurly(RExC_parse)
+        && RExC_parse - parse_start >= 2
+        && UCHARAT(RExC_parse-2) == '\\'
         && strpbrk(RExC_parse-1, "NpPbBxog") == RExC_parse-1)  /* [cperl #362] */
     {
         ckWARNregdep(RExC_parse + 1, "Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.30), passed through");

@@ -397,12 +397,6 @@ my @death_only_under_strict = (
                                      => 'False [] range "[:digit:]-" {#} m/[[:digit:]-{#}[:alpha:]]\x{100}/',
     '/[a\zb]\x{100}/' => 'Unrecognized escape \z in character class passed through {#} m/[a\z{#}b]\x{100}/',
                       => 'Unrecognized escape \z in character class {#} m/[a\z{#}b]\x{100}/',
-    'default_on/:{4,a}/'     => 'Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.30), passed through {#} m/:{{#}4,a}/',
-                             => 'Unescaped left brace in regex is illegal here {#} m/:{{#}4,a}/',
-    'default_on/xa{3\,4}y/'  => 'Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.30), passed through {#} m/xa{{#}3\,4}y/',
-                             => 'Unescaped left brace in regex is illegal here {#} m/xa{{#}3\,4}y/',
-  'default_on/\\${[^\\}]*}/' => 'Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.30), passed through {#} m/\\${{#}[^\\}]*}/',
-                             => 'Unescaped left brace in regex is illegal here {#} m/\\${{#}[^\\}]*}/',
     '/[ab]/'          => "",
                         => 'Literal vertical space in [] is illegal except under /x {#} m/[a{#}b]/',
 );
@@ -610,15 +604,21 @@ my @warning = (
                                   'Assuming NOT a POSIX class since a semi-colon was found instead of a colon {#} m/[foo;{#}punct;]]\x{100}/',
                                   'Assuming NOT a POSIX class since a semi-colon was found instead of a colon {#} m/[foo;punct;]{#}]\x{100}/',
                                 ],
-   '/[][[:alpha:]]/' => "",        # [perl #127581]
-   '/[][[:alpha:]\\@\\\\^_?]/' => "", # [perl #131522]
+    '/[][[:alpha:]]/' => "",        # [perl #127581]
+    '/[][[:alpha:]\\@\\\\^_?]/' => "", # [perl #131522]
     '/(?[[:w:]])/' => "",
     '/([.].*)[.]/'   => "",    # [perl #127582]
     '/[.].*[.]/'     => "",    # [perl #127604]
-    '/abc/xix' => "",
+    '/abc/xix'        => "",
     '/(?xmsixp:abc)/' => "",
-    '/(?xmsixp)abc/' => "",
-    '/(?xxxx:abc)/' => "",
+    '/(?xmsixp)abc/'  => "",
+    '/(?xxxx:abc)/'   => "",
+    #cperl-only #362
+    '/:{4,a}/'       => "",
+    '/xa{3\,4}y/'    => "",
+    #'/\\${[^\\}]*}/' => "",
+    '/({...})/'      => "",
+    '/\b<GCB}/'      => '', # was: 'Unescaped literal \'}\' {#} m/\b<GCB}{#}/',
 
 ); # See comments before this for why '\x{100}' is generally needed
 
@@ -662,7 +662,7 @@ my @warning_only_under_strict = (
     "/[A-$B_hex]/" => "Ranges of ASCII printables should be some subset of \"0-9\", \"A-Z\", or \"a-z\" {#} m/[A-$B_hex\{#}]/",
     "/[$low_mixed_alpha-$high_mixed_alpha]/" => "Ranges of ASCII printables should be some subset of \"0-9\", \"A-Z\", or \"a-z\" {#} m/[$low_mixed_alpha-$high_mixed_alpha\{#}]/",
     "/[$low_mixed_digit-$high_mixed_digit]/" => "Ranges of ASCII printables should be some subset of \"0-9\", \"A-Z\", or \"a-z\" {#} m/[$low_mixed_digit-$high_mixed_digit\{#}]/",
-    '/\b<GCB}/' => 'Unescaped literal \'}\' {#} m/\b<GCB}{#}/',
+    #'/\b<GCB}/' => 'Unescaped literal \'}\' {#} m/\b<GCB}{#}/',
     '/[ ]def]/' => 'Unescaped literal \']\' {#} m/[ ]def]{#}/',
 );
 
