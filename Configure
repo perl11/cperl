@@ -20704,6 +20704,7 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 EOP
+empty=0x0
 set try
 if eval $compile; then
     doubleinfbytes=`$run ./try 1`
@@ -20750,12 +20751,12 @@ else
        doublenanbytes='0x00, 0x00, 0x00, 0x00, 0x7f, 0xf8, 0x00, 0x00'
        ;;
     9|10|11|12|13|14) # VAX/Cray/IBM floating point formats, no inf/nan.
-       doubleinfbytes=$undef
-       doublenanbytes=$undef
+       doubleinfbytes=$empty
+       doublenanbytes=$empty
        ;;
     *) # No idea.
-       doubleinfbytes=$undef
-       doublenanbytes=$undef
+       doubleinfbytes=$empty
+       doublenanbytes=$empty
        ;;
     esac
     case "$longdblkind" in
@@ -20778,8 +20779,8 @@ else
            longdblnanbytes='0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0xff, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00'
            ;;
        *)  # No idea.
-           longdblinfbytes=$undef
-           longdblnanbytes=$undef
+           longdblinfbytes=$empty
+           longdblnanbytes=$empty
        ;;
        esac
        ;;
@@ -20794,8 +20795,8 @@ else
            longdblnanbytes='0x7f, 0xff, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00'
            ;;
        *)  # No idea.
-           longdblinfbytes=$undef
-           longdblnanbytes=$undef
+           longdblinfbytes=$empty
+           longdblnanbytes=$empty
        ;;
        esac
        ;;
@@ -20816,27 +20817,27 @@ else
        longdblnanbytes='0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7f, 0xf8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00'
        ;;
     9|10|11|12|13|14) # VAX/Cray/IBM floating point formats, no inf/nan.
-       longdblinfbytes=$undef
-       longdblnanbytes=$undef
+       longdblinfbytes=$empty
+       longdblnanbytes=$empty
        ;;
     *) # No idea.
-       longdblinfbytes=$undef
-       longdblnanbytes=$undef
+       longdblinfbytes=$empty
+       longdblnanbytes=$empty
        ;;
     esac
 fi
 # In case the program crashed the values are empty, turn them undef.
 case "$doubleinfbytes" in
-'') doubleinfbytes=$undef ;;
+'') doubleinfbytes=$empty ;;
 esac
 case "$doublenanbytes" in
-'') doublenanbytes=$undef ;;
+'') doublenanbytes=$empty ;;
 esac
 case "$longdblinfbytes" in
-'') longdblinfbytes=$undef ;;
+'') longdblinfbytes=$empty ;;
 esac
 case "$longdblnanbytes" in
-'') longdblnanbytes=$undef ;;
+'') longdblnanbytes=$empty ;;
 esac
 $rm_try
 
@@ -20863,7 +20864,7 @@ set try
 if eval $compile; then
     doublemantbits=`$run ./try`
 else
-    doublemantbits="$undef"
+    doublemantbits="$empty"
 fi
 $rm_try
 
@@ -20905,7 +20906,7 @@ set try
 if eval $compile; then
     longdblmantbits=`$run ./try`
 else
-    longdblmantbits="$undef"
+    longdblmantbits="$empty"
 fi
 $rm_try
 
@@ -20920,7 +20921,7 @@ else
      if test "X$nvsize" = "X$longdblsize"; then
        nvmantbits="$longdblmantbits"
      else
-       nvmantbits="$undef"
+       nvmantbits="$empty"
      fi
   fi
 fi
