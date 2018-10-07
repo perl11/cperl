@@ -13,11 +13,12 @@
 # references some symbol you didn't define, you need to remove it.
 
 BEGIN {
-  require "./test.pl";
+  unshift @INC, ".";
   unshift @INC, ".." if -f "../TestInit.pm";
 }
 
 use TestInit qw(T A); # T is chdir to the top level, A makes paths absolute
+BEGIN { require "./t/test.pl" }
 use strict;
 use warnings;
 use Config;
@@ -53,7 +54,7 @@ sub try_compile_and_link {
                 (($^O eq 'vos') ? $Config{exe_ext} : '');
 
     my ($ok) = 0;
-    my $tempdir = tempfile();
+    my $tempdir = "t/". tempfile();
     my $cwd = getcwd();
     mkdir $tempdir;
     chdir $tempdir;
