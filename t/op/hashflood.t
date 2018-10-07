@@ -4,6 +4,7 @@ BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
     set_up_inc('../lib');
+    skip_all_if_miniperl("miniperl"); # needs too much time for make minitest
 }
 use strict;
 

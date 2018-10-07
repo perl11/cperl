@@ -175,7 +175,7 @@ sub skip_all_without_unicode_tables { # (but only under miniperl)
 sub skip_all_without_errno { # (but only under miniperl)
     if (is_miniperl()) {
         skip_all_if_miniperl("no Errno")
-            unless eval 'require "Errno"';
+            unless eval 'require Errno';
     }
 }
 
@@ -780,7 +780,8 @@ sub runperl {
 	    warn "test.pl had problems loading Config: $@";
 	    $sep = ':';
 	} else {
-	    $sep = $Config::Config{path_sep};
+            $sep = $Config::Config{path_sep};
+            $sep = ":" unless $sep;
 	}
 
 	my @keys = grep {exists $ENV{$_}} qw(CDPATH IFS ENV BASH_ENV);
@@ -924,8 +925,8 @@ $::tempfile_regexp = 'tmp\d+[A-Z][A-Z]?';
 # Avoid ++, avoid ranges, avoid split //
 my $tempfile_count = 0;
 sub tempfile {
-    while(1){
-	my $try = (-d "t" ? "t/" : "")."tmp$$";
+    while (1) {
+	my $try = "tmp$$";
         my $alpha = _num_to_alpha($tempfile_count,2);
         last unless defined $alpha;
         $try = $try . $alpha;
