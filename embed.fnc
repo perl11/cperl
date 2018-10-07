@@ -3331,6 +3331,7 @@ Apbm	|GV*	|gv_SVadd	|NULLOK GV *gv
 #if defined(PERL_IN_UTIL_C)
 s	|bool	|ckwarn_common	|U32 w
 #endif
+AMpP	|bool	|ckwarn_only	|U32 w
 ApoP	|bool	|ckwarn		|U32 w
 ApoP	|bool	|ckwarn_d	|U32 w
 : FIXME - exported for ByteLoader - public or private?
@@ -3340,8 +3341,8 @@ XEopMR	|STRLEN *|new_warnings_bitfield|NULLOK STRLEN *buffer \
 Apnodf	|int	|my_snprintf	|NN char *buffer|const Size_t len|NN const char *format|...
 Apnod	|int	|my_vsnprintf	|NN char *buffer|const Size_t len|NN const char *format|va_list ap
 #ifdef USE_QUADMATH
-Apnd	|const char*	|quadmath_format_single|NN const char* format
-Apnd	|bool|quadmath_format_needed|NN const char* format
+Apnd	|const char*	|quadmath_format_single	|NN const char* format
+Apnd	|bool		|quadmath_format_needed	|NN const char* format
 #endif
 
 : Used in mg.c, sv.c

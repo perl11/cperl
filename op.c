@@ -17480,9 +17480,12 @@ Perl_ck_subr(pTHX_ OP *o)
 	aop = OpFIRST(aop);
     aop = OpSIBLING(aop);
     for (cvop = aop; OpHAS_SIBLING(cvop); cvop = OpSIBLING(cvop)) {
-        if (IS_TYPE(cvop, HSLICE) || IS_TYPE(cvop, KVHSLICE)) {
-            Perl_ck_warner(aTHX_ packWARN(WARN_SYNTAX),
-                           "No autovivification of hash slice anymore");
+        if (UNLIKELY(IS_TYPE(cvop, HSLICE) || IS_TYPE(cvop, KVHSLICE))) {
+            /* Only with use warnings 'syntax', not use warnings */
+            /*DEBUG_t(Perl_deb(aTHX_ "cop_warnings: 0x%x, PL_dowarn: 0x%x\n",
+              (unsigned)PL_curcop->cop_warnings, PL_dowarn));*/
+            if (ckwarn_only(packWARN(WARN_SYNTAX)))
+                Perl_vwarn(aTHX_ "No autovivification of hash slice anymore", NULL);
             cvop->op_private |= OPpSTACKCOPY;
         }
     }

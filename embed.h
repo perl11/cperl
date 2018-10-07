@@ -96,6 +96,7 @@
 #define ck_warner		Perl_ck_warner
 #define ck_warner_d		Perl_ck_warner_d
 #endif
+#define ckwarn_only(a)		Perl_ckwarn_only(aTHX_ a)
 #define class_role(a)		Perl_class_role(aTHX_ a)
 #define class_role_finalize(a)	Perl_class_role_finalize(aTHX_ a)
 #define clear_defarray(a,b)	Perl_clear_defarray(aTHX_ a,b)

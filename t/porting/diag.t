@@ -336,6 +336,10 @@ sub check_file {
     else {
       next;
     }
+    if ($name =~ /No autovivification of hash slice/ &&
+        $routine eq 'Perl_vwarn') {
+      $category = 'syntax'; # defined in previous line
+    }
 
     # Try to guess what the severity should be.  In the case of
     # Perl_ck_warner and other _ck_ functions, we can tell whether it is
@@ -347,6 +351,7 @@ sub check_file {
                  :  $routine =~ /ck_warn/      ?  'W'
                  :  $routine =~ /warner/       ? '[WDS]'
                  :  $routine =~ /warn_security/?  'S'
+                 :  $routine =~ /Perl_vwarn/   ?  '[WDS]'
                  :  $routine =~ /warn/         ?  'S'
                  :  $routine =~ /ckWARN.*dep/  ?  'D'
                  :  $routine =~ /ckWARN\d*reg_d/? 'S'

@@ -977,6 +977,11 @@ PERL_CALLCONV bool	Perl_ckwarn_d(pTHX_ U32 w)
 			__attribute__warn_unused_result__
 			__attribute__pure__;
 
+PERL_CALLCONV bool	Perl_ckwarn_only(pTHX_ U32 w)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__pure__;
+
 PERL_CALLCONV void	Perl_class_role(pTHX_ OP* o)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);

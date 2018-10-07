@@ -2159,13 +2159,12 @@ Perl_ckwarn_d(pTHX_ U32 w)
     return ckwarn_common(w);
 }
 
-static bool
-S_ckwarn_common(pTHX_ U32 w)
+/* Similar to ckwarn_common, but is not triggered on use warnings nor -w,
+   only on explicit use warnings category. */
+bool
+Perl_ckwarn_only(pTHX_ U32 w)
 {
-    if (PL_curcop->cop_warnings == pWARN_ALL)
-	return TRUE;
-
-    if (PL_curcop->cop_warnings == pWARN_NONE)
+    if (isLEXWARN_off || specialWARN(PL_curcop->cop_warnings))
 	return FALSE;
 
     /* Check the assumption that at least the first slot is non-zero.  */
@@ -2179,7 +2178,7 @@ S_ckwarn_common(pTHX_ U32 w)
     } else if (!unpackWARN3(w)) {
 	assert(!unpackWARN4(w));
     }
-	
+
     /* Right, dealt with all the special cases, which are implemented as non-
        pointers, so there is a pointer to a real warnings mask.  */
     do {
@@ -2188,6 +2187,15 @@ S_ckwarn_common(pTHX_ U32 w)
     } while (w >>= WARNshift);
 
     return FALSE;
+}
+
+/* Check use warnings, no warnings or the specific mask */
+static bool
+S_ckwarn_common(pTHX_ U32 w)
+{
+    if (PL_curcop->cop_warnings == pWARN_ALL)
+	return TRUE;
+    return Perl_ckwarn_only(aTHX_ w);
 }
 
 /* Set buffer=NULL to get a new one.  */

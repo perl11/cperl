@@ -4356,10 +4356,13 @@ securable.  See L<perlsec>.
 
 =item No autovivification of hash slice anymore
 
-(W syntax) Hash slices and key/value hash slices do not autovivify
-anymore in sub args.  This is a bug and was fixed with cperl v5.27.3c.
-See L<[cperl #347]|https://github.com/perl11/cperl/issues/347>.  This
-warning will disappear with v5.30c.
+(W syntax) Hash slices and key/value hash slices do not
+autovivify anymore in sub args.  This is a bug and was fixed with
+cperl v5.27.3c.
+See L<[cperl #347]|https://github.com/perl11/cperl/issues/347>.
+
+This warning is only enabled with the lexical C<syntax>
+warnings category and will disappear with v5.30c.
 
 Examples:
 

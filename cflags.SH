@@ -193,7 +193,7 @@ Intel*) ;; # # Is that you, Intel C++?
                -Wlogical-op -Wpacked -Wdisabled-optimization -Wno-null-conversion \
                -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers \
                -Wno-implicit-fallthrough -Wno-unused-local-typedef \
-               -Wno-null-pointer-arithmetic
+               -Wno-null-pointer-arithmetic -Wno-cast-function-type
     do
        case " $ccflags " in
        *" $opt "*) ;; # Skip if already there.
