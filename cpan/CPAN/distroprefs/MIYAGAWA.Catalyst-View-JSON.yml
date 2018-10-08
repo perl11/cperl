@@ -1,0 +1,12 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=34042
+
+  Hrmmm. A quick private workaround.
+
+match:
+  distribution: "MIYAGAWA/Catalyst-View-JSON-0.24.tar.gz"
+depends:
+  requires:
+    JSON: 0

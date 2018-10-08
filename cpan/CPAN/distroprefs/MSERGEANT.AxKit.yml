@@ -1,0 +1,23 @@
+---
+comment: "my impression is this is sooooo broken that I will probably not care further"
+match:
+  distribution: '^MSERGEANT/AxKit-\d'
+pl: 
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    reuse: 1
+    talk:
+      - 'Core[\s\S]+Do you wish to install'
+      - "y\n"
+      - 'Sablotron XSLT[\s\S]+Auto-install'
+      - "n\n"
+      - "Auto-install"
+      - "y\n"
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+make:
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip

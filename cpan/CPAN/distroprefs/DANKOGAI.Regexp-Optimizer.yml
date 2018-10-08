@@ -1,0 +1,22 @@
+---
+comment: |
+
+  without Encode a test is skipped, of course the weakest
+
+  But the test is really crazy, it specifies:
+
+  if ($Config{'extensions'} !~ /\bEncode\b/) {
+      print "1..0 # Skip: Encode not available. \n";
+      exit 0;
+  }
+
+  So this is something the user can never repair?
+
+  http://rt.cpan.org/Ticket/Display.html?id=34388
+  http://rt.cpan.org/Ticket/Display.html?id=34389
+
+match:
+  distribution: 'DANKOGAI/Regexp-Optimizer-\d'
+depends:
+  requires:
+    Encode: 0

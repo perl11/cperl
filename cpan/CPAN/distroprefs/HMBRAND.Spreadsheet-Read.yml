@@ -1,0 +1,11 @@
+---
+match:
+  distribution: '^HMBRAND.Spreadsheet-Read-\d'
+pl:
+  expect:
+    - "Do you want to install 'xlscat'"
+    - "y\n"
+    - "Do you want to install 'ss2tk'"
+    - "y\n"
+    - "Do you want to install 'xls2csv"
+    - "y\n"

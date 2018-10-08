@@ -1,0 +1,10 @@
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=67266
+
+match:
+  distribution: "DOY/Package-Stash-0.28.tar.gz"
+depends:
+  requires:
+    Dist::CheckConflicts: 0

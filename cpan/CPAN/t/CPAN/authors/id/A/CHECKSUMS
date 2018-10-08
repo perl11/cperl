@@ -1,0 +1,90 @@
+0&&<<''; # this PGP-signed message is also valid perl
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+# CHECKSUMS file written on Wed Jan 25 11:24:34 2006 GMT by CPAN::Checksums (v1.039)
+$cksum = {
+  'AA' => {
+    'isdir' => 1
+  },
+  'AB' => {
+    'isdir' => 1
+  },
+  'AC' => {
+    'isdir' => 1
+  },
+  'AD' => {
+    'isdir' => 1
+  },
+  'AE' => {
+    'isdir' => 1
+  },
+  'AF' => {
+    'isdir' => 1
+  },
+  'AG' => {
+    'isdir' => 1
+  },
+  'AH' => {
+    'isdir' => 1
+  },
+  'AI' => {
+    'isdir' => 1
+  },
+  'AJ' => {
+    'isdir' => 1
+  },
+  'AK' => {
+    'isdir' => 1
+  },
+  'AL' => {
+    'isdir' => 1
+  },
+  'AM' => {
+    'isdir' => 1
+  },
+  'AN' => {
+    'isdir' => 1
+  },
+  'AO' => {
+    'isdir' => 1
+  },
+  'AP' => {
+    'isdir' => 1
+  },
+  'AQ' => {
+    'isdir' => 1
+  },
+  'AR' => {
+    'isdir' => 1
+  },
+  'AS' => {
+    'isdir' => 1
+  },
+  'AT' => {
+    'isdir' => 1
+  },
+  'AU' => {
+    'isdir' => 1
+  },
+  'AV' => {
+    'isdir' => 1
+  },
+  'AW' => {
+    'isdir' => 1
+  },
+  'AY' => {
+    'isdir' => 1
+  },
+  'AZ' => {
+    'isdir' => 1
+  }
+};
+__END__
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFD11/1Mo2oZ0UPiewRAhb1AJ44Z41oH+n5ilCTCsTzrf8X39MTOQCffyim
+mSTm5KsWHjH9hWbq+eOIzIc=
+=WHxS
+-----END PGP SIGNATURE-----

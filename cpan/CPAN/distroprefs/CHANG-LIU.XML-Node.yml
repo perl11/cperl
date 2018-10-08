@@ -1,0 +1,6 @@
+---
+match:
+  distribution: "^CHANG-LIU/XML-Node-0.11.tar.gz"
+depends:
+  requires:
+    XML::Parser: 0

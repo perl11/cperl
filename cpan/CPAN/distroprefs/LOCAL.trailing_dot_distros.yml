@@ -1,0 +1,26 @@
+--- 
+comment: "local distros"
+match:
+  distribution: 'sources/Perl-Repository-APC/.*\.$'
+test: 
+  env: 
+    PERL_REPOSITORY_APC_REPO: "/home/sand/src/perl/repoperls/APC"
+---
+comment: "Xvfb :121 must be started by somebody else"
+match:
+  distribution: '^/home/sand/src/perl/tk/SVN/\.$'
+pl:
+  commandline: "make clean; svn up && $PERL Makefile.PL XFT=1"
+test:
+  env:
+    BATCH: 1
+    DISPLAY: ":121"
+---
+match:
+  distribution: '^/home/sand/src/perl/devel-cover/SVN/\.$'
+pl:
+  commandline: "svn up && $PERL Makefile.PL"
+---
+comment: "remind me to update from time to time"
+match:
+  distribution: '^/home/sand/src/graphics/magick/ImageMagick-6.3.5/PerlMagick/\.$'

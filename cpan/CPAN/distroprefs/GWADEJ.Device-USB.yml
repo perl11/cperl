@@ -1,0 +1,11 @@
+---
+comment: |
+
+  yet to be tested: patch the Makefile.PL
+
+match:
+  distribution: 'GWADEJ/Device-USB-\d'
+pl:
+  env:
+    LIBUSB_LIBDIR: /usr/lib/x86_64-linux-gnu
+    LIBUSB_INCDIR: /usr/include

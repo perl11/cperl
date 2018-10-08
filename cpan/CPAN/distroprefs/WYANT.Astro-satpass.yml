@@ -1,0 +1,17 @@
+---
+comment: |
+
+  Long timeout because many tests may flow by before the question is asked
+
+match:
+  distribution: 'WYANT/Astro-satpass-\d'
+pl:
+  args:
+    - "-n"
+test:
+  eexpect:
+    mode: anyorder
+    timeout: 120
+    talk:
+      - "Shall I download"
+      - "\n"

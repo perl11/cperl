@@ -1,0 +1,10 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=87004
+
+match:
+  distribution: "^SIMONFLK/Test-MockModule-0\\.05\\.tar\\.gz"
+depends:
+  requires:
+    CGI: 0

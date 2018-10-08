@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "^GAAS/Data-Dump-1.08.tar.gz"
+patches:
+  - "ANDK/patches/Data-Dump-1.08-ANDK-01.patch.gz"

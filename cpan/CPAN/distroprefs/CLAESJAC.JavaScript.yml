@@ -1,0 +1,53 @@
+---
+comment: |
+
+  Maybe prefer JS_INC or JS_LIB or JS_THREADSAFE or JS_UTF8 or JS_ENABLE_E4X
+
+  It seems without JS_LIB goes nothing. The whole Debian setup is hard
+  to understand: they have both mozjs and smjs and somehow they match
+  and somehow not. Maybe they conflict without declaring it?
+
+  This patch amended the Makefile.PL but not the other problems
+
+  --- /tmp/Makefile.PL~	2008-04-12 13:53:40.000000000 +0200
+  +++ /tmp/Makefile.PL	2008-04-12 13:53:40.000000000 +0200
+  @@ -100,7 +100,7 @@
+       $inc_dir = "";
+   }
+
+  -my $libs = join(" ", map { "-L$_" } @libs);
+  +my @Llibs = map { "-L$_" } @libs;
+
+   # Handle threadsafe
+   if(exists $ENV{JS_THREADSAFE}) {
+  @@ -164,7 +164,7 @@
+   END_OF_SOURCE
+   close $test_script;
+   my $exe = tmpnam();
+  -system($Config{cc}, $libs, @ccflags, "-l${lib}", "-o", $exe, (map { "-I$_" } @incs), "test_js.c");
+  +system($Config{cc}, @Llibs, @ccflags, "-l${lib}", "-o", $exe, (map { "-I$_" } @incs), "test_js.c");
+   if ($?) {
+       print "Failed compiling test_js.c. ABORTING\n";
+       exit 1;
+  @@ -194,7 +194,7 @@
+       ABSTRACT_FROM   => "lib/JavaScript.pm", # retrieve abstract from module
+       AUTHOR          => "Claes Jakobsson <claesjac\@cpan.org>",
+       CCFLAGS         => join(" ", @ccflags),
+  -    LIBS            => ["$libs -l${lib}"], # e.g., "-lm"
+  +    LIBS            => ["@Llibs -l${lib}"], # e.g., "-lm"
+       INC             => join(" ", map { "-I$_" } @incs),
+       LICENSE         => "perl",
+       OBJECT          => q/$(O_FILES)/, 
+
+match:
+  distribution: 'CLAESJAC/JavaScript-\d'
+pl:
+  env:
+    JS_LIB: /usr/lib
+  expect:
+    - "Is your SpiderMonkey compiled with JS_THREADSAFE"
+    - "y\n"
+    - "Is your SpiderMonkey compiled with support for unicode"
+    - "n\n"
+    - "Do you want support for E4X"
+    - "n\n"

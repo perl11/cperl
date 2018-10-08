@@ -1,0 +1,18 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=30855
+
+  And currently XML::Parser tests hang with @17384 even if I upgrade
+  to IO::File: 1.14
+
+  So I rebuilt 17637 and got a working XML::Parser.
+
+  I then rewrote the binary search because RBS/XML-AutoWriter-0.39
+  comes with 0.38.
+
+match:
+  distribution: 'RBS/XML-AutoWriter-\d'
+depends:
+  requires:
+    XML::Parser: 0

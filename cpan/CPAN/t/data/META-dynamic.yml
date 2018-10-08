@@ -1,0 +1,19 @@
+---
+abstract: 'A small, simple, correct HTTP/1.1 client'
+author:
+  - 'David Golden <dagolden@cpan.org>'
+build_requires:
+  Test::More: 0.88
+configure_requires:
+  ExtUtils::MakeMaker: 6.31
+dynamic_config: 1
+generated_by: 'Dist::Zilla version 4.200001, CPAN::Meta::Converter version 2.110330'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: HTTP-Tiny
+requires:
+  Time::Local: 0
+  perl: 5.006
+version: 0.010

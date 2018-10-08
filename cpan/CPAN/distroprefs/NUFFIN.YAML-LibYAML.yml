@@ -1,0 +1,9 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=43115
+
+match:
+  distribution: "NUFFIN/YAML-LibYAML-0.32.tar.gz"
+patches:
+  - "ANDK/patches/YAML-LibYAML-0.32-GAAS-01.patch.gz"

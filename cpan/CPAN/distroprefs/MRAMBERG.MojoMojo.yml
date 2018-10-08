@@ -1,0 +1,45 @@
+---
+comment: |
+
+  https://github.com/mojomojo/mojomojo/pull/112
+
+match:
+  distribution: '^MRAMBERG/MojoMojo-1\.09\.tar\.gz'
+patches:
+  - "ANDK/patches/MojoMojo-1.09-ANDK-01.patch.gz"
+---
+comment: |
+
+  Something within Plucene was a showstopper so I do not want to say
+  yes everywhere and so I cannot integrate this into MI.yml
+
+  But now I realize that it did not help to exclude Plucene as below.
+  The tests are run nonetheless that demand
+  Plucene/Analysis/SimpleAnalyzer.pm (and P:Plugin:A:SnowballAnalyzer)
+
+  So I rerun a few Plucene::xxx tests that may or may not have been
+  dropped.
+
+match:
+  distribution: |
+    ^(?x:^--never matches--
+    |MRAMBERG/MojoMojo-\d
+    |MRAMBERG/Catalyst-Model-Search-\d
+    )|
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 10
+    reuse: 1
+    talk:
+      - "Plucene"
+      - "n\n"
+      - "Auto-install"
+      - "y\n"
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+make:
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip

@@ -1,0 +1,6 @@
+---
+comment: "https://rt.cpan.org/Ticket/Display.html?id=26546"
+match:
+  distribution: "^ERYQ/Convert-BinHex-1.119.tar.gz"
+patches:
+  - "ANDK/patches/Convert-BinHex-1.119-ANDK-01.patch.gz"

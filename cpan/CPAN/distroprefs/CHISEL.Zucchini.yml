@@ -1,0 +1,11 @@
+---
+match:
+  distribution: 'CHISEL/Zucchini-\d'
+test:
+  eexpect:
+    mode: anyorder
+    timeout: 20
+    reuse: 1
+    talk:
+      - "(?i:Password:)"
+      - "\n"

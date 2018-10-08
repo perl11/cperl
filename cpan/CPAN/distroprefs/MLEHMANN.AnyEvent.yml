@@ -1,0 +1,59 @@
+---
+comment: |
+
+  Seven of my perls hang with it in 03_child.t, so we skip this test here
+
+match:
+  distribution: '^MLEHMANN/AnyEvent-3.4.tar.gz'
+test:
+  args:
+    - TEST_FILES=t/0[0124]*.t
+  env:
+    PERL_ANYEVENT_VERBOSE: 2
+depends:
+  configure_requires:
+    Event: 0
+  requires:
+    Event: 0
+---
+comment: |
+
+  7.05 has a resolver test that fails at my site, unrelated to AnyEvent
+
+match:
+  distribution: '^MLEHMANN/AnyEvent-7\.05'
+goto: "MLEHMANN/AnyEvent-7.04.tar.gz"
+---
+comment: |
+
+  https://rt.perl.org/Ticket/Attachment/1508465/809040/0001-Re-weaken-timer-references-after-sorting.patch
+  https://www.nntp.perl.org/group/perl.perl5.porters/2017/11/msg247426.html
+  Patch is without a version change. I am not endorsing the patch, was
+  just trying to build AnyEvent with it to see what else happens to
+  AnyEvent::HTTP in the bleadperl v5.27 release cycle. Result was
+  https://rt.perl.org/Ticket/Display.html?id=132527 and so I commented
+  out following lines.
+
+# match:
+#   distribution: '^MLEHMANN/AnyEvent-7\.14'
+# patches:
+#   - "ANDK/patches/AnyEvent-7.14-weaken-timer-references-after-sorting.patch.gz"
+# test:
+#   env:
+#     PERL_ANYEVENT_VERBOSE: 2
+# depends:
+#   configure_requires:
+#     Event: 0
+#   requires:
+#     Event: 0
+---
+match:
+  distribution: '^MLEHMANN/AnyEvent-\d'
+test:
+  env:
+    PERL_ANYEVENT_VERBOSE: 2
+depends:
+  configure_requires:
+    Event: 0
+  requires:
+    Event: 0

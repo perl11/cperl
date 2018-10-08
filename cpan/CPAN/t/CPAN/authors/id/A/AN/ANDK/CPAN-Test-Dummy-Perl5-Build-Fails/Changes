@@ -1,0 +1,7 @@
+Revision history for CPAN-Test-Dummy-Perl5-Build-Fails
+
+1.02 Sun 5 Oct 2006
+     - added README to improve kwalitee
+
+1.01 Sun 5 Feb 2006
+     - started as copy of CPAN-Test-Dummy-Perl5-Build, negative test script

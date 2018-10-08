@@ -1,0 +1,25 @@
+---
+comment: |
+
+  JROCKWAY/Chroniton-0.03.tar.gz has Module::Install 0.63 included
+  which is way too dated to ever get out of recursion.
+
+match:
+  distribution: "^JROCKWAY/Chroniton-0.03.tar.gz"
+patches:
+  - "ANDK/Module-AutoInstall-in-inc-ANDK-01.patch"
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 10
+    reuse: 1
+    talk:
+      - "Auto-install"
+      - "y\n"
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+make:
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip

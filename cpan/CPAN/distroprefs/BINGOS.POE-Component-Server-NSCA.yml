@@ -1,0 +1,9 @@
+---
+match:
+  distribution: 'BINGOS/POE-Component-Server-NSCA-\d'
+pl:
+  expect:
+    - "Do you want encryption"
+    - "y\n"
+    - "Specify the path to the .send_nsca. program"
+    - "\n"

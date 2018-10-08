@@ -1,0 +1,9 @@
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=112569
+
+match:
+  distribution: "^ROKR/Config-Identity-0\.0018\.tar\.gz"
+pl:
+  commandline: "gpg --homedir ./t/assets/gpg --list-secret-keys; $PERL Makefile.PL"

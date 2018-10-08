@@ -1,0 +1,7 @@
+---
+match:
+  distribution: "/JSON-[23456789]\\."
+depends:
+# so no interactive questions anymore:
+  configure_requires:
+    JSON::XS: 0

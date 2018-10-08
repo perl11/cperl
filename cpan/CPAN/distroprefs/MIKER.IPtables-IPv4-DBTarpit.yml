@@ -1,0 +1,27 @@
+---
+comment: |
+
+  Extra fun points for the gratuitous "are you sure" question.
+
+match:
+  distribution: 'MIKER/IPTables-IPv4-DBTarpit-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 5
+    reuse: 1
+    talk:
+      - "dbtarpit daemon install directory"
+      - "/usr/local/sand/sbin\n"
+      - "shared library install directory"
+      - "/usr/local/sand/lib\n"
+      - "shared library header install directory"
+      - "/usr/local/sand/include\n"
+      - "dbtarpit database env/home directory"
+      - "/usr/local/sand/var/run/dbtarpit\n"
+      - "dbtarpit primary database name"
+      - "tarpit\n"
+      - "dbtarpit secondary database name"
+      - "tarpitarchive\n"
+      - "Are you sure you want to use"
+      - "yes\n"

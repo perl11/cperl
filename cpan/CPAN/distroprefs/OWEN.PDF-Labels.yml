@@ -1,0 +1,6 @@
+---
+match:
+  distribution: "OWEN/PDF-Labels-1.8.tar.gz"
+depends:
+  requires:
+    PDF::Create: 0

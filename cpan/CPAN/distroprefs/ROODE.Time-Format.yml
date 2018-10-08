@@ -1,0 +1,7 @@
+---
+comment: "http://rt.cpan.org/Ticket/Display.html?id=22047"
+match:
+  distribution: "^ROODE/Time-Format-1.02.tar.gz"
+depends:
+  requires:
+    Date::Manip: 0

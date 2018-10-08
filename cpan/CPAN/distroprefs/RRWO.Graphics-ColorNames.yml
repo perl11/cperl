@@ -1,0 +1,4 @@
+---
+match:
+  distribution: "^RRWO/Graphics-ColorNames-1.06.tar.gz"
+goto: "RRWO/Graphics-ColorNames-2.0_04.tar.gz"

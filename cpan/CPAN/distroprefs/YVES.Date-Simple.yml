@@ -1,0 +1,10 @@
+---
+comment: |
+
+  It seems the bug only happens when under XS? We'll see.
+
+match:
+  distribution: "YVES/Date-Simple-3.02.tar.gz"
+pl:
+  args:
+    - "noxs"

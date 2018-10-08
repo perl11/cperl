@@ -1,0 +1,6 @@
+---
+comment: "http://rt.cpan.org/Ticket/Display.html?id=49617"
+match:
+  distribution: '^(ADIE|BDFOY)/Test-Exception-0\.27'
+patches:
+  - "ANDK/patches/Test-Exception-0.27-DAGOLDEN-01.patch.gz"

@@ -1,0 +1,5 @@
+--- 
+comment: "Since installing 0.25 after 0.27 would be a downgrade"
+match:
+  distribution: "^KASEI/Class-Accessor-0.25"
+disabled: 1

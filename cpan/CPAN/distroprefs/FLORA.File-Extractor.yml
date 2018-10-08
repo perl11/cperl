@@ -1,0 +1,16 @@
+---
+comment: |
+
+  fails despite the dependency.
+
+  "Package libextractor was not found in the pkg-config search path"
+
+  aptitude install libextractor-dev
+
+match:
+  distribution: 'FLORA/File-Extractor-\d'
+depends:
+  configure_requires:
+    ExtUtils::PkgConfig: 0
+  requires:
+    ExtUtils::PkgConfig: 0

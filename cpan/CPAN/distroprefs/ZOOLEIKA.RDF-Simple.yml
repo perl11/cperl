@@ -1,0 +1,10 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=30605
+
+match:
+  distribution: '^ZOOLEIKA/RDF-Simple-\d'
+depends:
+  requires:
+    XML::LibXML: 0

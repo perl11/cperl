@@ -1,0 +1,10 @@
+---
+match:
+  distribution: 'BINGOS/POE-Component-Client-NSCA-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 5
+    talk:
+      - "Do you want encryption"
+      - "y\n"

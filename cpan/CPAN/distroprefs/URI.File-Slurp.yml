@@ -1,0 +1,24 @@
+--- 
+comment: |
+
+  For the first bugreport see
+  http://rt.cpan.org/Ticket/Display.html?id=22693
+
+  Later we got Pod::Coverage 0.19 which supercedes parts of the
+  initial bugreport.
+
+  Then came a bugfix on Test-Simple 0.71 which broke the test suite.
+
+  Then I made the third patch that ONLY fixed the Test-Simple thing
+  (because the prototype bugs in the tests do not really interest me
+  because they are not fatal). It's referenced in
+
+  https://rt.cpan.org/Ticket/Display.html?id=29416
+
+  A thread about the whole Test::Simple thing is at
+  http://www.nntp.perl.org/group/perl.qa/2007/09/msg9258.html
+
+match:
+  distribution: "^URI/File-Slurp-9999.12.tar.gz$"
+patches:
+  - ANDK/patches/File-Slurp-9999.12-ANDK-03.patch.gz

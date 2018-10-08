@@ -1,0 +1,21 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=33844
+
+  patch has offsets because it is the same like the one for 0.43
+  without the first chunk that touched the version
+
+match:
+  distribution: "ILYAZ/modules/FreezeThaw-0.45.tar.gz"
+patches:
+  - "ANDK/patches/FreezeThaw-0.45-ANDK-01.patch.gz"
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=33844
+
+match:
+  distribution: "ILYAZ/modules/FreezeThaw-0.43.tar.gz"
+patches:
+  - "ANDK/patches/FreezeThaw-0.43-ANDK-01.patch.gz"

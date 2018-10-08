@@ -1,0 +1,7 @@
+---
+match:
+  distribution: "^KBROWN/SOAP-0.28"
+test:
+  expect:
+    - "Do you want me to skip this test"
+    - "y\n"

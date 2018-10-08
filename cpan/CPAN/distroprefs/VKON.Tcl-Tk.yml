@@ -1,0 +1,20 @@
+--- 
+comment: |
+
+  illustration of the match/perlconfig keyword provided by Slaven Rezic
+
+  memo to self: on debian I installed tcl8.5-dev, tcllib,
+  libtk-img-dev, tk-dev, tcl8.5-insighttoolkit3, tcl8.5-kwwidgets,
+  tk-tile
+
+  Still one test fails due to missing widget::scrolledwindow
+
+  But Tkx finally passed tests without Tcl::Tk, so some of the
+  installations may have been unneeded
+
+match:
+  distribution: "^VKON/Tcl-Tk-"
+  perlconfig:
+    archname: -freebsd-
+pl:
+  args: ["--tclsh", "tclsh8.5"]

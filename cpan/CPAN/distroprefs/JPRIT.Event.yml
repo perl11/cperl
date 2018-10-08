@@ -1,0 +1,16 @@
+---
+comment: "http://groups.google.de/group/perl.perl5.porters/browse_frm/thread/f17cb95982764f54/afa5337cf7fe5c7d?lnk=gst&q=Josh+Event&rnum=1&hl=de#afa5337cf7fe5c7d"
+match:
+  distribution: 'JPRIT/Event-1.08.tar.gz'
+patches:
+  - "ANDK/patches/Event-1.08-ANDK-01.patch.gz"
+---
+comment: |
+
+  a test hangs under perl-5.6.2. Much worse: memory corruption, glibc
+  errors detected, etc.
+
+match:
+  distribution: 'JPRIT/Event-\d'
+  perl: '.../perl-5\.6\.2/bin/perl'
+disabled: 1

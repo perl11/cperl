@@ -1,0 +1,9 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=53424
+
+match:
+  distribution: "AGRUNDMA/HTTP-Body-1.05.tar.gz"
+patches:
+  - "ANDK/patches/HTTP-Body-1.05-ANDK-01.patch.gz"

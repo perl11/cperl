@@ -1,0 +1,6 @@
+---
+comment: "http://rt.cpan.org/Ticket/Display.html?id=46861"
+match:
+  distribution: "^DURIST/Proc-ProcessTable-0.45.tar.gz"
+patches:
+  - "ANDK/patches/Proc-ProcessTable-0.45-MSCHILLI-01.patch.gz"

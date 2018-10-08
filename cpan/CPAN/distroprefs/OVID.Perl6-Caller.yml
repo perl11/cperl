@@ -1,0 +1,8 @@
+---
+comment: "http://rt.cpan.org/Ticket/Display.html?id=27554"
+match:
+  distribution: '^OVID/Perl6-Caller-\d'
+depends:
+  build_requires:
+    Pod::Coverage: 0
+    Test::Pod::Coverage: 0

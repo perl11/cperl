@@ -1,0 +1,16 @@
+---
+comment: |
+
+  Could be solved with configure_requires as well but this would not
+  be understood by older CPAN.pms that may hang around in the
+  problematic zone of bleadperl@[231xx..247xx]
+
+match:
+  distribution: "^DWHEELER/Params-CallbackRequest-1.17.tar.gz"
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 3
+    talk:
+      - "Install Module::Build now from CPAN"
+      - "y\n"

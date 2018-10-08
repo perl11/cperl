@@ -1,0 +1,7 @@
+---
+match:
+  distribution: '^STEPANOV/IMDB-Film-\d'
+pl:
+  expect:
+    - "Do you want to perform online tests"
+    - "n\n"

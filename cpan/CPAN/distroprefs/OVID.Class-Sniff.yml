@@ -1,0 +1,7 @@
+---
+match:
+  distribution: '^OVID/Class-Sniff-\d'
+pl:
+  expect:
+    - "Do you wish to install the '.+' utility"
+    - "y\n"

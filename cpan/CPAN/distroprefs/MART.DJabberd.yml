@@ -1,0 +1,10 @@
+---
+comment: |
+
+  kill 9 seems to be happening to the wrong pid under some circumstances
+
+match:
+  distribution: 'MART/DJabberd-0.85-\d'
+test:
+  env:
+    TESTDEBUG: 1

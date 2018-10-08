@@ -1,0 +1,15 @@
+---
+comment: |
+
+  Without Data::MessagePack we only run 20 harmless tests. I suspect
+  the fails come more often with MessagePack? Nope, we also have
+  passes with MessagePack installed.
+
+  Is it Cache::Memcached::Fast?
+
+match:
+  distribution: '^YAPPO/Data-Model-\d'
+depends:
+  requires:
+    Data::MessagePack: 0
+    Cache::Memcached::Fast: 0

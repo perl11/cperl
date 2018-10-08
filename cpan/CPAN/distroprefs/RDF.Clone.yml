@@ -1,0 +1,11 @@
+---
+match:
+  distribution: '^RDF/Clone-0\.25\.tar\.gz$'
+goto: "RDF/Clone-0.24.tar.gz"
+---
+comment: "http://www.xray.mpe.mpg.de/mailing-lists/perl5-porters/2007-12/msg00833.html"
+match:
+  distribution: '^RDF/Clone-0\.28\.tar\.gz$'
+patches:
+  - "ANDK/patches/Clone-0.28-SMPETERS-01.patch.gz"
+  - "ANDK/patches/Clone-0.28-ANDK-02.patch.gz"

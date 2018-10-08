@@ -1,0 +1,61 @@
+---
+comment: |
+
+  Tickets in RT: 26540, 26792
+
+  I do not believe these should all be handled as configure_requires
+  but they refuse to talk their dialog unless all prereqs are
+  fulfilled, so from the user's pov they are "configure_requires".
+
+match:
+  distribution: "^BRIANSKI/XML-Comma-"
+make:
+  eexpect:
+    mode: anyorder
+    timeout: 5
+    talk:
+      - "XML::Comma comma_root"
+      - "/usr/local/comma\n"
+      - "mysql host"
+      - "localhost\n"
+      - "mysql database name"
+      - "comma\n"
+      - "mysql user"
+      - "comma\n"
+      - "mysql password"
+      - "comma\n"
+      - "extra DSN parameters"
+      - "mysql_socket=/var/run/mysqld/mysqld.sock\n"
+depends:
+  configure_requires:
+    Crypt::Blowfish: 0
+    PAR: 0
+    Lingua::Stem: 0
+    Inline: 0
+    String::CRC: 0
+    Crypt::CBC: 0
+    Digest::HMAC_MD5: 0
+    Class::ClassDecorator: 0
+    Math::BaseCalc: 0
+    DBD::mysql: 0
+---
+comment: |
+
+  not sure why I wrote the eexpect into a make stanza first...
+
+match:
+  distribution: "^BRIANSKI/Proc-Exists-"
+make:
+  eexpect:
+    mode: anyorder
+    timeout: 5
+    talk:
+      - "forego XS"
+      - "no\n"
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 5
+    talk:
+      - "forego XS"
+      - "no\n"

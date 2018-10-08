@@ -1,0 +1,7 @@
+---
+match:
+  distribution: 'MAHEX/Image-Grab-\d'
+pl:
+  expect:
+    - 'Do you want to perform tests\s+that require an active Network connection'
+    - "n\n"

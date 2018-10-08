@@ -1,0 +1,6 @@
+---
+comment: "http://rt.cpan.org/Ticket/Display.html?id=21523"
+match:
+  distribution: "^AVIF/Time-Duration-1.04.tar.gz"
+patches:
+  - "ANDK/patches/Time-Duration-1.04-ANDK-01.patch.gz"

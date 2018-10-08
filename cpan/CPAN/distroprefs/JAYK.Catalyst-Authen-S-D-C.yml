@@ -1,0 +1,52 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=82944
+
+match:
+  distribution: 'BOBTFISH/Catalyst-Authentication-Store-DBIx-Class-0.1503\.'
+depends:
+  requires:
+    Catalyst::Model::DBIC::Schema: 0
+patches:
+  - 'ANDK/patches/Catalyst-Authentication-Store-DBIx-Class-0.1503-felliot-01.patch.gz'
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 20
+    reuse: 1
+    talk:
+      - "Auto-install"
+      - "y\n"
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+make:
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=33611
+
+match:
+  distribution: 'JAYK/Catalyst-Authentication-Store-DBIx-Class-\d'
+depends:
+  requires:
+    Catalyst::Model::DBIC::Schema: 0
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 20
+    reuse: 1
+    talk:
+      - "Auto-install"
+      - "y\n"
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+make:
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip

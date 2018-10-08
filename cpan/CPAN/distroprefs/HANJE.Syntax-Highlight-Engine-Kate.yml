@@ -1,0 +1,9 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=31123
+
+match:
+  distribution: "^HANJE/Syntax-Highlight-Engine-Kate-0.02"
+patches:
+  - "ANDK/patches/Syntax-Highlight-Engine-Kate-0.02-ANDK-01.patch.gz"

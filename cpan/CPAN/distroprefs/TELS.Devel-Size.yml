@@ -1,0 +1,9 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=33530
+
+match:
+  distribution: "^TELS/devel/Devel-Size-0.70"
+patches:
+  - "ANDK/Devel-Size-0.70-RURBAN-03.patch.gz"

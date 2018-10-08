@@ -1,0 +1,7 @@
+Changes
+lib/Bundle/CpanTestDummies.pm
+lib/CPAN/Test/Dummy/Perl5/Make.pm
+Makefile.PL
+MANIFEST
+README
+t/00_load.t

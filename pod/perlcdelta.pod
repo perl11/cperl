@@ -180,6 +180,13 @@ Add ffi support, :native(), :encoded(), :nativeconv(), :symbol().
 
 Add ffi support: CvXFFI, CvFFLIB. CVf_EXTERN flag
 
+=item L<CPAN> 2.21_01
+
+Update to 2.21 upstream with our cperl fixes. Some of our fixes were accepted upstream.
+
+Add many upstream tests and distroprefs. still need to install them, and
+add the cperl distroprefs.
+
 =item L<Cwd> 4.75c
 
 Fixed long pathnames test for getcwd() on older systems, like debian-7.11 i386,

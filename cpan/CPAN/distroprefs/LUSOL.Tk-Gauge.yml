@@ -1,0 +1,6 @@
+---
+match:
+  distribution: 'LUSOL/Tk-Gauge-\d'
+test:
+  env:
+    DISPLAY: ":121"

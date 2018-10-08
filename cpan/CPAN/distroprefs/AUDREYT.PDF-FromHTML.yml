@@ -1,0 +1,10 @@
+--- 
+match:
+  distribution: '^AUDREYT/PDF-FromHTML-\d'
+pl:
+  env:
+    PERL_AUTOINSTALL: --skip    
+  args: ["--defaultdeps"]
+make:
+  env:
+    PERL_AUTOINSTALL: --skip    

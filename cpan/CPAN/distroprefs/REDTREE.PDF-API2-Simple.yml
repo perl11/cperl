@@ -1,0 +1,10 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=28125
+
+match:
+  distribution: "REDTREE/PDF-API2-Simple-1.1.2.tar.gz"
+depends:
+  configure_requires:
+    Module::Install: 0

@@ -1,0 +1,37 @@
+---
+comment: |
+
+  Just a skeleton
+
+match:
+  distribution: '^MARKOV/Mail-Box-2\.\d'
+make:
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip    
+pl:
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip    
+  eexpect:
+    mode: anyorder
+    timeout: 20
+    talk:
+      - "Do you want to install Mail::Box::Parser::C"
+      - "n\n"
+      - "Do you want to install Mail::SpamAssassin"
+      - "n\n"
+      - "Do you want to install Mail::Transport::Dbx"
+      - "n\n"
+      - "Do you want to install HTML::TreeBuilder"
+      - "n\n"
+      - "Do you want to install HTML::FormatText"
+      - "n\n"
+      - "Do you want to install Mail::IMAPClient"
+      - "n\n"
+      - "Do you want to install Mail::Internet"
+      - "n\n"
+      - "Do you want to install MIME::Entity"
+      - "n\n"
+      - "Do you want to run the.+tests"
+      - "y\n"

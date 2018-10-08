@@ -1,0 +1,10 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=28753
+
+  in a second window just hangs
+
+match:
+  distribution: '^GRM/CamelPKI/App-CamelPKI-\d'
+disabled: 1

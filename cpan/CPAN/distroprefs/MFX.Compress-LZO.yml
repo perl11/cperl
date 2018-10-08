@@ -1,0 +1,9 @@
+---
+comment: |
+
+match:
+  distribution: 'MFX/Compress-LZO-\d'
+pl:
+  args:
+    - INC=-I/usr/include/lzo
+    - LIBS=-llzo2

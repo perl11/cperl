@@ -1,0 +1,15 @@
+---
+comment: |
+
+  the defaults are ~/cpants, cpants, cpants
+
+match:
+  distribution: 'DOMM/Module-CPANTS-ProcessCPAN-\d'
+pl:
+  expect:
+    - "Please specify the CPANTS home directory"
+    - "\n"
+    - "Postgres DB user"
+    - "\n"
+    - "Postgres DB password"
+    - "\n"

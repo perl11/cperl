@@ -1,0 +1,23 @@
+---
+match:
+  distribution: 'MLEHMANN/PApp-\d'
+pl:
+  expect:
+    - "papp library directory" 
+    - "\n"
+    - "directory for i18n tables"
+    - "\n"
+    - "unique system id"
+    - "\n"
+    - "papp user id"
+    - "\n"
+    - "papp group id"
+    - "\n"
+    - "papp database"
+    - "\n"
+    - "papp database user"
+    - "root\n"
+    - "papp database password"
+    - "\n"
+    - "the serverwide cipherkey"
+    - "\n"

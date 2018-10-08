@@ -1,0 +1,11 @@
+---
+comment: |
+
+  the dependency not yet reported as a bug. it's just the tip of an
+  iceberg. there's MUCH more to it. (Speakigng as of 0.44)
+
+match:
+  distribution: 'NKH/PerlBuildSystem-\d'
+depends:
+  configure_requires:
+    Net::SCP: 0

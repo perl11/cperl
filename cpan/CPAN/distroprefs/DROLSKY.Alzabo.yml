@@ -1,0 +1,11 @@
+---
+match:
+  distribution: "^DROLSKY/Alzabo-"
+pl:
+  expect:
+    - "Alzabo root"
+    - "/var/lib/alzabo\n"
+    - "Do you want to use the MySQL driver"
+    - "n\n"
+    - "Do you want to use the PostgreSQL driver"
+    - "n\n"

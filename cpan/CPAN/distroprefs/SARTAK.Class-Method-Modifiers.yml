@@ -1,0 +1,8 @@
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=83099
+
+match:
+  distribution: 'SARTAK/Class-Method-Modifiers-2.02.tar.gz'
+goto: "SARTAK/Class-Method-Modifiers-2.01.tar.gz"

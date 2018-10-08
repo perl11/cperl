@@ -1,0 +1,6 @@
+--- 
+comment: "This patch fixes the 'require' test for bleadperl"
+match:
+  distribution: '^MSCHWERN/Exporter-Lite-0.01\.tar\.gz'
+patches:
+  - ANDK/Exporter-Lite-0.01-ANDK-01.patch.gz

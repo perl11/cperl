@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "^EBOHLMAN/Text-Query-0.07"
+patches:
+  - "ANDK/patches/Text-Query-0.07-ROBIN-01.patch.gz"

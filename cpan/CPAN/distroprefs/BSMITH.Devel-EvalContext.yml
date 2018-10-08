@@ -1,0 +1,11 @@
+---
+comment: |
+
+  Elimintat the dependency on YAML because YAML was so unstable in the
+  course of 27000-30000 where I needed to run a binary search to track
+  an issue with 0.08
+
+match:
+  distribution: "^BSMITH/Devel-EvalContext-0.08.tar.gz"
+patches:
+  - "/tmp/Devel-EvalContext-0.08-ANDK-01.patch"

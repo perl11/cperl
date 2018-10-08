@@ -1,0 +1,28 @@
+--- 
+comment: |
+
+  6.x requires perl 5.8.8
+
+  For 5.8.1 I had to install URI-1.40 first and then 5.834 did not
+  work and 5.830 did not work and 5.820 DID work.
+
+match:
+  distribution: "^GAAS/libwww-perl-6"
+  perlconfig:
+    version: '^5\.8\.[0-7]'
+goto: GAAS/libwww-perl-5.834.tar.gz
+--- 
+comment: |
+
+  A -n once asked no questions and took default values
+
+  Some day it changed to mean: do not install the EXE_FILES
+
+match:
+  distribution: "^GAAS/libwww-perl-5"
+pl: 
+  args:
+    - "-n"
+  expect: 
+    - "Do you want to enable these tests"
+    - "n\n"

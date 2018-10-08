@@ -1,0 +1,12 @@
+---
+comment: |
+
+  Xvfb :121 must be started by somebody else
+
+  Note that ObjEditor is also in 01.DISABLED.yml
+
+match:
+  distribution: '^DDUMONT/Tk-Obj(Scanner|Editor)-\d'
+test:
+  env:
+    DISPLAY: ":121"

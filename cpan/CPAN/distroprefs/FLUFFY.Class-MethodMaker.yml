@@ -1,0 +1,8 @@
+--- 
+comment: "http://rt.cpan.org/Ticket/Display.html?id=22413"
+match:
+  distribution: "^FLUFFY/Class-MethodMaker-2.08.tar.gz"
+cpanconfig:
+  prefer_installer: "EUMM"
+patches:
+  - "ANDK/patches/Class-MethodMaker-2.08-SMPETERS-01.patch.gz"

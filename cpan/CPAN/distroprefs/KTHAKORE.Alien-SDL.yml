@@ -1,0 +1,11 @@
+--- 
+match:
+  distribution: "KTHAKORE/Alien-SDL-\\d"
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    reuse: 1
+    talk:
+      - "What way do you wanna go"
+      - "\n"

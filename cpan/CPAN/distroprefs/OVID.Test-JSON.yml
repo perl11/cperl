@@ -1,0 +1,10 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=32957
+
+match:
+  distribution: "OVID/Test-JSON-0.06.tar.gz"
+depends:
+  requires:
+    JSON::XS: 0

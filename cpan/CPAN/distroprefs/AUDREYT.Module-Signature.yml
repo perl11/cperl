@@ -1,0 +1,25 @@
+---
+comment: https://rt.cpan.org/Ticket/Display.html?id=103369
+match:
+  distribution: "/Module-Signature-0\\.77\\.tar\\.gz"
+goto: "AUDREYT/Module-Signature-0.73.tar.gz"
+--- 
+match:
+  distribution: "/Module-Signature-\\d"
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    reuse: 1
+    talk:
+      - "Import PAUSE"
+      - "y\n"
+      - "Auto-install"
+      - "y\n"
+  env:
+    PERL_AUTOINSTALL: --skip
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+make:
+  env:
+    PERL_AUTOINSTALL: --skip
+    PERL_EXTUTILS_AUTOINSTALL: --skip

@@ -1,0 +1,15 @@
+---
+match:
+  distribution: '^JENDA/Mail-Sender-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    talk:
+      - "Specify defaults for Mail::Sender"
+      - "n\n"
+make:
+  eexpect:
+    mode: anyorder
+    talk:
+      - "Specify defaults for Mail::Sender"
+      - "n\n"

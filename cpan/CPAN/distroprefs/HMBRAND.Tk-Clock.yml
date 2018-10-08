@@ -1,0 +1,6 @@
+---
+match:
+  distribution: 'HMBRAND/Tk-Clock-\d'
+test:
+  env:
+    DISPLAY: ":121"

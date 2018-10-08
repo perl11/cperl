@@ -1,0 +1,21 @@
+---
+comment: |
+
+   Disabled because it downloads the entire wx something every time
+   it's called.
+
+   Update 2008-05: This seems to be fixed when one answers no to "Do
+   you want to build..."
+
+match:
+  distribution: 'MBARBON/Alien-wxWidgets-\d'
+pl:
+  expect:
+    - "Do you want to build wxWidgets"
+    - "n\n"
+---
+match:
+  distribution: 'MBARBON/Wx-\d'
+test:
+  env:
+    DISPLAY: ":121"

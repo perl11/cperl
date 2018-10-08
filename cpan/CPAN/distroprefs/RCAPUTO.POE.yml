@@ -1,0 +1,21 @@
+--- 
+comment: "Xvfb :121 must be started by somebody else"
+match:
+  distribution: '^RCAPUTO/POE-(Loop-Event-)?\d'
+pl: 
+  expect:
+    - "Would you like to skip the network tests"
+    - "y\n"
+test:
+  env:
+    DISPLAY: ":121"
+--- 
+comment: |
+
+  AFAIU, an alternative on POE would be to follow the defaults (?)
+
+match:
+  distribution: '^RCAPUTO/POE-\d'
+pl: 
+  args:
+    - --default

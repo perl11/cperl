@@ -1,0 +1,8 @@
+--- 
+match:
+  distribution: "^PCIMPRICH/XML-SAX-ExpatXS-"
+pl: 
+  expect:
+    - "Do you want to alter ParserDetails.ini"
+    - "y\n"
+

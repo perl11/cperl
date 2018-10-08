@@ -1,0 +1,18 @@
+#---
+#match:
+#  distribution: '/X11-Protocol-\d'
+#  perlconfig:
+#    archname: '-freebsd'
+#test:
+#  commandline: '(sleep 5; xdotool search -name "Basic Window Program" mousemove 100 50 click 1 mousemove restore) & make test'
+## xdotool stopped working --- so this is now also disabled on fbsd systems
+#---
+#match:
+#  distribution: '/X11-Protocol-\d'
+#disabled: 1
+## interactive test
+---
+match:
+  distribution: '/\QX11-Protocol-0.56.tar.gz\E'
+patches:
+  - SREZIC/patches/X11-Protocol-0.56-RT123736.patch

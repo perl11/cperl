@@ -1,0 +1,7 @@
+---
+match:
+  distribution: '/\QObject-Import-1.004.tar.gz\E'
+  perlconfig:
+    version: '^5\.(23|24|25|26|27)\.\d+$'
+patches:
+  - SREZIC/patches/Object-Import-1.004-RT106769.patch

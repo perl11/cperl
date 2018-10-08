@@ -1,0 +1,9 @@
+--- 
+comment: |
+
+  Reported to DROLSKY directly, he says it is in the repo.
+
+match:
+  distribution: '/Moose-1.14.tar.gz'
+patches:
+  - "ANDK/patches/Moose-1.14-ANDK-01.patch.gz"

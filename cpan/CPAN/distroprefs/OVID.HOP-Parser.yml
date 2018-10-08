@@ -1,0 +1,6 @@
+---
+comment: "see http://rt.cpan.org/Ticket/Display.html?id=37367"
+match:
+  distribution: "^OVID/HOP-Parser-0.01"
+patches:
+  - "ANDK/patches/HOP-Parser-0.01-RUDY-01.patch.gz"

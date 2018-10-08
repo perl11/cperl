@@ -1,0 +1,8 @@
+---
+match:
+  distribution: "FOTANGO/Data-Structure-Util-0.12.tar.gz"
+depends:
+  configure_requires:
+    Module::Build: 0
+patches:
+  - "/home/k/sources/CPAN/SVK/trunk/patches/Data-Structure-Util-0.12-tcallawa-01.patch"

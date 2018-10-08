@@ -1,0 +1,25 @@
+---
+comment: |
+
+  ***** WARNING! *****
+
+  Whoa there! We found JSON::RPC (0.96) in your system.
+  If you have code that relies on this previous version, DO NOT UPGRADE.
+
+  JSON::RPC has been re-written and re-worked. It's a completely different
+  code base now, and because the old code pre dates PSGI/Plack, we figured
+  it was not worth making things API compatible. So if you have code
+  that uses this old code and upgrade, YOUR CODE WILL BREAK!
+
+  If you are sure you want to upgrade, be my guest.
+
+  Really upgrade? (y/n) [n] 
+
+match:
+  distribution: '^DMAKI/JSON-RPC-1\.'
+pl:
+  eexpect:
+    mode: anyorder
+    talk:
+      - "Really upgrade"
+      - "y\n"

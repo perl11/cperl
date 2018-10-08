@@ -1,0 +1,10 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=30896
+
+match:
+  distribution: '^FABPOT/Plucene-Plugin-Analyzer-SnowballAnalyzer-\d'
+depends:
+  requires:
+    Plucene: 0

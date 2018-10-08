@@ -1,0 +1,7 @@
+---
+match:
+  distribution: "^MAKAMAKA/JSON-"
+pl:
+  expect:
+    - "Do you want to install JSON::XS"
+    - "y\n"

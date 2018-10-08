@@ -1,0 +1,16 @@
+---
+match:
+  distribution: '(AGRUNDMA|RCAPUTO)/POE-Loop-(EV|Tk)-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    talk:
+      - '\QWould you like to skip the network tests?\E'
+      - "y\n"
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+make:
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip

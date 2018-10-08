@@ -1,0 +1,37 @@
+---
+comment: |
+
+  This is from 2004-02-26
+
+match:
+  distribution: '^BYRNE/SOAP/SOAP-Lite-0\.60a\.tar\.gz$'
+disabled: 1
+--- 
+match:
+  distribution: '^BYRNE/SOAP-Lite-0.69'
+pl: 
+  expect:
+    - "see the detailed list"
+    - "\n"
+    - 'Do you want to proceed with this configuration\?'
+    - "\n"
+    - "Do you want to perform these tests in addition to core tests"
+    - "\n"
+patches:
+  - "ANDK/SOAP-Lite-0.69-ANDK-01.patch.gz"
+depends:
+  requires:
+    MIME::Parser: 0
+--- 
+comment: |
+
+  current possible authors are MKUTTER or PHRED and versions are 0.71x
+
+match:
+  distribution: '/SOAP-Lite-0.71'
+pl: 
+  expect:
+    - "see the detailed list"
+    - "\n"
+    - 'Do you want to proceed with this configuration\?'
+    - "\n"

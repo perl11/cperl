@@ -1,0 +1,11 @@
+---
+match:
+  distribution: 'SHEVEK/Mail-Karmasphere-Client-\d'
+pl:
+  expect:
+    - '\QDo you want to install ''karmaclient'', the Karmasphere command line query client?\E'
+    - "y\n"
+    - '\QDo you want to install ''karmad'', the Karmasphere postfix/exim daemon?\E'
+    - "y\n"
+    - '\QDo you want to install ''karma-publish'', the Karmasphere feed publisher command?\E'
+    - "y\n"

@@ -1,0 +1,9 @@
+---
+match:
+  distribution: 'DMAKI/Class-DBI-Plugin-DateTime-\d'
+pl:
+  expect:
+    - "::Pg"
+    - "y\n"
+    - "::MySQL"
+    - "y\n"

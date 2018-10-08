@@ -1,0 +1,10 @@
+---
+comment: |
+
+  t/14_charsets.t "Out of memory!" => never finishing
+
+match:
+  distribution: "ADAMK/PPI-1.203.tar.gz"
+  perlconfig:
+    binexp: "23552"
+disabled: 1

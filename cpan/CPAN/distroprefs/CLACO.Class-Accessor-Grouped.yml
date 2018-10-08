@@ -1,0 +1,23 @@
+---
+match:
+  distribution: '^CLACO/Class-Accessor-Grouped-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 5
+    talk:
+      - "Auto-install"
+      - "y\n"
+      - "Auto-install"
+      - "y\n"
+      - "Auto-install"
+      - "y\n"
+      - "Auto-install"
+      - "y\n"
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+make:
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip

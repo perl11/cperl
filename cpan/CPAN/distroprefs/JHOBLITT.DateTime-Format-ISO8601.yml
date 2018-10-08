@@ -1,0 +1,6 @@
+---
+comment: "Patch found in https://rt.cpan.org/Ticket/Display.html?id=24335"
+match:
+  distribution: 'JHOBLITT/DateTime-Format-ISO8601-0.0403\.'
+patches:
+  - "ANDK/patches/DateTime-Format-ISO8601-0.0403-ARC-01.patch.gz"

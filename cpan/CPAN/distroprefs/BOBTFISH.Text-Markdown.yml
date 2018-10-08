@@ -1,0 +1,19 @@
+---
+match:
+  distribution: 'BOBTFISH/Text-Markdown-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    talk:
+      - 'Do you want to install ''Markdown.pl''\?'
+      - "y\n"
+      - 'Do you want to install ''MultiMarkdown.pl''\?'
+      - "y\n"
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+make:
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip

@@ -1,0 +1,9 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=75383
+
+match:
+  distribution: "^NODINE/Slay-Makefile-0.12"
+patches:
+  - "SREZIC/patches/Slay-Makefile-0.12-RT75383.patch"

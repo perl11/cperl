@@ -1,0 +1,7 @@
+---
+comment: "http://rt.cpan.org/Ticket/Display.html?id=26539 last posting"
+match:
+  distribution: "BDFOY/Module-Release-1.16.tar.gz"
+depends:
+  build_requires:
+    Test::Pod: 0

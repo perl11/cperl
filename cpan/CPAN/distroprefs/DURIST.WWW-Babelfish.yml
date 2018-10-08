@@ -1,0 +1,7 @@
+---
+match:
+  distribution: "^DURIST/WWW-Babelfish-"
+pl:
+  expect:
+    - "Since you're connected to the internet, do you want to run a translation test\\?"
+    - "n\n"

@@ -1,0 +1,10 @@
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=99944
+
+match:
+  distribution: '^PETDANCE/Test-Memory-Cycle-1\.04\.tar\.gz$'
+depends:
+  requires:
+    CGI: 0

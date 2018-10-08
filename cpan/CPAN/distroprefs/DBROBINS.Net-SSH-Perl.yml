@@ -1,0 +1,12 @@
+--- 
+comment: |
+
+  (2006-11-05) On bleadperl one test currently hangs, so I disable building it entirely
+
+  (2008-10-07) Adding TURNSTEP, trying to enable it again.
+
+match:
+  distribution: '^(DBROBINS|TURNSTEP)/Net-SSH-Perl-\d'
+pl: 
+  env: 
+    PERL_MM_USE_DEFAULT: 1

@@ -1,0 +1,14 @@
+---
+comment: "First encounter at rev. 0.003032"
+match:
+  distribution: '^NODINE/Text-Restructured-\d'
+pl:
+  expect:
+    - "URL for default cascading style sheet"
+    - "none\n"
+    - "Run perl tainted"
+    - "n\n"
+    - "URL where documentation will be installed"
+    - "none\n"
+    - "Does this look right"
+    - "y\n"

@@ -1,0 +1,5 @@
+---
+match:
+  distribution: '^MSERGEANT/DBIx-AnyDBD-2\.01\.tar\.gz'
+patches:
+  - "ANDK/patches/DBIx-AnyDBD-2.01-ANDK-01.patch.gz"

@@ -1,0 +1,6 @@
+---
+match:
+  distribution: 'ADAMK/Image-Delivery-\d'
+depends:
+  build_requires:
+    Test::ClassAPI: 0

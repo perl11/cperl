@@ -1,0 +1,5 @@
+---
+comment: "https://rt.cpan.org/Ticket/Display.html?id=29330 (now resolved)"
+match:
+  distribution: "^DROLSKY/DateTime-Locale-0.35.tar.gz"
+# goto: "DROLSKY/DateTime-Locale-0.34.tar.gz"

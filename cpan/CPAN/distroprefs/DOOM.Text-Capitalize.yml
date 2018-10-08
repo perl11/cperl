@@ -1,0 +1,9 @@
+--- 
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=79062
+
+match:
+  distribution: '^DOOM/Text-Capitalize-1.3'
+patches:
+  - "ANDK/patches/Text-Capitalize-1.3-RT79062.patch"

@@ -1,0 +1,13 @@
+---
+match:
+  distribution: 'YAMATO/QDBM_File-\d'
+pl:
+  args:
+    - 'INC="-I/usr/include/qdbm"'
+    - 'LIBS="-L -lqdbm"'
+  eexpect:
+    mode: anyorder
+    timeout: 5
+    talk:
+      - "link type"
+      - "2\n"

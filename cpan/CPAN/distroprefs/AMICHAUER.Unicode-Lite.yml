@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "^AMICHAUER/Unicode-Lite-0.12.tar.gz"
+patches:
+  - "ANDK/Unicode-Lite-0.12-NWCLARK-01.patch.gz"

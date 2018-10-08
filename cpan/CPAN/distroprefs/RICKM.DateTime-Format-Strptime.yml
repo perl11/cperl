@@ -1,0 +1,40 @@
+---
+comment: |
+
+  started failing on 2008-05-19 with 'Can't call method "year" on an
+  undefined value at t/004_locale_defaults.t line 45.' while testing a
+  french date in december 1998 with a date containing
+
+    DB<8> Dump $_->[2]
+  SV = PV(0xe699f8) at 0x116cf70
+    REFCNT = 1
+    FLAGS = (POK,pPOK)
+    PV = 0x118d100 "31 d\351c 1998"\0
+    CUR = 11
+    LEN = 16
+
+  did already have a period of fails between 2007-12-30 and 2008-01-13
+  but that time was due to a DateTime failure, not a ->year deficiency.
+
+  changing the file to contain utf8 instead of latin1 and adding a use
+  utf8 does not solve the problem. Is it a dependeny regression?
+
+  'requires' => {
+                  'DateTime' => '0.1402',
+                  'DateTime::Locale' => '0.35',
+                  'DateTime::TimeZone' => '0.25',
+                  'Params::Validate' => '0.64'
+                }
+
+  Why do I only see two fails with getreports? cpantesters bug report
+  sent to Robert Spier. getreports must get a switch
+  --cpantesters-format=yaml and then iterate over that array with the
+  first appearance is release date proxy.
+
+  Why can't David Cantrell's server find out dependencies?
+  mailto:david@cantrell.org.uk?Subject=cpandeps+bug+report
+
+  http://rt.cpan.org/Ticket/Display.html?id=36672
+
+match:
+  distribution: "RICKM/DateTime-Format-Strptime-1.0702.tgz"

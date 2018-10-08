@@ -1,0 +1,54 @@
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=81516
+
+match:
+  distribution: "TIMB/DBI-1.622.tar.gz"
+goto: "TIMB/DBI-1.622_924.tar.gz"
+--- 
+comment: "The patch by Steve Peters was posted to P5P 2006-10-23"
+match:
+  distribution: '^\QTIMB/DBI-1.52.tar.gz\E$'
+patches:
+  - ANDK/patches/DBI-1.52-SMPETERS-01.patch
+--- 
+match:
+  distribution: '^\QTIMB/DBI-1.53.tar.gz\E$'
+patches:
+  - ANDK/patches/DBI-1.53-NWCLARK-01.patch.gz
+---
+comment: |
+
+  This instruction is only shown on older perl below 5.7 or something
+
+  We need to set the timeout high because DBI wants to tell us
+  something and sleeps between paragraphs:
+
+  % grep sleep Makefile.PL
+      sleep 4;                                         
+      sleep 4;
+      sleep 1;
+      sleep 1;
+
+  For the patch visit https://rt.cpan.org/Ticket/Display.html?id=59840
+
+match:
+  distribution: 'TIMB/DBI-1.613.tar.gz'
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 20
+    talk:
+      - 'Press return to continue\.\.\.'
+      - "\n"
+patches:
+  - "/tmp/DBI-1.613-ANDK-01.patch"
+---
+comment: |
+
+  https://rt.perl.org/rt3/Ticket/Display.html?id=123522
+
+match:
+  distribution: 'TIMB/DBI-1.632.tar.gz'
+goto: 'TIMB/DBI-1.632_90.tar.gz'

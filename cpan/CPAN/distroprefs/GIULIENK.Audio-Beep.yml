@@ -1,0 +1,7 @@
+---
+match:
+  distribution: "^GIULIENK/Audio-Beep-"
+pl:
+  expect:
+    - "Would you like to install Japanese documentation"
+    - "y\n"

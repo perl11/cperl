@@ -1,0 +1,7 @@
+---
+comment: "http://rt.cpan.org/Ticket/Display.html?id=29787"
+match:
+  distribution: 'ARJAY/Compress-Bzip2-\d'
+  perlconfig:
+    version: '^5\.6\.2'
+disabled: 1

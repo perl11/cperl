@@ -1,0 +1,8 @@
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=80302
+
+match:
+  distribution: 'GAAS/HTTP-Message-6.05.tar.gz'
+goto: "GAAS/HTTP-Message-6.04.tar.gz"

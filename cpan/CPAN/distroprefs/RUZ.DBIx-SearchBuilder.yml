@@ -1,0 +1,13 @@
+---
+match:
+  distribution: "^RUZ/DBIx-SearchBuilder-"
+cpanconfig:
+  check_sigs: 0
+pl:
+  expect:
+    - "Auto-install"
+    - "y\n"
+    - "Auto-install"
+    - "y\n"
+    - "Auto-install"
+    - "y\n"

@@ -1,0 +1,7 @@
+---
+match:
+  distribution: 'ZOFFIX/LWP-UserAgent-ProxyHopper-\d'
+pl:
+  expect:
+    - "Would you like to run the run-through test"
+    - "y\n"

@@ -1,0 +1,20 @@
+--- 
+match:
+  distribution: "^BTROTT/XML-FOAF-"
+pl: 
+  expect:
+    - "Auto-install"
+    - "y\n"
+    - "Auto-install"
+    - "y\n"
+    - "Auto-install"
+    - "y\n"
+  env:
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+    PERL_AUTOINSTALL: --skip
+make:
+  env:
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+    PERL_AUTOINSTALL: --skip
+patches:
+  - "ANDK/patches/XML-FOAF-0.03-ANDK-01.patch.gz"

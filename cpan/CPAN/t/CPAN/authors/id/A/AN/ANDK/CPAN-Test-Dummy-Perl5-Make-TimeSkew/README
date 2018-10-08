@@ -1,0 +1,8 @@
+This CPAN distribution file is designed for testing purposes only. It
+has no usefulness in itself.
+
+The test script that works with this file is t/31sessions.t in the
+CPAN.pm distribution.
+
+The test tries to determine if the installer (CPAN.pm or anybody else)
+can deal with timestamps in the future.

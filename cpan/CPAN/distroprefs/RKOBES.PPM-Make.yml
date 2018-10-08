@@ -1,0 +1,7 @@
+---
+match:
+  distribution: 'RKOBES/PPM-Make-\d'
+pl:
+  expect:
+    - "Add PPM"
+    - "n\n"

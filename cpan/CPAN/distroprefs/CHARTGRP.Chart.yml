@@ -1,0 +1,13 @@
+---
+comment: |
+
+    CONTAINSMODS Chart::Bars Chart::Base Chart::Composite Chart::Direction Chart::ErrorBars Chart::HorizontalBars Chart::Lines Chart::LinesPoints Chart::Pareto Chart::Pie Chart::Points Chart::Split Chart::StackedBars
+    UPLOAD_DATE  2004-01-14
+
+    But 2.4.1 contains Chart::Mountain
+
+    http://rt.cpan.org/Ticket/Display.html?id=28218
+
+match:
+  distribution: "CHARTGRP/Chart-2.3.tar.gz"
+disabled: 1

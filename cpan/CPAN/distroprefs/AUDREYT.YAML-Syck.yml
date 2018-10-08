@@ -1,0 +1,23 @@
+--- 
+match:
+  distribution: "AUDREYT/YAML-Syck-"
+pl:
+  env:
+    PERL_AUTOINSTALL: --skip
+  eexpect:
+    mode: anyorder
+    timeout: 5
+    talk:
+      - "Continue installing YAML::Syck"
+      - "y\n"
+make:
+  env:
+    PERL_AUTOINSTALL: --skip    
+depends:
+  build_requires:
+    Devel::Leak: 0
+---
+comment: https://rt.perl.org:443/rt3/Ticket/Display.html?id=102606
+match:
+  distribution: AVAR/YAML-Syck-1.17.tar.gz
+goto: SMUELLER/YAML-Syck-1.17_02.tar.gz

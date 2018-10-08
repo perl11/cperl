@@ -1,0 +1,7 @@
+---
+comment: "http://rt.cpan.org/Ticket/Display.html?id=28137"
+match:
+  distribution: "NUFFIN/Catalyst-Plugin-Session-0.16.tar.gz"
+depends:
+  requires:
+    Catalyst::Plugin::Session::State::Cookie: 0.03

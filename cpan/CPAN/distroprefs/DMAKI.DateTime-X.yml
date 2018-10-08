@@ -1,0 +1,47 @@
+---
+comment: |
+
+  Just for testing a potential CPAN.pm bug
+
+match:
+  distribution: 'DMAKI/DateTime-Util-Astro-0.09.tar.gz'
+  perl: "XXXX ---- never matches ---- XXXX"
+goto: "DMAKI/DateTime-Util-Astro-0.08.tar.gz"
+---
+match:
+  distribution: '^DMAKI/DateTime-Format-Japanese-0.03'
+pl:
+  expect:
+    - "Install DateTime::Fromat::Japanese::Traditional"
+    - "y\n"    
+---
+match:
+  distribution: '^DMAKI/DateTime-Util-Calc-0\.1[23]'
+pl:
+  eexpect:
+    mode: anyorder
+    reuse: 1
+    talk:
+      - 'Upgrade DateTime::Util::Calc\?'
+      - "y\n"
+      - "Auto-install"
+      - "n\n"
+---
+comment: |
+
+  all other DateTime modules only need Module::Install support at the moment
+
+match:
+  distribution: 'DMAKI/DateTime-.*-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    reuse: 1
+    timeout: 60
+    talk:
+      - "Auto-install"
+      - "y\n"
+      - "Auto-install"
+      - "y\n"
+      - "Auto-install"
+      - "y\n"

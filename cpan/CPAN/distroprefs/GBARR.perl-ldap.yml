@@ -1,0 +1,11 @@
+--- 
+comment: "version of AutoInstall very dated, so PERL_AUTOINSTALL does not cut it"
+match:
+  distribution: "^GBARR/perl-ldap-"
+pl: 
+  args: ["--defaultdeps"]
+  env:
+    PERL_EXTUTILS_AUTOINSTALL: --skip    
+make:
+  env:
+    PERL_EXTUTILS_AUTOINSTALL: --skip    

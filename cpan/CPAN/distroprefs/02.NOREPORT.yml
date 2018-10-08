@@ -1,0 +1,46 @@
+---
+comment: |
+
+  In general nobody wants to see reports about old developer releases
+  of perl anymore. The disadvantage of this distroprefs file is that it
+  prevents all the others from matching since only the first match
+  wins.
+
+  But then on 2009-01-14 my smoker sent this:
+  http://www.nntp.perl.org/group/perl.cpan.testers/2009/01/msg3068489.html
+  which I cannot explain why. CPAN.pm was 1.9205, did it not implement
+  the construct? CPAN::Reporter was 1.13. Cannot reproduce (but did
+  not try very hard)
+
+match:
+  perlconfig:
+    version: '^5\.(7|9|1[13579]|2[1357])\.'
+cpanconfig:
+  test_report: 0
+---
+comment: |
+
+  MSHELOR: would prefer to never see false positives which I cannot
+  guarantee, so we turn off mails for him completely. Main involvement
+  was Digest::SHA which got FAILs during a short phase of 5.9.3 due to
+  some broken headerfiles in these bleadperls. A better solution than
+  disabling reports would be configure stuff that probes for the
+  signature of Newz (or was it Newx?)
+
+  I had a good email exchange with Mark and so I rediscovered the
+  cpanconfig/test_report distropref setting which I had already
+  forgotten.
+
+  BARBIE: opt out. Barbie does not want time-in-the-future errors
+
+match:
+  distribution: |
+    ^(?x:
+    .^   # never matches
+    |BARBIE/
+    |MSHELOR/
+    |SHLOMIF/                                # author opt out 2013-06-24
+    |MLEHMANN/Canary-Stability-              # testless
+    )|
+cpanconfig:
+  test_report: 0

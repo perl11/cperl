@@ -1,0 +1,7 @@
+---
+match:
+  distribution: "^(GBARR|SHAY)/libnet-"
+pl: 
+  expect:
+    - "Do you want to modify/update your configuration"
+    - "n\n"

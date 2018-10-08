@@ -1,0 +1,11 @@
+---
+comment: |
+
+  As of version 0.17 I observe that nearly all PASS have a skip due
+  missing IO::Async::SSL
+
+match:
+  distribution: '^PEVANS/Net-Async-HTTP-\d'
+depends:
+  build_requires:
+    IO::Async::SSL: 0

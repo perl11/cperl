@@ -1,0 +1,6 @@
+---
+comment: "http://rt.cpan.org/Ticket/Display.html?id=28122"
+match:
+  distribution: "^JESSE/HTTP-Server-Simple-0.27.tar.gz"
+patches:
+  - "ANDK/patches/HTTP-Server-Simple-0.27-SARTAK-01.patch.gz"

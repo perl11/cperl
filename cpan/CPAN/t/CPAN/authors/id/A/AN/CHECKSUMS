@@ -1,0 +1,111 @@
+0&&<<''; # this PGP-signed message is also valid perl
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+# CHECKSUMS file written on Thu Mar 17 00:07:23 2005 by CPAN::Checksums (v1.018)
+$cksum = {
+  'ANDREWHO' => {
+    'isdir' => 1
+  },
+  'ANK' => {
+    'isdir' => 1
+  },
+  'ANARION' => {
+    'isdir' => 1
+  },
+  'ANGUSLEES' => {
+    'isdir' => 1
+  },
+  'ANAGHAKK' => {
+    'isdir' => 1
+  },
+  'ANNO' => {
+    'isdir' => 1
+  },
+  'ANDREIN' => {
+    'isdir' => 1
+  },
+  'ANIMATOR' => {
+    'isdir' => 1
+  },
+  'ANBON' => {
+    'isdir' => 1
+  },
+  'ANATRA' => {
+    'isdir' => 1
+  },
+  'ANDYD' => {
+    'isdir' => 1
+  },
+  'ANDYB' => {
+    'isdir' => 1
+  },
+  'ANDREWC' => {
+    'isdir' => 1
+  },
+  'ANDALE' => {
+    'isdir' => 1
+  },
+  'ANDYPUR' => {
+    'isdir' => 1
+  },
+  'ANDREWN' => {
+    'isdir' => 1
+  },
+  'ANTRO' => {
+    'isdir' => 1
+  },
+  'ANDERS' => {
+    'isdir' => 1
+  },
+  'ANGUYEN' => {
+    'isdir' => 1
+  },
+  'ANDYDUNC' => {
+    'isdir' => 1
+  },
+  'ANZUHAN' => {
+    'isdir' => 1
+  },
+  'ANDREWF' => {
+    'isdir' => 1
+  },
+  'ANDK' => {
+    'isdir' => 1
+  },
+  'ANDY' => {
+    'isdir' => 1
+  },
+  'ANONWB' => {
+    'isdir' => 1
+  },
+  'ANTHONYU' => {
+    'isdir' => 1
+  },
+  'ANIO' => {
+    'isdir' => 1
+  },
+  'ANTHONY' => {
+    'isdir' => 1
+  },
+  'ANDREWIK' => {
+    'isdir' => 1
+  },
+  'ANUNES' => {
+    'isdir' => 1
+  },
+  'ANWILL' => {
+    'isdir' => 1
+  },
+  'ANH' => {
+    'isdir' => 1
+  }
+};
+__END__
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCOMo7Mo2oZ0UPiewRAqSVAJ9NOIWJDKTGBVlAQRxOchrvd2IHzgCeJbQy
+/XITi+MNTR5tu0N8Bc8tHiQ=
+=qN7q
+-----END PGP SIGNATURE-----

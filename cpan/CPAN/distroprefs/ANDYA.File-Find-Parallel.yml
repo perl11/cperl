@@ -1,0 +1,7 @@
+---
+match:
+  distribution: 'ANDYA/File-Find-Parallel-\d'
+pl:
+  expect:
+    - "Install lncopies script"
+    - "y\n"

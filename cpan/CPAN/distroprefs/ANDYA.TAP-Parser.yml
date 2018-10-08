@@ -1,0 +1,7 @@
+---
+match:
+  distribution: 'ANDYA/TAP-Parser-\d'
+pl:
+  expect:
+    - '\QDo you wish to install the ''runtests'' utility?\E'
+    - "y\n"

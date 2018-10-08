@@ -1,0 +1,15 @@
+---
+comment: |
+
+  Used by Pg::Loader. Will have to invent something portable for all smokers.
+
+  Asks questions:
+
+  DBI data source:  
+  DBI username:  
+  DBI password:  
+  DBI 'SELECT' SQL:  
+
+match:
+  distribution: 'MLFISHER/Test-MockDBI-\d'
+disabled: 1

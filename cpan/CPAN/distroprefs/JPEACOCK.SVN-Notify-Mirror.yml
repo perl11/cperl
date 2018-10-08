@@ -1,0 +1,12 @@
+---
+match:
+  distribution: '^JPEACOCK/SVN-Notify-Mirror-'
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 5
+    talk:
+      - 'Do you want to run the SSH tests\?\s+\(see the README for details\)'
+      - "N\n"
+      - 'Do you want to run the rsync tests\?\s+\(see the README for details\)'
+      - "N\n"

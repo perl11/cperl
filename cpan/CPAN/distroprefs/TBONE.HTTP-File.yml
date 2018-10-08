@@ -1,0 +1,13 @@
+---
+match:
+  distribution: 'TBONE/HTTP-File-\d'
+test:
+  expect:
+    - '\QEnter your cgi-bin directory URL (relative or absolute):\E'
+    - "\n"
+    - '\QOk, now what is the physical path to the cgi-bin directory?\E'
+    - "\n"
+    - '\QOk, now what is the physical path to the HTML directory?\E'
+    - "\n"
+    - '\QOnly type the basename of the file.\E'
+    - "\n"

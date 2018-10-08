@@ -1,0 +1,7 @@
+---
+match:
+  distribution: "^DJKERNEN/Mail-IMAPClient-"
+pl:
+  expect:
+    - "Do you want to run the extended tests"
+    - "n\n"

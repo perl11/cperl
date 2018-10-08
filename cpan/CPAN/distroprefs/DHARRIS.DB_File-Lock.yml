@@ -1,0 +1,6 @@
+---
+match:
+  distribution: '^DHARRIS/DB_File-Lock-\d'
+depends:
+  requires:
+    DB_File: 0

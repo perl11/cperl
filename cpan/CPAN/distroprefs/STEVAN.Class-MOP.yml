@@ -1,0 +1,25 @@
+---
+comment: |
+
+    This was only temporarily needed to limit tests on the critical
+    test 003methods.t which broke somewhere between patch 26486 and
+    26487. I had to limit the tests to prevent that other temporary
+    breakages get in the way and disturb our ability to run binary
+    search over bleadperl dev track. So we show here how to focus a
+    binary search on specific tests as an illustrative example.
+
+match:
+  distribution: "^STEVAN/Class-MOP-0"
+
+## # cpanconfig:
+## #   prefer_installer: "EUMM"
+## # test:
+## #   args:
+## #     - "TEST_FILES=t/000_load.t t/001_basic.t t/002_class_precedence_list.t t/003_methods.t"
+
+# ## cpanconfig:
+# ##   prefer_installer: "MB"
+# ## test:
+# ##   args:
+# ##     - "--test_files"
+# ##     - "t/000_load.t t/001_basic.t t/002_class_precedence_list.t t/003_methods.t"

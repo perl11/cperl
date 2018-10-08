@@ -1,0 +1,9 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=32874
+
+match:
+  distribution: "JOSEPHW/XML-Writer-0.603.tar.gz"
+patches:
+  - "ANDK/patches/XML-Writer-0.603-ANDK-01.patch.gz"

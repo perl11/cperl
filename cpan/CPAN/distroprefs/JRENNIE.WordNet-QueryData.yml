@@ -1,0 +1,26 @@
+---
+comment: |
+
+  In version 1.47 we really need both variables but from looking at
+  the code only the latter is used. (?)
+
+  Keep in mind: they are needed whenever we run it!
+
+  After several attempts giving up. They make too many assumptions
+  about the installation of wordnet.
+
+match:
+  distribution: 'JRENNIE/WordNet-QueryData-\d|/WordNet-Similarity|/WordNet-SenseRelate-AllWords'
+disabled: 1
+pl:
+  env:
+    WNHOME: "/usr/share/wordnet"
+    WNSEARCHDIR: "/usr/share/wordnet"
+make:
+  env:
+    WNHOME: "/usr/share/wordnet"
+    WNSEARCHDIR: "/usr/share/wordnet"
+test:
+  env:
+    WNHOME: "/usr/share/wordnet"
+    WNSEARCHDIR: "/usr/share/wordnet"

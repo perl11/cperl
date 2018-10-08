@@ -1,0 +1,10 @@
+---
+match:
+  distribution: '^LZE/HTML-Menu-TreeView-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 3
+    talk:
+      - "Where is your Document root"
+      - "/tmp\n"

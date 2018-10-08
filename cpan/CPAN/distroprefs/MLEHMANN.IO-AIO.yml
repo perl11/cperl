@@ -1,0 +1,9 @@
+---
+comment: |
+
+  I have seen test t/01_stat....... hanging in recent bleadperls but I
+  had it succeed in 31843. Need further observations.
+
+match:
+  distribution: "^MLEHMANN/IO-AIO-2.4.tar.gz"
+# disabled: 1

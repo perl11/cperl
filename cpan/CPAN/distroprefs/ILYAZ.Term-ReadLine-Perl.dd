@@ -1,0 +1,11 @@
+$VAR1 = {
+  "match" => {
+    "distribution" => "^ILYAZ/(modules/)?Term-ReadLine-Perl-\\d|^CKAISER/Term-ReadLine-TTYtter-\\d"
+  },
+  "test" => {
+    "expect" => [
+      "Enter arithmetic or Perl expression",
+      "\n"
+    ]
+  }
+};

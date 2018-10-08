@@ -1,0 +1,10 @@
+---
+comment: |
+
+  Alexandr Chorny mailed me about it. Failing test is pod coverage related.
+
+match:
+  distribution: 'BDFOY/Test-HTTPStatus-\d'
+depends:
+  build_requires:
+    Test::Pod::Coverage: 0

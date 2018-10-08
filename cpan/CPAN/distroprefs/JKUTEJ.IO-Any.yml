@@ -1,0 +1,8 @@
+---
+comment: |
+
+  hanger on many perls
+
+match:
+  distribution: "^JKUTEJ/IO-Any-0.04.tar.gz"
+disabled: 1

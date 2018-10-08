@@ -1,0 +1,7 @@
+---
+match:
+  distribution: 'JOHNL/DBD-Informix-2007.0903.tar.gz'
+pl:
+  expect:
+    - '\QExtUtils::AutoInstall 0.4 required. Install it from CPAN?\E'
+    - "y\n"

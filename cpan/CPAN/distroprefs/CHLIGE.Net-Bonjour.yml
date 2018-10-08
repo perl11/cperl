@@ -1,0 +1,10 @@
+match:
+  distribution: "CHLIGE/Net-Bonjour-0.96"
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 300
+    reuse: 1
+    talk:
+      - "Enable enterprise tests"
+      - "n\n"

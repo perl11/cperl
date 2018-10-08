@@ -1,0 +1,28 @@
+--- 
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=62258
+
+match:
+  distribution: '/YAML-0.72'
+patches:
+  - "ANDK/patches/YAML-0.72-ANDK-01.patch.gz"
+--- 
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=73673
+
+match:
+  distribution: '/YAML-0.(78|79|80)'
+patches:
+  - "ANDK/patches/YAML-0.78-SPROUT-01.patch.gz"
+--- 
+comment: |
+
+  fresh release, no comment
+
+match:
+  distribution: '/YAML-0.74'
+depends:
+  requires:
+    Test::Base: 0

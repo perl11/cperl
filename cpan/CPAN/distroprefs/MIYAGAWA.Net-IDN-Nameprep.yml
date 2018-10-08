@@ -1,0 +1,6 @@
+---
+match:
+  distribution: 'MIYAGAWA/Net-IDN-Nameprep-\d'
+depends:
+  requires:
+    Unicode::String: 0

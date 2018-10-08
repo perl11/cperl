@@ -1,0 +1,21 @@
+---
+comment: |
+
+  a test hangs under perl-5.6.2.
+
+  http://rt.cpan.org/Ticket/Display.html?id=30927
+
+match:
+  distribution: 'DONEILL/MIME-tools-5.425.tar.gz'
+  perl: '.../perl-5\.6\.2/bin/perl'
+disabled: 1
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=64659
+
+match:
+  distribution: 'DONEILL/MIME-tools-5.500.tar.gz'
+depends:
+  requires:
+    Test::Deep: 0

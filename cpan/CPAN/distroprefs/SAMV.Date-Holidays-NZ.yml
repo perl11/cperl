@@ -1,0 +1,12 @@
+---
+comment: |
+
+  No ticket (yet?)
+
+  Isn't it weird that a module from 2008 requires a module released 2012?
+
+match:
+  distribution: '^SAMV/Date-Holidays-NZ-\d'
+depends:
+  requires:
+    Date::Manip: 6.30

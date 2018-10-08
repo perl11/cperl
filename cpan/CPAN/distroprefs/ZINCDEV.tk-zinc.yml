@@ -1,0 +1,7 @@
+---
+comment: "Xvfb :121 must be started by somebody else"
+match:
+  distribution: "ZINCDEV/tk-zinc-3.303.tar.gz"
+test:
+  env:
+    DISPLAY: ":121"

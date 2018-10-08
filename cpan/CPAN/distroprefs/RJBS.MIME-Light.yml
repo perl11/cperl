@@ -1,0 +1,7 @@
+---
+match:
+  distribution: '^RJBS/MIME-Lite-\d'
+pl:
+  expect:
+    - "Add prereqs"
+    - "y\n"

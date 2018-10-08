@@ -1,0 +1,11 @@
+--- 
+comment: |
+
+  Seems to pass only when DBI is not installed because then nearly all tests are skipped
+
+match:
+  distribution: 'SHERZODR/Class-PObject-2.17.tar.gz'
+depends:
+  requires:
+    DBI: 0
+    DBD::SQLite: 0

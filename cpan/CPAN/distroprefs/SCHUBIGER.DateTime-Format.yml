@@ -1,0 +1,17 @@
+---
+comment: |
+
+    lots of decreasing version numbers
+
+    SCHUBIGER/DateTime-Format-Natural-0.30.tar.gz: DateTime::Format::Natural::Base 0.9
+    SCHUBIGER/DateTime-Format-Natural-0.31.tar.gz: DateTime::Format::Natural::Lang::EN 0.9
+    SCHUBIGER/DateTime-Format-Natural-0.32.tar.gz: DateTime::Format::Natural::Lang::DE 0.9
+
+    And every time one of the modules rolls over to 0.10 the same
+    error happens again.
+
+    http://rt.cpan.org/Ticket/Display.html?id=27350
+
+match:
+  distribution: "SCHUBIGER/DateTime-Format-Natural-0.3[0-4].tar.gz"
+disabled: 1

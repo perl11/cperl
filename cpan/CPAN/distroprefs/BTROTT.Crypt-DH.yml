@@ -1,0 +1,24 @@
+---
+comment: |
+
+  Math::BigInt without GMP takes loooooong to compute this test. I
+  never reached an end because I usually give up after 30 minutes.
+  Only if Math::BigInt::GMP is installed, this test is computed in a
+  second. Last time verified with Crypt-DH-0.06 and Math::BigInt 1.89.
+
+  With MBI 1.89 and MBI::FastCalc 0.19 on my several years old k7 box
+  I see 18/21 tests after 5 minutes completed, after that stand still.
+  An RT bugreport says there was no progress after three hours in test
+  15 on his much older laptop.
+
+  The dependency below could just as well be Math::BigInt::Pari.
+
+  BTW, I also wrote a ticket on a test bug:
+
+  http://rt.cpan.org//Ticket/Display.html?id=35960
+
+match:
+  distribution: "^BTROTT/Crypt-DH-"
+depends:
+  requires:
+    Math::BigInt::GMP: 1.23

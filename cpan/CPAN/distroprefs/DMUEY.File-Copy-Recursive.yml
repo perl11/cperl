@@ -1,0 +1,6 @@
+---
+comment: "http://rt.cpan.org/Ticket/Display.html?id=29750"
+match:
+  distribution: "DMUEY/File-Copy-Recursive-0.35.tar.gz"
+patches:
+  - "ANDK/patches/File-Copy-Recursive-0.35-SREZIC-01.patch.gz"

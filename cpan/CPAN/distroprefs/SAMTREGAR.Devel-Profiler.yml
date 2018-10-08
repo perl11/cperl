@@ -1,0 +1,11 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=35620
+
+  maybe Sam has given up on it?
+
+match:
+  distribution: "^SAMTREGAR/Devel-Profiler-0.04"
+disabled: 1
+

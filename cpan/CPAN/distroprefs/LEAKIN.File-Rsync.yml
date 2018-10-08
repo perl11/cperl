@@ -1,0 +1,7 @@
+--- 
+match:
+  distribution: "^LEAKIN/File-Rsync-"
+make: 
+  expect:
+    - "Path to rsync "
+    - "/usr/bin/rsync\n"

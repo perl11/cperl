@@ -1,0 +1,18 @@
+---
+match:
+  distribution: "ADAMK/List-MoreUtils-0.23_01.tar.gz"
+goto: "VPARSEVAL/List-MoreUtils-0.22.tar.gz"
+---
+match:
+  distribution: 'ADAMK/List-MoreUtils-0\.(?:27_0.|28|29)\.tar\.gz'
+goto: "ADAMK/List-MoreUtils-0.26.tar.gz"
+---
+comment: "http://www.cpantesters.org/cpan/report/d206833e-b6ab-11e3-94ce-39034f1022b2"
+match:
+  distribution: 'REHSACK/List-MoreUtils-0\.(?:400_...)\.tar\.gz'
+goto: "ADAMK/List-MoreUtils-0.33.tar.gz"
+---
+comment: "https://rt.cpan.org/Ticket/Display.html?id=122875"
+match:
+  distribution: 'REHSACK/List-MoreUtils-0\.(?:423)\.tar\.gz'
+goto: "REHSACK/List-MoreUtils-0.419.tar.gz"

@@ -1,0 +1,44 @@
+--- 
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=78824
+
+match:
+  distribution: 'SREZIC/Tk-804.030.tar.gz'
+patches:
+  - "ANDK/patches/Tk-804.030-SPROUT-01.patch.gz"
+pl:
+  args:
+    - "XFT=1"
+test:
+  env:
+    DISPLAY: ":121"
+---
+match:
+  distribution: '^NI-S/Tk-804\.027\.tar\.gz$'
+disabled: 1
+comment: |
+
+  The patches from the Tk-804.027-p*.patch.gz family require the
+  applypatch program installed and CPAN::Config must have taken note
+  of it. Try 'o conf init applypatch' to make sure it is a known
+  external program.
+
+pl:
+  args:
+    - "XFT=1"
+patches:
+  - "SREZIC/patches/Tk-804.027-p4.patch.gz"
+---
+match:
+  distribution: '^SREZIC/Tk-804.029.tar.gz'
+goto: SREZIC/Tk-804.029_500.tar.gz
+---
+match:
+  distribution: '^SREZIC/Tk-\d'
+pl:
+  args:
+    - "XFT=1"
+test:
+  env:
+    DISPLAY: ":121"

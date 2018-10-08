@@ -1,0 +1,13 @@
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=19138
+
+  I'd prefer a patch that adds a test.
+
+  https://rt.cpan.org/Ticket/Display.html?id=53323
+
+match:
+  distribution: "CHGEUER/Crypt-RIPEMD160-0.04.tar.gz"
+patches:
+  - "ANDK/patches/Crypt-RIPEMD160-0.04-Andrew_Ruthven-01.patch.gz"

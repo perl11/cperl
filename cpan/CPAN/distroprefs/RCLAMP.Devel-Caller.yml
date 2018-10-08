@@ -1,0 +1,20 @@
+---
+comment: |
+
+  patch #33018
+
+  http://rt.cpan.org/Ticket/Display.html?id=33005
+
+match:
+  distribution: "RCLAMP/Devel-Caller-2.03.tar.gz"
+patches:
+  - "ANDK/patches/Devel-Caller-2.03-ANDK-01.patch.gz"
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=30897
+
+match:
+  distribution: "RCLAMP/Devel-Caller-0.11.tar.gz"
+patches:
+  - "ANDK/patches/Devel-Caller-0.11-SMPETERS-01.patch.gz"

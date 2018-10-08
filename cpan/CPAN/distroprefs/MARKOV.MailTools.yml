@@ -1,0 +1,12 @@
+--- 
+comment: |
+
+  See ./DSKOLL.MIME-tools.yml for an explanation of the "depends" key.
+
+  or http://rt.cpan.org/Ticket/Display.html?id=29598
+
+match:
+  distribution: '^MARKOV/MailTools-1\.\d'
+depends:
+  requires:
+    Date::Format: 0

@@ -1,0 +1,6 @@
+---
+comment: "http://rt.cpan.org/Ticket/Display.html?id=26971"
+match:
+  distribution: "^YSAS/SWF-Builder-0.16.tar.gz"
+patches:
+  - "ANDK/patches/SWF-Builder-0.16-ANDK-01.patch.gz"

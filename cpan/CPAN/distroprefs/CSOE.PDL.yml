@@ -1,0 +1,10 @@
+match:
+  distribution: "CHM/PDL-2.4."
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 300
+    reuse: 1
+    talk:
+      - "Do you still wish to continue"
+      - "n\n"

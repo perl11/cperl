@@ -1,0 +1,9 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=35447
+
+match:
+  distribution: "CORION/List-Sliding-Changes-0.02.tar.gz"
+patches:
+  - "ANDK/patches/List-Sliding-Changes-0.02-ANDK-01.patch.gz"

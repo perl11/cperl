@@ -1,0 +1,11 @@
+--- 
+comment: |
+
+  The leak test is skipped without LeakTrace, but we need stable or at
+  least consistent test results
+
+match:
+  distribution: '^MIYAGAWA/Plack-Middleware-Debug-\d'
+depends:
+  requires:
+    Test::LeakTrace: 0

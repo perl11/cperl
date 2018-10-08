@@ -1,0 +1,6 @@
+--- 
+comment: "Make vs Build https://rt.cpan.org/Ticket/Display.html?id=115430"
+match:
+  distribution: "^KAORU/Geo-Coder-Many-0.46-5.tar.gz"
+cpanconfig:
+  prefer_installer: "EUMM"

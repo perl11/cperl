@@ -1,0 +1,31 @@
+---
+comment: |
+
+    Lots of packages depend indirectly on this.
+
+    If I answer y to all questions then I even get JSON::PC as a
+    dependency which means asking for trouble. Would they really
+    depend on all 4 differrent JSON packages then I'd rather call it
+    JSON::All, not Any. So the eexpect stanza gets a bit complicated.
+
+    Would be a good test candidate to train for optional_features.
+
+match:
+  distribution: 'RBERJON/JSON-Any-\d'
+depends:
+  requires:
+    JSON: 0
+    JSON::XS: 0
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 60
+    reuse: 1
+    talk:
+      - '\[JSON::PC\][^\]]+Auto-install'
+      - "n\n"
+      - "Auto-install"
+      - "y\n"
+# for very old bundled AutoInstall:
+      - "Do you wish to install"
+      - "y\n"

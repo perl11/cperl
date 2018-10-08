@@ -1,0 +1,11 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=16708
+
+match:
+  distribution: "^RONAN/Transform-Canvas-0.02.tar.gz"
+depends:
+  requires:
+    SVG: 0
+    Test::Pod::Coverage: 0

@@ -1,0 +1,20 @@
+--- 
+comment: |
+
+  The patch is nearly as broken as the original. The original runs
+  into an endless loop without a httpd. The patch brings us an OK/PASS
+  because it somehow leads to an empty variable TEST_FILES which means
+  as much as "we have no tests". Weird. I hope to revisit this some
+  day, for now I'm happy to have the endless loop banned. If you read
+  this and have ideas, please step forward:)
+
+  Note: http://rt.cpan.org/Ticket/Display.html?id=12911
+
+match:
+  distribution: '^(PGOLLUCCI|GEOFF|PHRED)/Apache-Test-\d'
+test:
+  env: 
+    APACHE: /usr/sbin/apache-perl
+    PERL_MM_USE_DEFAULT: 1
+patches:
+  - "ANDK/patches/Apache-Test-1.30-ANDK-01.patch.gz"

@@ -1,0 +1,9 @@
+---
+code: !!perl/code |
+  {
+      $::yaml_load_code_works = 1;
+  }
+object: !!perl/code:CPAN::DeferredCode |
+  {
+      $::yaml_load_code_works = 2;
+  }

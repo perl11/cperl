@@ -1,0 +1,63 @@
+---
+match:
+  distribution: "/mod_perl-1"
+  perlconfig:
+    myhostname: "^pause$"
+pl:
+  args:
+    - EVERYTHING=1
+    - APACHE_PREFIX=/home/sand/src/apache/apachebin/1.3.41
+    - APACHE_SRC=/home/sand/src/apache/apache_1.3.41/src
+    - APACHE_SRC_DEFAULT=/home/sand/src/apache/apache_1.3.41/src
+    - DO_HTTPD=1
+depends:
+  build_requires:
+    LWP::UserAgent: 0
+---
+comment: |
+
+  http://svn.apache.org/viewvc?view=rev&revision=555908
+
+match:
+  distribution: "/mod_perl-1"
+  perlconfig:
+    archname: "x86_64-linux"
+pl:
+  args:
+    - EVERYTHING=1
+    - APACHE_PREFIX=/home/sand/src/apache/apachebin/1.3.42
+    - APACHE_SRC=/home/sand/src/apache/apache_1.3.42/src
+    - APACHE_SRC_DEFAULT=/home/sand/src/apache/apache_1.3.42/src
+    - DO_HTTPD=1
+depends:
+  build_requires:
+    LWP::UserAgent: 0
+---
+comment: |
+
+  http://svn.apache.org/viewvc?view=rev&revision=555908
+
+match:
+  distribution: "/mod_perl-1"
+pl:
+  args:
+    - EVERYTHING=1
+    - APACHE_PREFIX=/home/sand/src/www/apache/apachebin/1.3.37
+    - APACHE_SRC=/home/sand/src/www/apache/apache/apache_1.3.37/src
+    - APACHE_SRC_DEFAULT=/home/sand/src/www/apache/apache/apache_1.3.37/src
+    - DO_HTTPD=1
+depends:
+  build_requires:
+    LWP::UserAgent: 0
+---
+comment: "out of order --> TODO"
+match:
+  distribution: "^(PGOLLUCCI|GOZER|SHAY)/mod_perl-2"
+pl:
+  args:
+    - EVERYTHING=1
+    - APACHE_PREFIX=/home/sand/src/www/apache/apachebin/2.0.xxx
+    - APACHE_SRC=/home/sand/src/www/apache/apache/apache_2.0.xxx/src
+    - APACHE_SRC_DEFAULT=/home/sand/src/www/apache/apache/apache_2.0.xxx/src
+    - DO_HTTPD=1
+disabled: 1

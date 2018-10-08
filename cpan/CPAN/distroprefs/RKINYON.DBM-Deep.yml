@@ -1,0 +1,21 @@
+---
+comment: |
+
+  perl 5.6.2 has 1.14 is too old but 1.35 does not work there.
+
+  MAREKR/PodParser-1.21.tar.gz installs but doesn't upgrade Pod::Usage
+
+  MAREKR/PodParser-1.28.tar.gz installs, upgrades Pod::Usage to 1.16; still too old
+
+  MAREKR/Pod-Parser-1.30.tar.gz installs, upgrades Pod::Usage to 1.3; works
+
+  http://rt.cpan.org/Ticket/Display.html?id=29976
+
+  Dependency on Fmode reported aas http://rt.cpan.org/Ticket/Display.html?id=36781
+
+match:
+  distribution: 'RKINYON/DBM-Deep-\d'
+depends:
+  requires:
+    Pod::Usage: 1.3
+    FileHandle::Fmode: 0

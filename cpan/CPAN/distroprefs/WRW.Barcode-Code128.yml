@@ -1,0 +1,15 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=28369
+
+  A fairly long ticket and unresolved for so long too.
+
+  I just added GD as dependency so that we do not see green tests just
+  because tests were skipped.
+
+match:
+  distribution: "^WRW/Barcode-Code128-2.01"
+depends:
+  requires:
+    GD: 0

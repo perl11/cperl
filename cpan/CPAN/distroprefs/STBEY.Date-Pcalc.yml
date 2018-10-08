@@ -1,0 +1,7 @@
+---
+match:
+  distribution: 'STBEY/Date-Pcalc-\d'
+pl:
+  expect:
+    - "Install C/XS version \\(answer 'c'\\) or pure-Perl version \\(answer 'p'\\)"
+    - "c\n"

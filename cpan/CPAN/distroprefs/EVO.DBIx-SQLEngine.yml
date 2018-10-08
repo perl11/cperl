@@ -1,0 +1,11 @@
+--- 
+match:
+  distribution: "EVO/DBIx-SQLEngine-\\d"
+test:
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    reuse: 1
+    talk:
+      - "Do you want to define a list of DSNs to test against"
+      - "\n"

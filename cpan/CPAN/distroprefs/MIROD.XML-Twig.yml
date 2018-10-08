@@ -1,0 +1,42 @@
+--- 
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=62781
+
+  ftp://cpan.cpantesters.org/CPAN/authors/id/A/AN/ANDK/patches/XML-Twig-3.37-ANDK-01.patch.gz
+
+match:
+  distribution: "^MIROD/XML-Twig-3.37"
+patches:
+  - "ANDK/patches/XML-Twig-3.37-ANDK-01.patch.gz"
+pl:
+  expect:
+    - "Do you want to install 'xml_pp'"
+    - "y\n"
+    - "Do you want to install 'xml_grep'"
+    - "y\n"
+    - "Do you want to install 'xml_split'"
+    - "y\n"
+    - "Do you want to install 'xml_merge'"
+    - "y\n"
+    - "Do you want to install 'xml_spellcheck'"
+    - "y\n"
+--- 
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=29727
+
+match:
+  distribution: "^MIROD/XML-Twig-"
+pl:
+  expect:
+    - "Do you want to install 'xml_pp'"
+    - "y\n"
+    - "Do you want to install 'xml_grep'"
+    - "y\n"
+    - "Do you want to install 'xml_split'"
+    - "y\n"
+    - "Do you want to install 'xml_merge'"
+    - "y\n"
+    - "Do you want to install 'xml_spellcheck'"
+    - "y\n"

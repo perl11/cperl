@@ -1,0 +1,7 @@
+---
+match:
+  distribution: 'DMARTIN/Unix-SavedIDs-\d'
+pl:
+  expect:
+    - '\QDo I have permission to run a test that will touch and unlink a randomly named, currenly non-existant file in your /tmp dir?\E'
+    - "n\n"

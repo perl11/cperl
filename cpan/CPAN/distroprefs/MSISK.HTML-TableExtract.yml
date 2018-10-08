@@ -1,0 +1,17 @@
+---
+comment: |
+
+    http://rt.cpan.org/Ticket/Display.html?id=20709
+
+    By declaring the dependency we'll get stable negative results
+    instead of random success and failure
+
+    My claim in the above ticket is incorrect. Reading the source
+    reveals a 2nd SKIP reason on HTML::ElementTable.
+
+match:
+  distribution: "MSISK/HTML-TableExtract-2.10.tar.gz"
+depends:
+  requires:
+    HTML::TreeBuilder: 0
+    HTML::ElementTable: 1.17

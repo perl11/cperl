@@ -1,0 +1,9 @@
+---
+match:
+  distribution: "^RHOOPER/HTTP-Lite-2.1.6.tar.gz"
+pl:
+  expect:
+    - "Location:"
+    - "\n"
+    - "Proxy:"
+    - "\n"

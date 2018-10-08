@@ -1,0 +1,8 @@
+---
+comment: |
+
+  I have no Apache 2 setup yet, sorry
+
+match:
+  distribution: 'GTERMARS/Apache2-Filter-Minifier-(JavaScript|CSS)-\d'
+disabled: 1

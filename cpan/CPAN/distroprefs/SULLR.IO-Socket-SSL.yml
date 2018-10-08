@@ -1,0 +1,20 @@
+---
+comment: |
+
+  WARNING
+  No library for handling international domain names found.
+  It will work but croak if you try to verify an international name against
+  a certificate.
+  It's recommended to install either Net::IDN::Encode, Net::LibIDN or URI version>=1.50
+  
+  Should I do external tests?
+  These tests will fail if there is no internet connection or if a firewall
+  blocks some traffic, does SSL interception or if a HTTP proxy is needed.
+  [y/N] [n]  
+
+match:
+  distribution: '^SULLR/IO-Socket-SSL-\d'
+pl:
+  expect:
+    - "Should I do external tests"
+    - "y\n"

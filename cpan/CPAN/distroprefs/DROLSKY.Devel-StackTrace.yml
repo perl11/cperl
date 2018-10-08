@@ -1,0 +1,9 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=32583
+
+match:
+  distribution: "DROLSKY/Devel-StackTrace-1.15.tar.gz"
+patches:
+  - "ANDK/patches/Devel-StackTrace-1.15-JDHEDDEN-01.patch.gz"

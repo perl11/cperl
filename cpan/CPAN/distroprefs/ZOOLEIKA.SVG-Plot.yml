@@ -1,0 +1,12 @@
+---
+comment: |
+
+  under rare circumstances succeeds like on 2007-12-05T22:15
+
+  http://rt.cpan.org/Ticket/Display.html?id=27652
+
+match:
+  distribution: "^ZOOLEIKA/SVG-Plot-0.06.tar.gz"
+#depends:
+#  requires:
+    

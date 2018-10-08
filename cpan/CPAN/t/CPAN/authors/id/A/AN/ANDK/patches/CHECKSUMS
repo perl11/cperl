@@ -1,0 +1,51 @@
+0&&<<''; # this PGP-signed message is also valid perl
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+# CHECKSUMS file written on Fri Nov  3 05:40:42 2006 GMT by CPAN::Checksums (v1.050)
+$cksum = {
+  'Coro-2.1-ANDK-01.patch.gz' => {
+    'md5' => '8b916404d5cfa4147d85a67408b1ec71',
+    'md5-ungz' => '8468d389ad6d8fd72afb732c66bf3660',
+    'mtime' => '2006-11-03',
+    'sha256' => '49729d2493f306309d28bd2feb0aeae04d1d9e84801b4de423e0f9cf9dc097f5',
+    'sha256-ungz' => 'f06aa0ae217bb3692b8ae9bc48d5103cdcb0a6d895c837ed1b9331e522e362aa',
+    'size' => 367
+  },
+  'DBI-1.52-SMPETERS-01.patch' => {
+    'md5' => '273b78d31d50c846d08f3b39235d47ff',
+    'mtime' => '2006-10-23',
+    'sha256' => 'af1a1e2369809d9758d3ae6afde47c6cb54d00786a2a974671b2adc06d7116a6',
+    'size' => 606
+  },
+  'File-Slurp-9999.12-ANDK-02.patch' => {
+    'md5' => '6b84963387baa704b4b35a110d29e4fa',
+    'mtime' => '2006-10-30',
+    'sha256' => 'ffabf0d291e64582f5778d3710d8d12b104f2cab473fbbcd9f9d9cea90894e8d',
+    'size' => 2514
+  },
+  'Parse-RecDescent-1.94-SADAHIRO-01.patch.gz' => {
+    'md5' => 'a44d52e2cb43b4433f4fe39b0d47c83c',
+    'md5-ungz' => 'b4a3ebf0c9405c124227b84a563d6180',
+    'mtime' => '2006-11-03',
+    'sha256' => 'e13946d898cb60140438ed61068f0d2b78d1d41eb11325963ff0f5ae3edec524',
+    'sha256-ungz' => 'f1ea979e14685188dea94cde055f75b1e2cbefb3d8f2995f810daeed2de25acf',
+    'size' => 1800
+  },
+  'Template-Toolkit-2.15-ANDK-01.patch.gz' => {
+    'md5' => '1491396b8bf53ef071b4fc20915e838b',
+    'md5-ungz' => 'c9a1b89f35b489bc32b337b5d300beac',
+    'mtime' => '2006-10-22',
+    'sha256' => '92040e3c19205a118a4a228ccef5e547e1a349f04bb87b8d2ad2625b602d640b',
+    'sha256-ungz' => 'bfa35b48f45c01ba22968d1b880080e604db85f59b83cff8ffe7103efae8d6b8',
+    'size' => 377
+  }
+};
+__END__
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFFStZaMo2oZ0UPiewRAvH6AJ9T+RoN/Ykydb01Hk+G9W5kSQO8UwCfSAel
+3tJ3foHzuAeL0oYQn/7gbQQ=
+=YXor
+-----END PGP SIGNATURE-----

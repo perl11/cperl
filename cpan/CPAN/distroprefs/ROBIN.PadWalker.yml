@@ -1,0 +1,9 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=32786
+
+match:
+  distribution: "ROBIN/PadWalker-1.6.tar.gz"
+patches:
+  - "ANDK/patches/PadWalker-1.6-ANDK-01.patch.gz"

@@ -1,0 +1,7 @@
+---
+match:
+  distribution: 'HDP/Perl-Version-\d'
+pl:
+  expect:
+    - "Install perl-reversion script"
+    - "y\n"

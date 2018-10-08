@@ -344,37 +344,25 @@ use File::Glob qw(:case);
     },
 
     'CPAN' => {
-        'DISTRIBUTION' => 'ANDK/CPAN-2.20-TRIAL.tar.gz',
+        'DISTRIBUTION' => 'ANDK/CPAN-2.21-TRIAL.tar.gz',
         'FILES'        => q[cpan/CPAN],
         'EXCLUDED'     => [
-            qr{^distroprefs/},
             qr{^inc/Test/},
-            qr{^t/CPAN/},
-            qr{^t/data/},
             qr{^t/97-},
             qw( lib/CPAN/Admin.pm
                 scripts/cpan-mirrors
                 PAUSE2015.pub
                 SlayMakefile
                 t/00signature.t
-                t/04clean_load.t
-                t/12cpan.t
-                t/13tarzip.t
                 t/14forkbomb.t
                 t/30shell.coverage
                 t/30shell.t
                 t/31sessions.t
-                t/41distribution.t
-                t/42distroprefs.t
-                t/43distroprefspref.t
                 t/44cpanmeta.t
                 t/50pod.t
-                t/51pod.t
                 t/52podcover.t
-                t/60credentials.t
                 t/70_critic.t
                 t/71_minimumversion.t
-                t/local_utils.pm
                 t/perlcriticrc
                 t/yaml_code.yml
                 ),
