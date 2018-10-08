@@ -448,6 +448,7 @@ sub _tests_from_manifest {
 		# XXX Generates way too many error lines currently.  Skip for
 		# v5.22
 		next if $t =~ /^cpan/ && ord("A") != 65;
+		next if m{^cpan/CPAN/t/CPAN/authors};
 
 		if (!$::core || $t =~ m!^lib/[a-z]!) {
 		    if (defined $extension) {

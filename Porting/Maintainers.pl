@@ -370,8 +370,9 @@ use File::Glob qw(:case);
         # https://github.com/andk/cpanpm/pull/109
         'CUSTOMIZED'   => [
             qw( lib/CPAN.pm lib/CPAN/FirstTime.pm lib/CPAN/Distribution.pm 
-                lib/CPAN/Mirrors.pm
-                lib/CPAN/Version.pm lib/App/Cpan.pm ),
+                lib/CPAN/Mirrors.pm lib/CPAN/Version.pm lib/App/Cpan.pm
+                t/04clean_load.t
+              ),
         ],
     },
 
