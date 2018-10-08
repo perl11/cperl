@@ -722,7 +722,7 @@ use File::Glob qw(:case);
             qr{^xt},
         ],
         # https://github.com/rurban/File-Path/tree/cperl
-        'CUSTOMIZED' => [ qw( lib/File/Path.pm t/Path_win32.t ) ],
+        'CUSTOMIZED' => [ qw( lib/File/Path.pm t/Path.t t/Path_win32.t ) ],
     },
 
     'File::Temp' => {

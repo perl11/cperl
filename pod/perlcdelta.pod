@@ -212,7 +212,12 @@ Protect from including some avx512 intrinsics directly on mingw.
 
 ffi helpers and ffi types.
 
-=item L<File::Path> 3.16_01c
+=item L<File::Path> 3.16_02c
+
+Fix symlink abort crossing mountpoint with CPAN::Distribution
+previous directory ~/.cpan/build changed before entering tmp-32186,
+expected dev=47 ino=244719549, actual dev=47 ino=33303, aborting at
+CPAN/Distribution.pm line 591
 
 Fix method of generating names for dummy users and groups during testing
 (i.e. under docker)
