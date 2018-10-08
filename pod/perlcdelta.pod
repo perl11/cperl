@@ -80,8 +80,13 @@ L<[cperl #362]|https://github.com/perl11/cperl/issues/362>
 Update to 2.21 upstream with our cperl fixes. Some of our fixes were
 accepted upstream.
 
-Add many upstream tests and distroprefs. still need to install them,
-and add the cperl distroprefs.
+Fixed critical rmtree bug with a symlink crossing mountpoints
+previous directory ~/.cpan/build changed before entering tmp-32186,
+expected dev=47 ino=244719549, actual dev=47 ino=33303, aborting at
+CPAN/Distribution.pm line 591
+
+Add many upstream tests and distroprefs. Still need to install them, and
+add the cperl distroprefs.
 
 =item L<Cwd> 4.75c
 
