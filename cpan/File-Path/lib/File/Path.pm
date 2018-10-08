@@ -18,7 +18,7 @@ BEGIN {
 
 use Exporter ();
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
-$VERSION   = '3.15_01c';
+$VERSION   = '3.16_01c';
 $VERSION   =~ tr/_//d;
 $VERSION   =~ s/c$//;
 $VERSION   = eval $VERSION;
@@ -624,7 +624,7 @@ File::Path - Create or remove directory trees
 
 =head1 VERSION
 
-2.15 - released June 07 2017.
+2.16 - released August 31 2018.
 
 =head1 SYNOPSIS
 
@@ -1227,6 +1227,8 @@ are greatly appreciated.
 Gisle Aas made a number of improvements to the documentation for
 2.07 and his advice and assistance is also greatly appreciated.
 
+Reini Urban modernized it for cperl, bumping its major version +1.
+
 =head1 AUTHORS
 
 Prior authors and maintainers: Tim Bunce, Charles Bailey, and
@@ -1253,6 +1255,8 @@ Contributors to File::Path, in alphabetical order by first name.
 
 =item Nigel Horne <F<njh@bandsman.co.uk>>
 
+=item Reini Urban <F<rurban@cpan.org>>
+
 =item Richard Elberger <F<riche@cpan.org>>
 
 =item Ryan Yee <F<ryee@cpan.org>>
@@ -1268,7 +1272,7 @@ Contributors to File::Path, in alphabetical order by first name.
 =head1 COPYRIGHT
 
 This module is copyright (C) Charles Bailey, Tim Bunce, David Landgren,
-James Keenan and Richard Elberger 1995-2017. All rights reserved.
+James Keenan and Richard Elberger 1995-2018. All rights reserved.
 
 =head1 LICENSE
 

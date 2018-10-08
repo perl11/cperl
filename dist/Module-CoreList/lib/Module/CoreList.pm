@@ -351,8 +351,9 @@ our %released :const = (
     '5.028000c' => '2018-09-10',
     '5.026003c' => '2018-09-10',
     '5.024004c' => '2018-09-14',
-    '5.028001c' => '????-??-??',
-    '5.029000c' => '????-??-??',
+    '5.029000c' => '2018-10-14',
+    '5.026004c' => '2018-10-16',
+    '5.028001c' => '2018-10-18',
  );
 
 sub version_sort {
@@ -17621,6 +17622,16 @@ our %delta = (
         removed => {
         }
     },
+    '5.026004c' => {
+        delta_from => '5.026003c',
+        changed => {
+            'B::Op_private'         => '5.026004',
+            'Module::CoreList'      => '5.20180913c',
+            'Module::CoreList::Utils'=> '5.20180913c',
+        },
+        removed => {
+        }
+    },
     '5.028001c' => {
         delta_from => '5.028000c',
         changed => {
@@ -17630,6 +17641,7 @@ our %delta = (
             'Cwd' 		    => '4.75c',
             'DynaLoader'            => '2.09c',
             'Errno'                 => '1.29_01',
+            'File::Path'            => '3.16_01c',
             'Storable'              => '3.12_02',
         },
         removed => {
@@ -17642,6 +17654,8 @@ our %delta = (
             'Module::CoreList'      => '5.20180913c',
             'Module::CoreList::Utils'=> '5.20180913c',
             'Errno'                 => '1.29_01',
+            'File::Path'            => '3.16_01c',
+            'ffi'                   => '0.01c',
             'hashiter'              => '0.02',
             'Opcode'                => '1.40_03c',
             'Storable'              => '3.12_02',
