@@ -1,0 +1,9 @@
+$VAR1 = {
+  "comment" => "\nhttps://rt.cpan.org/Ticket/Display.html?id=62258\n",
+  "match" => {
+    "distribution" => "/YAML-0.72"
+  },
+  "patches" => [
+    "ANDK/patches/YAML-0.72-ANDK-01.patch.gz"
+  ]
+};

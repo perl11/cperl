@@ -1,0 +1,11 @@
+--- 
+match:
+  distribution: "/Apache-Sling-\\d"
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    reuse: 1
+    talk:
+      - "Skip external tests"
+      - "y\n"

@@ -1,0 +1,15 @@
+---
+comment: |
+
+  Just an illustration.
+
+  combining 3 match conditions works; the patch is in the CPAN.pm
+  distro, adjust the path to try it out
+
+match:
+  module: "CPAN::Test::Dummy::Perl5::Build::Fails"
+  perl: "/just/an/illustration/perl"
+  distribution: "^ANDK"
+patches:
+  - "$cwd/t/CPAN/TestPatch.txt"
+

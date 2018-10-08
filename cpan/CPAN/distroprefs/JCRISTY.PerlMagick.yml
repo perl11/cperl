@@ -1,0 +1,5 @@
+--- 
+comment: "Usually only works with current source which comes with PerlMagick anyway"
+match:
+  distribution: "^JCRISTY/PerlMagick-"
+disabled: 1

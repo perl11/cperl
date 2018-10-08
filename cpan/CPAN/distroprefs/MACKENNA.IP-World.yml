@@ -1,0 +1,11 @@
+--- 
+match:
+  distribution: "MACKENNA/IP-World-\\d"
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    reuse: 1
+    talk:
+      - "If so enter it"
+      - "\n"

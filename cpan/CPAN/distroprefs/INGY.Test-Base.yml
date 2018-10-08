@@ -1,0 +1,14 @@
+--- 
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=62265
+
+  Broken again with bleadperl v5.13.6-127-g9aa8b00
+
+  See also http://rt.perl.org/rt3//Public/Bug/Display.html?id=79302
+
+match:
+  distribution: '/Test-Base-0.59'
+patches:
+  - "ANDK/patches/Test-Base-0.59-ANDK-01.patch.gz"
+  - "ANDK/patches/Test-Base-0.59-ANDK-02.patch.gz"

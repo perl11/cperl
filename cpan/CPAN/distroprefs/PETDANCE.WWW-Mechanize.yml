@@ -1,0 +1,36 @@
+--- 
+comment: |
+
+    hangs on so many of my perls that I prefer to not even try it
+
+match:
+  distribution: '^PETDANCE/WWW-Mechanize-1.60'
+disabled: 1
+---
+comment: |
+
+  very nasty behaviour during test. Once had to kill the screen
+  terminal afterwards, cannot ^C in general. Might have success to get
+  it back to life by trying to scroll? Not really fond of retrying.
+
+match:
+  distribution: "^PETDANCE/WWW-Mechanize-1.34"
+  perlconfig:
+    version: '^5\.6\.2'
+disabled: 1
+--- 
+comment: |
+
+    only versions before 1.26 had the dialogue
+
+    note: PETDANCE/WWW-Mechanize-1.29_01.tar.gz
+
+match:
+  distribution: '^PETDANCE/WWW-Mechanize-\d'
+pl: 
+  eexpect:
+    mode: anyorder
+    timeout: 5
+    talk:
+      - "Do you want to install the mech-dump utility"
+      - "y\n"

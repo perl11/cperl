@@ -1,0 +1,10 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=35863
+
+match:
+  distribution: "CORDATA/Kwiki-Formatter-Emphasis-0.01.tar.gz"
+depends:
+  requires:
+    Kwiki::Plugin: 0

@@ -1,0 +1,4 @@
+comment: "https://rt.cpan.org/Ticket/Display.html?id=123681"
+match:
+  distribution: 'HERMES/Hash-Merge-0\.(?:299)\.tar\.gz'
+goto: "REHSACK/Hash-Merge-0.200.tar.gz"

@@ -1,0 +1,11 @@
+--- 
+comment: |
+
+  Zefram posting on p5p, Subject: Re: Bleadperl 20439bc breaks VPIT/autovivification-0.06.tar.gz
+
+  https://groups.google.com/group/perl.perl5.porters/browse_thread/thread/ce5a4fe5d4c0944d/efa874b796beadb7?hl=en&lnk=gst&q=autovivification#efa874b796beadb7
+
+match:
+  distribution: '/autovivification-0.06\.tar\.gz'
+patches:
+  - "ANDK/patches/autovivification-0.06-ZEFRAM-01.patch.gz"

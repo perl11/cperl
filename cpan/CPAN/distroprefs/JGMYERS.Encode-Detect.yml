@@ -1,0 +1,6 @@
+---
+comment: "https://rt.cpan.org/Ticket/Display.html?id=16250"
+match:
+  distribution: "^JGMYERS/Encode-Detect-1.00.tar.gz"
+patches:
+  - "ANDK/patches/Encode-Detect-1.00-ANDK-01.patch.gz"

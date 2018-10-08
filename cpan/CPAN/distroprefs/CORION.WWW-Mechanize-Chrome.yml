@@ -1,0 +1,6 @@
+---
+match:
+  distribution: 'CORION/WWW-Mechanize-Chrome-\d'
+test:
+  env:
+    CHROME_BIN: /usr/bin/chromium

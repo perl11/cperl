@@ -1,0 +1,10 @@
+--- 
+match:
+  distribution: "^(OLAF|NLNETLABS)/Net-DNS-"
+pl: 
+  args: 
+    - --no-online-tests
+    - --no-IPv6-tests
+depends:
+  requires:
+    Test::More: 0.72

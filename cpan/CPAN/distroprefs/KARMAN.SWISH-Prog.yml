@@ -1,0 +1,24 @@
+---
+comment: |
+
+  I'd rather change the defaults to yes but mech is failing too often;
+  the first 24 days of 2009-01 alone have 18 FAILs.
+
+  Last update at SWISH-Prog-0.32
+
+match:
+  distribution: 'KARMAN/SWISH-Prog-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    reuse: 1
+    talk:
+      - "WWW::Mechanize is recommended. Add it to CPAN install list"
+      - "n\n"
+      - "Mail::Box is optional. Add it to CPAN install list"
+      - "n\n"
+      - "optional.*Add it to CPAN install list"
+      - "n\n"
+      - "recommended.*Add it to CPAN install list"
+      - "n\n"

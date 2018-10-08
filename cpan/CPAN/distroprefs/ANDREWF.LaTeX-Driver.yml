@@ -1,0 +1,17 @@
+---
+match:
+  distribution: '^ANDREWF/LaTeX-Driver-\d'
+pl:
+  expect:
+    - "latex path"
+    - "\n"
+    - "pdflatex path"
+    - "\n"
+    - "dvips path"
+    - "\n"
+    - "ps2pdf path"
+    - "\n"
+    - "bibtex path"
+    - "\n"
+    - "makeindex path"
+    - "\n"

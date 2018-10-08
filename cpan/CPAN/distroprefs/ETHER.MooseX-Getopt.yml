@@ -1,0 +1,10 @@
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=82246
+
+match:
+  distribution: 'ETHER/MooseX-Getopt-0\.48\.tar\.gz'
+depends:
+  requires:
+    MooseX::SimpleConfig: 0

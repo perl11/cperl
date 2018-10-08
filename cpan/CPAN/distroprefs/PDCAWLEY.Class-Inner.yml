@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "PDCAWLEY/Class-Inner-0.1.tar.gz"
+patches:
+  - "ANDK/patches/Class-Inner-HVDS-01.patch.gz"

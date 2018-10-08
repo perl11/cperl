@@ -1,0 +1,9 @@
+--- 
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=30966
+
+match:
+  distribution: "^GAAS/Font-AFM-1.19.tar.gz"
+patches:
+  - "ANDK/patches/Font-AFM-1.19-ANDYA-01.patch.gz"

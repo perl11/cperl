@@ -1,0 +1,12 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=27047
+
+match:
+  distribution: "RMUHLE/classes-0.943.tar.gz"
+depends:
+  build_requires:
+    Test::Exception: 0.25
+patches:
+  - "ANDK/patches/classes-0.943-ANDK-01.patch.gz"

@@ -1,0 +1,16 @@
+---
+comment: |
+
+  Weird Makefile.PL. Any arbitrary ARGV will prevent that the question will come where we want to install.
+
+  The default answer to the default install is weird too, so our best
+  bet at the moment is to give foobar as argument. This worked with 1.44.
+
+match:
+  distribution: 'ABELTJE/Test-Smoke-\d'
+pl:
+  args:
+    - foobar
+  expect:
+    - 'Where would you like to install Test::Smoke\?'
+    - "\n"

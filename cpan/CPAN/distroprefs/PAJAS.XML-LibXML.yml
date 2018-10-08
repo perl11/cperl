@@ -1,0 +1,8 @@
+---
+comment: |
+
+  Shlomi insists on libxml2 2.9.0 but debian sid only has 2.8.0
+
+match:
+  distribution: "^SHLOMIF/XML-LibXML-2.0017.tar.gz"
+goto: "SHLOMIF/XML-LibXML-2.0016.tar.gz"

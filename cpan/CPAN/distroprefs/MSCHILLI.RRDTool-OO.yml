@@ -1,0 +1,20 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=32601
+
+  BTW, I then found out that RRDs.pm is missing and that it is not
+  distributed separately. So either we get RRDs.pm from somewhere or
+  we let him download and built rrdtools again and again. Or we fix
+  the problem by providing out local copy (which presumeably needs
+  patching, I haven't checked)
+
+match:
+  distribution: 'MSCHILLI/RRDTool-OO-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 10
+    talk:
+      - "Do you want me to install it for you right now"
+      - "n\n"

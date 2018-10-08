@@ -1,0 +1,35 @@
+0&&<<''; # this PGP-signed message is also valid perl
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+# CHECKSUMS file written on Tue Apr 14 04:19:10 2009 GMT by CPAN::Checksums (v2.00)
+$cksum = {
+  'CPAN-Test-Dummy-Perl5-Make-Features-1.04.meta' => {
+    'md5' => '3a0b67b748d02df9663ae38029022233',
+    'mtime' => '2008-04-14',
+    'sha256' => '0913fbd09be6dd40e7339df540bc5bb565e354c6ac3fb47acc5aefeca92fef8c',
+    'size' => '640'
+  },
+  'CPAN-Test-Dummy-Perl5-Make-Features-1.04.tar.gz' => {
+    'md5' => '706a88c3c6a2b86f4e2034710a768f99',
+    'md5-ungz' => '1ecee010e77760db31b38635409b48ad',
+    'mtime' => '2008-04-14',
+    'sha256' => 'f36e52f6ecc91da33722a20caaa3b931af04e67c96802ec39a04520e96b03961',
+    'sha256-ungz' => '5108082e573a01a36dd7f4a7e2a528302b1a0e723ea775922f9b2503d5ef31e1',
+    'size' => '1965'
+  },
+  'CPAN-Test-Dummy-Perl5-Make-Features-1.05.tgz' => {
+    'md5' => '4cddcff18594c9c5b34191fa20cead37',
+    'mtime' => '2009-04-14',
+    'sha256' => '45bd65a90bd1eae8d52ccbfc38edc9e24d9f95f337744201a1718564c1648dc4',
+    'size' => '1992'
+  }
+};
+__END__
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFJ5A6+Mo2oZ0UPiewRAlzSAJoDLIsllEbqu1qKJ5f9lkHygFQ5tACfe7IS
+nBJe5TOPH6jnlur7wrKEoKw=
+=YlIv
+-----END PGP SIGNATURE-----

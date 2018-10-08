@@ -1,0 +1,12 @@
+---
+comment: |
+
+  Pod::Coverage test fails on bleadperl unless skipped. To avoid
+  random results we must specify this dependency
+
+match:
+  distribution: '^GOMOR/Net-Write-\d'
+depends:
+  build_requires:
+    Pod::Coverage: 0
+    Test::Pod::Coverage: 0

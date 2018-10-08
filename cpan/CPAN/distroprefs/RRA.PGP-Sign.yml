@@ -1,0 +1,11 @@
+---
+match:
+  distribution: '^RRA/PGP-Sign-\d'
+make:
+  expect:
+    - "Program to sign data"
+    - "/usr/bin/gpg\n"
+    - "Program to verify signatures"
+    - "/usr/bin/gpg\n"
+    - "PGP style"
+    - "GPG\n"

@@ -1,0 +1,9 @@
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=123908
+
+match:
+  distribution: 'ETHER/Try-Tiny-0\.(28|29)\.tar\.gz'
+pl:
+  commandline: "$PERL -i~ -ple 'use 5.010;BEGIN{$whenok=eval q{given(q{x}){when(qr/./){1}}}}s/when/whereso/g unless $whenok' t/given_when.t t/when.t; $PERL Makefile.PL"

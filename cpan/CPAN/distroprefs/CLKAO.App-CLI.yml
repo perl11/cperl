@@ -1,0 +1,10 @@
+---
+match:
+  distribution: "^CLKAO/App-CLI-"
+pl: 
+  args: ["--defaultdeps"]
+  env:
+    PERL_AUTOINSTALL: --skip    
+make:
+  env:
+    PERL_AUTOINSTALL: --skip    

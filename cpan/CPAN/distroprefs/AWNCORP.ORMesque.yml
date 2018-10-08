@@ -1,0 +1,13 @@
+---
+comment: |
+
+  To reproduce the breakage DBD::SQLite must be installed. Without
+  sqlite one can get PASS due to skipped tests.
+
+  http://rt.cpan.org/Ticket/Display.html?id=???"
+
+match:
+  distribution: "AWNCORP/ORMesque-1.110422.tar.gz"
+depends:
+  requires:
+    DBD::SQLite: 0

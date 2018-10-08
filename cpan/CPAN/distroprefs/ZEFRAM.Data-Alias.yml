@@ -1,0 +1,10 @@
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=100944
+
+match:
+  distribution: '/Data-Alias-1\.18\.tar\.gz'
+patches:
+  - SREZIC/patches/Data-Alias-1.18-RT98758-2.patch
+  - ANDK/patches/Data-Alias-1.18-RT100944.patch.gz

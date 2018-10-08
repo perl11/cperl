@@ -1,0 +1,9 @@
+--- 
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=60380
+
+match:
+  distribution: '^RGARCIA/Switch-2.16\.tar\.gz'
+patches:
+  - "ANDK/patches/Switch-2.16-SPROUT-01.patch.gz"

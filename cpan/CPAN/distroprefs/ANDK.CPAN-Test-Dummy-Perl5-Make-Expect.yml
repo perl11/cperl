@@ -1,0 +1,20 @@
+--- 
+comment: "expect for the first time with unpredictable order of questions"
+match:
+  distribution: '^ANDK/CPAN-Test-Dummy-Perl5-Make-Expect-'
+pl:
+  commandline: "$PERL -le 'print q{Hello COMMANDLINE,}'; $PERL Makefile.PL Belle de jour"
+  env:
+    PERL_TEST_DUMMY_PERL5_MAKE_EXPECT: 'Oui, je suis Catherine Deneuve'
+  eexpect:
+    mode: anyorder
+    timeout: 12
+    talk:
+      - '6\*8'
+      - "48\n"
+      - '3\*2'
+      - "6\n"
+      - '3\*7'
+      - "21\n"
+      - "Unicode Codepoint of Won, hexadecimal"
+      - "20A9\n"

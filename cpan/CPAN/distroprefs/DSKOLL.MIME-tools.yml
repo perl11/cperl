@@ -1,0 +1,20 @@
+---
+comment: |
+
+  bleadperl probably broke this distro with undef in %INC; needs
+  further investigation (2007-04)
+
+  Warning: Use of "require" without parentheses is ambiguous at (eval 641) line 1.
+
+  http://groups.google.com/group/perl.perl5.porters/browse_thread/thread/c69cf6ab2b16f985/62b09eab3381584f?lnk=gst&q=%22is+ambiguous%22&rnum=8#62b09eab3381584f
+
+  The bug seems to be in Mail::Field but is worked around by makeing
+  sure Date::Format is installed.
+
+  So I put the depends also into MARKOV.MailTools.yml
+
+match:
+  distribution: '^DSKOLL/MIME-tools-\d'
+depends:
+  requires:
+    Date::Format: 0

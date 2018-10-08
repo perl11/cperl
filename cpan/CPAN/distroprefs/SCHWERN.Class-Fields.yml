@@ -1,0 +1,6 @@
+---
+comment: "http://rt.cpan.org/Ticket/Display.html?id=11649"
+match:
+  distribution: "SCHWERN/Class-Fields-0.201.tar.gz"
+patches:
+  - "ANDK/patches/Class-Fields-0.201-BKW-01.patch.gz"

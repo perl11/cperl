@@ -1,0 +1,8 @@
+--- 
+comment: |
+
+  need to test TRIAL more often
+
+match:
+  distribution: '^ANDK/CPAN-1.9800.tar.gz'
+goto: "ANDK/CPAN-2.00-TRIAL.tar.gz"

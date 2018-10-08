@@ -1,0 +1,12 @@
+---
+comment: |
+
+    do not use Module::Build which has some major issues
+
+    has a broken signature for ages (https://rt.cpan.org/Ticket/Display.html?id=59189)
+
+match:
+  distribution: 'SCHWIGON/(class-methodmaker/)?Class-MethodMaker-\d'
+cpanconfig:
+  prefer_installer: "EUMM"
+  check_sigs: 0

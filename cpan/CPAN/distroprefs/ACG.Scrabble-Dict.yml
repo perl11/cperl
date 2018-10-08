@@ -1,0 +1,7 @@
+---
+match:
+  distribution: '^ACG/Scrabble-Dict-\d'
+pl:
+  expect:
+    - "Do you want to perform online tests during .make test. phase.."
+    - "n\n"

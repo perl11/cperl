@@ -1,0 +1,11 @@
+--- 
+match:
+  distribution: "NINE/Inline-Python-\\d"
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    reuse: 1
+    talk:
+      - "ich"
+      - "\n"

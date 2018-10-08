@@ -1,0 +1,6 @@
+lib/CPAN/Test/Dummy/Perl5/Make/Zip.pm
+Changes
+Makefile.PL
+MANIFEST
+README
+t/00_load.t

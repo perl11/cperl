@@ -1,0 +1,11 @@
+---
+comment: |
+
+  http://rt.cpan.org/Public/Bug/Display.html?id=29977
+
+  maybe Philip has given up on it?
+
+match:
+  distribution: "GWYN/POE-Component-Daemon-0.1006.tar.gz"
+disabled: 1
+

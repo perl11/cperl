@@ -1,0 +1,4 @@
+---
+match:
+  distribution: '^ILMARI/SQL-Translator-0.11020\.tar\.gz'
+goto: "ILMARI/SQL-Translator-0.11020_01.tar.gz"

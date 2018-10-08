@@ -1,0 +1,6 @@
+---
+comment: "See http://rt.cpan.org/Ticket/Display.html?id=23997"
+match:
+  distribution: "^MSERGEANT/CDB_File-0.95"
+patches:
+  - "ANDK/patches/CDB_File-0.95-ANDK-01.patch.gz"

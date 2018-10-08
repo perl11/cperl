@@ -1,0 +1,12 @@
+---
+comment: |
+
+  the author checks for Apache::Constants ***or*** Apache2::Const
+
+  OTOH, I can decide what I want:)
+
+match:
+  distribution: 'TIMB/GoferTransport-http-\d'
+depends:
+  configure_requires:
+    Apache::Constants: 0

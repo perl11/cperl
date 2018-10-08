@@ -1,0 +1,30 @@
+---
+comment: |
+
+  Found a 8GB testout file with "Attempt to free..." lines
+
+  sorry, no time to investigate
+
+match:
+  distribution: 'NEELY/Data-Serializer-\d'
+  perl: 'perl-5.6.2'  
+disabled: 1
+---
+comment: |
+
+  Too many PASSes when these dependencies are not there because then
+  tests are skipped.
+
+  update 2008-03-29 akoenig : JSON 2 seems to be the main contributor
+  to the fails that recently started to show up. (just an hypothesis)
+
+match:
+  distribution: 'NEELY/Data-Serializer-\d'
+depends:
+  requires:
+    Digest::MD5: 0
+    Digest::SHA1: 0
+    Digest::SHA: 0
+    Crypt::Blowfish: 0
+    Crypt::CBC: 0
+    JSON: 2

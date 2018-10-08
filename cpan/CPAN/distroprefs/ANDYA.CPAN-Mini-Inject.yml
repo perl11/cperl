@@ -1,0 +1,4 @@
+---
+match:
+  distribution: 'ANDYA/CPAN-Mini-Inject-0\.27\.tar\.gz'
+goto: 'BDFOY/CPAN-Mini-Inject-0.27_03.tar.gz'

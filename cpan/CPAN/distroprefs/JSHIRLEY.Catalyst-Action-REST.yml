@@ -1,0 +1,18 @@
+---
+comment: |
+
+  because Data-Taxi has disappeared from CPAN (uploaded 2003, not
+  found 2008-10) I must not confirm when it is offered as a dependency
+
+match:
+  distribution: '(JSHIRLEY|.+)/Catalyst-Action-REST-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 60
+    reuse: 1
+    talk:
+      - "Taxi(?s:.+)Auto-install"
+      - "n\n"
+      - "Auto-install"
+      - "n\n"

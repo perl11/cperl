@@ -1,0 +1,10 @@
+---
+comment: |
+
+  Decreasing version number. Class::Trait::Config in this 0.21 distro
+  is 0.05 but we do not want it because that would downgrade
+  Class::Trait
+
+match:
+  distribution: '^OVID/Class-Trait-0\.21\.tar\.gz'
+disabled: 1

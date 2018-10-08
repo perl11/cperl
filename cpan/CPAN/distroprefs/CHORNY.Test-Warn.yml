@@ -1,0 +1,17 @@
+--- 
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=61649
+
+match:
+  distribution: '/Test-Warn-0.22.tar.gz'
+patches:
+  - "ANDK/patches/Test-Warn-0.22-ANDK-01.patch.gz"
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=74827
+
+match:
+  distribution: "CHORNY/Test-Warn-0.23.tar.gz"
+goto: CHORNY/Test-Warn-0.23_01.tar.gz

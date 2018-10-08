@@ -1,0 +1,7 @@
+---
+match:
+  distribution: 'FLORA/MooseX-MultiMethods-'
+depends:
+  requires:
+    MooseX::Declare: 0
+    Test::NoWarnings: 0

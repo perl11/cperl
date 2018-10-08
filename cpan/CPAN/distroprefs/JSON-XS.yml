@@ -1,0 +1,8 @@
+---
+match:
+  distribution: "/JSON-XS-2\\.33\\."
+  perlconfig:
+    version: "^5\\.1(9|8|7\\.(10|11|12))"
+patches:
+  - SREZIC/patches/JSON-XS-2.33-RT84151.patch
+# hash (very) randomization problem

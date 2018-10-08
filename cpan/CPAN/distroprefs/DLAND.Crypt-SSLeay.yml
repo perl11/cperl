@@ -1,0 +1,17 @@
+---
+comment: |
+
+  Since 0.60 is out we do not do the goto anymore
+
+match:
+  distribution: '^NANIS/Crypt-SSLeay-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    talk:
+      - "Which OpenSSL build path"
+      - "\n"
+      - "Which SSL install path"
+      - "\n"
+      - "Do you want to run the live tests"
+      - "n\n"

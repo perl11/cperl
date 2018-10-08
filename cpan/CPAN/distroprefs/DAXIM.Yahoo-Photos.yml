@@ -1,0 +1,24 @@
+---
+match:
+  distribution: 'DAXIM/Yahoo-Photos-\d'
+depends:
+  configure_requires:
+    Perl::Version: 0
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 10
+    reuse: 1
+    talk:
+      - "Auto-install"
+      - "y\n"
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+make:
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+test:
+  args:
+    - "TEST_VERBOSE=1"

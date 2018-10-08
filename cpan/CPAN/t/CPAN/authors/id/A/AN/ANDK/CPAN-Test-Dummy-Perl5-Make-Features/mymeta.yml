@@ -1,0 +1,20 @@
+--- #YAML:1.0
+name:                CPAN-Test-Dummy-Perl5-Make-Features
+version:             1.00
+abstract:            CPAN Test Dummy for CPAN.pm
+license:             perl
+generated_by:        ExtUtils::MakeMaker version 6.32_01 and tweaked manually
+dynamic_config: 0
+optional_features:
+    noodles:
+        description: "Makes noodles"
+        requires:  
+            CPAN::Test::Dummy::Perl5::Make: 0
+    rice:
+        description: "Builds rice"
+        requires:  
+            CPAN::Test::Dummy::Perl5::Build: 0
+distribution_type:   module
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3

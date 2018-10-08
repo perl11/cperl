@@ -1,0 +1,11 @@
+--- 
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=62260
+
+  ftp://cpan.cpantesters.org/CPAN/authors/id/A/AN/ANDK/patches/Regexp-Log-0.05-ANDK-01.patch.gz
+
+match:
+  distribution: "^BOOK/Regexp-Log-0.05"
+patches:
+  - "ANDK/patches/Regexp-Log-0.05-ANDK-01.patch.gz"

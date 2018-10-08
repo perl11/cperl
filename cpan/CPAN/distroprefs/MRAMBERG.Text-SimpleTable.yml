@@ -1,0 +1,8 @@
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=125547
+
+match:
+  distribution: "^MRAMBERG/Text-SimpleTable-2.05.tar.gz"
+goto: "MRAMBERG/Text-SimpleTable-2.04.tar.gz"

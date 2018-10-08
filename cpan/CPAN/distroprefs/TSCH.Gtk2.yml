@@ -1,0 +1,28 @@
+---
+comment: |
+
+   PREREQ_FATAL must die (http://rt.cpan.org/Ticket/Display.html?id=24774)
+   so configure_requires must resolve
+
+   Note: PREREQ_FATAL=0 did not work in MakeMaker up to 6.35 (RT 24774)
+
+match:
+  distribution: '^TSCH/Gtk2-\d'
+pl:
+  args:
+    - "PREREQ_FATAL=0"
+test:
+  env:
+    DISPLAY: ":121"
+---
+match:
+  distribution: '^TSCH/Gnome2-PanelApplet-\d'
+pl:
+  args:
+    - "PREREQ_FATAL=0"
+depends:
+  configure_requires:
+    ExtUtils::Depends: 0.205
+    ExtUtils::MakeMaker: 6.35
+    ExtUtils::PkgConfig: 0
+    Glib: 1.16

@@ -1,0 +1,11 @@
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=52890
+
+match:
+  distribution: 'DMAKI/Data-Localize-0.00011.tar.gz'
+depends:
+  requires:
+    I18N::LangTags::Detect: 0
+    Encode: 0

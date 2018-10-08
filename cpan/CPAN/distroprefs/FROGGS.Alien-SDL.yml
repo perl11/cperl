@@ -1,0 +1,24 @@
+comment: |
+
+  Decide between several compile variations
+
+  High timeout needed
+
+  You have the following options:
+  [1] Source code build
+      tiff(v3.9.1) SDL(v1.2.15) SDL_image(v1.2.11) ogg(v1.3.0) vorbis(v1.3.3) SDL_mixer(v1.2.12) SDL_ttf(v2.0.11) SDL_gfx(v2.0.23) SDL_Pango(v1.2) 
+  [2] Quit installation
+
+  What way do you wanna go? [1 ]
+  1
+
+match:
+  distribution: '/Alien-SDL-'
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 300
+    reuse: 1
+    talk:
+      - "What way do you wanna go\\?"
+      - "\n"

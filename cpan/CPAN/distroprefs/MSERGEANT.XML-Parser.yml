@@ -1,0 +1,11 @@
+---
+comment: "bleadperl 31194 broke the test suite"
+match:
+  distribution: "^MSERGEANT/XML-Parser-2.34.tar.gz"
+patches:
+  - "ANDK/patches/XML-Parser-2.34-ANDK-01.patch.gz"
+---
+match:
+  distribution: "^MSERGEANT/XML-Parser-2.35.tar.gz"
+patches:
+  - "ANDK/patches/XML-Parser-2.35-SREZIC-01.patch.gz"

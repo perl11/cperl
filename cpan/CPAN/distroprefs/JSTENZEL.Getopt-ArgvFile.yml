@@ -1,0 +1,6 @@
+---
+comment: "since 1.11 is out (20070422), this file can be tossed"
+match:
+  distribution: '^JSTENZEL/Getopt-ArgvFile-1.10\d'
+patches:
+  - "ANDK/patches/Getopt-ArgvFile-1.10-ANDK-01.patch.gz"

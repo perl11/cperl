@@ -1,0 +1,11 @@
+---
+match:
+  distribution: "JDIEPEN/Audio-LADSPA-0"
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 120
+    reuse: 1
+    talk:
+      - "Do you want to test audio output"
+      - "y\n"

@@ -1,0 +1,5 @@
+---
+comment: "http://rt.cpan.org/Ticket/Display.html?id=26469"
+match:
+  distribution: "TLOWERY/DBI-Shell-11.94.tar.gz"
+goto: "TLOWERY/DBI-Shell-11.93.tar.gz"

@@ -1,0 +1,14 @@
+---
+comment: |
+
+  No idea who pulls this in as a dependency.
+
+match:
+  distribution: '^METZZO/Java-\d'
+test:
+  eexpect:
+    mode: anyorder
+    timeout: 10
+    talk:
+      - "Do you want to continue"
+      - "y\n"

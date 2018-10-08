@@ -1,0 +1,22 @@
+---
+comment: |
+
+  Users of Module::Install that did not include an inc directory
+
+  This configure_requires does not seem to help because they would
+  have to have inc::Module::Install and they do not get that from
+  Module::Install installation.
+
+  PDF-API2-Simple: http://rt.cpan.org/Ticket/Display.html?id=28125
+  Catalyst-Plugin-Unicode: ?
+  Crypt-OpenSSL-X509: http://rt.cpan.org/Ticket/Display.html?id=27765
+
+match:
+  distribution: |
+    ^(?x:.^
+    |MRAMBERG/Catalyst-Plugin-Unicode-\d
+    |REDTREE/PDF-API2-Simple-\d
+    )|
+depends:
+  configure_requires:
+    Module::Install: 0

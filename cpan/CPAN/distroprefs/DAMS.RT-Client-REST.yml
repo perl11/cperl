@@ -1,0 +1,9 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=34917
+
+match:
+  distribution: 'DAMS/RT-Client-REST-0.34\d'
+patches:
+  - "ANDK/patches/RT-Client-REST-0.34-ANDK-01.patch.gz"

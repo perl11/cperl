@@ -1,0 +1,11 @@
+---
+comment: |
+
+  not yet reported, need more data
+
+match:
+  distribution: '^ABH/Mojolicious-Plugin-TtRenderer-\d'
+depends:
+  requires:
+    Devel::Cycle: 0
+    PadWalker: 0

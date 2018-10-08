@@ -2,11 +2,11 @@
 #     ./perl -Ilib t/porting/customized.t --regen
 Archive::Tar cpan/Archive-Tar/t/90_symlink.t 66a29edeff869c6569051aaecfc59b6624477be9
 B::C cpan/B-C/t/test10 0b3ab672868ee49e8539649aad1ad8c940c4c420
-CPAN cpan/CPAN/lib/App/Cpan.pm fcfc8800fa3dbff061da3688ad6a6fdd3716fbc8
-CPAN cpan/CPAN/lib/CPAN.pm 2d0604a53a0683e25a9af033e4325e6889cd8ae5
-CPAN cpan/CPAN/lib/CPAN/Distribution.pm 6bba9acd376ca75910f16c9336d538f01e9fbad1
+CPAN cpan/CPAN/lib/App/Cpan.pm 17edd3b9d1dd0c9136391efb1e608e88f5184547
+CPAN cpan/CPAN/lib/CPAN.pm 07276e640969c877a91961cbedb34597c56debf4
+CPAN cpan/CPAN/lib/CPAN/Distribution.pm 0d02fc10cb12e3db3600de5260835e3b43ba4ca4
 CPAN cpan/CPAN/lib/CPAN/FirstTime.pm 8ebb8653b0e5a9675a7b629daecbda935f2507b2
-CPAN cpan/CPAN/lib/CPAN/Mirrors.pm 189e1eca88916725d1e1ee59f064308bd56b7169
+CPAN cpan/CPAN/lib/CPAN/Mirrors.pm 85341ccb5b355354871ca9e120796e53803d104f
 CPAN cpan/CPAN/lib/CPAN/Version.pm 8f5144fc8c46a1eb9c1b87e5050fc2c2b3506ea4
 CPAN::Meta dist/CPAN-Meta/lib/CPAN/Meta.pm b0f88791eb04e1d0071dbd89f2773fd2a1a14df1
 CPAN::Meta dist/CPAN-Meta/lib/CPAN/Meta/History/Meta_1_4.pod 3a1ae20933b955b5f1e538ea35b502517a3ae391

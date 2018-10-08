@@ -1,0 +1,75 @@
+comment: |
+
+  or just to accept defaults in future releases...
+
+  The dependency on Event is only given because I want to build
+  Coro::Event and it does not get built if Event is not installed
+  BEFOREHAND.
+
+  Starting with 4.02 the defaults stopped working for me and I needed
+  CORO_INTERFACE=s. I discovered this only when we reached 4.13 and
+  only for perls with debugging on (-Doptimize=-g)
+
+  With Coro 5.23 I observed that Event/unblock.t was hanging when the
+  perl on my 64 bit machine had uselongdouble defined. When the coro
+  method was set to (u,s,a,i,p), Event/unblock.t was hanging. With
+  (l,w) the code didn't compile.
+
+  With Coro 5.25 I'm trying again to set disabled=0 to find out where
+  we stand. [time passes] disabling again on 2010-12-12, too many
+  perl versions that trigger hanging tests.
+
+  With Coro 6.02 trying again to disable this distropref stanza. Nope,
+  the test after basic.t hangs again
+
+  With Coro 6.23 I try again to set disabled=0 because cpantesters
+  shows mostly green.
+
+  With 6.37 I try again to enable all Coro configurations because
+  bleadperl 5.19 has some problems for perl and we should at least see
+  all Coro results.
+
+match:
+  distribution: "^MLEHMANN/Coro-"
+#  perlconfig:
+#    nvsize: "^16$"
+disabled: 0
+---
+match:
+  distribution: "^MLEHMANN/Coro-"
+  perlconfig:
+    optimize: "-g"
+pl:
+  env:
+    PERL_MM_USE_DEFAULT: 1
+    CORO_INTERFACE: s
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    reuse: 1
+    talk:
+      - "Skip further questions"
+      - "y\n"
+depends:
+  configure_requires:
+    Event: 0
+  requires:
+    Event: 0
+--- 
+match:
+  distribution: "^MLEHMANN/Coro-"
+pl:
+  env:
+    PERL_MM_USE_DEFAULT: 1
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    reuse: 1
+    talk:
+      - "Skip further questions"
+      - "y\n"
+depends:
+  configure_requires:
+    Event: 0
+  requires:
+    Event: 0

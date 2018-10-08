@@ -1,0 +1,7 @@
+Build.PL
+Changes
+MANIFEST
+META.yml
+README
+lib/CPAN/Test/Dummy/Perl5/Build/Fails.pm
+t/00_load.t

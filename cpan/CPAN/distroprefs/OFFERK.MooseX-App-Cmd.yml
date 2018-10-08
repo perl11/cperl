@@ -1,0 +1,9 @@
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=75539
+
+match:
+  distribution: '^OFFERK/MooseX-App-Cmd-0.07.tar.gz'
+cpanconfig:
+  check_sigs: 0

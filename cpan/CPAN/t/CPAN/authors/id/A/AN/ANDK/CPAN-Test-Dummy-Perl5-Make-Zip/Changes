@@ -1,0 +1,9 @@
+Revision history for CPAN-Test-Dummy-Perl5-Make-Zip
+
+1.02 2006-09-30
+
+     - added a dependency on CPAN-Test-Dummy-Perl5-Make
+
+1.01 2006-02-11
+
+     - initial release

@@ -1,0 +1,34 @@
+---
+comment: |
+
+  dzil 6.x requires perl 5.14, so install instead 5.046 on older perls
+
+match:
+  distribution: '^RJBS/Dist-Zilla-6'
+  perlconfig:
+    version: '^5.(?:[89]|1[0123])'
+# Unfortunately only on BackPAN
+#   o conf urllist push http://backpan.perl.org/
+goto: RJBS/Dist-Zilla-5.046.tar.gz
+---
+comment: |
+
+  fix dzil 5.046 failing test with Moose 2.1806
+
+match:
+  distribution: '^RJBS/Dist-Zilla-5.046.tar.gz'
+#
+# install JV/makepatch-2.05.tar.gz
+# o conf applypatch => which makepatch
+patches:
+  # Made with:
+  #   wget http://backpan.perl/org/authors/id/R/RJ/RJBS/Dist-Zilla-5.046.tar.gz
+  #   tar xvzf Dist-Zilla-5.046.tar.gz
+  #   mv Dist-Zilla-5.046 Dist-Zilla-5.046.orig
+  #   tar xvzf Dist-Zilla-5.046.tar.gz
+  #   # hack
+  #   makepatch Dist-Zilla-5.046.orig Dist-Zilla-5.046 | gzip -9 > Dist-Zilla-5.046-DOLMEN-02.patch.gz
+  - DOLMEN/patches/Dist-Zilla-5.046-DOLMEN-02.patch.gz
+depends:
+  requires:
+    Moose: '2.1806'

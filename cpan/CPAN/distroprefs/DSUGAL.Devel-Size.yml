@@ -1,0 +1,6 @@
+---
+comment: "http://rt.cpan.org/Ticket/Display.html?id=24982 (bleadperl change 29544)"
+match:
+  distribution: "DSUGAL/Devel-Size-0.64"
+patches:
+  - "ANDK/patches/Devel-Size-0.64-ANDK-01.patch.gz"

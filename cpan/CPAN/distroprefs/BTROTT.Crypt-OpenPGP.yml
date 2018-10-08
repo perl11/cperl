@@ -1,0 +1,79 @@
+---
+comment: |
+
+  Maybe dated extutils::autoinstall (not yet RTed)
+
+  *** ExtUtils::AutoInstall version 0.42
+  *** Checking for dependencies...
+  [Core Features]
+  - Data::Buffer     ...failed! (needs 0.04)
+  - MIME::Base64     ...loaded. (3.07_01)
+  - Math::Pari       ...failed! (needed)
+  - Compress::Zlib   ...loaded. (2.01)
+  - LWP::UserAgent   ...loaded. (5.810)
+  - URI::Escape      ...loaded. (3.29)
+  - Crypt::DSA       ...failed! (needed)
+  - Crypt::RSA       ...failed! (needed)
+  [PGP2 Compatibility (Minimum)]
+  - Crypt::IDEA      ...failed! (needed)
+  - Digest::MD5      ...loaded. (2.36_01)
+  [PGP5 Compatibility (Minimum)]
+  - Crypt::DES_EDE3  ...failed! (needed)
+  - Digest::SHA1     ...loaded. (2.11)
+  [GnuPG Compatibility (Minimum)]
+  - Crypt::Rijndael  ...failed! (needed)
+  - Crypt::CAST5_PP  ...failed! (needed)
+  - Crypt::RIPEMD160 ...failed! (needed)
+  [Support for all ciphers]
+  - Crypt::IDEA      ...failed! (needed)
+  - Crypt::DES_EDE3  ...failed! (needed)
+  - Crypt::CAST5_PP  ...failed! (needed)
+  - Crypt::Blowfish  ...failed! (needed)
+  - Crypt::Twofish   ...failed! (needs 2.00)
+  - Crypt::Rijndael  ...failed! (needed)
+  [Support for all digests]
+  - Digest::MD5      ...loaded. (2.36_01)
+  - Digest::SHA1     ...loaded. (2.11)
+  - Crypt::RIPEMD160 ...failed! (needed)
+  *** ExtUtils::AutoInstall configuration finished.
+  Checking if your kit is complete...
+
+match:
+  distribution: 'BTROTT/Crypt-OpenPGP-\d'
+depends:
+  configure_requires:
+    Compress::Zlib: 2.01
+    Crypt::Blowfish: 0
+    Crypt::CAST5_PP: 0
+    Crypt::DES_EDE3: 0
+    Crypt::DSA: 0
+    Crypt::IDEA: 0
+    Crypt::RIPEMD160: 0
+    Crypt::RSA: 0
+    Crypt::Rijndael: 0
+    Crypt::Twofish: 2.00
+    Data::Buffer: 0.04
+    Digest::MD5: 2.3601
+    Digest::SHA1: 2.11
+    LWP::UserAgent: 5.81
+    MIME::Base64: 3.0701
+    Math::Pari: 0
+    URI::Escape: 3.29
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 20
+    reuse: 1
+    talk:
+      - "Auto-install"
+      - "y\n"
+# for very old bundled AutoInstall:
+      - "Do you wish to install"
+      - "y\n"
+  env:
+    PERL_AUTOINSTALL: --skip
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+make:
+  env:
+    PERL_AUTOINSTALL: --skip
+    PERL_EXTUTILS_AUTOINSTALL: --skip

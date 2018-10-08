@@ -1,0 +1,82 @@
+---
+comment: |
+
+  something was slow during the PL phase, so it was disabled for a while
+  http://rt.cpan.org//Ticket/Display.html?id=33982 resolved
+
+  But then I got
+
+  Failing: could not answer a question during the dialog
+  No 'Makefile' created  AGENT/OpenResty-0.3.1.tar.gz
+
+  But no sign of a question visible after 120 seconds.
+
+  But when I call 'perl Makefile.PL' directly then I do see the
+  question:
+
+  "Auto-install the 4 mandatory module(s) from CPAN". Yes, the bundled
+  Module::Install is 0.68.
+  http://rt.cpan.org//Ticket/Display.html?id=36389
+
+  But the story continues. CPAN/CPAN::Reporter do not display the
+  'Auto-install the 4 mandatory module(s) from CPAN?', so Expect does
+  not see it and the time passes running into a timeout. As a quick
+  workaround I add the dependencies here but it's not nice to know
+  that such things can happen.
+
+match:
+  distribution: 'AGENT/OpenResty-\d'
+disabled: 0
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 120
+    reuse: 1
+    talk:
+      - "Auto-install"
+      - "y\n"
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+make:
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+depends:
+  requires:
+    CGI: 3.33
+    Class::Prototyped: 1.11
+    Test::LongString: 0.11
+    Text::Diff: 0.35
+    LWP::UserAgent: 5.813
+    HTTP::Response: 1.53
+    Cache::Cache: 1.05
+    WWW::OpenResty: 0.06
+    Cookie::XS: 0.09
+    FCGI: 0.67
+    CGI::Simple: 1.103
+    CGI::Simple::Cookie: 1.105
+    YAML::Syck: 1.04
+    List::Util: 1.19
+    DBI: 1.57
+    Clone: 0.22
+    Params::Util: 0.22
+    Parse::Yapp: 0.0
+    DBD::Pg: 1.49
+    Data::UUID: 1.148
+    GD::SecurityImage: 1.64
+    Cache::Memcached::Fast: 0.06
+    Hash::Merge: 0.10
+    Config::Simple: 4.58
+    Encode::Guess: 2.02
+    List::MoreUtils: 0.22
+    JSON::XS: 2.2
+    Data::Structure::Util: 0.15
+    DateTime::Format::Pg: 0.0
+    DateTime::Format::Strptime: 0.0
+    Digest::MD5: 2.3601
+    Crypt::CBC: 2.29
+    Crypt::Rijndael: 1.06
+    MIME::Base64: 3.0701
+    IPC::Run3: 0.040
+    IPC::Run: 0.80

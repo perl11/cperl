@@ -1,0 +1,11 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=29356
+
+match:
+  distribution: '^MTHURN/Tk-Wizard-\d'
+test:
+  env:
+    DISPLAY: ":121"
+# disabled: 1

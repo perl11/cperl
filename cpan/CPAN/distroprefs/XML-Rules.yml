@@ -1,0 +1,19 @@
+---
+match:
+  distribution: '/XML-Rules-1\.16\.'
+  perlconfig:
+    version: '^5\.(18|19|20|21|22|23|24|25|26|27)\.'
+depends:
+  configure_requires:
+    Devel::Hide: 0
+test:
+  env:
+    DEVEL_HIDE_VERBOSE: 0
+    PERL5OPT: -MDevel::Hide
+    DEVEL_HIDE_PM: XML::DTDParser
+## "42" is not reliable enough:
+#test:
+#  env:
+#    PERL_HASH_SEED: 42
+#    PERL_PERTURB_KEYS: NO
+## https://rt.cpan.org/Ticket/Display.html?id=87354

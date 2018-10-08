@@ -1,0 +1,17 @@
+---
+comment: |
+
+  Long standing brokenness in bleadperl
+
+  RT #58225
+
+  exact bisect never calculated?
+
+  v5.13.0-124 is ok
+  v5.13.0-214 is not ok
+  v5.13.2-26 is not ok
+
+match:
+  distribution: 'FREW/DBIx-Class-0.08123.tar.gz'
+  perl: '.../v5\.13\.[23456]-\d+-g\w+/bin/perl$'
+disabled: 1

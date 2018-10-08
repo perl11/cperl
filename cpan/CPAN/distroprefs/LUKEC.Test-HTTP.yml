@@ -1,0 +1,13 @@
+---
+comment: |
+
+  PREREQ_FATAL=0 on the commandline probably never worked, maybe I had
+  a private copy of MakeMaker that supported it. Ticket 24774 has a
+  patch for it. Trying with commandline instead.
+
+match:
+  distribution: "LUKEC/Test-HTTP-0.16.tar.gz"
+cpanconfig:
+  test_report: 0
+pl:
+  commandline: "$PERL -i~ -ne 'print unless /PREREQ_FATAL/' Makefile.PL; $PERL Makefile.PL"

@@ -1,0 +1,4241 @@
+# FILE ONLY PROVIDED FOR TESTING. DO NOT USE. INFORMATION CONTAINED IS CERTAINLY OUTDATED!
+# FILE ONLY PROVIDED FOR TESTING. DO NOT USE. INFORMATION CONTAINED IS CERTAINLY OUTDATED!
+# FILE ONLY PROVIDED FOR TESTING. DO NOT USE. INFORMATION CONTAINED IS CERTAINLY OUTDATED!
+# FILE ONLY PROVIDED FOR TESTING. DO NOT USE. INFORMATION CONTAINED IS CERTAINLY OUTDATED!
+# FILE ONLY PROVIDED FOR TESTING. DO NOT USE. INFORMATION CONTAINED IS CERTAINLY OUTDATED!
+# FILE ONLY PROVIDED FOR TESTING. DO NOT USE. INFORMATION CONTAINED IS CERTAINLY OUTDATED!
+# FILE ONLY PROVIDED FOR TESTING. DO NOT USE. INFORMATION CONTAINED IS CERTAINLY OUTDATED!
+# FILE ONLY PROVIDED FOR TESTING. DO NOT USE. INFORMATION CONTAINED IS CERTAINLY OUTDATED!
+# FILE ONLY PROVIDED FOR TESTING. DO NOT USE. INFORMATION CONTAINED IS CERTAINLY OUTDATED!
+# FILE ONLY PROVIDED FOR TESTING. DO NOT USE. INFORMATION CONTAINED IS CERTAINLY OUTDATED!
+# FILE ONLY PROVIDED FOR TESTING. DO NOT USE. INFORMATION CONTAINED IS CERTAINLY OUTDATED!
+# FILE ONLY PROVIDED FOR TESTING. DO NOT USE. INFORMATION CONTAINED IS CERTAINLY OUTDATED!
+
+# Explanation of the syntax:
+#
+# hostname.of.the.CPAN.mirroring.site:
+#   frequency        = "daily/bidaily/.../weekly"
+#   dst_ftp          = "ftp://the.same.host.name:/CPAN/mirror/directory/"
+#   dst_http         = "http://the.same.host.name:/CPAN/mirror/directory/"
+#   dst_rsync        = "the.same.host.name::CPAN"
+#   dst_location     = "city, (area?, )country, continent (lat long)"
+#   dst_organisation = "full organisation name"
+#   dst_timezone     = "GMT[+-]n"
+#   dst_bandwidth    = "Approximate connection speed,e.g. T1, E3, etc."
+#   dst_contact      = "email.address.to.contact@for.this.mirror"
+#   dst_src          = "host.that.you.mirror.from"
+#   dst_loadbal	     = "Y" or "N" Join the load balancing pool for ftp.cpan.org
+#   dst_notes        = "(optional field) access restrictions, for example?"
+#
+# Notes:
+# - The "area" in dst_location is optional.
+#   It is the state (United States), county, prefecture, district.
+# - The "lon,lat" in dst_location are required.
+#   They are the latitude, longtitude, in degrees.minutes_IN_DECIMAL
+#   (45 minutes = 0.75).
+# - The dst_organisation tries to be correct but in some cases it
+#   cannot be because the format is so simple:
+#   - Greek/Cyrillic/Kanji/Hanzi/... cannot be rendered in ISO Latin 1
+#   - the format is usually "native (english)"
+#     but for example in Canada, well, is native English or French?
+#   - sometimes the name of the organisation is already
+#     in English (funet, sunet, arnes, math.ncu, ...)
+#   - the contact email address is obfuscated
+#
+
+
+rucus.ru.ac.za:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.rucus.ru.ac.za/pub/perl/CPAN/"
+  dst_http         = "http://ftp.rucus.ru.ac.za/pub/perl/CPAN/"
+  dst_location     = "Grahamstown, Eastern Cape, South Africa, Africa (-33.313028 26.519528)"
+  dst_organisation = "Rhodes University Computer Users' Society"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "T3"
+  dst_contact      = "rucus.ru.ac.za*webteam"
+  dst_src          = "cont1.lhx.teleglobe.net"
+
+# dst_dst          = "ftp://ftp.rucus.ru.ac.za/pub/perl/CPAN/"
+# dst_contact      = "mailto:rucus.ru.ac.za*webteam
+# dst_src          = "cont1.lhx.teleglobe.net"
+
+is.co.za:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.is.co.za/programming/perl/CPAN/"
+  dst_location     = "Johannesburg, South Africa, Africa (-26.1992 28.0564)"
+  dst_organisation = "Internet Solution"
+  dst_timezone     = "+2"
+  dst_contact      = "is.co.za,ftp-admin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.is.co.za/programming/perl/CPAN/"
+# dst_contact      = "mailto:is.co.za,ftp-admin
+# dst_src          = "ftp.funet.fi"
+
+saix.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.saix.net/pub/CPAN/"
+  dst_location     = "Parow, Western Cape, South Africa, Africa (-33.9064 18.5631)"
+  dst_organisation = "South African Internet eXchange (SAIX)"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "T3"
+  dst_contact      = "saix.net'ftp"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.saix.net/pub/CPAN/"
+# dst_contact      = "mailto:saix.net'ftp
+# dst_src          = "ftp.funet.fi"
+
+cpan.linuxforum.net:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.linuxforum.net/"
+  dst_location     = "Beijing, Zhonghua, China, Asia (39.9118 116.3792)"
+  dst_organisation = "China GNU/Linux Forum"
+  dst_timezone     = "+8"
+  dst_contact      = "linuxforum.net&mirror atwell.co.jp&yusun"
+  dst_src          = "ftp.pacific.net.hk"
+
+# dst_dst          = "http://cpan.linuxforum.net/"
+# dst_contact      = "mailto:linuxforum.net&mirror atwell.co.jp&yusun
+# dst_src          = "ftp.pacific.net.hk"
+
+dayouit.com:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://mirrors.dayouit.com/CPAN/"
+  dst_location     = "Guangzhou, Guangdong, China, Asia (23.125 113.23)"
+  dst_organisation = "damail.cn"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "T3"
+  dst_contact      = "damail.cn!srni"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "http://mirrors.dayouit.com/CPAN/"
+# dst_contact      = "mailto:damail.cn!srni
+# dst_src          = "rsync.nic.funet.fi"
+
+hknet.com:
+  frequency        = "daily"
+  dst_ftp          = "ftp://mirrors.hknet.com/CPAN"
+  dst_location     = "Hong Kong SAR, China, Asia (22.3866 114.124)"
+  dst_organisation = "HKNet Company Limited"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "200M"
+  dst_contact      = "hknet.com*stephen"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://mirrors.hknet.com/CPAN"
+# dst_contact      = "mailto:hknet.com*stephen
+# dst_src          = "ftp.funet.fi"
+
+vmmatrix.net:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://mirror.vmmatrix.net/CPAN/"
+  dst_location     = "Shanghai, China, Asia (34.14 123.29)"
+  dst_organisation = "Vmmatrix Co., Ltd."
+  dst_timezone     = "+8"
+  dst_bandwidth    = "100Mbit/s"
+  dst_contact      = "vmmatrix.com{huangmingyou"
+  dst_src          = "cpan.org"
+
+# dst_dst          = "http://mirror.vmmatrix.net/CPAN/"
+# dst_contact      = "mailto:vmmatrix.com{huangmingyou
+# dst_src          = "cpan.org"
+
+cuhk.edu.hk:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.cuhk.edu.hk/pub/packages/perl/CPAN/"
+  dst_http         = "http://ftp.cuhk.edu.hk/pub/packages/perl/CPAN/"
+  dst_location     = "Hong Kong, Shatin, Hong Kong, Asia (22.42 114.2)"
+  dst_organisation = "The Chinese University of Hong Kong"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "1Gbps"
+  dst_contact      = "ftp.cuhk.edu.hk}ftp-admin"
+  dst_src          = "ftp://mirrors.hknet.com/CPAN"
+
+# dst_dst          = "ftp://ftp.cuhk.edu.hk/pub/packages/perl/CPAN/"
+# dst_contact      = "mailto:ftp.cuhk.edu.hk}ftp-admin
+# dst_src          = "ftp://mirrors.hknet.com/CPAN"
+
+cpan.archive.hk:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://www.archive.hk/cpan/"
+  dst_location     = "Pokfulam, Hong Kong, Asia (21.75 115)"
+  dst_organisation = "Archive.hk"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "OC3"
+  dst_contact      = "archive.hk,admin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://www.archive.hk/cpan/"
+# dst_contact      = "mailto:archive.hk,admin
+# dst_src          = "ftp.funet.fi"
+
+gnowledge.org:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://mirror.gnowledge.org/cpan/"
+  dst_location     = "Mumbai, India, Asia (18.96 72.82)"
+  dst_organisation = "Free Software Foundation of India"
+  dst_timezone     = "+5.5"
+  dst_bandwidth    = "E3"
+  dst_contact      = "gnu.org.in?b.ghose"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "http://mirror.gnowledge.org/cpan/"
+# dst_contact      = "mailto:gnu.org.in?b.ghose
+# dst_src          = "rsync.nic.funet.fi"
+
+komo.vlsm.org:
+  frequency        = "daily"
+  dst_ftp          = "ftp://komo.vlsm.org/CPAN/"
+  dst_http         = "http://komo.vlsm.org/CPAN/"
+  dst_rsync        = "komo.vlsm.org::CPAN"
+  dst_location     = "Jakarta, Indonesia, Asia (-6.11 106.5)"
+  dst_organisation = "vLSM.org"
+  dst_timezone     = "+7"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "yahoogroups.com/writeme05"
+  dst_src          = "rsync.nic.funet.fi"
+  dst_notes        = "64 kbps for international access limit"
+
+# dst_dst          = "ftp://komo.vlsm.org/CPAN/"
+# dst_contact      = "mailto:yahoogroups.com/writeme05
+# dst_src          = "rsync.nic.funet.fi"
+
+cpan.shatel.ir:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.shatel.ir/"
+  dst_location     = "Tehran, Iran, Asia (35.44 51.30)"
+  dst_organisation = "SHATEL Network"
+  dst_timezone     = "+3.5"
+  dst_bandwidth    = "E3"
+  dst_contact      = "shatel.ir,\babak farrokhi.net\babak"
+  dst_src          = "ftp.gwdg.de"
+
+# dst_dst          = "http://cpan.shatel.ir/"
+# dst_contact      = "mailto:shatel.ir,\babak farrokhi.net\babak
+# dst_src          = "ftp.gwdg.de"
+
+mirimar.net:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://mirror.mirimar.net/cpan/"
+  dst_location     = "Haifa, HeKarmel, Mahoz, Israel, Asia (32.8000 34.9833)"
+  dst_organisation = "Mirimar Networks"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "5Mbps"
+  dst_contact      = "mirimar.net'mirror"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://mirror.mirimar.net/cpan/"
+# dst_contact      = "mailto:mirimar.net'mirror
+# dst_src          = "ftp.funet.fi"
+
+initworld.com:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.initworld.com/"
+  dst_location     = "Petah-Tikva, Israel, Asia (32.0833 34.8833)"
+  dst_organisation = "Init World"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "10Mbps"
+  dst_contact      = "initworld.com+master"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "http://cpan.initworld.com/"
+# dst_contact      = "mailto:initworld.com+master
+# dst_src          = "rsync.nic.funet.fi"
+
+u-aizu.ac.jp:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.u-aizu.ac.jp/pub/CPAN"
+  dst_location     = "Aizu-Wakamatsu, Tohoku-chiho, Fukushima, Japan, Asia (37.4333 139.9821)"
+  dst_organisation = "University of Aizu"
+  dst_timezone     = "+9"
+  dst_bandwidth    = "T2(6Mbps)"
+  dst_contact      = "u-aizu.ac.jp)ftp-admin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.u-aizu.ac.jp/pub/CPAN"
+# dst_contact      = "mailto:u-aizu.ac.jp)ftp-admin
+# dst_src          = "ftp.funet.fi"
+
+kddilabs.jp:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.kddilabs.jp/CPAN/"
+  dst_rsync        = "ftp.kddilabs.jp::cpan"
+  dst_location     = "Kamifukuoka, Kanto, Saitama-ken, Japan, Asia (35.8746 139.5304)"
+  dst_organisation = "KDDI R&D Labs, Inc."
+  dst_timezone     = "+9"
+  dst_contact      = "kddilabs.jp+ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.kddilabs.jp/CPAN/"
+# dst_contact      = "mailto:kddilabs.jp+ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+NAIST:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.nara.wide.ad.jp/pub/CPAN/"
+  dst_http         = "http://ftp.nara.wide.ad.jp/pub/CPAN/"
+  dst_rsync        = "ftp.nara.wide.ad.jp::cpan/"
+  dst_location     = "Takayama-cho, Japan, Asia (34.75 135.73)"
+  dst_organisation = "Nara Institute of Science and Technology"
+  dst_timezone     = "+9"
+  dst_bandwidth    = "1Gbps"
+  dst_contact      = "is.naist.jp*ftp-admin"
+  dst_src          = "ftp.funet.fi"
+  dst_notes        = "ftp max connection 100, rsync max connection 30"
+
+# dst_dst          = "ftp://ftp.nara.wide.ad.jp/pub/CPAN/"
+# dst_contact      = "mailto:is.naist.jp*ftp-admin
+# dst_src          = "ftp.funet.fi"
+
+jaist.ac.jp:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.jaist.ac.jp/pub/lang/perl/CPAN/"
+  dst_location     = "Tatsunokuchi, Nomi, Ishikawa, Japan, Asia (36.4251 136.5739)"
+  dst_organisation = "Japan Advanced Institute of Science and Technology"
+  dst_timezone     = "+9"
+  dst_contact      = "jaist.ac.jp;ftp-admin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.jaist.ac.jp/pub/lang/perl/CPAN/"
+# dst_contact      = "mailto:jaist.ac.jp;ftp-admin
+# dst_src          = "ftp.funet.fi"
+
+cpan.jp:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://ftp.cpan.jp/"
+  dst_location     = "Tokyo, Shibuya-ward, Japan, Asia (35.667 139.700)"
+  dst_organisation = "IFT Co., Ltd."
+  dst_timezone     = "+9"
+  dst_bandwidth    = "1Gbit"
+  dst_contact      = "cpan.jp]info"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://ftp.cpan.jp/"
+# dst_contact      = "mailto:cpan.jp]info
+# dst_src          = "ftp.funet.fi"
+
+dti.ad.jp:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.dti.ad.jp/pub/lang/CPAN/"
+  dst_location     = "Tokyo, Minato-ku, Japan, Asia (35.6754 139.7694)"
+  dst_organisation = "Dream Train Internet Inc."
+  dst_timezone     = "+9"
+  dst_contact      = "dti.ad.jp!ftp-admin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.dti.ad.jp/pub/lang/CPAN/"
+# dst_contact      = "mailto:dti.ad.jp!ftp-admin
+# dst_src          = "ftp.funet.fi"
+
+ring.gr.jp:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.ring.gr.jp/pub/lang/perl/CPAN/"
+  dst_location     = "Tsukuba, Ibaraki, Kanto, Ibaraki-ken, Japan, Asia (36.2793 140.4408)"
+  dst_organisation = "Ring Server Project"
+  dst_timezone     = "+9"
+  dst_contact      = "ring.gr.jp$ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.ring.gr.jp/pub/lang/perl/CPAN/"
+# dst_contact      = "mailto:ring.gr.jp$ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+yz.yamagata-u.ac.jp:
+  frequency        = "4 times a day"
+  dst_ftp          = "ftp://ftp.yz.yamagata-u.ac.jp/pub/lang/cpan/"
+  dst_http         = "http://ftp.yz.yamagata-u.ac.jp/pub/lang/cpan/"
+  dst_location     = "Yonezawa, Yamagata-ken, Japan, Asia (37.897 140.108)"
+  dst_organisation = "Yamagata"
+  dst_timezone     = "+9"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "ftp.yz.yamagata-u.ac.jp|www-admin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.yz.yamagata-u.ac.jp/pub/lang/cpan/"
+# dst_contact      = "mailto:ftp.yz.yamagata-u.ac.jp|www-admin
+# dst_src          = "ftp.funet.fi"
+
+cpan.MyBSD.org.my:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.MyBSD.org.my"
+  dst_location     = "Gombak, Selangor, Malaysia, Asia (3.2496 101.5496)"
+  dst_organisation = "MyBSD Malaysia Project (http://www.MyBSD.org.my)"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "T3"
+  dst_contact      = "MyBSD.org.my'mirror-adm"
+  dst_src          = "rsync.nic.funet.fi"
+  dst_notes        = "The intention of this mirror is to serve for Malaysia and the South East Asia region."
+
+# dst_dst          = "http://cpan.MyBSD.org.my"
+# dst_contact      = "mailto:MyBSD.org.my'mirror-adm
+# dst_src          = "rsync.nic.funet.fi"
+
+cpan.bieffe.org:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.bieffe.org"
+  dst_rsync        = "cpan.bieffe.org::CPAN"
+  dst_location     = "Kuala Lumpur, Malaysia, Asia (3.2496 101.5496)"
+  dst_organisation = "ChatzRadio InterNET networks"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "T3"
+  dst_contact      = "yahoo.com}ratiogear"
+  dst_src          = "ftp.kddlabs.co.jp"
+
+# dst_dst          = "http://cpan.bieffe.org"
+# dst_contact      = "mailto:yahoo.com}ratiogear
+# dst_src          = "ftp.kddlabs.co.jp"
+
+opensourcecommunity.ph:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://www.opensourcecommunity.ph/CPAN"
+  dst_location     = "Zamboanga City, Philippines, Asia (6.9 122.25)"
+  dst_organisation = "Ateneo de Zamboanga University"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "E1"
+  dst_contact      = "zambonet.ph*assist"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://www.opensourcecommunity.ph/CPAN"
+# dst_contact      = "mailto:zambonet.ph*assist
+# dst_src          = "ftp.funet.fi"
+
+kaist.ac.kr:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.kaist.ac.kr/pub/CPAN"
+  dst_http         = "http://ftp.kaist.ac.kr/pub/CPAN"
+  dst_rsync        = "ftp.kaist.ac.kr::cpan"
+  dst_location     = "Daejeon, Republic of Korea, Asia (36.37 127.37)"
+  dst_organisation = "Korea Advanced Institute of Science and Technology (KAIST)"
+  dst_timezone     = "+9"
+  dst_bandwidth    = "1Gbps"
+  dst_contact      = "ftp.kaist.ac.kr{ftp"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.kaist.ac.kr/pub/CPAN"
+# dst_contact      = "mailto:ftp.kaist.ac.kr{ftp
+# dst_src          = "ftp.funet.fi"
+
+kr.FreeBSD.org:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.kr.FreeBSD.org/pub/CPAN"
+  dst_http         = "http://mirror.kr.FreeBSD.org/CPAN"
+  dst_rsync        = "ftp.kr.FreeBSD.org::CPAN"
+  dst_location     = "Seoul, Republic of Korea, Asia (37.56 126.98)"
+  dst_organisation = "Korea FreeBSD Users Group"
+  dst_timezone     = "+9"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "kr.FreeBSD.org:admin"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://ftp.kr.FreeBSD.org/pub/CPAN"
+# dst_contact      = "mailto:kr.FreeBSD.org:admin
+# dst_src          = "rsync.nic.funet.fi"
+
+uos.ac.kr:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.uos.ac.kr/CPAN"
+  dst_http         = "http://ftp.uos.ac.kr/CPAN"
+  dst_location     = "Seoul, Republic of Korea, Asia (37.56 126.98)"
+  dst_organisation = "University of Seoul"
+  dst_timezone     = "+9"
+  dst_bandwidth    = "100Mbit"
+  dst_contact      = "uos.ac.kr?reduck96"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://ftp.uos.ac.kr/CPAN"
+# dst_contact      = "mailto:uos.ac.kr?reduck96
+# dst_src          = "rsync.nic.funet.fi"
+
+cpan.tomsk.ru:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.tomsk.ru/"
+  dst_http         = "http://cpan.tomsk.ru"
+  dst_location     = "Tomsk, Siberia, Russian Federation, Asia (56.5 84.9667)"
+  dst_organisation = "TLUG"
+  dst_timezone     = "+7"
+  dst_bandwidth    = "T2"
+  dst_contact      = "grob.ru%andrew"
+  dst_src          = "ftp.cpan.org"
+
+# dst_dst          = "ftp://cpan.tomsk.ru/"
+# dst_contact      = "mailto:grob.ru%andrew
+# dst_src          = "ftp.cpan.org"
+
+isu.net.sa:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.isu.net.sa/pub/CPAN/"
+  dst_location     = "Riyadh, al-Wusta, Saudi Arabia, Asia (24.6439 46.7406)"
+  dst_organisation = "King Abdulaziz City for Science and Technology / Internet Services Unit"
+  dst_timezone     = "+3"
+  dst_contact      = "isu.net.sa$mirrors"
+  dst_src          = "ftp.cpan.org"
+
+# dst_dst          = "ftp://ftp.isu.net.sa/pub/CPAN/"
+# dst_contact      = "mailto:isu.net.sa$mirrors
+# dst_src          = "ftp.cpan.org"
+
+averse.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://mirror.averse.net/pub/CPAN"
+  dst_http         = "http://mirror.averse.net/pub/CPAN"
+  dst_rsync        = "mirror.averse.net::cpan"
+  dst_location     = "Singapore, Singapore, Asia (1.283 103.85)"
+  dst_organisation = "averse.net"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "T3"
+  dst_contact      = "mirror.averse.net[mirror-maintainer"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://mirror.averse.net/pub/CPAN"
+# dst_contact      = "mailto:mirror.averse.net[mirror-maintainer
+# dst_src          = "ftp.funet.fi"
+
+choon.net:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.mirror.choon.net/"
+  dst_location     = "Singapore, Singapore, Asia (1.283 103.85)"
+  dst_organisation = "choon.net"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "10mbps"
+  dst_contact      = "choon.net(mirror.cpan.org"
+  dst_src          = "rsync.nic.funet.fi::CPAN"
+
+# dst_dst          = "http://cpan.mirror.choon.net/"
+# dst_contact      = "mailto:choon.net(mirror.cpan.org
+# dst_src          = "rsync.nic.funet.fi::CPAN"
+
+intermedia.com.sg:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.mirror.intermedia.com.sg"
+  dst_location     = "Singapore, Singapore, Asia (1.2833 103.8500)"
+  dst_organisation = "Intermedia network Services Pte Ltd"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "210Mbps"
+  dst_contact      = "intermedia.com.sq%mirror"
+  dst_src          = "rsync.nic.funet.fi"
+  dst_notes        = "Network spanning Two data centres, multiple peering points giving fast direct access to most .sg users without using internet bandwidth."
+
+# dst_dst          = "http://cpan.mirror.intermedia.com.sg"
+# dst_contact      = "mailto:intermedia.com.sq%mirror
+# dst_src          = "rsync.nic.funet.fi"
+
+oss.eznetsols.org:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.oss.eznetsols.org/cpan"
+  dst_http         = "http://cpan.oss.eznetsols.org"
+  dst_rsync        = "rsync.oss.eznetsols.org"
+  dst_location     = "Singapore, Singapore, Asia (1.283 103.85)"
+  dst_organisation = "ezNetworking Solutions Pte Ltd"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "1Gbps"
+  dst_contact      = "oss.eznetsols.org*mirror-admin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.oss.eznetsols.org/cpan"
+# dst_contact      = "mailto:oss.eznetsols.org*mirror-admin
+# dst_src          = "ftp.funet.fi"
+
+nctu.edu.tw:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.nctu.edu.tw/UNIX/perl/CPAN"
+  dst_location     = "HsinChu, Taiwan, Asia (24.4719 120.5950)"
+  dst_organisation = "National Chiao Tung University"
+  dst_timezone     = "+8"
+  dst_contact      = "ftp.nctu.edu.tw%ftpadm"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.nctu.edu.tw/UNIX/perl/CPAN"
+# dst_contact      = "mailto:ftp.nctu.edu.tw%ftpadm
+# dst_src          = "ftp.funet.fi"
+
+cpan.cdpa.nsysu.edu.tw:
+  frequency        = "daily"
+  dst_ftp          = " ftp://cpan.cdpa.nsysu.edu.tw/Unix/Lang/CPAN/"
+  dst_http         = "http://cpan.cdpa.nsysu.edu.tw/"
+  dst_location     = "Kao-hsiung, Taiwan, Asia (22.38 120.17)"
+  dst_organisation = "CDPA National Sun Yat-Sen University"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "GBE"
+  dst_contact      = "cdpa.nsysu.edu.tw*tjs"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = " ftp://cpan.cdpa.nsysu.edu.tw/Unix/Lang/CPAN/"
+# dst_contact      = "mailto:cdpa.nsysu.edu.tw*tjs
+# dst_src          = "ftp.funet.fi"
+
+isu.edu.tw:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.isu.edu.tw/pub/CPAN"
+  dst_http         = "http://ftp.isu.edu.tw/pub/CPAN"
+  dst_location     = "Kao-hsiung, Taiwan, Asia (22.600 120.283)"
+  dst_organisation = "I-SHOU University"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "GBE"
+  dst_contact      = "ftp.isu.edu.tw\ftpadm"
+  dst_src          = "ftp.isu.edu.tw"
+
+# dst_dst          = "ftp://ftp.isu.edu.tw/pub/CPAN"
+# dst_contact      = "mailto:ftp.isu.edu.tw\ftpadm
+# dst_src          = "ftp.isu.edu.tw"
+
+cpan.stu.edu.tw:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.stu.edu.tw/CPAN"
+  dst_http         = "http://cpan.stu.edu.tw"
+  dst_location     = "Kaohsiung, Taiwan, Asia (22.76 120.38)"
+  dst_organisation = "Computer Center, Shu-Te University"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "GBE"
+  dst_contact      = "mail.stu.edu.tw]ychsiao"
+  dst_src          = "ftp.funet.fi"
+  dst_notes        = "update ftp.stu.edu.tw/cpan to cpan.stu.edu.tw"
+
+# dst_dst          = "ftp://ftp.stu.edu.tw/CPAN"
+# dst_contact      = "mailto:mail.stu.edu.tw]ychsiao
+# dst_src          = "ftp.funet.fi"
+
+stu.edu.tw:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.stu.edu.tw/pub/CPAN"
+  dst_http         = "http://ftp.stu.edu.tw/CPAN"
+  dst_location     = "Kaohsiung, Taiwan, Asia (22.76 120.38)"
+  dst_organisation = "Computer Center, Shu-Te University"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "GBE"
+  dst_contact      = "mail.stu.edu.tw{ychsiao"
+  dst_src          = "cpan.cdpa.nsysu.edu.tw"
+
+# dst_dst          = "ftp://ftp.stu.edu.tw/pub/CPAN"
+# dst_contact      = "mailto:mail.stu.edu.tw{ychsiao
+# dst_src          = "cpan.cdpa.nsysu.edu.tw"
+
+cpan.cs.pu.edu.tw:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.cs.pu.edu.tw/pub/CPAN"
+  dst_http         = "http://cpan.cs.pu.edu.tw/"
+  dst_location     = "Taichung, Taiwan, Asia (24.09 120.41)"
+  dst_organisation = "Providence University"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "GBE"
+  dst_contact      = "cs.pu.edu.tw]hcchang"
+  dst_src          = "ftp.cpan.org"
+
+# dst_dst          = "ftp://cpan.cs.pu.edu.tw/pub/CPAN"
+# dst_contact      = "mailto:cs.pu.edu.tw]hcchang
+# dst_src          = "ftp.cpan.org"
+
+tku.edu.tw:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.tku.edu.tw/pub/CPAN/"
+  dst_http         = "http://ftp.tku.edu.tw/pub/CPAN/"
+  dst_location     = "TamSui, T'ai-pei Hsien, Taiwan, Asia (25.217 121.483)"
+  dst_organisation = "TamKang University"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "T3"
+  dst_contact      = "ftp.tku.edu.tw$tkuftp"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.tku.edu.tw/pub/CPAN/"
+# dst_contact      = "mailto:ftp.tku.edu.tw$tkuftp
+# dst_src          = "ftp.funet.fi"
+
+cpan.cgu.edu.tw:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.cgu.edu.tw/Mirror/CPAN"
+  dst_http         = "http://cpan.cgu.edu.tw"
+  dst_rsync        = "ftp.cgu.edu.tw::CPAN"
+  dst_location     = "Tao-youan, Taiwan, Asia (24.47 120.60)"
+  dst_organisation = "Chang Gung University"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "GBE"
+  dst_contact      = "gentoo.org.tw]frid"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.cgu.edu.tw/Mirror/CPAN"
+# dst_contact      = "mailto:gentoo.org.tw]frid
+# dst_src          = "ftp.funet.fi"
+
+loxinfo.co.th:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.loxinfo.co.th/pub/cpan/"
+  dst_location     = "Bangkok, Thailand, Asia (13.733 100.500)"
+  dst_organisation = "Loxley Information Services Co., Ltd."
+  dst_timezone     = "+7"
+  dst_bandwidth    = "T3"
+  dst_contact      = "loxinfo.co.th!sysadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.loxinfo.co.th/pub/cpan/"
+# dst_contact      = "mailto:loxinfo.co.th!sysadmin
+# dst_src          = "ftp.funet.fi"
+
+ulak.net.tr:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.ulak.net.tr/pub/CPAN"
+  dst_http         = "http://cpan.ulak.net.tr"
+  dst_rsync        = "ftp.ulak.net.tr::CPAN"
+  dst_location     = "Ankara, Turkey, Asia (39.916 32.83)"
+  dst_organisation = "TUBITAK-ULAKBIM"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "100Mbit"
+  dst_contact      = "ulak.net.tr}ftpadm"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.ulak.net.tr/pub/CPAN"
+# dst_contact      = "mailto:ulak.net.tr}ftpadm
+# dst_src          = "ftp.funet.fi"
+
+ucr.ac.cr:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://ftp.ucr.ac.cr/Unix/CPAN/"
+  dst_location     = "San Jose, Costa Rica, Central America (9.93 -84.079)"
+  dst_organisation = "Centro de Informatica, Universidad de Costa Rica (Computing Center, University of Costa Rica)"
+  dst_timezone     = "-6"
+  dst_contact      = "ns.ucr.ac.cr[mguerra"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://ftp.ucr.ac.cr/Unix/CPAN/"
+# dst_contact      = "mailto:ns.ucr.ac.cr[mguerra
+# dst_src          = "ftp.funet.fi"
+
+cpan.inode.at:
+  frequency        = "hourly"
+  dst_ftp          = "ftp://cpan.inode.at"
+  dst_http         = "http://cpan.inode.at/"
+  dst_rsync        = "cpan.inode.at::CPAN"
+  dst_location     = "Vienna, Austria, Europe (48.27067 16.41314)"
+  dst_organisation = "Inode Telekommunikationsdienstleistungs GmbH"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "100Mbit"
+  dst_contact      = "inode.at)mirror"
+  dst_src          = "rsync.nic.funet.fi"
+  dst_notes        = "rsync and ftp are limited to 30 concurrent sessions"
+
+# dst_dst          = "ftp://cpan.inode.at"
+# dst_contact      = "mailto:inode.at)mirror
+# dst_src          = "rsync.nic.funet.fi"
+
+cpan.serveroffice.at:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.serveroffice.at/"
+  dst_location     = "Vienna, Austria, Europe (48.27067 16.41314)"
+  dst_organisation = "Serveroffice.at (Funknetz.at Urbanek GmbH)"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "100Mbit"
+  dst_contact      = "serveroffice.at^hostmaster"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "http://cpan.serveroffice.at/"
+# dst_contact      = "mailto:serveroffice.at^hostmaster
+# dst_src          = "rsync.nic.funet.fi"
+
+gd.tuwien.ac.at:
+  frequency        = "daily"
+  dst_ftp          = "ftp://gd.tuwien.ac.at/pub/CPAN/"
+  dst_http         = "http://gd.tuwien.ac.at/languages/perl/CPAN/"
+  dst_rsync        = "gd.tuwien.ac.at::CPAN"
+  dst_location     = "Vienna, Austria, Europe (48.20234 16.36958)"
+  dst_organisation = "Technische Universität Wien (Vienna University of Technology)"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "100 Mbit/s"
+  dst_contact      = "Rudolf Ladner tuwien.ac.at>,<gd"
+  dst_src          = "ftp.funet.fi"
+  dst_notes        = "a.k.a. at.cpan.org"
+
+# dst_dst          = "ftp://gd.tuwien.ac.at/pub/CPAN/"
+# dst_contact      = "mailto:Rudolf Ladner tuwien.ac.at>,<gd
+# dst_src          = "ftp.funet.fi"
+
+belnet.be:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.belnet.be/packages/cpan/"
+  dst_http         = "http://ftp.belnet.be/packages/cpan/"
+  dst_rsync        = "ftp.belnet.be::packages/cpan"
+  dst_location     = "Brussels, Belgium, Europe (50.8333 4.333)"
+  dst_organisation = "Belnet"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "T3"
+  dst_contact      = "belnet.be}ftpadmin"
+  dst_src          = "nic.funet.fi"
+
+# dst_dst          = "ftp://ftp.belnet.be/packages/cpan/"
+# dst_contact      = "mailto:belnet.be}ftpadmin
+# dst_src          = "nic.funet.fi"
+
+easynet.be:
+  frequency        = "twice daily"
+  dst_ftp          = "ftp://ftp.easynet.be/pub/CPAN/"
+  dst_http         = "http://ftp.easynet.be/pub/CPAN/"
+  dst_location     = "Brussels, Belgium, Europe (50.50 4.20)"
+  dst_organisation = "Easynet Belgium SA/NV; Part of Easynet Group"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "OC3"
+  dst_contact      = "be.easynet.net|ftp"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.easynet.be/pub/CPAN/"
+# dst_contact      = "mailto:be.easynet.net|ftp
+# dst_src          = "ftp.funet.fi"
+
+skynet.be:
+  frequency        = "hourly"
+  dst_ftp          = "ftp://cpan.mirrors.skynet.be/pub/CPAN"
+  dst_http         = "http://cpan.mirrors.skynet.be"
+  dst_location     = "Brussels, Belgium, Europe (50.833 4.333)"
+  dst_organisation = "Belgacom Skynet S.A."
+  dst_timezone     = "+1"
+  dst_bandwidth    = "T3"
+  dst_contact      = "skynet.be:ftp"
+  dst_src          = "ftp.funet.fi"
+  dst_notes        = "other contact: cedric.gavage@skynet.be"
+
+# dst_dst          = "ftp://cpan.mirrors.skynet.be/pub/CPAN"
+# dst_contact      = "mailto:skynet.be:ftp
+# dst_src          = "ftp.funet.fi"
+
+kulnet.kuleuven.ac.be:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.kulnet.kuleuven.ac.be/pub/mirror/CPAN/"
+  dst_location     = "Leuven, Vlaanderen, Belgium, Europe (50.8793 4.70333)"
+  dst_organisation = "Katholieke Universiteit Leuven (The Catholic University of Leuven)"
+  dst_timezone     = "+1"
+  dst_contact      = "kulnet.kuleuven.ac.be%operations"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.kulnet.kuleuven.ac.be/pub/mirror/CPAN/"
+# dst_contact      = "mailto:kulnet.kuleuven.ac.be%operations
+# dst_src          = "ftp.funet.fi"
+
+scarlet.be:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.scarlet.be/pub/cpan/"
+  dst_http         = "http://cpan.scarlet.be/"
+  dst_rsync        = "rsync.scarlet.be::CPAN"
+  dst_location     = "Vilvoorde, Belgium, Europe (50.50 4.20)"
+  dst_organisation = "Scarlet Belgium"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "1Gbps"
+  dst_contact      = "scarlet.be?ftp"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://ftp.scarlet.be/pub/cpan/"
+# dst_contact      = "mailto:scarlet.be?ftp
+# dst_src          = "rsync.nic.funet.fi"
+
+cpan.blic.net:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.blic.net/"
+  dst_location     = "Banja Luka, Bosnia and Herzegovina, Europe (44.776 17.186)"
+  dst_organisation = "BLIC.NET ISP"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "10Mbps"
+  dst_contact      = "blic.net(pmalic"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "http://cpan.blic.net/"
+# dst_contact      = "mailto:blic.net(pmalic
+# dst_src          = "rsync.nic.funet.fi"
+
+cpan.cbox.biz:
+  frequency        = "bidaily"
+  dst_ftp          = "ftp://cpan.cbox.biz/cpan/"
+  dst_http         = "http://cpan.cbox.biz/"
+  dst_location     = "Sofia, Bulgaria, Europe (42.65 23.38)"
+  dst_organisation = "Cbox.biz"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "10Mbps"
+  dst_contact      = "cbox.biz$ad"
+  dst_src          = "cpan.inode.at"
+
+# dst_dst          = "ftp://cpan.cbox.biz/cpan/"
+# dst_contact      = "mailto:cbox.biz$ad
+# dst_src          = "cpan.inode.at"
+
+cpan.online.bg:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.online.bg/cpan"
+  dst_http         = "http://cpan.online.bg"
+  dst_location     = "Sofia, Bulgaria, Europe (42.667 23.300)"
+  dst_organisation = "Bulgaria Online PLC"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "T1"
+  dst_contact      = "online.bg?support"
+  dst_src          = "ftp.funet.fi"
+  dst_notes        = "The mirror is intended to mainly serve domestic visitors due to company's excellent local connectivity. The mirror is a part of a project named mirrors.online.bg, which now includes also PHP and MySQL mirrors."
+
+# dst_dst          = "ftp://cpan.online.bg/cpan"
+# dst_contact      = "mailto:online.bg?support
+# dst_src          = "ftp.funet.fi"
+
+uni-sofia.bg:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.uni-sofia.bg/cpan/"
+  dst_http         = "http://ftp.uni-sofia.bg/cpan/"
+  dst_location     = "Sofia, Bulgaria, Europe (42.674 23.3305)"
+  dst_organisation = "Sofia University"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "T3"
+  dst_contact      = "fccf.net$velin"
+  dst_src          = "ftp.gwdg.de"
+
+# dst_dst          = "ftp://ftp.uni-sofia.bg/cpan/"
+# dst_contact      = "mailto:fccf.net$velin
+# dst_src          = "ftp.gwdg.de"
+
+linux.hr:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.linux.hr/pub/CPAN/"
+  dst_http         = "http://ftp.linux.hr/pub/CPAN/"
+  dst_location     = "Rijeka, Croatia, Europe (45.333 14.450)"
+  dst_organisation = "HULK (Croatian Linux Users Group)"
+  dst_timezone     = "+1/+2"
+  dst_bandwidth    = "100Mbit"
+  dst_contact      = "linux.hr{ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.linux.hr/pub/CPAN/"
+# dst_contact      = "mailto:linux.hr{ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+dl.iskon.hr:
+  frequency        = "daily"
+  dst_ftp          = "ftp://dl.iskon.hr/pub/CPAN/"
+  dst_http         = "http://dl.iskon.hr/pub/CPAN/"
+  dst_location     = "Zagreb, Croatia, Europe (45.798 15.962)"
+  dst_organisation = "Iskon Internet d.d."
+  dst_timezone     = "+1"
+  dst_bandwidth    = "100Mbit"
+  dst_contact      = "iskon.hr(igor.briski"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://dl.iskon.hr/pub/CPAN/"
+# dst_contact      = "mailto:iskon.hr(igor.briski
+# dst_src          = "ftp.funet.fi"
+
+fi.muni.cz:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.fi.muni.cz/pub/CPAN/"
+  dst_location     = "Brno, Jihomoravsky´, Czech Republic, Europe (49.1942 16.6085)"
+  dst_organisation = "Fakulta Informatiky Masarykovy Univerzity (Faculty of Informatics, Masaryk University)"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "fi.muni.cz}ftp-admin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.fi.muni.cz/pub/CPAN/"
+# dst_contact      = "mailto:fi.muni.cz}ftp-admin
+# dst_src          = "ftp.funet.fi"
+
+mendelu.cz:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.mendelu.cz/perl"
+  dst_http         = "http://ftp.mendelu.cz/perl"
+  dst_location     = "Brno, Czech Republic, Europe (49.20016 16.6194)"
+  dst_organisation = "Mendel University in Brno"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "1Gbps"
+  dst_contact      = "pef.mendelu.cz&tech"
+  dst_src          = "ftp.leo.org"
+  dst_notes        = "rsync mirror or other services on demand"
+
+# dst_dst          = "ftp://ftp.mendelu.cz/perl"
+# dst_contact      = "mailto:pef.mendelu.cz&tech
+# dst_src          = "ftp.leo.org"
+
+archive.cpan.cz:
+  frequency        = "6 hours"
+  dst_ftp          = ""
+  dst_http         = "http://archive.cpan.cz/"
+  dst_location     = "Prague, Czech Republic, Europe (50.833 14.433)"
+  dst_organisation = "DNS4ISP.NET"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "cpan.cz\admin"
+  dst_src          = "rsynic.nic.funet.fi"
+
+# dst_dst          = "http://archive.cpan.cz/"
+# dst_contact      = "mailto:cpan.cz\admin
+# dst_src          = "rsynic.nic.funet.fi"
+
+dotsrc.org:
+  frequency        = "daily"
+  dst_ftp          = "ftp://mirrors.dotsrc.org/cpan/"
+  dst_http         = "http://mirrors.dotsrc.org/cpan"
+  dst_location     = "Aalborg, Denmark, Europe (57.04923 9.91623)"
+  dst_organisation = "dotsrc.org"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "Gbps"
+  dst_contact      = "dotsrc.org{mirror"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://mirrors.dotsrc.org/cpan/"
+# dst_contact      = "mailto:dotsrc.org{mirror
+# dst_src          = "ftp.funet.fi"
+
+cpan.cybercity.dk:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.cybercity.dk"
+  dst_location     = "Copenhagen, Denmark, Europe (55.68748 12.59118)"
+  dst_organisation = "Cybercity"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "STM-4"
+  dst_contact      = "cybercity.dk%jdn"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://cpan.cybercity.dk"
+# dst_contact      = "mailto:cybercity.dk%jdn
+# dst_src          = "ftp.funet.fi"
+
+cpan.dk:
+  frequency        = "twice daily"
+  dst_ftp          = ""
+  dst_http         = "http://www.cpan.dk/"
+  dst_location     = "Copenhagen, Denmark, Europe (55.67621 12.56951)"
+  dst_organisation = "Telia Danmark"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "Gigs"
+  dst_contact      = "dk.telia.net$mirrors"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://www.cpan.dk/"
+# dst_contact      = "mailto:dk.telia.net$mirrors
+# dst_src          = "ftp.funet.fi"
+
+uni-c.dk:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://mirror.uni-c.dk/pub/CPAN/"
+  dst_rsync        = "mirror.uni-c.dk::CPAN"
+  dst_location     = "Lyngby, Copenhagen, Denmark, Europe (55.767 12.517)"
+  dst_organisation = "UNI-C The Danish IT Centre for Education and Research"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "uni-c.dk:rasmus.brogger"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://mirror.uni-c.dk/pub/CPAN/"
+# dst_contact      = "mailto:uni-c.dk:rasmus.brogger
+# dst_src          = "ftp.funet.fi"
+
+ut.ee:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.ut.ee/pub/languages/perl/CPAN/"
+  dst_location     = "Tartu, Estonia, Europe (58.3711 26.7206)"
+  dst_organisation = "Tartu Ülikool (Tartu University)"
+  dst_timezone     = "+2"
+  dst_contact      = "ut.ee&ftp-service"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.ut.ee/pub/languages/perl/CPAN/"
+# dst_contact      = "mailto:ut.ee&ftp-service
+# dst_src          = "ftp.funet.fi"
+
+funet.fi:
+  frequency        = "hourly"
+  dst_ftp          = "ftp://ftp.funet.fi/pub/languages/perl/CPAN/"
+  dst_rsync        = "rsync.nic.funet.fi::CPAN"
+  dst_location     = "Espoo, Etelä-Suomen Lääni, Finland, Europe (60.2099 24.6568)"
+  dst_organisation = "Finnish University NETwork"
+  dst_timezone     = "+2"
+  dst_contact      = "perl.org[cpan"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.funet.fi/pub/languages/perl/CPAN/"
+# dst_contact      = "mailto:perl.org[cpan
+# dst_src          = "ftp.funet.fi"
+
+eunet.fi:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://mirror.eunet.fi/CPAN"
+  dst_location     = "Helsinki, Etelä-Suomen Lääni, Finland, Europe (60.2099 24.6568)"
+  dst_organisation = "Eunet Finland"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "eunet.fi!helpdesk"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://mirror.eunet.fi/CPAN"
+# dst_contact      = "mailto:eunet.fi!helpdesk
+# dst_src          = "ftp.funet.fi"
+
+perl.enstimac.fr:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.enstimac.fr/"
+  dst_location     = "Albi, France, Europe (43.933 2.133)"
+  dst_organisation = "Ecole des Mines d'Albi-Carmaux"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "T1"
+  dst_contact      = "enstimac.fr?paul.gaborit"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://cpan.enstimac.fr/"
+# dst_contact      = "mailto:enstimac.fr?paul.gaborit
+# dst_src          = "ftp.funet.fi"
+
+inria.fr:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.inria.fr/pub/CPAN/"
+  dst_location     = "Le Chesnay, Yveline, France, Europe (48.825 2.125)"
+  dst_organisation = "INRIA"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "T3"
+  dst_contact      = "inria.fr\adm-ftp"
+  dst_src          = "ftp.crihan.fr"
+
+# dst_dst          = "ftp://ftp.inria.fr/pub/CPAN/"
+# dst_contact      = "mailto:inria.fr\adm-ftp
+# dst_src          = "ftp.crihan.fr"
+
+erasme.org:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.erasme.org/pub/CPAN/"
+  dst_location     = "Lyon, France, Europe (45.45 4.26)"
+  dst_organisation = "Erasme"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "80Mb"
+  dst_contact      = "erasme.org&ftpmaster"
+  dst_src          = "rsync.nic.funet.fi"
+  dst_notes        = "50 clients"
+
+# dst_dst          = "ftp://ftp.erasme.org/pub/CPAN/"
+# dst_contact      = "mailto:erasme.org&ftpmaster
+# dst_src          = "rsync.nic.funet.fi"
+
+u-paris10.fr:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.u-paris10.fr/perl/CPAN"
+  dst_http         = "http://ftp.u-paris10.fr/perl/CPAN"
+  dst_rsync        = "ftp.u-paris10.fr::CPAN"
+  dst_location     = "Nanterre, Hauts de Seine, France, Europe (48.905 2.21)"
+  dst_organisation = "Universitie Paris 10"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "600Mb/s"
+  dst_contact      = "u-paris10.fr[ftpadmin"
+  dst_src          = "ftp.sunet.se"
+
+# dst_dst          = "ftp://ftp.u-paris10.fr/perl/CPAN"
+# dst_contact      = "mailto:u-paris10.fr[ftpadmin
+# dst_src          = "ftp.sunet.se"
+
+club-internet.fr:
+  frequency        = "twice daily"
+  dst_ftp          = "ftp://ftp.club-internet.fr/pub/perl/CPAN/"
+  dst_location     = "Paris, Ile-de-France, France, Europe (48.85424 2.34486)"
+  dst_organisation = "Club Internet / T-Online France"
+  dst_timezone     = "+1"
+  dst_contact      = "t-online.fr#ftpmaster"
+  dst_src          = "ftp.cpan.org"
+
+# dst_dst          = "ftp://ftp.club-internet.fr/pub/perl/CPAN/"
+# dst_contact      = "mailto:t-online.fr#ftpmaster
+# dst_src          = "ftp.cpan.org"
+
+cpan.mirrors.easynet.fr:
+  frequency        = "weekly"
+  dst_ftp          = "ftp://cpan.mirrors.easynet.fr/pub/ftp.cpan.org/"
+  dst_http         = "http://cpan.mirrors.easynet.fr/"
+  dst_location     = "Paris, Ile-de-France, France, Europe (48.85424 2.34486)"
+  dst_organisation = "Easynet France SA, Part of Easynet Group"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "OC3"
+  dst_contact      = "easynet.fr(ftpmaster"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://cpan.mirrors.easynet.fr/pub/ftp.cpan.org/"
+# dst_contact      = "mailto:easynet.fr(ftpmaster
+# dst_src          = "ftp.funet.fi"
+
+cpan.univ-paris.com:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.univ-paris.com"
+  dst_location     = "Paris, France, Europe (48.52 2.20)"
+  dst_organisation = "University of Paris 20"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "T3"
+  dst_contact      = "univ-paris.com:laurent.f"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "http://cpan.univ-paris.com"
+# dst_contact      = "mailto:univ-paris.com:laurent.f
+# dst_src          = "rsync.nic.funet.fi"
+
+mir2.ovh.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://mir1.ovh.net/ftp.cpan.org"
+  dst_http         = "http://mir2.ovh.net/ftp.cpan.org"
+  dst_rsync        = "mir1.ovh.net::CPAN"
+  dst_location     = "Paris, Ile-de-France, France, Europe (48.867 2.333)"
+  dst_organisation = "OVH"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "200Mbs"
+  dst_contact      = "ovh.net*oles"
+  dst_src          = "cpan.teleglobe.net"
+
+# dst_dst          = "ftp://mir1.ovh.net/ftp.cpan.org"
+# dst_contact      = "mailto:ovh.net*oles
+# dst_src          = "cpan.teleglobe.net"
+
+numericable.fr:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.numericable.fr/CPAN"
+  dst_http         = "http://cpan.numericable.fr/"
+  dst_location     = "Paris, France, Europe (-0.093 54.33)"
+  dst_organisation = "NC Numericable"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "euroconnect.fr}exploitation-nc"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://cpan.numericable.fr/CPAN"
+# dst_contact      = "mailto:euroconnect.fr}exploitation-nc
+# dst_src          = "ftp.funet.fi"
+
+oleane.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.oleane.net/pub/CPAN/"
+  dst_location     = "Paris, Ile-de-France, France, Europe (48.85424 2.34486)"
+  dst_organisation = "France Telecom Transpac"
+  dst_timezone     = "+1"
+  dst_contact      = "oleane.net'ftpmaint"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.oleane.net/pub/CPAN/"
+# dst_contact      = "mailto:oleane.net'ftpmaint
+# dst_src          = "ftp.funet.fi"
+
+pasteur.fr:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.pasteur.fr/pub/computing/CPAN/"
+  dst_location     = "Paris, Ile-de-France, France, Europe (48.85424 2.34486)"
+  dst_organisation = "l'Institut Pasteur (Pasteur Institute)"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "E1"
+  dst_contact      = "pasteur.fr}ftpmaint"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.pasteur.fr/pub/computing/CPAN/"
+# dst_contact      = "mailto:pasteur.fr}ftpmaint
+# dst_src          = "ftp.funet.fi"
+
+crihan.fr:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.crihan.fr/mirrors/ftp.cpan.org/"
+  dst_http         = "http://ftp.crihan.fr/mirrors/ftp.cpan.org/"
+  dst_rsync        = "ftp.crihan.fr::CPAN"
+  dst_location     = "Rouen, France, Europe (49.26 1.05)"
+  dst_organisation = "Centre de Ressources Informatiques de Haute-Normandie (CRIHAN)"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "100Mbit"
+  dst_contact      = "crihan.fr!ab"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.crihan.fr/mirrors/ftp.cpan.org/"
+# dst_contact      = "mailto:crihan.fr!ab
+# dst_src          = "ftp.funet.fi"
+
+u-strasbg.fr:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.u-strasbg.fr/CPAN"
+  dst_http         = "http://ftp.u-strasbg.fr/CPAN"
+  dst_location     = "Strasbourg, France, Europe (48.583 7.750)"
+  dst_organisation = "ULP"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "T3+"
+  dst_contact      = "ftp.u-strasbg.fr\ftpmaint"
+  dst_src          = "ftp.lip6.fr"
+
+# dst_dst          = "ftp://ftp.u-strasbg.fr/CPAN"
+# dst_contact      = "mailto:ftp.u-strasbg.fr\ftpmaint
+# dst_src          = "ftp.lip6.fr"
+
+cpan.cict.fr:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.cict.fr/pub/CPAN/"
+  dst_location     = "Toulouse, Midi-Pyrénées, France, Europe (43.60385 1.44305)"
+  dst_organisation = "Centre Interuniversitaire de Calcul de Toulouse (Université Paul Sabatier); Academic Computing Centre"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "T1"
+  dst_contact      = "cict.fr{baque"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://cpan.cict.fr/pub/CPAN/"
+# dst_contact      = "mailto:cict.fr{baque
+# dst_src          = "ftp.funet.fi"
+
+cs.tu-berlin.de:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.cs.tu-berlin.de/pub/lang/perl/CPAN/"
+  dst_location     = "Berlin, Germany, Europe (52.51788 13.32543)"
+  dst_organisation = "Technical University of Berlin (Computer Science)"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "OC-3"
+  dst_contact      = "cs.tu-berlin.de?ftpadm"
+  dst_src          = "ftp.cpan.org"
+
+# dst_dst          = "ftp://ftp.cs.tu-berlin.de/pub/lang/perl/CPAN/"
+# dst_contact      = "mailto:cs.tu-berlin.de?ftpadm
+# dst_src          = "ftp.cpan.org"
+
+fu-berlin.de:
+  frequency        = "twice a day"
+  dst_ftp          = "ftp://ftp.fu-berlin.de/unix/languages/perl/"
+  dst_location     = "Berlin, Germany, Europe (52.45 13.29)"
+  dst_organisation = "Freie UniversitÃ¤t Berlin"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "622 Mbps"
+  dst_contact      = "fu-berlin.de*ftp"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.fu-berlin.de/unix/languages/perl/"
+# dst_contact      = "mailto:fu-berlin.de*ftp
+# dst_src          = "ftp.funet.fi"
+
+mirroarrr.de:
+  frequency        = "twice a day"
+  dst_ftp          = ""
+  dst_http         = "http://www.cpan.mirroarrr.de/"
+  dst_location     = "Berlin, Germany, Europe (52.5 13.3)"
+  dst_organisation = "SOHOMINT - Kirsch Krienke Milz Nolte GbR."
+  dst_timezone     = "+1"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "mirroarrr.de$kontakt"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://www.cpan.mirroarrr.de/"
+# dst_contact      = "mailto:mirroarrr.de$kontakt
+# dst_src          = "ftp.funet.fi"
+
+rub.de:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.rub.de/pub/CPAN/"
+  dst_location     = "Bochum, Nordrhein-Westfalen, Germany, Europe (51.47909 7.22223)"
+  dst_organisation = "Die Ruhr-Universität Bochum (Ruhr-University at Bochum)"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "OC3"
+  dst_contact      = "rub.de(ftp-bugs"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.rub.de/pub/CPAN/"
+# dst_contact      = "mailto:rub.de(ftp-bugs
+# dst_src          = "ftp.funet.fi"
+
+planet-elektronik.de:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://www.planet-elektronik.de/CPAN/"
+  dst_location     = "Chemnitz, Germany, Europe (53.5833 13.1500)"
+  dst_organisation = "PLANET-Elektronik GmbH"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "T1"
+  dst_contact      = "planet-elektronik.de#cardb"
+  dst_src          = "nic.funet.fi"
+
+# dst_dst          = "http://www.planet-elektronik.de/CPAN/"
+# dst_contact      = "mailto:planet-elektronik.de#cardb
+# dst_src          = "nic.funet.fi"
+
+freenet.de:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.freenet.de/pub/ftp.cpan.org/pub/CPAN/"
+  dst_location     = "Düsseldorf, Nordrhein-Westfalen, Germany, Europe (51.2264 6.77679)"
+  dst_organisation = "freenet.de AG"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "OC-48"
+  dst_contact      = "freenet.de/ftpmaster"
+  dst_src          = "ftp.cpan.org"
+
+# dst_dst          = "ftp://ftp.freenet.de/pub/ftp.cpan.org/pub/CPAN/"
+# dst_contact      = "mailto:freenet.de/ftpmaster
+# dst_src          = "ftp.cpan.org"
+
+dl.ambiweb.de:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://dl.ambiweb.de/mirrors/ftp.cpan.org/"
+  dst_location     = "Erfurt, Germany, Europe (50.9833 11.0333)"
+  dst_organisation = "AmbiWeb GmbH"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "12Mbps"
+  dst_contact      = "web.de^t-schwarz"
+  dst_src          = "rsync.nic.funet.fi::CPAN"
+
+# dst_dst          = "http://dl.ambiweb.de/mirrors/ftp.cpan.org/"
+# dst_contact      = "mailto:web.de^t-schwarz
+# dst_src          = "rsync.nic.funet.fi::CPAN"
+
+uni-erlangen.de:
+  frequency        = "hourly"
+  dst_ftp          = "ftp://ftp.uni-erlangen.de/pub/source/CPAN/"
+  dst_http         = "http://ftp.uni-erlangen.de/pub/CPAN/"
+  dst_location     = "Erlangen, Bayern, Germany, Europe (49.59792 11.00329)"
+  dst_organisation = "Friedrich Alexander Universität Erlangen-Nürnberg (Friedrich Alexander University of Erlangen-Nürnberg)"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "622 MBit IPv4, 34 MBit IPv6"
+  dst_contact      = "rrze.uni-erlangen.de,ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.uni-erlangen.de/pub/source/CPAN/"
+# dst_contact      = "mailto:rrze.uni-erlangen.de,ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+fht-esslingen.de:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp-stud.fht-esslingen.de/pub/Mirrors/CPAN"
+  dst_location     = "Esslingen am Neckar, Baden-Württemberg, Germany, Europe (48.45 9.16)"
+  dst_organisation = "Rechenzentrum, Fachhochschule Esslingen, Hochschule für Technik (Computing Center, University of Applied Sciences)"
+  dst_timezone     = "+1"
+  dst_contact      = "www.fht-esslingen.de=webmaster"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp-stud.fht-esslingen.de/pub/Mirrors/CPAN"
+# dst_contact      = "mailto:www.fht-esslingen.de=webmaster
+# dst_src          = "ftp.funet.fi"
+
+mirrorspace.org:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://www.mirrorspace.org/cpan/"
+  dst_location     = "Frankfurt, Germany, Europe (50.08027 8.62406)"
+  dst_organisation = "Mirrorspace.org"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "10Mbit"
+  dst_contact      = "mirrorspace.org%admin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://www.mirrorspace.org/cpan/"
+# dst_contact      = "mailto:mirrorspace.org%admin
+# dst_src          = "ftp.funet.fi"
+
+netmirror.org:
+  frequency        = "daily"
+  dst_ftp          = "ftp://netmirror.org/CPAN/"
+  dst_http         = "http://netmirror.org/mirror/CPAN/"
+  dst_location     = "Frankfurt, Germany, Europe (50.08027 8.62406)"
+  dst_organisation = "Netmirror.org"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "10Mbit"
+  dst_contact      = "cityreview.de]j.beus"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://netmirror.org/CPAN/"
+# dst_contact      = "mailto:cityreview.de]j.beus
+# dst_src          = "ftp.funet.fi"
+
+nlp.petamem.com:
+  frequency        = "daily"
+  dst_ftp          = "ftp://nlp.petamem.com/"
+  dst_location     = "Frankfurt, Germany, Europe (50.7 8.41)"
+  dst_organisation = "PetaMem"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "petamem.com%admin"
+  dst_src          = "rsynic.nic.funet.fi"
+
+# dst_dst          = "ftp://nlp.petamem.com/"
+# dst_contact      = "mailto:petamem.com%admin
+# dst_src          = "rsynic.nic.funet.fi"
+
+pandemonium.tiscali.de:
+  frequency        = "daily"
+  dst_ftp          = "ftp://pandemonium.tiscali.de/pub/CPAN/"
+  dst_http         = "http://pandemonium.tiscali.de/pub/CPAN/"
+  dst_location     = "Frankfurt am Main, Hessen, Germany, Europe (50.120509 8.73574)"
+  dst_organisation = "Tiscali"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "nacamar.de=reflector"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://pandemonium.tiscali.de/pub/CPAN/"
+# dst_contact      = "mailto:nacamar.de=reflector
+# dst_src          = "ftp.funet.fi"
+
+gwdg.de:
+  frequency        = "twice daily"
+  dst_ftp          = "ftp://ftp.gwdg.de/pub/languages/perl/CPAN/"
+  dst_http         = "http://ftp.gwdg.de/pub/languages/perl/CPAN/"
+  dst_rsync        = "ftp.gwdg.de::FTP/languages/perl/CPAN/"
+  dst_location     = "Göttingen, Niedersachsen, Germany, Europe (51.53098 9.93825)"
+  dst_organisation = "Gesellschaft für wissenschaftliche Datenverarbeitung (Society for Scientific Data Processing)"
+  dst_timezone     = "+1"
+  dst_contact      = "gwdg.de,emoenke"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.gwdg.de/pub/languages/perl/CPAN/"
+# dst_contact      = "mailto:gwdg.de,emoenke
+# dst_src          = "ftp.funet.fi"
+
+cpan.mirror.iphh.net:
+  frequency        = "hourly"
+  dst_ftp          = "ftp://cpan.mirror.iphh.net/pub/CPAN/"
+  dst_http         = "http://cpan.mirror.iphh.net/"
+  dst_rsync        = "cpan.mirror.iphh.net::CPAN"
+  dst_location     = "Hamburg, Germany, Europe (53.54841 9.995327)"
+  dst_organisation = "IPHH Internet Port Hamburg GmbH"
+  dst_timezone     = "1"
+  dst_bandwidth    = "OC12"
+  dst_contact      = "iphh.net$mirror-cpan"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://cpan.mirror.iphh.net/pub/CPAN/"
+# dst_contact      = "mailto:iphh.net$mirror-cpan
+# dst_src          = "ftp.funet.fi"
+
+cpan.mirroring.de:
+  frequency        = "nightly"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.mirroring.de/"
+  dst_location     = "Hannover, Germany, Europe (52.321579 9.818237)"
+  dst_organisation = "Glembotzy Maske Mirroring GbR"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "T1"
+  dst_contact      = "mirroring.de*admin"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "http://cpan.mirroring.de/"
+# dst_contact      = "mailto:mirroring.de*admin
+# dst_src          = "rsync.nic.funet.fi"
+
+cpan.interprovide.de:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.interprovide.de/"
+  dst_location     = "Hoergertshausen, Bavaria, Germany, Europe (48.33 11.52)"
+  dst_organisation = "InterProvide"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "10Mbit"
+  dst_contact      = "interprovide.com!unger"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://cpan.interprovide.de/"
+# dst_contact      = "mailto:interprovide.com!unger
+# dst_src          = "ftp.funet.fi"
+
+cpan.provocation.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.provocation.net/"
+  dst_http         = "http://cpan.provocation.net/"
+  dst_rsync        = "cpan.provocation.net::cpan"
+  dst_location     = "Karlsruhe, Germany, Europe (49.05 8.24)"
+  dst_organisation = "Net Theatre"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "nettheatre.org+hostmaster"
+  dst_src          = "ftp.gwdg.de"
+
+# dst_dst          = "ftp://cpan.provocation.net/"
+# dst_contact      = "mailto:nettheatre.org+hostmaster
+# dst_src          = "ftp.gwdg.de"
+
+cpan.linux-mirror.org:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.linux-mirror.org/"
+  dst_location     = "KÃ¶ln/Cologne, Germany, Europe (6.95 50.933)"
+  dst_organisation = "Linux Open Source Mirror"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "100Mbit"
+  dst_contact      = "vssgmbh.com!admin"
+  dst_src          = "rsync://ftp.leo.org/CPAN/"
+
+# dst_dst          = "http://cpan.linux-mirror.org/"
+# dst_contact      = "mailto:vssgmbh.com!admin
+# dst_src          = "rsync://ftp.leo.org/CPAN/"
+
+cpan.triplemind.com:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.triplemind.com/"
+  dst_location     = "Ludwigshafen, Germany, Europe (49.4833 8.4500)"
+  dst_organisation = "Triplemind Internet Services OHG"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "1Gbps"
+  dst_contact      = "triplemind.com,cgaffga"
+  dst_src          = "rsync.nic.funet.fi::CPAN"
+
+# dst_dst          = "http://cpan.triplemind.com/"
+# dst_contact      = "mailto:triplemind.com,cgaffga
+# dst_src          = "rsync.nic.funet.fi::CPAN"
+
+chemmedia.de:
+  frequency        = "hourly"
+  dst_ftp          = ""
+  dst_http         = "http://www.chemmedia.de/mirrors/CPAN/"
+  dst_location     = "Munich, Bayern, Germany, Europe (48.23 11.68)"
+  dst_organisation = "chemmedia AG"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "T4"
+  dst_contact      = "chemmedia.de'pickschneider"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "http://www.chemmedia.de/mirrors/CPAN/"
+# dst_contact      = "mailto:chemmedia.de'pickschneider
+# dst_src          = "rsync.nic.funet.fi"
+
+cw.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.cw.net/pub/CPAN/"
+  dst_http         = "http://ftp.cw.net/pub/CPAN/"
+  dst_location     = "Munich, Germany, Europe (48.13 11.52)"
+  dst_organisation = "Cable & Wireless"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "1Gbps"
+  dst_contact      = "cw.net;ftp-admin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.cw.net/pub/CPAN/"
+# dst_contact      = "mailto:cw.net;ftp-admin
+# dst_src          = "ftp.funet.fi"
+
+leo.org:
+  frequency        = "hourly"
+  dst_ftp          = "ftp://ftp.leo.org/pub/CPAN/"
+  dst_rsync        = "ftp.leo.org::CPAN"
+  dst_location     = "Munich, Bayern, Germany, Europe (48.13333 11.57138)"
+  dst_organisation = "Link Everything Online"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "OC-12"
+  dst_contact      = "leo.org'leo-admin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.leo.org/pub/CPAN/"
+# dst_contact      = "mailto:leo.org'leo-admin
+# dst_src          = "ftp.funet.fi"
+
+couol.com:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://www.couol.com/cpan/"
+  dst_location     = "Nuremberg, Bavaria, Germany, Europe (49.4541 11.0634)"
+  dst_organisation = "couol.com"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "155Mbps"
+  dst_contact      = "couol.com$office"
+  dst_src          = "rsync://ftp.leo.org/CPAN/"
+
+# dst_dst          = "http://www.couol.com/cpan/"
+# dst_contact      = "mailto:couol.com$office
+# dst_src          = "rsync://ftp.leo.org/CPAN/"
+
+cpan.noris.de:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.noris.de/pub/CPAN/"
+  dst_http         = "http://cpan.noris.de/"
+  dst_location     = "Nuremburg, Bavaria, Germany, Europe (49.4541 11.0634)"
+  dst_organisation = "Noris Network AG"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "noris.net=cpan"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://cpan.noris.de/pub/CPAN/"
+# dst_contact      = "mailto:noris.net=cpan
+# dst_src          = "ftp.funet.fi"
+
+mpi-sb.mpg.de:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.mpi-sb.mpg.de/pub/perl/CPAN/"
+  dst_location     = "Saarbrücken, Saarland, Germany, Europe (49.23109 6.99801)"
+  dst_organisation = "Max-Planck-Institut für Informatik (Max-Planck Institute for Information Science)"
+  dst_timezone     = "+1"
+  dst_contact      = "mpi-sb.mpg.de#ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.mpi-sb.mpg.de/pub/perl/CPAN/"
+# dst_contact      = "mailto:mpi-sb.mpg.de#ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+gmd.de:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.gmd.de/mirrors/CPAN/"
+  dst_location     = "Sankt Augustin, Nordrhein-Westfalen, Germany, Europe (50.77667 7.18528)"
+  dst_organisation = "GMD - Forschungszentrum Informationstechnik GmbH"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "155Mbps"
+  dst_contact      = "gmd.de{ftpmaster"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.gmd.de/mirrors/CPAN/"
+# dst_contact      = "mailto:gmd.de{ftpmaster
+# dst_src          = "ftp.funet.fi"
+
+forthnet.gr:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.forthnet.gr/pub/languages/perl/CPAN"
+  dst_location     = "Athens, Greece, Europe (37.97 23.72)"
+  dst_organisation = "Hellenic Telecommunications & Telematics Applications Company"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "T1"
+  dst_contact      = "forthnet.gr%ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.forthnet.gr/pub/languages/perl/CPAN"
+# dst_contact      = "mailto:forthnet.gr%ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+ntua.gr:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.ntua.gr/pub/lang/perl/"
+  dst_location     = "Athens, Greece, Europe (37.97 23.72)"
+  dst_organisation = "Ethnikon Metsovion Polytechnion (National Technical University of Athens)"
+  dst_timezone     = "+2"
+  dst_contact      = "ntua.gr!ftpadm"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.ntua.gr/pub/lang/perl/"
+# dst_contact      = "mailto:ntua.gr!ftpadm
+# dst_src          = "ftp.funet.fi"
+
+kfki.hu:
+  frequency        = "weekly"
+  dst_ftp          = "ftp://ftp.kfki.hu/pub/packages/perl/CPAN/"
+  dst_http         = "http://ftp.kfki.hu/packages/perl/CPAN/"
+  dst_location     = "Budapest, Hungary, Europe (47.5105 19.0711)"
+  dst_organisation = "Központi Fizikai Kutató Intézet (Central Research Institute for Physics)"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "155Mbps"
+  dst_contact      = "sunserv.kfki.hu|ftpadm"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.kfki.hu/pub/packages/perl/CPAN/"
+# dst_contact      = "mailto:sunserv.kfki.hu|ftpadm
+# dst_src          = "ftp.funet.fi"
+
+rhnet.is:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.rhnet.is/pub/CPAN/"
+  dst_http         = "http://ftp.rhnet.is/pub/CPAN/"
+  dst_location     = "Reykjavik, Iceland, Europe (64.1333 -21.95)"
+  dst_organisation = "Icelandic University Research Network"
+  dst_timezone     = "0"
+  dst_bandwidth    = "T3"
+  dst_contact      = "rhnet.is\ftpadm"
+  dst_src          = "ftp.funet.fi"
+  dst_notes        = "Peering inside Iceland from 100-1000Mb/s"
+
+# dst_dst          = "ftp://ftp.rhnet.is/pub/CPAN/"
+# dst_contact      = "mailto:rhnet.is\ftpadm
+# dst_src          = "ftp.funet.fi"
+
+cpan.oss-mirror.org:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.oss-mirror.org/"
+  dst_location     = "Dublin, Ireland, Europe (53.333 -6.25)"
+  dst_organisation = "Open Source Software mirror"
+  dst_timezone     = "0"
+  dst_bandwidth    = "100Mbit/s"
+  dst_contact      = "vssgmbh.com&admin"
+  dst_src          = "rsync://ftp.leo.org/CPAN/"
+
+# dst_dst          = "http://cpan.oss-mirror.org/"
+# dst_contact      = "mailto:vssgmbh.com&admin
+# dst_src          = "rsync://ftp.leo.org/CPAN/"
+
+esat.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.esat.net/pub/languages/perl/CPAN/"
+  dst_http         = "http://ftp.esat.net/pub/languages/perl/CPAN/"
+  dst_rsync        = "ftp.esat.net::/pub/languages/perl/CPAN"
+  dst_location     = "Dublin, Ireland, Europe (53.30 -6.35)"
+  dst_organisation = "Esat Net"
+  dst_timezone     = "0"
+  dst_bandwidth    = "Gigabit"
+  dst_contact      = "esat.net(ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.esat.net/pub/languages/perl/CPAN/"
+# dst_contact      = "mailto:esat.net(ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+heanet.ie:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.heanet.ie/mirrors/ftp.perl.org/pub/CPAN"
+  dst_http         = "http://ftp.heanet.ie/mirrors/ftp.perl.org/pub/CPAN"
+  dst_rsync        = "ftp.heanet.ie::mirrors/ftp.perl.org/pub/CPAN"
+  dst_location     = "Dublin, Ireland, Europe (53.333 -6.250)"
+  dst_organisation = "HEAnet"
+  dst_timezone     = "0"
+  dst_bandwidth    = "Gigabit"
+  dst_contact      = "heanet.ie[mirrors"
+  dst_src          = "ftp.perl.org"
+  dst_notes        = "See http://ftp.heanet.ie/about and http://www.hea.net/ for details of server and connectivity."
+
+# dst_dst          = "ftp://ftp.heanet.ie/mirrors/ftp.perl.org/pub/CPAN"
+# dst_contact      = "mailto:heanet.ie[mirrors
+# dst_src          = "ftp.perl.org"
+
+bo.mirror.garr.it:
+  frequency        = "daily"
+  dst_ftp          = "ftp://bo.mirror.garr.it/mirrors/CPAN/"
+  dst_http         = "http://bo.mirror.garr.it/mirrors/CPAN/"
+  dst_location     = "Bologna, Italy, Europe (44.483 11.333)"
+  dst_organisation = "GARR/CILEA"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "E4"
+  dst_contact      = "garr.it/mirror-service"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://bo.mirror.garr.it/mirrors/CPAN/"
+# dst_contact      = "mailto:garr.it/mirror-service
+# dst_src          = "ftp.funet.fi"
+
+cpan.panu.it:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.panu.it/"
+  dst_rsync        = "rsync.panu.it::CPAN"
+  dst_location     = "Milano, Italy, Europe (45.4 9.3)"
+  dst_organisation = "Alberto Panu"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "10Mbps"
+  dst_contact      = "panu.it/alberto"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://cpan.panu.it/"
+# dst_contact      = "mailto:panu.it/alberto
+# dst_src          = "ftp.funet.fi"
+
+cis.uniRoma2.it:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cis.uniRoma2.it/CPAN/"
+  dst_location     = "Roma, Lazio, Italy, Europe (41.90293 12.49593)"
+  dst_organisation = "Università di Roma Tor Vergata (Tor Vergata University of Rome)"
+  dst_timezone     = "+1"
+  dst_contact      = ""
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://cis.uniRoma2.it/CPAN/"
+# dst_contact      = "mailto:
+# dst_src          = "ftp.funet.fi"
+
+edisontel.it:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.edisontel.it/pub/CPAN_Mirror/"
+  dst_location     = "Roma, Lazio, Italy, Europe (41.90293 12.49593)"
+  dst_organisation = "Edisontel S.p.A."
+  dst_timezone     = "+1"
+  dst_contact      = "edisontel.it[ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.edisontel.it/pub/CPAN_Mirror/"
+# dst_contact      = "mailto:edisontel.it[ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+flashnet.it:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.flashnet.it/pub/CPAN/"
+  dst_http         = "http://cpan.flashnet.it/"
+  dst_location     = "Roma, Lazio, Italy, Europe (41.90293 12.49593)"
+  dst_organisation = "Cybernet Italia S.p.A."
+  dst_timezone     = "+1"
+  dst_bandwidth    = "T1"
+  dst_contact      = "flashnet.it^ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.flashnet.it/pub/CPAN/"
+# dst_contact      = "mailto:flashnet.it^ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+lugroma.org:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.lugroma.org/mirrors/CPAN/"
+  dst_http         = "http://mirror.lugroma.org/CPAN/"
+  dst_rsync        = "rsync.lugroma.org::CPAN"
+  dst_location     = "Rome, Italy, Europe (41.90 12.51)"
+  dst_organisation = "LUGRoma"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "T1"
+  dst_contact      = "lugroma.org%webmaster"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.lugroma.org/mirrors/CPAN/"
+# dst_contact      = "mailto:lugroma.org%webmaster
+# dst_src          = "ftp.funet.fi"
+
+kvin.lv:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://kvin.lv/pub/CPAN/"
+  dst_location     = "Riga, Latvia, Europe (56.9498 24.1148)"
+  dst_organisation = "Kvant-Interkom"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "11Mbps"
+  dst_contact      = "kvin.lv\arkadi"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://kvin.lv/pub/CPAN/"
+# dst_contact      = "mailto:kvin.lv\arkadi
+# dst_src          = "ftp.funet.fi"
+
+litnet.lt:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.litnet.lt/pub/CPAN/"
+  dst_http         = "http://ftp.litnet.lt/pub/CPAN/"
+  dst_location     = "Kaunas, Lithuania, Europe (54.54 23.54)"
+  dst_organisation = "Lithuanian Academical and Research Network"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "litnet.lt|ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.litnet.lt/pub/CPAN/"
+# dst_contact      = "mailto:litnet.lt|ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+cpan.waldonet.net.mt:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.waldonet.net.mt/"
+  dst_location     = "Valletta, Malta, Europe (35.8997 14.5147)"
+  dst_organisation = "Waldonet"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "E3"
+  dst_contact      = "waldonet.net.mt&eng"
+  dst_src          = "nic.funet.fi"
+
+# dst_dst          = "http://cpan.waldonet.net.mt/"
+# dst_contact      = "mailto:waldonet.net.mt&eng
+# dst_src          = "nic.funet.fi"
+
+quicknet.nl:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.quicknet.nl/pub/CPAN/"
+  dst_location     = "Alkmaar, Netherlands, Europe (52.6333 4.7333)"
+  dst_organisation = "Multikabel QuickNet"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "Gigabit"
+  dst_contact      = "prolocations.net]raymond"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.quicknet.nl/pub/CPAN/"
+# dst_contact      = "mailto:prolocations.net]raymond
+# dst_src          = "ftp.funet.fi"
+
+cpan.fluoline.net:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.fluoline.net/"
+  dst_location     = "Amsterdam, Netherlands, Europe (52.22 4.53)"
+  dst_organisation = "FLUOLINE.net"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "1Gps"
+  dst_contact      = "fluoline.net)support"
+  dst_src          = "rsync.scarlet.be"
+
+# dst_dst          = "http://cpan.fluoline.net/"
+# dst_contact      = "mailto:fluoline.net)support
+# dst_src          = "rsync.scarlet.be"
+
+cpan.mirror.rokscom.nl:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.mirror.rokscom.nl/"
+  dst_location     = "Amsterdam, Noord-Holland, Netherlands, Europe (52.4 4.8)"
+  dst_organisation = "Rokscom Internet B.V."
+  dst_timezone     = "+1"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "office.rokscom.net;daniel"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "http://cpan.mirror.rokscom.nl/"
+# dst_contact      = "mailto:office.rokscom.net;daniel
+# dst_src          = "rsync.nic.funet.fi"
+
+cpan.wanadoo.nl:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.wanadoo.nl/pub/CPAN"
+  dst_http         = "http://cpan.wanadoo.nl/"
+  dst_rsync        = "cpan.wanadoo.nl::cpan"
+  dst_location     = "Amsterdam, Netherlands, Europe (52.3500 4.9167)"
+  dst_organisation = "Wanadoo Netherlands"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "1Gbit"
+  dst_contact      = "euro.net*michel"
+  dst_src          = "nic.funet.fi"
+
+# dst_dst          = "ftp://cpan.wanadoo.nl/pub/CPAN"
+# dst_contact      = "mailto:euro.net*michel
+# dst_src          = "nic.funet.fi"
+
+gnu.kookel.org:
+  frequency        = "daily"
+  dst_ftp          = "ftp://gnu.kookel.org/ftp/CPAN/"
+  dst_http         = "http://gnu.kookel.org/ftp/CPAN/"
+  dst_location     = "Amsterdam, Netherlands, Europe (52.352 4.8275)"
+  dst_organisation = "KELKOO"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "10Mbps"
+  dst_contact      = "kookel.org(mirrors"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://gnu.kookel.org/ftp/CPAN/"
+# dst_contact      = "mailto:kookel.org(mirrors
+# dst_src          = "rsync.nic.funet.fi"
+
+ip2.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://download.ip2.net/pub/mirror/CPAN/"
+  dst_location     = "Amsterdam, Netherlands, Europe (52.352 4.8275)"
+  dst_organisation = "IP2 Internet BV"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "OC3"
+  dst_contact      = "ip2.net'ftp-admin"
+  dst_src          = "ftp.nl.uu.net"
+
+# dst_dst          = "ftp://download.ip2.net/pub/mirror/CPAN/"
+# dst_contact      = "mailto:ip2.net'ftp-admin
+# dst_src          = "ftp.nl.uu.net"
+
+nl.uu.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.nl.uu.net/pub/CPAN/"
+  dst_location     = "Amsterdam, Netherlands, Europe (52.3289910 4.9650350)"
+  dst_organisation = "UUNET NL"
+  dst_timezone     = "+1"
+  dst_contact      = "nl.uu.net^ftpadm"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.nl.uu.net/pub/CPAN/"
+# dst_contact      = "mailto:nl.uu.net^ftpadm
+# dst_src          = "ftp.funet.fi"
+
+nluug.nl:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.nluug.nl/pub/languages/perl/CPAN/"
+  dst_location     = "Amsterdam, Noord-Holland, Netherlands, Europe (52.37269 4.89296)"
+  dst_organisation = "Dutch Unix Users Group NLUUG"
+  dst_timezone     = "+1"
+  dst_contact      = "nluug.nl?ftp-admin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.nluug.nl/pub/languages/perl/CPAN/"
+# dst_contact      = "mailto:nluug.nl?ftp-admin
+# dst_src          = "ftp.funet.fi"
+
+osmirror.nl:
+  frequency        = "daily*4"
+  dst_ftp          = "ftp://ftp.osmirror.nl/pub/cpan/"
+  dst_http         = "http://cpan.osmirror.nl/"
+  dst_rsync        = "rsync://rsync.osmirror.nl/cpan/"
+  dst_location     = "Amsterdam, Netherlands, Europe (52.3500 4.9167)"
+  dst_organisation = "OSMirror"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "osmirror.nl?mirrors"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.osmirror.nl/pub/cpan/"
+# dst_contact      = "mailto:osmirror.nl?mirrors
+# dst_src          = "ftp.funet.fi"
+
+vuurwerk.nl:
+  frequency        = "daily"
+  dst_ftp          = "ftp://mirror.vuurwerk.nl/pub/CPAN/"
+  dst_location     = "Amsterdam, Netherlands, Europe (52.37269 4.89296)"
+  dst_organisation = "VuurWerk Internet"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "100MBit"
+  dst_contact      = "vuurwerk.nl{mirror"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://mirror.vuurwerk.nl/pub/CPAN/"
+# dst_contact      = "mailto:vuurwerk.nl{mirror
+# dst_src          = "ftp.funet.fi"
+
+xs4all.nl:
+  frequency        = "daily"
+  dst_ftp          = "ftp://download.xs4all.nl/pub/mirror/CPAN/"
+  dst_location     = "Amsterdam, Noord-Holland, Netherlands, Europe (52.37269 4.89296)"
+  dst_organisation = "XS4ALL"
+  dst_timezone     = "+1"
+  dst_contact      = "xs4all.nl,unixbeheer"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://download.xs4all.nl/pub/mirror/CPAN/"
+# dst_contact      = "mailto:xs4all.nl,unixbeheer
+# dst_src          = "ftp.funet.fi"
+
+cpan.nl:
+  frequency        = "hourly"
+  dst_ftp          = "ftp://ftp.cpan.nl/pub/CPAN/"
+  dst_location     = "Hoofddorp, Netherlands, Europe (52.30315 4.69719)"
+  dst_organisation = "Widexs Internet"
+  dst_timezone     = "+1"
+  dst_contact      = "widexs.nl;cpan"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.cpan.nl/pub/CPAN/"
+# dst_contact      = "mailto:widexs.nl;cpan
+# dst_src          = "ftp.funet.fi"
+
+easynet.nl:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.easynet.nl/mirror/CPAN"
+  dst_http         = "http://ftp.easynet.nl/mirror/CPAN"
+  dst_location     = "Rotterdam Zuid-Holland, Netherlands, Europe (51.917 4.483)"
+  dst_organisation = "Easynet-Group Netherlands"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "STM1"
+  dst_contact      = "nl.easynet.net&diederik"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://ftp.easynet.nl/mirror/CPAN"
+# dst_contact      = "mailto:nl.easynet.net&diederik
+# dst_src          = "rsync.nic.funet.fi"
+
+cs.uu.nl:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.cs.uu.nl/mirror/CPAN/"
+  dst_http         = "http://archive.cs.uu.nl/mirror/CPAN/"
+  dst_location     = "Utrecht, Netherlands, Europe (52.08787 5.11637)"
+  dst_organisation = "de Universiteit Utrecht (Utrecht University)"
+  dst_timezone     = "+1"
+  dst_contact      = "cs.uu.nl=archivist"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.cs.uu.nl/mirror/CPAN/"
+# dst_contact      = "mailto:cs.uu.nl=archivist
+# dst_src          = "ftp.funet.fi"
+
+uninett.no:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.uninett.no/pub/languages/perl/CPAN"
+  dst_location     = "Oslo, Norway, Europe (59.9104 10.7524)"
+  dst_organisation = "University of Oslo / Uninett"
+  dst_timezone     = "+1"
+  dst_contact      = "uio.no}ftp-drift"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.uninett.no/pub/languages/perl/CPAN"
+# dst_contact      = "mailto:uio.no}ftp-drift
+# dst_src          = "ftp.funet.fi"
+
+uit.no:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.uit.no/pub/languages/perl/cpan/"
+  dst_location     = "Tromsø, Troms, Norway, Europe (69.6529 18.962)"
+  dst_organisation = "Universitetet i Tromsø (University of Tromsø)"
+  dst_timezone     = "+1"
+  dst_contact      = "uit.no{ftp"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.uit.no/pub/languages/perl/cpan/"
+# dst_contact      = "mailto:uit.no{ftp
+# dst_src          = "ftp.funet.fi"
+
+icis.pcz.pl:
+  frequency        = "daily"
+  dst_ftp          = "ftp://mirror.icis.pcz.pl/CPAN/"
+  dst_http         = "http://mirror.icis.pcz.pl/CPAN/"
+  dst_rsync        = "mirror.icis.pcz.pl::CPAN"
+  dst_location     = "Czestochowa, Poland, Europe (50.833 19.116)"
+  dst_organisation = "Czestochowa University of Technology"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "1Gbps"
+  dst_contact      = "icis.pcz.pl,xeno"
+  dst_src          = "rsync.nic.funet.fi::CPAN"
+  dst_notes        = "The server is directly connected to the Polish Academic Network PIONIER - 1Gbit link to the 10Gbit backbone"
+
+# dst_dst          = "ftp://mirror.icis.pcz.pl/CPAN/"
+# dst_contact      = "mailto:icis.pcz.pl,xeno
+# dst_src          = "rsync.nic.funet.fi::CPAN"
+
+mega.net.pl:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.mega.net.pl/CPAN"
+  dst_location     = "Swinoujscie, Zachodniopomorskie, Poland, Europe (53.9068 14.2484)"
+  dst_organisation = "MegaNET ISP"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "E1"
+  dst_contact      = "mega.net.pl\marcel"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.mega.net.pl/CPAN"
+# dst_contact      = "mailto:mega.net.pl\marcel
+# dst_src          = "ftp.funet.fi"
+
+sunsite.icm.edu.pl:
+  frequency        = "daily"
+  dst_ftp          = "ftp://sunsite.icm.edu.pl/pub/CPAN/"
+  dst_location     = "Warsaw, Mazowieckie, Poland, Europe (52.2478 21.0208)"
+  dst_organisation = "Interdyscyplinarne Centrum Modelowania Matematycznego i Komputerowego Uniwersytet Warszawski (Interdisciplinary Centre for Mathematical and Computational Modeling)"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "E3"
+  dst_contact      = "icm.edu.pl=mirror"
+  dst_src          = "ftp.cpan.org"
+
+# dst_dst          = "ftp://sunsite.icm.edu.pl/pub/CPAN/"
+# dst_contact      = "mailto:icm.edu.pl=mirror
+# dst_src          = "ftp.cpan.org"
+
+perl.di.uminho.pt:
+  frequency        = "daily"
+  dst_ftp          = "ftp://perl.di.uminho.pt/pub/CPAN/"
+  dst_location     = "Braga, Portugal, Europe (41.5396 -8.418)"
+  dst_organisation = "Departamento de Informática, Universidade do Minho (Department of Informatics, University of Minho)"
+  dst_timezone     = "0"
+  dst_contact      = "di.uminho.pt|jpo"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://perl.di.uminho.pt/pub/CPAN/"
+# dst_contact      = "mailto:di.uminho.pt|jpo
+# dst_src          = "ftp.funet.fi"
+
+dei.uc.pt:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.dei.uc.pt/pub/CPAN"
+  dst_http         = "http://cpan.dei.uc.pt/"
+  dst_location     = "Coimbra, Portugal, Europe (40.2000 -8.4167)"
+  dst_organisation = "Departamento de Engenharia Informatica da Universidade de Coimbra (Department of Informatics Engineering, University of Coimbra)"
+  dst_timezone     = "0"
+  dst_bandwidth    = "T3"
+  dst_contact      = "dei.uc.pt&ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.dei.uc.pt/pub/CPAN"
+# dst_contact      = "mailto:dei.uc.pt&ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+nfsi.pt:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.nfsi.pt/pub/CPAN"
+  dst_location     = "Leiria, Portugal, Europe (39.7500 -8.8000)"
+  dst_organisation = "NFSi - Solucoes Internet Lda"
+  dst_timezone     = "0"
+  dst_bandwidth    = "STM-1"
+  dst_contact      = "nfsi.pt&nuno.vieira"
+  dst_src          = "rsync.nic.funet.fi"
+  dst_notes        = "Anonymous User Limit 10"
+
+# dst_dst          = "ftp://ftp.nfsi.pt/pub/CPAN"
+# dst_contact      = "mailto:nfsi.pt&nuno.vieira
+# dst_src          = "rsync.nic.funet.fi"
+
+linux.pt:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.linux.pt/pub/mirrors/CPAN"
+  dst_http         = "http://ftp.linux.pt/pub/mirrors/CPAN"
+  dst_location     = "Lisboa, Portugal, Europe (38.7134 -9.2334)"
+  dst_organisation = "Linux.pt"
+  dst_timezone     = "0"
+  dst_bandwidth    = "T3"
+  dst_contact      = "linux.pt,mirror"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.linux.pt/pub/mirrors/CPAN"
+# dst_contact      = "mailto:linux.pt,mirror
+# dst_src          = "ftp.funet.fi"
+
+cpan.interacesso.pt:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.interacesso.pt/pub/cpan"
+  dst_http         = "http://cpan.interacesso.pt"
+  dst_location     = "Lisbon, Portugal, Europe (38.7134 -9.2334)"
+  dst_organisation = "Nortenet/Interacesso"
+  dst_timezone     = "0"
+  dst_bandwidth    = "T3"
+  dst_contact      = "interacesso.pt)paulo.pinto"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://cpan.interacesso.pt/pub/cpan"
+# dst_contact      = "mailto:interacesso.pt)paulo.pinto
+# dst_src          = "rsync.nic.funet.fi"
+
+cpan.ip.pt:
+  frequency        = "4 times daily"
+  dst_ftp          = "ftp://cpan.ip.pt/pub/cpan/"
+  dst_http         = "http://cpan.ip.pt/"
+  dst_location     = "Lisbon, Portugal, Europe (38.7341 -9.1446)"
+  dst_organisation = "Novis Telecom, SA"
+  dst_timezone     = "0"
+  dst_bandwidth    = "OC3"
+  dst_contact      = "ip.pt:ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://cpan.ip.pt/pub/cpan/"
+# dst_contact      = "mailto:ip.pt:ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+cpan.telepac.pt:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.telepac.pt/pub/cpan/"
+  dst_http         = "http://cpan.telepac.pt/"
+  dst_location     = "Lisbon, Portugal, Europe (38.733 -9.133)"
+  dst_organisation = "Telepac"
+  dst_timezone     = "0"
+  dst_bandwidth    = "T3"
+  dst_contact      = "tp.telepac.pt|mramos"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.telepac.pt/pub/cpan/"
+# dst_contact      = "mailto:tp.telepac.pt|mramos
+# dst_src          = "ftp.funet.fi"
+
+isr.ist.utl.pt:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.isr.ist.utl.pt/pub/CPAN/"
+  dst_http         = "http://ftp.isr.ist.utl.pt/pub/CPAN/"
+  dst_location     = "Lisbon, Portugal, Europe (38.7377 -9.13886)"
+  dst_organisation = "Institute for Systems and Robotics"
+  dst_timezone     = "0"
+  dst_bandwidth    = "1Gbps"
+  dst_contact      = "isr.ist.utl.pt#yoda"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://ftp.isr.ist.utl.pt/pub/CPAN/"
+# dst_contact      = "mailto:isr.ist.utl.pt#yoda
+# dst_src          = "rsync.nic.funet.fi"
+
+cpan.dcc.fc.up.pt:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.dcc.fc.up.pt/"
+  dst_location     = "Porto, Portugal, Europe (41.15 8.62)"
+  dst_organisation = "Departamento de CiÃ©ncia de Computadores, Faculdade de CiÃ©ncias da Universidade do Porto (Computer Science Departement, Science Faculty, Oporto University)"
+  dst_timezone     = "+0"
+  dst_contact      = "labcc.dcc.fc.up.pt;LabCC"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "http://cpan.dcc.fc.up.pt/"
+# dst_contact      = "mailto:labcc.dcc.fc.up.pt;LabCC
+# dst_src          = "rsync.nic.funet.fi"
+
+neacm.fe.up.pt:
+  frequency        = "daily"
+  dst_ftp          = "ftp://neacm.fe.up.pt/pub/CPAN/"
+  dst_http         = "http://neacm.fe.up.pt/pub/CPAN/"
+  dst_location     = "Porto, Portugal, Europe (41.18 -8.60)"
+  dst_organisation = "Faculdade de Engenharia da Universidade do Porto (Faculty of Engineering at the University of Porto)"
+  dst_timezone     = "+0"
+  dst_bandwidth    = "80Mbps"
+  dst_contact      = "fe.up.pt=neacm"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://neacm.fe.up.pt/pub/CPAN/"
+# dst_contact      = "mailto:fe.up.pt=neacm
+# dst_src          = "ftp.funet.fi"
+
+casaafacerilor.ro:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.casaafacerilor.ro/mirrors/CPAN/"
+  dst_http         = "http://ftp.casaafacerilor.ro/mirrors/CPAN/"
+  dst_location     = "Braila, Romania, Europe (45.266 27.9833)"
+  dst_organisation = "Casa Afacerilor SRL"
+  dst_timezone     = "2"
+  dst_bandwidth    = "T1"
+  dst_contact      = "casaafacerilor.ro:mat.marius"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.casaafacerilor.ro/mirrors/CPAN/"
+# dst_contact      = "mailto:casaafacerilor.ro:mat.marius
+# dst_src          = "ftp.funet.fi"
+
+evolva.ro:
+  frequency        = "hourly"
+  dst_ftp          = "ftp://mirrors.evolva.ro/CPAN"
+  dst_http         = "http://mirrors.evolva.ro/CPAN"
+  dst_rsync        = "mirrors.evolva.ro::CPAN"
+  dst_location     = "Bucharest, Romania, Europe (44.25 26.7)"
+  dst_organisation = "Evolva Telecom"
+  dst_timezone     = "+3"
+  dst_bandwidth    = "1Gbps"
+  dst_contact      = "evolva.ro$serghei"
+  dst_src          = "cpan.inode.at"
+  dst_notes        = "256 users limit on http, 256 on ftp and 256 on rsync. Server have 20 Mbps upstream."
+
+# dst_dst          = "ftp://mirrors.evolva.ro/CPAN"
+# dst_contact      = "mailto:evolva.ro$serghei
+# dst_src          = "cpan.inode.at"
+
+kappa.ro:
+  frequency        = "twice daily"
+  dst_ftp          = "ftp://ftp.kappa.ro/pub/mirrors/ftp.perl.org/pub/CPAN/"
+  dst_location     = "Bucharest, Romania, Europe (44.4333 26.1)"
+  dst_organisation = "Astral Telecom"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "E1"
+  dst_contact      = "kappa.ro/ftpadm"
+  dst_src          = "ftp.perl.org"
+
+# dst_dst          = "ftp://ftp.kappa.ro/pub/mirrors/ftp.perl.org/pub/CPAN/"
+# dst_contact      = "mailto:kappa.ro/ftpadm
+# dst_src          = "ftp.perl.org"
+
+lug.ro:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.lug.ro/CPAN"
+  dst_location     = "Bucharest, Romania, Europe (44.4333 26.1000)"
+  dst_organisation = "KPNQwest/GTS Romania -- Romanian Linux Users Group"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "STM1"
+  dst_contact      = "lug.ro'cpan"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://ftp.lug.ro/CPAN"
+# dst_contact      = "mailto:lug.ro'cpan
+# dst_src          = "rsync.nic.funet.fi"
+
+roedu.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.roedu.net/pub/CPAN/"
+  dst_location     = "Bucharest, Romania, Europe (44.4 26.1)"
+  dst_organisation = "Romanian Educational Network - RoEduNet"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "STM1"
+  dst_contact      = "roedu.net'keeper"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.roedu.net/pub/CPAN/"
+# dst_contact      = "mailto:roedu.net'keeper
+# dst_src          = "ftp.funet.fi"
+
+hostingromania.ro:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.hostingromania.ro/Linux/mirrors/ftp.cpan.org/"
+  dst_http         = "http://ftp.hostingromania.ro/Linux/mirrors/ftp.cpan.org/"
+  dst_location     = "Craiova, Romania, Europe (44.20 22.49)"
+  dst_organisation = "Hosting Romania"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "T1"
+  dst_contact      = "hostingromania.ro:net-admin"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://ftp.hostingromania.ro/Linux/mirrors/ftp.cpan.org/"
+# dst_contact      = "mailto:hostingromania.ro:net-admin
+# dst_src          = "rsync.nic.funet.fi"
+
+dntis.ro:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.dntis.ro/pub/cpan/"
+  dst_location     = "Iasi, Romania, Europe (47.1559 27.5822)"
+  dst_organisation = "Dynamic Network Technologies Romania"
+  dst_timezone     = "+2"
+  dst_contact      = "dntis.ro$ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.dntis.ro/pub/cpan/"
+# dst_contact      = "mailto:dntis.ro$ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+iasi.roedu.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.iasi.roedu.net/pub/mirrors/ftp.cpan.org/"
+  dst_location     = "Iasi, Romania, Europe (47.1559 27.5822)"
+  dst_organisation = "RoEduNet Iasi Branch"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "6Mbps"
+  dst_contact      = "iasi.roedu.net(sysadmin"
+  dst_src          = "ftp.cpan.org"
+
+# dst_dst          = "ftp://ftp.iasi.roedu.net/pub/mirrors/ftp.cpan.org/"
+# dst_contact      = "mailto:iasi.roedu.net(sysadmin
+# dst_src          = "ftp.cpan.org"
+
+ambra.ro:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.ambra.ro/pub/CPAN"
+  dst_location     = "Piatra Neamt, Romania, Europe (46.933 26.367)"
+  dst_organisation = "Ambra srl"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "DSL"
+  dst_contact      = "ambra.ro,mihai"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.ambra.ro/pub/CPAN"
+# dst_contact      = "mailto:ambra.ro,mihai
+# dst_src          = "ftp.funet.fi"
+
+chg.ru:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.chg.ru/pub/lang/perl/CPAN/"
+  dst_location     = "Chernogolovka, Russia, Europe (56.000 38.367)"
+  dst_organisation = "Landau Institute for Theoretical Physics"
+  dst_timezone     = "+3"
+  dst_contact      = "chg.ru:ftpadm"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.chg.ru/pub/lang/perl/CPAN/"
+# dst_contact      = "mailto:chg.ru:ftpadm
+# dst_src          = "ftp.funet.fi"
+
+aha.ru:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.aha.ru/pub/CPAN/"
+  dst_location     = "Moscow, Russia, Europe (55.75 37.5833)"
+  dst_organisation = "Zenon N.S.P."
+  dst_timezone     = "+3"
+  dst_contact      = "zenon.net(sysadm"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.aha.ru/pub/CPAN/"
+# dst_contact      = "mailto:zenon.net(sysadm
+# dst_src          = "ftp.funet.fi"
+
+corbina.ru:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.corbina.ru/pub/CPAN/"
+  dst_location     = "Moscow, Russia, Europe (55.75 37.5833)"
+  dst_organisation = "Corbina Telecom"
+  dst_timezone     = "+3"
+  dst_bandwidth    = "1Gbps"
+  dst_contact      = "corbina.ru'support"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://ftp.corbina.ru/pub/CPAN/"
+# dst_contact      = "mailto:corbina.ru'support
+# dst_src          = "rsync.nic.funet.fi"
+
+cpan.makeperl.org:
+  frequency        = "every 6 hours"
+  dst_ftp          = "ftp://cpan.makeperl.org/pub/CPAN"
+  dst_http         = "http://cpan.makeperl.org/"
+  dst_location     = "Moscow, Russia, Europe (55.75 37.58)"
+  dst_organisation = "DotHost (N.S.P.)"
+  dst_timezone     = "+3"
+  dst_bandwidth    = "T3"
+  dst_contact      = "cpan.org=dmitry"
+  dst_src          = "ftp.funet.su"
+  dst_notes        = "limit 500 users, 5 connections per user"
+
+# dst_dst          = "ftp://cpan.makeperl.org/pub/CPAN"
+# dst_contact      = "mailto:cpan.org=dmitry
+# dst_src          = "ftp.funet.su"
+
+cpan.rinet.ru:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.rinet.ru/pub/mirror/CPAN/"
+  dst_http         = "http://cpan.rinet.ru/"
+  dst_location     = "Moscow, Russia, Europe (55.75 37.5833)"
+  dst_organisation = "Cronyx Plus Ltd. (RiNet ISP)"
+  dst_timezone     = "+3"
+  dst_bandwidth    = "10Mbps"
+  dst_contact      = "rinet.ru/mirroradm"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://cpan.rinet.ru/pub/mirror/CPAN/"
+# dst_contact      = "mailto:rinet.ru/mirroradm
+# dst_src          = "ftp.funet.fi"
+
+sai.msu.su:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.sai.msu.su/pub/lang/perl/CPAN/"
+  dst_http         = "http://cpan.sai.msu.ru/"
+  dst_location     = "Moscow, Russia, Europe (55.75 37.5833)"
+  dst_organisation = "Sternberg Astronomical Institute, Moscow University"
+  dst_timezone     = "+3"
+  dst_bandwidth    = "10Mbps"
+  dst_contact      = "sai.msu.su/oleg"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.sai.msu.su/pub/lang/perl/CPAN/"
+# dst_contact      = "mailto:sai.msu.su/oleg
+# dst_src          = "ftp.funet.fi"
+
+spbu.ru:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.spbu.ru/CPAN/"
+  dst_http         = "http://ftp.spbu.ru/CPAN/"
+  dst_location     = "St. Petersburg, Russia, Europe (59.59 30.15)"
+  dst_organisation = "St. Petersburg State University"
+  dst_timezone     = "+3"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "ptc.spbu.ru[noc"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.spbu.ru/CPAN/"
+# dst_contact      = "mailto:ptc.spbu.ru[noc
+# dst_src          = "ftp.funet.fi"
+
+cvt.stuba.sk:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.cvt.stuba.sk/pub/CPAN/"
+  dst_location     = "Bratislava, Slovakia, Europe (48.1376 17.1043)"
+  dst_organisation = "Slovak University Of Technology"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "100Mbit"
+  dst_contact      = "cvt.stuba.sk=ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.cvt.stuba.sk/pub/CPAN/"
+# dst_contact      = "mailto:cvt.stuba.sk=ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+klevze.si:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://www.klevze.si/cpan"
+  dst_location     = "Klevze, Maribor, Slovenia, Europe (46.55 15.65)"
+  dst_organisation = ""
+  dst_timezone     = "+1"
+  dst_bandwidth    = "T3"
+  dst_contact      = "klevze.si)gregor"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "http://www.klevze.si/cpan"
+# dst_contact      = "mailto:klevze.si)gregor
+# dst_src          = "rsync.nic.funet.fi"
+
+arnes.si:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.arnes.si/software/perl/CPAN/"
+  dst_location     = "Ljubljana, Slovenia, Europe (46.058 14.5049)"
+  dst_organisation = "Academic and Research Network in Slovenia"
+  dst_timezone     = "+1"
+  dst_contact      = "arnes.si}ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.arnes.si/software/perl/CPAN/"
+# dst_contact      = "mailto:arnes.si}ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+wsection.com:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://www.wsection.com/cpan/"
+  dst_location     = "Ljubljana, Slovenia, Europe (46.058 14.5049)"
+  dst_organisation = "Wsection"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "T3"
+  dst_contact      = "wsection.com'webadmin"
+  dst_src          = "nic.funet.fi"
+
+# dst_dst          = "http://www.wsection.com/cpan/"
+# dst_contact      = "mailto:wsection.com'webadmin
+# dst_src          = "nic.funet.fi"
+
+cpan.imasd.elmundo.es:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.imasd.elmundo.es/"
+  dst_location     = "Madrid, Spain, Europe (40.417 -3.717)"
+  dst_organisation = "elmundo.es"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "100Mb"
+  dst_contact      = "el-mundo.net|admin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://cpan.imasd.elmundo.es/"
+# dst_contact      = "mailto:el-mundo.net|admin
+# dst_src          = "ftp.funet.fi"
+
+rediris.es:
+  frequency        = "twice daily"
+  dst_ftp          = "ftp://ftp.rediris.es/mirror/CPAN/"
+  dst_location     = "Madrid, Spain, Europe (40.42031 -3.70562)"
+  dst_organisation = "Red Académica y de Investigación Nacional Española (Spanish Academic Network for Research and Development)"
+  dst_timezone     = "+1"
+  dst_contact      = "rediris.es*ftp"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.rediris.es/mirror/CPAN/"
+# dst_contact      = "mailto:rediris.es*ftp
+# dst_src          = "ftp.funet.fi"
+
+etse.urv.es:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.etse.urv.es/pub/perl/"
+  dst_location     = "Tarragona, Catalonia, Spain, Europe (41.11617 1.25561)"
+  dst_organisation = "Escola Tècnica Superior d'Enginyeria Universitat Rovira i Virgili (Advanced Engineering Technical School Rovira i Virgili University)"
+  dst_timezone     = "+1"
+  dst_contact      = "etse.urv.es)ftpmanager"
+  dst_src          = "ftp.rediris.es"
+
+# dst_dst          = "ftp://ftp.etse.urv.es/pub/perl/"
+# dst_contact      = "mailto:etse.urv.es)ftpmanager
+# dst_src          = "ftp.rediris.es"
+
+du.se:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.du.se/pub/CPAN/"
+  dst_http         = "http://ftp.du.se/CPAN/"
+  dst_location     = "Borlänge, Sweden, Europe (60.48349 15.43365)"
+  dst_organisation = "Dalarna University College"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "OC3"
+  dst_contact      = "du.se/ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.du.se/pub/CPAN/"
+# dst_contact      = "mailto:du.se/ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+port80.se:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.port80.se/pub/CPAN/"
+  dst_http         = "http://ftp.port80.se/pub/CPAN/"
+  dst_location     = "Stockholm, Sweden, Europe (59.20 18.05)"
+  dst_organisation = "Port80 AB"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "1000"
+  dst_contact      = "port80.se^noc"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.port80.se/pub/CPAN/"
+# dst_contact      = "mailto:port80.se^noc
+# dst_src          = "ftp.funet.fi"
+
+sunet.se:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.sunet.se/pub/lang/perl/CPAN/"
+  dst_location     = "Uppsala, Sweden, Europe (59.85814 17.64458)"
+  dst_organisation = "Swedish University NETwork"
+  dst_timezone     = "+1"
+  dst_contact      = "ftp.sunet.se\ftp-admin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.sunet.se/pub/lang/perl/CPAN/"
+# dst_contact      = "mailto:ftp.sunet.se\ftp-admin
+# dst_src          = "ftp.funet.fi"
+
+cpan.mirror.fr:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.mirror.fr"
+  dst_location     = "Neuchatel, Switzerland, Europe (47.000 6.97)"
+  dst_organisation = "Over Blog"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "T1"
+  dst_contact      = "over-blog.com|julien"
+  dst_src          = "ftp.u-paris10.fr"
+
+# dst_dst          = "http://cpan.mirror.fr"
+# dst_contact      = "mailto:over-blog.com|julien
+# dst_src          = "ftp.u-paris10.fr"
+
+solnet.ch:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.solnet.ch/mirror/CPAN/"
+  dst_http         = "http://cpan.mirror.solnet.ch/"
+  dst_rsync        = "ftp.solnet.ch::CPAN"
+  dst_location     = "Solothurn, Switzerland, Europe (47.2167 7.5333)"
+  dst_organisation = "SolNet"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "T3"
+  dst_contact      = "solnet.ch{mirrormaster"
+  dst_src          = "ftp.leo.org"
+
+# dst_dst          = "ftp://ftp.solnet.ch/mirror/CPAN/"
+# dst_contact      = "mailto:solnet.ch{mirrormaster
+# dst_src          = "ftp.leo.org"
+
+k-informatik.ch:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.k-informatik.ch/pub/CPAN/"
+  dst_location     = "Zürich, Switzerland, Europe (47.37704 8.53951)"
+  dst_organisation = "K-Informatik"
+  dst_timezone     = "+1"
+  dst_contact      = "k-informatik.ch(dkuebler"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.k-informatik.ch/pub/CPAN/"
+# dst_contact      = "mailto:k-informatik.ch(dkuebler
+# dst_src          = "ftp.funet.fi"
+
+switch.ch:
+  frequency        = "daily"
+  dst_ftp          = "ftp://mirror.switch.ch/mirror/CPAN/"
+  dst_http         = "http://mirror.switch.ch/ftp/mirror/CPAN/"
+  dst_location     = "Zürich, Switzerland, Europe (47.37704 8.53951)"
+  dst_organisation = "SWITCHmirror"
+  dst_timezone     = "+1"
+  dst_bandwidth    = "Gigabit"
+  dst_contact      = "switch.ch^mirror"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://mirror.switch.ch/mirror/CPAN/"
+# dst_contact      = "mailto:switch.ch^mirror
+# dst_src          = "rsync.nic.funet.fi"
+
+cpan.org.ua:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.org.ua/"
+  dst_location     = "Kiev, Ukraine, Europe (50.4333 30.5167)"
+  dst_organisation = "K27"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "1Mb"
+  dst_contact      = "cpan.org.ua]hostmaster"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://cpan.org.ua/"
+# dst_contact      = "mailto:cpan.org.ua]hostmaster
+# dst_src          = "ftp.funet.fi"
+
+no-more.kiev.ua:
+  frequency        = "daily"
+  dst_ftp          = "ftp://no-more.kiev.ua/pub/CPAN/"
+  dst_http         = "http://no-more.kiev.ua/CPAN/"
+  dst_location     = "Kiev, Ukraine, Europe (50.4333 30.5167)"
+  dst_organisation = "No More BBS"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "512Kb"
+  dst_contact      = "no-more.kiev.ua=cpan"
+  dst_src          = "ftp.funet.fi"
+  dst_notes        = "2003-01-08 08:46:00"
+
+# dst_dst          = "ftp://no-more.kiev.ua/pub/CPAN/"
+# dst_contact      = "mailto:no-more.kiev.ua=cpan
+# dst_src          = "ftp.funet.fi"
+
+cpan.gafol.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.gafol.net/pub/cpan/"
+  dst_http         = "http://cpan.gafol.net/"
+  dst_rsync        = "gafol.net::cpan"
+  dst_location     = "Kyiv (Kiev), Ukraine, Europe (50.47 30.48)"
+  dst_organisation = "Gafol"
+  dst_timezone     = "+2"
+  dst_bandwidth    = "T3"
+  dst_contact      = "gafol.net*pc"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://ftp.gafol.net/pub/cpan/"
+# dst_contact      = "mailto:gafol.net*pc
+# dst_src          = "rsync.nic.funet.fi"
+
+mirror.ac.uk:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.mirror.ac.uk/sites/ftp.funet.fi/pub/languages/perl/CPAN/"
+  dst_http         = "http://www.mirror.ac.uk/mirror/ftp.funet.fi/pub/languages/perl/CPAN/"
+  dst_rsync        = "rsync.mirror.ac.uk::/ftp.funet.fi"
+  dst_location     = "Bath, England, United Kingdom, Europe (51.38 -2.37)"
+  dst_organisation = "JISC National Mirror Service"
+  dst_timezone     = "0"
+  dst_bandwidth    = "1Gbps"
+  dst_contact      = "eduserv.org.uk\mirrorsupport"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.mirror.ac.uk/sites/ftp.funet.fi/pub/languages/perl/CPAN/"
+# dst_contact      = "mailto:eduserv.org.uk\mirrorsupport
+# dst_src          = "ftp.funet.fi"
+
+mirrorservice.org:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.mirrorservice.org/sites/ftp.funet.fi/pub/languages/perl/CPAN/"
+  dst_http         = "http://www.mirrorservice.org/sites/ftp.funet.fi/pub/languages/perl/CPAN/"
+  dst_rsync        = "rsync.mirrorservice.org::ftp.funet.fi/pub/"
+  dst_location     = "Canterbury and Lancaster, England, United Kingdom, Europe (51.27561 1.07514)"
+  dst_organisation = "UK Mirror Service"
+  dst_timezone     = "0"
+  dst_contact      = "mirrorservice.org&mirror"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.mirrorservice.org/sites/ftp.funet.fi/pub/languages/perl/CPAN/"
+# dst_contact      = "mailto:mirrorservice.org&mirror
+# dst_src          = "ftp.funet.fi"
+
+anlx.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.mirror.anlx.net/CPAN/"
+  dst_http         = "http://cpan.mirror.anlx.net/"
+  dst_rsync        = "rsync.mirror.anlx.net::CPAN"
+  dst_location     = "London, England, United Kingdom, Europe (51.50595 -0.12689)"
+  dst_organisation = "Associated Networks Limited"
+  dst_timezone     = "0"
+  dst_bandwidth    = "DS3"
+  dst_contact      = "anlx.com+eng"
+  dst_src          = "ftp.funet.fi"
+  dst_notes        = "Server is load balanced over 2 machines using an Arrowpoint CS-800"
+
+# dst_dst          = "ftp://ftp.mirror.anlx.net/CPAN/"
+# dst_contact      = "mailto:anlx.com+eng
+# dst_src          = "ftp.funet.fi"
+
+cont1.lhx.teleglobe.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.teleglobe.net/pub/CPAN"
+  dst_http         = "http://cpan.teleglobe.net/"
+  dst_rsync        = "cpan.teleglobe.net::CPAN"
+  dst_location     = "London, England, United Kingdom, Europe (51.50595 -0.12689)"
+  dst_organisation = "Teleglobe"
+  dst_timezone     = "0"
+  dst_bandwidth    = "OC48"
+  dst_contact      = "teleglobe.net{mirror"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://cpan.teleglobe.net/pub/CPAN"
+# dst_contact      = "mailto:teleglobe.net{mirror
+# dst_src          = "ftp.funet.fi"
+
+cpan.etla.org:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.etla.org/pub/CPAN"
+  dst_http         = "http://cpan.etla.org/"
+  dst_location     = "London, United Kingdom, Europe (51.512078 -0.002035)"
+  dst_organisation = ""
+  dst_timezone     = "0"
+  dst_bandwidth    = "10Mbit"
+  dst_contact      = "etla.org^mstevens"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://cpan.etla.org/pub/CPAN"
+# dst_contact      = "mailto:etla.org^mstevens
+# dst_src          = "ftp.funet.fi"
+
+demon.co.uk:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.demon.co.uk/pub/CPAN/"
+  dst_location     = "London, England, United Kingdom, Europe (51.50595 -0.12689)"
+  dst_organisation = "Demon Internet Limited"
+  dst_timezone     = "0"
+  dst_bandwidth    = "DS3"
+  dst_contact      = "thokk.demon.co.uk+malcolm"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.demon.co.uk/pub/CPAN/"
+# dst_contact      = "mailto:thokk.demon.co.uk+malcolm
+# dst_src          = "ftp.funet.fi"
+
+flirble.org:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.flirble.org/pub/CPAN/"
+  dst_http         = "http://cpan.m.flirble.org/"
+  dst_rsync        = "ftp.flirble.org::CPAN"
+  dst_location     = "London, England, United Kingdom, Europe (51.50595 -0.12689)"
+  dst_organisation = "The Flirble Organisation"
+  dst_timezone     = "0"
+  dst_bandwidth    = "OC12"
+  dst_contact      = "flirble.org,cpan-mirror"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://ftp.flirble.org/pub/CPAN/"
+# dst_contact      = "mailto:flirble.org,cpan-mirror
+# dst_src          = "rsync.nic.funet.fi"
+
+hurricane.hinasu.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://hurricane.hinasu.net/pub/CPAN/"
+  dst_http         = "http://hurricane.hinasu.net/CPAN/"
+  dst_location     = "London, United Kingdom, Europe (51.5 -0.167)"
+  dst_organisation = "hinasu.net"
+  dst_timezone     = "0"
+  dst_bandwidth    = "T3"
+  dst_contact      = "hinasu.net%mozza"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://hurricane.hinasu.net/pub/CPAN/"
+# dst_contact      = "mailto:hinasu.net%mozza
+# dst_src          = "rsync.nic.funet.fi"
+
+plig.org:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.plig.org/pub/CPAN/"
+  dst_location     = "London, England, United Kingdom, Europe (51.50595 -0.12689)"
+  dst_organisation = "PLiG"
+  dst_timezone     = ""
+  dst_contact      = "plig.org%ftp-admin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.plig.org/pub/CPAN/"
+# dst_contact      = "mailto:plig.org%ftp-admin
+# dst_src          = "ftp.funet.fi"
+
+securehost.com:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://www.securehost.com/mirror/CPAN/"
+  dst_location     = "Nassau, Bahamas, North America (25.05 -77.20)"
+  dst_organisation = "Secure Hosting Ltd."
+  dst_timezone     = "-5"
+  dst_bandwidth    = "T3"
+  dst_contact      = "securehost.com[support"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://www.securehost.com/mirror/CPAN/"
+# dst_contact      = "mailto:securehost.com[support
+# dst_src          = "ftp.funet.fi"
+
+cpan.arcticnetwork.ca:
+  frequency        = "6 hours"
+  dst_ftp          = "ftp://mirror.arcticnetwork.ca/pub/CPAN"
+  dst_http         = "http://cpan.arcticnetwork.ca"
+  dst_rsync        = "rsync.arcticnetwork.ca::CPAN"
+  dst_location     = "Calgary, Alberta, Canada, North America (51.08 -114.01)"
+  dst_organisation = "Arctic Network"
+  dst_timezone     = "-7"
+  dst_bandwidth    = "1Gbps"
+  dst_contact      = "arcticnetwork.ca$admin"
+  dst_src          = "ftp.funet.fi"
+  dst_notes        = "Hostname resolves to two addresses."
+
+# dst_dst          = "ftp://mirror.arcticnetwork.ca/pub/CPAN"
+# dst_contact      = "mailto:arcticnetwork.ca$admin
+# dst_src          = "ftp.funet.fi"
+
+sunsite.ualberta.ca:
+  frequency        = "twice daily"
+  dst_ftp          = "ftp://cpan.sunsite.ualberta.ca/pub/CPAN/"
+  dst_http         = "http://cpan.sunsite.ualberta.ca/"
+  dst_location     = "Edmonton, Alberta, Canada, North America (53.5262 -113.5294)"
+  dst_organisation = "University of Alberta"
+  dst_timezone     = "-7"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "sunsite.ualberta.ca)ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://cpan.sunsite.ualberta.ca/pub/CPAN/"
+# dst_contact      = "mailto:sunsite.ualberta.ca)ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+cpan.mirror.rafal.ca:
+  frequency        = "daily"
+  dst_ftp          = "ftp://CPAN.mirror.rafal.ca/pub/CPAN/"
+  dst_http         = "http://CPAN.mirror.rafal.ca/"
+  dst_rsync        = "CPAN.mirror.rafal.ca::CPAN"
+  dst_location     = "Hamilton, Ontario, Canada, North America (43.22361 -79.87541)"
+  dst_organisation = "Mountain Cablevision"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "OC-12"
+  dst_contact      = "Rafal Rzeczkowski mirror.rafal.ca>\<webmaster"
+  dst_src          = "rsync.nic.funet.fi::CPAN"
+  dst_notes        = "replaces cpan.mirror.cygnal.ca"
+
+# dst_dst          = "ftp://CPAN.mirror.rafal.ca/pub/CPAN/"
+# dst_contact      = "mailto:Rafal Rzeczkowski mirror.rafal.ca>\<webmaster
+# dst_src          = "rsync.nic.funet.fi::CPAN"
+
+yi.org:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.yi.org/CPAN/"
+  dst_http         = "http://ftp.yi.org/CPAN/"
+  dst_rsync        = "yi.org::CPAN"
+  dst_location     = "Montreal, Quebec, Canada, North America (45.5 -73.58)"
+  dst_organisation = "yi.org"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "OC45"
+  dst_contact      = "yi.org/tyler"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.yi.org/CPAN/"
+# dst_contact      = "mailto:yi.org/tyler
+# dst_src          = "ftp.funet.fi"
+
+nrc.ca:
+  frequency        = "twice daily"
+  dst_ftp          = "ftp://ftp.nrc.ca/pub/CPAN/"
+  dst_location     = "Ottawa, Ontario, Canada, North America (45.2030 -75.5259)"
+  dst_organisation = "National Research Council"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "1Gb/s"
+  dst_contact      = "ryouko.imsb.nrc.ca:wmaton"
+  dst_src          = "ftp.funet.fi"
+  dst_notes        = "Limit 500 users for CA*Net 4 and Internet2."
+
+# dst_dst          = "ftp://ftp.nrc.ca/pub/CPAN/"
+# dst_contact      = "mailto:ryouko.imsb.nrc.ca:wmaton
+# dst_src          = "ftp.funet.fi"
+
+theoryx5.uwinnipeg.ca:
+  frequency        = "daily"
+  dst_ftp          = "ftp://theoryx5.uwinnipeg.ca/pub/CPAN/"
+  dst_http         = "http://theoryx5.uwinnipeg.ca/pub/CPAN/"
+  dst_rsync        = "theoryx5.uwinnipeg.ca::CPAN"
+  dst_location     = "Winnipeg, Manitoba, Canada, North America (49.8807 -97.1378)"
+  dst_organisation = "Physics Department, University of Winnipeg"
+  dst_timezone     = "-6"
+  dst_bandwidth    = "T1"
+  dst_contact      = "theory.uwinnipeg.ca[ftp-admin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://theoryx5.uwinnipeg.ca/pub/CPAN/"
+# dst_contact      = "mailto:theory.uwinnipeg.ca[ftp-admin
+# dst_src          = "ftp.funet.fi"
+
+msg.com.mx:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.msg.com.mx/pub/CPAN/"
+  dst_http         = "http://www.msg.com.mx/CPAN/"
+  dst_location     = "Mexico City, Distrito Federál, Mexico, North America (19.4547 -99.1433)"
+  dst_organisation = "Matias Software Group"
+  dst_timezone     = "-6"
+  dst_contact      = "msg.com.mx/ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.msg.com.mx/pub/CPAN/"
+# dst_contact      = "mailto:msg.com.mx/ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+uta.edu:
+  frequency        = "daily/2"
+  dst_ftp          = ""
+  dst_http         = "http://mirror.uta.edu/CPAN"
+  dst_location     = "Arlington, Texas, United States, North America (32.74 -97.11)"
+  dst_organisation = "The University of Texas at Arlington"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "T3"
+  dst_contact      = "uta.edu^mirror-admin"
+  dst_src          = "mirrors.ibiblio.org::CPAN"
+
+# dst_dst          = "http://mirror.uta.edu/CPAN"
+# dst_contact      = "mailto:uta.edu^mirror-admin
+# dst_src          = "mirrors.ibiblio.org::CPAN"
+
+uwsg.iu.edu:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.uwsg.iu.edu/pub/perl/CPAN/"
+  dst_location     = "Bloomington, Indiana, United States, North America (39.166 -86.521)"
+  dst_organisation = "Unix Workstation Support Group, Indiana University Bloomington"
+  dst_timezone     = "-5"
+  dst_contact      = "indiana.edu+uwsg"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.uwsg.iu.edu/pub/perl/CPAN/"
+# dst_contact      = "mailto:indiana.edu+uwsg
+# dst_src          = "ftp.funet.fi"
+
+ccs.neu.edu:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.ccs.neu.edu/net/mirrors/ftp.funet.fi/pub/languages/perl/CPAN/"
+  dst_location     = "Boston, Massachusetts, United States, North America (42.362 -71.058)"
+  dst_organisation = "College of Computer Science, Northeastern University"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "T3"
+  dst_contact      = "ccs.neu.edu!ftp"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.ccs.neu.edu/net/mirrors/ftp.funet.fi/pub/languages/perl/CPAN/"
+# dst_contact      = "mailto:ccs.neu.edu!ftp
+# dst_src          = "ftp.funet.fi"
+
+ibiblio.org:
+  frequency        = "daily"
+  dst_ftp          = "ftp://mirrors.ibiblio.org/pub/mirrors/CPAN"
+  dst_http         = "http://www.ibiblio.org/pub/mirrors/CPAN"
+  dst_rsync        = "mirrors.ibiblio.org::CPAN"
+  dst_location     = "Chapel Hill, North Carolina, United States, North America (35.92 -79.03)"
+  dst_organisation = "ibiblio.org"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "Gbps"
+  dst_contact      = "ibiblio.org{admin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://mirrors.ibiblio.org/pub/mirrors/CPAN"
+# dst_contact      = "mailto:ibiblio.org{admin
+# dst_src          = "ftp.funet.fi"
+
+cpan.mirrors.hoobly.com:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.mirrors.hoobly.com/"
+  dst_location     = "Chicago, Illinois, United States, North America (41.59 -87.54)"
+  dst_organisation = "Hoobly Classifieds"
+  dst_timezone     = "-6"
+  dst_bandwidth    = "GBE"
+  dst_contact      = "hoobly.com/pgrigor"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://cpan.mirrors.hoobly.com/"
+# dst_contact      = "mailto:hoobly.com/pgrigor
+# dst_src          = "ftp.funet.fi"
+
+cpan.uchicago.edu:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.uchicago.edu/pub/CPAN/"
+  dst_http         = "http://cpan.uchicago.edu/pub/CPAN/"
+  dst_location     = "Chicago, Illinois, United States, North America (41.79 -87.60)"
+  dst_organisation = "University of Chicago"
+  dst_timezone     = "-6"
+  dst_bandwidth    = "OC3"
+  dst_contact      = "cpan.org]jrockway"
+  dst_src          = "rsync.nic.funet.fi"
+  dst_notes        = "Also on Internet2."
+
+# dst_dst          = "ftp://cpan.uchicago.edu/pub/CPAN/"
+# dst_contact      = "mailto:cpan.org]jrockway
+# dst_src          = "rsync.nic.funet.fi"
+
+sg.depaul.edu:
+  frequency        = "daily"
+  dst_ftp          = "ftp://mirror.sg.depaul.edu/pub/CPAN/"
+  dst_location     = "Chicago, Illinois, United States, North America (-87.62766 41.87813)"
+  dst_organisation = "DePaul University Computer Security Response Team"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "OC3"
+  dst_contact      = "security.depaul.edu%archive"
+  dst_src          = "nic.funet.fi"
+
+# dst_dst          = "ftp://mirror.sg.depaul.edu/pub/CPAN/"
+# dst_contact      = "mailto:security.depaul.edu%archive
+# dst_src          = "nic.funet.fi"
+
+stathy.com:
+  frequency        = "daily"
+  dst_ftp          = "ftp://www.stathy.com/CPAN/"
+  dst_http         = "http://www.stathy.com/CPAN/"
+  dst_location     = "Chicago, Illinois, United States, North America (41.99 -87.69)"
+  dst_organisation = "Stathy, Inc."
+  dst_timezone     = "-6"
+  dst_bandwidth    = "T1"
+  dst_contact      = "stathy.com)mirror"
+  dst_src          = "cpan.mirrors.tds.net"
+
+# dst_dst          = "ftp://www.stathy.com/CPAN/"
+# dst_contact      = "mailto:stathy.com)mirror
+# dst_src          = "cpan.mirrors.tds.net"
+
+jtlnet.com:
+  frequency        = "daily"
+  dst_ftp          = "ftp://mirrors.jtlnet.com/CPAN/"
+  dst_http         = "http://mirrors.jtlnet.com/CPAN/"
+  dst_location     = "Columbus, Ohio, United States, North America (39.9683 -82.9957)"
+  dst_organisation = "JTL Networks, Inc."
+  dst_timezone     = "-5"
+  dst_bandwidth    = "OC3"
+  dst_contact      = "jtlnet.com^engr"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://mirrors.jtlnet.com/CPAN/"
+# dst_contact      = "mailto:jtlnet.com^engr
+# dst_src          = "rsync.nic.funet.fi"
+
+osuosl.org:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.osuosl.org/pub/CPAN/"
+  dst_http         = "http://ftp.osuosl.org/pub/CPAN/"
+  dst_location     = "Corvallis, Oregon, United States, North America (44.56 -123.26)"
+  dst_organisation = "Oregon State University Open Source Lab"
+  dst_timezone     = "-8"
+  dst_bandwidth    = "OC12"
+  dst_contact      = "osuosl.org?support"
+  dst_src          = "mirrors.kernel.org"
+
+# dst_dst          = "ftp://ftp.osuosl.org/pub/CPAN/"
+# dst_contact      = "mailto:osuosl.org?support
+# dst_src          = "mirrors.kernel.org"
+
+cpan.mirrorgeek.com:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.mirrorgeek.com"
+  dst_location     = "Dallas, Texas, United States, North America (32.78 -96.80)"
+  dst_organisation = ""
+  dst_timezone     = "-8"
+  dst_bandwidth    = "100MB"
+  dst_contact      = "mirrorgeek.com\master"
+  dst_src          = "nic.funet.fi"
+
+# dst_dst          = "http://cpan.mirrorgeek.com"
+# dst_contact      = "mailto:mirrorgeek.com\master
+# dst_src          = "nic.funet.fi"
+
+epix.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.epix.net/pub/languages/perl/"
+  dst_http         = "http://ftp.epix.net/CPAN/"
+  dst_location     = "Dallas, Pennsylvania, United States, North America (41.331 -75.972)"
+  dst_organisation = "EPIX Internet Services"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "DS3"
+  dst_contact      = "epix.net]archive"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.epix.net/pub/languages/perl/"
+# dst_contact      = "mailto:epix.net]archive
+# dst_src          = "ftp.funet.fi"
+
+hyperian.net:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://mirror.hyperian.net/CPAN"
+  dst_location     = "Dallas, Texas, United States, North America (32.80057 -96.8991)"
+  dst_organisation = "Hyperian Studios"
+  dst_timezone     = "-6"
+  dst_bandwidth    = "10Mbit"
+  dst_contact      = "hyperian.net+tcook"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://mirror.hyperian.net/CPAN"
+# dst_contact      = "mailto:hyperian.net+tcook
+# dst_src          = "ftp.funet.fi"
+
+wayne.edu:
+  frequency        = "twice daily"
+  dst_ftp          = "ftp://ftp.wayne.edu/cpan/"
+  dst_http         = "http://ftp.wayne.edu/cpan/"
+  dst_location     = "Detroit, Michigan, United States, North America (42.364 -83.069)"
+  dst_organisation = "Wayne State University"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "oc12"
+  dst_contact      = "wayne.edu|ab5602"
+  dst_src          = "cpan.cs.utah.edu"
+  dst_notes        = "HTTP unlimited users, FTP limited to 40 users."
+
+# dst_dst          = "ftp://ftp.wayne.edu/cpan/"
+# dst_contact      = "mailto:wayne.edu|ab5602
+# dst_src          = "cpan.cs.utah.edu"
+
+cpan-du.viaverio.com:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan-du.viaverio.com/pub/CPAN/"
+  dst_http         = "http://cpan-du.viaverio.com/"
+  dst_rsync        = "cpan-du.viaverio.com::CPAN"
+  dst_location     = "Dulles, Virginia, United States, North America (38.98806 -77.52844)"
+  dst_organisation = "viaVerio (NTT/Verio)"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "perlcode.org!cpan"
+  dst_src          = "rsync.nic.funet.fi"
+  dst_notes        = "https also available"
+
+# dst_dst          = "ftp://cpan-du.viaverio.com/pub/CPAN/"
+# dst_contact      = "mailto:perlcode.org!cpan
+# dst_src          = "rsync.nic.funet.fi"
+
+duke.edu:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.duke.edu/pub/perl/"
+  dst_location     = "Durham, North Carolina, United States, North America (35.999 -78.907)"
+  dst_organisation = "Duke University"
+  dst_timezone     = "-5"
+  dst_contact      = "ftp.duke.edu!ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.duke.edu/pub/perl/"
+# dst_contact      = "mailto:ftp.duke.edu!ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+cpan.cse.msu.edu:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.cse.msu.edu/"
+  dst_location     = "East Lansing, Michigan, United States, North America (42.7262 -84.48)"
+  dst_organisation = "Computer Science and Engineering, Michigan State University"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "cse.msu.edu|manager"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://cpan.cse.msu.edu/"
+# dst_contact      = "mailto:cse.msu.edu|manager
+# dst_src          = "ftp.funet.fi"
+
+perl.secsup.org:
+  frequency        = "daily"
+  dst_ftp          = "ftp://perl.secsup.org/pub/perl/"
+  dst_http         = "http://perl.secsup.org/"
+  dst_location     = "Fairfax, Virginia, United States, North America (38.867584 -77.233474)"
+  dst_organisation = "UUNET Technologies"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "OC-12"
+  dst_contact      = "uu.net[chris uu.net[brian"
+  dst_src          = "mirrors.rcn.net"
+
+# dst_dst          = "ftp://perl.secsup.org/pub/perl/"
+# dst_contact      = "mailto:uu.net[chris uu.net[brian
+# dst_src          = "mirrors.rcn.net"
+
+cpan.glines.org:
+  frequency        = "hourly"
+  dst_ftp          = "ftp://cpan.glines.org/pub/CPAN/"
+  dst_http         = "http://cpan.glines.org/CPAN/"
+  dst_rsync        = "rsync://cpan.glines.org/CPAN/"
+  dst_location     = "Ft. Worth, Texas, United States, North America (32.9 -97.0)"
+  dst_organisation = "Mark Glines"
+  dst_timezone     = "-6"
+  dst_bandwidth    = "10Mbps"
+  dst_contact      = "glines.org:mark-cpan"
+  dst_src          = "cpan.inode.at"
+
+# dst_dst          = "ftp://cpan.glines.org/pub/CPAN/"
+# dst_contact      = "mailto:glines.org:mark-cpan
+# dst_src          = "cpan.inode.at"
+
+cise.ufl.edu:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.cise.ufl.edu/pub/mirrors/CPAN/"
+  dst_location     = "Gainesville, Florida, United States, North America (29.674 -82.336)"
+  dst_organisation = "Computer and Information Science and Engineering Department, University of Florida"
+  dst_timezone     = "-5"
+  dst_contact      = "cise.ufl.edu{mirror"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.cise.ufl.edu/pub/mirrors/CPAN/"
+# dst_contact      = "mailto:cise.ufl.edu{mirror
+# dst_src          = "ftp.funet.fi"
+
+cpan.calvin.edu:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.calvin.edu/pub/CPAN"
+  dst_http         = "http://cpan.calvin.edu/pub/CPAN"
+  dst_location     = "Grand Rapids, Michigan, United States, North America (42.9630 -85.6680)"
+  dst_organisation = "Abstraction - Calvin College"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "12Mbit"
+  dst_contact      = "calvin.edu*abstract"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://cpan.calvin.edu/pub/CPAN"
+# dst_contact      = "mailto:calvin.edu*abstract
+# dst_src          = "ftp.funet.fi"
+
+cpan.netnitco.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.netnitco.net/pub/mirrors/CPAN/"
+  dst_http         = "http://cpan.netnitco.net/"
+  dst_location     = "Hebron, Indiana, United States, North America (41.322 -87.202)"
+  dst_organisation = "NetNITCO Internet Services"
+  dst_timezone     = "-6"
+  dst_bandwidth    = "DS3"
+  dst_contact      = "netnitco.net)mirrors"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://cpan.netnitco.net/pub/mirrors/CPAN/"
+# dst_contact      = "mailto:netnitco.net)mirrors
+# dst_src          = "ftp.funet.fi"
+
+httpupdate.cpanel.net:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://httpupdate.cpanel.net/pub/CPAN/"
+  dst_location     = "Houston, Texas, United States, North America (29.73 -95.42)"
+  dst_organisation = "cPanel, Inc"
+  dst_timezone     = "-6"
+  dst_bandwidth    = "E3"
+  dst_contact      = "cpanel.net\nick"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://httpupdate.cpanel.net/pub/CPAN/"
+# dst_contact      = "mailto:cpanel.net\nick
+# dst_src          = "ftp.funet.fi"
+
+hiwaay.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://mirror.hiwaay.net/CPAN/"
+  dst_http         = "http://mirror.hiwaay.net/CPAN/"
+  dst_rsync        = "mirror.hiwaay.net::CPAN"
+  dst_location     = "Huntsville, Alabama, United States, North America (34.725995 -86.58871)"
+  dst_organisation = "HiWAAY Information Services"
+  dst_timezone     = "-6"
+  dst_bandwidth    = "T3"
+  dst_contact      = "hiwaay.net(mirror"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://mirror.hiwaay.net/CPAN/"
+# dst_contact      = "mailto:hiwaay.net(mirror
+# dst_src          = "ftp.funet.fi"
+
+archive.progeny.com:
+  frequency        = "twice daily"
+  dst_ftp          = "ftp://archive.progeny.com/CPAN/"
+  dst_http         = "http://archive.progeny.com/CPAN/"
+  dst_rsync        = "archive.progeny.com::CPAN"
+  dst_location     = "Indianapolis, Indiana, United States, North America (39.9119 -86.0747)"
+  dst_organisation = "Progeny Linux Systems, Inc."
+  dst_timezone     = "-6"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "progeny.com?archive"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://archive.progeny.com/CPAN/"
+# dst_contact      = "mailto:progeny.com?archive
+# dst_src          = "ftp.funet.fi"
+
+sunsite.utk.edu:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.sunsite.utk.edu/pub/CPAN/"
+  dst_location     = "Knoxville, Tennessee, United States, North America (35.970 -83.918)"
+  dst_organisation = "SunSITE@UTK, University of Tennessee, Knoxville"
+  dst_timezone     = "-5"
+  dst_contact      = "sunsite.utk.edu/mirrormgr"
+  dst_src          = "www.cpan.org"
+
+# dst_dst          = "ftp://ftp.sunsite.utk.edu/pub/CPAN/"
+# dst_contact      = "mailto:sunsite.utk.edu/mirrormgr
+# dst_src          = "www.cpan.org"
+
+cpan.binarycompass.org:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.binarycompass.org"
+  dst_location     = "Los Angeles, California, United States, North America (34 -118)"
+  dst_organisation = "BizRate.com"
+  dst_timezone     = "-8"
+  dst_bandwidth    = "200Mb"
+  dst_contact      = "bizrate.com&henri"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "http://cpan.binarycompass.org"
+# dst_contact      = "mailto:bizrate.com&henri
+# dst_src          = "rsync.nic.funet.fi"
+
+gossamer-threads.com:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://mirrors.gossamer-threads.com/CPAN"
+  dst_location     = "Los Angeles, California, United States, North America (34.0522 -118.2434)"
+  dst_organisation = "Gossamer Threads Inc."
+  dst_timezone     = "-8"
+  dst_bandwidth    = "T3"
+  dst_contact      = "gossamer-threads.com)mirrors"
+  dst_src          = "cpan.valueclick.com"
+
+# dst_dst          = "http://mirrors.gossamer-threads.com/CPAN"
+# dst_contact      = "mailto:gossamer-threads.com)mirrors
+# dst_src          = "cpan.valueclick.com"
+
+mednor.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.mednor.net/pub/mirrors/CPAN/"
+  dst_http         = "http://www.mednor.net/ftp/pub/mirrors/CPAN/"
+  dst_location     = "Los Angeles, California, United States, North America (34.052 -118.243)"
+  dst_organisation = "Mednor, Inc."
+  dst_timezone     = "-8"
+  dst_bandwidth    = "OC48"
+  dst_contact      = "mednor.net]webmaster"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.mednor.net/pub/mirrors/CPAN/"
+# dst_contact      = "mailto:mednor.net]webmaster
+# dst_src          = "ftp.funet.fi"
+
+cpan.mirrors.tds.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.mirrors.tds.net/pub/CPAN"
+  dst_http         = "http://cpan.mirrors.tds.net"
+  dst_rsync        = "cpan.mirrors.tds.net::CPAN"
+  dst_location     = "Madison, Wisconsin, United States, North America (43.090091 -089.530023)"
+  dst_organisation = "TDS Internet Services"
+  dst_timezone     = "-6"
+  dst_bandwidth    = "OC12"
+  dst_contact      = "tdstelecom.com)shane.brath"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://cpan.mirrors.tds.net/pub/CPAN"
+# dst_contact      = "mailto:tdstelecom.com)shane.brath
+# dst_src          = "rsync.nic.funet.fi"
+
+doit.wisc.edu:
+  frequency        = "daily"
+  dst_ftp          = "ftp://mirror.sit.wisc.edu/pub/CPAN/"
+  dst_http         = "http://mirror.sit.wisc.edu/pub/CPAN/"
+  dst_location     = "Madison, Wisconsin, United States, North America (43.04 -89.24)"
+  dst_organisation = "University of Wisconsin - Madison"
+  dst_timezone     = "-6"
+  dst_bandwidth    = "T3"
+  dst_contact      = "mirror.doit.wisc.edu]ftpkeeper"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://mirror.sit.wisc.edu/pub/CPAN/"
+# dst_contact      = "mailto:mirror.doit.wisc.edu]ftpkeeper
+# dst_src          = "ftp.funet.fi"
+
+24-7-solutions.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://mirrors.24-7-solutions.net/pub/CPAN/"
+  dst_http         = "http://mirrors.24-7-solutions.net/pub/CPAN/"
+  dst_location     = "New York, New York, United States, North America (40.70519 -74.01136)"
+  dst_organisation = "24/7 Solutions Ltd"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "24-7-solutions.net)mirror"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://mirrors.24-7-solutions.net/pub/CPAN/"
+# dst_contact      = "mailto:24-7-solutions.net)mirror
+# dst_src          = "ftp.funet.fi"
+
+cpan.belfry.net:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.belfry.net/"
+  dst_location     = "New York, New York, United States, North America (40.741891 -73.994778)"
+  dst_organisation = "The Belfry(!)"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "T1"
+  dst_contact      = "cpan.org!jerlbaum"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://cpan.belfry.net/"
+# dst_contact      = "mailto:cpan.org!jerlbaum
+# dst_src          = "ftp.funet.fi"
+
+cpan.erlbaum.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.erlbaum.net/CPAN/"
+  dst_http         = "http://cpan.erlbaum.net/"
+  dst_location     = "New York, New York, United States, North America (40.7418 -73.9947)"
+  dst_organisation = "The Erlbaum Group"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "T1"
+  dst_contact      = "cpan.org\jerlbaum"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://cpan.erlbaum.net/CPAN/"
+# dst_contact      = "mailto:cpan.org\jerlbaum
+# dst_src          = "rsync.nic.funet.fi"
+
+cpan.hexten.net:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.hexten.net/"
+  dst_location     = "New York, New York, United States, North America (40.7 -74)"
+  dst_organisation = "Hexten"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "T3"
+  dst_contact      = "hexten.net:andy"
+  dst_src          = "rsync.nic.funet.fi"
+  dst_notes        = "See also backpan.hexten.net"
+
+# dst_dst          = "http://cpan.hexten.net/"
+# dst_contact      = "mailto:hexten.net:andy
+# dst_src          = "rsync.nic.funet.fi"
+
+cont1.njy.teleglobe.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.teleglobe.net/pub/CPAN"
+  dst_http         = "http://cpan.teleglobe.net/"
+  dst_rsync        = "cpan.teleglobe.net::CPAN"
+  dst_location     = "Newark, New Jersey, United States, North America (40.735559 -74.172703)"
+  dst_organisation = "Teleglobe"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "OC48"
+  dst_contact      = "teleglobe.net&mirror"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://cpan.teleglobe.net/pub/CPAN"
+# dst_contact      = "mailto:teleglobe.net&mirror
+# dst_src          = "ftp.funet.fi"
+
+datapipe.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://mirror.datapipe.net/pub/CPAN/"
+  dst_http         = "http://mirror.datapipe.net/CPAN/"
+  dst_location     = "Newark, New Jersey, United States, North America (40.736 -74.173)"
+  dst_organisation = "DataPipe"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "100Mbit"
+  dst_contact      = "mail5.datapipe.com[ftpadmin"
+  dst_src          = "carroll.cac.psu.edu"
+
+# dst_dst          = "ftp://mirror.datapipe.net/pub/CPAN/"
+# dst_contact      = "mailto:mail5.datapipe.com[ftpadmin
+# dst_src          = "carroll.cac.psu.edu"
+
+ndlug.nd.edu:
+  frequency        = "6 times per day"
+  dst_ftp          = "ftp://ftp.ndlug.nd.edu/pub/perl/"
+  dst_http         = "http://ftp.ndlug.nd.edu/pub/perl/"
+  dst_location     = "Notre Dame, Indiana, United States, North America (41.6939 -86.239284)"
+  dst_organisation = "Notre Dame Linux Users Group"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "T3"
+  dst_contact      = "cse.nd.edu'osm"
+  dst_src          = "mirrors.kernel.org"
+
+# dst_dst          = "ftp://ftp.ndlug.nd.edu/pub/perl/"
+# dst_contact      = "mailto:cse.nd.edu'osm
+# dst_src          = "mirrors.kernel.org"
+
+kernel.org:
+  frequency        = "hourly"
+  dst_ftp          = "ftp://mirrors.kernel.org/pub/CPAN"
+  dst_http         = "http://mirrors.kernel.org/cpan/"
+  dst_rsync        = "mirrors.kernel.org::mirrors/CPAN"
+  dst_location     = "Palo Alto, California, United States, North America (37.445698 -122.161077)"
+  dst_organisation = "The Linux Kernel Archives"
+  dst_timezone     = "-8"
+  dst_bandwidth    = "100Mbit/s"
+  dst_contact      = "kernel.org'mirroradmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://mirrors.kernel.org/pub/CPAN"
+# dst_contact      = "mailto:kernel.org'mirroradmin
+# dst_src          = "ftp.funet.fi"
+
+phenominet.com:
+  frequency        = "daily"
+  dst_ftp          = "ftp://mirrors.phenominet.com/pub/CPAN/"
+  dst_http         = "http://mirrors.phenominet.com/pub/CPAN/"
+  dst_rsync        = "mirrors.phenominet.com::CPAN"
+  dst_location     = "Philadelphia, Pennsylvania, United States, North America (39.9616 -75.1995)"
+  dst_organisation = "Phenomenal Internet Solutions"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "30Mbps"
+  dst_contact      = "phenominet.com\webmaster"
+  dst_src          = "archive.progeny.com"
+  dst_notes        = "Limit 500 users"
+
+# dst_dst          = "ftp://mirrors.phenominet.com/pub/CPAN/"
+# dst_contact      = "mailto:phenominet.com\webmaster
+# dst_src          = "archive.progeny.com"
+
+cpan.pair.com:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.pair.com/pub/CPAN/"
+  dst_http         = "http://cpan.pair.com/"
+  dst_rsync        = "cpan.pair.com::CPAN"
+  dst_location     = "Pittsburgh, Pennsylvania, United States, North America (40.437 -80.000)"
+  dst_organisation = "pair Networks, Inc."
+  dst_timezone     = "-5"
+  dst_bandwidth    = "multiple OC-12s and Gigabit Ethernet"
+  dst_contact      = "pair.com$CPAN"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://cpan.pair.com/pub/CPAN/"
+# dst_contact      = "mailto:pair.com$CPAN
+# dst_src          = "rsync.nic.funet.fi"
+
+ncsu.edu:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.ncsu.edu/pub/mirror/CPAN/"
+  dst_location     = "Raleigh, North Carolina, United States, North America (35.4730 -78.4025)"
+  dst_organisation = "North Carolina State University"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "OC48"
+  dst_contact      = "unity.ncsu.edu:ftp"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.ncsu.edu/pub/mirror/CPAN/"
+# dst_contact      = "mailto:unity.ncsu.edu:ftp
+# dst_src          = "ftp.funet.fi"
+
+cpan.hostrack.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.hostrack.net/pub/CPAN"
+  dst_http         = "http://cpan.hostrack.net/"
+  dst_location     = "Reno, Nevada, United States, North America (39.50 -119.78)"
+  dst_organisation = "American Internet Inc."
+  dst_timezone     = "-8"
+  dst_bandwidth    = "T3"
+  dst_contact      = "amhosting.com;sysadmin"
+  dst_src          = "nic.funet.fi"
+  dst_notes        = "Limit 40 users on FTP; limit 20 users on HTTP"
+
+# dst_dst          = "ftp://cpan.hostrack.net/pub/CPAN"
+# dst_contact      = "mailto:amhosting.com;sysadmin
+# dst_src          = "nic.funet.fi"
+
+fx.saintjoe.edu:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.saintjoe.edu/pub/CPAN"
+  dst_http         = "http://fx.saintjoe.edu/pub/CPAN"
+  dst_location     = "Rensselar, Indiana, United States, North America (40.9202 -871573)"
+  dst_organisation = "Saint Joseph's College"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "T1"
+  dst_contact      = "saintjoe.edu!ftp"
+  dst_src          = "ftp.cpan.org"
+  dst_notes        = "Limit 50 anonymous ftp users."
+
+# dst_dst          = "ftp://ftp.saintjoe.edu/pub/CPAN"
+# dst_contact      = "mailto:saintjoe.edu!ftp
+# dst_src          = "ftp.cpan.org"
+
+cpan.groovis.net:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.groovis.net"
+  dst_location     = "Rockland, Maine, United States, North America (44.12 -69.13)"
+  dst_organisation = "Groovis, Inc."
+  dst_timezone     = "-5"
+  dst_bandwidth    = "T1"
+  dst_contact      = "groovis.net,groovis"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://cpan.groovis.net"
+# dst_contact      = "mailto:groovis.net,groovis
+# dst_src          = "ftp.funet.fi"
+
+lewisu.edu:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://linux.cs.lewisu.edu/pub/CPAN"
+  dst_rsync        = "linux.cs.lewisu.edu::CPAN"
+  dst_location     = "Romeoville, Illinois, United States, North America (41.6475 -88.0894)"
+  dst_organisation = "Lewis University"
+  dst_timezone     = "-6"
+  dst_bandwidth    = "T1"
+  dst_contact      = "cs.lewisu.edu;linux"
+  dst_src          = "nic.funet.fi"
+
+# dst_dst          = "http://linux.cs.lewisu.edu/pub/CPAN"
+# dst_contact      = "mailto:cs.lewisu.edu;linux
+# dst_src          = "nic.funet.fi"
+
+cpan.cs.utah.edu:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.cs.utah.edu/pub/CPAN/"
+  dst_http         = "http://cpan.cs.utah.edu"
+  dst_location     = "Salt Lake City, Utah, United States, North America (40.761 -111.890)"
+  dst_organisation = "University of Utah School of Computing"
+  dst_timezone     = "1GBit"
+  dst_bandwidth    = "-7"
+  dst_contact      = "cs.utah.edu'clake"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://cpan.cs.utah.edu/pub/CPAN/"
+# dst_contact      = "mailto:cs.utah.edu'clake
+# dst_src          = "ftp.funet.fi"
+
+xmission.com:
+  frequency        = "daily"
+  dst_ftp          = "ftp://mirror.xmission.com/CPAN/"
+  dst_location     = "Salt Lake City, Utah, United States, North America (40.771 -111.891)"
+  dst_organisation = "XMission Internet"
+  dst_timezone     = ""
+  dst_contact      = "xmission.com!mirror"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://mirror.xmission.com/CPAN/"
+# dst_contact      = "mailto:xmission.com!mirror
+# dst_src          = "ftp.funet.fi"
+
+cpan.mirrors.redwire.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.mirrors.redwire.net/pub/CPAN/"
+  dst_http         = "http://cpan.mirrors.redwire.net/"
+  dst_location     = "San Diego, California, United States, North America (32.8422 -117.1691)"
+  dst_organisation = "Redwire Broadband"
+  dst_timezone     = "-8"
+  dst_bandwidth    = "T3"
+  dst_contact      = "redwire.net^cleaver"
+  dst_src          = "rsync.nic.funet.fi"
+  dst_notes        = "Multihomed network, so your bandwidth may vary; may be capped at certain times or on certain routes. Fastest speeds will be from 7pm to 7am US Pacific Time."
+
+# dst_dst          = "ftp://cpan.mirrors.redwire.net/pub/CPAN/"
+# dst_contact      = "mailto:redwire.net^cleaver
+# dst_src          = "rsync.nic.funet.fi"
+
+cpan-sj.viaverio.com:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan-sj.viaverio.com/pub/CPAN/"
+  dst_http         = "http://cpan-sj.viaverio.com/"
+  dst_rsync        = "cpan-sj.viaverio.com::CPAN"
+  dst_location     = "San Jose, California, United States, North America (37.30400 -121.84978)"
+  dst_organisation = "viaVerio (NTT/Verio)"
+  dst_timezone     = "-8"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "perlcode.org,cpan"
+  dst_src          = "rsync.nic.funet.fi"
+  dst_notes        = "https also available (same URL as http)"
+
+# dst_dst          = "ftp://cpan-sj.viaverio.com/pub/CPAN/"
+# dst_contact      = "mailto:perlcode.org,cpan
+# dst_src          = "rsync.nic.funet.fi"
+
+cpan.llarian.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.llarian.net/pub/CPAN/"
+  dst_http         = "http://cpan.llarian.net/"
+  dst_location     = "Seattle, Washington, United States, North America (47.612 -122.338)"
+  dst_organisation = "Semaphore Corporation"
+  dst_timezone     = "-8"
+  dst_bandwidth    = "GigE"
+  dst_contact      = "llarian.net'llarian"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://cpan.llarian.net/pub/CPAN/"
+# dst_contact      = "mailto:llarian.net'llarian
+# dst_src          = "ftp.funet.fi"
+
+internap.com:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp-mirror.internap.com/pub/CPAN/"
+  dst_location     = "Seattle, Washington, United States, North America (47.612 -122.338)"
+  dst_organisation = "InterNAP Network Services"
+  dst_timezone     = "-8"
+  dst_bandwidth    = "OC-12"
+  dst_contact      = "internap.com*ftpadmin"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp-mirror.internap.com/pub/CPAN/"
+# dst_contact      = "mailto:internap.com*ftpadmin
+# dst_src          = "ftp.funet.fi"
+
+perl.com:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://www.perl.com/CPAN/"
+  dst_location     = "Sebastopol, California, United States, North America (38.4030 -122.8188)"
+  dst_organisation = "The O'Reilly Network's perl.com"
+  dst_timezone     = "-8"
+  dst_contact      = "www.perl.com,cpan"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://www.perl.com/CPAN/"
+# dst_contact      = "mailto:www.perl.com,cpan
+# dst_src          = "ftp.funet.fi"
+
+candidhosting.com:
+  frequency        = "daily"
+  dst_ftp          = "ftp://mirror.candidhosting.com/pub/CPAN"
+  dst_http         = "http://mirror.candidhosting.com/pub/CPAN"
+  dst_location     = "Tampa, Florida, United States, North America (27.947 -82.458)"
+  dst_organisation = "Candidhosting.com"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "neutelligent.com/jkellnet"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://mirror.candidhosting.com/pub/CPAN"
+# dst_contact      = "mailto:neutelligent.com/jkellnet
+# dst_src          = "ftp.funet.fi"
+
+cpan-2.mirrors.nks.net:
+  frequency        = "Daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan-2.mirrors.nks.net/"
+  dst_location     = "Tampa, Florida, United States, North America (27.94 -82.46)"
+  dst_organisation = "NKS (Networked Knowledge Systems, Inc.)"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "T3+"
+  dst_contact      = "nks.net'cpan-admin"
+  dst_src          = "ftp.funet.fi"
+  dst_notes        = "Large Available Bandwidth."
+
+# dst_dst          = "http://cpan-2.mirrors.nks.net/"
+# dst_contact      = "mailto:nks.net'cpan-admin
+# dst_src          = "ftp.funet.fi"
+
+cpan.hoxt.com:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.hoxt.com/"
+  dst_location     = "Tampa, Florida, United States, North America (27.947 -82.458)"
+  dst_organisation = "AdSpeed.com"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "10Mbps"
+  dst_contact      = "hoxt.com*son"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://cpan.hoxt.com/"
+# dst_contact      = "mailto:hoxt.com*son
+# dst_src          = "ftp.funet.fi"
+
+cpan.mirrors.nks.net:
+  frequency        = "Daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.mirrors.nks.net/"
+  dst_location     = "Tampa, Florida, United States, North America (27.94 -82.46)"
+  dst_organisation = "NKS (Networked Knowledge Systems, Inc.)"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "T3+"
+  dst_contact      = "nks.net:cpan-admin"
+  dst_src          = "ftp.funet.fi"
+  dst_notes        = "Large Available Bandwidth."
+
+# dst_dst          = "http://cpan.mirrors.nks.net/"
+# dst_contact      = "mailto:nks.net:cpan-admin
+# dst_src          = "ftp.funet.fi"
+
+carroll.cac.psu.edu:
+  frequency        = "daily"
+  dst_ftp          = "ftp://carroll.cac.psu.edu/pub/CPAN/"
+  dst_location     = "University Park, Pennsylvania, United States, North America (40.801 -77.856)"
+  dst_organisation = "The Pennsylvania State University"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "OC3"
+  dst_contact      = "carroll.cac.psu.edu{ftpkeeper"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://carroll.cac.psu.edu/pub/CPAN/"
+# dst_contact      = "mailto:carroll.cac.psu.edu{ftpkeeper
+# dst_src          = "ftp.funet.fi"
+
+uberlan.net:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://www.uberlan.net/CPAN"
+  dst_location     = "Vallejo, California, United States, North America (38.40 -122.8188)"
+  dst_organisation = "uberLAN Technologies"
+  dst_timezone     = "-8"
+  dst_bandwidth    = "T3"
+  dst_contact      = "uberlan.net:sys-admin"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "http://www.uberlan.net/CPAN"
+# dst_contact      = "mailto:uberlan.net:sys-admin
+# dst_src          = "rsync.nic.funet.fi"
+
+dc.aleron.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.dc.aleron.net/pub/CPAN/"
+  dst_location     = "Washington, District of Columbia, United States, North America (39.0239 -77.2911)"
+  dst_organisation = "Aleron"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "aleron.net)ftp"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.dc.aleron.net/pub/CPAN/"
+# dst_contact      = "mailto:aleron.net)ftp
+# dst_src          = "ftp.funet.fi"
+
+csociety-ftp.ecn.purdue.edu:
+  frequency        = "daily"
+  dst_ftp          = "ftp://csociety-ftp.ecn.purdue.edu/pub/CPAN"
+  dst_http         = "http://csociety-ftp.ecn.purdue.edu/pub/CPAN"
+  dst_rsync        = "csociety-ftp.ecn.purdue.edu::CPAN"
+  dst_location     = "West Lafayette, Indiana, United States, North America (40.444 -86.911)"
+  dst_organisation = "Purdue University IEEE Computer Society"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "10Mbps"
+  dst_contact      = "csociety.purdue.edu'ftp"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://csociety-ftp.ecn.purdue.edu/pub/CPAN"
+# dst_contact      = "mailto:csociety.purdue.edu'ftp
+# dst_src          = "ftp.funet.fi"
+
+qualispace.com:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.mirror.qualispace.com"
+  dst_location     = "Westerville, Ohio, United States, North America (40.1261 -82.9292)"
+  dst_organisation = "QualiSpace Web Hosting"
+  dst_timezone     = "-5"
+  dst_bandwidth    = "T3"
+  dst_contact      = "qualispace.com^nitesh"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "http://cpan.mirror.qualispace.com"
+# dst_contact      = "mailto:qualispace.com^nitesh
+# dst_src          = "ftp.funet.fi"
+
+cpan.mirrors.ilisys.com.au:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://cpan.mirrors.ilisys.com.au"
+  dst_location     = "Perth, Western Australia, Australia, Oceania (-31.9667 115.8167)"
+  dst_organisation = "Ilisys Web Hosting"
+  dst_timezone     = "+8"
+  dst_bandwidth    = "34Mbit"
+  dst_contact      = "ilisys.com.au'mirrors"
+  dst_src          = "rsync.nic.funet.fi"
+  dst_notes        = "please direct any questions to mirrors@ilisys.com.au"
+
+# dst_dst          = "http://cpan.mirrors.ilisys.com.au"
+# dst_contact      = "mailto:ilisys.com.au'mirrors
+# dst_src          = "rsync.nic.funet.fi"
+
+auckland.ac.nz:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.auckland.ac.nz/pub/perl/CPAN/"
+  dst_location     = "Auckland, New Zealand, Oceania (-36.917 174.783)"
+  dst_organisation = "Auckland University"
+  dst_timezone     = "+12"
+  dst_contact      = "auckland.ac.nz^webmaster"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://ftp.auckland.ac.nz/pub/perl/CPAN/"
+# dst_contact      = "mailto:auckland.ac.nz^webmaster
+# dst_src          = "ftp.funet.fi"
+
+cpan.inspire.net.nz:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.inspire.net.nz/cpan"
+  dst_http         = "http://cpan.inspire.net.nz"
+  dst_location     = "Palmerston North, New Zealand, Oceania (-40.32 175.62)"
+  dst_organisation = "InspireNet ltd"
+  dst_timezone     = "+12"
+  dst_bandwidth    = "OC3"
+  dst_contact      = "inspire.net.nz{brenden"
+  dst_src          = "rsync://ftp.funet.fi/CPAN"
+
+# dst_dst          = "ftp://cpan.inspire.net.nz/cpan"
+# dst_contact      = "mailto:inspire.net.nz{brenden
+# dst_src          = "rsync://ftp.funet.fi/CPAN"
+
+cpan.catalyst.net.nz:
+  frequency        = "6 hourly"
+  dst_ftp          = "ftp://cpan.catalyst.net.nz/pub/CPAN/"
+  dst_http         = "http://cpan.catalyst.net.nz/CPAN/"
+  dst_location     = "Wellington, New Zealand, Oceania (-41.294704 174.773512)"
+  dst_organisation = "Catalyst IT"
+  dst_timezone     = "+12"
+  dst_bandwidth    = "100Mbps"
+  dst_contact      = "catalyst.net.nz{mirror"
+  dst_src          = "mirrors.kernel.org"
+
+# dst_dst          = "ftp://cpan.catalyst.net.nz/pub/CPAN/"
+# dst_contact      = "mailto:catalyst.net.nz{mirror
+# dst_src          = "mirrors.kernel.org"
+
+aniani.ifa.hawaii.edu:
+  frequency        = "daily"
+  dst_ftp          = "ftp://aniani.ifa.hawaii.edu/CPAN/"
+  dst_http         = "http://aniani.ifa.hawaii.edu/CPAN/"
+  dst_rsync        = "aniani.ifa.hawaii.edu::CPAN"
+  dst_location     = "Hilo, Hawaii, United States, Oceania (19.7 -155.1)"
+  dst_organisation = "Institute for Astronomy"
+  dst_timezone     = "-10"
+  dst_bandwidth    = "DS3"
+  dst_contact      = "ifa.hawaii.edu{jhoblitt"
+  dst_src          = "ftp.funet.fi"
+  dst_notes        = "64 ftp/64 rsync/unlim. http"
+
+# dst_dst          = "ftp://aniani.ifa.hawaii.edu/CPAN/"
+# dst_contact      = "mailto:ifa.hawaii.edu{jhoblitt
+# dst_src          = "ftp.funet.fi"
+
+bannerlandia.com.ar:
+  frequency        = "twice daily"
+  dst_ftp          = "ftp://mirrors.bannerlandia.com.ar/mirrors/CPAN/"
+  dst_location     = "Buenos Aires, Argentina, South America (-34.6 -58.45)"
+  dst_organisation = "Bannerlandia.com"
+  dst_timezone     = "-3"
+  dst_contact      = "bannerlandia.com*mirrors"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://mirrors.bannerlandia.com.ar/mirrors/CPAN/"
+# dst_contact      = "mailto:bannerlandia.com*mirrors
+# dst_src          = "ftp.funet.fi"
+
+localhost.net.ar:
+  frequency        = "daily"
+  dst_ftp          = "ftp://mirrors.localhost.net.ar/pub/mirrors/CPAN"
+  dst_http         = "http://cpan.localhost.net.ar"
+  dst_location     = "Buenos Aires, Argentina, South America (-34.6 -58.45)"
+  dst_organisation = "LocalHost"
+  dst_timezone     = "-3"
+  dst_bandwidth    = "100Mbit"
+  dst_contact      = "localhost.net.ar(mirrors"
+  dst_src          = "ftp.funet.fi"
+
+# dst_dst          = "ftp://mirrors.localhost.net.ar/pub/mirrors/CPAN"
+# dst_contact      = "mailto:localhost.net.ar(mirrors
+# dst_src          = "ftp.funet.fi"
+
+cpan.pop-mg.com.br:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.pop-mg.com.br/pub/CPAN/"
+  dst_location     = "Belo Horizonte, Minas Gerais, Brazil, South America (-19.916 -43.933)"
+  dst_organisation = "POP-MG"
+  dst_timezone     = "-3"
+  dst_contact      = "pop-mg.com.br(ftpadmin"
+  dst_src          = "ftp.cpan.org"
+
+# dst_dst          = "ftp://cpan.pop-mg.com.br/pub/CPAN/"
+# dst_contact      = "mailto:pop-mg.com.br(ftpadmin
+# dst_src          = "ftp.cpan.org"
+
+pucpr.br:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.pucpr.br/CPAN"
+  dst_http         = "http://ftp.pucpr.br/CPAN"
+  dst_location     = "Curitiba, Parana, Brazil, South America (-25.4167 -49.2500)"
+  dst_organisation = "Pontificia Universidade Catolica - PR"
+  dst_timezone     = "-3"
+  dst_bandwidth    = "T1"
+  dst_contact      = "pucpr.br[juan.mussini"
+  dst_src          = "mirrors.kernel.org"
+
+# dst_dst          = "ftp://ftp.pucpr.br/CPAN"
+# dst_contact      = "mailto:pucpr.br[juan.mussini
+# dst_src          = "mirrors.kernel.org"
+
+cpan.giga.com.br:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.giga.com.br"
+  dst_http         = "http://cpan.giga.com.br"
+  dst_location     = "Porto Alegre, Rio Grande do Sul, Brazil, South America (-30.033 -51.216)"
+  dst_organisation = "Cyberweb Networks"
+  dst_timezone     = "-3"
+  dst_bandwidth    = "E3"
+  dst_contact      = "cyberweb.com.br)juliano"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://cpan.giga.com.br"
+# dst_contact      = "mailto:cyberweb.com.br)juliano
+# dst_src          = "rsync.nic.funet.fi"
+
+uol.com.br:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://mirrors.uol.com.br/pub/cpan/"
+  dst_location     = "Sao Paulo, Brazil, South America (-23.533 -46.617)"
+  dst_organisation = "Universo On Line"
+  dst_timezone     = "-3"
+  dst_bandwidth    = "OC12"
+  dst_contact      = "uolinc.com'rcampos"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "http://mirrors.uol.com.br/pub/cpan/"
+# dst_contact      = "mailto:uolinc.com'rcampos
+# dst_src          = "rsync.nic.funet.fi"
+
+cpan.netglobalis.net:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.netglobalis.net/pub/CPAN/"
+  dst_http         = "http://cpan.netglobalis.net/"
+  dst_location     = "Santiago, Chile, South America (-33.45 -70.666)"
+  dst_organisation = "Comunicaciones Netglobalis S.A."
+  dst_timezone     = "-4"
+  dst_bandwidth    = "10Mbps"
+  dst_contact      = "netglobalis.net}ftp-admin"
+  dst_src          = "ftp.funet.fi"
+  dst_notes        = "Bandwith is limited to international users to 2Mbps, national users to 10Mbps and local users to 100Mbps."
+
+# dst_dst          = "ftp://cpan.netglobalis.net/pub/CPAN/"
+# dst_contact      = "mailto:netglobalis.net}ftp-admin
+# dst_src          = "ftp.funet.fi"
+
+csol.org:
+  frequency        = "daily"
+  dst_ftp          = ""
+  dst_http         = "http://mirrors.csol.org/CPAN"
+  dst_rsync        = "mirrors.csol.org::CPAN"
+  dst_location     = "Santiago, Chile, South America (-33.45 -70.666)"
+  dst_organisation = "Centro de Software Libre (Universidad de Chile)"
+  dst_timezone     = "+4"
+  dst_bandwidth    = "T3"
+  dst_contact      = "csol.org;jhp"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "http://mirrors.csol.org/CPAN"
+# dst_contact      = "mailto:csol.org;jhp
+# dst_src          = "rsync.nic.funet.fi"
+
+sunsite.dcc.uchile.cl:
+  frequency        = "daily"
+  dst_ftp          = "ftp://cpan.dcc.uchile.cl/pub/lang/cpan/"
+  dst_http         = "http://cpan.dcc.uchile.cl/"
+  dst_location     = "Santiago, Chile, South America (-33.45 -70.666)"
+  dst_organisation = "Departamento de Ciencias de la Computación, Facultad de Ciencias Físicas y Matemáticas de la Universidad de Chile (Department of Computing Sciences, Faculty of Physical and Mathematical Sciences of the University of Chile)"
+  dst_timezone     = "-4"
+  dst_bandwidth    = "t3"
+  dst_contact      = "dcc.uchile.cl=sistemas"
+  dst_src          = "rsync.nic.funet.fi"
+
+# dst_dst          = "ftp://cpan.dcc.uchile.cl/pub/lang/cpan/"
+# dst_contact      = "mailto:dcc.uchile.cl=sistemas
+# dst_src          = "rsync.nic.funet.fi"
+
+telmexchile.cl:
+  frequency        = "daily"
+  dst_ftp          = "ftp://ftp.telmexchile.cl/Linux/Perl/CPAN/"
+  dst_location     = "Santiago, Chile, South America (-33.45 -70.666)"
+  dst_organisation = "Telmex Chile SA"
+  dst_timezone     = "-4"
+  dst_bandwidth    = "T3"
+  dst_contact      = "rdc.cl$ftpadm"
+  dst_src          = "ftp.oleane.net"
+
+# dst_dst          = "ftp://ftp.telmexchile.cl/Linux/Perl/CPAN/"
+# dst_contact      = "mailto:rdc.cl$ftpadm
+# dst_src          = "ftp.oleane.net"
+
+
+# here endeth MIRRORED.BY

@@ -1,0 +1,7 @@
+---
+comment: "http://rt.cpan.org/Ticket/Display.html?id=24260"
+match:
+  distribution: "ADAMK/Chart-Math-Axis-1.00.tar.gz"
+depends:
+  requires:
+    Params::Util: 0

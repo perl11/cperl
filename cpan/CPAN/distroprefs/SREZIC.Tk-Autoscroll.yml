@@ -1,0 +1,22 @@
+--- 
+match:
+  distribution: "^SREZIC/Tk-TIFF"
+test:
+  env:
+    BATCH: 1
+    DISPLAY: ":121"
+depends:
+  requires:
+    Tk: 0
+---
+comment: |
+
+    Despite the name of the file this is really meant for all Tk
+    modules by Slaven.
+
+match:
+  distribution: "^SREZIC/Tk-[A-Z]"
+test: 
+  env:
+    BATCH: 1
+    DISPLAY: ":121"

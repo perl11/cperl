@@ -1,0 +1,14 @@
+--- 
+match:
+  distribution: "MARKSTOS/CGI-Application-Dispatch-\\d"
+disabled: 1
+# pl:
+#   eexpect:
+#     mode: anyorder
+#     timeout: 15
+#     reuse: 1
+#     talk:
+#       - "."
+#       - "skip\n\n\n\n\n"
+
+#  can't figure out why this distroprefs file never works

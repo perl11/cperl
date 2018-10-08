@@ -1,0 +1,10 @@
+---
+comment: |
+
+  after I had uploaded this patch I discovered that Steve Peters had
+  already posted to https://rt.cpan.org/Ticket/Display.html?id=23620
+
+match:
+  distribution: "^MJD/Text-Template-1.44"
+patches:
+  - "ANDK/patches/Text-Template-1.44-ANDK-01.patch.gz"

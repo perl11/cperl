@@ -1,0 +1,19 @@
+---
+match:
+  distribution: 'TODDR/Net-Jabber-Bot-\d'
+test:
+  expect:
+    - "Please enter jabber server"
+    - "\n"
+    - "Server Port"
+    - "\n"
+    - "Please enter jabber conference server"
+    - "\n"
+    - "Please enter the jabber username"
+    - "\n"
+    - "Password"
+    - "\n"
+    - "Please enter a forum name I will test with you in"
+    - "\n"
+    - "Please enter a second forum name I will test with you in"
+    - "\n"

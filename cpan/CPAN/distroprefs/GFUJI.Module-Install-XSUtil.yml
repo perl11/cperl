@@ -1,0 +1,8 @@
+--- 
+comment: |
+
+  hangs
+
+match:
+  distribution: "GFUJI/Module-Install-XSUtil-\\d"
+disabled: 1

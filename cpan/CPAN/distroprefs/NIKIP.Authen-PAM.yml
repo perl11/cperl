@@ -1,0 +1,7 @@
+--- 
+match:
+  distribution: "^NIKIP/Authen-PAM-"
+test: 
+  expect: 
+   -  Password
+   -  "Password\n"

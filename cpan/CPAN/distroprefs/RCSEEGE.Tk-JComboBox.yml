@@ -1,0 +1,6 @@
+---
+match:
+  distribution: 'RCSEEGE/Tk-JComboBox-\d'
+test:
+  env:
+    DISPLAY: ":121"

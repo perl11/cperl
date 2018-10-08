@@ -1,0 +1,7 @@
+---
+match:
+  distribution: 'DRTECH/Config-Loader-1.\d'
+pl:
+  expect:
+    - "Press ENTER to continue installing:"
+    - "\n"

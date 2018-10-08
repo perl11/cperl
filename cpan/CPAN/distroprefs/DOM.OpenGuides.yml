@@ -1,0 +1,18 @@
+---
+comment: |
+
+  On 0.61 this fails with "Can't locate OpenGuides/Build.pm"
+
+  http://rt.cpan.org/Ticket/Display.html?id=27961
+
+match:
+  distribution: '^DOM/OpenGuides-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 3
+    talk:
+      - "Continue with install"
+      - "y\n"
+      - "Skip OpenGuides configuration"
+      - "y\n"

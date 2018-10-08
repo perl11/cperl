@@ -1,0 +1,35 @@
+--- 
+comment: |
+
+  patch #24542 mentioned in
+
+  http://www.xray.mpe.mpg.de/mailing-lists/perl5-porters/2006-10/msg00854.html
+  http://www.xray.mpe.mpg.de/mailing-lists/perl5-porters/2006-10/msg00855.html
+  http://www.xray.mpe.mpg.de/mailing-lists/perl5-porters/2006-10/msg00860.html
+
+  With a patch from RAFL we have reached 24556 and failed with 24557
+
+  Update 2008-03-28 akoenig: http://perlmonks.org/?displaytype=displaycode;node_id=672924
+
+  http://rt.cpan.org/Ticket/Display.html?id=33959 (frank)
+
+match:
+  distribution: "^ILYAZ/modules/Math-Pari-2.010709"
+pl: 
+  args: 
+    - pari_tgz=/home/sand/src/perl/math-pari-megrez/pari-2.1.7.tgz
+patches:
+  - "/home/k/sources/CPAN/SVK/trunk/patches/nclark-math-pari-perlmonks-672924.patch"
+--- 
+match:
+  distribution: "^ILYAZ/modules/Math-Pari-2.01080"
+pl: 
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    reuse: 1
+    talk:
+      - 'Fetch\?'
+      - "y\n"
+  args: 
+    - pari_tgz=/home/sand/src/perl/math-pari-megrez/pari-2.1.7.tgz

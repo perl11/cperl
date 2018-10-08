@@ -1,0 +1,9 @@
+--- 
+match:
+  distribution: "^SREZIC/Tk-(Pod|FontDialog)-"
+test: 
+  args:
+    - TEST_VERBOSE=1
+  env:
+    BATCH: 1
+    DISPLAY: ":121"

@@ -1,0 +1,21 @@
+---
+comment: |
+
+  Written against 1.30.
+
+  http://code.google.com/p/test-reporter/issues/detail?id=4
+
+  With 1.32 still needed:
+
+  Hunk #1 succeeded at 25 with fuzz 2.
+
+  Fix was scheduled for 1.34
+
+  Since 1.34 is out Mail::Send seems to work as well for me. If it
+  stops working again, we need a passthrough mechanism in
+  CPAN::Reporter/_dispatch_report().
+
+match:
+  distribution: 'FHOXH/Test-Reporter-1\.3[02]'
+patches:
+  - "ANDK/patches/Test-Reporter-1.30-ANDK-01.patch.gz"

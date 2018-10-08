@@ -1,0 +1,11 @@
+--- 
+comment: |
+
+  Message-ID: <20100814165850.GI48531@plum.flirble.org>
+
+  http://groups.google.com/group/perl.perl5.porters/browse_thread/thread/172611cb0944104a?hl=en#
+
+match:
+  distribution: "^GAAS/HTML-Parser-3.66.tar.gz"
+patches:
+  - "ANDK/patches/HTML-Parser-3.66-NWCLARK-01.patch.gz"

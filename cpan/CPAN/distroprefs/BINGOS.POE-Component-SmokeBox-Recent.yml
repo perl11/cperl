@@ -1,0 +1,8 @@
+---
+# BINGOS/POE-Component-SmokeBox-Uploads-RSS-0
+match:
+  distribution: 'BINGOS/POE-Component-SmokeBox-(Recent|Uploads-RSS)-\d'
+pl:
+  expect:
+    - "Do you want live network tests"
+    - "n\n"

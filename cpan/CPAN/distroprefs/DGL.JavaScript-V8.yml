@@ -1,0 +1,10 @@
+--- 
+comment: |
+
+  https://github.com/dgl/javascript-v8/pull/10.patch
+  https://rt.cpan.org/Ticket/Display.html?id=73963
+
+match:
+  distribution: '^DGL/JavaScript-V8-0.07\.tar\.gz$'
+patches:
+  - "ANDK/patches/JavaScript-V8-0.07-github2.patch"

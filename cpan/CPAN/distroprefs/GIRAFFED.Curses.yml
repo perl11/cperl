@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "GIRAFFED/Curses-1.16.tgz"
+patches:
+  - "/home/k/sources/CPAN/SVK/trunk/patches/Curses-1.16-GIRAFFED-01.patch"

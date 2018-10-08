@@ -1,0 +1,12 @@
+---
+comment: "see http://rt.cpan.org/Ticket/Display.html?id=23605"
+match:
+  distribution: '^ATOURBIN/rpm-build-perl-0.6.1\.'
+patches:
+  - "ANDK/patches/rpm-build-perl-0.6.1-ANDK-01.patch.gz"
+---
+comment: "see http://rt.cpan.org/Ticket/Display.html?id=39054"
+match:
+  distribution: '^ATOURBIN/rpm-build-perl-0.6.8\.'
+patches:
+  - "ANDK/patches/rpm-build-perl-0.6.8-DAGOLDEN-01.patch.gz"

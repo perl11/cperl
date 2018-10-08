@@ -1,0 +1,15 @@
+---
+comment: |
+
+  RT ticket 62571
+
+  That was bleadperl v5.13.6-125-g5cf4b25
+
+  That means we want to block on 125-129, 130-199, 200-999, and 1000-inf
+
+  We'll soon have to include 5.13.7 too
+
+match:
+  distribution: "VPIT/Variable-Magic-0.44.tar.gz"
+  perl: '.../v5\.13\.6-(12[5-9]|1[3-9]\d|[2-9]\d\d|\d\d\d\d+)-g\w+/bin/perl$'
+disabled: 1

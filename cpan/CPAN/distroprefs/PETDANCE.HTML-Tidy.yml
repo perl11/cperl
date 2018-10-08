@@ -1,0 +1,12 @@
+---
+match:
+  distribution: "^PETDANCE/HTML-Tidy-1.06.tar.gz"
+goto: "PETDANCE/HTML-Tidy-1.07_01.tar.gz"
+---
+match:
+  distribution: 'PETDANCE/HTML-Tidy-\d'
+depends:
+  configure_requires:
+    Alien::Tidyp: 0
+  requires:
+    LWP::Simple: 0

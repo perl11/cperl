@@ -1,0 +1,12 @@
+---
+comment: |
+
+  it seems there is a timer integrated so we would not really need
+  this distropref file
+
+match:
+  distribution: 'NICOLAW/WWW-Comic-\d'
+pl:
+  expect:
+    - "Send this anonymous information"
+    - "n\n"

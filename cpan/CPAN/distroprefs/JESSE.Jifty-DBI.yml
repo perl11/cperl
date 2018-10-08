@@ -1,0 +1,28 @@
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=91050
+
+  added check_sigs for that.
+
+match:
+  distribution: '^TSIBLEY/Jifty-DBI-0.76'
+pl:
+  env:
+    PERL_AUTOINSTALL: --skip
+  args: ["--defaultdeps"]
+make:
+  env:
+    PERL_AUTOINSTALL: --skip
+cpanconfig:
+  check_sigs: 0
+---
+match:
+  distribution: '^(JESSE|TSIBLEY)/Jifty-DBI-\d'
+pl:
+  env:
+    PERL_AUTOINSTALL: --skip
+  args: ["--defaultdeps"]
+make:
+  env:
+    PERL_AUTOINSTALL: --skip

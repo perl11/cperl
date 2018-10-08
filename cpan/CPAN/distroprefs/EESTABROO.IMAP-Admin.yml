@@ -1,0 +1,17 @@
+--- 
+match:
+  distribution: "^EESTABROO/IMAP-Admin-"
+test: 
+  expect:
+    - "Enter server:"
+    - "\n"
+    - "Enter login:"
+    - "\n"
+    - "Enter password:"
+    - "\n"
+    - "Test using SSL"
+    - "\n"
+    - "Test using CRAM"
+    - "\n"
+    - "Enter Port"
+    - "\n"

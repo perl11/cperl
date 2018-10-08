@@ -1,0 +1,18 @@
+--- 
+match:
+  distribution: '^SAMV/Tangram-\d'
+pl:
+  expect:
+    - "Do you plan to run the test suite"
+    - "y\n"
+    - "DBI connect string"
+    - "mysql:test\n"
+    - "Use InnoDB tables"
+    - "y\n"
+    - "Login"
+    - "root\n"
+    - "Password"
+    - "rfjNq4g\n"
+depends:
+  requires:
+    DBD::mysql: 1.58

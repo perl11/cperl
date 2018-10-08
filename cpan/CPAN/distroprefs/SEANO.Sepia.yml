@@ -1,0 +1,18 @@
+---
+match:
+  distribution: 'SEANO/Sepia-0.991(_02)?'
+pl:
+  commandline: "$PERL Makefile.PL < /dev/null"
+depends:
+  configure_requires:
+    Devel::Peek: 0
+    Devel::Size: 0
+    IO::Scalar: 0
+    Lexical::Persistence: 0
+    LWP::Simple: 0
+    Module::CoreList: 0
+    Module::Info: 0
+    PadWalker: 0
+    BSD::Resource: 0
+    Time::HiRes: 0
+    Test::Expect: 0

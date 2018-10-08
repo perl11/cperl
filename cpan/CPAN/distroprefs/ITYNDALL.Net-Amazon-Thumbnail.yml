@@ -1,0 +1,5 @@
+---
+comment: "needs a license key for the tests which I do not have"
+match:
+  distribution: "^ITYNDALL/Net-Amazon-Thumbnail-0.06.tar.gz"
+disabled: 1

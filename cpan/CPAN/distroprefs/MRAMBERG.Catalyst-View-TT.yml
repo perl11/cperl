@@ -1,0 +1,7 @@
+---
+match:
+  distribution: '^MRAMBERG/Catalyst-View-TT-\d'
+pl:
+  expect:
+    - "Auto-install"
+    - "y\n"

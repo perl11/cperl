@@ -1,0 +1,9 @@
+---
+comment: |
+
+  not needed anymore on 1.05, did not pay attention when this could be left out
+
+match:
+  distribution: '^VKON/Tcl-1.04\d'
+pl:
+  args: ["--include", "-I/usr/include/tcl8.5", "--library", "-ltcl8.5" ]

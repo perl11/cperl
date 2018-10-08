@@ -1,0 +1,70 @@
+--- 
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=84778
+
+match:
+  distribution: '^ABW/Template-Toolkit-2\.24\.tar\.gz'
+patches:
+  - "ANDK/patches/Template-Toolkit-2.24-ZEFRAM-01.patch.gz"
+  - "ANDK/patches/Template-Toolkit-2.24-ANDK-01.patch.gz"
+--- 
+comment: "avoid failing on t/99_author.t (we are not the author)"
+match:
+  distribution: '^ABW/AppConfig-1.66.tar.gz'
+test:
+  env:
+    AUTOMATED_TESTING: 0
+--- 
+comment: |
+
+  tested with 2.18 and 2.19
+
+  2008-11-11 akoenig update: with 5 seconds timeout we were probably
+  too miserly today
+
+match:
+  distribution: '^ABW/Template-Toolkit-2\.'
+test:
+  env:
+    # work around https://rt.cpan.org/Ticket/Display.html?id=79232
+    AUTOMATED_TESTING: 0
+pl:
+  args:
+    - TT_EXTRAS=no
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    talk:
+      - "Do you want to build the XS Stash module"
+      - "y\n"
+      - "Do you want to use the XS Stash by default"
+      - "y\n"
+      - "Do you want to install these components"
+      - "n\n"
+      - "Installation directory"
+      - "/usr/local/sand/tt2\n"
+      - "URL base for TT2 images"
+      - "\n"
+      - "Do you want to build the HTML documentation"
+      - "\n"
+      - "Do you want to use the Splash! library"
+      - "\n"
+      - "Enter name of colour scheme"
+      - "\n"
+      - "Do you want to build the HTML example pages"
+      - "\n"
+      - "."
+      - "\n"
+      - "."
+      - "\n"
+--- 
+comment: "2.17 had more test failures for me than 2.16"
+match:
+  distribution: '^(ABW|ADAMK)/Template-Toolkit-2.17'
+goto: "ADAMK/Template-Toolkit-2.16.tar.gz"
+---
+comment: "Prohibit working with 2.14"
+match:
+  distribution: '^ABW/Template-Toolkit-2.14'
+disabled: 1

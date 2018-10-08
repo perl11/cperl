@@ -1,0 +1,4 @@
+---
+match:
+  distribution: '^ADUITSIS/IPC-Mmap-0\.21\.tar\.gz$'
+goto: "ADUITSIS/IPC-Mmap-0.22_02.tar.gz"

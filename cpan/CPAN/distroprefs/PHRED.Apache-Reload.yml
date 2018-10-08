@@ -1,0 +1,25 @@
+---
+comment: |
+
+  I don't know if it is documented. From skimming the Makefile.PL it
+  seems the way to specify that we want mod_perl 1.
+
+  But at least three times it failed: ../nntp-testers/1191783
+  ../nntp-testers/1107548 ../nntp-testers/1098969, all three in March
+  2008, with 5.10.0@33542, 33412, 33411. OK, I did it wrong. They want
+  MOD_PERL=1 and they want mod_perl already installed as a
+  configure_requires.
+
+  I've submitted a patch to RT which I do not need myself because
+  configure_requires should do.
+
+  http://rt.cpan.org/Ticket/Display.html?id=34316
+
+match:
+  distribution: 'PHRED/Apache-Reload-\d'
+pl:
+  args:
+    - "MOD_PERL=1"
+depends:
+  configure_requires:
+    mod_perl: 1

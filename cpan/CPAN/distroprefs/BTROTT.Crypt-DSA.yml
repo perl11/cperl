@@ -1,0 +1,14 @@
+--- 
+comment: |
+
+  disabled because the tests take too long. Last time verified with
+  Math::BigInt 1.82 and Crypt-DSA-0.14.
+
+  Update 2008-10-23: On my 64bit machine with Math::BigInt 1.89 below
+  one minute, so enabling again
+
+match:
+  distribution: '^BTROTT/Crypt-DSA-\d'
+pl: 
+  args: ["--defaultdeps"]
+# disabled: 1

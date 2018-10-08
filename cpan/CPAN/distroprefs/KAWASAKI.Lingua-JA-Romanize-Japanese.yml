@@ -1,0 +1,7 @@
+---
+match:
+  distribution: '^KAWASAKI/Lingua-JA-Romanize-Japanese-\d'
+pl:
+  expect:
+    - '\QDo you wish to download these files?\E'
+    - "y\n"

@@ -1,0 +1,4 @@
+---
+match:
+  distribution: "^TINITA/HTML-Template-Compiled-0.94.tar.gz"
+goto: "TINITA/HTML-Template-Compiled-0.94_002.tar.gz"

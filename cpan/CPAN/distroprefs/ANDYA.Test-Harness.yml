@@ -1,0 +1,8 @@
+---
+comment: |
+
+  broke Module::Build's testsuite
+
+match:
+  distribution: "ANDYA/Test-Harness-3.11.tar.gz"
+goto: "ANDYA/Test-Harness-3.10.tar.gz"

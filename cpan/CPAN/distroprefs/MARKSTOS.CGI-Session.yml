@@ -1,0 +1,16 @@
+---
+comment: |
+
+  ALERT: without the dependency 2 in 300 testruns succeed due to
+  SKIPped test.
+
+  Normally t/g4_dbfile_json.t fails.
+
+  http://rt.cpan.org/Ticket/Display.html?id=25325
+
+match:
+  distribution: "^MARKSTOS/CGI-Session-4.20"
+depends:
+  requires:
+    DB_File: 0
+    YAML::Syck: 0

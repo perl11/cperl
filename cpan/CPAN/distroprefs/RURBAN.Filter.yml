@@ -1,0 +1,9 @@
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=101021
+
+match:
+  distribution: '^RURBAN/Filter-1\.52\.tar\.gz$'
+cpanconfig:
+  check_sigs: 0

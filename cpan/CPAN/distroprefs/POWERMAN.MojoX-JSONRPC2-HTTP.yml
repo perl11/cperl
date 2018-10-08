@@ -1,0 +1,10 @@
+--- 
+comment: |
+
+  basic.t is skipped without Mojolicious::Plugin::JSONRPC2
+
+match:
+  distribution: 'POWERMAN/MojoX-JSONRPC2-HTTP-\d'
+depends:
+  requires:
+    Mojolicious::Plugin::JSONRPC2: 0

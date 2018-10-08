@@ -1,0 +1,14 @@
+---
+comment: |
+
+  only needed when it finds an old version around
+
+match:
+  distribution: 'JV/Getopt-Long-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 5
+    talk:
+      - 'Shall I add the remove instructions\?'
+      - "y\n"

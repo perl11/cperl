@@ -1,0 +1,10 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=34659
+
+match:
+  distribution: "NUFFIN/Devel-Events-0.05.tar.gz"
+depends:
+  requires:
+    URI: 0

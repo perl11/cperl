@@ -1,0 +1,15 @@
+---
+comment: |
+
+  written for 2.3.0
+
+match:
+  distribution: 'GRICHTER/Embperl-\d'
+pl:
+  expect:
+    - "Build with support for Apache mod_perl"
+    - "n\n"
+    - "Use .* as Apache source"
+    - "\n"
+    - "Enter path of XALAN base directory or single dot for not using XALAN"
+    - "\n"

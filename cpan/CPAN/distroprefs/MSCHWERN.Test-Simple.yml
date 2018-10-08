@@ -1,0 +1,43 @@
+---
+comment: "skip sort bug and thread test, they tend to hang on bleadperl around 29487"
+match:
+  distribution: 'MSCHWERN/Test-Simple-0.70.tar.gz'
+test:
+  args:
+    - TEST_FILES="t/00signature.t t/00test_harness_check.t t/bad_plan.t t/bail_out.t t/buffer.t t/Builder.t t/carp.t t/circular_data.t t/create.t t/curr_test.t t/details.t t/diag.t t/eq_set.t t/exit.t t/extra.t t/extra_one.t t/fail-like.t t/fail-more.t t/fail.t t/fail_one.t t/filehandles.t t/fork.t t/harness_active.t t/has_plan.t t/has_plan2.t t/import.t t/is_deeply_fail.t t/is_fh.t t/maybe_regex.t t/missing.t t/More.t t/no_diag.t t/no_ending.t t/no_header.t t/no_plan.t t/ok_obj.t t/output.t t/overload.t t/overload_threads.t t/plan.t t/plan_bad.t t/plan_is_noplan.t t/plan_no_plan.t t/plan_shouldnt_import.t t/plan_skip_all.t t/pod-coverage.t t/pod.t t/require_ok.t t/reset.t t/simple.t t/skip.t t/skipall.t t/tbt_01basic.t t/tbt_02fhrestore.t t/tbt_03die.t t/tbt_04line_num.t t/tbt_05faildiag.t t/tbt_06errormess.t t/tbt_07args.t t/thread_taint.t t/todo.t t/undef.t t/use_ok.t t/useing.t"
+---
+comment: |
+
+  http://use.perl.org/~schwern/journal/34684
+
+  Trying to keep this thing out of my environment.
+
+  2007-12-24: giving up resistence
+
+#match:
+#  distribution: 'MSCHWERN/Test-Simple-0.(7[3-9]|[89]\d).*.tar.gz'
+#goto: "MSCHWERN/Test-Simple-0.72.tar.gz"
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=33645
+
+match:
+  distribution: 'MSCHWERN/Test-Simple-0.7(5|6_01|6_02|7).tar.gz'
+goto: "MSCHWERN/Test-Simple-0.74.tar.gz"
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=33645
+
+match:
+  distribution: "MSCHWERN/Test-Simple-2.00_01.tar.gz"
+goto: "MSCHWERN/Test-Simple-0.96.tar.gz"
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=72599
+
+match:
+  distribution: "MSCHWERN/Test-Simple-(0.98_01|1.005000_001).tar.gz"
+goto: "MSCHWERN/Test-Simple-0.98.tar.gz"

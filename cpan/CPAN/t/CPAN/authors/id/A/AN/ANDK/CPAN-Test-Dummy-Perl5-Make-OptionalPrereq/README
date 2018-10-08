@@ -1,0 +1,7 @@
+This CPAN distribution file is designed for testing purposes only.
+
+It resembles many different aspects of a typical CPAN distribution
+file but has no usefulness in itself.
+
+The test scripts that work with this file are t/30shell.t and
+t/31sessions.t in the CPAN.pm distribution.

@@ -1,0 +1,36 @@
+---
+match:
+  distribution: "DCANTRELL/Devel-CheckOS"
+  perlconfig:
+    archname: "linux"
+pl:
+  eexpect:
+    mode: anyorder
+    reuse: 1
+    timeout: 5
+    talk:
+      - "Linux"
+      - "y\n"
+      - "OSFeatures::POSIXShellRedirection"
+      - "y\n"
+      - "Unix"
+      - "y\n"
+---
+match:
+  distribution: "DCANTRELL/Devel-CheckOS"
+  perlconfig:
+    archname: "darwin"
+pl:
+  eexpect:
+    mode: anyorder
+    reuse: 1
+    timeout: 5
+    talk:
+      - "MacOSX"
+      - "y\n"
+      - "OSFeatures::POSIXShellRedirection"
+      - "y\n"
+      - "Apple"
+      - "y\n"
+      - "Unix"
+      - "y\n"

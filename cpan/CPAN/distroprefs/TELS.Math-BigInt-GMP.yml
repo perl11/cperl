@@ -1,0 +1,10 @@
+comment: |
+
+  Requires MakeMaker 6.33 or so.
+  http://rt.cpan.org/Ticket/Display.html?id=24774
+
+match:
+  distribution: "^TELS/math/"
+pl:
+  args:
+    - "PREREQ_FATAL=0"

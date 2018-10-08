@@ -1,0 +1,11 @@
+---
+match:
+  distribution: '^(JMASON|FELICITY|KMCGRAIL)/(SpamAssassin/)?Mail-SpamAssassin-\d'
+pl:
+  expect:
+    - 'What email address or URL should be used in the suspected-spam report\s+text for users who want more information on your filter installation\?\s+\(In particular, ISPs should change this to a local Postmaster contact\)\s+default text: \[the administrator of that system\]'
+    - "\n"
+depends:
+  configure_requires:
+    Net::DNS: 0.34
+    NetAddr::IP: 4.010

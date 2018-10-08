@@ -1,0 +1,19 @@
+---
+comment: |
+
+  too old MI, 0.63 in 1.99.16, RT 33279
+
+  must write the dependencies here to not go into the infamous
+  MI recursion
+
+  2008-09-19 akoenig : disabled now because when Apache::Session does
+  not make it we get the MI recursion despite the depends entry
+
+match:
+  distribution: 'ERIC/OpenThought-\d'
+disabled: 1
+depends:
+  configure_requires:
+    version::Limit: 0.03
+    Apache::Session: 0
+    HTML::Template: 0

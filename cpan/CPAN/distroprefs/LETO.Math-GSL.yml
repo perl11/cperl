@@ -1,0 +1,6 @@
+---
+match:
+  distribution: 'LETO/Math-GSL-\d'
+depends:
+  configure_requires:
+    ExtUtils::PkgConfig: 0

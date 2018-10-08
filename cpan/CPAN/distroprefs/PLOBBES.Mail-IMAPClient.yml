@@ -1,0 +1,11 @@
+--- 
+match:
+  distribution: "PLOBBES/Mail-IMAPClient-\\d"
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    reuse: 1
+    talk:
+      - "extended tests"
+      - "n\n"

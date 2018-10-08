@@ -1,0 +1,18 @@
+---
+comment: |
+
+  Note: it was libapreq-1.33 which died during 'perl Makefile.PL' if
+  mod_perl was missing, so it is really a configure_requires, not a
+  simple requires
+
+match:
+  distribution: '^(STAS|GEOFF)/libapreq-\d'
+pl:
+  args:
+    - "-httpd"
+    - "/home/sand/src/www/apache/apachebin/1.3.37/bin/httpd"
+depends:
+  configure_requires:
+    mod_perl: 1.30
+  requires:
+    mod_perl: 1.30

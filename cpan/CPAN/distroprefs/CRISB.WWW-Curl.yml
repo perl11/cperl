@@ -1,0 +1,6 @@
+---
+match:
+  distribution: "WWW-Curl-4"
+pl:
+  args:
+    - /usr/include/x86_64-linux-gnu

@@ -1,0 +1,18 @@
+---
+comment: |
+
+  /me is experimenting with prefer_installer RAND at the moment
+
+  Rocky believes this is a bug in my smoker setup: https://github.com/andk/cpanpm/pull/100
+
+  Class-Constant is reported as 115995
+
+match:
+  distribution: |
+    ^(?x:
+    .^   # never matches, only purpose is to let things align nicely
+    |ROCKY/
+    |ROBN/Class-Constant-0\.06\.
+    )|
+cpanconfig:
+  prefer_installer: "MB"

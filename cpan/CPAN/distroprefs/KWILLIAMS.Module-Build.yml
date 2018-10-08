@@ -1,0 +1,19 @@
+--- 
+comment: "only needed for bleadperls around 24700"
+match:
+  distribution: '^KWILLIAMS/Module-Build-0.2805'
+  perl: '.../perl-5\.8\.0\@24[67]../bin/perl$'
+patches:
+  - ANDK/patches/Module-Build-0.2805-JPEACOCK-01.patch.gz
+--- 
+comment: |
+
+  twas not accepted for MB because limited to bleadperl@23190-25557
+
+  I'm not sure about the exact borders
+
+match:
+  distribution: '^KWILLIAMS/Module-Build-0.2808'
+  perl: '.../perl-5\.[89]\.\d\@(2319\d|23[2-9]\d\d|24\d\d\d|25[0-4]\d\d|255[0-4]\d|2555[0-7])/bin/perl$'
+patches:
+  - "ANDK/patches/Module-Build-0.2808-ANDK-01.patch.gz"

@@ -1,0 +1,7 @@
+Changes
+lib/CPAN/Test/Dummy/Perl5/Make/OptionalPrereq.pm
+Makefile.PL
+MANIFEST
+README
+t/00_load.t
+META.yml                                 Module meta-data (added by MakeMaker)

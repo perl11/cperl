@@ -1,0 +1,11 @@
+---
+comment: "maybe only asked when he finds none?"
+match:
+  distribution: '^PIERS/sapnwrfc-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 5
+    talk:
+      - "Which libsapnwrfc build path do you want to link against"
+      - "\n"

@@ -1,0 +1,21 @@
+---
+comment: |
+
+  does not compile with bleadperl at all
+
+  compiles with 5.8.9-tobe (33736)
+
+  was in 01DISABLE for a while with "hangs early" but it didn't hang
+  for me with 33736.
+
+  But it failed the memleak test and it has not been updated since
+  2003. How can Egg::Release depend on it and still have green? I did
+  send a PASS for Egg::Release althoughPersistentPerl was missing.
+  Strange.
+
+match:
+  distribution: 'HORROCKS/PersistentPerl-\d'
+pl:
+  expect:
+    - "Compile mod_persistentperl"
+    - "n\n"

@@ -1,0 +1,19 @@
+--- 
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=73716
+
+match:
+  distribution: '/YAML-LibYAML-0.37'
+patches:
+  - ANDK/patches/YAML-LibYAML-0.37-SPROUT-01.patch.gz
+--- 
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=62266
+
+match:
+  distribution: '/YAML-LibYAML-0.34'
+patches:
+  - "ANDK/patches/YAML-LibYAML-0.34-ANDK-01.patch.gz"
+#  - "ANDK/patches/YAML-LibYAML-0.34-ANDK-02.patch.gz"

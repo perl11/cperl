@@ -1,0 +1,1230 @@
+0&&<<''; # this PGP-signed message is also valid perl
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+# CHECKSUMS file written on Sun Mar 20 07:49:23 2005 by CPAN::Checksums (v1.018)
+$cksum = {
+  'PVERD' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'YLU' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JPC' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'NWINT' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ACH' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'OZAWA' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'WINKO' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MJD' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'RIK' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'BRADAPP' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JONG' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ALSCH' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JV' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'FRANCOC' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'BPANNIER' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'NEILB' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GSAR' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'Q' => {
+    'isdir' => 1
+  },
+  'M' => {
+    'isdir' => 1
+  },
+  'SPIDB' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'RBOW' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'LFINI' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'AWIN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'TOMFA' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'KWILLIAMS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'FJH' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'AKSTE' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SHARI' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JHPB' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MERGL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ZENIN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ADESC' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'FLETCH' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'STLACY' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'RRA' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GAAS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'FMC' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'Z' => {
+    'isdir' => 1
+  },
+  'PHENSON' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'AGUL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'RHNELSON' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'CHRMASTO' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SMCCAM' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'KGB' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'KMACLEOD' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'EHOOD' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'B' => {
+    'isdir' => 1
+  },
+  'CEVANS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'H' => {
+    'isdir' => 1
+  },
+  'JOSERODR' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MGH' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'COLINK' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MSCHILLI' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'CARLADLER' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ROSCH' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JMAHAN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'U' => {
+    'isdir' => 1
+  },
+  'F' => {
+    'isdir' => 1
+  },
+  'IKETRIS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'DSTALDER' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SKIMO' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JDALLMAN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MJS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JGLICK' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MGRABNAR' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SDOWD' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SGMIANO' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MJAEG' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'CNANDOR' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'TWENRICH' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MARCLANG' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'CBAIL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'BARTS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'PHOENIX' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JPRIT' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'KRISHPL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GSPIVEY' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'R' => {
+    'isdir' => 1
+  },
+  'MVERB' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GBARR' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GBAUER' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ERICA' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'RURBAN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'AMOSS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'FSG' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'KEVINA' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'DBRESH' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'DMR' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MIKESTOK' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'DBEAZLEY' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MLEHMANN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'TIMPX' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'LDS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ANTRO' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GAND' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'IANPX' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'WATANABE' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MAURICE' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'LUTHERH' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GRICHTER' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'KENFOX' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GWARD' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JBAKER' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JHI' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'WRW' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'RJRAY' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'WAYNEDAV' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SWMCD' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JVENIER' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'FTASSIN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'CXL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'BHUGHES' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'CDONLEY' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ANDYD' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'RMOSE' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JMURPHY' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'DBONNER' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'P' => {
+    'isdir' => 1
+  },
+  'JOCASA' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MARTINB' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'CTDEAN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SBECK' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'AGIERTH' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'T' => {
+    'isdir' => 1
+  },
+  'MORTY' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MHM' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ABIGAIL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'HVDS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'AUSCHUTZ' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ELMAR' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SCOTTVR' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'HTOUG' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'TIMB' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MRJC' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JOHNL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SRIRAM' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MIKEDLR' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'KENSHAN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'CHIPS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'I' => {
+    'isdir' => 1
+  },
+  'NI-S' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'G' => {
+    'isdir' => 1
+  },
+  'PLISTER' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GBACON' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JASONS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MSCHWARTZ' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MATKIN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MIKEKING' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'DHUNT' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JJDG' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'BENLI' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'NEMWS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'CHRISCHU' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MSCHWERN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'KTORP' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JHORWITZ' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GENJISCH' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JFRIEDL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'NJENSEN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'DCONWAY' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'S' => {
+    'isdir' => 1
+  },
+  'BDFOY' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'DSUGAL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GARY' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'HAYASHI' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GABOR' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'J' => {
+    'isdir' => 1
+  },
+  'SHIGIO' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SHGUN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JMM' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'STBEY' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SRZ' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'D' => {
+    'isdir' => 1
+  },
+  'DALGL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'FIMM' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GLOVER' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MPIOTR' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JAKE' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'BRIANSP' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GUYDX' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JWIEGLEY' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'C' => {
+    'isdir' => 1
+  },
+  'FLEITNER' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JGROENVEL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'DAVEROTH' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'LMOLNAR' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'X' => {
+    'isdir' => 1
+  },
+  'YVESP' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JAMCC' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SPP' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'CARL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'BMIDD' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'EWALKER' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'CHTTRAX' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MICB' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'N' => {
+    'isdir' => 1
+  },
+  'CFRETER' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'BASKAR' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'DEWEG' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'EGROSS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JCRISTY' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'KJALB' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MUIR' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'CDYBED' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'DMEGG' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'AMW' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MSHOYHER' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'BARTLEY' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ERYQ' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JDUNCAN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SHERWOOD' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ILYAZ' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MIKEH' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GMLEWIS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'TOMZO' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'BOBSIDE' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ALANSZ' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'V' => {
+    'isdir' => 1
+  },
+  'MSOLOMON' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'RSE' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'TOMC' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'IANC' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JARW' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'LUKKA' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ALANCITT' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'STANM' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JANL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MENGEL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ANDK' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'DDUMONT' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'EDLIU' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MERLYN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MRKAE' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'K' => {
+    'isdir' => 1
+  },
+  'Y' => {
+    'isdir' => 1
+  },
+  'E' => {
+    'isdir' => 1
+  },
+  'BJEPS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SAMPO' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'PARKER' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JHOWELL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ABURLISON' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ALTITUDE' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SKUNZ' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JPRAVETZ' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JANPAZ' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ABH' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GEHIC' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JNOLAN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'VKHERA' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GTHYNI' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JTOBEY' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SREZIC' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'PEASE' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'PVHP' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'DCARRIGAN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SHIKONO' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ASHTED' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'PSEIBEL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MARKM' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'L' => {
+    'isdir' => 1
+  },
+  'SZECK' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'CLINTDW' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'BSUGARS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'WPS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'UWEH' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SFARRELL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'FPIVARI' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'DOUGM' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ACALPINI' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'mldistwatch_manifind_RufD' => {
+    'mtime' => '2005-03-20',
+    'md5' => 'd41d8cd98f00b204e9800998ecf8427e',
+    'size' => 0
+  },
+  'JOEHIL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SMPILL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'CHRWOLF' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JWIED' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'PVANDRY' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GSM' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JROGERS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'MEWP' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ABW' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JACKS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'W' => {
+    'isdir' => 1
+  },
+  'TRIAS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JNH' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'HPALM' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SPURKIS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'SFINK' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'LUSOL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'PAULG' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'REDEN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'PTILL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'GBOSS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'PRYAN' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'RVA' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'PMQS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'PETERGAL' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'ULPFR' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JKAST' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'A' => {
+    'isdir' => 1
+  },
+  'MARKIM' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'O' => {
+    'isdir' => 1
+  },
+  'GOSSAMER' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'BPOWERS' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'KJOHNSON' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'CJM' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'JONO' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'OTAYLOR' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'TYEMQ' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'NWALSH' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'RAM' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  },
+  'PRATP' => {
+    'issymlink' => 1,
+    'isdir' => 1
+  }
+};
+__END__
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCPSsDMo2oZ0UPiewRAqa/AJ9U54u362yFCfyL1/uB9/S6BtDeuQCghwWf
+GJFFH8PnnHvGDAZW7Etw6ok=
+=Y3mO
+-----END PGP SIGNATURE-----

@@ -1,0 +1,15 @@
+---
+comment: |
+
+  A comment to remind myself that libdnet is a sourceforge project not
+  supported by Debian and libdnet is a debian package that has nothing
+  to do with the other libdnet:-(((
+
+  I've downloaded http://prdownloads.sourceforge.net/libdnet/libdnet-1.11.tar.gz?download
+
+  And this blog helped me on track: http://www.inliniac.net/blog/category/debian
+
+  Remind me that I want to have a reminder keyword in distroprefs.
+
+match:
+  distribution: "VMAN/Net-Libdnet-0.01.tar.gz"

@@ -2,7 +2,7 @@
 # vim: ts=4 sts=4 sw=4:
 use strict;
 package CPAN;
-$CPAN::VERSION = '2.20_01'; # with cperl support
+$CPAN::VERSION = '2.21_01'; # with cperl support
 $CPAN::VERSION =~ s/_//;
 
 # we need to run chdir all over and we would get at wrong libraries
@@ -91,11 +91,13 @@ if ($ENV{PERL5_CPAN_IS_RUNNING} && $$ != $ENV{PERL5_CPAN_IS_RUNNING}) {
         warn $w;
     }
     local $| = 1;
+    my $have_been_sleeping = 0;
     while ($sleep > 0) {
         printf "\r#%5d", --$sleep;
         sleep 1;
+	++$have_been_sleeping;
     }
-    print "\n";
+    print "\n" if $have_been_sleeping;
 }
 $ENV{PERL5_CPAN_IS_RUNNING}=$$;
 $ENV{PERL5_CPANPLUS_IS_RUNNING}=$$; # https://rt.cpan.org/Ticket/Display.html?id=23735
@@ -287,7 +289,7 @@ sub shell {
         }
         if (my $histfile = $CPAN::Config->{'histfile'}) {{
             unless ($term->can("AddHistory")) {
-                $CPAN::Frontend->mywarn("Terminal does not support AddHistory.\n");
+                $CPAN::Frontend->mywarn("Terminal does not support AddHistory.\n\nTo fix enter>  install Term::ReadLine::Perl\n\n");
                 last;
             }
             $META->readhist($term,$histfile);

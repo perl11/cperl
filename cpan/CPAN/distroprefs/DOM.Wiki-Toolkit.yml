@@ -1,0 +1,11 @@
+--- 
+match:
+  distribution: "DOM/Wiki-Toolkit-\\d"
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    reuse: 1
+    talk:
+      - "Database name"
+      - "\n"

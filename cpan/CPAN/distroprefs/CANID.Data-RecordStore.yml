@@ -1,0 +1,13 @@
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=124933
+
+match:
+  distribution: |
+    ^(?x:
+    .^   # never matches, only purpose is to let things align nicely
+    |CANID/Data-RecordStore-3.16.tar.gz
+    )|
+cpanconfig:
+  prefer_installer: "MB"

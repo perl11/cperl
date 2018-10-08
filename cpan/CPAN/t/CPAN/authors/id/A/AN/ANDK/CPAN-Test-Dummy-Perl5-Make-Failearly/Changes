@@ -1,0 +1,9 @@
+Revision history for CPAN-Test-Dummy-Perl5-Build
+
+1.02 2006-09-30
+
+     - add requires and build_requires
+
+1.01 Sun 5 Feb 2006
+
+     - started as copy of CPAN-Test-Dummy-Perl5-Make, Build.PL

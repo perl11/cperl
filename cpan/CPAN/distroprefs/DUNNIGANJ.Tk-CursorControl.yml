@@ -1,0 +1,6 @@
+---
+match:
+  distribution: 'DUNNIGANJ/Tk-CursorControl-\d'
+test:
+  env:
+    DISPLAY: ":121"

@@ -1,0 +1,6 @@
+---
+match:
+  distribution: 'LAMPRECHT/Tk-GraphItems-\d'
+test:
+  env:
+    DISPLAY: ":121"

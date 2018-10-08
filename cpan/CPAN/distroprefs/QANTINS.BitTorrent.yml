@@ -1,0 +1,8 @@
+---
+comment: "http://rt.cpan.org/Ticket/Display.html?id=27108"
+match:
+  distribution: "^QANTINS/BitTorrent-V0.1.zip"
+depends:
+  requires:
+    Digest::SHA1: 0
+    LWP::Simple: 0

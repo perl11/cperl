@@ -1,0 +1,6 @@
+---
+match:
+  distribution: '^PEVANS/IPC-PerlSSH-\d'
+test:
+  env:
+    I_CAN_SSH_LOCALHOST: 1

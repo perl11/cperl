@@ -1,0 +1,17 @@
+---
+comment: |
+
+  CPAN.pm: Going to build N/NE/NEILW/Inline-CPP-0.25.tar.gz
+
+  This will configure and build Inline::C++.
+  What default C++ compiler would you like to use? [g++]         
+  What default libraries would you like to include? [-lstdc++] 
+
+match:
+  distribution: 'NEILW/Inline-CPP-\d'
+pl:
+  expect:
+    - '\QWhat default C++ compiler would you like to use?\E'
+    - "\n"
+    - '\QWhat default libraries would you like to include?\E'
+    - "\n"

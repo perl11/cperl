@@ -1,0 +1,7 @@
+--- 
+match:
+  distribution: "^(INGY|SISYPHUS)/Inline-"
+pl: 
+  expect:
+    - "Do you want to install Inline::C"
+    - "y\n"

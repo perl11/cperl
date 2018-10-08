@@ -1,0 +1,4 @@
+---
+match:
+  distribution: "^KANE/CPANPLUS-1.78.tar.gz"
+goto: "KANE/CPANPLUS-1.79_02.tar.gz"

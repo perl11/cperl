@@ -1,0 +1,23 @@
+---
+match:
+  distribution: "^MAURICE/IPC-ShareLite-"
+pl:
+  expect:
+    - "Type carriage return to continue"
+    - "\n"
+    - "Type carriage return to continue"
+    - "\n"
+    - "Type carriage return to continue"
+    - "\n"
+    - "Do you expect to run these scripts and binaries on multiple machines"
+    - "n\n"
+    - "Directories to use for library searches"
+    - "\n"
+    - "What is the file extension used for shared libraries"
+    - "\n"
+    - "Any additional libraries"
+    - "\n"
+    - "Shall I use nm to extract C symbols from the libraries"
+    - "\n"
+    - "Press return or use a shell escape to edit config.sh"
+    - "\n"

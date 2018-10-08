@@ -1,0 +1,9 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=78196
+
+match:
+  distribution: "^DCONWAY/Class-Std-0.011"
+patches:
+  - "ANDK/patches/Class-Std-0.011-gregoa-at-debian-01.patch.gz"

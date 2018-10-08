@@ -1,0 +1,6 @@
+---
+comment: "see http://rt.cpan.org/Ticket/Display.html?id=82943"
+match:
+  distribution: '^DPARIS/Crypt-DES-2\.05\.tar\.gz'
+patches:
+  - "ANDK/patches/Crypt-DNS-2.05-ZEFRAM.patch.gz"

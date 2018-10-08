@@ -1,0 +1,12 @@
+---
+comment: |
+
+  Around 1.31 I discovered that AUTOMATED_TESTING=1 leads to
+
+  cannot open /dev/tty
+
+match:
+  distribution: "^HAYASHI/Term-ReadLine-Gnu-"
+pl:
+  env:
+    AUTOMATED_TESTING: 0

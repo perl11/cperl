@@ -1,0 +1,11 @@
+---
+comment: |
+
+  Jeffrey warned me that his tests are getting longer except for
+  AUTOMATED_TESTING=1
+
+match:
+  distribution: 'JKEGL/Test-Weaken-\d'
+test:
+  env:
+    AUTOMATED_TESTING: 1

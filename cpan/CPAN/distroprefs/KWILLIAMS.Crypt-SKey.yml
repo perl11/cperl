@@ -1,0 +1,11 @@
+---
+comment: |
+
+  ticket for Digest::MD4 written?
+
+match:
+  distribution: 'KWILLIAMS/Crypt-SKey-\d'
+test:
+  expect:
+    - "pwd"
+    - "pwd\n"

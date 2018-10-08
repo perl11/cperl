@@ -1,0 +1,13 @@
+--- 
+match:
+  distribution: "POWERMAN/IO-Stream-(Proxy-SOCKSv5-)?\\d"
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    reuse: 1
+    talk:
+      - "Run tests which require internet connection"
+      - "yes\n"
+      - "Please enter SOCKSv5 proxy (host|port)"
+      - "\n"

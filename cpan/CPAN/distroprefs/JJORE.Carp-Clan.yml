@@ -1,0 +1,33 @@
+--- 
+match:
+  distribution: '^JJORE/Carp-Clan-\d'
+pl: 
+  args: []
+
+  env: {}
+
+  expect:
+    - "Object::Deadly.*?testing"
+    - "n\n"
+
+make: 
+  args: []
+
+  env: {}
+
+  expect: []
+
+test: 
+  args: []
+
+  env: {}
+
+  expect: []
+
+install: 
+  args: []
+
+  env: {}
+
+  expect: []
+

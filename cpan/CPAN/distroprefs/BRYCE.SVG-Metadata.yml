@@ -1,0 +1,7 @@
+---
+match:
+  distribution: "^BRYCE/SVG-Metadata-0.28.tar.gz"
+depends:
+  requires:
+    HTML::Entities: 0
+    XML::Twig: 0

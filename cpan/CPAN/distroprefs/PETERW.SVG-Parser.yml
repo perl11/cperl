@@ -1,0 +1,14 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=29637
+
+  But of course the error message in there is bogus, he did not mean
+  SVG::Parser::{Expat,SAX} but really something like XML::LibXML::SAX
+  or so.
+
+match:
+  distribution: 'PETERW/SVG-Parser-\d'
+depends:
+  requires:
+    XML::LibXML::SAX: 0

@@ -1,0 +1,31 @@
+---
+comment: |
+
+  hanging test reporte in RT
+
+  The test is not really interactive but we treat is like an
+  interactive one to have Expect care for the timeout and kill.
+
+  But the result looks like a bug to me:
+
+  t/mojolicious/upload_lite_app.t ............... ok
+  t/mojolicious/websocket_lite_app.t ............ We won't be doing any rendezvous publishing, please install a Net::Rendezvous::Publish::Backend:: module
+  t/mojolicious/websocket_lite_app.t ............ 1/29 Failing: could not answer a question during the dialog                                                     
+    KRAIH/Mojolicious-0.999941.tar.gz
+    /usr/bin/make test -- OK
+  Running make install
+
+  This tells me we are interrupting the test and counting it as a PASS!!!
+
+  Eeeek
+
+match:
+  distribution: "KRAIH/Mojolicious-0.999941.tar.gz"
+test:
+  eexpect:
+    mode: anyorder
+    timeout: 600
+    reuse: 1
+    talk:
+      - "-- OK"
+      - "\n"

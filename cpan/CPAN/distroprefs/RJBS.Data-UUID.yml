@@ -1,0 +1,9 @@
+---
+match:
+  distribution: "^RJBS/Data-UUID-"
+pl: 
+  expect:
+    - "UUID state storage"
+    - "/tmp\n"
+    - "default umask"
+    - "0007\n"

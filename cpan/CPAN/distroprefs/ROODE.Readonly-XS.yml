@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "ROODE/Readonly-XS-1.04.tar.gz"
+patches:
+  - "ANDK/patches/Readonly-XS-1.04-ANDK-01.patch.gz"

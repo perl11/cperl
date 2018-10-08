@@ -1,0 +1,7 @@
+---
+match:
+  distribution: 'MARKOV/Mail-IMAPClient-\d'
+pl:
+  expect:
+    - 'extended tests\?'
+    - "\n"

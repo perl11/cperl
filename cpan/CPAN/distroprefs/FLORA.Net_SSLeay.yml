@@ -1,0 +1,36 @@
+---
+comment: |
+
+    Increasing the timeout because the "Auto-install" question will
+    often not arrive because we have installed everything already. So
+    then we must see the EOF otherwise we will believe we could not
+    answer a question.
+
+match:
+  distribution: '^(FLORA|MIKEM)/Net-SSLeay-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 60
+    reuse: 1
+    talk:
+      - '\QThese tests *will* *fail* if you do not have network connectivity\E'
+      - "n\n"
+      - "Auto-install"
+      - "y\n"
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+make:
+  eexpect:
+    mode: anyorder
+    timeout: 60
+    reuse: 1
+    talk:
+      - '\QThese tests *will* *fail* if you do not have network connectivity\E'
+      - "n\n"
+      - "Auto-install"
+      - "y\n"
+  env:
+    PERL_AUTOINSTALL: --skip    
+    PERL_EXTUTILS_AUTOINSTALL: --skip

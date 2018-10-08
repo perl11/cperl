@@ -1546,6 +1546,7 @@ _cleaner2:
 	rm -f pod2htmd.tmp
 	rm -rf pod/perlfunc pod/perlipc
 	rm -f lib/Config_mini.pl lib/Config_xs_heavy.pl ext/Config/Config.xs
+	-rm -rf cpan/CPAN/t/dot-cpan
 	-rmdir ext/B/lib
 	rm -f so_locations $(LIBPERL_NONSHR) $(MINIPERL_NONSHR)
 	-rmdir lib/version lib/threads lib/inc/Test/Base lib/inc/Test

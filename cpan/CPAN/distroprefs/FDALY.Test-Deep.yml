@@ -1,0 +1,19 @@
+--- 
+match:
+  distribution: '^FDALY/Test-Deep-0\.099\.tar\.gz'
+cpanconfig:
+  build_requires_install_policy: "yes"
+patches:
+  - "ANDK/patches/Test-Deep-0.099-ANDK-01.patch.gz"
+--- 
+match:
+  distribution: '^FDALY/Test-Deep-0\.106\.tar\.gz'
+cpanconfig:
+  build_requires_install_policy: "yes"
+patches:
+  - "ANDK/patches/Test-Deep-0.106-ANDK-01.patch.gz"
+--- 
+match:
+  distribution: '^FDALY/Test-Deep-\d'
+cpanconfig:
+  build_requires_install_policy: "yes"

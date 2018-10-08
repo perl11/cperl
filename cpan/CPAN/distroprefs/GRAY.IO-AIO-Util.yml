@@ -1,0 +1,5 @@
+---
+comment: "hangs during t/01_mkpath.........."
+match:
+  distribution: "^GRAY/IO-AIO-Util-0.03.tar.gz"
+disabled: 1

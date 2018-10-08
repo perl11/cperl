@@ -1,0 +1,11 @@
+--- 
+match:
+  distribution: "BANG/Unzip-Passwd_\\d"
+test:
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    reuse: 1
+    talk:
+      - "replace"
+      - "N\n"

@@ -1,0 +1,6 @@
+---
+match:
+  distribution: 'TJENNESS/Tk-TextANSIColor-\d'
+test:
+  env:
+    DISPLAY: ":121"

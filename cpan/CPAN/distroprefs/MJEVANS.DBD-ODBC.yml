@@ -1,0 +1,10 @@
+---
+match:
+  distribution: 'MJEVANS/DBD-ODBC-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 5
+    talk:
+      - "Press return to continue"
+      - "\n"

@@ -1,0 +1,10 @@
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=79124
+  https://rt.cpan.org/Ticket/Display.html?id=79125
+
+match:
+  distribution: "BTROTT/Class-ErrorHandler-0.01.tar.gz"
+patches:
+  - "ANDK/patches/Class-ErrorHandler-0.01-ANDK-01-time-to-kill-autoinstall.diff.gz"

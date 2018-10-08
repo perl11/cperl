@@ -1,0 +1,12 @@
+---
+match:
+  distribution: 'BINGOS/POE-Component-Client-FTP-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 5
+    talk:
+      - "Do you want to enable optional TLS support"
+      - "y\n"
+      - "Do you want live network tests"
+      - "n\n"

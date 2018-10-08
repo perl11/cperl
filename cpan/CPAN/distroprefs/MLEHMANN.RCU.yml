@@ -1,0 +1,7 @@
+---
+match:
+  distribution: '/RCU-0\.021\.'
+pl:
+  expect:
+    - "both interfaces"
+    - "1\n"

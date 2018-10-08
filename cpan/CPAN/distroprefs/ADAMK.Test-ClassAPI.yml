@@ -1,0 +1,6 @@
+---
+comment: "See http://rt.cpan.org/Ticket/Display.html?id=25009"
+match:
+  distribution: "^ADAMK/Test-ClassAPI-1.03.tar.gz"
+patches:
+  - "ANDK/patches/Test-ClassAPI-1.03-ANDK-01.patch.gz"

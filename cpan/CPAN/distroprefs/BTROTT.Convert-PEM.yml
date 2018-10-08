@@ -1,0 +1,9 @@
+--- 
+match:
+  distribution: '^BTROTT/Convert-PEM-\d'
+pl: 
+  expect: 
+    - "Auto-install"
+    - "y\n"
+    - "Auto-install"
+    - "y\n"

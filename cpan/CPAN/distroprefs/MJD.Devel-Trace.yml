@@ -1,0 +1,7 @@
+---
+match:
+  distribution: "^MJD/Devel-Trace-0"
+test:
+  expect:
+    - "Press enter to execute this file"
+    - "\n"

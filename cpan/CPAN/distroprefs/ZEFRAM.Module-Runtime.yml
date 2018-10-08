@@ -1,0 +1,7 @@
+---
+comment: "skip taint.t test, see https://rt.perl.org/Public/Bug/Display.html?id=132235"
+match:
+  distribution: 'ZEFRAM/Module-Runtime-0.015.tar.gz'
+test:
+  args:
+    - TEST_FILES="t/dependency.t t/cmn.t t/import_error.t t/ivmn.t t/ivms.t t/mnf.t t/pod_cvg.t t/pod_syn.t t/rm.t t/um.t t/upo.t t/upo_overridden.t"

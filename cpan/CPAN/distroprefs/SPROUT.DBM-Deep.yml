@@ -1,0 +1,15 @@
+--- 
+match:
+  distribution: "(?:SPROUT|RKINYON)/DBM-Deep-\\d"
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    reuse: 1
+    talk:
+      - "Run the long-running tests"
+      - "y\n"
+      - "Run the tests against the DBI engine via SQLite"
+      - "y\n"
+      - "Run the tests against the DBI engine via MySQL"
+      - "n\n"

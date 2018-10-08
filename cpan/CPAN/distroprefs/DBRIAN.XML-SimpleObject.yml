@@ -1,0 +1,11 @@
+---
+comment: |
+
+    http://rt.cpan.org/Ticket/Display.html?id=27109
+
+match:
+  distribution: "^DBRIAN/XML-SimpleObject-0.53.tar.gz"
+depends:
+  configure_requires:
+    XML::Parser: 0
+    XML::LibXML: 0

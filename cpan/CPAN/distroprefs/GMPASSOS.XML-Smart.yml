@@ -1,0 +1,11 @@
+--- 
+match:
+  distribution: "GMPASSOS/XML-Smart-\\d"
+test:
+  eexpect:
+    mode: anyorder
+    timeout: 15
+    reuse: 1
+    talk:
+      - "Do you want to test XML::Smart with an URL"
+      - "n\n"

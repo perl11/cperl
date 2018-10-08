@@ -1,0 +1,18 @@
+---
+comment: |
+
+  I suspect some recent version of T:P:C (short before
+  2007-11-15T23:07) broke it and some skip silenced the test in many
+  cases. And I expect that with this build_requires below it fail
+  consistently.
+
+  No, it didn't fail consistently but frequently and I made it a report:
+
+  http://rt.cpan.org/Ticket/Display.html?id=31208
+
+match:
+  distribution: 'KRUSCOE/Tie-DxHash-\d'
+depends:
+  build_requires:
+    Test::Perl::Critic: 0
+    Test::Distribution: 0

@@ -1,0 +1,16 @@
+---
+comment: |
+
+  1.13 does not work with libsqlite 3.3.14. When I upgraded to 3.3.14
+  I had to add the USE_LOCAL_SQLITE to get the tests pass.
+
+match:
+  distribution: '^MSERGEANT/DBD-SQLite-\d'
+pl:
+  args:
+   - "USE_LOCAL_SQLITE=1"
+depends:
+  configure_requires:
+    DBI: 1.58
+  requires:
+    DBI: 1.58

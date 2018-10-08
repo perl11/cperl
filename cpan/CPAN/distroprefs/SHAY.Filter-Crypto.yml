@@ -1,0 +1,33 @@
+--- 
+comment: |
+
+  to accept all defaults, we could probably just set
+  PERL_MM_USE_DEFAULT but writing the options down is half the
+  way to "my preferences".
+
+match:
+  distribution: '^SHAY/Filter-Crypto-\d'
+pl:
+  eexpect:
+    mode: anyorder
+    reuse: 1
+    timeout: 10
+    talk:
+      - "Auto-install"
+      - "y\n"
+      - "Where is your OpenSSL or SSLeay"
+      - "\n"
+      - "Which cipher"
+      - "\n"
+      - "Which mode of operation"
+      - "\n"
+      - "What key length"
+      - "\n"
+      - "How do you want to specify or derive the key"
+      - "\n"
+      - "Which RNG do you want to use"
+      - "\n"
+      - "Which component"
+      - "\n"
+      - "Do you want to install 'crypt_file'"
+      - "y\n"

@@ -1,0 +1,7 @@
+---
+match:
+  distribution: '^OVID/TAPx-Parser-\d'
+pl:
+  expect:
+    - "Do you wish to install the 'runtests' utility"
+    - "y\n"

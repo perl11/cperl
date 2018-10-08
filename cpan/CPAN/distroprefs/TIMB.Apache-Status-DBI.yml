@@ -1,0 +1,9 @@
+---
+match:
+  distribution: 'TIMB/Apache-Status-DBI-\d'
+pl:
+  env:
+    MOD_PERL_API_VERSION: 1
+depends:
+  requires:
+    mod_perl: 1

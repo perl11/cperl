@@ -1,0 +1,10 @@
+---
+comment: |
+
+  reported as bug in RT ticket 23582
+
+match:
+  distribution: "MCEGLOWS/Bloom-Filter-1.0.tar.gz"
+depends:
+  requires:
+    Digest::SHA1: 0

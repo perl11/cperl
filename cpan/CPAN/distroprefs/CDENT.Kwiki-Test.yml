@@ -1,0 +1,10 @@
+---
+comment: |
+
+  http://rt.cpan.org/Ticket/Display.html?id=35762
+
+  Known to be broken since 2008-05, author seems uninterested.
+
+match:
+  distribution: "CDENT/Kwiki/Kwiki-Test-0.03.tar.gz"
+disabled: 1

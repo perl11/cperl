@@ -1,0 +1,6 @@
+--- 
+match:
+  distribution: "DCLEE/OpenOffice-Parse-SXC-\\d"
+depends:
+  requires:
+    XML::Parser: 0
