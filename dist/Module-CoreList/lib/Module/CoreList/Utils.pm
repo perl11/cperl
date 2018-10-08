@@ -1541,6 +1541,11 @@ our %delta :const = (
         changed => {},
         removed => {}
     },
+    '5.026004c' => {
+        delta_from => '5.026003c',
+        changed => {},
+        removed => {}
+    },
     '5.028001c' => {
         delta_from => '5.028000c',
         changed => {},

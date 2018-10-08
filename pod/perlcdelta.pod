@@ -200,6 +200,12 @@ Protect from including some avx512 intrinsics directly on mingw.
 
 ffi helpers and ffi types.
 
+=item L<File::Path> 3.16_01c
+
+Fix method of generating names for dummy users and groups during testing
+(i.e. under docker)
+L<[cpan #121967]|https://rt.cpan.org/Ticket/Display.html?id=121967>.
+
 =item L<Opcode> 1.40_03c
 
 Restrict the new op 'enterffi'.
@@ -209,7 +215,8 @@ Restrict the new op 'enterffi'.
 Enable >2GB AvFILL check on store_hook (64bit)
 Too many references returned by STORABLE_freeze.
 It wrapped around previously. Fixes Coverity CID #187854.
-Move __Storable__.pm into Storable_pm.PL [cperl #374]
+Move __Storable__.pm into Storable_pm.PL
+L<[cperl #374]|https://github.com/perl11/cperl/issues/374>
 
 =item L<warnings> 1.43
 
