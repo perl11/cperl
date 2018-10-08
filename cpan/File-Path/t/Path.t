@@ -3,7 +3,7 @@
 
 use strict;
 
-use Test::More tests => 165;
+use Test::More tests => 172;
 use Config;
 use Fcntl ':mode';
 use lib './t';
@@ -432,6 +432,8 @@ SKIP: {
 
     remove_tree($dir);
     remove_tree($file);
+    ok(! -e $dir, "$dir removed");
+    ok(! -e $file, "$file removed");
 }
 
 # see what happens if a file exists where we want a directory
@@ -933,4 +935,34 @@ SKIP: {
     is(scalar(@created), 3, "Provide valid 'owner' and 'group' 'group' arguments: 3 subdirectories created");
 
     cleanup_3_level_subdirs($least_deep);
+}
+
+SKIP: {
+    # bug with symlink to another mountpoint, i.e. different inode
+    skip "Symlinks not available", 5 unless $Config{d_symlink};
+    skip "~/Perl mountpoint not available", 5 unless -d "$ENV{HOME}/Perl";
+
+    $dir  = "$ENV{HOME}/Perl/tmpbug-cpan";
+    $dir2 = '/tmp/tmpbug-cpan-symlink';
+    my $cwd = Cwd::abs_path(Cwd::getcwd());
+
+    @created = make_path($dir, {mask => 0700});
+    symlink($dir, $dir2);
+    ok(-l $dir2, "setup bug-cpan symlink") or diag($dir2);
+
+    chdir($dir2);
+    @created = make_path("subdir",
+                         "subdir/dir1",
+                         "subdir/dir1/dir2",
+                         {mask => 0700});
+    is( scalar @created, 3, 'symlink setup' );
+ 
+    remove_tree("subdir");
+    ok(! -e "subdir", "subdir removed");
+
+    chdir($cwd);
+    remove_tree($dir2);
+    remove_tree($dir);
+    ok(! -e $dir2, "$dir2 removed");
+    ok(! -e $dir, "$dir removed");
 }
