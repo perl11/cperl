@@ -527,7 +527,7 @@ BEGIN {
 use vars qw($VERSION $header);
 
 # bump to X.XX in blead, only use X.XX_XX in maint
-$VERSION = '1.53_01c';
+$VERSION = '1.54_01c';
 
 $header = "perl5db.pl version $VERSION";
 
@@ -2936,7 +2936,7 @@ and then we look up the line in the magical C<%dbline> hash.
 =head4 C<-> - back one window
 
 We change C<$start> to be one window back; if we go back past the first line,
-we set it to be the first line. We ser C<$incr> to put us back at the
+we set it to be the first line. We set C<$incr> to put us back at the
 currently-executing line, and then put a C<l $start +> (list one window from
 C<$start>) in C<$cmd> to be executed later.
 

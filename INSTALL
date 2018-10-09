@@ -2689,7 +2689,7 @@ completely removed.
 X<PERL_INTERNAL_RAND_SEED>
 
 If you configure perl with C<-Accflags=-DNO_PERL_INTERNAL_RAND_SEED>,
-perl will ignore the C<PERL_INTERNAL_RAND_SEED> enviroment variable.
+perl will ignore the C<PERL_INTERNAL_RAND_SEED> environment variable.
 
 =head1 DOCUMENTATION
 
