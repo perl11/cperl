@@ -551,11 +551,6 @@ C<grok_atoUV> supports that too now.
 
 =head1 Selected Bug Fixes
 
-XXX Important bug fixes in the core language are summarized here.  Bug fixes in
-files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
-
-[ List each fix as an =item entry ]
-
 =over 4
 
 =item *
@@ -602,6 +597,14 @@ L<[perl #133547]|https://rt.perl.org/Public/Bug/Display.html?id=133547>
 
 Improve the debugging output for calloc() calls with C<-Dm>.
 L<[perl #133439]|https://rt.perl.org/Public/Bug/Display.html?id=133439>
+
+=item *
+
+On Unix-like systems supporting a platform-specific technique for
+determining L<< C<$^X>|perlvar/$^X >>, Perl failed to fall back to the
+generic technique when the platform-specific one fails (for example, a Linux
+system with F</proc> not mounted).  This was a regression in Perl 5.28.0.
+L<[perl #133573]|https://rt.perl.org/Public/Bug/Display.html?id=133573>
 
 =back
 
