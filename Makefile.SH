@@ -593,12 +593,19 @@ common_objs    = $(obj1) $(obj2) $(obj3) $(ARCHOBJS)
 mini_only_objs = perlmini$(OBJ_EXT) opmini$(OBJ_EXT) xsutilsmini$(OBJ_EXT) ppmini$(OBJ_EXT)
 main_only_objs = op$(OBJ_EXT) perl$(OBJ_EXT) xsutils$(OBJ_EXT) pp$(OBJ_EXT)
 
+common_dwo = $(obj1:.o=.dwo) $(obj2:.o=.dwo) $(obj3:.o=.dwo) $(ARCHOBJS:.o=.dwo)
+mini_only_dwo = $(mini_only_objs:$(OBJ_EXT)=.dwo)
+main_only_dwo = $(main_only_objs:$(OBJ_EXT)=.dwo)
+
 miniperl_objs_nodt = $(obj1) perlmini$(OBJ_EXT) miniperlmain$(OBJ_EXT) \
                      $(obj2) opmini$(OBJ_EXT) $(obj3) ppmini$(OBJ_EXT) \
                      $(obj4) xsutilsmini$(OBJ_EXT) $(obj5) $(ARCHOBJS)
 perllib_objs_nodt  = $(obj1) perl$(OBJ_EXT) \
                      $(obj2) op$(OBJ_EXT) $(obj3) pp$(OBJ_EXT) \
                      $(obj4) xsutils$(OBJ_EXT) $(obj5) $(ARCHOBJS)
+
+miniperl_dwo_nodt = $(miniperl_objs_nodt:$(OBJ_EXT)=.dwo)
+perllib_dwo_nodt  = $(perllib_objs_nodt:$(OBJ_EXT)=.dwo) $(common_dwo)
 
 !NO!SUBS!
 
@@ -616,15 +623,19 @@ define:define)
     $spitshell >>$Makefile <<'!NO!SUBS!'
 
 miniperl_dtrace_objs = $(miniperl_objs_nodt:%=mpdtrace/%)
-perllib_dtrace_objs = $(perllib_objs_nodt:%=libpdtrace/%)
+perllib_dtrace_objs  = $(perllib_objs_nodt:%=libpdtrace/%)
 perlmain_dtrace_objs = maindtrace/perlmain$(OBJ_EXT)
 
 miniperl_objs = $(miniperl_dtrace_objs) $(DTRACE_MINI_O)
 perllib_objs  = $(perllib_dtrace_objs) $(DTRACE_PERLLIB_O)
 perlmain_objs = $(perlmain_dtrace_objs) $(DTRACE_MAIN_O)
 
+miniperl_dwo = $(miniperl_dtrace_objs:$(OBJ_EXT)=.dwo) $(DTRACE_MINI_O:$(OBJ_EXT)=.dwo)
+perllib_dwo  = $(perllib_dtrace_objs:$(OBJ_EXT)=.dwo) $(DTRACE_PERLLIB_O:$(OBJ_EXT)=.dwo)
+perlmain_dwo = maindtrace/perlmain.dwo $(DTRACE_MAIN_O:$(OBJ_EXT)=.dwo)
+
 miniperl_dep = $(DTRACE_MINI_O)
-perllib_dep = $(DTRACE_PERLLIB_O)
+perllib_dep  = $(DTRACE_PERLLIB_O)
 perlmain_dep = $(DTRACE_MAIN_O)
 
 !NO!SUBS!
@@ -636,8 +647,12 @@ miniperl_objs = $(miniperl_objs_nodt) $(DTRACE_MINI_O)
 perllib_objs  = $(perllib_objs_nodt) $(DTRACE_PERLLIB_O)
 perlmain_objs = perlmain$(OBJ_EXT) $(DTRACE_MAIN_O)
 
+miniperl_dwo = $(miniperl_dwo_nodt) $(DTRACE_MINI_O:$(OBJ_EXT)=.dwo)
+perllib_dwo  = $(perllib_dwo_nodt) $(DTRACE_PERLLIB_O:$(OBJ_EXT)=.dwo)
+perlmain_dwo = perlmain.dwo $(DTRACE_MAIN_O:$(OBJ_EXT)=.dwo)
+
 miniperl_dep = $(miniperl_objs)
-perllib_dep = $(perllib_objs)
+perllib_dep  = $(perllib_objs)
 perlmain_dep = $(perlmain_objs)
 
 !NO!SUBS!
@@ -745,6 +760,23 @@ utilities:	utils/Makefile $util_deps
 FORCE:
 	@sh -c true
 !GROK!THIS!
+
+case "$ccflags" in
+    *-gsplit-dwarf*) $spitshell >>$Makefile <<'!NO!SUBS!'
+DWP          = dwp
+DWP_MINIPERL = $(DWP) -o miniperl.dwp $(miniperl_dwo)
+DWP_PERL     = $(DWP) -o perl.dwp $(perllib_dwo)
+DWP_LIBPERL  = $(DWP) -o libperl.dwp $(perllib_objs:$(OBJ_EXT)=.dwo)
+!NO!SUBS!
+                     ;;
+    *) $spitshell >>$Makefile <<'!NO!SUBS!'
+DWP          = echo
+DWP_MINIPERL =
+DWP_PERL     =
+DWP_LIBPERL  = echo
+!NO!SUBS!
+       ;;
+esac
 
 for file in op perl xsutils pp; do
     if $issymlink $file.c; then
@@ -875,10 +907,12 @@ MINIPERL_NONSHR		= miniperl_nonshr$(EXE_EXT)
 $(LIBPERL_NONSHR): $(perllib_objs)
 	$(RMS) $(LIBPERL_NONSHR)
 	$(AR) $(ARFLAGS) $(LIBPERL_NONSHR) $(perllib_objs)
+        $(DWP_LIBPERL)
 
 $(MINIPERL_NONSHR): $(LIBPERL_NONSHR) miniperlmain$(OBJ_EXT) $(mini_only_objs)
 	$(LD) $(LDFLAGS) -o $(MINIPERL_NONSHR) miniperlmain$(OBJ_EXT) \
 	    $(mini_only_objs) $(LIBPERL_NONSHR) $(miniperllibs)
+	$(DWP_MINIPERL)
 
 MINIPERLEXP		= $(MINIPERL_NONSHR)
 
@@ -922,6 +956,7 @@ $(LIBPERL_NONSHR): $(perllib_objs)
 	$(RMS) $(LIBPERL_NONSHR)
 	$(AR) $(ARFLAGS) $(LIBPERL_NONSHR) $(perllib_objs)
 	touch $(LIBPERL_NONSHR)
+	$(DWP_LIBPERL)
 
 !NO!SUBS!
 	;;
@@ -984,6 +1019,7 @@ $(LIBPERL): $& $(perllib_dep) $(DYNALOADER) $(LIBPERLEXPORT)
 		$spitshell >>$Makefile <<'!NO!SUBS!'
 	rm -f $@
 	$(LD) -o $@ $(SHRPLDFLAGS) $(perllib_objs) $(DYNALOADER) $(libs)
+	$(DWP_LIBPERL) $(DYNALOADER:$(OBJ_EXT)=.dwo)
 !NO!SUBS!
 		case "$osname" in
 		aix)
@@ -1044,6 +1080,7 @@ lib/buildcustomize.pl: $& $(miniperl_objs) write_buildcustomize.pl
 	$(LD) $(CLDFLAGS) -o $(MINIPERL_EXE) $(miniperl_objs) $(miniperllibs)
 #	$(LDLIBPTH) ./miniperl$(HOST_EXE_EXT) -w -Ilib -Idist/Exporter/lib -MExporter -e '<?>' || sh -c 'echo >&2 Failed to build miniperl.  Please run make minitest; exit 1'
 	$(MINIPERL) $(WRITE_BUILDCUSTOMIZE)
+	$(DWP_MINIPERL)
 !NO!SUBS!
 		;;
 	aix*)
@@ -1054,6 +1091,7 @@ lib/buildcustomize.pl: $& $(miniperl_objs)
 	$(MINIPERL) make_patchnum.pl && \
 	  $(MINIPERL) configpm && \
 	  $(MINIPERL) $(WRITE_BUILDCUSTOMIZE)
+	$(DWP_MINIPERL)
 !NO!SUBS!
 		;;
 	next4*)
@@ -1064,6 +1102,7 @@ lib/buildcustomize.pl: $& $(miniperl_objs) write_buildcustomize.pl
 	$(MINIPERL) make_patchnum.pl && \
 	  $(MINIPERL) configpm && \
 	  $(MINIPERL) $(WRITE_BUILDCUSTOMIZE)
+	$(DWP_MINIPERL)
 !NO!SUBS!
 		;;
 	darwin*)
@@ -1085,6 +1124,7 @@ NAMESPACEFLAGS = -force_flat_namespace
 lib/buildcustomize.pl: $& $(miniperl_objs) write_buildcustomize.pl
 	-@rm -f miniperl.xok
 	$(LD) $(CLDFLAGS) $(NAMESPACEFLAGS) -o $(MINIPERL_EXE) $(miniperl_objs) $(miniperllibs)
+	$(DWP_MINIPERL)
 !NO!SUBS!
                 case "$ccflags" in
                     *-DDEBUGGING*) $spitshell >>$Makefile <<'!NO!SUBS!'
@@ -1097,6 +1137,7 @@ lib/buildcustomize.pl: $& $(miniperl_objs) write_buildcustomize.pl
 	$(MINIPERL) make_patchnum.pl && \
 	  $(MINIPERL) configpm && \
 	  $(MINIPERL) $(WRITE_BUILDCUSTOMIZE)
+	$(DWP_MINIPERL)
 !NO!SUBS!
 		;;
 	*)
@@ -1110,6 +1151,7 @@ lib/buildcustomize.pl: \$& \$(miniperl_dep) write_buildcustomize.pl
 	\$(MINIPERL) make_patchnum.pl && \
 	  \$(MINIPERL) configpm && \
 	  \$(MINIPERL) $(WRITE_BUILDCUSTOMIZE) 'osname' "$osname"
+	\$(DWP_MINIPERL)
 !GROK!THIS!
 		else
 			$spitshell >>$Makefile <<'!NO!SUBS!'
@@ -1120,6 +1162,7 @@ lib/buildcustomize.pl: $& $(miniperl_dep) write_buildcustomize.pl
 	$(MINIPERL) make_patchnum.pl && \
 	  $(MINIPERL) configpm && \
 	  $(MINIPERL) $(WRITE_BUILDCUSTOMIZE)
+	$(DWP_MINIPERL)
 !NO!SUBS!
 		fi
 		;;
@@ -1140,6 +1183,7 @@ $(PERL_EXE): $& $(perlmain_dep) $(LIBPERL) $(static_ext) ext.libs $(PERLEXPORT) 
         ;;
         os390) $spitshell >>$Makefile <<'!NO!SUBS!'
 	$(SHRPENV) $(LD) -o perl $(CLDFLAGS) $(CCDLFLAGS) $(perlmain_objs) $(LLIBPERL) $(static_ext) `cat ext.libs` $(libs)
+	$(DWP_PERL)
 !NO!SUBS!
         ;;
 
@@ -1151,6 +1195,7 @@ $(PERL_EXE): $& $(perlmain_dep) $(LIBPERL) $(static_ext) ext.libs $(PERLEXPORT) 
 	       ;;
 	    *) $spitshell >>$Makefile <<'!NO!SUBS!'
 	$(SHRPENV) $(LD) -o perl $(CLDFLAGS) $(CCDLFLAGS) $(perlmain_objs) $(static_ext) $(LLIBPERL) `cat ext.libs` $(libs)
+	$(DWP_PERL)
 !NO!SUBS!
 	       ;;
 	    esac
@@ -1164,6 +1209,7 @@ $(PERL_EXE): $& $(perlmain_dep) $(LIBPERL) $(static_ext) ext.libs $(PERLEXPORT) 
 
         *) $spitshell >>$Makefile <<'!NO!SUBS!'
 	$(SHRPENV) $(LD) -o perl $(CLDFLAGS) $(CCDLFLAGS) $(perlmain_objs) $(static_ext) $(LLIBPERL) `cat ext.libs` $(libs)
+	$(DWP_PERL)
 !NO!SUBS!
         ;;
         esac
@@ -1175,6 +1221,7 @@ perl.devel: $(MINIPERL_EXE) $(perllib_objs)
 	`sh $(shellflags) cflags "optimize='$(OPTIMIZE)'" perlmain.o` $(PLDLFLAGS) perlmain.c
 	$(SHRPENV) $(LD) -o $@ $(CLDFLAGS) $(CCDLFLAGS) $(perlmain_objs) \
             $(perllib_objs) $(DYNALOADER) `cat ext.libs` $(libs)
+	$(DWP) -o perl.devel.dwp $(perlmain_dwo) $(perllib_dwo) $(DYNALOADER:$(OBJ_EXT)=.dwo)
 !NO!SUBS!
         if test x$osname = xdarwin; then
 	    $spitshell >>$Makefile <<'!NO!SUBS!'
@@ -1685,6 +1732,7 @@ archclean:
 	-mv cflags.orig cflags
 	-rm $(PERL_EXE) $(MINIPERL_EXE) $(LIBPERL) lib/buildcustomize.pl *.o
 	find . -type f -name \*$(OBJ_EXT) -o -name \*$(LIB_EXT) -o -name \*$(DLSUFFIX) -delete
+	find . -type f -name \*.dwo -o -name \*.dwp -delete
 	find lib cpan ext dist -type f -name pm_to_blib -delete
 
 # Like distclean but also removes emacs backups and *.orig.
@@ -1694,6 +1742,7 @@ veryclean:	_verycleaner _mopup _clobber
 # Do not 'make _mopup' directly.
 _mopup:
 	rm -f *$(OBJ_EXT) *$(LIB_EXT) all perlmain.c opmini.c perlmini.c xsutilsmini.c ppmini.c generate_uudmap$(EXE_EXT) $(generated_headers)
+	-rm -f *.dwp *.dwo
 	-rmdir .depending
 	-@test -f extra.pods && rm -f `cat extra.pods`
 	-@test -f vms/README_vms.pod && rm -f vms/README_vms.pod
