@@ -3175,7 +3175,7 @@ AMo	|void|PerlIO_destruct
 
 : Only used in dump.c
 p	|void	|deb_stack_all
-#if defined(PERL_IN_DEB_C)
+#if defined(PERL_IN_DEB_C) && defined(DEBUGGING)
 s	|void	|deb_stack_n	|NN SV** stack_base|I32 stack_min \
 				|I32 stack_max|I32 mark_min|I32 mark_max
 #endif

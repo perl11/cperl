@@ -8438,7 +8438,7 @@ STATIC MAGIC*	S_get_aux_mg(pTHX_ AV *av)
 	assert(av)
 
 #endif
-#if defined(PERL_IN_DEB_C)
+#if defined(PERL_IN_DEB_C) && defined(DEBUGGING)
 STATIC void	S_deb_stack_n(pTHX_ SV** stack_base, I32 stack_min, I32 stack_max, I32 mark_min, I32 mark_max)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DEB_STACK_N	\

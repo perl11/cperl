@@ -108,11 +108,11 @@ Perl_debstackptrs(pTHX)
  * Only displays top 30 max
  */
 
+#ifdef DEBUGGING
 STATIC void
 S_deb_stack_n(pTHX_ SV** stack_base, I32 stack_min, I32 stack_max,
-	I32 mark_min, I32 mark_max)
+                    I32 mark_min, I32 mark_max)
 {
-#ifdef DEBUGGING
     I32 i = stack_max - 30;
     const I32 *markscan = PL_markstack + mark_min;
 
@@ -146,15 +146,8 @@ S_deb_stack_n(pTHX_ SV** stack_base, I32 stack_min, I32 stack_max,
     }
     while (1);
     PerlIO_printf(Perl_debug_log, "\n");
-#else
-    PERL_UNUSED_CONTEXT;
-    PERL_UNUSED_ARG(stack_base);
-    PERL_UNUSED_ARG(stack_min);
-    PERL_UNUSED_ARG(stack_max);
-    PERL_UNUSED_ARG(mark_min);
-    PERL_UNUSED_ARG(mark_max);
-#endif /* DEBUGGING */
 }
+#endif /* DEBUGGING */
 
 
 /* dump the current stack */
