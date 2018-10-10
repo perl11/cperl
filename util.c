@@ -4099,7 +4099,11 @@ Perl_my_strftime(pTHX_ const char *fmt, int sec, int min, int hour, int mday, in
 
 =for apidoc getcwd_sv
 
-Fill C<sv> with current working directory
+Fill C<sv> with current working directory, supporting long pathnames.
+Implements the insecure fastcwd API, without resolving symlinks.
+This is the more dangerous variant because you might chdir out of a
+directory that you can't chdir back into. For the safe variant prepend
+it with abs_path.
 
 =cut
 */
@@ -4108,10 +4112,7 @@ Fill C<sv> with current working directory
  * rewritten again by dougm, optimized for use with xs TARG, and to prefer
  * getcwd(3) if available.
  * Fixed by Reini Urban to work with long paths.
- * Comments from the original:
- *     This is a faster version of getcwd.  It's also more dangerous
- *     because you might chdir out of a directory that you can't chdir
- *     back into. */
+ */
 
 int
 Perl_getcwd_sv(pTHX_ SV *sv)
@@ -4129,11 +4130,11 @@ Perl_getcwd_sv(pTHX_ SV *sv)
 
     {
         char *ptr;
-	/* Some getcwd()s automatically allocate a buffer of the given
-	 * size from the heap if they are given a NULL buffer pointer. */
 #if defined(HAS_GET_CURRENT_DIR_NAME)
         ptr = get_current_dir_name();
 #elif defined(HAS_GETCWDNULL)
+	/* Some getcwd()s automatically allocate a buffer of the given
+	 * size from the heap if they are given a NULL buffer pointer. */
         ptr = getcwd(NULL, 0);
 #else
 #  ifdef ENAMETOOLONG

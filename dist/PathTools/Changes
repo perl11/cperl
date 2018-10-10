@@ -1,5 +1,10 @@
 Revision history for Perl distribution PathTools.
 
+4.75c - 2018-10-10 13:28:36 rurban
+- Enable get_current_dir_name, fix is_ENAMETOOLONG macro.
+- Seperate getcwd from fastcwd in the XS.
+- Fix getcwd leak.
+
 4.74c
 - No changes.
 

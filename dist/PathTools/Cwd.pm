@@ -714,8 +714,8 @@ absolute path of the current working directory.
 
     my $cwd = getcwd();
 
-Returns the current working directory.  On error returns C<undef>,
-with C<$!> set to indicate the error.
+Returns the current working directory. Symlinks are resolved.
+On error returns C<undef>, with C<$!> set to indicate the error.
 
 Exposes the POSIX function getcwd(3) or re-implements it if it's not
 available.
@@ -725,14 +725,16 @@ available.
     my $cwd = cwd();
 
 The cwd() is the most natural form for the current architecture.  For
-most systems it is identical to `pwd` (but without the trailing line
-terminator).
+most systems it is identical to `pwd`, but without the trailing line
+terminator. I.e. it will not resolve symlinks, the same as fastcwd,
+just slower.
 
 =item fastcwd
 
     my $cwd = fastcwd();
 
-A more dangerous version of getcwd(), but potentially faster.
+A more dangerous version of getcwd(), without resolving symlinks,
+but potentially faster.
 
 It might conceivably chdir() you out of a directory that it can't
 chdir() you back into.  If fastcwd encounters a problem it will return
@@ -818,7 +820,7 @@ modules wherever portability is a concern.
 
 =item *
 
-Actually, on Mac OS, the C<getcwd()>, C<fastgetcwd()> and C<fastcwd()>
+Actually, on MacOS classic, the C<getcwd()>, C<fastgetcwd()> and C<fastcwd()>
 functions are all aliases for the C<cwd()> function, which, on Mac OS,
 calls `pwd`.  Likewise, the C<abs_path()> function is an alias for
 C<fast_abs_path()>.
