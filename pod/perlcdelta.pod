@@ -198,6 +198,9 @@ Fixed long pathnames test for getcwd() on older systems, like debian-7.11 i386,
 which still returns ENAMETOOLONG on large enough buffers.
 
 Fix the HAS_GET_CURRENT_DIR_NAME check, and the is_ENAMETOOLONG macro.
+Note that C<get_current_dir_name()> is now in effect, which returns
+the current PWD, i.e. fastcwd, and not the C<realpath()> (i.e the
+abs_path) of it. This e.g. broke some DBD::File tests, when behind symlinks.
 
 For getcwd with C<get_current_dir_name()> - i.e. fastcwd - add abs_path.
 See also L<http://perl11.org/blog/fastcwd.html>
