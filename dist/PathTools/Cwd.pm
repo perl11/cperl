@@ -320,7 +320,6 @@ if (not defined &fastcwd) { *fastcwd = \&fastcwd_ }
 #	chdir $newdir;
 
 my $chdir_init = 0;
-
 sub chdir_init () {
     if ($ENV{'PWD'} and $^O ne 'os2' and $^O ne 'dos' and $^O ne 'MSWin32') {
 	my($dd,$di) = stat('.');
@@ -386,7 +385,7 @@ sub chdir (str $newdir='') {
 	}
 	$ENV{'PWD'} = join('/',@curdir) || '/';
     }
-    1;
+    1
 }
 
 

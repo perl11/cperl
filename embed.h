@@ -176,6 +176,7 @@
 #define dump_vindent(a,b,c,d)	Perl_dump_vindent(aTHX_ a,b,c,d)
 #define eval_pv(a,b)		Perl_eval_pv(aTHX_ a,b)
 #define eval_sv(a,b)		Perl_eval_sv(aTHX_ a,b)
+#define fastcwd_sv(a)		Perl_fastcwd_sv(aTHX_ a)
 #define fbm_compile(a,b)	Perl_fbm_compile(aTHX_ a,b)
 #define fbm_instr(a,b,c,d)	Perl_fbm_instr(aTHX_ a,b,c,d)
 #define field_index(a,b)	Perl_field_index(aTHX_ a,b)

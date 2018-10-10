@@ -1596,6 +1596,12 @@ PERL_CALLCONV I32	Perl_eval_sv(pTHX_ SV* sv, I32 flags)
 #define PERL_ARGS_ASSERT_EVAL_SV	\
 	assert(sv)
 
+PERL_CALLCONV int	Perl_fastcwd_sv(pTHX_ SV* sv)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_FASTCWD_SV	\
+	assert(sv)
+
 PERL_CALLCONV void	Perl_fbm_compile(pTHX_ SV* sv, U32 flags)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);

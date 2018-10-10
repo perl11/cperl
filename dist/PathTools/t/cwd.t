@@ -1,10 +1,11 @@
 #!./perl -w
 
 use strict;
-
 use Cwd;
 
-chdir 't';
+#print STDERR "# ",fastcwd(),"\n";
+chdir 't';     # potentially affecting symlinks
+#print STDERR "# ",fastcwd(),"\n";
 @INC = '../../../lib' if $ENV{PERL_CORE};
 
 use Config;
@@ -37,7 +38,7 @@ if ($IsVMS) {
     $vms_mode = 0 if ($vms_unix_rpt);
 }
 
-my $tests = 32;
+my $tests = 34;
 # _perl_abs_path() currently only works when the directory separator
 # is '/', so don't test it when it won't work.
 my int $EXTRA_ABSPATH_TESTS = ($Config{prefix} =~ m/\//) && $^O ne 'cygwin';
@@ -64,9 +65,9 @@ ok( !defined(&fast_abs_path),   '  nor fast_abs_path()');
   is($before, $after, "cwd() shouldn't create spurious entries in %ENV");
 }
 
-# XXX force Cwd to bootstrap its XSUBs since we have set @INC = "../lib"
-# XXX and subsequent chdir()s can make them impossible to find
-eval { fastcwd };
+# force Cwd to bootstrap its XSUBs since we have set @INC = "../lib"
+# and subsequent chdir()s can make them impossible to find
+my $fwd = fastcwd();
 
 # Must find an external pwd (or equivalent) command.
 
@@ -130,10 +131,10 @@ SKIP: {
 	my $fastcwd    = fastcwd;
 	my $fastgetcwd = fastgetcwd;
 
-	is($cwd,        $start, 'cwd()');
-	is($getcwd,     $start, 'getcwd()');
-	is($fastcwd,    $start, 'fastcwd()');
-	is($fastgetcwd, $start, 'fastgetcwd()');
+	is($cwd,        $start, "cwd $cwd");
+	is($getcwd,     $start, "getcwd $getcwd");
+	is($fastcwd,    $start, "fastcwd $fastcwd");
+	is($fastgetcwd, $start, "fastgetcwd $fastgetcwd");
     }
 }
 
@@ -258,13 +259,36 @@ SKIP: {
   rmdir $dir;
 }
 
-# long paths
+# long paths, fastcwd vs symlinks
 SKIP: {
-  skip "no getcwdnull/d_realpath", 2 if !$Config{getcwdnull} or !$Config{d_realpath};
+  skip "no getcwdnull/d_realpath", 4 if !$Config{getcwdnull} or !$Config{d_realpath};
+
+  chdir ($fwd);
   my $long = '.t'."x" x 250;
+  my $sym;
   my $root = getcwd();
+  my ($lpwd, $lfwd);
   my ($i,$max) = (1,0);
-  for (0..16) { # > 4096
+  if ($Config{d_symlink}) {
+    $sym = ".sym";
+    mkdir($long);
+    if ( eval { symlink($long, $sym); 1 } && -e $sym) {
+      chdir ($sym);
+      $lpwd = getcwd();
+      $lfwd = fastcwd();
+    } else {
+      $sym = undef;
+      rmdir ($long);
+    }
+  }
+  if ($sym) {
+    is ($lpwd, Cwd::abs_path($lpwd), "getcwd resolves symlink len=".length($lpwd));
+  } else {
+    ok (1, "skip no symlink");
+  }
+
+  my $count = $sym ? 15 : 16;
+  for (0 .. $count) { # > 4096
     $max = $i;
     if ($i && mkdir($long) && chdir($long)) {
       $i++;
@@ -273,13 +297,17 @@ SKIP: {
     }
   }
   my $pwd = getcwd() || '';
+  # here pwd is normally empty
   # cannot access parent directories: File name too long
-  ok ($i && !$! ? length($pwd)>255 : 1, "cwd long path depth=$max len=".length($pwd)." $!");
+  ok ($i && !$! ? length($pwd)>255 : 1, "getcwd long path depth=$max len=".length($pwd)." $!");
+  my $fwd = fastcwd() || '';
+  ok ($i && !$! ? length($fwd)>255 : 1, "fastcwd long path depth=$max len=".length($fwd)." $!");
+
   my $real = Cwd::abs_path($pwd) || '';
-  # FIXME
   ok (!$pwd || length($real)>255 || 1, "realpath long path len=".length($real));
   chdir $root;
   rmtree $long;
+  rmtree $sym if $sym;
 }
 
 #############################################
