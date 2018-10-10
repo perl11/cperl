@@ -270,14 +270,44 @@ return FALSE
         (dp->d_name[1] == '.' && dp->d_name[2] == '\0')))
 #endif
 
-#ifndef getcwd_sv
+#ifndef fastcwd_sv
+
 /* Taken from cperl 5.27's util.c, supporting long pathnames.
-   Implements fastcwd, without resolving symlinks.
-   This is the more dangerous variant because you might chdir out of a
-   directory that you can't chdir back into. For the safe variant prepend
-   it with abs_path.
+   Implements fastcwd, on linux with glibc (with get_current_dir_name).
+   This is the potentially more dangerous variant because you might chdir
+   out of a directory that you can't chdir back into. For the safe variant
+   prepend it with abs_path or use getcwd.
  */
+#define fastcwd_sv(a) Perl_fastcwd_sv(aTHX_ a)
+int Perl_fastcwd_sv(pTHX_ SV *sv)
+{
+    char *ptr;
+#if defined(HAS_GET_CURRENT_DIR_NAME) /* glibc: */
+    ptr = get_current_dir_name();     /* resolves symlinks after the first chdir, before not */
+#elif defined(HAS_GETCWDNULL)
+    /* Some getcwd()s automatically allocate a buffer of the given
+     * size from the heap if they are given a NULL buffer pointer. */
+    ptr = getcwd(NULL, 0);            /* resolves symlinks always */
+#else
+    return getcwd_sv(sv);
+#endif
+    if (ptr) {
+        sv_setpv(sv, ptr);
+        SvTAINTED_on(sv);
+        free(ptr);
+        return TRUE;
+    }
+    else {
+        SV_CWD_RETURN_UNDEF;
+    }
+}
+#endif
+
+#ifndef getcwd_sv
 #define getcwd_sv(a) Perl_getcwd_sv(aTHX_ a)
+/* Taken from cperl 5.27's util.c, supporting long pathnames.
+   Implements getcwd, this is the safe variant, always resolving symlinks.
+ */
 int Perl_getcwd_sv(pTHX_ SV *sv)
 {
 #ifndef PERL_MICRO
@@ -292,8 +322,8 @@ int Perl_getcwd_sv(pTHX_ SV *sv)
 
     {
         char *ptr;
-#if defined(HAS_GET_CURRENT_DIR_NAME)
-        ptr = get_current_dir_name();
+#if defined(HAS_GET_CURRENT_DIR_NAME)     /* glibc: */
+        ptr = get_current_dir_name();     /* resolves symlinks after the first chdir, before not */
 #elif defined(HAS_GETCWDNULL)
 	/* Some getcwd()s automatically allocate a buffer of the given
 	 * size from the heap if they are given a NULL buffer pointer. */
@@ -317,10 +347,20 @@ int Perl_getcwd_sv(pTHX_ SV *sv)
             }
             if (!ptr)
                 free(mbuf);
+            else {
+                sv_setpv(sv, ptr);
+                SvTAINTED_on(sv);
+                free(mbuf);
+                return TRUE;
+            }
         }
 #endif
         if (ptr) {
 	    sv_setpv(sv, ptr);
+            SvTAINTED_on(sv);
+#if defined(HAS_GET_CURRENT_DIR_NAME) || defined(HAS_GETCWDNULL)
+            free(ptr);
+#endif
 	    return TRUE;
 	}
 	else {
@@ -440,6 +480,7 @@ int Perl_getcwd_sv(pTHX_ SV *sv)
 		   "current directory changed unexpectedly");
     }
 
+    SvTAINTED_on(sv);
     return TRUE;
   }
 #endif
@@ -449,7 +490,7 @@ int Perl_getcwd_sv(pTHX_ SV *sv)
 #endif
 }
 
-#endif
+#endif /* !getcwd_sv */
 
 #if defined(START_MY_CXT) && defined(MY_CXT_CLONE)
 # define USE_MY_CXT 1
@@ -592,18 +633,17 @@ _abs_path(pTHX_ SV* pathsv)
     if (Perl_rmsexpand(aTHX_ path, buf, NULL, 0)) {
 	sv_setpv_mg(TARG, buf);
         SvPOK_only(TARG);
-	SvTAINTED_on(TARG);
+        SvTAINTED_on(TARG);
     }
 #else
     if (bsd_realpath(path, buf)) {
 	sv_setpv_mg(TARG, buf);
         SvPOK_only(TARG);
-	SvTAINTED_on(TARG);
+        SvTAINTED_on(TARG);
     }
 #endif
     else
         sv_setsv(TARG, &PL_sv_undef);
-    SvTAINTED_on(TARG);
     return TARG;
 }
 
@@ -635,23 +675,32 @@ PROTOTYPES: ENABLE
 void
 getcwd()
 PROTOTYPE:
-ALIAS:
-    fastcwd=1
 PPCODE:
 {
     dXSTARG;
     getcwd_sv(TARG);
-    XSprePUSH; PUSHTARG;
-    SvTAINTED_on(TARG);
 #if defined(HAS_GET_CURRENT_DIR_NAME)
-    if (ix != 1) {
+    {   /* Force resolving symlinks */
         SV* sv = _abs_path(aTHX_ TARG);
         PUSHs(sv);
+        SvTAINTED_on(sv);
         XSRETURN(1);
     }
 #else
-    PERL_UNUSED_ARG(ix);
+    XSprePUSH; PUSHTARG;
+    SvTAINTED_on(TARG);
 #endif
+}
+
+void
+fastcwd()
+PROTOTYPE:
+PPCODE:
+{
+    dXSTARG;
+    fastcwd_sv(TARG);
+    XSprePUSH; PUSHTARG;
+    SvTAINTED_on(TARG);
 }
 
 void

@@ -4097,17 +4097,14 @@ Perl_my_strftime(pTHX_ const char *fmt, int sec, int min, int hour, int mday, in
 /*
 =head1 Miscellaneous Functions
 
+/*
 =for apidoc getcwd_sv
 
 Fill C<sv> with current working directory, supporting long pathnames.
-Implements the insecure fastcwd API, without resolving symlinks.
-This is the more dangerous variant because you might chdir out of a
-directory that you can't chdir back into. For the safe variant prepend
-it with abs_path.
+Implements the secure getcwd API, with resolving symlinks.
 
 =cut
 */
-
 /* Originally written in Perl by John Bazik; rewritten in C by Ben Sugars.
  * rewritten again by dougm, optimized for use with xs TARG, and to prefer
  * getcwd(3) if available.
@@ -4130,8 +4127,8 @@ Perl_getcwd_sv(pTHX_ SV *sv)
 
     {
         char *ptr;
-#if defined(HAS_GET_CURRENT_DIR_NAME)
-        ptr = get_current_dir_name();
+#if defined(HAS_GET_CURRENT_DIR_NAME) /* glibc: */
+        ptr = get_current_dir_name(); /* resolves symlink after the first chdir, before not */
 #elif defined(HAS_GETCWDNULL)
 	/* Some getcwd()s automatically allocate a buffer of the given
 	 * size from the heap if they are given a NULL buffer pointer. */
@@ -4155,10 +4152,20 @@ Perl_getcwd_sv(pTHX_ SV *sv)
             }
             if (!ptr)
                 free(mbuf);
+            else {
+                sv_setpv(sv, ptr);
+                SvTAINTED_on(sv);
+                free(mbuf);
+                return TRUE;
+            }
         }
 #endif
         if (ptr) {
 	    sv_setpv(sv, ptr);
+            SvTAINTED_on(sv);
+#if defined(HAS_GET_CURRENT_DIR_NAME) || defined(HAS_GETCWDNULL)
+            free(ptr);
+#endif
 	    return TRUE;
 	}
 	else {
@@ -4279,6 +4286,7 @@ Perl_getcwd_sv(pTHX_ SV *sv)
 		   "current directory changed unexpectedly");
     }
 
+    SvTAINTED_on(sv);
     return TRUE;
 #endif
 
