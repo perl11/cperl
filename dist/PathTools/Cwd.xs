@@ -271,7 +271,12 @@ return FALSE
 #endif
 
 #ifndef getcwd_sv
-/* Taken from cperl 5.27's util.c */
+/* Taken from cperl 5.27's util.c, supporting long pathnames.
+   Implements fastcwd, without resolving symlinks.
+   This is the more dangerous variant because you might chdir out of a
+   directory that you can't chdir back into. For the safe variant prepend
+   it with abs_path.
+ */
 #define getcwd_sv(a) Perl_getcwd_sv(aTHX_ a)
 int Perl_getcwd_sv(pTHX_ SV *sv)
 {
@@ -287,11 +292,11 @@ int Perl_getcwd_sv(pTHX_ SV *sv)
 
     {
         char *ptr;
-	/* Some getcwd()s automatically allocate a buffer of the given
-	 * size from the heap if they are given a NULL buffer pointer. */
 #if defined(HAS_GET_CURRENT_DIR_NAME)
         ptr = get_current_dir_name();
 #elif defined(HAS_GETCWDNULL)
+	/* Some getcwd()s automatically allocate a buffer of the given
+	 * size from the heap if they are given a NULL buffer pointer. */
         ptr = getcwd(NULL, 0);
 #else
 #  ifdef ENAMETOOLONG
@@ -568,6 +573,40 @@ THX_unix_canonpath(pTHX_ SV *path)
     return retval;
 }
 
+static SV*
+_abs_path(pTHX_ SV* pathsv)
+{
+    SV * const TARG = sv_newmortal();
+    char *const path = pathsv ? SvPV_nolen(pathsv) : (char *)".";
+    char buf[MAXPATHLEN];
+#if defined(HAS_REALPATH)
+    char *bufp = realpath(path, buf);
+    if (!bufp) /* maybe too long */
+        bufp = realpath(path, NULL);
+    if (bufp) {
+        sv_setpv_mg(TARG, bufp);
+        SvPOK_only(TARG);
+        SvTAINTED_on(TARG);
+    }
+#elif defined(VMS)
+    if (Perl_rmsexpand(aTHX_ path, buf, NULL, 0)) {
+	sv_setpv_mg(TARG, buf);
+        SvPOK_only(TARG);
+	SvTAINTED_on(TARG);
+    }
+#else
+    if (bsd_realpath(path, buf)) {
+	sv_setpv_mg(TARG, buf);
+        SvPOK_only(TARG);
+	SvTAINTED_on(TARG);
+    }
+#endif
+    else
+        sv_setsv(TARG, &PL_sv_undef);
+    SvTAINTED_on(TARG);
+    return TARG;
+}
+
 MODULE = Cwd		PACKAGE = Cwd
 
 PROTOTYPES: DISABLE
@@ -598,14 +637,21 @@ getcwd()
 PROTOTYPE:
 ALIAS:
     fastcwd=1
-PREINIT:
-    PERL_UNUSED_ARG(ix);
 PPCODE:
 {
     dXSTARG;
     getcwd_sv(TARG);
     XSprePUSH; PUSHTARG;
     SvTAINTED_on(TARG);
+#if defined(HAS_GET_CURRENT_DIR_NAME)
+    if (ix != 1) {
+        SV* sv = _abs_path(aTHX_ TARG);
+        PUSHs(sv);
+        XSRETURN(1);
+    }
+#else
+    PERL_UNUSED_ARG(ix);
+#endif
 }
 
 void
@@ -614,35 +660,8 @@ abs_path(pathsv=Nullsv)
 PROTOTYPE: ;$
 PPCODE:
 {
-    dXSTARG;
-    char *const path = pathsv ? SvPV_nolen(pathsv) : (char *)".";
-    char buf[MAXPATHLEN];
-#if defined(HAS_REALPATH)
-    char *bufp = realpath(path, buf);
-    if (!bufp) /* maybe too long */
-        bufp = realpath(path, NULL);
-    if (bufp) {
-        sv_setpv_mg(TARG, bufp);
-        SvPOK_only(TARG);
-        SvTAINTED_on(TARG);
-    }
-#elif defined(VMS)
-    if (Perl_rmsexpand(aTHX_ path, buf, NULL, 0)) {
-	sv_setpv_mg(TARG, buf);
-        SvPOK_only(TARG);
-	SvTAINTED_on(TARG);
-    }
-#else
-    if (bsd_realpath(path, buf)) {
-	sv_setpv_mg(TARG, buf);
-        SvPOK_only(TARG);
-	SvTAINTED_on(TARG);
-    }
-#endif
-    else
-        sv_setsv(TARG, &PL_sv_undef);
-    XSprePUSH; PUSHs(TARG);
-    SvTAINTED_on(TARG);
+    SV* retval = _abs_path(aTHX_ pathsv);
+    XSprePUSH; PUSHs(retval);
 }
 
 #if defined(WIN32) && !defined(UNDER_CE)
