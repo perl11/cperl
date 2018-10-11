@@ -1,0 +1,18 @@
+---
+comment: "fix tests for typed cperl"
+match:
+  distribution: "DBI-1\.6"
+  perlconfig:
+    version: "^5\.22"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/DBI-1.634-cperl.patch"
+---
+comment: "cperl strict hashpairs"
+match:
+  distribution: "DBI-1\.6"
+  perlconfig:
+    version: "^5\.2[789]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/DBI-1.636-527c.patch"

@@ -1,0 +1,9 @@
+---
+comment: cperl deprecated the ' pkg seperator
+match:
+  distribution: "Clone-[0-9]"
+  perlconfig:
+    usecperl: "define"
+    version: "^5\.2[5-9]"
+patches:
+  - "RURBAN/patches/Clone-0.38-cperl525.patch"

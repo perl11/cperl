@@ -1,0 +1,6 @@
+---
+comment: "warning in non-numeric postincrement [cpan #118429]"
+match:
+  distribution: "Class-Std-Storable-v0\.0\.1"
+patches:
+  - "RURBAN/patches/Class-Std-Storable-v0.0.1-fix-perl-5.22-numeric-increment-warning.diff"

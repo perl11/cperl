@@ -1,0 +1,8 @@
+---
+comment: "cperl: skip inc/Test/More"
+match:
+  distribution: "YAML-Syck"
+  perlconfig:
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/YAML-Syck-cperl.patch"

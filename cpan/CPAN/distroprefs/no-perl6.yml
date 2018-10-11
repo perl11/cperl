@@ -1,0 +1,5 @@
+---
+comment: "Perl6 distributions"
+match:
+ distribution: '/Perl6/'
+disabled: 1

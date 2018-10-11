@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87252]"
+match:
+  distribution: "GBrowse-2\.55"
+patches:
+  - "RURBAN/patches/GBrowse-2.55-returnor.patch"

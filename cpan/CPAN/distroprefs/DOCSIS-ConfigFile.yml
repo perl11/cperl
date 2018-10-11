@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87301]"
+match:
+  distribution: "DOCSIS-ConfigFile-0\.63"
+patches:
+  - "RURBAN/patches/DOCSIS-ConfigFile-0.63-returnor.patch"

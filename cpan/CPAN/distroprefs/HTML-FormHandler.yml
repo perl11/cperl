@@ -1,0 +1,9 @@
+---
+comment: "eq_array with 3 args"
+match:
+  distribution: "HTML-FormHandler-0\.40065"
+  perlconfig:
+    version: "^5\.2[45]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/HTML-FormHandler-0.40065-cperl524.patch"

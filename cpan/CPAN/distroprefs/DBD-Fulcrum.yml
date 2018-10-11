@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87308]"
+match:
+  distribution: "DBD-Fulcrum-0\.20"
+patches:
+  - "RURBAN/patches/DBD-Fulcrum-0.20-returnor.patch"

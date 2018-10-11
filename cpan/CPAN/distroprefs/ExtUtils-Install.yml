@@ -1,0 +1,8 @@
+---
+comment: "incompatible cperl bundled Test::More"
+match:
+  perlconfig:
+    usecperl: "define"
+  distribution: "ExtUtils-Install-2\.0.*"
+patches:
+  - "RURBAN/patches/ExtUtils-Install-cperl.patch"

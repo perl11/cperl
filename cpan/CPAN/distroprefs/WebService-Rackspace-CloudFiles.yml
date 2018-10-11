@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87213]"
+match:
+  distribution: "WebService-Rackspace-CloudFiles-1\.09"
+patches:
+  - "RURBAN/patches/WebService-Rackspace-CloudFiles-1.09-returnor.patch"

@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "LEONT/threads-lite-0.030"
+patches:
+  - "RURBAN/patches/threads-lite-windows.patch"

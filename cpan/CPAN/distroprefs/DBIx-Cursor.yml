@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87312]"
+match:
+  distribution: "DBIx-Cursor-0\.14"
+patches:
+  - "RURBAN/patches/DBIx-Cursor-0.14-returnor.patch"

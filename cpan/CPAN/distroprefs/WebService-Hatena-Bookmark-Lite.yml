@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87209]"
+match:
+  distribution: "WebService-Hatena-Bookmark-Lite-0\.03"
+patches:
+  - "RURBAN/patches/WebService-Hatena-Bookmark-Lite-0.03-returnor.patch"

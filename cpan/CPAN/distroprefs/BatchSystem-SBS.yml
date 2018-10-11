@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87231]"
+match:
+  distribution: "BatchSystem-SBS-0\.41"
+patches:
+  - "RURBAN/patches/BatchSystem-SBS-0.41-returnor.patch"

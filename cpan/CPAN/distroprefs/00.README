@@ -7,8 +7,11 @@
 The content of this directory is explained in the CPAN.pm manpage
 under the section I<Configuration of individual distributions>.
 
-Note: all files here are just examples and may or may not fit your
-purpose. Use with care.
+It is esp. recommended with cperl to patch various CPAN distros
+of non-cooperative or inactive maintainers.
+Copy it to your F<~/.cpan/prefs> directory, or look at
+L<https://github.com/rurban/distroprefs/> how to keep them
+up to date via C<git>.
 
 =cut
 

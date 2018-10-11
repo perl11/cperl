@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87277]"
+match:
+  distribution: "Dist-Zilla-Plugins-CJM-4.16"
+patches:
+  - "RURBAN/patches/Dist-Zilla-Plugins-CJM-4.16-returnor.patch"

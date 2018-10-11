@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87260]"
+match:
+  distribution: "Net-Async-IRC-0\.07"
+patches:
+  - "RURBAN/patches/Net-Async-IRC-0.07-returnand.patch"

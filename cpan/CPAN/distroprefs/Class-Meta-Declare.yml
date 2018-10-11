@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87256]"
+match:
+  distribution: "Class-Meta-Declare-0\.04"
+patches:
+  - "RURBAN/patches/Class-Meta-Declare-0.04-returnor.patch"

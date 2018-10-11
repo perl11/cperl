@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "NANIS/Crypt-SSLeay-0\.58\.tar\.gz"
+patches:
+  - "RURBAN/patches/Crypt-SSLeay-ssl1.patch"

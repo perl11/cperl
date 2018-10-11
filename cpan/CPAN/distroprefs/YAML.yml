@@ -1,0 +1,10 @@
+---
+match:
+  distribution: "YAML-0.79"
+patches:
+  - "RURBAN/patches/YAML-0.79.patch"
+---
+match:
+  distribution: "YAML-0.80"
+patches:
+  - "RURBAN/patches/YAML-0.80.patch"

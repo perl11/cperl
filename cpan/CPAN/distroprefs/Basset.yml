@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87233]"
+match:
+  distribution: "Basset-1\.04"
+patches:
+  - "RURBAN/patches/Basset-1.04-returnor.patch"

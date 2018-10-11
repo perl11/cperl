@@ -1,0 +1,9 @@
+---
+comment: "no strict names"
+match:
+  distribution: "Params-Util-1\.07"
+  perlconfig:
+    version: "^5\.2[789]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Params-Util-1.07-527c.patch"

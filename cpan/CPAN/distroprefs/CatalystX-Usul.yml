@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87257]"
+match:
+  distribution: "CatalystX-Usul-0\.7\.1184"
+patches:
+  - "RURBAN/patches/CatalystX-Usul-0.7.1184-returnor.patch"

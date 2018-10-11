@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87222]"
+match:
+  distribution: "TheSchwartz-1\.10"
+patches:
+  - "RURBAN/patches/TheSchwartz-1.10-returnor.patch"

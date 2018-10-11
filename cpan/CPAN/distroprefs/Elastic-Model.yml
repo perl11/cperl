@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87300]"
+match:
+  distribution: "Elastic-Model-0\.26"
+patches:
+  - "RURBAN/patches/Elastic-Model-0.26-returnor.patch"

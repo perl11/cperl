@@ -1,0 +1,8 @@
+---
+comment: "croak proto"
+match:
+  distribution: "IO-Interactive-1\.021"
+  perlconfig:
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/IO-Interactive-1.021-cperl.patch"

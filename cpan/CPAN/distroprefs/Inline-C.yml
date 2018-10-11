@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "SISYPHUS/Inline-0.48"
+patches:
+  - "RURBAN/patches/Inline-C-spacecwd1.patch"

@@ -1,0 +1,9 @@
+---
+comment: "cperl >= 5.25"
+match:
+  distribution: "Math-BigInt-GMP-1\."
+  perlconfig:
+    version: "^5\.2[56]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Math-BigInt-GMP-cperl.patch"

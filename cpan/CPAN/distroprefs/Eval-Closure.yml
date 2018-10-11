@@ -1,0 +1,8 @@
+comment: "autovivifying hash slices [cperl #347]"
+match:
+  distribution: "Eval-Closure-0\.1"
+  perlconfig:
+    version: "^5\.(27\.3|28\.)"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Eval-Closure-0.14-hslice.patch"

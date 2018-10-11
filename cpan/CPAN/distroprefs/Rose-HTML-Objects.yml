@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87253]"
+match:
+  distribution: "Rose-HTML-Objects-0\.618"
+patches:
+  - "RURBAN/patches/Rose-HTML-Objects-0.618-returnor.patch"

@@ -1,0 +1,6 @@
+---
+comment: "avoid XSRETURN(-1) with after. https://github.com/perl5-utils/List-MoreUtils/pull/13"
+match:
+  distribution: "List-MoreUtils-0\.413"
+patches:
+  - "RURBAN/patches/List-MoreUtils-0.413-after.patch"

@@ -1,0 +1,18 @@
+---
+comment: "various fixes. -Dfortify_inc, ..."
+match:
+  distribution: "Mouse-v2.4.5"
+  perlconfig:
+    version: "^5\.2"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Mouse-cperl.patch"
+---
+comment: "illegal version object as 2nd XSLoader arg"
+match:
+  distribution: "Mouse-v2.5.0"
+  perlconfig:
+    #version: "^5\.2"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Mouse-v2.5.0-VERSION.patch"

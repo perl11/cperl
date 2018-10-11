@@ -1,0 +1,9 @@
+---
+comment: "cperl strict hashpairs. https://github.com/adamkennedy/PPI/issues/201"
+match:
+  distribution: "PPI-1\.224"
+  perlconfig:
+    version: "^5\.2[7]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/PPI-1.224-527c.patch"

@@ -1,0 +1,13 @@
+---
+match:
+  distribution: "Devel-Cover-0.79"
+patches:
+  - "RURBAN/patches/Devel-Cover-0.79.patch"
+---
+match:
+  distribution: "Devel-Cover-1.30"
+  perlconfig:
+    version: "^5\.2[789]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Devel-Cover-1.30-cperl527.patch"

@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87309]"
+match:
+  distribution: "Hash-Type-1\.08"
+patches:
+  - "RURBAN/patches/Hash-Type-1.08-returnor.patch"

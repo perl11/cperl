@@ -1,0 +1,38 @@
+---
+comment: "missing . in @INC: -Dfortify_inc or cperl"
+match:
+  perlconfig:
+    version: "^5\.2[45]"
+  distribution: "namespace-clean-0\.26"
+patches:
+  - "RURBAN/patches/namespace-clean-0.26-inc.patch"
+---
+comment: "debugging broken cperl with 0.27"
+match:
+  perlconfig:
+    usecperl: define
+    version: "^5\.2[6-9]"
+  distribution: "namespace-clean-0\.27"
+depends:
+  requires:
+    B::Hooks::EndOfScope: 0.12
+    Package::Stash: 0.23
+patches:
+  - "RURBAN/patches/namespace-clean-0.27-dbg.patch"
+---
+comment: |
+
+  https://rt.cpan.org/Ticket/Display.html?id=69862
+
+  This distropref file has lost its right to exist but it's always
+  good to have a reminder that connects to a ticket
+
+  Update 2011-12-15: test 10-pure-perl.t has started to fail in
+  bleadperl but only with the newly added dependencies.
+
+match:
+  distribution: '^RIBASUSHI/namespace-clean-0.27\.'
+depends:
+  requires:
+    B::Hooks::EndOfScope: 0.12
+    Package::Stash: 0.23

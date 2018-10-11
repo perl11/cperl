@@ -1,0 +1,9 @@
+---
+comment: "&Isa method masks Isa"
+match:
+  distribution: "Test-Deep-1\.128"
+  perlconfig:
+    version: "^5\.2[89]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Test-Deep-1.128-528c.patch"

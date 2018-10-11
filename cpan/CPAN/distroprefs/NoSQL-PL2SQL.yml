@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87328]"
+match:
+  distribution: "NoSQL-PL2SQL-1\.21"
+patches:
+  - "RURBAN/patches/NoSQL-PL2SQL-1.21-returnor.patch"

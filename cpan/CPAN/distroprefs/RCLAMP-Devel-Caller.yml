@@ -1,0 +1,6 @@
+---
+comment: "Not thread safe with 5.10"
+match:
+  distribution: "^RCLAMP/Devel-Caller-1\.11\.tar\.gz$"
+patches:
+  - "RURBAN/patches/Devel-Caller-1.11.patch"

@@ -1,0 +1,9 @@
+---
+comment: "allow cperl 'c' suffix"
+match:
+  distribution: "version-0\.99"
+  perlconfig:
+    version: "^5\.2"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/version-0.9-cperl.patch"

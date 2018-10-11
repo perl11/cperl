@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87223]"
+match:
+  distribution: "DBR-1\.5"
+patches:
+  - "RURBAN/patches/DBR-1.5-returnor.patch"

@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "SMUELLER/Archive-Rar-"
+patches:
+  - "RURBAN/patches/Archive-Rar-2.02-cygwin.patch"

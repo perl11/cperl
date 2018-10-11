@@ -1,0 +1,6 @@
+---
+comment: "https://github.com/mattn/p5-Devel-CheckLib/pull/22"
+match:
+  distribution: "/Devel-CheckLib-1\."
+patches:
+  - "RURBAN/patches/Devel-CheckLib-cperl.patch"

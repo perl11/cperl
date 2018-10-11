@@ -1,0 +1,12 @@
+---
+comment: |
+  cperl: several test errors
+  strict can be a builtin
+  -Mblib missing
+
+match:
+  distribution: "Module-Path-0\."
+  perlconfig:
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Module-Path-0.19-cperl.patch"

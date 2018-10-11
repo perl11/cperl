@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87211]"
+match:
+  distribution: "WebService-Google-Reader-0\.21"
+patches:
+  - "RURBAN/patches/WebService-Google-Reader-0.21-returnor.patch"

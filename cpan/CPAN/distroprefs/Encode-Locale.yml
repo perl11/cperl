@@ -1,0 +1,9 @@
+---
+comment: "no strict names"
+match:
+  distribution: "Encode-Locale-1\.05"
+  perlconfig:
+    version: "^5\.2[246789]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Encode-Locale-5271c.patch"

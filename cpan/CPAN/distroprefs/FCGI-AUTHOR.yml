@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "FLORA/FCGI-0.71"
+patches:
+  - "RURBAN/patches/FCGI-AUTHOR.patch"

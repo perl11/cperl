@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87304]"
+match:
+  distribution: "Dotiac-0\.8"
+patches:
+  - "RURBAN/patches/Dotiac-0.8-returnand.patch"

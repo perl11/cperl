@@ -1,0 +1,6 @@
+---
+comment: "wrong return or precedence [cpan #87202]"
+match:
+  distribution: "Alien-wxWidgets-0\.64"
+patches:
+  - "RURBAN/patches/Alien-wxWidgets-0.64-returnor.patch"

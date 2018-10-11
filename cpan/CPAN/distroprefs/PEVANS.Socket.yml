@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "PEVANS/Socket-1\.99"
+patches:
+  - "RURBAN/patches/Socket-1.99-asan.patch"

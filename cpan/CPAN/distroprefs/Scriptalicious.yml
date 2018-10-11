@@ -1,0 +1,6 @@
+---
+comment: "disable broken forktest"
+match:
+  distribution: "Scriptalicious-1\.16"
+patches:
+  - "RURBAN/patches/Scriptalicious-1.16-forktest.patch"

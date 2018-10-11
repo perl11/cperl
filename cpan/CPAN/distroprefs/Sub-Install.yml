@@ -1,0 +1,18 @@
+---
+comment: "Support cperl extended redefined warnings [cperl #113]"
+match:
+  distribution: "Sub-Install-0\.927"
+  perlconfig:
+    version: "^5\.2(2\.[23]|[456])"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Sub-Install-5.22.3c.patch"
+---
+comment: "autovivifying hash slices [cperl #347]"
+match:
+  distribution: "Sub-Install-0\.928"
+  perlconfig:
+    version: "^5\.(26\.|27\.3|28\.)"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Sub-Install-0.928-hslice.patch"

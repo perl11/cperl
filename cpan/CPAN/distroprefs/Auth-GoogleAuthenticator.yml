@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87228]"
+match:
+  distribution: "Auth-GoogleAuthenticator-0.01"
+patches:
+  - "RURBAN/patches/Auth-GoogleAuthenticator-0.01-returnand.patch"

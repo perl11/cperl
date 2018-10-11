@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87298]"
+match:
+  distribution: "IPsonar"
+patches:
+  - "RURBAN/patches/IPsonar-returnor.patch"

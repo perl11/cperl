@@ -1,0 +1,9 @@
+---
+comment: "Uses Test2, invalid on cperl"
+match:
+  distribution: "Params-ValidationCompiler-0\.2"
+  perlconfig:
+    version: "^5\.2[45678]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Params-ValidationCompiler-cperl.patch"

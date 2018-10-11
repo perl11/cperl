@@ -1,0 +1,9 @@
+---
+comment: "disable t/Test/More"
+match:
+  distribution: "Test-Time-0\.04"
+  perlconfig:
+    version: "^5\.2[456]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Test-Time-0.04-cperl.patch"

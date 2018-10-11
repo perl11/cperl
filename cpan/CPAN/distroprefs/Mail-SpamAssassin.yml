@@ -1,0 +1,6 @@
+---
+comment: "latest git"
+match:
+  distribution: "Mail-SpamAssassin-3\.4\.1"
+patches:
+  - "RURBAN/patches/Mail-SpamAssassin-3.4.1.patch"

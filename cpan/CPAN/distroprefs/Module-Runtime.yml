@@ -1,0 +1,6 @@
+---
+comment: "allow coretypes (no ticket yet)"
+match:
+  distribution: "Module-Runtime-0\.014"
+patches:
+  - "RURBAN/patches/Module-Runtime-0.014-modulename.patch"

@@ -1,0 +1,8 @@
+---
+comment: "fixes RT#86999 - wrong PVNV dualvar test"
+match:  
+  distribution: "GFUJI/Data-MessagePack-0\.47"
+  perlconfig: 
+    version: "^5\.19\."
+patches:
+  - "RURBAN/patches/0001-RT-86999-Fix-blead-dualvar-regression.patch"

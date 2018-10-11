@@ -1,0 +1,9 @@
+---
+comment: "cperl patches: strict hashpairs https://rt.cpan.org/Ticket/Display.html?id=122748"
+match:
+  perlconfig:
+    version: "^5\.2[78]"
+    usecperl: "define"
+  distribution: "Sub-Quote-2.004000"
+patches:
+  - "RURBAN/patches/Sub-Quote-hashpairs.patch"

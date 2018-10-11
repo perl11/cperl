@@ -1,0 +1,17 @@
+---
+comment: "cperl patches: replace the ' package separator"
+match:
+  distribution: "Mojolicious-7\."
+  perlconfig:
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Mojolicious-7.59-pkgsep.patch"
+---
+comment: "cperl patches: quote Mojo::Base '-role'"
+match:
+  distribution: "Mojolicious-7\.(5[5-9]|[6-9])"
+  perlconfig:
+    version: "^5\.2[78]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Mojolicious-7.59-role.patch"

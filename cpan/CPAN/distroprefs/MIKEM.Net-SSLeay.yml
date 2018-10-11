@@ -1,0 +1,25 @@
+---
+match:
+  distribution: "MIKEM/Net-SSLeay-1\.45"
+patches:
+  - "RURBAN/patches/Net-SSLeay-1.45.patch"
+---
+match:
+  distribution: "MIKEM/Net-SSLeay-1\.55"
+patches:
+  - "RURBAN/patches/Net-SSLeay-Fix-91310-and-PL_sv_undef-cb-data-checks.patch"
+---
+comment: "fix tests for typed cperl"
+match:
+  perlconfig:
+    version: "^5\.2[45]"
+    usecperl: "define"
+  distribution: "Net-SSLeay-1\.7[234]"
+patches:
+  - "RURBAN/patches/Net-SSLeay-1.72-cperl.patch"
+---
+comment: "fix OCSP (critical) RT #116795"
+match:
+  distribution: "Net-SSLeay-1\.7[567]"
+patches:
+  - "RURBAN/patches/Net-SSLeay-1.77-OCSP.patch"

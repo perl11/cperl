@@ -1,0 +1,24 @@
+---
+comment: "Support cperl CPAN::Meta [cperl #113]"
+match:
+  distribution: "CPAN-Meta-Check-0\.012"
+  perlconfig:
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/CPAN-Meta-Check-0.012-cperl.patch"
+---
+comment: "Support cperl CPAN::Meta [cperl #113]"
+match:
+  distribution: "CPAN-Meta-Check-0\.013"
+  perlconfig:
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/CPAN-Meta-Check-0.013-cperl.patch"
+---
+comment: "Support cperl CPAN::Meta [cperl #113]"
+match:
+  distribution: "CPAN-Meta-Check-"
+  perlconfig:
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/CPAN-Meta-Check-cperl.patch"

@@ -1,0 +1,9 @@
+---
+comment: "shouldn't"
+match:
+  distribution: "Carp-Assert-0\.21"
+  perlconfig:
+    version: "^5\.26"
+    usecperl: "define"
+patches:
+  - RURBAN/patches/Carp-Assert-0.21-cperl526.patch

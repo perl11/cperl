@@ -1,0 +1,9 @@
+---
+comment: "$filename's ident"
+match:
+  distribution: "Test-File-1\.44"
+  perlconfig:
+    version: "^5\.2[89]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Test-File-1.443-528c.patch"

@@ -1,0 +1,7 @@
+---
+match:
+  distribution: "GAAS/Digest-MD5-2\.52\.tar\.gz$"
+  perlconfig:
+    version: "^5\.6\."
+patches:
+  - "RURBAN/patches/Digest-MD5-2.51-v5.6.patch"

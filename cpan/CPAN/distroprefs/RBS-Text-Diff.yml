@@ -1,0 +1,6 @@
+---
+comment: "#7087: Test failure on Cygwin - easy fix"
+match:
+  distribution: "^RBS/Text-Diff-0\.35\.tar\.gz$"
+patches:
+  - "RURBAN/patches/Text-Diff-0.35.patch"

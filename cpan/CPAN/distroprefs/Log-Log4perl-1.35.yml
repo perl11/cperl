@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "Log-Log4perl-1.35"
+patches:
+  - "RURBAN/patches/Log-Log4perl-1.35.patch"

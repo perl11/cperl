@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87216]"
+match:
+  distribution: "Qudo-0\.0213"
+patches:
+  - "RURBAN/patches/Qudo-0.0213-returnor.patch"

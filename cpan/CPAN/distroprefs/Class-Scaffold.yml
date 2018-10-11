@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87259]"
+match:
+  distribution: "Class-Scaffold-1\.102280"
+patches:
+  - "RURBAN/patches/Class-Scaffold-1.102280-returnor.patch"

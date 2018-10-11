@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87353]"
+match:
+  distribution: "Dancer-Plugin-ElasticSearch-0\.002"
+patches:
+  - "RURBAN/patches/Dancer-Plugin-ElasticSearch-0.002-returnor.patch"

@@ -1,0 +1,8 @@
+---
+comment: "missing . in @INC: -Dfortify_inc or cperl"
+match:
+  perlconfig:
+    version: "^5\.2[45]"
+  distribution: "HTTP-Daemon-SSL-1\.04"
+patches:
+  - "RURBAN/patches/HTTP-Daemon-SSL-1.04-inc.patch"

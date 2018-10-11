@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "PMQS/Compress-Raw-Zlib-2\.062\.tar\.gz"
+patches:
+  - "RURBAN/patches/Compress-Raw-Zlib-rt88936.patch"

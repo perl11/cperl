@@ -1,0 +1,18 @@
+---
+comment: cperl deprecated the ' pkg seperator
+match:
+  distribution: "Clone-PP-1\.07"
+  perlconfig:
+    usecperl: "define"
+    version: "^5\.2[5-8]"
+patches:
+  - "RURBAN/patches/Clone-0.38-cperl525.patch"
+---
+comment: "cperl patches: strict hashpairs"
+match:
+  distribution: "Clone-PP-1\.07"
+  perlconfig:
+    usecperl: "define"
+    version: "^5\.2[78]"
+patches:
+  - "RURBAN/patches/Clone-PP-1.07-hashpairs.patch"

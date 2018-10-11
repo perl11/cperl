@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87303]"
+match:
+  distribution: "Ekahau-0\.001"
+patches:
+  - "RURBAN/patches/Ekahau-0.001-returnor.patch"

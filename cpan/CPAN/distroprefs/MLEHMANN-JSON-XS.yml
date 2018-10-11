@@ -1,0 +1,7 @@
+---
+match:
+  distribution: "MLEHMANN/JSON-XS-2\.33\.tar\.gz"
+  perlconfig: 
+    version: "^5\.17\."
+patches:
+  - "RURBAN/patches/JSON-XS-perl517-rt84151.patch"

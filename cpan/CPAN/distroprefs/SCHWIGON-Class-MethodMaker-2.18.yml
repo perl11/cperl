@@ -1,0 +1,6 @@
+---
+comment: "Wrong SIGNATURE"
+match:
+  distribution: "^SCHWIGON/Class-MethodMaker-2\.18\.tar\.gz$"
+patches:
+  - "RURBAN/patches/Class-MethodMaker-2.18-SIG.patch"

@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "DAGOLDEN/File-pushd-1.001.yml"
+patches:
+  - "RURBAN/patches/File-pushd-1.001.patch"

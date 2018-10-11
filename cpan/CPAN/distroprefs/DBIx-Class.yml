@@ -1,0 +1,6 @@
+---
+comment: "enable cperl, disabled for no good reason"
+match:
+  distribution: "DBIx-Class-0\.0828"
+patches:
+  - "RURBAN/patches/DBIx-Class-0.082841-cperl.patch"

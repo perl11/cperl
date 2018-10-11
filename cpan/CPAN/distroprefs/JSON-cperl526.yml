@@ -1,0 +1,9 @@
+---
+comment: "readonly ISA"
+match:
+  distribution: "JSON-2\.90"
+  perlconfig:
+    version: "^5\.2[678]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/JSON-2.90-cperl526.patch"
