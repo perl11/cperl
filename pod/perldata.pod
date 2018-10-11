@@ -130,7 +130,7 @@ characters.  Perl requires every character in an identifier to also
 match C<\w> (this prevents some problematic cases); and Perl
 additionally accepts identfier names beginning with an underscore.
 
-cperl implements the L<Moderately Restrictive level
+B<cperl> implements the L<Moderately Restrictive level
 |http://www.unicode.org/reports/tr39/#General_Security_Profile> for
 unicode identifiers.
 
@@ -192,11 +192,50 @@ with the exception that they are not legal at the end of an
 identifier: That is, C<$'foo> and C<$foo'bar> are legal, but
 C<$foo'bar'> is not.
 In cperl only the double colon (C<::>) is legal, the perl4 package
-seperator C<'> is illegal.
+seperator C<'> was illegal, and since 5.26c is part of an identifer,
+not a seperator - as in perl6.
+Full support for the single quote C<'> as part of an identifer came
+with 5.28c, and matches now the behavior of perl6.
 
-Additionally, if the identifier is preceded by a sigil --
-that is, if the identifier is part of a variable name -- it
-may optionally be enclosed in braces.
+  sub isn't { } # parsed as isn't since 5.28c, illegal with 5.26c,
+                # before parsed as isn::t
+  isn't()       # parsed as isn't since 5.28c, illegal with 5.26c,
+                # before parsed as isn::t
+
+Differences, when being expanded in strings:
+Note that hashes are not expanded, e.g. C<%file's> stays C<%file's>,
+only scalars and arrays are.
+
+  my ($file,@file) = ("test", "a", "b");
+  if ($^O !~ /c$/ or $] < 5.026) { # pre 5.26c
+    is("$file's test", " test");   # parsed as file::s
+    is("@file's test", " test");
+  }
+  elsif ($^O =~ /c$/ and $] >= 5.026 and $] < 5.028) { # 5.26c
+    is("$file's test", "test's test"); # parsed as $file . "'s test"
+    is("@file's test", "a b's test");
+  }
+  elsif ($^O =~ /c$/ and $] >= 5.028) { # 5.28c
+    is("$file's test", " test");   # parsed as $file's. " test"
+    is("@file's test", " test");
+  }
+
+perl6:
+
+  no strict;
+  my $file = "test";
+  my @file = "a", "b";
+  is("$file's test", " test");        # parsed as $file's. " test"
+  is("@file's test", "@file's test"); # @ is not expanded anymore
+
+
+If the identifier is preceded by a sigil -- that is, if the identifier
+is part of a variable name -- it may optionally be enclosed in braces.
+
+So to properly expand such a scalar string without the quote you
+need to use `"${file}'s"`.
+
+      is("${file}'s test", "test's test");
 
 While you can mix double colons with singles quotes, the quotes must come
 after the colons: C<$::::'foo> and C<$foo::'bar> are legal, but C<$::'::foo>
