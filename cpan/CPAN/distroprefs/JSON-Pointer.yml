@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence + hashorder [cpan #87314]"
+match:
+  distribution: "JSON-Pointer-0.01"
+patches:
+  - "RURBAN/patches/JSON-Pointer-0.01-returnor+hashorder.patch"

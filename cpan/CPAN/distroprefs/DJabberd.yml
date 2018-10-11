@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87306]"
+match:
+  distribution: "DJabberd-0\.85"
+patches:
+  - "RURBAN/patches/DJabberd-0.85-returnor.patch"

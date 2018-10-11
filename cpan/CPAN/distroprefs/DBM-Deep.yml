@@ -1,0 +1,18 @@
+---
+comment: "fix pod errors [cpan #87059]"
+match:
+  distribution: "DBM-Deep-2\.0009"
+patches:
+  - "RURBAN/patches/DBM-Deep-2.0009.patch"
+---
+comment: "fix pkg sep"
+match:
+  distribution: "DBM-Deep-2\.0014"
+patches:
+  - "RURBAN/patches/DBM-Deep-2.0014.patch"
+---
+comment: "fix pkg sep (readonly)"
+match:
+  distribution: "DBM-Deep-2\.0016"
+patches:
+  - "RURBAN/patches/DBM-Deep-2.0016.patch"

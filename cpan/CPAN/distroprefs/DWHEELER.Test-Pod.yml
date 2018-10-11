@@ -1,0 +1,7 @@
+---
+match:
+  distribution: "DWHEELER/Test-Pod-1\.44\.tar\.gz"
+  perlconfig: 
+    version: "^5\.6\."
+patches:
+  - "RURBAN/patches/Test-Pod-1.44-perl56.patch"

@@ -1,0 +1,6 @@
+---
+comment: "disable ENTERSUB_OPTIMIZATION on cperl. fix broken test"
+match:
+  distribution: "Class-XSAccessor-1\.19"
+patches:
+  - "RURBAN/patches/Class-XSAccessor-1.19-cperl.patch"

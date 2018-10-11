@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87255]"
+match:
+  distribution: "File-DataClass-v0\.20\.13"
+patches:
+  - "RURBAN/patches/File-DataClass-v0.20.13-returnand.patch"

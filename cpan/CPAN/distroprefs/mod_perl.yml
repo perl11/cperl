@@ -1,0 +1,6 @@
+---
+comment: Fails with XSConfig or cperl. RT #117038
+match:
+  distribution: "mod_perl-2\.0"
+patches:
+  - "RURBAN/patches/mod_perl-MockConfig.patch"

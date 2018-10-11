@@ -1,0 +1,8 @@
+---
+comment: "BDB darwin/macports with db53"
+match:
+  distribution: "BDB-1\."
+  perlconfig:
+    os: "darwin"
+patches:
+  - "RURBAN/patches/BDB-1.91-darwin.patch"

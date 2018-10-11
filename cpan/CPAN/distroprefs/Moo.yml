@@ -1,0 +1,16 @@
+---
+comment: "Tests expect %^H to be empty, which is not the case on cperl"
+match:
+  perlconfig:
+    usecperl: "define"
+  distribution: "Moo-2\.002"
+patches:
+  - "RURBAN/patches/Moo-2.002002-hinthash-test.patch"
+---
+comment: "strict hashpairs"
+match:
+  perlconfig:
+    usecperl: "define"
+  distribution: "Moo-2\.003"
+patches:
+  - "RURBAN/patches/Moo-2.003004-hashpairs.patch"

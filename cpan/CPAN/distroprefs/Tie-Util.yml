@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87230]"
+match:
+  distribution: "Tie-Util-0\.03"
+patches:
+  - "RURBAN/patches/Tie-Util-0.03-returnand.patch"

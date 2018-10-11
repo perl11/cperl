@@ -1,0 +1,14 @@
+---
+comment: |
+
+  Fix for 5.22 cGVOPo_gv cvref [RT #110496]
+  (cpan does not process mult. yaml entries anymore)
+
+match:
+  distribution: "ZEFRAM/Params-Classify-0\.013\.tar\.gz"
+  perlconfig:
+    version: "^5\.2[23456789]"
+patches:
+  - "RURBAN/patches/Params-Classify-5.22-cGVOPo_gv-cvref.patch"
+  - "RURBAN/patches/Params-Classify-fortify_inc.patch"
+  - "RURBAN/patches/Params-Classify-5.25-op_parent.patch"

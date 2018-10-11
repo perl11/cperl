@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87305]"
+match:
+  distribution: "Dist-Zilla-Role-ModuleIncluder-0\.002"
+patches:
+  - "RURBAN/patches/Dist-Zilla-Role-ModuleIncluder-0.002-returnor.patch"

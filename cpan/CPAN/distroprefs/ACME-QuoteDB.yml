@@ -1,0 +1,6 @@
+---
+comment: "wrong return or precedence [cpan #87203]"
+match:
+  distribution: "ACME-QuoteDB-0\.1\.2"
+patches:
+  - "RURBAN/patches/ACME-QuoteDB-0.1.2-returnor.patch"

@@ -1,0 +1,13 @@
+---
+match:
+  distribution: "Text-CSV_XS-0.93"
+patches:
+  - "RURBAN/patches/Text-CSV_XS-0.93.patch"
+---
+comment: skip parse without header test on cperl
+match:
+  perlconfig:
+    usecperl: "define"
+  distribution: "Text-CSV_XS-1.2"
+patches:
+  - "RURBAN/patches/Text-CSV_XS-cperl.patch"

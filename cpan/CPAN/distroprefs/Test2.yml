@@ -1,0 +1,10 @@
+---
+comment: not with cperl. breaks too many tests, 20% slower
+match:
+  perlconfig:
+    usecperl: "define"
+  distribution: |
+    ^(?x:
+    EXODIST/Test-Simple-[123].[345689]*
+    )|
+disabled: 1

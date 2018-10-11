@@ -1,0 +1,8 @@
+---
+comment: "cperl: Too many arguments for subroutine entry errmsg"
+match:
+  distribution: "Ref-Util-XS-0\.1"
+  perlconfig:
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Ref-Util-XS-cperl.patch"

@@ -1,0 +1,18 @@
+---
+comment: |
+  handle libxml2-2.9.4 schema regression
+  https://github.com/shlomif/perl-XML-LibXML/pull/1
+
+match:
+  distribution: "XML-LibXML-2\.0125"
+patches:
+  - "RURBAN/patches/XML-LibXML-294schema.patch"
+---
+comment: cperl5.27 strict hashpairs
+match:
+  distribution: "XML-LibXML-2\.0132"
+  perlconfig:
+    version: "^5\.2[78]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/XML-LibXML-2.0132-cperl527.patch"

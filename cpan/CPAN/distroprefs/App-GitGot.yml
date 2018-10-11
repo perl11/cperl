@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87210]"
+match:
+  distribution: "App-GitGot-1\.08"
+patches:
+  - "RURBAN/patches/App-GitGot-1.08-returnor.patch"

@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87229]"
+match:
+  distribution: "Catalyst-Plugin-Authorization-Abilities-v0\.31\.0"
+patches:
+  - "RURBAN/patches/Catalyst-Plugin-Authorization-Abilities-v0.31.0-returnor.patch"

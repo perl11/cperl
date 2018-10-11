@@ -1,0 +1,8 @@
+comment: "autovivifying hash slices [cperl #347]"
+match:
+  distribution: "Module-Build-Tiny-0\.0"
+  perlconfig:
+    version: "^5\.(27\.3|28\.)"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Module-Build-Tiny-0.039-hslice.patch"

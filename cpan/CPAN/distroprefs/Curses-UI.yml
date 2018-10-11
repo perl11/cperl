@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87273]"
+match:
+  distribution: "Curses-UI-0\.9609"
+patches:
+  - "RURBAN/patches/Curses-UI-0.9609-returnor.patch"

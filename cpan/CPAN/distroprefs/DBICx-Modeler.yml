@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87274]"
+match:
+  distribution: "DBICx-Modeler-0\.005"
+patches:
+  - "RURBAN/patches/DBICx-Modeler-0.005-returnor.patch"

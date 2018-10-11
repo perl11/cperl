@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "^TELS/Devel-Size-0\.69\.tar\.gz"
+patches:
+  - "RURBAN/patches/Devel-Size-0.69.patch"

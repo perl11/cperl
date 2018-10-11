@@ -1,0 +1,12 @@
+---
+comment: "wrong return precedence [cpan #87200]"
+match:
+  distribution: "IO-All-0\.46"
+patches:
+  - "RURBAN/patches/IO-All-0.46-returnor.patch"
+---
+comment: "wrong c?perl -v"
+match:
+  distribution: "IO-All-0\.8"
+patches:
+  - "RURBAN/patches/IO-All-0.86-cperl.patch"

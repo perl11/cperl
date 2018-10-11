@@ -1,0 +1,6 @@
+---
+comment: "wrong precedence [cpan #87050]"
+match:
+  distribution: "JSWARTZ/HTML-Mason-1\.51"
+patches:
+  - "RURBAN/patches/HTML-Mason-1.51-returns.patch"

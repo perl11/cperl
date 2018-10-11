@@ -1,0 +1,10 @@
+---
+comment: core builtin cperl module, without a .pm
+match:
+  perlconfig:
+    usecperl: "define"
+  distribution: |
+    ^(?x:
+    SAPER/XSLoader-\d
+    )|
+disabled: 1

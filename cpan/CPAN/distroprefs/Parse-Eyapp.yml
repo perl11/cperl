@@ -1,0 +1,8 @@
+---
+match:
+  distribution: '/\QParse-Eyapp-1.182.tar.gz\E'
+  perlconfig:
+    version: '^5\.25\.\d+$'
+patches:
+  - patches/Parse-Eyapp-1.182-RT105643.patch
+# Unescaped left brace in regex is deprecated

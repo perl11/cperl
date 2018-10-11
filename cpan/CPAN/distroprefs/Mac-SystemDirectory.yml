@@ -1,0 +1,13 @@
+---
+comment: "-ObjC not valid with gcc chansen"
+match:
+  distribution: "^CHANSEN/Mac-SystemDirectory-"
+patches:
+  - "RURBAN/patches/Mac-SystemDirectory-0.06-m.patch"
+  - "RURBAN/patches/Mac-SystemDirectory-cc.patch"
+---
+comment: "-ObjC not valid with gcc ether"
+match:
+  distribution: "^ETHER/Mac-SystemDirectory-"
+patches:
+  - "RURBAN/patches/Mac-SystemDirectory-cc-ether.patch"

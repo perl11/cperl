@@ -1,0 +1,17 @@
+---
+comment: |
+  cperl regression with fake_sig #157
+
+match:
+  distribution: "XML-SAX-0\.99"
+  perlconfig:
+    version: "^5\.2[45]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/XML-SAX-0.99-cperl5240.patch"
+---
+comment: sax regression
+match:
+  distribution: "XML-SAX-0\.99"
+patches:
+  - "RURBAN/patches/XML-SAX-0.99-nolarge.patch"

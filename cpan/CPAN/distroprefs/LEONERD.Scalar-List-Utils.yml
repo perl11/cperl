@@ -1,0 +1,8 @@
+comment: "disable pairmap on 5.8.9 and 5.10.0 [cpan #87857]"
+---
+match:
+  distribution: "LEONERD/Scalar-List-Utils-1\.31\.tar\.gz"
+  perlconfig: 
+    version: "^5\.8\.9|5\.10\.0"
+patches:
+  - "RURBAN/patches/Scalar-List-Utils-589+5100-#87857.patch"

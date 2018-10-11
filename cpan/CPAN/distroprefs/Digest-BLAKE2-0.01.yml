@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "Digest-BLAKE2-0\.01"
+patches:
+  - "RURBAN/patches/Digest-BLAKE2-0.01-thr.patch"

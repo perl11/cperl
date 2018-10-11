@@ -1,0 +1,10 @@
+---
+comment: "no plan twice"
+match:
+  perlconfig:
+    version: "^5\.2[456]"
+    usecperl: "define"
+  distribution: "Test-Script-1\.15"
+patches:
+  - "RURBAN/patches/Test-Script-524.patch"
+  - "RURBAN/patches/Test-Script-cperl.patch"

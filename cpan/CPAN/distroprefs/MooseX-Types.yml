@@ -1,0 +1,9 @@
+---
+comment: "cperl patches: strict hashpairs"
+match:
+  perlconfig:
+    version: "^5\.2[78]"
+    usecperl: "define"
+  distribution: "MooseX-Types-0.50"
+patches:
+  - "RURBAN/patches/MooseX-Types-527c.patch"

@@ -1,0 +1,6 @@
+---
+comment: "Fixes coderef bug"
+match:
+  distribution: "^LDS/Devel-Cycle-1\.07\.tar\.gz$"
+patches:
+  - "RURBAN/patches/dc-coderef.patch"

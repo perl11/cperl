@@ -1,0 +1,12 @@
+---
+comment: |
+    wrong tests (typed cperl only) PR #68
+    add . to MyBuilder @INC (-Dfortify_inc or cperl)
+
+match:
+  perlconfig:
+    version: "^5\.2[45]"
+    usecperl: "define"
+  distribution: "Module-Build-0\.42"
+patches:
+  - "RURBAN/patches/Module-Build-INC.patch"

@@ -1,0 +1,6 @@
+---
+comment: "Fails to abort on linux, with missing syscall.ph (no ticket yet)"
+match:
+  distribution: "IO-KQueue-0\.34"
+patches:
+  - "RURBAN/patches/IO-KQueue-0.34.patch"

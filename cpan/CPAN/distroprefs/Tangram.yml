@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87223]"
+match:
+  distribution: "Tangram-2\.10"
+patches:
+  - "RURBAN/patches/Tangram-2.10-returnor.patch"

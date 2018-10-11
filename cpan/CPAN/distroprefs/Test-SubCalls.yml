@@ -1,0 +1,9 @@
+---
+comment: "missing . in @INC: -Dfortify_inc or cperl"
+match:
+  perlconfig:
+    version: "^5\.2[45]"
+    #usecperl: "define"
+  distribution: "Test-SubCalls-1\.09"
+patches:
+  - "RURBAN/patches/Test-SubCalls-1.09-inc.patch"

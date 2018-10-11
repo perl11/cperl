@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87313]"
+match:
+  distribution: "DBIx-DR-0\.23"
+patches:
+  - "RURBAN/patches/DBIx-DR-0.23-returnor.patch"

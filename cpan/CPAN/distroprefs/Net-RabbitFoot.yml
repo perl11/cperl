@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87324]"
+match:
+  distribution: "Net-RabbitFoot-1\.03"
+patches:
+  - "RURBAN/patches/Net-RabbitFoot-1.03-returnor.patch"

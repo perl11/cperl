@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87212]"
+match:
+  distribution: "Video-Manip-0\.03"
+patches:
+  - "RURBAN/patches/Video-Manip-0.03-returnor.patch"

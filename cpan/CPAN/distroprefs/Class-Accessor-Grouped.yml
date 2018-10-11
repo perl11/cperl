@@ -1,0 +1,9 @@
+---
+comment: "readonly ISA"
+match:
+  distribution: "Class-Accessor-Grouped-0\.100"
+  perlconfig:
+    version: "^5\.2[678]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Class-Accessor-Grouped-0.10012-roclass.patch"

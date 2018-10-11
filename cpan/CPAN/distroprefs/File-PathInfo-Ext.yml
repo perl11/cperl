@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87316]"
+match:
+  distribution: "File-PathInfo-Ext-1.30"
+patches:
+  - "RURBAN/patches/File-PathInfo-Ext-1.30-returnor.patch"

@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87232]"
+match:
+  distribution: "Spark-Form-0\.2102"
+patches:
+  - "RURBAN/patches/Spark-Form-0.2102-returnor.patch"

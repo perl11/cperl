@@ -1,0 +1,9 @@
+---
+comment: "Changed arity error message"
+match:
+  distribution: "Readonly-2\.05"
+  perlconfig:
+    version: "^5\.2[45]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Readonly-2.05-cperl524.patch"

@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "Enbugger-1\.03"
+patches:
+  - "RURBAN/patches/Enbugger-1.03.patch"

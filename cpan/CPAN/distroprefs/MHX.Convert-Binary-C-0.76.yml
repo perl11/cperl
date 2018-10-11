@@ -1,0 +1,6 @@
+---
+comment: "#83167: SvNULL REFCNT test fails in newer perls"
+match:
+  distribution: "MHX/Convert-Binary-C-0.76"
+patches:
+  - "RURBAN/patches/Convert-Binary-C-0.76.patch"

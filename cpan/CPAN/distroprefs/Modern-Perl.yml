@@ -1,0 +1,8 @@
+---
+comment: cperl test patches
+match:
+  distribution: "Modern-Perl-1\.20150127"
+  perlconfig:
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Modern-Perl-1.20150127-cperl.patch"

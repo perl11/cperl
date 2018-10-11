@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87196]"
+match:
+  distribution: "XML-XSS-0\.3\.1"
+patches:
+  - "RURBAN/patches/XML-XSS-0.3.1-returnor.patch"

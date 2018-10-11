@@ -1,0 +1,6 @@
+---
+comment: "Invalid compile-time use constant encoding for perlcc [cpan #94069]"
+match:
+  distribution: "Net-DNS-0\.(67|68|69|70|71|72|73|74)\.tar\.gz"
+patches:
+  - "RURBAN/patches/Net-DNS-0.74-perlcc.patch"

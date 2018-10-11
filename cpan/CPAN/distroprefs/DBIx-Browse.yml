@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87275]"
+match:
+  distribution: "DBIx-Browse-2\.09"
+patches:
+  - "RURBAN/patches/DBIx-Browse-2.09-returnor.patch"

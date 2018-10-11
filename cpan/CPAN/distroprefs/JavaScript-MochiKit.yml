@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87310]"
+match:
+  distribution: "JavaScript-MochiKit-0.04"
+patches:
+  - "RURBAN/patches/JavaScript-MochiKit-0.04-returnand.patch"

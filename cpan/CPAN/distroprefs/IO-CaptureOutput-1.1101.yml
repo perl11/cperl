@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "DAGOLDEN/IO-CaptureOutput-1\.1101"
+patches:
+  - "RURBAN/patches/IO-CaptureOutput-1.1101.patch"

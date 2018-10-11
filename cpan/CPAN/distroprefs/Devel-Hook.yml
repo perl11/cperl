@@ -1,0 +1,6 @@
+---
+comment: "pod error, no_plan [cpan #87054]"
+match:
+  distribution: "Devel-Hook-0\.005"
+patches:
+  - "RURBAN/patches/Devel-Hook-0.005.patch"

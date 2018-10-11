@@ -1,0 +1,6 @@
+---
+comment: "fat comma quoting fixed with 5.19.2 [cpan #87307]"
+match:
+  distribution: "Perl-Critic-Pulp-79"
+patches:
+  - "RURBAN/patches/Perl-Critic-Pulp-79-fatcomma.patch"

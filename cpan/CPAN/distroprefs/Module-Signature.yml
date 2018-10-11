@@ -1,0 +1,6 @@
+---
+comment: "prefer gpg2 over gpg (no ticket yet)"
+match:
+  distribution: "Module-Signature"
+patches:
+  - "RURBAN/patches/Module-Signature-gpg2.patch"

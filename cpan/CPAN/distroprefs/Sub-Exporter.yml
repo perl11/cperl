@@ -1,0 +1,8 @@
+comment: "autovivifying hash slices [cperl #347]"
+match:
+  distribution: "Sub-Exporter-0\.9"
+  perlconfig:
+    version: "^5\.(26|27\.3|28\.)"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Sub-Exporter-0.987-hslice.patch"

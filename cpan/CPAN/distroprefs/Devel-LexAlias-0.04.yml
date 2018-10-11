@@ -1,0 +1,5 @@
+---
+match:
+  distribution: "Devel-LexAlias-0.04"
+patches:
+  - "RURBAN/patches/Devel-LexAlias-0.04.patch"

@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87216]"
+match:
+  distribution: "File-Copy-Link-0\.113"
+patches:
+  - "RURBAN/patches/File-Copy-Link-0.113-returnor.patch"

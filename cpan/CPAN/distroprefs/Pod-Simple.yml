@@ -1,0 +1,6 @@
+---
+comment: "Stabilize search50.t test [perl-pod/pod-simple/pull/81]"
+match:
+  distribution: "Pod-Simple-3\.33"
+patches:
+  - "RURBAN/patches/Pod-Simple-search50.patch"

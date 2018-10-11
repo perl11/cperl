@@ -1,0 +1,9 @@
+---
+comment: "skip 4,'' is invalid"
+match:
+  distribution: "File-Slurp-9999\.19"
+  perlconfig:
+    version: "^5\.2[45]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/File-Slurp-9999.19-cperl5.24.patch"

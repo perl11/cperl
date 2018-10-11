@@ -1,0 +1,6 @@
+---
+comment: "DOS pathsep"
+match:
+  distribution: "GD-Dashboard-0.04"
+patches:
+  - "RURBAN/patches/GD-Dashboard-0.04.patch"

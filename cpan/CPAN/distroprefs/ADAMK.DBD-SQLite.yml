@@ -1,0 +1,11 @@
+---
+comment: "fixes RT#84906 asan global buffer overflows, RT#79576 modifiable bind params"
+match:
+  distribution: "ADAMK/DBD-SQLite-1\.37"
+patches:
+  - "RURBAN/patches/DBD-SQLite-1.38_03.patch"
+---
+match:
+  distribution: "ADAMK/DBD-SQLite-1\.25"
+patches:
+  - "RURBAN/patches/DBD-SQLite-1.25.patch"

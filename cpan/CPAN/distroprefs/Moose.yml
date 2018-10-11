@@ -1,0 +1,32 @@
+---
+comment: "cperl patches: signatures + debugger"
+match:
+  perlconfig:
+    version: "^5\.2[456]"
+    usecperl: "define"
+  distribution: "Moose-2\.200"
+patches:
+  - "RURBAN/patches/Moose-2.2005-dbg.patch"
+---
+comment: "cperl patches: _code_is_mine"
+match:
+  perlconfig:
+    version: "^5\.2[456789]"
+    usecperl: "define"
+  distribution: "Moose-2\.201.*"
+patches:
+  - "RURBAN/patches/Moose-2.2006-5271c.patch"
+  - "RURBAN/patches/Moose-2.2009-dbg.patch"
+  - "RURBAN/patches/Moose-2.0011-code_is_mine.patch"
+---
+comment: "cperl patches: strict hashpairs"
+match:
+  perlconfig:
+    version: "^5\.2[789]"
+    usecperl: "define"
+  distribution: "Moose-2\.20"
+patches:
+  - "RURBAN/patches/Moose-2.2009-dbg.patch"
+  - "RURBAN/patches/Moose-2.2005-5270c.patch"
+  - "RURBAN/patches/Moose-2.2006-5271c.patch"
+

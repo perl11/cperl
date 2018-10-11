@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87212]"
+match:
+  distribution: "WebService-Dropbox-1\.17"
+patches:
+  - "RURBAN/patches/WebService-Dropbox-1.17-returnor.patch"

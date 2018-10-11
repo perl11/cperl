@@ -1,0 +1,6 @@
+---
+comment: "cperl strict hashpairs [cperl #281][RT #121680]"
+match:
+  distribution: "Net-DNS-1\.10\.tar\.gz"
+patches:
+  - "RURBAN/patches/Net-DNS-1.10-527c.patch"

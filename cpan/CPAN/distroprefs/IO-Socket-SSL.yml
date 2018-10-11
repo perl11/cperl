@@ -1,0 +1,20 @@
+---
+match:
+  distribution: "SULLR/IO-Socket-SSL-1\.51"
+patches:
+  - "RURBAN/patches/IO-Socket-SSL-1.51.patch"
+---
+comment: "wrong return or precedence [cpan #87052]"
+match:
+  distribution: "SULLR/IO-Socket-SSL-1\.952"
+patches:
+  - "RURBAN/patches/IO-Socket-SSL-1.952-returnor.patch"
+---
+comment: "typed cperl strictness"
+match:
+  perlconfig:
+    version: "^5\.2[45]"
+    usecperl: "define"
+  distribution: "SULLR/IO-Socket-SSL-2\.037"
+patches:
+  - "RURBAN/patches/IO-Socket-SSL-2.027-typedcperl.patch"

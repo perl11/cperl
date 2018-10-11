@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87207]"
+match:
+  distribution: "App-Addex-0\.023"
+patches:
+  - "RURBAN/patches/App-Addex-0.023-returnor.patch"

@@ -1,0 +1,10 @@
+---
+comment: "disable t/Test/More"
+match:
+  distribution: "PMQS/IO-Compress-2\.0"
+  perlconfig:
+    version: "^5\.2[456]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/IO-Compress-2.072-Test-cperl.patch"
+  - "RURBAN/patches/IO-Compress-2.072-cperl.patch"

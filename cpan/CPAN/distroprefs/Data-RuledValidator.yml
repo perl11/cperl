@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87299]"
+match:
+  distribution: "Data-RuledValidator-0\.12"
+patches:
+  - "RURBAN/patches/Data-RuledValidator-0.12-returnor.patch"

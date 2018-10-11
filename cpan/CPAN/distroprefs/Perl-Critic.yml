@@ -1,0 +1,6 @@
+---
+comment: "wrong precedence [cpan #87032]"
+match:
+  distribution: "THALJEF/Perl-Critic-1\.118"
+patches:
+  - "RURBAN/patches/Perl-Critic-1.118-Utils.patch"

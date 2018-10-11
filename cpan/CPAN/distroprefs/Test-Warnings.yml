@@ -1,0 +1,9 @@
+---
+comment: "skip 0 is invalid"
+match:
+  distribution: "Test-Warnings-0\.026"
+  perlconfig:
+    version: "^5\.2[45]"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Test-Warnings-0.026-cperl524.patch"

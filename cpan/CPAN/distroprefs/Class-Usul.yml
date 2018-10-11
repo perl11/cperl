@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87258]"
+match:
+  distribution: "Class-Usul-v0\.21\.3"
+patches:
+  - "RURBAN/patches/Class-Usul-v0.21.3-returnor.patch"

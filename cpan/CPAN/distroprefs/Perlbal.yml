@@ -1,0 +1,6 @@
+---
+comment: "wrong return precedence [cpan #87050]"
+match:
+  distribution: "Perlbal-1\.80"
+patches:
+  - "RURBAN/Perlbal-1.80-returnor.patch"
