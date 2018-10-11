@@ -8,7 +8,7 @@ BEGIN {
     chdir 't' if -d 't';
 }
 
-print "1..213\n";
+print "1..216\n";
 
 sub failed {
     my ($got, $expected, $name) = @_;
@@ -738,6 +738,18 @@ is $@, "", 'substr keys assignment';
     eval 'm(@{if(0){sub d{]]])}return';
     like $@, qr/^syntax error at \(eval \d+\) line 1, near "\{\]"/,
         'RT #130815: null pointer deref';
+}
+
+# [cperl #380] backcompat for expansion of ' to ::
+# with 5.26c "$file's" was parsed as $file . "'s".
+# since 5.28c parsed as $file's identifier.
+{
+  my ($file,@file) = ("test", "a", "b");
+  my %file = ("test" => "a");
+  is("$file's test", " test", "accept quote in SCALAR identifier #380"); # i.e. $file's or $file::s ident
+  # Note that perl6 prints @file's verbatim, same as HASH. But we need to keep perl5's @ expansion.
+  is("@file's test", " test", "accept quote in ARRAY identifier");       # i.e. @file's or @file::s ident
+  is("%file's test", "%file's test", "HASH identifier not expanded");
 }
 
 # Add new tests HERE (above this line)
