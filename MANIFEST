@@ -2077,6 +2077,7 @@ cpan/Math-BigInt/t/dparts-mbf.t
 cpan/Math-BigInt/t/dparts-mbi.t
 cpan/Math-BigInt/t/eparts-mbf.t
 cpan/Math-BigInt/t/eparts-mbi.t
+cpan/Math-BigInt/t/from_base-mbi.t
 cpan/Math-BigInt/t/from_bin-mbf.t	Test Math::BigFloat
 cpan/Math-BigInt/t/from_bin-mbi.t
 cpan/Math-BigInt/t/from_hex-mbf.t	Test Math::BigFloat
@@ -2119,6 +2120,7 @@ cpan/Math-BigInt/t/sub_ali.t		Tests for aliases in BigInt subclasses
 cpan/Math-BigInt/t/sub_mbf.t		Empty subclass test of BigFloat
 cpan/Math-BigInt/t/sub_mbi.t		Empty subclass test of BigInt
 cpan/Math-BigInt/t/sub_mif.t		Test A & P with subclasses using mbimbf.inc
+cpan/Math-BigInt/t/to_base-mbi.t
 cpan/Math-BigInt/t/trap.t		Test whether trap_nan and trap_inf work
 cpan/Math-BigInt/t/upgrade.inc		Actual tests for upgrade.t
 cpan/Math-BigInt/t/upgrade.t		Test if use Math::BigInt(); under upgrade works
