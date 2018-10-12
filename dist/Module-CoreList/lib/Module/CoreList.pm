@@ -17193,6 +17193,7 @@ our %delta :const = (
             'Encode::Alias'         => '2.24',
             'Encode::Unicode'       => '2.17',
             'experimental'          => '0.020_01',
+            'Exporter'              => '5.73',
             'ExtUtils::Constant'            => '0.25_01',
             'ExtUtils::Constant::Base'      => '2.25_01',
             'ExtUtils::Constant::ProxySubs' => '2.25_01',

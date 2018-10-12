@@ -1401,6 +1401,8 @@ Enable lexical_topic for cperl 5.24, added perl5 compat.
 
 =item L<Exporter> 5.73
 
+More use vars => our
+
 =item L<ExtUtils::CBuilder> 0.280230
 
 Fix C++ compiler detection (RT #131749)
