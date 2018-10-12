@@ -156,6 +156,8 @@ reference to the corresponding C<from_(bin|hex|oct|bytes)> method.
 
 No code nor test changes.
 
+=item L<perlfaq> 5.20180915
+
 =item L<Storable> 3.12_02
 
 Enable >2GB AvFILL check on store_hook (64bit)
@@ -178,6 +180,17 @@ L<[cperl #374]|https://github.com/perl11/cperl/issues/374>
 
 Document the perl4-style single-quote C<'> behaviour in identifiers.
 See also L<http://perl11.org/blog/quote-identifiers.html>
+
+=back
+
+=head3 L<perlfaq> 5.20180915
+
+=over 4
+
+=item *
+
+prepend "./" to local require calls.
+Mojolicious ands Dancer2 are not called young anymore.
 
 =back
 
