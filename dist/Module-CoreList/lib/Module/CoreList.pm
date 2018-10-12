@@ -17661,6 +17661,11 @@ our %delta = (
             'ExtUtils::Manifest'    => '1.71',
             'Errno'                 => '1.29_01',
             'File::Path'            => '3.16_01c',
+            'Math::BigFloat'        => '1.999814',
+            'Math::BigInt'          => '1.999814',
+            'Math::BigInt::Calc'    => '1.999814',
+            'Math::BigInt::CalcEmu' => '1.999814',
+            'Math::BigInt::Lib'     => '1.999814',
             'Storable'              => '3.12_02',
         },
         removed => {

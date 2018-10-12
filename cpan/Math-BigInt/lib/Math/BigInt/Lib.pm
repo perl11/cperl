@@ -4,7 +4,7 @@ use 5.006001;
 use strict;
 use warnings;
 
-our $VERSION = '1.999813';
+our $VERSION = '1.999814';
 
 use Carp;
 
@@ -1162,6 +1162,43 @@ sub _to_bytes {
 
 *_as_bytes = \&_to_bytes;
 
+sub _to_base {
+    # convert the number to a string of digits in various bases
+    my $class = shift;
+    my $x     = shift;
+    my $base  = shift;
+    $base = $class -> _new($base) unless ref($base);
+
+    my $collseq;
+    if (@_) {
+        $collseq = shift();
+    } else {
+        if ($class -> _acmp($base, $class -> _new("62")) <= 0) {
+            $collseq = '0123456789' . 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+                                    . 'abcdefghijklmnopqrstuvwxyz';
+        } else {
+            croak "When base > 62, a collation sequence must be given";
+        }
+    }
+
+    my @collseq = split '', $collseq;
+    my %collseq = map { $_ => $collseq[$_] } 0 .. $#collseq;
+
+    my $str   = '';
+    my $tmp   = $class -> _copy($x);
+    my $rem;
+    until ($class -> _is_zero($tmp)) {
+        ($tmp, $rem) = $class -> _div($tmp, $base);
+        my $num = $class -> _num($rem);
+        croak "no character to represent '$num' in collation sequence",
+          " (collation sequence is too short)" if $num > $#collseq;
+        my $chr = $collseq[$num];
+        $str = $chr . $str;
+    }
+    return "0" unless length $str;
+    return $str;
+}
+
 sub _from_hex {
     # Convert a string of hexadecimal digits to a number.
 
@@ -1261,6 +1298,56 @@ sub _from_bytes {
         my $byteval = $class -> _new(unpack 'C', substr($str, $i, 1));
         $x = $class -> _add($x, $byteval);
     }
+    return $x;
+}
+
+sub _from_base {
+    # convert a string to a decimal number
+    my $class = shift;
+    my $str   = shift;
+    my $base  = shift;
+    $base = $class -> _new($base) unless ref($base);
+
+    my $n = length($str);
+    my $x = $class -> _zero();
+
+    my $collseq;
+    if (@_) {
+        $collseq = shift();
+    } else {
+        if ($class -> _acmp($base, $class -> _new("36")) <= 0) {
+            $str = uc $str;
+            $collseq = '0123456789' . 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        } elsif ($class -> _acmp($base, $class -> _new("62")) <= 0) {
+            $collseq = '0123456789' . 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+                                    . 'abcdefghijklmnopqrstuvwxyz';
+        } else {
+            croak "When base > 62, a collation sequence must be given";
+        }
+        $collseq = substr $collseq, 0, $class -> _num($base);
+    }
+
+    # Create a mapping from each character in the collation sequence to the
+    # corresponding integer. Check for duplicates in the collation sequence.
+
+    my @collseq = split '', $collseq;
+    my %collseq;
+    for my $num (0 .. $#collseq) {
+        my $chr = $collseq[$num];
+        die "duplicate character '$chr' in collation sequence"
+          if exists $collseq{$chr};
+        $collseq{$chr} = $num;
+    }
+
+    for (my $i = 0 ; $i < $n ; ++$i) {
+        my $chr = substr($str, $i, 1);
+        die "input character '$chr' does not exist in collation sequence"
+          unless exists $collseq{$chr};
+        $x = $class -> _mul($x, $base);
+        my $num = $class -> _new($collseq{$chr});
+        $x = $class -> _add($x, $num);
+    }
+
     return $x;
 }
 
@@ -1637,6 +1724,37 @@ Returns an object given a byte string representing the number. The byte string
 is in big endian byte order, so the two-byte input string "\x01\x00" should
 give an output value representing the number 256.
 
+=item CLASS-E<gt>_from_base(STR, BASE, COLLSEQ)
+
+Returns an object given a string STR, a base BASE, and a collation sequence
+COLLSEQ. Each character in STR represents a numerical value identical to the
+character's position in COLLSEQ. All characters in STR must be present in
+COLLSEQ.
+
+If BASE is less than or equal to 62, and a collation sequence is not specified,
+a default collation sequence consisting of the 62 characters 0..9, A..Z, and
+a..z is used. If the default collation sequence is used, and the BASE is less
+than or equal to 36, the letter case in STR is ignored.
+
+For instance, with base 3 and collation sequence "-/|", the character "-"
+represents 0, "/" represents 1, and "|" represents 2. So if STR is "/|-", the
+output is 1 * 3**2 + 2 * 3**1 + 0 * 3**0 = 15.
+
+The following examples show standard binary, octal, decimal, and hexadecimal
+conversion. All examples return 250.
+
+    $x = $class -> _from_base("11111010", 2)
+    $x = $class -> _from_base("372", 8)
+    $x = $class -> _from_base("250", 10)
+    $x = $class -> _from_base("FA", 16)
+
+Some more examples, all returning 250:
+
+    $x = $class -> _from_base("100021", 3, "012")
+    $x = $class -> _from_base("3322", 4, "0123")
+    $x = $class -> _from_base("2000", 5, "01234")
+    $x = $class -> _from_base("caaa", 5, "abcde")
+
 =back
 
 =head3 Mathematical functions
@@ -1844,6 +1962,19 @@ Returns the hexadecimal string representation of the number.
 Returns a byte string representation of OBJ. The byte string is in big endian
 byte order, so if OBJ represents the number 256, the output should be the
 two-byte string "\x01\x00".
+
+=item CLASS-E<gt>_to_base(OBJ, BASE, COLLSEQ)
+
+Returns a string representation of OBJ in base BASE with collation sequence
+COLLSEQ.
+
+    $val = $class -> _new("210");
+    $str = $class -> _to_base($val, 10, "xyz")  # $str is "zyx"
+
+    $val = $class -> _new("32");
+    $str = $class -> _to_base($val, 2, "-|")  # $str is "|-----"
+
+See _from_base() for more information.
 
 =item CLASS-E<gt>_as_bin(OBJ)
 
