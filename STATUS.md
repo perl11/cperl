@@ -36,18 +36,19 @@ on two unrelated core tests (issignaling setpayloadsig + chmod linked in).
 Windows is smoked with mingw, cygwin and MSVC 10 and 12 for 32 and 64bit.
 The BSD's and Solaris are only tested before a release.
 
-The current stable release is
+The current stable releases are
 
-* [5.26.3c](https://github.com/perl11/cperl/releases/tag/cperl-5.26.3) - [perl5263cdelta](perl5263cdelta.html).
+* [5.28.1c](https://github.com/perl11/cperl/releases/tag/cperl-5.28.1) - [perl5281cdelta](perl5281cdelta.html).
+* [5.26.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.26.4) - [perl5264cdelta](perl5264cdelta.html).
   
 the latest development release:
 
-* [5.28.0c](https://github.com/perl11/cperl/releases/tag/cperl-5.28.0) - [perl5280cdelta](perl5280cdelta.html).
+* [5.29.0c](https://github.com/perl11/cperl/releases/tag/cperl-5.29.0) - [perl5290cdelta](perl5290cdelta.html).
 
 We also have:
 
-* [5.24.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.3) - [perl5244cdelta](perl5244cdelta.html),
-* [5.22.5c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.5), [perl5225cdelta](perl5225cdelta.html).
+* [5.24.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.4) - [perl5244cdelta](perl5244cdelta.html),
+* [5.22.5c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.5) - [perl5225cdelta](perl5225cdelta.html).
 
 All tests pass. CPAN works.
 Some fixes in my [rurban/distroprefs](https://github.com/rurban/distroprefs/) repo for certain CPAN modules are needed.
@@ -56,8 +57,8 @@ v5.24.0c, v5.24.1c and v5.24.3c have
 [about 24 fixes](perldelta.html#Known-Problems-fixed-elsewhere),
 for problems which are not fixed in perl-5.24.1.  Ditto with 5.26,
 cperl-5.22.4c has about 20 fixes which are not in the latest
-perl-5.22.3. Similar numbers for v5.27.2c, as p5p is still adding
-security and performance problems.
+perl-5.22.3. Similar numbers for v5.29.0c, as p5p is still actively 
+adding more API, security and performance problems than fixing.
 Since cperl development is about 10x faster than p5p
 development, and damage done within p5p increases, these numbers do
 increase over time.
@@ -105,7 +106,7 @@ For all versions see [bench-all/](bench-all/index.html)
 * fixed the encoding pragma, it is undeprecated.
 * readonly packages can be cloned with threads.
 * security and overlarge data fixes for Storable, YAML not yet.
-* include B-C, Cpanel::JSON::XS, YAML::XS, Devel::NYTProf, Term::ReadKey
+* include B::C (the compiler), Cpanel::JSON::XS, YAML::XS, Devel::NYTProf, Term::ReadKey
 * improved redefined warnings.
 * cperl specific toolchain modules, with support for cperl-only module.
   versions with a 'c' suffix, and 10x faster JSON and YAML usage. (esp. with cpan).
@@ -135,8 +136,6 @@ For all versions see [bench-all/](bench-all/index.html)
   mixed scripts in identifiers.
 * undeprecate qw-as-parens with for. 'for qw(a b c) { print }' works again.
 * constant fold unpack in scalar context
-* range works with unicode characters
-* length and ref are optimized in boolean context
 * UNITCHECK global phase introspection
 * base/fields classes behave now like closed cperl classes: The ISA is readonly,
   inheritance checks are performed at compile-time already.
@@ -151,15 +150,18 @@ For all versions see [bench-all/](bench-all/index.html)
 * thread-safety on darwin for uselocale
 * hash slice consistency, no autovivification as sub args
 * no perl4 `'` package seperator, `'` is not expanded to `::`
+* Less m/{}/ Unescaped left brace in regex is deprecated here warnings
+* keep utf8 flag for methods
+* ffi - a builtin foreign function interface
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.
 
-But some features revert decisions p5p already
-made. See [README.cperl](perlcperl.html).  When in doubt I went with
-the decisions and policies perl5 made before 2001, before p5p went
-downwards. It is very unlikely that p5p will revert their own design
-mistakes. It never happened so far.
+But some features revert decisions p5p already made. See
+[README.cperl](perlcperl.html).  When in doubt I went with the
+decisions and policies perl6 decided on and perl5 made before 2001,
+before p5p went downwards. It is very unlikely that p5p will revert
+their own design mistakes. It never happened so far.
 
 # Installation
 
@@ -348,13 +350,6 @@ were rejected and 2 were butchered, i.e. rewritten in a worse way.
 Those branches could have theoretically been merged upstream, but the chances
 are limited. So they are based on master.
 
-* [builtin ffi](https://github.com/perl11/cperl/issues/22)
-  
-  [code](http://github.com/perl11/cperl/commits/smoke/gh22-ffi)
-  
-  windows: autoinstall of binary libffi missing.
-  more convenience methods needed.
-
 * [bugfix/gh311-role-meth](https://github.com/perl11/cperl/issues/311)
 
   See the relevant #16 subtickets:
@@ -416,11 +411,8 @@ are limited. So they are based on master.
   
   optimize space for small strings.
 
-and various [hash tables refactorings](https://github.com/perl11/cperl/issues/24):
-
-feature/gh24-base-hash feature/gh24-he-array feature/gh24-oldnew-hash-table
-featurex/gh24-array_he featurex/gh24-hash-loop featurex/gh24-hash-loop+utf8
-featurex/gh24-hash-utf8 featurex/gh24-hopscotch-hash.
+and various [hash tables refactorings](https://github.com/perl11/cperl/issues/24).
+See below.
 
 ## A bit more work is needed for
 
@@ -450,13 +442,14 @@ They also revert some wrong decisions p5p already made.
   [code](http://github.com/perl11/cperl/commits/feature/gh24-new-hash-table)
 
   lots of small attempts, but still too hairy. might need a complete hash table rewrite.
-  getting there, but not yet finished for 5.26.
+  getting there, but not yet finished for 5.28. The goal is 5.30c.
 
 * various more hash tables:
 
   [featurex/gh24-one-word-ahe](http://github.com/perl11/cperl/commits/featurex/gh24-one-word-ahe), 
   [featurex/gh24-open-hash](http://github.com/perl11/cperl/commits/featurex/gh24-open-hash), 
   [featurex/gh24-hopscotch-hash](http://github.com/perl11/cperl/commits/featurex/gh24-hopscotch-hash)
+  featurex/gh24-swiss-hash
 
 ## Soon
 
@@ -468,4 +461,4 @@ They also revert some wrong decisions p5p already made.
 
 --
 
-2018-09-13 rurban
+2018-10-12 rurban

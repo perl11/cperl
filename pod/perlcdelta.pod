@@ -7,15 +7,11 @@ perlcdelta - what is new for cperl v5.28.1
 =head1 DESCRIPTION
 
 This document describes the differences between the cperl 5.28.0
-and the cperl 5.28.1 releases.
+and the cperl 5.28.1 release.
 
 If you are upgrading from an earlier release such as v5.26.0c, first
 read the L<perl526*cdelta> documentation, which describes differences
 between v5.26.0c and v5.26.3c
-
-=head1 Notice
-
-XXX Any important notices here
 
 =head1 Core Enhancements
 
@@ -27,14 +23,6 @@ name is now normalized.
 L<[cperl #376]|https://github.com/perl11/cperl/issues/376>
 
 This is a bugfix, but a major compatibility change.
-
-=head1 Security
-
-XXX Any security-related notices go here.  In particular, any security
-vulnerabilities closed should be noted here rather than in the
-L</Selected Bug Fixes> section.
-
-[ List each security issue as a =head2 entry ]
 
 =head1 Performance Enhancements
 
@@ -85,18 +73,28 @@ previous directory ~/.cpan/build changed before entering tmp-32186,
 expected dev=47 ino=244719549, actual dev=47 ino=33303, aborting at
 CPAN/Distribution.pm line 591
 
-Add many upstream tests and distroprefs. Still need to install them, and
-add the cperl distroprefs.
+Add many upstream tests.
+
+Add the distroprefs from CPAN and cperl. Install them by copying them
+to your F<~/.cpan/prefs/> or see
+L<https://github.com/rurban/distroprefs/>.
 
 =item L<Cwd> 4.75c
 
-Fixed long pathnames test for getcwd() on older systems, like debian-7.11 i386,
-which still returns ENAMETOOLONG on large enough buffers.
+Fixed long pathnames test for getcwd() on older systems, like
+debian-7.11 i386, which still returns ENAMETOOLONG on large enough
+buffers.
 
 Fix the HAS_GET_CURRENT_DIR_NAME check, and the is_ENAMETOOLONG macro.
 
-For getcwd with C<get_current_dir_name()> - i.e. fastcwd - add abs_path.
-See also L<http://perl11.org/blog/fastcwd.html>
+For getcwd with C<get_current_dir_name()> - i.e. fastcwd - add
+abs_path.  See also L<http://perl11.org/blog/fastcwd.html>
+
+=item L<DynaLoader> 2.09c
+
+dl_load_file: set NULL xs (bootstrap). When we find the bootname via
+dl_find_symbol early, we still need to set xs from dl_install_xsub().
+Coverity CID #165325
 
 =item L<Errno> 1.29_01
 
@@ -125,110 +123,61 @@ L<[cperl #374]|https://github.com/perl11/cperl/issues/374>
 
 =head1 Documentation
 
-XXX Changes to files in F<pod/> go here.  Consider grouping entries by
-file and be sure to link to the appropriate page, e.g. L<perlfunc>.
-
 =head2 Changes to Existing Documentation
 
-XXX Changes which significantly change existing files in F<pod/> go here.
-However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
-section.
-
-=head3 L<XXX>
+=head3 L<perldata>
 
 =over 4
 
 =item *
 
-XXX Description of the change here
-
-=back
-
-=head1 Diagnostics
-
-The following additions or changes have been made to diagnostic output,
-including warnings and fatal error messages.  For the complete list of
-diagnostic messages, see L<perldiag>.
-
-=head2 Changes to Existing Diagnostics
-
-XXX Changes (i.e. rewording) of diagnostic messages go here
-
-=over 4
-
-=item *
-
-XXX Describe change here
-
-=back
-
-=head1 Utility Changes
-
-XXX Changes to installed programs such as F<cperlbug> and F<xsubpp> go here.
-Most of these are built within the directory F<utils>.
-
-[ List utility changes as a =head2 entry for each utility and =item
-entries for each change
-Use L<XXX> with program names to get proper documentation linking. ]
-
-=head2 L<XXX>
-
-=over 4
-
-=item *
-
-XXX
+Document the perl4-style single-quote C<'> behaviour in identifiers.
+See also L<http://perl11.org/blog/quote-identifiers.html>
 
 =back
 
 =head1 Configuration and Compilation
 
-XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
-go here.  Any other changes to the Perl build process should be listed here.
-However, any platform-specific changes should be listed in the
-L</Platform Support> section, instead.
-
-[ List changes as a =item entry ].
-
 =over 4
 
 =item *
 
-XXX
+Configure: fix doubleinfbytes=undef ...
+#define DOUBLEINFBYTES undef is illegal
+Backported from 5.29.0c
 
 =back
 
 =head1 Testing
 
-XXX Any significant changes to the testing of a freshly built perl should be
-listed here.  Changes which create B<new> files in F<t/> go here as do any
-large changes to the testing harness (e.g. when parallel testing was added).
-Changes to existing files in F<t/> aren't worth summarizing, although the bugs
-that they represent may be covered elsewhere.
-
-[ List each test improvement as a =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+Skip C<==\d+==WARNING: LeakSanitizer is disabled in forked process>
+STDERR messages in some tests.
+
+=item *
+
+Fixed F<t/op/chdir.t> when pwd is a symlink and thus C<abs_path> returns
+the real path.  Also fix the inclusion of F<test.pl> and some more
+minitests.
+
+The early requirement of F<test.pl>, when not in F<t/> would lead go a
+C<fresh_perl> tempfile of F<t/tmpXXXX>, which is then later when we chdir'd
+into F<t/> illegal.
+
+=item *
+
+Check for dtrace locking everywhere.
+Not only on darwin. Mostly also on solaris, but also on oraclelinux
+and Windows 10 now.
 
 =back
 
 =head1 Platform Support
 
-XXX Any changes to platform support should be listed in the sections below.
-
-[ Within the sections, list each platform as a =item entry with specific
-changes as paragraphs below it. ]
-
 =head2 Platform-Specific Notes
-
-XXX List any changes for specific platforms.  This could include configuration
-and compilation changes or changes in portability/compatibility.  However,
-changes within modules for platforms should generally be listed in the
-L</Modules and Pragmata> section.
 
 =over 4
 
@@ -257,17 +206,28 @@ Enable HAS_BOOL, fixes F<xkeycheck.h> redefinition errors.
 
 =head1 Internal Changes
 
-XXX Changes which affect the interface available to C<XS> code go here.  Other
-significant internal changes for future core maintainers should be noted as
-well.
-
-[ List each change as a =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+Fixed C<getcwd_sv> to add C<abs_path> when using the fast and preferred glibc call
+C<get_current_dir_name()>. Until 5.28.1c C<get_current_dir_name()> was never used.
+This affected several CPAN modules: DBD::File, CPAN::Distribution, File::Path.
+
+=item *
+
+Fix Unicode methods with -> syntax: keep WAS_UTF8 flag.
+
+See L<[cperl #377]|https://github.com/perl11/cperl/issues/377>
+A direct method call with C<::> stays utf8,
+but a method call with C<<< -> >>> stripped the utf8 flag.
+In cperl this lead to an invalid identifier error under strict names.
+
+Føø::Bær::nèw() keeps the METHOP/ENTERSUB utf8 flag in the GV SVOP.  But
+with Føø::Bær->nèw() the nèw is stored interim as shared pvn, which strips
+off the utf8 to be stored in the strtab - newSVpvn_share: bytes_from_utf8
+&is_utf8 - which leads to the conversion to the entersub gv without the utf8
+flag.  The WAS_UTF8 flag is not stored.
 
 =back
 
@@ -280,6 +240,7 @@ XXX
 Fix C<valid_ident()> for 128-255 chars not to use isIDFIRST_A nor
 isIDCONT_A, _A does not match them.  Fixes F<t/uni/method.t> for chars
 like oslash.
+See L<[cperl #377]|https://github.com/perl11/cperl/issues/377>
 
 =item *
 
@@ -316,41 +277,28 @@ anymore.
 
 =back
 
-=head1 Known Problems
-
-XXX Descriptions of platform agnostic bugs we know we can't fix go here.  Any
-tests that had to be C<TODO>ed for the release would be noted here.  Unfixed
-platform specific bugs also go here.
-
-[ List each fix as a =item entry ]
-
-=over 4
-
-=item *
-
-XXX
-
-=back
-
-=head1 Errata From Previous Releases
-
-=over 4
-
-=item *
-
-XXX Add anything here that we forgot to add, or were mistaken about, in
-the perldelta of a previous release.
-
-=back
-
-=head1 Obituary
-
-XXX If any significant core contributor has died, we've added a short obituary
-here.
-
 =head1 Acknowledgements
 
-XXX Generate this with:
+cperl 5.28.1 represents approximately 5 weeks of development since cperl
+5.28.0c and contains approximately 40,000 lines of changes across 940 files
+from 2 authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 5,300 lines of changes to 110 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements that
+became cperl 5.28.1:
+
+Reini Urban, Andreas König.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please
+see the F<AUTHORS> file in the Perl source distribution.
+
+Generated with:
 
     cperl Porting/acknowledgements.pl cperl-5.28.0..HEAD -c
 
