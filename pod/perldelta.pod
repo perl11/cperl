@@ -5,15 +5,15 @@
 [ this is a template for a new perldelta file.  Any text flagged as XXX needs
 to be processed before release. ]
 
-perldelta - what is new for perl v5.29.3
+perldelta - what is new for perl v5.29.4
 
 =head1 DESCRIPTION
 
-This document describes differences between the 5.29.2 release and the 5.29.3
+This document describes differences between the 5.29.3 release and the 5.29.4
 release.
 
-If you are upgrading from an earlier release such as 5.29.1, first read
-L<perl5292delta>, which describes differences between 5.29.1 and 5.29.2.
+If you are upgrading from an earlier release such as 5.29.2, first read
+L<perl5293delta>, which describes differences between 5.29.2 and 5.29.3.
 
 =head1 Notice
 
@@ -26,6 +26,12 @@ enhancements.  Particularly prominent performance optimisations could go
 here, but most should go in the L</Performance Enhancements> section.
 
 [ List each enhancement as a =head2 entry ]
+
+=head2 The maximum number of times a pattern can match has been doubled
+to 65535
+
+This means if you specify C<qr/a+/> that there can be anywhere from 1
+through 65535 C<"a">'s in a row, instead of 32267 as previously.
 
 =head1 Security
 
@@ -44,6 +50,41 @@ XXX For a release on a stable branch, this section aspires to be:
     report.  See L</Reporting Bugs> below.
 
 [ List each incompatible change as a =head2 entry ]
+
+=head2 Assigning non-zero to C<$[> is fatal
+
+Setting L<< C<$[>|perlvar/$[ >> to a non-zero value has been deprecated since
+Perl 5.12 and now throws a fatal error.
+See L<<< perldeprecation/Assigning non-zero to C<< $[ >> is fatal >>>.
+
+=head2 Previously deprecated sysread()/syswrite() on :utf8 handles now fatal
+
+Calling sysread(), syswrite(), send() or recv() on a C<:utf8> handle,
+whether applied explicitly or implicitly, is now fatal.  This was
+deprecated in perl 5.24.
+
+There were two problems with calling these functions on C<:utf8>
+handles:
+
+=over
+
+=item *
+
+all four functions only paid attention to the C<:utf8> flag, other
+layers were completely ignored, so a handle with
+C<:encoding(UTF-16LE)> layer would be treated as UTF-8.  Other layers,
+such as compression are completely ignored with or without the
+C<:utf8> flag.
+
+=item *
+
+sysread() and recv() would read from the handle, skipping any
+validation by the layers, and do no validation of their own.  This
+could lead to invalidly encoded perl scalars.
+
+=back
+
+[perl #125760]
 
 =head1 Deprecations
 
@@ -125,13 +166,10 @@ XXX Remove this section if not applicable.
 
 =item *
 
-L<File::Path> has been upgraded from version 2.15 to 2.16.
+L<vars> has been upgraded from version 1.04 to 1.05.
 
-=item *
-
-L<XXX> has been upgraded from version A.xx to B.yy.
-
-If there was something important to note about this change, include that here.
+C<vars.pm> no longer disables non-vars strict when checking if strict
+vars is enabled.  [perl #130674]
 
 =back
 
@@ -141,8 +179,12 @@ If there was something important to note about this change, include that here.
 
 =item *
 
-C<Locale::Codes> has been removed at the request of its author.  It
-continues to be available on CPAN C<L<Locale::Codes>>.  [perl #133458].
+B::Debug is no longer distributed with the core distribution.  It remains
+available on CPAN.
+
+=item *
+
+XXX
 
 =back
 
@@ -335,10 +377,9 @@ L</Modules and Pragmata> section.
 
 =over 4
 
-=item Windows
+=item XXX-some-platform
 
-The Windows Server 2003 SP1 Platform SDK build, with its early x64 compiler and
-tools, was accidentally broken in Perl 5.27.9.  This has now been fixed.
+XXX
 
 =back
 
@@ -369,9 +410,12 @@ files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 
 =item *
 
-Warnings produced when constant folding operations on overloaded
-values no longer produce spurious "Use of uninitialized value"
-warnings.  [perl #132683]
+C<pack "u", "invalid uuencoding"> now properly NUL terminates the
+zero-length SV produced.  [perl #132655]
+
+=item *
+
+Improve the debugging output for calloc() calls with C<-Dm>.  [perl #133439]
 
 =back
 
@@ -411,7 +455,7 @@ died, add a short obituary here.
 
 XXX Generate this with:
 
-  perl Porting/acknowledgements.pl v5.29.2..HEAD
+  perl Porting/acknowledgements.pl v5.29.3..HEAD
 
 =head1 Reporting Bugs
 
