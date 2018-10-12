@@ -836,7 +836,7 @@ use File::Glob qw(:case);
     },
 
     'IO' => {
-        'DISTRIBUTION' => 'GBARR/IO-1.25.tar.gz',
+        'DISTRIBUTION' => 'GBARR/IO-1.39.tar.gz',
         'FILES'        => q[dist/IO/],
         'EXCLUDED'     => ['t/test.pl'],
         'CUSTOMIZED' => [ qw( lib/IO/Socket.pm
