@@ -120,6 +120,10 @@ dl_load_file: set NULL xs (bootstrap). When we find the bootname via
 dl_find_symbol early, we still need to set xs from dl_install_xsub().
 Coverity CID #165325
 
+=item L<ExtUtils::Manifest> 1.71
+
+Only pod formatting
+
 =item L<Errno> 1.29_01
 
 Protect from including some avx512 intrinsics directly on mingw.
