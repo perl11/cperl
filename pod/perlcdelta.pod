@@ -121,6 +121,13 @@ L<[perl #133543]|https://rt.perl.org/Public/Bug/Display.html?id=133543>
 Note: cperl does not agree that this feature is a bug, but this ship
 sailed already over a decade ago.
 
+=head2 Fatalize $* and $#
+
+These special variables, long deprecated, now throw an error when used.
+See L<perldiag/"$* is no longer supported as of Perl 5.30"> and
+L<perldiag/"$# is no longer supported as of Perl 5.30">.
+L<[perl #133583]|https://rt.perl.org/Public/Bug/Display.html?id=133583>
+
 =head1 Deprecations
 
 XXX Any deprecated features, syntax, modules etc. should be listed here.
