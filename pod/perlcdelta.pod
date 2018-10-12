@@ -161,6 +161,10 @@ release manager will have to investigate the situation carefully.)
 
 =over 4
 
+=item L<ffi> 0.01c
+
+ffi helpers and ffi types.
+
 =item L<hashiter>
 
 Allow hash iterators changing keys for back-compat.
@@ -238,10 +242,6 @@ libraries. This is a convenience platform-compat feature for the L<ffi>.
 =item L<Errno> 1.29_01
 
 Protect from including some avx512 intrinsics directly on mingw.
-
-=item L<ffi> 0.01c
-
-ffi helpers and ffi types.
 
 =item L<File::Path> 3.16_02c
 
