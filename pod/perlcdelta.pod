@@ -239,6 +239,10 @@ Extend C<dl_find_symbol> on dl_win32 to mimic the POSIX behaviour with
 an empty libhandle argument: Search the symbol in all loaded shared
 libraries. This is a convenience platform-compat feature for the L<ffi>.
 
+=item L<ExtUtils::Manifest> 1.71
+
+Only pod formatting
+
 =item L<Errno> 1.29_01
 
 Protect from including some avx512 intrinsics directly on mingw.
