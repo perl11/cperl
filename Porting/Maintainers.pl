@@ -1579,8 +1579,7 @@ use File::Glob qw(:case);
         'CUSTOMIZED'   => [
             qw( lib/version.pm lib/version/regex.pm
                 ),
-            # Merged upstream, waiting for new CPAN release: see CPAN RT#92721
-            # cperl allows the ending 'c'
+            # Some merged upstream, cperl allows the ending 'c'
             qw( vutil.c vxs.inc
                 ),
         ],

@@ -9,20 +9,19 @@ perlcdelta - what is new for cperl v5.29.0
 This document describes differences between the cperl 5.29.0 and the cperl
 5.28.0 release.
 
-If you are upgrading from an earlier release such as v5.26.2c, first read
-L<perl5280cdelta>, which describes differences between v5.26.2c and v5.28.0c.
-
-=head1 Notice
-
-XXX Any important notices here
+If you are upgrading from an earlier release such as v5.26.3c, first read
+L<perl5280cdelta>, which describes differences between v5.26.3c and v5.28.0c.
 
 =head1 Core Enhancements
 
-XXX New core language features go here.  Summarize user-visible core language
-enhancements.  Particularly prominent performance optimisations could go
-here, but most should go in the L</Performance Enhancements> section.
+=head2 Check bless name under use strict names
 
-[ List each enhancement as a =head2 entry ]
+The second argument to bless, the new classname, is now checked to be a
+valid package name identifier when B<strict 'names'> is in effect, and the
+name is now normalized.
+L<[cperl #376]|https://github.com/perl11/cperl/issues/376>
+
+This is a bugfix, but a major compatibility change.
 
 =head2 New warning shadow package
 
@@ -50,23 +49,7 @@ wchar, c-struct helpers, native arrays and native classes
 (i.e. structs), callback helpers and support for variadic (varargs)
 functions.
 
-=head1 Security
-
-XXX Any security-related notices go here.  In particular, any security
-vulnerabilities closed should be noted here rather than in the
-L</Selected Bug Fixes> section.
-
-[ List each security issue as a =head2 entry ]
-
 =head1 Incompatible Changes
-
-XXX For a release on a stable branch, this section aspires to be:
-
-    There are no changes intentionally incompatible with 5.XXX.XXX
-    If any exist, they are bugs, and we request that you submit a
-    report.  See L</Reporting Bugs> below.
-
-[ List each incompatible change as a =head2 entry ]
 
 =head2 Protected hash iterators
 
@@ -97,65 +80,18 @@ to be quoted.  We undeprecated those new warnings and errors, there's
 nothing more to reserve (yet).
 L<[cperl #362]|https://github.com/perl11/cperl/issues/362>
 
-=head2 Module removals
-
-XXX Remove this section if inapplicable.
-
-The following modules will be removed from the core distribution in a
-future release, and will at that time need to be installed from CPAN.
-Distributions on CPAN which require these modules will need to list them as
-prerequisites.
-
-The core versions of these modules will now issue C<"deprecated">-category
-warnings to alert you to this fact.  To silence these deprecation warnings,
-install the modules in question from CPAN.
-
-Note that these are (with rare exceptions) fine modules that you are encouraged
-to continue to use.  Their disinclusion from core primarily hinges on their
-necessity to bootstrapping a fully functional, CPAN-capable Perl installation,
-not usually on concerns over their design.
-
-=over
-
-=item XXX
-
-XXX Note that deprecated modules should be listed here even if they are listed
-as an updated module in the L</Modules and Pragmata> section.
-
-=back
-
-[ List each other deprecation as a =head2 entry ]
-
 =head1 Performance Enhancements
-
-XXX Changes which enhance performance without changing behaviour go here.
-There may well be none in a stable release.
-
-[ List each enhancement as an =item entry ]
 
 =over 4
 
-=item *
+=item Improve newSVpvn_share
 
-XXX
+Don't downgrade twice, the is_utf8 flags can be taken from the
+returned hek, which does the downgrading to bytes already.
 
 =back
 
 =head1 Modules and Pragmata
-
-XXX All changes to installed files in F<cpan/>, F<dist/>, F<ext/> and F<lib/>
-go here.  If Module::CoreList is updated, generate an initial draft of the
-following sections using F<Porting/corelist-perldelta.pl>.  A paragraph summary
-for important changes should then be added by hand.  In an ideal world,
-dual-life modules would have a F<Changes> file that could be cribbed.
-
-The list of new and updated modules is modified automatically as part of
-preparing a Perl release, so the only reason to manually add entries here is if
-you're summarising the important changes in the module update. (Also, if the
-manually-added details don't match the automatically-generated ones, the
-release manager will have to investigate the situation carefully.)
-
-[ Within each section, list entries as an =item entry ]
 
 =head2 New Modules and Pragmata
 
@@ -314,36 +250,16 @@ XXX
 XXX Changes to files in F<pod/> go here.  Consider grouping entries by
 file and be sure to link to the appropriate page, e.g. L<perlfunc>.
 
-=head2 New Documentation
-
-XXX Changes which create B<new> files in F<pod/> go here.
-
-=head3 L<XXX>
-
-XXX Description of the purpose of the new file here
-
 =head2 Changes to Existing Documentation
 
 We have attempted to update the documentation to reflect the changes
 listed in this document.  If you find any we have missed, send email
 to L<perlbug@perl.org|mailto:perlbug@perl.org>.
 
-XXX Changes which significantly change existing files in F<pod/> go here.
-However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
-section.
-
-Additionally, the following selected changes have been made:
-
 =head3 L<perlfaq> 5.20180915
-
-=over 4
-
-=item *
 
 prepend "./" to local require calls.
 Mojolicious ands Dancer2 are not called young anymore.
-
-=back
 
 =head1 Diagnostics
 
@@ -351,13 +267,7 @@ The following additions or changes have been made to diagnostic output,
 including warnings and fatal error messages.  For the complete list of
 diagnostic messages, see L<perldiag>.
 
-XXX New or changed warnings emitted by the core's C<C> code go here.  Also
-include any changes in L<perldiag> that reconcile it to the C<C> code.
-
 =head2 New Diagnostics
-
-XXX Newly added diagnostic messages go under here, separated into New Errors
-and New Warnings
 
 =head3 New Errors
 
@@ -365,7 +275,59 @@ and New Warnings
 
 =item *
 
-XXX L<message|perldiag/"message">
+L<ffi_prep_cif error %d: %s at %s, line %d|perldiag/"ffi_prep_cif error %d: %s at %s, line %d">
+
+=item *
+
+L<An extern sub may not have a prototype|perldiag/"An extern sub may not have a prototype">
+
+=item *
+
+L<ffi not available|perldiag/"ffi not available">
+
+=item *
+
+L<Illegal declaration of extern subroutine %s. Need signature|perldiag/"Illegal declaration of extern subroutine %s. Need signature">
+
+=item *
+
+L<Illegal :encoded(%s) argument|perldiag/"Illegal :encoded(%s) argument">
+
+=item *
+
+L<Illegal :nativeconv(%s) argument|perldiag/"Illegal :nativeconv(%s) argument">
+
+=item *
+
+L<Invalid :%s(%s) attribute argument type|perldiag/"Invalid :%s(%s) attribute argument type">
+
+=item *
+
+L<Missing type for extern sub argument %s|perldiag/"Missing type for extern sub argument %s">
+
+=item *
+
+L<:nativeconv is only valid for :native or extern sub|perldiag/":nativeconv is only valid for :native or extern sub">
+
+=item *
+
+L<Null extern sub symbol|perldiag/"Null extern sub symbol">
+
+=item *
+
+L<:%s() attribute argument missing|perldiag/":%s() attribute argument missing">
+
+=item *
+
+L<:%s is only valid for :native or extern sub|perldiag/":%s is only valid for :native or extern sub">
+
+=item *
+
+L<Unknown ffi return type :%s, assume :void|perldiag/"Unknown ffi return type :%s, assume :void">
+
+=item *
+
+L<Attempt to change hash while iterating over it|perldiag/"Attempt to change hash while iterating over it">
 
 =back
 
@@ -382,47 +344,41 @@ L<Subroutine &%s::%s masks existing package %s::%s|perldiag/"Subroutine &%s::%s 
 L<Subroutine &%s masks new package %s|perldiag/"Subroutine &%s masks new package %s"> and
 L<Subroutine &%s masks new class %s|perldiag/"Subroutine &%s masks new class %s">
 
+=item *
+
+L<ffi: Possible %s overflow %d|perldiag/"ffi: Possible %s overflow %d">
+
+=item *
+
+L<no ffi without DynaLoader|perldiag/"no ffi without DynaLoader">
+
+=item *
+
+L<:symbol is already resolved|perldiag/":symbol is already resolved">
+
+=item *
+
+L<Use of '%s' in \p{} or \P{} is deprecated because: %s|perldiag/"Use of '%s' in \p{} or \P{} is deprecated because: %s">
+
 =back
 
 =head2 Changes to Existing Diagnostics
 
-XXX Changes (i.e. rewording) of diagnostic messages go here
-
 =over 4
 
-=item *
+=item No autovivification of hash slice anymore
 
-XXX Describe change here
+Added note that this warning is only enabled with the
+lexical C<syntax> warnings category, not C<-w> anymore.
 
-=back
+=item Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.32), passed through in regex; marked by S<<-- HERE> in m/%s/
 
-=head1 Utility Changes
-
-XXX Changes to installed programs such as F<perlbug> and F<xsubpp> go here.
-Most of these are built within the directory F<utils>.
-
-[ List utility changes as a =head2 entry for each utility and =item
-entries for each change
-Use L<XXX> with program names to get proper documentation linking. ]
-
-=head2 L<XXX>
-
-=over 4
-
-=item *
-
-XXX
+Added note that cperl allows more. In cperl only the combinations with C<\NpPbBxog{}>
+are illegal.
 
 =back
 
 =head1 Configuration and Compilation
-
-XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
-go here.  Any other changes to the Perl build process should be listed here.
-However, any platform-specific changes should be listed in the
-L</Platform Support> section, instead.
-
-[ List changes as an =item entry ].
 
 =over 4
 
@@ -443,7 +399,11 @@ Disable destructive hash key modifications during iteration by default.
 C<use hashiter;> to allow it.
 L<[cperl #117]|https://github.com/perl11/cperl/issues/117>
 
-=item Porting/do-make-cperl-release
+=item doubleinfbytes,doublenanbytes,longdblinfbytes,longdblnanbytes
+
+Fixed the error cases when the double or long double probes returned undef.
+
+=item F<Porting/do-make-cperl-release>
 
 Replace C<sha1sum> with C<sha256sum>, add C<gpg -a -b $pkg>.
 
@@ -451,24 +411,9 @@ Replace C<sha1sum> with C<sha256sum>, add C<gpg -a -b $pkg>.
 
 =head1 Testing
 
-XXX Any significant changes to the testing of a freshly built perl should be
-listed here.  Changes which create B<new> files in F<t/> go here as do any
-large changes to the testing harness (e.g. when parallel testing was added).
-Changes to existing files in F<t/> aren't worth summarizing, although the bugs
-that they represent may be covered elsewhere.
-
-XXX If there were no significant test changes, say this:
-
-Tests were added and changed to reflect the other additions and changes
-in this release.
-
-XXX If instead there were significant changes, say this:
-
 Tests were added and changed to reflect the other additions and
 changes in this release.  Furthermore, these significant changes were
 made:
-
-[ List each test improvement as an =item entry ]
 
 =over 4
 
@@ -478,48 +423,15 @@ F<op/hash-rt85026.t> finds now almost ever a collision, and skips the test
 with usesafehashiter enabled (the default). Such not easily detectable
 destructive hash iters are now forbidden, thanks to B<usesafehashiter>.
 
+=item *
+
+F<op/chdir.t> when pwd is a symlink.
+
 =back
 
 =head1 Platform Support
 
-XXX Any changes to platform support should be listed in the sections below.
-
-[ Within the sections, list each platform as an =item entry with specific
-changes as paragraphs below it. ]
-
-=head2 New Platforms
-
-XXX List any platforms that this version of perl compiles on, that previous
-versions did not.  These will either be enabled by new files in the F<hints/>
-directories, or new subdirectories and F<README> files at the top level of the
-source tree.
-
-=over 4
-
-=item XXX-some-platform
-
-XXX
-
-=back
-
-=head2 Discontinued Platforms
-
-XXX List any platforms that this version of perl no longer compiles on.
-
-=over 4
-
-=item XXX-some-platform
-
-XXX
-
-=back
-
 =head2 Platform-Specific Notes
-
-XXX List any changes for specific platforms.  This could include configuration
-and compilation changes or changes in portability/compatibility.  However,
-changes within modules for platforms should generally be listed in the
-L</Modules and Pragmata> section.
 
 =over 4
 
@@ -544,6 +456,10 @@ Add DynaLoader fallbacks to C<dl_find_symbol> to mimic the POSIX behaviour with
 an empty libhandle argument: Search the symbol in all loaded/most shared
 libraries. This is a convenience platform-compat feature for the L<ffi>.
 
+=item *
+
+The new Windows 10 DTrace support has not been tested yet.
+
 =back
 
 =item mingw
@@ -558,22 +474,6 @@ Fixed Errno from processing some protected intrinsics directly, which fail with
 #error "Never use <xsavesintrin.h> directly; include <x86intrin.h> instead."
 
 =back
-
-=back
-
-=head1 Internal Changes
-
-XXX Changes which affect the interface available to C<XS> code go here.  Other
-significant internal changes for future core maintainers should be noted as
-well.
-
-[ List each change as an =item entry ]
-
-=over 4
-
-=item *
-
-XXX
 
 =back
 
@@ -597,10 +497,10 @@ bytes without the UTF8 flag. Store at least the HEK_WASUTF8 flag then.
 
 =item *
 
-Check bless name under use strict names.
+Check bless name under use strict 'names'.
 
 The second argument to bless, the new classname, is now checked to be a
-valid package name identifier when B<strict names> is in effect, and the
+valid package name identifier when B<strict 'names'> is in effect, and the
 name is now normalized.
 L<[cperl #376]|https://github.com/perl11/cperl/issues/376>
 
@@ -623,17 +523,7 @@ Note that in cperl C<'> is no perl4-style package seperator.
 
 =head1 Known Problems
 
-XXX Descriptions of platform agnostic bugs we know we can't fix go here.  Any
-tests that had to be C<TODO>ed for the release would be noted here.  Unfixed
-platform specific bugs also go here.
-
-[ List each fix as an =item entry ]
-
 =over 4
-
-=item *
-
-XXX
 
 =item *
 
@@ -642,25 +532,28 @@ counterpart F<libNAME.a>, which happens e.g. for C<libffi> on B<cygwin> or msys.
 
 =back
 
-=head1 Errata From Previous Releases
-
-=over 4
-
-=item *
-
-XXX Add anything here that we forgot to add, or were mistaken about, in
-the perldelta of a previous release.
-
-=back
-
-=head1 Obituary
-
-XXX If any significant core contributor has died, we've added a short obituary
-here.
-
 =head1 Acknowledgements
 
-XXX Generate this with:
+cperl 5.29.0 represents approximately 5 weeks of development since cperl
+5.28.0c and contains approximately 63,000 lines of changes across 1,100
+files from 2 authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 14,000 lines of changes to 200 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements that
+became cperl 5.29.0:
+
+Reini Urban, Andreas König.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please
+see the F<AUTHORS> file in the Perl source distribution.
+
+Generated with:
 
     cperl Porting/acknowledgements.pl cperl-5.28.0..HEAD -c
 
