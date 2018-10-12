@@ -67,6 +67,10 @@ L<[cperl #362]|https://github.com/perl11/cperl/issues/362>
 
 Fix absolute path handling on VMS
 
+=item L<bignum> 0.51c
+
+Better way to catch warnings (CPAN RT #126900).
+
 =item L<CPAN> 2.21_01
 
 Update to 2.21 upstream with our cperl fixes. Some of our fixes were

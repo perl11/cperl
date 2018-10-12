@@ -240,7 +240,7 @@ use File::Glob qw(:case);
     },
 
     'bignum' => {
-        'DISTRIBUTION' => 'RURBAN/bignum-0.50c.tar.gz', # cperl only, not on CPAN
+        'DISTRIBUTION' => 'PJACKLAM/bignum-0.51.tar.gz',
         'FILES'        => q[dist/bignum],
         'EXCLUDED'     => [
             qr{^inc/Module/},
@@ -251,13 +251,12 @@ use File::Glob qw(:case);
                 t/pod_cov.t
                 ),
           ],
-        # better cperl variant 0.50c
+        # modernized cperl variant 0.51c
         # https://github.com/rurban/bignum/commits/cperl
         'CUSTOMIZED'   => [
             qw[ lib/bigint.pm lib/bignum.pm lib/bigrat.pm
                 t/in_effect.t t/overrides.t t/scope_f.t t/scope_i.t t/scope_r.t
-                t/option_l.t
-            ]],
+              ]],
     },
 
     'Carp' => {
