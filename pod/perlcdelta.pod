@@ -63,6 +63,10 @@ L<[cperl #362]|https://github.com/perl11/cperl/issues/362>
 
 =over 4
 
+=item L<Archive::Tar> 2.32
+
+Fix absolute path handling on VMS
+
 =item L<CPAN> 2.21_01
 
 Update to 2.21 upstream with our cperl fixes. Some of our fixes were
