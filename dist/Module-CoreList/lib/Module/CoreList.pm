@@ -17655,6 +17655,7 @@ our %delta = (
             'CPAN::Shell'           => '5.5008',
             'Cwd'                   => '4.75c',
             'Data::Dumper'          => '2.172',
+            'Devel::PPPort'         => '3.43_04',
             'DynaLoader'            => '2.09c',
             'Errno'                 => '1.29_01',
             'File::Path'            => '3.16_01c',
