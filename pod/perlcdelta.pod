@@ -172,6 +172,10 @@ See L</Protected hash iterators>.
 
 =over 4
 
+=item L<Archive::Tar> 2.32
+
+Fix absolute path handling on VMS
+
 =item L<attributes> 1.15c
 
 Add ffi support, :native(), :encoded(), :nativeconv(), :symbol().
