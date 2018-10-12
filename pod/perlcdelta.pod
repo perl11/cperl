@@ -224,6 +224,11 @@ Quote glob names better; notably, Unicode globs are
 now handled correctly.
 L<[perl #119831]|https://rt.perl.org/Public/Bug/Display.html?id=119831>
 
+=item L<Devel::PPPort> 3.43_04
+
+Fix test with Visual Studio (space in paths) by quoting $0.
+Note: This fix is not in the public CPAN release.
+
 =item L<DynaLoader> 2.09c
 
 Extend C<dl_find_symbol> on dl_win32 to mimic the POSIX behaviour with
