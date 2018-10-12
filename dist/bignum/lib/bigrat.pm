@@ -5,7 +5,7 @@ use strict;
 #use warnings;
 use cperl;
 
-our $VERSION = '0.50c';
+our $VERSION = '0.51c';
 $VERSION =~ s/c$//;
 
 use Exporter;

@@ -188,6 +188,10 @@ Add ffi support, :native(), :encoded(), :nativeconv(), :symbol().
 
 Add ffi support: CvXFFI, CvFFLIB. CVf_EXTERN flag
 
+=item L<bignum> 0.51c
+
+Better way to catch warnings (CPAN RT #126900).
+
 =item L<CPAN> 2.21_01
 
 Update to 2.21 upstream with our cperl fixes. Some of our fixes were accepted upstream.
