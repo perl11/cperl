@@ -164,7 +164,7 @@
 /* this used to be off by default, now its on, see perlio.h */
 #define PERLIO_FUNCS_CONST
 
-/* starting with cperl 5.29.0 */
+/* starting with cperl 5.26 */
 #define PERL_NO_QUOTE_PKGSEPERATOR
 
 #define pVAR    struct perl_vars* my_vars
