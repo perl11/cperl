@@ -209,6 +209,21 @@ abs_path) of it. This e.g. broke some DBD::File tests, when behind symlinks.
 For getcwd with C<get_current_dir_name()> - i.e. fastcwd - add abs_path.
 See also L<http://perl11.org/blog/fastcwd.html>
 
+=item L<Data::Dumper> 2.172
+
+Restore deparsing support in the XS dumper, on Perl 5.18 and earlier.
+
+Fix bug when dumping globs with quoting (which now happens for
+all Unicode glob names)
+
+Behavior change: C<$dumper->Useqq(undef)> is now treated as setting the
+"useqq" option, not getting it (and similarly for other options)
+L<[perl #113090]|https://rt.perl.org/Public/Bug/Display.html?id=113090>
+
+Quote glob names better; notably, Unicode globs are
+now handled correctly.
+L<[perl #119831]|https://rt.perl.org/Public/Bug/Display.html?id=119831>
+
 =item L<DynaLoader> 2.09c
 
 Extend C<dl_find_symbol> on dl_win32 to mimic the POSIX behaviour with

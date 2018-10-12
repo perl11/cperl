@@ -17696,6 +17696,7 @@ our %delta :const = (
             'CPAN::Plugin'          => '0.97',
             'CPAN::Shell'           => '5.5008',
             'Cwd'                   => '4.75c',
+            'Data::Dumper'          => '2.172',
             'DynaLoader'            => '2.09c',
             'Errno'                 => '1.29_01',
             'File::Path'            => '3.16_02c',
