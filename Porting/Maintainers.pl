@@ -1132,7 +1132,7 @@ use File::Glob qw(:case);
 
     # PathTools cannot be cpan'd by sync-with-cpan. modernized
     'File::Spec' => {
-        'DISTRIBUTION' => 'XSAWYERX/PathTools-3.74.tar.gz',
+        'DISTRIBUTION' => 'XSAWYERX/PathTools-3.75.tar.gz',
         'FILES'        => q[dist/PathTools],
         'EXCLUDED'     => [qr{^t/lib/Test/}],
           # core needs to update @INC in a chdir
