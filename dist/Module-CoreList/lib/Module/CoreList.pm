@@ -18416,6 +18416,7 @@ our %delta :const = (
             'Devel::Peek'           => '1.28_03',
             'feature'               => '1.54_01',
             'File::Copy'            => '2.34',
+            'File::Glob'            => '1.32',
             'IO'                    => '1.39_02',
             'IO::Socket::IP'        => '0.39_03',
             'Net::Ping'             => '2.72',

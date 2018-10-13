@@ -135,6 +135,13 @@ fully qualified, I<i.e.>, C<CORE::dump()>.
 
 L<[perl #133584]|https://rt.perl.org/Public/Bug/Display.html?id=133584>
 
+=head2 Remove File::Glob::glob()
+
+The C<File::Glob::glob()> function, long deprecated, has been removed and now
+throws an exception which advises use of C<File::Glob::bsd_glob()> instead.
+
+L<[perl #133586]|https://rt.perl.org/Public/Bug/Display.html?id=133586>
+
 =head1 Deprecations
 
 XXX Any deprecated features, syntax, modules etc. should be listed here.
@@ -258,6 +265,10 @@ Add the FREEBSD_KERNEL_VERSION key for FreeBSD.
 
 Whitespace only
 
+=item L<Devel::Peek> 1.28_03
+
+adjust Devel::Peek pod to cperl FLAGS
+
 =item L<feature> 1.54_01
 
 C<array_base> was removed.
@@ -265,6 +276,13 @@ C<array_base> was removed.
 =item L<File::Copy> 2.34
 
 Add note to close or flush filehandles before calling copy or move.
+
+=item L<File::Glob> 1.32
+
+Fatalized File::Glob::glob(), which was deprecated since 5.8. However,
+no deprecation message was issued; only perl5.008delta.pod and a
+comment in the file mention its deprecation. The warnings was added
+with v5.25.10.
 
 =item L<IO> 1.39_02
 
@@ -292,10 +310,6 @@ Test fixes
 
 The 2 sudo tests on PERL_CORE with a shared perl lib.
 Skip failing freebsd localhost resolver tests.
-
-=item L<Devel::Peek> 1.28_03
-
-adjust Devel::Peek pod to cperl FLAGS
 
 =item L<PerlIO::scalar> 0.30
 
