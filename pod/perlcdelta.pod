@@ -271,6 +271,10 @@ by L<CPAN RT #122681|https://rt.cpan.org/Ticket/Display.html?id=122681>.
 In the documentation for each of the C<to_(bin|hex|oct|bytes)> methods, add a
 reference to the corresponding C<from_(bin|hex|oct|bytes)> method.
 
+=item L<Math::BigInt::FastCalc> 0.5008
+
+No code nor test changes.
+
 =item L<Opcode> 1.40_03c
 
 Restrict the new op 'enterffi'.

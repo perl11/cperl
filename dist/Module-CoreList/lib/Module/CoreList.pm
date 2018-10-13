@@ -17715,6 +17715,7 @@ our %delta :const = (
             'Math::BigInt::Calc'    => '1.999814',
             'Math::BigInt::CalcEmu' => '1.999814',
             'Math::BigInt::Lib'     => '1.999814',
+            'Math::BigInt::FastCalc'=> '0.5008',
             'Opcode'                => '1.40_03c',
             'Storable'              => '3.12_02',
             'warnings'              => '1.43',
