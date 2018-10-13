@@ -4097,7 +4097,6 @@ Perl_my_strftime(pTHX_ const char *fmt, int sec, int min, int hour, int mday, in
 /*
 =head1 Miscellaneous Functions
 
-/*
 =for apidoc getcwd_sv
 
 Fill C<sv> with current working directory, supporting long pathnames.
