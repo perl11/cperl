@@ -7723,35 +7723,34 @@ Perl_yylex(pTHX)
                         :   SvPCS_IMPORTED(gv)
                         && (gv_init(gv, PL_globalstash, PL_tokenbuf,
                                                                  len, 0), 1)))
-                {
-                    ogv = gv;
-                }
-            }
-            if (ogv) {
-                orig_keyword = tmp;
-                tmp = 0;                /* overridden by import or by GLOBAL */
-            }
-            else if (gv && !gvp
-                     && -tmp==KEY_lock  /* XXX generalizable kludge */
-                     && GvCVu(gv))
-            {
-                tmp = 0;                /* any sub overrides "weak" keyword */
-            }
-            else {                      /* no override */
-                tmp = -tmp;
-                if (tmp == KEY_dump) {
-                    Perl_ck_warner(aTHX_ packWARN(WARN_MISC),
-                                   "dump() better written as CORE::dump()");
-                }
-                gv = NULL;
-                gvp = 0;
-                if (hgv && tmp != KEY_x)        /* never ambiguous */
-                    Perl_ck_warner(aTHX_ packWARN(WARN_AMBIGUOUS),
-                                   "Ambiguous call resolved as CORE::%s(), "
-                                   "qualify as such or use &",
-                                   GvENAME(hgv));
-            }
-        }
+		{
+		    ogv = gv;
+		}
+	    }
+	    if (ogv) {
+		orig_keyword = tmp;
+		tmp = 0;		/* overridden by import or by GLOBAL */
+	    }
+	    else if (gv && !gvp
+		     && -tmp == KEY_lock /* XXX generalizable kludge */
+		     && GvCVu(gv))
+	    {
+		tmp = 0;		/* any sub overrides "weak" keyword */
+	    }
+	    else {			/* no override */
+		tmp = -tmp;
+		if (tmp == KEY_dump) {
+		    Perl_croak(aTHX_ "dump() must be written as CORE::dump() as of Perl 5.30");
+		}
+		gv = NULL;
+		gvp = 0;
+		if (hgv && tmp != KEY_x)	/* never ambiguous */
+		    Perl_ck_warner(aTHX_ packWARN(WARN_AMBIGUOUS),
+				   "Ambiguous call resolved as CORE::%s(), "
+				   "qualify as such or use &",
+				   GvENAME(hgv));
+	    }
+	}
 
         if (tmp && tmp != KEY___DATA__ && tmp != KEY___END__
          && (!anydelim || *s != '#')) {

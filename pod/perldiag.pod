@@ -2164,10 +2164,11 @@ something that isn't defined yet, you don't actually have to define the
 subroutine or package before the current location.  You can use an empty
 "sub foo;" or "package FOO;" to enter a "forward" declaration.
 
-=item dump() better written as CORE::dump()
+=item dump() must be written as CORE::dump() as of Perl 5.30
 
-(W misc) You used the obsolescent C<dump()> built-in function, without fully
-qualifying it as C<CORE::dump()>.  Maybe it's a typo.  See L<perlfunc/dump>.
+(F) You used the obsolete C<dump()> built-in function.  That was deprecated in
+Perl 5.8.0.  As of Perl 5.30 it must be written in fully qualified format:
+C<CORE::dump()>. See L<perlfunc/dump>.
 
 =item dump is not supported
 

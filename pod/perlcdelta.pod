@@ -128,6 +128,13 @@ See L<perldiag/"$* is no longer supported as of Perl 5.30"> and
 L<perldiag/"$# is no longer supported as of Perl 5.30">.
 L<[perl #133583]|https://rt.perl.org/Public/Bug/Display.html?id=133583>
 
+=head2 Fatalize unqualified use of dump()
+
+The C<dump()> function, long discouraged, may no longer be used unless it is
+fully qualified, I<i.e.>, C<CORE::dump()>.
+
+L<[perl #133584]|https://rt.perl.org/Public/Bug/Display.html?id=133584>
+
 =head1 Deprecations
 
 XXX Any deprecated features, syntax, modules etc. should be listed here.
