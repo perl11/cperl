@@ -17672,6 +17672,7 @@ our %delta = (
             'Math::BigInt::Calc'    => '1.999814',
             'Math::BigInt::CalcEmu' => '1.999814',
             'Math::BigInt::Lib'     => '1.999814',
+            'Math::BigInt::FastCalc'=> '0.5008',
             'Storable'              => '3.12_02',
         },
         removed => {
