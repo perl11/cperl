@@ -17719,6 +17719,8 @@ our %delta :const = (
             'Opcode'                => '1.40_03c',
             'Storable'              => '3.12_02',
             'warnings'              => '1.43',
+            'version'               => '0.9924_02',
+            'version::regex'        => '0.9924_02',
         },
         removed => {
         }

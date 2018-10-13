@@ -222,7 +222,6 @@ const char * Perl_prescan_version(pTHX_ const char *s, bool strict, const char**
 	assert(pat)
 #endif
 
-
 #if !defined(LC_NUMERIC_LOCK) /* PERL_VERSION_LT(5,27,9) */
 #  define LC_NUMERIC_LOCK
 #  define LC_NUMERIC_UNLOCK
@@ -249,7 +248,6 @@ const char * Perl_prescan_version(pTHX_ const char *s, bool strict, const char**
 #ifndef LOCK_NUMERIC_STANDARD
 #  define LOCK_NUMERIC_STANDARD()
 #endif
-
 #ifndef UNLOCK_NUMERIC_STANDARD
 #  define UNLOCK_NUMERIC_STANDARD()
 #endif
@@ -263,9 +261,6 @@ const char * Perl_prescan_version(pTHX_ const char *s, bool strict, const char**
 #endif
 
 /* from cperl */
-#ifndef strNEs
-#  define strNEs(s1,s2) (strncmp(s1,"" s2 "", sizeof(s2)-1))
-#endif
 #ifndef strEQc
 #  define strEQc(s, c) memEQ(s, ("" c ""), sizeof(c))
 #  define strNEc(s, c) memNE(s, ("" c ""), sizeof(c))
