@@ -305,7 +305,7 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
     last = PRESCAN_VERSION(s, FALSE, &errstr, &qv, &saw_decimal, &width, &alpha);
     if (errstr) {
 	/* "undef" is a special case and not an error */
-	if ( !strEQc(s, "undef") ) {
+	if ( strNEc(s, "undef") ) {
 	    Perl_croak(aTHX_ "%s", errstr);
 	}
     }
@@ -691,8 +691,8 @@ VER_NV:
                 LC_NUMERIC_LOCK(0);
 
                 locale_name_on_entry = setlocale(LC_NUMERIC, NULL);
-                if (   strNE(locale_name_on_entry, "C")
-                    && strNE(locale_name_on_entry, "POSIX"))
+                if (   strNEc(locale_name_on_entry, "C")
+                    && strNEc(locale_name_on_entry, "POSIX"))
                 {
                     setlocale(LC_NUMERIC, "C");
                 }

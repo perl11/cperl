@@ -3,9 +3,15 @@ package version;
 
 use 5.006002;
 use strict;
+use warnings::register;
+if ($] >= 5.015) {
+    warnings::register_categories(qw/version/);
+}
 
-our $VERSION = '0.9923_02c';
-$VERSION =~ s/c$//;
+our $VERSION = '0.9924_02';
+our $XS_VERSION = $VERSION;
+#$VERSION =~ s/c$//;
+$VERSION = eval $VERSION;
 our $CLASS = 'version';
 our (@ISA, $STRICT, $LAX);
 

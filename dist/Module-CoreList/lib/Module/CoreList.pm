@@ -17674,6 +17674,8 @@ our %delta = (
             'Math::BigInt::Lib'     => '1.999814',
             'Math::BigInt::FastCalc'=> '0.5008',
             'Storable'              => '3.12_02',
+            'version'               => '0.9924_02',
+            'version::regex'        => '0.9924_02',
         },
         removed => {
         }
