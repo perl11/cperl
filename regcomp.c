@@ -16195,6 +16195,12 @@ redo_curchar:
                     NULL,
                     NULL
                 );
+
+    RExC_parse = save_parse + 1;
+    RExC_end = save_end;
+    SvREFCNT_dec_NN(final);
+    SvREFCNT_dec_NN(result_string);
+
     if (!node)
         FAIL2("panic: regclass returned failure to handle_sets, flags=%#" UVxf,
                     PTR2UV(flagp));
@@ -16228,11 +16234,6 @@ redo_curchar:
     if (save_fold) {
         RExC_flags |= RXf_PMf_FOLD;
     }
-
-    RExC_parse = save_parse + 1;
-    RExC_end = save_end;
-    SvREFCNT_dec_NN(final);
-    SvREFCNT_dec_NN(result_string);
 
     nextchar(pRExC_state);
     Set_Node_Length(REGNODE_p(node), RExC_parse - oregcomp_parse + 1); /* MJD */
