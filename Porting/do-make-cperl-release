@@ -46,9 +46,13 @@ Linux)
         else
             db4=libdb4
         fi
+        case $ver in
+            5.29|5.3*) d_ffi="-d libffi" ;;
+            *)         d_ffi= ;;
+        esac
         fpm -s dir -t rpm -n cperl -v $ver --iteration $rev --epoch '' -a $arch \
             -m 'rurban@cpan.org' \
-            -d 'zlib' -d bzip2-libs -d 'gdbm' -d 'libffi' -d $db4 \
+            -d 'zlib' -d bzip2-libs -d 'gdbm' -d $db4 $d_ffi \
             --url http://perl11.org/cperl/rpm/ \
             --description 'a perl5 with classes, types, compiler support, company-friendly.' \
             -C $destdir .
@@ -61,10 +65,18 @@ Linux)
                 ext=deb
                 pkg=cperl_${ver}-${rev}_${arch}.$ext
                 test -f $pkg && mv $pkg $pkg~
+                case $ver in
+                    5.29|5.3*)
+                        d_ffi="-d libffi6" # sid
+                        if [ -n "`grep 'Debian GNU/Linux 7' /etc/issue 2>/dev/null`" ]; then
+                            d_ffi="-d libffi5" # wheezy
+                        fi ;;
+                    *)  d_ffi= ;;
+                esac
                 fpm -s dir -t deb -n cperl -v $ver-$rev -a $arch \
                     -m 'rurban@cpan.org' \
                     -d 'zlib1g >= 1:1.2.2.3' -d libbz2-1.0 -d 'libgdbm3 >= 1.8.3' \
-                    -d 'libdb5.1' -d 'libffi6' \
+                    -d 'libdb5.1' $d_ffi \
                     --url http://perl11.org/deb/ \
                     --deb-changelog cperl/pod/perlcdelta.pod \
                     --description 'a perl5 with classes, types, compiler support, company-friendly.' \

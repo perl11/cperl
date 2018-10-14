@@ -44,7 +44,7 @@ shrpldflags='$(LDDLFLAGS)'
 ldlibpth=''
 DPERL_EXTERNAL_GLOB='-DPERL_EXTERNAL_GLOB'
 DPERL_IS_MINIPERL='-DPERL_IS_MINIPERL'
-miniperllibs="$perlibs $cryptlib"
+miniperllibs="$perllibs $cryptlib"
 if [ $useffi = 'define' ]; then
     miniperllibs="`echo $perllibs|sed 's, -lffi,,'` $cryptlib"
 fi
