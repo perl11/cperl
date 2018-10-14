@@ -10064,7 +10064,7 @@ STATIC unsigned int	S_regex_set_precedence(const U8 my_operator)
 			__attribute__global__
 			__attribute__warn_unused_result__;
 
-STATIC void	S_reginsert(pTHX_ RExC_state_t *pRExC_state, U8 op, regnode_offset operand, U32 depth)
+STATIC void	S_reginsert(pTHX_ RExC_state_t *pRExC_state, const U8 op, const regnode_offset operand, const U32 depth)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_REGINSERT	\
