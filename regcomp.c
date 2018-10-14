@@ -799,9 +799,12 @@ static const scan_data_t zero_scan_data = {
  * pass, it would be re-output after the restart.  Pass 2 is never restarted,
  * so the problem simply goes away if we defer the output to that pass.  See
  * [perl #122671]. */
+#define TO_OUTPUT_WARNINGS(loc)                                         \
+  cBOOL(PASS2)
+
 #define _WARN_HELPER(loc, warns, code)                                  \
     STMT_START {                                                        \
-        if (PASS2) {                                                    \
+        if (TO_OUTPUT_WARNINGS(loc)) {                                  \
             code;                                                       \
         }                                                               \
     } STMT_END
@@ -13828,7 +13831,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                                                        RExC_end,
 						       &result,
 						       &error_msg,
-						       PASS2, /* out warnings */
+						       TO_OUTPUT_WARNINGS(p),
                                                        (bool) RExC_strict,
                                                        TRUE, /* Output warnings
                                                                 for non-
@@ -13858,7 +13861,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                                                        RExC_end,
 						       &result,
 						       &error_msg,
-						       PASS2, /* out warnings */
+                                                       TO_OUTPUT_WARNINGS(p),
                                                        (bool) RExC_strict,
                                                        TRUE, /* Silence warnings
                                                                 for non-
@@ -13889,7 +13892,8 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 			}
 		    case 'c':
 			p++;
-			ender = grok_bslash_c(*p++, PASS2);
+			ender = grok_bslash_c(*p, TO_OUTPUT_WARNINGS(p));
+                        p++;
 			break;
                     case '8': case '9': /* must be a backreference */
                         --p;
@@ -16416,7 +16420,8 @@ S_output_or_return_posix_warnings(pTHX_ RExC_state_t *pRExC_state, AV* posix_war
                     SAVEFREESV(RExC_rx_sv);
                 }
             }
-            Perl_warner(aTHX_ packWARN(WARN_REGEXP), "%s", SvPVX(msg));
+            Perl_warner(aTHX_ packWARN(WARN_REGEXP), "%s",
+                                           SvPVX(msg));
             SvREFCNT_dec_NN(msg);
         }
     }
@@ -17176,8 +17181,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
                                                RExC_end,
 					       &value,
 					       &error_msg,
-                                               PASS2,   /* warnings only in
-                                                           pass 2 */
+                                               TO_OUTPUT_WARNINGS(RExC_parse),
                                                strict,
                                                silence_non_portable,
                                                UTF);
@@ -17198,7 +17202,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
                                                RExC_end,
 					       &value,
 					       &error_msg,
-					       PASS2, /* Output warnings */
+					       TO_OUTPUT_WARNINGS(RExC_parse),
                                                strict,
                                                silence_non_portable,
                                                UTF);
@@ -17211,7 +17215,8 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
 		    goto recode_encoding;
 		break;
 	    case 'c':
-		value = grok_bslash_c(*RExC_parse++, PASS2);
+		value = grok_bslash_c(*RExC_parse, TO_OUTPUT_WARNINGS(RExC_parse));
+		RExC_parse++;
                 non_portable_endpoint++;
 		break;
 	    case '0': case '1': case '2': case '3': case '4':
