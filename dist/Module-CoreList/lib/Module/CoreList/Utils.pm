@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Module::CoreList;
 
-our $VERSION = '5.20180912c';
+our $VERSION = '5.20181012c';
 $VERSION =~ s/c$//;
 our %utilities;
 
@@ -1210,6 +1210,11 @@ our %delta :const = (
         changed => {},
         removed => {}
     },
+    '5.024004c' => {
+        delta_from => '5.024003c',
+        changed => {},
+        removed => {}
+    },
     5.025000 => {
         delta_from => 5.024000,
         changed => {
@@ -1520,13 +1525,14 @@ our %delta :const = (
         removed => {
         }
     },
-    '5.028000c' => {
-        delta_from => '5.027002c',
-        changed => {},
-        removed => {}
-    },
     '5.026003c' => {
         delta_from => '5.026002c',
+        changed => {
+        },
+        removed => {}
+    },
+    '5.028000c' => {
+        delta_from => '5.027002c',
         changed => {},
         removed => {}
     },
@@ -1539,6 +1545,46 @@ our %delta :const = (
         delta_from => '5.026003c',
         changed => {},
         removed => {}
+    },
+    '5.028001c' => {
+        delta_from => '5.028000c',
+        changed => {},
+        removed => {}
+    },
+    5.029000 => {
+        delta_from => 5.028,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.029001 => {
+        delta_from => 5.029000,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.029002 => {
+        delta_from => 5.029001,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.029003 => {
+        delta_from => 5.029002,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.029004 => {
+        delta_from => 5.029003,
+        changed => {
+        },
+        removed => {
+        }
     },
     '5.029000c' => {
         delta_from => '5.028000c',

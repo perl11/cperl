@@ -110,7 +110,7 @@ aux c2ph h2ph h2xs cperlbug pl2pm pod2html pod2man splain xsubpp
     perlobj		Perl objects
     perltie		Perl objects hidden behind simple variables
       perldbmfilter	Perl DBM filters
-    perltypes		Perl type support
+    perltypes		cperl type support
 
     perlipc		Perl interprocess communication
     perlfork		Perl fork() information
@@ -180,7 +180,11 @@ aux c2ph h2ph h2xs cperlbug pl2pm pod2html pod2man splain xsubpp
     perldoc		Look up Perl documentation in Pod format
 
     perlhist		Perl history records
-    perldelta		Latest Perl changes in version 5.26.3
+    perldelta		Perl changes since previous version
+    perl5293delta	Perl changes in version 5.29.3
+    perl5292delta	Perl changes in version 5.29.2
+    perl5291delta	Perl changes in version 5.29.1
+    perl5290delta	Perl changes in version 5.29.0
     perl5280delta	Perl changes in version 5.28.0
     perl5262delta	Perl changes in version 5.26.2
     perl5261delta	Perl changes in version 5.26.1
@@ -238,12 +242,15 @@ aux c2ph h2ph h2xs cperlbug pl2pm pod2html pod2man splain xsubpp
     perlexperiment	A listing of experimental features in Perl
 
     perlcperl		Perl notes for cperl (variant)
-    perlcdelta		cperl changes in version 5.26.3c
+    perlcdelta		cperl changes in version 5.26.4c
+    perl5290cdelta	cperl changes in version 5.29.0c
+    perl5281cdelta	cperl changes in version 5.28.1c
     perl5280cdelta	cperl changes in version 5.28.0c
     perl5263cdelta	cperl changes in version 5.26.3c
     perl5262cdelta	cperl changes in version 5.26.2c
     perl5261cdelta	cperl changes in version 5.26.1c
     perl5260cdelta	cperl changes in version 5.26.0c
+    perl5244cdelta	cperl changes in version 5.24.4c
     perl5243cdelta	cperl changes in version 5.24.3c
     perl5242cdelta	cperl changes in version 5.24.2c
     perl5241cdelta	cperl changes in version 5.24.1c

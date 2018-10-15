@@ -5163,6 +5163,7 @@ pod/perl5242cdelta.pod		cperl changes in version 5.24.2c
 pod/perl5242delta.pod		Perl changes in version 5.24.2
 pod/perl5243cdelta.pod		cperl changes in version 5.24.3c
 pod/perl5243delta.pod		Perl changes in version 5.24.3
+pod/perl5244cdelta.pod		cperl changes in version 5.24.4c
 pod/perl5244delta.pod		Perl changes in version 5.24.4
 pod/perl5260cdelta.pod		cperl changes in version 5.26.0c
 pod/perl5260delta.pod		Perl changes in version 5.26.0
@@ -5173,6 +5174,12 @@ pod/perl5262delta.pod		Perl changes in version 5.26.2
 pod/perl5263cdelta.pod		cperl changes in version 5.26.3c
 pod/perl5280cdelta.pod		cperl changes in version 5.28.0c
 pod/perl5280delta.pod		Perl changes in version 5.28.0
+pod/perl5281cdelta.pod		cperl changes in version 5.28.1c
+pod/perl5290cdelta.pod		cperl changes in version 5.29.0c
+pod/perl5290delta.pod		Perl changes in version 5.29.0
+pod/perl5291delta.pod		Perl changes in version 5.29.1
+pod/perl5292delta.pod		Perl changes in version 5.29.2
+pod/perl5293delta.pod		Perl changes in version 5.29.3
 pod/perl561delta.pod		Perl changes in version 5.6.1
 pod/perl56delta.pod		Perl changes in version 5.6
 pod/perl581delta.pod		Perl changes in version 5.8.1
@@ -5191,7 +5198,7 @@ pod/perlbook.pod		Perl book information
 pod/perlboot.pod		
 pod/perlbot.pod			
 pod/perlcall.pod		Perl calling conventions from C
-pod/perlcdelta.pod		cperl changes in version 5.26.3c
+pod/perlcdelta.pod		cperl changes in version 5.26.4c
 pod/perlcheat.pod		Perl cheat sheet
 pod/perlclib.pod		Internal replacements for standard C library functions
 pod/perlcommunity.pod		Perl community information
@@ -5201,7 +5208,7 @@ pod/perldbmfilter.pod		Perl DBM filters
 pod/perldebguts.pod		Perl debugging guts and tips
 pod/perldebtut.pod		Perl debugging tutorial
 pod/perldebug.pod		Perl debugging
-pod/perldelta.pod		Latest Perl changes in version 5.26.3
+pod/perldelta.pod		Perl changes since previous version
 pod/perldeprecation.pod		Perl deprecations
 pod/perldiag.pod		Perl diagnostic messages
 pod/perldsc.pod			Perl data structures intro
@@ -5269,7 +5276,7 @@ pod/perltodo.pod
 pod/perltooc.pod		
 pod/perltoot.pod		
 pod/perltrap.pod		Perl traps for the unwary
-pod/perltypes.pod		Perl type support
+pod/perltypes.pod		cperl type support
 pod/perlunicode.pod		Perl Unicode support
 pod/perlunicook.pod		Perl Unicode cookbook
 pod/perlunifaq.pod		Perl Unicode FAQ
