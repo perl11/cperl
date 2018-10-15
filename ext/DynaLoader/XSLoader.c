@@ -59,7 +59,7 @@ XS(XS_XSLoader_load) {
     }
     if (!modlibname) {
         modlibname = OutCopFILE(PL_curcop);
-        if (memEQ(modlibname, "(eval ", 6)) /* This catches RT #115808 */
+        if (modlibname && memEQ(modlibname, "(eval ", 6)) /* This catches RT #115808 */
             modlibname = NULL;
         if (!modlibname) {
             ENTER; SAVETMPS;

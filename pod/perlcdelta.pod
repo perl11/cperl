@@ -18,6 +18,14 @@ L<perl5262cdelta>, which describes differences between v5.26.1c and v5.26.2c.
 
 =over 4
 
+=item L<DynaLoader> 2.09c
+
+Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a
+memory leak.
+
+C<dl_load_file>: set NULL xs (bootstrap). When we find the bootname via
+C<dl_find_symbol> early, we still need to set xs from C<dl_install_xsub()>.
+
 =item L<ExtUtils::Constant> 0.25_01
 
 extend stack by one
