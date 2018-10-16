@@ -11,8 +11,8 @@ use 5.006;
 
 use strict;
 use warnings;
-our $VERSION = '8.30_06';
-$VERSION = eval $VERSION;
+our $VERSION = '8.35_06';
+$VERSION =~ tr/_//d;
 
 use ExtUtils::MakeMaker::Config;
 use Cwd 'cwd';
@@ -49,15 +49,23 @@ sub _unix_os2_ext {
     # $potential_libs
     # this is a rewrite of Andy Dougherty's extliblist in perl
 
+    require Text::ParseWords;
+
     my ( @searchpath );    # from "-L/path" entries in $potential_libs
-    my ( @libpath ) = split " ", $Config{'libpth'} || '';
+    my ( @libpath ) = Text::ParseWords::quotewords( '\s+', 0, $Config{'libpth'} || '' );
     my ( @ldloadlibs, @bsloadlibs, @extralibs, @ld_run_path, %ld_run_path_seen );
     my ( @libs,       %libs_seen );
     my ( $fullname,   @fullname );
     my ( $pwd )   = cwd();    # from Cwd.pm
     my ( $found ) = 0;
 
-    foreach my $thislib ( split ' ', $potential_libs ) {
+    if ( $^O eq 'darwin' or $^O eq 'next' )  {
+        # 'escape' Mach-O ld -framework and -F flags, so they aren't dropped later on
+        $potential_libs =~ s/(^|\s)(-(?:weak_|reexport_|lazy_)?framework)\s+(\S+)/$1-Wl,$2 -Wl,$3/g;
+        $potential_libs =~ s/(^|\s)(-F)\s*(\S+)/$1-Wl,$2 -Wl,$3/g;
+    }
+
+    foreach my $thislib ( Text::ParseWords::quotewords( '\s+', 0, $potential_libs) ) {
         my ( $custom_name ) = '';
 
         # Handle possible linker path arguments.
@@ -82,6 +90,7 @@ sub _unix_os2_ext {
                 $thislib = $self->catdir( $pwd, $thislib );
             }
             push( @searchpath, $thislib );
+            $thislib = qq{"$thislib"} if $thislib =~ / /; # protect spaces if there
             push( @extralibs,  "$ptype$thislib" );
             push( @ldloadlibs, "$rtype$thislib" );
             next;
@@ -151,7 +160,7 @@ sub _unix_os2_ext {
                 )[0];
             }
             elsif ( -e ( $fullname = "$thispth/lib$thislib.$so" )
-                && ( $thislib eq "m" ) )
+                && ( ( $Config{'dlsrc'} ne "dl_dld.xs" ) || ( $thislib eq "m" ) ) )
             {
             }
             elsif (-e ( $fullname = "$thispth/lib${thislib}_s$Config_libext" )
@@ -230,7 +239,8 @@ sub _unix_os2_ext {
             }
 
             # We might be able to load this archive file dynamically
-            if ( ( $Config{'dlsrc'} =~ /dl_next/ && $Config{'osvers'} lt '4_0' ) )
+            if ( ( $Config{'dlsrc'} =~ /dl_next/ && $Config{'osvers'} lt '4_0' )
+              || ( $Config{'dlsrc'} =~ /dl_dld/ ) )
             {
 
                 # We push -l$thislib instead of $fullname because
@@ -342,7 +352,7 @@ sub _win32_ext {
         $libs_seen{$fullname} = 1 if $path;    # why is this a special case?
     }
 
-    my @libs = keys %libs_seen;
+    my @libs = sort keys %libs_seen;
 
     return ( '', '', '', '', ( $give_libs ? \@libs : () ) ) unless @extralibs;
 
