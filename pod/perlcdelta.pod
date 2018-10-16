@@ -100,6 +100,10 @@ Updated links in docs from old svn repository to Github
 Fix test with Visual Studio (space in paths) by quoting $0.
 Note: This fix is not in the public CPAN release.
 
+=item L<Digest::SHA>  6.02
+
+Silenced compiler warnings from VS2017 RT #124477
+
 =item L<DynaLoader> 2.09c
 
 Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a
