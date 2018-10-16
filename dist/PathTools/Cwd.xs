@@ -7,6 +7,7 @@
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
+#define NEED_croak_xs_usage
 #define NEED_sv_2pv_flags
 #define NEED_my_strlcpy
 #define NEED_my_strlcat
@@ -17,6 +18,7 @@
 #endif
 
 /* For special handling of os390 sysplexed systems */
+#undef SYSNAME
 #define SYSNAME "$SYSNAME"
 #define SYSNAME_LEN (sizeof(SYSNAME) - 1)
 
@@ -64,7 +66,7 @@
 #define MAXSYMLINKS 8
 #endif
 
-#ifndef VMS
+#if !defined(VMS) && !defined(HAS_REALPATH)
 /*
  * char *realpath(const char *path, char resolved[MAXPATHLEN]);
  *
@@ -268,9 +270,44 @@ return FALSE
         (dp->d_name[1] == '.' && dp->d_name[2] == '\0')))
 #endif
 
+#ifndef fastcwd_sv
+
+/* Taken from cperl 5.27's util.c, supporting long pathnames.
+   Implements fastcwd, on linux with glibc (with get_current_dir_name).
+   This is the potentially more dangerous variant because you might chdir
+   out of a directory that you can't chdir back into. For the safe variant
+   prepend it with abs_path or use getcwd.
+ */
+#define fastcwd_sv(a) Perl_fastcwd_sv(aTHX_ a)
+int Perl_fastcwd_sv(pTHX_ SV *sv)
+{
+    char *ptr;
+#if defined(HAS_GET_CURRENT_DIR_NAME) /* glibc: */
+    ptr = get_current_dir_name();     /* resolves symlinks after the first chdir, before not */
+#elif defined(HAS_GETCWDNULL)
+    /* Some getcwd()s automatically allocate a buffer of the given
+     * size from the heap if they are given a NULL buffer pointer. */
+    ptr = getcwd(NULL, 0);            /* resolves symlinks always */
+#else
+    return getcwd_sv(sv);
+#endif
+    if (ptr) {
+        sv_setpv(sv, ptr);
+        SvTAINTED_on(sv);
+        free(ptr);
+        return TRUE;
+    }
+    else {
+        SV_CWD_RETURN_UNDEF;
+    }
+}
+#endif
+
 #ifndef getcwd_sv
-/* Taken from perl 5.8's util.c */
 #define getcwd_sv(a) Perl_getcwd_sv(aTHX_ a)
+/* Taken from cperl 5.27's util.c, supporting long pathnames.
+   Implements getcwd, this is the safe variant, always resolving symlinks.
+ */
 int Perl_getcwd_sv(pTHX_ SV *sv)
 {
 #ifndef PERL_MICRO
@@ -278,20 +315,56 @@ int Perl_getcwd_sv(pTHX_ SV *sv)
     SvTAINTED_on(sv);
 
 #ifdef HAS_GETCWD
-    {
-	char buf[MAXPATHLEN];
+    /* getcwd is deprecated since Visual C++ 2005 (8.0) */
+#if defined(WIN32) && _MSC_VER >= 1400
+#  define getcwd(b,s) _getcwd(b,s)
+#endif
 
+    {
+        char *ptr;
+#if defined(HAS_GET_CURRENT_DIR_NAME)     /* glibc: */
+        ptr = get_current_dir_name();     /* resolves symlinks after the first chdir, before not */
+#elif defined(HAS_GETCWDNULL)
 	/* Some getcwd()s automatically allocate a buffer of the given
-	 * size from the heap if they are given a NULL buffer pointer.
-	 * The problem is that this behaviour is not portable. */
-	if (getcwd(buf, sizeof(buf) - 1)) {
-	    STRLEN len = strlen(buf);
-	    sv_setpvn(sv, buf, len);
+	 * size from the heap if they are given a NULL buffer pointer. */
+        ptr = getcwd(NULL, 0);
+#else
+#  ifdef ENAMETOOLONG
+#   define is_ENAMETOOLONG(x) ((x) == ENAMETOOLONG)
+#  else
+#   define is_ENAMETOOLONG(x) !(x)
+#  endif
+	char buf[MAXPATHLEN];
+	ptr = getcwd(buf, sizeof(buf) - 1);
+        if (!ptr && errno != ENOENT) {
+            int len = MAXPATHLEN * 2;
+            char *mbuf = malloc(len);
+            ptr = getcwd(mbuf, len);
+            while (!ptr && mbuf && (errno == ERANGE || is_ENAMETOOLONG(errno))) {
+                len = len*2;
+                mbuf = realloc(mbuf, len);
+                ptr = getcwd(mbuf, len);
+            }
+            if (!ptr)
+                free(mbuf);
+            else {
+                sv_setpv(sv, ptr);
+                SvTAINTED_on(sv);
+                free(mbuf);
+                return TRUE;
+            }
+        }
+#endif
+        if (ptr) {
+	    sv_setpv(sv, ptr);
+            SvTAINTED_on(sv);
+#if defined(HAS_GET_CURRENT_DIR_NAME) || defined(HAS_GETCWDNULL)
+            free(ptr);
+#endif
 	    return TRUE;
 	}
 	else {
-	    sv_setsv(sv, &PL_sv_undef);
-	    return FALSE;
+	    SV_CWD_RETURN_UNDEF;
 	}
     }
 
@@ -407,6 +480,7 @@ int Perl_getcwd_sv(pTHX_ SV *sv)
 		   "current directory changed unexpectedly");
     }
 
+    SvTAINTED_on(sv);
     return TRUE;
   }
 #endif
@@ -416,7 +490,7 @@ int Perl_getcwd_sv(pTHX_ SV *sv)
 #endif
 }
 
-#endif
+#endif /* !getcwd_sv */
 
 #if defined(START_MY_CXT) && defined(MY_CXT_CLONE)
 # define USE_MY_CXT 1
@@ -469,18 +543,18 @@ THX_unix_canonpath(pTHX_ SV *path)
     char *o;
     STRLEN plen;
     SvGETMAGIC(path);
-    if(!SvOK(path)) return &PL_sv_undef;
+    if (!SvOK(path)) return &PL_sv_undef;
     p = SvPV_nomg(path, plen);
-    if(plen == 0) return newSVpvs("");
+    if (plen == 0) return newSVpvs("");
     pe = p + plen;
     retval = newSV(plen);
 #ifdef SvUTF8
-    if(SvUTF8(path)) SvUTF8_on(retval);
+    if (SvUTF8(path)) SvUTF8_on(retval);
 #endif
     o = SvPVX(retval);
-    if(DOUBLE_SLASHES_SPECIAL && p[0] == '/' && p[1] == '/' && p[2] != '/') {
+    if (DOUBLE_SLASHES_SPECIAL && p[0] == '/' && p[1] == '/' && p[2] != '/') {
 	q = (const char *) memchr(p+2, '/', pe-(p+2));
-	if(!q) q = pe;
+	if (!q) q = pe;
 	l = q - p;
 	memcpy(o, p, l);
 	p = q;
@@ -493,41 +567,41 @@ THX_unix_canonpath(pTHX_ SV *path)
      *   . eliminate leading ".." segments
      *   . eliminate trailing slash, unless it's all there is
      */
-    if(p[0] == '/') {
+    if (p[0] == '/') {
 	*o++ = '/';
 	while(1) {
 	    do { p++; } while(p[0] == '/');
-	    if(p[0] == '.' && p[1] == '.' && (p+2 == pe || p[2] == '/')) {
+	    if (p[0] == '.' && p[1] == '.' && (p+2 == pe || p[2] == '/')) {
 		p++;
 		/* advance past second "." next time round loop */
-	    } else if(p[0] == '.' && (p+1 == pe || p[1] == '/')) {
+	    } else if (p[0] == '.' && (p+1 == pe || p[1] == '/')) {
 		/* advance past "." next time round loop */
 	    } else {
 		break;
 	    }
 	}
-    } else if(p[0] == '.' && p[1] == '/') {
+    } else if (p[0] == '.' && p[1] == '/') {
 	do {
 	    p++;
 	    do { p++; } while(p[0] == '/');
 	} while(p[0] == '.' && p[1] == '/');
-	if(p == pe) *o++ = '.';
+	if (p == pe) *o++ = '.';
     }
-    if(p == pe) goto end;
+    if (p == pe) goto end;
     while(1) {
 	q = (const char *) memchr(p, '/', pe-p);
-	if(!q) q = pe;
+	if (!q) q = pe;
 	l = q - p;
 	memcpy(o, p, l);
 	p = q;
 	o += l;
-	if(p == pe) goto end;
+	if (p == pe) goto end;
 	while(1) {
 	    do { p++; } while(p[0] == '/');
-	    if(p == pe) goto end;
-	    if(p[0] != '.') break;
-	    if(p+1 == pe) goto end;
-	    if(p[1] != '/') break;
+	    if (p == pe) goto end;
+	    if (p[0] != '.') break;
+	    if (p+1 == pe) goto end;
+	    if (p[1] != '/') break;
 	    p++;
 	}
 	*o++ = '/';
@@ -538,6 +612,39 @@ THX_unix_canonpath(pTHX_ SV *path)
     SvCUR_set(retval, o - SvPVX(retval));
     SvTAINT(retval);
     return retval;
+}
+
+static SV*
+_abs_path(pTHX_ SV* pathsv)
+{
+    SV * const TARG = sv_newmortal();
+    char *const path = pathsv ? SvPV_nolen(pathsv) : (char *)".";
+    char buf[MAXPATHLEN];
+#if defined(HAS_REALPATH)
+    char *bufp = realpath(path, buf);
+    if (!bufp) /* maybe too long */
+        bufp = realpath(path, NULL);
+    if (bufp) {
+        sv_setpv_mg(TARG, bufp);
+        SvPOK_only(TARG);
+        SvTAINTED_on(TARG);
+    }
+#elif defined(VMS)
+    if (Perl_rmsexpand(aTHX_ path, buf, NULL, 0)) {
+	sv_setpv_mg(TARG, buf);
+        SvPOK_only(TARG);
+        SvTAINTED_on(TARG);
+    }
+#else
+    if (bsd_realpath(path, buf)) {
+	sv_setpv_mg(TARG, buf);
+        SvPOK_only(TARG);
+        SvTAINTED_on(TARG);
+    }
+#endif
+    else
+        sv_setsv(TARG, &PL_sv_undef);
+    return TARG;
 }
 
 MODULE = Cwd		PACKAGE = Cwd
@@ -557,8 +664,8 @@ BOOT:
 void
 CLONE(...)
 CODE:
-	PERL_UNUSED_VAR(items);
-	{ MY_CXT_CLONE; POPULATE_MY_CXT; }
+    PERL_UNUSED_VAR(items);
+    { MY_CXT_CLONE; POPULATE_MY_CXT; }
 
 #endif
 
@@ -568,14 +675,30 @@ PROTOTYPES: ENABLE
 void
 getcwd()
 PROTOTYPE:
-ALIAS:
-    fastcwd=1
-PREINIT:
-    PERL_UNUSED_ARG(ix);
 PPCODE:
 {
     dXSTARG;
     getcwd_sv(TARG);
+#if defined(HAS_GET_CURRENT_DIR_NAME)
+    {   /* Force resolving symlinks */
+        SV* sv = _abs_path(aTHX_ TARG);
+        PUSHs(sv);
+        SvTAINTED_on(sv);
+        XSRETURN(1);
+    }
+#else
+    XSprePUSH; PUSHTARG;
+    SvTAINTED_on(TARG);
+#endif
+}
+
+void
+fastcwd()
+PROTOTYPE:
+PPCODE:
+{
+    dXSTARG;
+    fastcwd_sv(TARG);
     XSprePUSH; PUSHTARG;
     SvTAINTED_on(TARG);
 }
@@ -586,26 +709,8 @@ abs_path(pathsv=Nullsv)
 PROTOTYPE: ;$
 PPCODE:
 {
-    dXSTARG;
-    char *const path = pathsv ? SvPV_nolen(pathsv) : (char *)".";
-    char buf[MAXPATHLEN];
-
-    if (
-#ifdef VMS
-	Perl_rmsexpand(aTHX_ path, buf, NULL, 0)
-#else
-	bsd_realpath(path, buf)
-#endif
-    ) {
-	sv_setpv_mg(TARG, buf);
-        SvPOK_only(TARG);
-	SvTAINTED_on(TARG);
-    }
-    else
-        sv_setsv(TARG, &PL_sv_undef);
-
-    XSprePUSH; PUSHs(TARG);
-    SvTAINTED_on(TARG);
+    SV* retval = _abs_path(aTHX_ pathsv);
+    XSprePUSH; PUSHs(retval);
 }
 
 #if defined(WIN32) && !defined(UNDER_CE)
@@ -629,13 +734,45 @@ PPCODE:
     else
         croak("Usage: getdcwd(DRIVE)");
 
-    New(0,dir,MAXPATHLEN,char);
-    if (_getdcwd(drive, dir, MAXPATHLEN)) {
+    New(0,dir,MAX_PATH+1,char);
+    /* Not MAXPATHLEN. Either 259 or 32767 */
+    if (_getdcwd(drive, dir, MAX_PATH)) {
         sv_setpv_mg(TARG, dir);
         SvPOK_only(TARG);
     }
-    else
-        sv_setsv(TARG, &PL_sv_undef);
+    else if (errno == ERANGE) { /* overlong paths */
+        /* #define PATHCCH_MAX_CCH 0x8000 NTFS */
+        DWORD size = GetCurrentDirectoryW(0, NULL);
+        LPWSTR wdir;
+        New(0,wdir,size+1,wchar_t);
+        if (GetCurrentDirectoryW(size, wdir)) {
+            int ulen = WideCharToMultiByte(CP_UTF8, 0, wdir, -1, 0, 0, 0, 0);
+            char* udir = malloc(ulen);
+            if (!ulen) {
+                sv_setsv(TARG, &PL_sv_undef);
+            } else {
+                WideCharToMultiByte(CP_UTF8, 0, wdir, -1, udir, ulen, 0, 0);
+                /* strip \\?\ prefix for long paths */
+                if (ulen > 4
+                    && udir[0] == '\\' && udir[1] == '\\'
+                    && udir[2] == '?'  && udir[3] == '\\')
+                    sv_setpv_mg(TARG, &udir[4]);
+                else
+                    sv_setpv_mg(TARG, udir);
+                /* check if it is the wanted dir.
+                   no \\?\UNC\ shares, check for the : */
+                if (toUPPER(*SvPVX(TARG)) != drive + 'A' - 1
+                    || SvPVX(TARG)[1] != ':')
+                    sv_setsv(TARG, &PL_sv_undef);
+                else
+                    SvPOK_only(TARG);
+                free(udir);
+            }
+        } else {
+            sv_setsv(TARG, &PL_sv_undef);
+        }
+        Safefree(wdir);
+    }
 
     Safefree(dir);
 
@@ -672,7 +809,7 @@ CODE:
     ST(items) = EMPTY_STRING_SV;
     joined = sv_newmortal();
     do_join(joined, SLASH_STRING_SV, &ST(0), &ST(items));
-    if(invocant_is_unix(self)) {
+    if (invocant_is_unix(self)) {
 	RETVAL = unix_canonpath(joined);
     } else {
 	ENTER;
@@ -709,12 +846,12 @@ catfile(SV *self, ...)
 PREINIT:
     dUSE_MY_CXT;
 CODE:
-    if(invocant_is_unix(self)) {
-	if(items == 1) {
+    if (invocant_is_unix(self)) {
+	if (items == 1) {
 	    RETVAL = &PL_sv_undef;
 	} else {
 	    SV *file = unix_canonpath(ST(items-1));
-	    if(items == 2) {
+	    if (items == 2) {
 		RETVAL = file;
 	    } else {
 		SV *dir = sv_newmortal();
@@ -722,7 +859,7 @@ CODE:
 		ST(items-1) = EMPTY_STRING_SV;
 		do_join(dir, SLASH_STRING_SV, &ST(0), &ST(items-1));
 		RETVAL = unix_canonpath(dir);
-		if(SvCUR(RETVAL) == 0 || SvPVX(RETVAL)[SvCUR(RETVAL)-1] != '/')
+		if (SvCUR(RETVAL) == 0 || SvPVX(RETVAL)[SvCUR(RETVAL)-1] != '/')
 		    sv_catsv(RETVAL, SLASH_STRING_SV);
 		sv_catsv(RETVAL, file);
 	    }
@@ -739,7 +876,7 @@ CODE:
 	SPAGAIN;
 	file = POPs;
 	LEAVE;
-	if(items <= 2) {
+	if (items <= 2) {
 	    RETVAL = SvREFCNT_inc(file);
 	} else {
 	    char const *pv;
@@ -756,7 +893,7 @@ CODE:
 	    pv = SvPV(dir, len);
 	    need_slash = len == 0 || pv[len-1] != '/';
 	    RETVAL = newSVsv(dir);
-	    if(need_slash) sv_catsv(RETVAL, SLASH_STRING_SV);
+	    if (need_slash) sv_catsv(RETVAL, SLASH_STRING_SV);
 	    sv_catsv(RETVAL, file);
 	}
     }
@@ -768,11 +905,11 @@ _fn_catfile(...)
 PREINIT:
     dUSE_MY_CXT;
 CODE:
-    if(items == 0) {
+    if (items == 0) {
 	RETVAL = &PL_sv_undef;
     } else {
 	SV *file = unix_canonpath(ST(items-1));
-	if(items == 1) {
+	if (items == 1) {
 	    RETVAL = file;
 	} else {
 	    SV *dir = sv_newmortal();
@@ -780,7 +917,7 @@ CODE:
 	    ST(items-1) = EMPTY_STRING_SV;
 	    do_join(dir, SLASH_STRING_SV, &ST(-1), &ST(items-1));
 	    RETVAL = unix_canonpath(dir);
-	    if(SvCUR(RETVAL) == 0 || SvPVX(RETVAL)[SvCUR(RETVAL)-1] != '/')
+	    if (SvCUR(RETVAL) == 0 || SvPVX(RETVAL)[SvCUR(RETVAL)-1] != '/')
 		sv_catsv(RETVAL, SLASH_STRING_SV);
 	    sv_catsv(RETVAL, file);
 	}

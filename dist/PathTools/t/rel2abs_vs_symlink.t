@@ -15,7 +15,6 @@ use Cwd qw(chdir);
 use Test::More;
 
 plan skip_all => "needs symlink()" if !eval { symlink("", ""); 1 };
-
 plan tests => 1;
 
 my $real_dir = "for_rel2abs_test";

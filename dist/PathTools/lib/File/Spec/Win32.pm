@@ -1,15 +1,13 @@
 package File::Spec::Win32;
 
 use strict;
-
-use vars qw(@ISA $VERSION);
 require File::Spec::Unix;
 
-$VERSION = '4.68c'; # modernized
-$VERSION =~ tr/_//;
+our $VERSION = '4.74c'; # modernized
+#$VERSION =~ tr/_//;
 $VERSION =~ s/c$//;
 
-@ISA = qw(File::Spec::Unix);
+our @ISA = qw(File::Spec::Unix);
 
 # Some regexes we use for path splitting
 my $DRIVE_RX = '[a-zA-Z]:';

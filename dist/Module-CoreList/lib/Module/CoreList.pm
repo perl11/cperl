@@ -17705,6 +17705,17 @@ our %delta :const = (
             'ExtUtils::MY'          => '7.35_06',
             'ExtUtils::Manifest'    => '1.71',
             'File::Path'            => '3.16_02c',
+            'Cwd'                   => '4.75c',
+            'File::Spec'            => '4.74c',
+            'File::Spec::AmigaOS'   => '3.74',
+            'File::Spec::Cygwin'    => '3.74',
+            'File::Spec::Epoc'      => '3.74',
+            'File::Spec::Functions' => '3.74',
+            'File::Spec::Mac'       => '3.74',
+            'File::Spec::OS2'       => '3.74',
+            'File::Spec::Unix'      => '4.74c',
+            'File::Spec::VMS'       => '3.74',
+            'File::Spec::Win32'     => '4.74c',
         },
         removed => {
         }

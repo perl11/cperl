@@ -1,11 +1,10 @@
 package File::Spec::Unix;
 
 use strict;
-use vars qw($VERSION);
 
-$VERSION = '4.68c'; # modernized
+our $VERSION = '4.74c'; # modernized
 our $XS_VERSION = $VERSION;
-$VERSION =~ tr/_//;
+#$VERSION =~ tr/_//;
 $VERSION =~ s/c$//;
 
 #dont try to load XSLoader and DynaLoader only to ultimately fail on miniperl

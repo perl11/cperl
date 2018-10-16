@@ -71,7 +71,7 @@ ExtUtils::ParseXS dist/ExtUtils-ParseXS/Changes 497c6c0b9f0e20858088345ab88bca3b
 ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm ceb8e1cc96b66f659b0b91b0379013f0f8f3e524
 File::Path cpan/File-Path/lib/File/Path.pm e6fc1cb9cd1d4b75797cb9ef636039cf6f43161c
 File::Path cpan/File-Path/t/Path_win32.t 46d09109b418a5ee9c3e2d84ee86449103f7a00d
-File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
+File::Spec dist/PathTools/t/rel2abs_vs_symlink.t e0b875a68f75cd912096de834a5e90f88341152e
 IO dist/IO/lib/IO/Socket.pm 3d66093e85d840248deac734f3651d821c5ec149
 IO dist/IO/lib/IO/Socket/INET.pm 2a9b27038adbded99595ed1ddfd2e00ec7b35a97
 IO dist/IO/lib/IO/Socket/UNIX.pm 5e43fb9b96b9e9e093a0d579e90515365b7c4ecd
