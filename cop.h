@@ -393,9 +393,6 @@ string/length pair.
 
 struct cop {
     BASEOP
-    /* On LP64 putting this here takes advantage of the fact that BASEOP isn't
-       an exact multiple of 8 bytes to save structure padding.  */
-    line_t      cop_line;       /* line # of this command */
     /* label for this construct is now stored in cop_hints_hash */
 #ifdef USE_ITHREADS
     PADOFFSET	cop_stashoff;	/* offset into PL_stashpad, for the
@@ -547,7 +544,7 @@ be zero.
 #define CopLABEL_alloc(pv)	((pv)?savepv(pv):NULL)
 
 #define CopSTASH_ne(c,hv)	(!CopSTASH_eq(c,hv))
-#define CopLINE(c)		((c)->cop_line)
+#define CopLINE(c)		((c)->op_line)
 #define CopLINE_inc(c)		(++CopLINE(c))
 #define CopLINE_dec(c)		(--CopLINE(c))
 #define CopLINE_set(c,l)	(CopLINE(c) = (l))

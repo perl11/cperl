@@ -57,7 +57,8 @@ typedef PERL_BITFIELD16 Optype;
     PERL_BITFIELD16 op_typechecked:1;	\
     U8		op_flags;		\
     U8		op_private;             \
-    U8		op_rettype;
+    U8		op_rettype;             \
+    line_t      op_line;       /* line # of this command */
 #endif
 
 /* Class::XSAccessor abuses this */
