@@ -292,6 +292,19 @@ L<RT #91784|https://rt.cpan.org/Ticket/Display.html?id=91784>
 
 HPUX test fixes.
 
+=item L<Math::BigInt> 1.999814
+
+Add C<to_base()> and C<from_base()> to L<Math::BigInt> and corresponding library
+methods C<_to_base()> and C<_from_base()> to L<Math::BigInt::Lib>. This was inspired
+by L<CPAN RT #122681|https://rt.cpan.org/Ticket/Display.html?id=122681>.
+
+In the documentation for each of the C<to_(bin|hex|oct|bytes)> methods, add a
+reference to the corresponding C<from_(bin|hex|oct|bytes)> method.
+
+=item L<version> 0.9924_02
+
+more test fixes for 5.6
+
 =back
 
 =head1 Documentation

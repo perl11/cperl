@@ -17757,6 +17757,11 @@ our %delta :const = (
             'IO::Uncompress::RawInflate'=> '2.081',
             'IO::Uncompress::Unzip' => '2.081',
             'IPC::Cmd'              => '1.02',
+            'Math::BigFloat'        => '1.999814',
+            'Math::BigInt'          => '1.999814',
+            'Math::BigInt::Calc'    => '1.999814',
+            'Math::BigInt::CalcEmu' => '1.999814',
+            'Math::BigInt::Lib'     => '1.999814',
         },
         removed => {
         }

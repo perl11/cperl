@@ -21,8 +21,8 @@ require './t/mbimbf.inc';
 # guaranteed in the Math::Big(Int|Float) (unless subclass chooses to support
 # this)
 
-Math::BigInt->round_mode("even");	# reset for tests
-Math::BigFloat->round_mode("even");	# reset for tests
+Math::BigInt->round_mode("even");       # reset for tests
+Math::BigFloat->round_mode("even");     # reset for tests
 
 is($Math::BigInt::rnd_mode,   "even", '$Math::BigInt::rnd_mode = "even"');
 is($Math::BigFloat::rnd_mode, "even", '$Math::BigFloat::rnd_mode = "even"');
