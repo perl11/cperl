@@ -309,6 +309,8 @@ reference to the corresponding C<from_(bin|hex|oct|bytes)> method.
 
 No code nor test changes.
 
+=item L<Math::BigRat>  0.2614
+
 =item L<version> 0.9924_02
 
 more test fixes for 5.6

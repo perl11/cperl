@@ -1004,7 +1004,7 @@ use File::Glob qw(:case);
     },
 
     'Math::BigRat' => {
-        'DISTRIBUTION' => 'PJACKLAM/Math-BigRat-0.2613.tar.gz',
+        'DISTRIBUTION' => 'PJACKLAM/Math-BigRat-0.2614.tar.gz',
         'FILES'        => q[cpan/Math-BigRat],
         'EXCLUDED'     => [
             qr{^inc/},
@@ -1020,6 +1020,7 @@ use File::Glob qw(:case);
             qw( t/bigfltpm.inc
                 t/bigfltrt.t
                 t/bigratpm.t
+                t/bigroot.t t/biglog.t
               ),
           ],
     },
