@@ -457,7 +457,7 @@ use File::Glob qw(:case);
     },
 
     'Data::Dumper' => {
-        'DISTRIBUTION' => 'SMUELLER/Data-Dumper-2.167.tar.gz',
+        'DISTRIBUTION' => 'XSAWYERX/Data-Dumper-2.172.tar.gz',
         'FILES'        => q[dist/Data-Dumper],
     },
 

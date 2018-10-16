@@ -8,15 +8,16 @@
 #  include "ppport.h"
 #endif
 
-/* cperl optims */
-#ifndef strEQc
-/* the buffer ends with \0, includes comparison of the \0.
-   better than strEQ as it uses memcmp, word-wise comparison. */
-#define strEQc(s, c) memEQ(s, ("" c ""), sizeof(c))
-#endif
-
 #if PERL_VERSION < 8
 #  define DD_USE_OLD_ID_FORMAT
+#endif
+
+#ifndef strlcpy
+#  ifdef my_strlcpy
+#    define strlcpy(d,s,l) my_strlcpy(d,s,l)
+#  else
+#    define strlcpy(d,s,l) strcpy(d,s)
+#  endif
 #endif
 
 /* These definitions are ASCII only.  But the pure-perl .pm avoids
@@ -48,6 +49,17 @@
                           || (((UV) (c)) >= '0' && ((UV) (c)) <= '9'))
 #endif
 
+/* SvPVCLEAR only from perl 5.25.6 */
+#ifndef SvPVCLEAR
+#  define SvPVCLEAR(sv) sv_setpvs((sv), "")
+#endif
+
+#ifndef memBEGINs
+#  define memBEGINs(s1, l, s2)                                              \
+            (   (l) >= sizeof(s2) - 1                                       \
+             && memEQ(s1, "" s2 "", sizeof(s2)-1))
+#endif
+
 /* This struct contains almost all the user's desired configuration, and it
  * is treated as constant by the recursive function. This arrangement has
  * the advantage of needing less memory than passing all of them on the
@@ -77,6 +89,9 @@ static STRLEN num_q (const char *s, STRLEN slen);
 static STRLEN esc_q (char *dest, const char *src, STRLEN slen);
 static STRLEN esc_q_utf8 (pTHX_ SV *sv, const char *src, STRLEN slen, I32 do_utf8, I32 useqq);
 static bool globname_needs_quote(const char *s, STRLEN len);
+#ifndef GvNAMEUTF8
+static bool globname_supra_ascii(const char *s, STRLEN len);
+#endif
 static bool key_needs_quote(const char *s, STRLEN len);
 static bool safe_decimal_number(const char *p, STRLEN len);
 static SV *sv_x (pTHX_ SV *sv, const char *str, STRLEN len, I32 n);
@@ -142,9 +157,10 @@ Perl_utf8_to_uvchr_buf(pTHX_ U8 *s, U8 *send, STRLEN *retlen)
 
 /* does a glob name need to be protected? */
 static bool
-globname_needs_quote(const char *s, STRLEN len)
+globname_needs_quote(const char *ss, STRLEN len)
 {
-    const char *send = s+len;
+    const U8 *s = (const U8 *) ss;
+    const U8 *send = s+len;
 TOP:
     if (s[0] == ':') {
 	if (++s<send) {
@@ -168,6 +184,22 @@ TOP:
 
     return FALSE;
 }
+
+#ifndef GvNAMEUTF8
+/* does a glob name contain supra-ASCII characters? */
+static bool
+globname_supra_ascii(const char *ss, STRLEN len)
+{
+    const U8 *s = (const U8 *) ss;
+    const U8 *send = s+len;
+    while (s < send) {
+        if (!isASCII(*s))
+            return TRUE;
+        s++;
+    }
+    return FALSE;
+}
+#endif
 
 /* does a hash key need to be quoted (to the left of => ).
    Previously this used (globname_)needs_quote() which accepted strings
@@ -374,15 +406,16 @@ esc_q_utf8(pTHX_ SV* sv, const char *src, STRLEN slen, I32 do_utf8, I32 useqq)
         *r++ = '"';
 
         for (s = src; s < send; s += increment) {
+            U8 c0 = *(U8 *)s;
             UV k;
 
             if (do_utf8
-                && ! isASCII(*(U8*)s)
+                && ! isASCII(c0)
                     /* Exclude non-ASCII low ordinal controls.  This should be
                      * optimized out by the compiler on ASCII platforms; if not
                      * could wrap it in a #ifdef EBCDIC, but better to avoid
                      * #if's if possible */
-                && *(U8*)s > ' '
+                && c0 > ' '
             ) {
 
                 /* When in UTF-8, we output all non-ascii chars as \x{}
@@ -524,7 +557,22 @@ deparsed_output(pTHX_ SV *val)
      * modifies it (so we also can't reuse it below) */
     SV *pkg = newSVpvs("B::Deparse");
 
+    /* Commit ebdc88085efa6fca8a1b0afaa388f0491bdccd5a (first released as part
+     * of 5.19.7) changed core S_process_special_blocks() to use a new stack
+     * for anything using a BEGIN block, on the grounds that doing so "avoids
+     * the stack moving underneath anything that directly or indirectly calls
+     * Perl_load_module()". If we're in an older Perl, we can't rely on that
+     * stack, and must create a fresh sacrificial stack of our own. */
+#if PERL_VERSION < 20
+    PUSHSTACKi(PERLSI_REQUIRE);
+#endif
+
     load_module(PERL_LOADMOD_NOIMPORT, pkg, 0);
+
+#if PERL_VERSION < 20
+    POPSTACK;
+    SPAGAIN;
+#endif
 
     SAVETMPS;
 
@@ -716,7 +764,7 @@ DD_dump(pTHX_ SV *val, const char *name, STRLEN namelen, SV *retval, HV *seenhv,
          * they can be blessed into any package. 
          */
 #if PERL_VERSION < 8
-	if (realpack && *realpack == 'R' && strEQc(realpack, "Regexp")) 
+	if (realpack && *realpack == 'R' && strEQ(realpack, "Regexp")) 
 #elif PERL_VERSION < 11
         if (realpack && realtype == SVt_PVMG && mg_find(ival, PERL_MAGIC_qr))
 #else        
@@ -724,7 +772,7 @@ DD_dump(pTHX_ SV *val, const char *name, STRLEN namelen, SV *retval, HV *seenhv,
 #endif
         {
             is_regex = 1;
-            if (strEQc(realpack, "Regexp")) 
+            if (strEQ(realpack, "Regexp")) 
                 no_bless = 1;
             else
                 no_bless = 0;
@@ -858,7 +906,7 @@ DD_dump(pTHX_ SV *val, const char *name, STRLEN namelen, SV *retval, HV *seenhv,
 	    SV * const ixsv = newSViv(0);
 	    /* allowing for a 24 char wide array index */
 	    New(0, iname, namelen+28, char);
-	    (void)strcpy(iname, name);
+	    (void) strlcpy(iname, name, namelen+28);
 	    inamelen = namelen;
 	    if (name[0] == '@') {
 		sv_catpvs(retval, "(");
@@ -1292,7 +1340,7 @@ DD_dump(pTHX_ SV *val, const char *name, STRLEN namelen, SV *retval, HV *seenhv,
 	else if (realtype == SVt_PVGV) {/* GLOBs can end up with scribbly names */
 	    c = SvPV(val, i);
 	    if(i) ++c, --i;			/* just get the name */
-	    if (i >= 6 && strncmp(c, "main::", 6) == 0) {
+	    if (memBEGINs(c, i, "main::")) {
 		c += 4;
 #if PERL_VERSION < 7
 		if (i == 6 || (i == 7 && c[6] == '\0'))
@@ -1302,37 +1350,30 @@ DD_dump(pTHX_ SV *val, const char *name, STRLEN namelen, SV *retval, HV *seenhv,
 		    i = 0; else i -= 4;
 	    }
             if (globname_needs_quote(c,i)) {
-#ifdef GvNAMEUTF8
-	      if (GvNAMEUTF8(val)) {
-		sv_grow(retval, SvCUR(retval)+2);
+		sv_grow(retval, SvCUR(retval)+3);
 		r = SvPVX(retval)+SvCUR(retval);
-		r[0] = '*'; r[1] = '{';
+		r[0] = '*'; r[1] = '{'; r[2] = 0;
 		SvCUR_set(retval, SvCUR(retval)+2);
-                esc_q_utf8(aTHX_ retval, c, i, 1, style->useqq);
+                i = 3 + esc_q_utf8(aTHX_ retval, c, i,
+#ifdef GvNAMEUTF8
+			!!GvNAMEUTF8(val), style->useqq
+#else
+			0, style->useqq || globname_supra_ascii(c, i)
+#endif
+			);
 		sv_grow(retval, SvCUR(retval)+2);
 		r = SvPVX(retval)+SvCUR(retval);
 		r[0] = '}'; r[1] = '\0';
-		i = 1;
-	      }
-	      else
-#endif
-	      {
-		sv_grow(retval, SvCUR(retval)+6+2*i);
-		r = SvPVX(retval)+SvCUR(retval);
-		r[0] = '*'; r[1] = '{';	r[2] = '\'';
-		i += esc_q(r+3, c, i);
-		i += 3;
-		r[i++] = '\''; r[i++] = '}';
-		r[i] = '\0';
-	      }
+		SvCUR_set(retval, SvCUR(retval)+1);
+		r = r+1 - i;
 	    }
 	    else {
 		sv_grow(retval, SvCUR(retval)+i+2);
 		r = SvPVX(retval)+SvCUR(retval);
-		r[0] = '*'; strcpy(r+1, c);
+		r[0] = '*'; strlcpy(r+1, c, SvLEN(retval));
 		i++;
+		SvCUR_set(retval, SvCUR(retval)+i);
 	    }
-	    SvCUR_set(retval, SvCUR(retval)+i);
 
             if (style->purity) {
 		static const char* const entries[] = { "{SCALAR}", "{ARRAY}", "{HASH}" };
@@ -1616,7 +1657,8 @@ Data_Dumper_Dumpxs(href, ...)
 			STRLEN nchars;
 			sv_setpvs(name, "$");
 			sv_catsv(name, varname);
-			nchars = my_snprintf(tmpbuf, sizeof(tmpbuf), "%" IVdf, (IV)(i+1));
+			nchars = my_snprintf(tmpbuf, sizeof(tmpbuf), "%" IVdf,
+                                                                     (IV)(i+1));
 			sv_catpvn(name, tmpbuf, nchars);
 		    }
 		

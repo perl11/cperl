@@ -46,6 +46,21 @@ keep our zlib-src fixes: deflateParams bug, FALLTHROUGH hints
 
 Added json_type support, ...
 
+=item L<Data::Dumper>  2.172
+
+Restore deparsing support in the XS dumper, on Perl 5.18 and earlier.
+
+Fix bug when dumping globs with quoting (which now happens for
+all Unicode glob names)
+
+Behavior change: C<$dumper->Useqq(undef)> is now treated as setting the
+"useqq" option, not getting it (and similarly for other options)
+L<[perl #113090]|https://rt.perl.org/Public/Bug/Display.html?id=113090>
+
+Quote glob names better; notably, Unicode globs are
+now handled correctly.
+L<[perl #119831]|https://rt.perl.org/Public/Bug/Display.html?id=119831>
+
 =item L<DB_File>  1.842
 
 Document the MacOS build failures & how MacPort can work around the issue.

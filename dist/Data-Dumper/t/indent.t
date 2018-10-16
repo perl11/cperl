@@ -14,7 +14,7 @@ BEGIN {
 use strict;
 
 use Data::Dumper;
-use Test::More tests => 10;
+use Test::More tests => 9;
 use lib qw( ./t/lib );
 use Testing qw( _dumptostr );
 
@@ -33,10 +33,6 @@ $dumpstr{noindent} = _dumptostr($dumper);
 $dumper = Data::Dumper->new([$hash]);
 $dumper->Indent();
 $dumpstr{indent_no_arg} = _dumptostr($dumper);
-
-$dumper = Data::Dumper->new([$hash]);
-$dumper->Indent(undef);
-$dumpstr{indent_undef} = _dumptostr($dumper);
 
 $dumper = Data::Dumper->new([$hash]);
 $dumper->Indent(0);
@@ -59,8 +55,6 @@ $dumpstr{indent_2} = _dumptostr($dumper);
 
 is($dumpstr{noindent}, $dumpstr{indent_no_arg},
     "absence of Indent is same as Indent()");
-is($dumpstr{noindent}, $dumpstr{indent_undef},
-    "absence of Indent is same as Indent(undef)");
 isnt($dumpstr{noindent}, $dumpstr{indent_0},
     "absence of Indent is different from Indent(0)");
 isnt($dumpstr{indent_0}, $dumpstr{indent_1},
@@ -97,10 +91,11 @@ like($dumpstr{ar_indent_3},
     qr/\#0.+'foo'.+\#1.+42/s,
     "Indent(3) annotates array elements with their indices"
 );
+sub count_newlines { scalar $_[0] =~ tr/\n// }
 {
     no if $] < 5.011, warnings => 'deprecated';
-    is(scalar(split("\n" => $dumpstr{ar_indent_2})) + 2,
-        scalar(split("\n" => $dumpstr{ar_indent_3})),
+    is(count_newlines($dumpstr{ar_indent_2}) + 2,
+        count_newlines($dumpstr{ar_indent_3}),
         "Indent(3) runs 2 lines longer than Indent(2)");
 }
 

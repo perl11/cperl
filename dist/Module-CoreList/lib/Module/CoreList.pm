@@ -17657,6 +17657,7 @@ our %delta :const = (
             'Compress::Raw::Bzip2'  => '2.081',
             'Compress::Raw::Zlib'   => '2.081',
             'Cpanel::JSON::XS'      => '4.06',
+            'Data::Dumper'          => '2.172',
             'DB_File'               => '1.842',
             'DynaLoader'            => '2.09c',
             'ExtUtils::Constant'            => '2.25_01',
