@@ -270,6 +270,16 @@ L<https://metacpan.org/changes/distribution/IO> plus some cperl fixes.
 lots of whitespace fixes in zipdetails
 exclude t/999pod.t also
 
+=item L<IPC::Cmd> 1.02
+
+Fixed can't use IPC::Cmd->run_forked in the first process of a container
+L<RT #118424|https://rt.cpan.org/Ticket/Display.html?id=118424>
+
+Fixed run_forked("/usr/bin/echo test") captures no output
+L<RT #91784|https://rt.cpan.org/Ticket/Display.html?id=91784>
+
+HPUX test fixes.
+
 =back
 
 =head1 Documentation

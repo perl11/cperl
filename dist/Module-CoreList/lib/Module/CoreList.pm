@@ -17755,6 +17755,7 @@ our %delta :const = (
             'IO::Uncompress::Inflate'=> '2.081',
             'IO::Uncompress::RawInflate'=> '2.081',
             'IO::Uncompress::Unzip' => '2.081',
+            'IPC::Cmd'              => '1.02',
         },
         removed => {
         }
