@@ -8,7 +8,7 @@ use private::MakeUtil;
 use ExtUtils::MakeMaker 5.16 ;
 
 my $WALL= '';
-$WALL = ' -Wall -Wno-comment ' if $Config{'cc'} =~ /gcc/ ;
+$WALL = ' -Wall -Wno-comment ' if $Config{'cc'} =~ /\bgcc/ and $Config{gccversion};
 my $USE_PPPORT_H = ($ENV{PERL_CORE}) ? '' : '-DUSE_PPPORT_H';
 
 
