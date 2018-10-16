@@ -544,7 +544,7 @@ be zero.
 #define CopLABEL_alloc(pv)	((pv)?savepv(pv):NULL)
 
 #define CopSTASH_ne(c,hv)	(!CopSTASH_eq(c,hv))
-#define CopLINE(c)		((c)->op_line)
+#define CopLINE(c)		(((OP*)c)->op_line)
 #define CopLINE_inc(c)		(++CopLINE(c))
 #define CopLINE_dec(c)		(--CopLINE(c))
 #define CopLINE_set(c,l)	(CopLINE(c) = (l))

@@ -171,6 +171,8 @@ recursive, but it's recursive on basic blocks, not on tree nodes.
 #define CALL_PEEP(o) PL_peepp(aTHX_ o)
 #define CALL_RPEEP(o) PL_rpeepp(aTHX_ o)
 #define CALL_OPFREEHOOK(o) if (PL_opfreehook) PL_opfreehook(aTHX_ o)
+#define STORE_COPLINE(op) \
+    CopLINE_set(op, PL_parser ? PL_parser->copline : CopLINE(PL_curcop));
 
 static const char array_passed_to_stat[] =
     "Array passed to stat will be coerced to a scalar";
@@ -2107,16 +2109,16 @@ S_scalarboolean(pTHX_ OP *o)
          IS_CONST_OP(OpFIRST(OpFIRST(o))) &&
          !OpSPECIAL(OpFIRST(OpFIRST(o))))) {
 	if (ckWARN(WARN_SYNTAX)) {
-	    const line_t oldline = CopLINE(PL_curcop);
+            OP* op = PL_op ? PL_op : (OP*)PL_curcop;
+            const line_t oldline = CopLINE(op);
 
-	    if (PL_parser && PL_parser->copline != NOLINE) {
+            if (PL_parser && PL_parser->copline != NOLINE)
 		/* This ensures that warnings are reported at the first line
                    of the conditional, not the last.  */
-		CopLINE_set(PL_curcop, PL_parser->copline);
-            }
+                CopLINE_set(PL_curcop, PL_parser->copline);
 	    Perl_warner(aTHX_ packWARN(WARN_SYNTAX),
                         "Found = in conditional, should be ==");
-	    CopLINE_set(PL_curcop, oldline);
+            CopLINE_set(op, oldline);
 	}
     }
     return scalar(o);
@@ -7442,7 +7444,7 @@ S_fold_constants(pTHX_ OP *const o)
     /*DEBUG_k(Perl_deb(aTHX_ "fold_constant(%s)", OP_NAME(o)));*/
     curop = LINKLIST(o);
     old_next = OpNEXT(o);
-    OpNEXT(o) = 0;
+    OpNEXT(o) = NULL;
     PL_op = curop;
 
     old_cxix = cxstack_ix;
@@ -7920,11 +7922,13 @@ Perl_newLISTOP(pTHX_ I32 type, I32 flags, OP *first, OP *last)
 	OpMORESIB_set(first, last);
     OpFIRST(listop) = first;
     OpLAST(listop) = last;
+    STORE_COPLINE(listop);
 
     if (pushop) {
 	OpMORESIB_set(pushop, first);
 	OpFIRST(listop) = pushop;
 	listop->op_flags |= OPf_KIDS;
+        CopLINE_set(pushop, CopLINE(first));
 	if (!last)
 	    OpLAST(listop) = pushop;
     }
@@ -7981,6 +7985,7 @@ Perl_newOP(pTHX_ I32 type, I32 flags)
 	scalar(o);
     if (PL_opargs[type] & OA_TARGET)
 	o->op_targ = pad_alloc(type, SVs_PADTMP);
+    STORE_COPLINE(o);
     o = CHECKOP(type, o);
     if (!OpRETTYPE(o) && (flags = OpTYPE_RET(type)))
         OpRETTYPE_set(o, (U8)flags);
@@ -8031,6 +8036,7 @@ Perl_newUNOP(pTHX_ I32 type, I32 flags, OP *first)
     OpFIRST(unop) = first;
     unop->op_flags = (U8)(flags | OPf_KIDS);
     unop->op_private = (U8)(1 | (flags >> 8));
+    CopLINE_set(unop, CopLINE(first));
 
     if (!OpHAS_SIBLING(first)) /* true unless weird syntax error */
         OpLASTSIB_set(first, (OP*)unop);
@@ -8070,8 +8076,12 @@ Perl_newUNOP_AUX(pTHX_ I32 type, I32 flags, OP *first, UNOP_AUX_item *aux)
     unop->op_private = (U8)((first ? 1 : 0) | (flags >> 8));
     unop->op_aux = aux;
 
-    if (first && !OpHAS_SIBLING(first)) /* true unless weird syntax error */
+    if (first && !OpHAS_SIBLING(first)) { /* true unless weird syntax error */
         OpLASTSIB_set(first, (OP*)unop);
+        CopLINE_set(unop, CopLINE(first));
+    } else {
+        STORE_COPLINE(unop);
+    }
 
     unop = (UNOP_AUX*) CHECKOP(type, unop);
     if (!OpRETTYPE(unop))
@@ -8122,6 +8132,7 @@ S_newMETHOP_internal(pTHX_ I32 type, I32 flags, OP* dynamic_meth, SV* const_meth
         methop->op_private = (U8)(0 | (flags >> 8));
         methop->op_next = (OP*)methop;
     }
+    STORE_COPLINE(methop);
 
 #ifdef USE_ITHREADS
     methop->op_rclass_targ = 0;
@@ -8197,6 +8208,7 @@ Perl_newBINOP(pTHX_ I32 type, I32 flags, OP *first, OP *last)
 	binop->op_private = (U8)(2 | (flags >> 8));
         OpMORESIB_set(first, last);
     }
+    STORE_COPLINE(binop);
 
     if (!OpHAS_SIBLING(last)) /* true unless weird syntax error */
         OpLASTSIB_set(last, (OP*)binop);
@@ -8732,6 +8744,7 @@ Perl_newPMOP(pTHX_ I32 type, I32 flags)
 	PL_regex_pad = AvARRAY(PL_regex_padav);
     }
 #endif
+    STORE_COPLINE(pmop);
 
     return CHECKOP(type, pmop);
 }
@@ -9182,6 +9195,7 @@ Perl_newSVOP(pTHX_ I32 type, I32 flags, SV *sv)
 	scalar((OP*)svop);
     if (PL_opargs[type] & OA_TARGET)
 	svop->op_targ = pad_alloc(type, SVs_PADTMP);
+    STORE_COPLINE(svop);
     svop = (SVOP*)CHECKOP(type, svop);
     if (!OpRETTYPE((OP*)svop))
         OpRETTYPE_set((OP*)svop, OpTYPE_RET(type));
@@ -9267,6 +9281,7 @@ Perl_newPADOP(pTHX_ I32 type, I32 flags, SV *sv)
     assert(sv);
     padop->op_next = (OP*)padop;
     padop->op_flags = (U8)flags;
+    STORE_COPLINE(padop);
     if (PL_opargs[type] & OA_RETSCALAR)
 	scalar((OP*)padop);
     if (PL_opargs[type] & OA_TARGET)
@@ -9336,6 +9351,7 @@ Perl_newPVOP(pTHX_ I32 type, I32 flags, char *pv)
 	scalar((OP*)pvop);
     if (PL_opargs[type] & OA_TARGET)
 	pvop->op_targ = pad_alloc(type, SVs_PADTMP);
+    STORE_COPLINE(pvop);
     return CHECKOP(type, pvop);
 }
 
@@ -21267,6 +21283,7 @@ Perl_rpeep(pTHX_ OP *o)
 		newop = newLISTOP(OP_LIST, 0, pad1, pad2);
 		newop->op_flags |= OPf_PARENS;
 		newop->op_flags = (newop->op_flags & ~OPf_WANT) | OPf_WANT_VOID;
+		CopLINE_set(newop, CopLINE(pad1));
 
                 /* insert newop between o and ns3 */
                 op_sibling_splice(NULL, o, 0, newop);
