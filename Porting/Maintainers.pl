@@ -442,7 +442,7 @@ use File::Glob qw(:case);
     },
 
     'Cpanel::JSON::XS' => {
-        'DISTRIBUTION' => 'RURBAN/Cpanel-JSON-XS-3.0240.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Cpanel-JSON-XS-4.06.tar.gz',
         'FILES'        => q[cpan/Cpanel-JSON-XS],
         'EXCLUDED'     => [
             '.appveyor.yml',
@@ -451,7 +451,7 @@ use File::Glob qw(:case);
             'eg/bench',
             't/appveyor-test.bat',
             't/30_jsonspec.t',
-            qr{^t/z_},
+            qr{^xt/},
             qr{^t/test_(parsing|transform)},
         ],
     },

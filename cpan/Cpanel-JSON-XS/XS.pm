@@ -1,5 +1,5 @@
 package Cpanel::JSON::XS;
-our $VERSION = '3.0240';
+our $VERSION = '4.06';
 our $XS_VERSION = $VERSION;
 # $VERSION = eval $VERSION;
 
@@ -231,7 +231,7 @@ exported by default:
 
 =over 4
 
-=item $json_text = encode_json $perl_scalar
+=item $json_text = encode_json $perl_scalar, [json_type]
 
 Converts the given Perl data structure to a UTF-8 encoded, binary string
 (that is, the string contains octets only). Croaks on error.
@@ -241,6 +241,8 @@ This function call is functionally identical to:
    $json_text = Cpanel::JSON::XS->new->utf8->encode ($perl_scalar)
 
 Except being faster.
+
+For the type argument see L<Cpanel::JSON::XS::Type>.
 
 =item $perl_scalar = decode_json $json_text [, $allow_nonref ]
 
@@ -528,6 +530,13 @@ resulting JSON text is guaranteed not to contain any C<newlines>.
 
 This setting has no effect when decoding JSON texts.
 
+=item $json = $json->indent_length([$number_of_spaces])
+
+=item $length = $json->get_indent_length()
+
+Set the indent length (default C<3>).
+This option is only useful when you also enable indent or pretty.
+The acceptable range is from 0 (no indentation) to 15
 
 =item $json = $json->space_before ([$enable])
 
@@ -1336,6 +1345,11 @@ See also L<http://www.unicode.org/faq/utf_bom.html#BOM>.
 Beware that Cpanel::JSON::XS is currently the only JSON module which
 does accept and decode a BOM.
 
+The latest JSON spec
+L<https://www.greenbytes.de/tech/webdav/rfc8259.html#character.encoding>
+forbid the usage of UTF-16 or UTF-32, the character encoding is UTF-8.
+Thus in subsequent updates BOM's of UTF-16 or UTF-32 will throw an error.
+
 =head1 MAPPING
 
 This section describes how Cpanel::JSON::XS maps Perl values to JSON
@@ -1403,6 +1417,13 @@ the C<Cpanel::JSON::XS::is_bool> function.
 The other round, from perl to JSON, C<!0> which is represented as
 C<yes> becomes C<true>, and C<!1> which is represented as
 C<no> becomes C<false>.
+
+Via L<Cpanel::JSON::XS::Type> you can now even force negation in C<encode>,
+without overloading of C<!>:
+
+    my $false = Cpanel::JSON::XS::false;
+    print($json->encode([!$false], [JSON_TYPE_BOOL]));
+    => [true]
 
 =item null
 
@@ -1477,6 +1498,14 @@ directly if you want.
 
    encode_json [Cpanel::JSON::XS::true, Cpanel::JSON::XS::true] # yields [false,true]
    encode_json [!1, !0]      # yields [false,true]
+
+eq/ne comparisons with true, false:
+
+false is eq to the empty string or the string 'false' or the special
+empty string C<!!0>, i.e. C<SV_NO>, or the numbers 0 or 0.0.
+
+true is eq to the string 'true' or to the special string C<!0>
+(i.e. C<SV_YES>) or to the numbers 1 or 1.0.
 
 =item blessed objects
 
@@ -1967,7 +1996,8 @@ JSON::XS, Cpanel::JSON::XS produce JSON::PP::Boolean objects, just
 Mojo and JSON::YAJL not.  Mojo produces Mojo::JSON::_Bool and
 JSON::YAJL::Parser just an unblessed IV.
 
-Cpanel::JSON::XS accepts JSON::PP::Boolean and Mojo::JSON::_Bool objects as booleans.
+Cpanel::JSON::XS accepts JSON::PP::Boolean and Mojo::JSON::_Bool
+objects as booleans.
 
 I cannot think of any reason to still use JSON::XS anymore.
 
@@ -2181,6 +2211,40 @@ sub allow_bigint {
     Carp::carp("allow_bigint() is obsoleted. use allow_bignum() instead.");
 }
 
+BEGIN {
+  package
+    JSON::PP::Boolean;
+
+  require overload;
+
+  local $^W; # silence redefine warnings. no warnings 'redefine' does not help
+  &overload::import( 'overload', # workaround 5.6 reserved keyword warning
+    "0+"     => sub { ${$_[0]} },
+    "++"     => sub { $_[0] = ${$_[0]} + 1 },
+    "--"     => sub { $_[0] = ${$_[0]} - 1 },
+    '""'     => sub { ${$_[0]} == 1 ? '1' : '0' }, # GH 29
+    'eq'     => sub {
+      my ($obj, $op) = $_[2] ? ($_[1], $_[0]) : ($_[0], $_[1]);
+      #warn "eq obj:$obj op:$op len:", length($op) > 0, " swap:$_[2]";
+      if (ref $op) { # if 2nd also blessed might recurse endlessly
+        return $obj ? 1 == $op : 0 == $op;
+      }
+      # if string, only accept numbers or true|false or "" (e.g. !!0 / SV_NO)
+      elsif ($op !~ /^[0-9]+$/) {
+        return "$obj" eq '1' ? 'true' eq $op : 'false' eq $op || "" eq $op;
+      }
+      else {
+        return $obj ? 1 == $op : 0 == $op;
+      }
+    },
+    'ne'     => sub {
+      my ($obj, $op) = $_[2] ? ($_[1], $_[0]) : ($_[0], $_[1]);
+      #warn "ne obj:$obj op:$op";
+      return !($obj eq $op);
+    },
+    fallback => 1);
+}
+
 our ($true, $false);
 BEGIN {
   if ($INC{'JSON/XS.pm'}
@@ -2194,8 +2258,13 @@ BEGIN {
   }
 }
 
-sub true()  { $true  }
-sub false() { $false }
+BEGIN {
+  my $const_true  = $true;
+  my $const_false = $false;
+  *true  = sub () { $const_true  };
+  *false = sub () { $const_false };
+}
+
 sub is_bool($) {
   shift if @_ == 2; # as method call
   (ref($_[0]) and UNIVERSAL::isa( $_[0], JSON::PP::Boolean::))
@@ -2203,30 +2272,6 @@ sub is_bool($) {
 }
 
 XSLoader::load 'Cpanel::JSON::XS', $XS_VERSION;
-
-package
-  JSON::PP::Boolean;
-
-use overload ();
-
-BEGIN {
-  local $^W; # silence redefine warnings. no warnings 'redefine' does not help
-  &overload::import( 'overload', # workaround 5.6 reserved keyword warning
-    "0+"     => sub { ${$_[0]} },
-    "++"     => sub { $_[0] = ${$_[0]} + 1 },
-    "--"     => sub { $_[0] = ${$_[0]} - 1 },
-    '""'     => sub { ${$_[0]} == 1 ? '1' : '0' }, # GH 29
-    'eq'     => sub {
-      my ($obj, $op) = ref ($_[0]) ? ($_[0], $_[1]) : ($_[1], $_[0]);
-      if ($op eq 'true' or $op eq 'false') {
-        return "$obj" eq '1' ? 'true' eq $op : 'false' eq $op;
-      }
-      else {
-        return $obj ? 1 == $op : 0 == $op;
-      }
-    },
-    fallback => 1);
-}
 
 1;
 
@@ -2246,9 +2291,9 @@ L<https://tools.ietf.org/html/rfc4627>
 
 =head1 AUTHOR
 
-Marc Lehmann <schmorp@schmorp.de>, http://home.schmorp.de/
-
 Reini Urban <rurban@cpan.org>
+
+Marc Lehmann <schmorp@schmorp.de>, http://home.schmorp.de/
 
 =head1 MAINTAINER
 

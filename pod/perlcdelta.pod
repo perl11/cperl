@@ -42,6 +42,10 @@ pgcc support
 keep our pgcc support,
 keep our zlib-src fixes: deflateParams bug, FALLTHROUGH hints
 
+=item L<Cpanel::JSON::XS>  4.06
+
+Added json_type support, ...
+
 =item L<DynaLoader> 2.09c
 
 Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a

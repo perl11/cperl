@@ -4,7 +4,7 @@
 
 use strict;
 use Test::More;
-BEGIN { plan tests => 9 };
+BEGIN { plan tests => 10 };
 
 use Cpanel::JSON::XS;
 
@@ -63,4 +63,19 @@ $pc->space_before(1);
 is($pc->encode($obj), qq|{\n   "foo" : "bar"\n}\n|, "both");
 $pc->space_after(0);
 is($pc->encode($obj), qq|{\n   "foo" :"bar"\n}\n|, "before");
+
+$obj = { foo => [ {a=>"b"}, 0, 1, 2 ] };
+$pc->pretty(1)->indent_length(1);
+$js = $pc->encode($obj);
+is($js,q|{
+ "foo" : [
+  {
+   "a" : "b"
+  },
+  0,
+  1,
+  2
+ ]
+}
+|);
 

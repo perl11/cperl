@@ -1,4 +1,4 @@
-BEGIN { $| = 1; print "1..85\n"; }
+BEGIN { $| = 1; print "1..87\n"; }
 use utf8;
 use Cpanel::JSON::XS;
 
@@ -19,6 +19,7 @@ ok ($false == !$true);
 ok (Cpanel::JSON::XS::is_bool $false);
 ok ($false eq "0", "false: eq $false");
 ok ($true eq "true", "true: eq $true");
+ok (!($true ne "true"), "ne operator test for !(true: ne $true)");
 ok ("$false" eq "0",     "false: stringified $false eq 0");
 #ok ("$false" eq "false", "false: stringified $false eq false");
 #ok ("$true" eq "1",    "true: stringified $true eq 1");
@@ -38,6 +39,7 @@ ok ("$true" eq "1", "true: stringified $true");
 
 ok (++$false == 1); # turns it into true! not sure if we want that
 ok (!Cpanel::JSON::XS::is_bool $false);
+ok (!Cpanel::JSON::XS::is_bool "JSON::PP::Boolean");
 
 ok (Cpanel::JSON::XS->new->allow_nonref (1)->decode ('5') == 5);
 ok (Cpanel::JSON::XS->new->allow_nonref (1)->decode ('-5') == -5);

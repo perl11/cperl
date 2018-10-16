@@ -17656,6 +17656,7 @@ our %delta :const = (
             'Archive::Tar::File'    => '2.32',
             'Compress::Raw::Bzip2'  => '2.081',
             'Compress::Raw::Zlib'   => '2.081',
+            'Cpanel::JSON::XS'      => '4.06',
             'DynaLoader'            => '2.09c',
             'ExtUtils::Constant'            => '0.25_01',
             'ExtUtils::Constant::Base'      => '2.25_01',
