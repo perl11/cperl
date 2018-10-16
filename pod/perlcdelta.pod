@@ -250,6 +250,11 @@ Improve tests using FindBin for filter-util.pl [atoomic]
 
 Add int casts, assert on 2GB limitation.
 
+=item L<HTTP::Tiny> 0.076_01
+
+Allow 'peer' to be a coderef.
+Document protocol field, case-sensitive method names.
+
 =back
 
 =head1 Documentation
