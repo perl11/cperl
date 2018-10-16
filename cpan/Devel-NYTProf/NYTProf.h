@@ -10,13 +10,14 @@
  * Adam Kaplan, akaplan at nytimes.com
  * Tim Bunce, http://www.tim.bunce.name and http://blog.timbunce.org
  * Steve Peters, steve at fisharerojo.org
+ * Forked version by Reini Urban for cperl
  *
  * ************************************************************************
  */
 
 /* cperl optims */
 #ifndef strEQc
-/* the buffer ends with \0, includes comparison of the \0.
-   better than strEQ as it uses memcmp, word-wise comparison. */
-#define strEQc(s, c) memEQ(s, ("" c ""), sizeof(c))
+#define strEQc(s,c) memEQ(s, ("" c ""), sizeof(c))
+#define strNEc(s,c) memNE(s, ("" c ""), sizeof(c))
 #endif
+

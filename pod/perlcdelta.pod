@@ -75,6 +75,26 @@ Note - This only works with perl >= 5.8.7
 
 RT #124944 allow ppport.h-less builds in core
 
+=item L<Devel::NYTProf>  6.06_01
+
+Fix sorting of numbers ending ...5s as microsec
+
+Fix tests for Strawberry Perl portable
+
+Fixed broken link in the pod to YAPC::NA 2014 talk video
+
+Add "NYTProf" to buffer overflow error message for easier triage
+
+Fix test failures on Perl 5.27.6+
+
+Fix to prevent memory corruption in incr_sub_inclusive_time
+
+Fix test failures on Perl 5.26 w/ PERL_USE_UNSAFE_INC=0
+
+Fix for the double opening of the web browser with --open
+
+Updated links in docs from old svn repository to Github
+
 =item L<DynaLoader> 2.09c
 
 Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a

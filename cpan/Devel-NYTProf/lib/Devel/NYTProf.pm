@@ -9,7 +9,7 @@
 ###########################################################
 package Devel::NYTProf;
 
-our $VERSION = '6.04'; # also change in Devel::NYTProf::Core
+our $VERSION = '6.06_01'; # also change in Devel::NYTProf::Core
 
 package    # hide the package from the PAUSE indexer
     DB;
@@ -36,7 +36,8 @@ if ($use_db_sub) {                     # install DB::DB sub
 # DB::sub shouldn't be called, but needs to exist for perl <5.8.7 (<perl@24265)
 # Could be called in obscure cases, e.g. if "perl -d" (not -d:NYTProf)
 # was used with Devel::NYTProf loaded some other way
-sub sub { die "DB::sub called unexpectedly" }
+*sub = sub { warn "DB::sub called unexpectedly (@{[ caller(0) ]})" }
+  if $] < 5.008008;
 
 sub CLONE { DB::disable_profiler }
 
@@ -64,7 +65,7 @@ Devel::NYTProf - Powerful fast feature-rich Perl source code profiler
 
 I give talks on profiling perl code, including a detailed look at how to use
 NYTProf and how to optimize your code, every year. A video of my YAPC::NA 2014
-talk can be found at L<http://perltv.org/v/performance-profiling-with-develnytprof>
+talk can be found at L<https://youtu.be/T7EK6RZAnEA>
 
 
 =head1 DESCRIPTION
@@ -601,6 +602,11 @@ application code is sensitive to the name given to a anonymous subroutines.
 
 The downside is that the NYTProf reporting tools are less useful and may get
 confused if this option is used.
+
+With cperl since 5.28 and its B<usenamedanoncv> option most anon subs
+keep their old name, just with an C<@> appended. This is mostly used for
+import methods, which are skipped with perl5. The C<nameanonsubs=0> option
+is in these cases ignored.
 
 =head1 RUN-TIME CONTROL OF PROFILING
 
@@ -1143,7 +1149,7 @@ Mailing list and discussion at L<http://groups.google.com/group/develnytprof-dev
 
 Blog posts L<http://blog.timbunce.org/tag/nytprof/>
 
-Public SVN Repository and hacking instructions at L<http://code.google.com/p/perl-devel-nytprof/>
+Public Github Repository and hacking instructions at L<https://github.com/timbunce/devel-nytprof/>
 
 L<nytprofhtml> is a script included that produces html reports.
 L<nytprofcsv> is another script included that produces plain text CSV reports.
@@ -1258,6 +1264,7 @@ B<Jan Dubois> contributed the Windows port.
 B<Gisle Aas> contributed the Devel::NYTProf::ReadStream module.
 B<Steve Peters> contributed greater perl version portability and use of POSIX
 high-resolution clocks.
+B<Reini Urban> maintains the cperl fork, where it is in CORE.
 Other contributors are noted in the Changes file.
 
 Many thanks to B<Adam Kaplan> who created C<NYTProf> initially by forking

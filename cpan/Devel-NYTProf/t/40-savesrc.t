@@ -10,7 +10,7 @@ plan skip_all => "needs perl >= 5.8.9 or >= 5.10.1"
 use Devel::NYTProf::Run qw(profile_this);
 
 run_test_group( {
-    extra_test_count => 7,
+    extra_test_count => 8,
     extra_test_code  => sub {
         my ($profile, $env) = @_;
 
@@ -37,9 +37,17 @@ run_test_group( {
         }
         else { pass() for 1..2 }
 
-        my $fi_e = $profile->fileinfo_of('(eval 1)[-:1]');
+        #  Strawberry perl portable has eval ID '(eval 5)[-:1]',
+        #  others have '(eval 0)[-:1]'.
+        #  Assume that, if we get two fileinfos then second is what we wanted.
+        #  Possibly should check if we match /\(eval [15]\)\[-:1\]/.
+        my @file_infos = $profile->all_fileinfos;
+        is (scalar @file_infos, 2, 'Got two file infos');
+        my $target_eval_name = $file_infos[-1]->filename;
+
+        my $fi_e = $profile->fileinfo_of($target_eval_name);
         isa_ok $fi_e, 'Devel::NYTProf::FileInfo',
-            'should have fileinfo for "(eval 0)[-:1]"'
+            'should have fileinfo for "$target_eval_name"'
             or do {
                 diag "Have fileinfo for: '$_'"
                     for sort map { $_->filename } $profile->all_fileinfos;

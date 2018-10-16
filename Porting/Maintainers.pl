@@ -476,7 +476,7 @@ use File::Glob qw(:case);
     },
 
     'Devel::NYTProf' => {
-        'DISTRIBUTION' => 'TIMB/Devel-NYTProf-6.04.tar.gz',
+        'DISTRIBUTION' => 'TIMB/Devel-NYTProf-6.06.tar.gz',
         'FILES'        => q[cpan/Devel-NYTProf],
         'EXCLUDED'     => [
             qr{^t/[79].*\.t},

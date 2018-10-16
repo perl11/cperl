@@ -29,10 +29,10 @@ Config::Perl::V cpan/Config-Perl-V/V.pm 31c7197ebc05774a24a72d078ac956af7d19e023
 DB_File cpan/DB_File/Makefile.PL 4e169e9717f2cc7ce0757897e6bf7ee043a785b1
 Devel::NYTProf cpan/Devel-NYTProf/FileHandle.xs 8b8ccd2e6f8f0ddfb13c7360dffccaf2e7dd0573
 Devel::NYTProf cpan/Devel-NYTProf/lib/Devel/NYTProf/FileInfo.pm 913665651ffa5415b71adb39c269559e74c35b0e
-Devel::NYTProf cpan/Devel-NYTProf/Makefile.PL b4ac09392761ca3ce49d46026b782698f5eec7d0
-Devel::NYTProf cpan/Devel-NYTProf/MemoryProfiling.pod 197e08c2c2cc300d8166da35738a1a51ebdb960a
-Devel::NYTProf cpan/Devel-NYTProf/t/00-load.t e7821564000c7227a0b7deafdad0740b8327b39f
-Devel::NYTProf cpan/Devel-NYTProf/t/22-readstream.t 58f166ae768877e8f2ec4a6149b6ba35faa11ead
+Devel::NYTProf cpan/Devel-NYTProf/Makefile.PL b6bc167c480874deeca0d5d2f119c16b53eb9af7
+Devel::NYTProf cpan/Devel-NYTProf/MemoryProfiling.pod c7301ff4ec5c0066db64103e9f68fd5fe0397cc6
+Devel::NYTProf cpan/Devel-NYTProf/t/00-load.t 2eeff9e8529b50ba11e0b2264a52a328b2bd0d8c
+Devel::NYTProf cpan/Devel-NYTProf/t/22-readstream.t 7bfb169ad304370c5024eef40d145c0e055141f8
 Devel::NYTProf cpan/Devel-NYTProf/t/lib/NYTProfTest.pm bc6efbd91bce9b1eae3c341c482dde0ac4c990c5
 Devel::PPPort cpan/Devel-PPPort/Makefile.PL 67c4d49d2ea44d1f611f95915894b4b2aa4edb2c
 Devel::PPPort cpan/Devel-PPPort/parts/apidoc.fnc 5f2259de48957df7f7f9cc80d86f202f582ecc6a

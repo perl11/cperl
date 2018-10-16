@@ -24,17 +24,26 @@
 #include "NYTProf.h"
 
 #ifndef NO_PPPORT_H
+#define NEED_my_snprintf_GLOBAL
+#define NEED_newRV_noinc_GLOBAL
 #define NEED_eval_pv
 #define NEED_grok_number
 #define NEED_grok_numeric_radix
 #define NEED_newCONSTSUB
-#define NEED_newRV_noinc
 #define NEED_sv_2pv_flags
 #define NEED_newSVpvn_flags
 #define NEED_my_strlcat
 #define NEED_OpSIBLING
 #   include "ppport.h"
 #endif
+
+#define PERL_VERSION_DECIMAL(r,v,s) (r*1000000 + v*1000 + s)
+#define PERL_DECIMAL_VERSION \
+        PERL_VERSION_DECIMAL(PERL_REVISION,PERL_VERSION,PERL_SUBVERSION)
+#define PERL_VERSION_LT(r,v,s) \
+        (PERL_DECIMAL_VERSION < PERL_VERSION_DECIMAL(r,v,s))
+#define PERL_VERSION_GE(r,v,s) \
+        (PERL_DECIMAL_VERSION >= PERL_VERSION_DECIMAL(r,v,s))
 
 /* Until ppport.h gets this:  */
 #ifndef memEQs
@@ -79,7 +88,7 @@ Perl_gv_fetchfile_flags(pTHX_ const char *const name, const STRLEN namelen, cons
 #define CvISXSUB CvXSUB
 #endif
 
-#if (PERL_VERSION < 8) || ((PERL_VERSION == 8) && (PERL_SUBVERSION < 8))
+#if PERL_VERSION_LT(5,8,8)
 /* If we're using DB::DB() instead of opcode redirection with an old perl
  * then PL_curcop in DB() will refer to the DB() wrapper in Devel/NYTProf.pm
  * so we'd have to crawl the stack to find the right cop. However, for some
@@ -88,6 +97,15 @@ Perl_gv_fetchfile_flags(pTHX_ const char *const name, const STRLEN namelen, cons
 #define PL_curcop_nytprof (opt_use_db_sub ? ((cxstack + cxstack_ix)->blk_oldcop) : PL_curcop)
 #else
 #define PL_curcop_nytprof PL_curcop
+#endif
+
+/* 5.27.7/5.27.3c started disallowing &PL_sv_yes as sub for silently ignoring
+ * a missing import/unimport
+ * RT #63790 / https://github.com/timbunce/devel-nytprof/issues/113
+ */
+#if (defined(USE_CPERL) && PERL_VERSION_LT(5,27,3)) || \
+    (!defined(USE_CPERL) && PERL_VERSION_LT(5,27,7))
+# define ALLOW_SV_YES_AS_SUB
 #endif
 
 #define OP_NAME_safe(op) ((op) ? OP_NAME(op) : "NULL")
@@ -240,7 +258,7 @@ static char PROF_output_file[MAXPATHLEN+1] = "nytprof.out";
 static unsigned int profile_opts = NYTP_OPTf_OPTIMIZE | NYTP_OPTf_SAVESRC;
 static int profile_start = NYTP_START_BEGIN;      /* when to start profiling */
 
-static const char *nytp_panic_overflow_msg_fmt = "panic: buffer overflow of %s on '%s' (see TROUBLESHOOTING section of the documentation)";
+static const char *nytp_panic_overflow_msg_fmt = "panic: buffer overflow of %s on '%s' (see TROUBLESHOOTING section of the NYTProf documentation)";
 
 struct NYTP_options_t {
     const char *option_name;
@@ -351,15 +369,15 @@ typedef uint64_t time_of_day_t;
 
 #ifdef HAS_QPC
 
-#  ifndef U64_CONST
+#  ifndef UINT64_C
 #    ifdef _MSC_VER
-#      define U64_CONST(x) x##UI64
+#      define UINT64_C(x) x##UI64
 #    else
-#      define U64_CONST(x) x##ULL
+#      define UINT64_C(x) x##ULL
 #    endif
 #  endif
 
-unsigned __int64 time_frequency = U64_CONST(0);
+unsigned __int64 time_frequency = UINT64_C(0);
 typedef unsigned __int64 time_of_day_t;
 #  define TICKS_PER_SEC time_frequency
 #  define get_time_of_day(into) QueryPerformanceCounter((LARGE_INTEGER*)&into)
@@ -372,8 +390,8 @@ typedef unsigned __int64 time_of_day_t;
   implemented, use signed __int64" on VC 6 */
 #  if defined(_MSC_VER) && _MSC_VER < 1300 /* < VC 7/2003*/
 #    define NYTPIuint642NV(x) \
-       ((NV)(__int64)((x) & U64_CONST(0x7FFFFFFFFFFFFFFF)) \
-       + -(NV)(__int64)((x) & U64_CONST(0x8000000000000000)))
+       ((NV)(__int64)((x) & UINT64_C(0x7FFFFFFFFFFFFFFF)) \
+       + -(NV)(__int64)((x) & UINT64_C(0x8000000000000000)))
 #    define get_NV_ticks_between(s, e, ticks, overflow) STMT_START { \
     overflow = 0; /* XXX whats this? */ \
     ticks = NYTPIuint642NV(e-s); \
@@ -484,7 +502,7 @@ static HV *sub_callers_hv;
 static HV *pkg_fids_hv;     /* currently just package names */
 
 /* PL_sawampersand is disabled in 5.17.7+ 1a904fc */
-#if (PERL_VERSION < 17) || ((PERL_VERSION == 17) && (PERL_SUBVERSION < 7)) || defined(PERL_SAWAMPERSAND)
+#if PERL_VERSION_LT(5,17,7) || defined(PERL_SAWAMPERSAND)
 static U8 last_sawampersand;
 #define CHECK_SAWAMPERSAND(fid,line) STMT_START { \
     if (PL_sawampersand != last_sawampersand) { \
@@ -574,7 +592,11 @@ output_header(pTHX)
     const char *const basetime_str = ctime(&basetime);
     const STRLEN basetime_str_len = strlen(basetime_str);
     const char version[] = STRINGIFY(PERL_REVISION) "."
-        STRINGIFY(PERL_VERSION) "." STRINGIFY(PERL_SUBVERSION);
+        STRINGIFY(PERL_VERSION) "." STRINGIFY(PERL_SUBVERSION)
+#ifdef USE_CPERL
+        "c"
+#endif
+        ;
     STRLEN len;
     const char *argv0 = SvPV(sv, len);
 
@@ -634,7 +656,7 @@ read_str(pTHX_ NYTP_file ifile, SV *sv) {
     NYTP_read(ifile, &tag, sizeof(tag), "string prefix");
 
     if (NYTP_TAG_STRING != tag && NYTP_TAG_STRING_UTF8 != tag)
-        croak("Profile format error at offset %ld%s, expected string tag but found %d ('%c') (see TROUBLESHOOTING in docs)",
+        croak("Profile format error at offset %ld%s, expected string tag but found %d ('%c') (see TROUBLESHOOTING in NYTProf docs)",
               NYTP_tell(ifile)-1, NYTP_type_of_offset(ifile), tag, tag);
 
     len = read_u32(ifile);
@@ -1372,11 +1394,18 @@ start_cop_of_context(pTHX_ PERL_CONTEXT *cx)
     /* find next cop from OP */
     o = start_op;
     while ( o && (type = (o->op_type) ? o->op_type : (int)o->op_targ) ) {
+#ifdef USE_CPERL
+        if (type == OP_SIGNATURE) {
+            o = o->op_next;
+            continue;
+        }
+#endif
         if (type == OP_NEXTSTATE ||
 #if PERL_VERSION < 11
             type == OP_SETSTATE ||
 #endif
-            type == OP_DBSTATE) {
+            type == OP_DBSTATE)
+        {
             if (trace_level >= trace)
                 logwarn("\tstart_cop_of_context %s is %s line %d of %s\n",
                     cx_block_type(cx), OP_NAME(o), (int)CopLINE((COP*)o),
@@ -1387,18 +1416,6 @@ start_cop_of_context(pTHX_ PERL_CONTEXT *cx)
             logwarn("\tstart_cop_of_context %s op '%s' isn't a cop, giving up\n",
                 cx_block_type(cx), OP_NAME(o));
         return NULL;
-#if 0   /* old code that never worked very well anyway */
-        if (CxTYPE(cx) == CXt_LOOP) /* e.g. "eval $_ for @ary" */
-            return NULL;
-        /* should never get here but we do */
-        if (trace_level >= trace) {
-            logwarn("\tstart_cop_of_context %s op '%s' isn't a cop\n",
-                cx_block_type(cx), OP_NAME(o));
-            if (trace_level >  trace)
-                do_op_dump(1, PerlIO_stderr(), o);
-        }
-        o = o->op_next;
-#endif
     }
     if (trace_level >= 3) {
         logwarn("\tstart_cop_of_context: can't find next cop for %s line %ld\n",
@@ -2165,12 +2182,12 @@ incr_sub_inclusive_time(pTHX_ subr_entry_t *subr_entry)
     /* exclusive = inclusive - time spent in subroutines called by this subroutine */
     excl_subr_ticks = incl_subr_ticks - called_sub_ticks;
 
-    subr_call_key_len = sprintf(subr_call_key, "%s::%s[%u:%d]",
+    subr_call_key_len = my_snprintf(subr_call_key, sizeof(subr_call_key), "%s::%s[%u:%d]",
         subr_entry->caller_subpkg_pv,
         (subr_entry->caller_subnam_sv) ? SvPV_nolen(subr_entry->caller_subnam_sv) : "(null)",
         subr_entry->caller_fid, subr_entry->caller_line);
     if (subr_call_key_len >= sizeof(subr_call_key))
-        croak(nytp_panic_overflow_msg_fmt, "subr_call_key", subr_call_key);
+      croak((char *)nytp_panic_overflow_msg_fmt, "subr_call_key", subr_call_key);
 
     /* compose called_subname_pv as "${pkg}::${sub}" avoiding sprintf */
     STMT_START {
@@ -2183,7 +2200,7 @@ incr_sub_inclusive_time(pTHX_ subr_entry_t *subr_entry)
         *called_subname_pv_end++ = ':';
         *called_subname_pv_end++ = ':';
         if (subr_entry->called_subnam_sv) {
-            /* We create this SV, so we know that it is well-formed, and has a
+            /* We created this SV, so we know that it is well-formed, and has a
                trailing '\0'  */
             p = SvPV(subr_entry->called_subnam_sv, len);
         }
@@ -2194,7 +2211,7 @@ incr_sub_inclusive_time(pTHX_ subr_entry_t *subr_entry)
         memcpy(called_subname_pv_end, p, len + 1);
         called_subname_pv_end += len;
         if (called_subname_pv_end >= called_subname_pv+sizeof(called_subname_pv))
-            croak(nytp_panic_overflow_msg_fmt, "called_subname_pv", called_subname_pv);
+          croak((char *)nytp_panic_overflow_msg_fmt, "called_subname_pv", called_subname_pv);
     } STMT_END;
 
     /* { called_subname => { "caller_subname[fid:line]" => [ count, incl_time, ... ] } } */
@@ -2214,11 +2231,11 @@ incr_sub_inclusive_time(pTHX_ subr_entry_t *subr_entry)
                 || (subr_entry->called_cv && SvTYPE(subr_entry->called_cv) == SVt_PVCV)
             ) {
                 /* We just use an empty string as the filename for xsubs
-                    * because CvFILE() isn't reliable on perl 5.8.[78]
-                    * and the name of the .c file isn't very useful anyway.
-                    * The reader can try to associate the xsubs with the
-                    * corresonding .pm file using the package part of the subname.
-                    */
+                 * because CvFILE() isn't reliable on perl 5.8.[78]
+                 * and the name of the .c file isn't very useful anyway.
+                 * The reader can try to associate the xsubs with the
+                 * corresonding .pm file using the package part of the subname.
+                 */
                 SV *sv = *hv_fetch(GvHV(PL_DBsub), called_subname_pv, (I32)(called_subname_pv_end - called_subname_pv), 1);
                 if (!SvOK(sv))
                     sv_setpvs(sv, ":0-0"); /* empty file name */
@@ -2301,7 +2318,7 @@ incr_sub_inclusive_time_ix(pTHX_ void *subr_entry_ix_void)
 static CV *
 resolve_sub_to_cv(pTHX_ SV *sv, GV **subname_gv_ptr)
 {
-    GV *dummy_gv;
+    GV *dummy_gv = NULL;
     HV *stash;
     CV *cv;
 
@@ -2317,10 +2334,12 @@ resolve_sub_to_cv(pTHX_ SV *sv, GV **subname_gv_ptr)
         default:
             if (!SvROK(sv)) {
                 char *sym;
-
+                /* RT #63790, https://github.com/timbunce/devel-nytprof/issues/113 */
+#ifdef ALLOW_SV_YES_AS_SUB
                 if (sv == &PL_sv_yes) {           /* unfound import, ignore */
                     return NULL;
                 }
+#endif
                 if (SvGMAGICAL(sv)) {
                     mg_get(sv);
                     if (SvROK(sv))
@@ -2370,7 +2389,7 @@ static CV*
 current_cv(pTHX_ I32 ix, PERL_SI *si)
 {
     /* returning the current cv */
-    /* logic based on perl's S_deb_curcv in dump.c */
+    /* logic based on perl's S_deb_curcv in dump.c just take eval's block context */
     /* see also http://metacpan.org/release/Devel-StackBlech/ */
     PERL_CONTEXT *cx;
     if (!si)
@@ -2396,9 +2415,20 @@ current_cv(pTHX_ I32 ix, PERL_SI *si)
     if (CxTYPE(cx) == CXt_SUB || CxTYPE(cx) == CXt_FORMAT)
         return cx->blk_sub.cv;
     else if (CxTYPE(cx) == CXt_EVAL && !CxTRYBLOCK(cx))
+#if 0
+        return cx->blk_eval.cv;
+#else
         return current_cv(aTHX_ ix - 1, si); /* recurse up stack */
+#endif
     else if (ix == 0 && si->si_type == PERLSI_MAIN)
         return PL_main_cv;
+    else if (ix == 0 && CxTYPE(cx) == CXt_NULL
+             && si->si_type == PERLSI_SORT)
+    {
+        /* fake sort sub; use CV of caller */
+        si = si->si_prev;
+        ix = si->si_cxix + 1;
+    }
     else if (ix > 0)                         /* more on this stack? */
         return current_cv(aTHX_ ix - 1, si); /* recurse up stack */
 
@@ -2450,17 +2480,21 @@ subr_entry_setup(pTHX_ COP *prev_cop, subr_entry_t *clone_subr_entry, OPCODE op_
      * mainly for xsubs because otherwise they're transparent
      * because xsub calls don't get a new context
      */
-    if (op_type == OP_ENTERSUB || op_type == OP_GOTO) {
+    if (op_type == OP_ENTERSUB ||
+#ifdef USE_CPERL
+        op_type == OP_ENTERXSSUB ||
+#endif
+        op_type == OP_GOTO) {
         GV *called_gv = Nullgv;
         subr_entry->called_cv = resolve_sub_to_cv(aTHX_ subr_sv, &called_gv);
         if (called_gv) {
             char *p = HvNAME(GvSTASH(called_gv));
+            char *s = GvNAME(called_gv);
             subr_entry->called_subpkg_pv = p;
-            subr_entry->called_subnam_sv = newSVpv(GvNAME(called_gv), 0);
+            subr_entry->called_subnam_sv = newSVpv(s, 0);
 
             /* detect calls to POSIX::_exit */
             if ('P'==*p++ && 'O'==*p++ && 'S'==*p++ && 'I'==*p++ && 'X'==*p++ && 0==*p) {
-                char *s = GvNAME(called_gv);
                 if ('_'==*s++ && 'e'==*s++ && 'x'==*s++ && 'i'==*s++ && 't'==*s++ && 0==*s) {
                     finish_profile(aTHX);
                 }
@@ -2551,7 +2585,7 @@ subr_entry_setup(pTHX_ COP *prev_cop, subr_entry_t *clone_subr_entry, OPCODE op_
         CV *caller_cv = current_cv(aTHX_ cxstack_ix, NULL);
         subr_entry->caller_subnam_sv = newSV(0); /* XXX add cache/stack thing for these SVs */
 
-        if (0) {
+        if (trace_level >= 9) {
             logwarn(" .. caller_subr_entry %p(%s::%s) cxstack_ix=%d: caller_cv=%p\n",
                 (void*)caller_subr_entry,
                 caller_subr_entry ? caller_subr_entry->called_subpkg_pv : "(null)",
@@ -2671,7 +2705,10 @@ pp_subcall_profiler(pTHX_ int is_slowop)
     COP *prev_cop = PL_curcop;                    /* not PL_curcop_nytprof here */
     OP *next_op = PL_op->op_next;                 /* op to execute after sub returns */
     /* pp_entersub can be called with PL_op->op_type==0 */
-    OPCODE op_type = (is_slowop || (opcode) PL_op->op_type == OP_GOTO) ? (opcode) PL_op->op_type : OP_ENTERSUB;
+    OPCODE op_type = (is_slowop || (opcode) PL_op->op_type == OP_GOTO)
+      ? (opcode) PL_op->op_type
+      : PL_op->op_type
+        ? PL_op->op_type : OP_ENTERSUB;
 
     CV *called_cv;
     dSP;
@@ -2684,12 +2721,21 @@ pp_subcall_profiler(pTHX_ int is_slowop)
     if (!profile_subs   /* not profiling subs */
         /* don't profile if currently disabled */
     ||  !is_profiling
-        /* don't profile calls to non-existant import() methods */
+        /* don't profile calls to non-existent import() methods */
         /* or our DB::_INIT as that makes tests perl version sensitive */
-    || (op_type==OP_ENTERSUB && (sub_sv == &PL_sv_yes || sub_sv == DB_CHECK_cv || sub_sv == DB_INIT_cv
-                                 || sub_sv == DB_END_cv || sub_sv == DB_fin_cv))
+    || (
+        (op_type == OP_ENTERSUB
+#ifdef USE_CPERL
+         || op_type == OP_ENTERXSSUB
+#endif
+         ) && (
+#ifdef ALLOW_SV_YES_AS_SUB
+         sub_sv == &PL_sv_yes ||
+#endif
+         sub_sv == DB_CHECK_cv || sub_sv == DB_INIT_cv ||
+         sub_sv == DB_END_cv   || sub_sv == DB_fin_cv))
         /* don't profile other kinds of goto */
-    || (op_type==OP_GOTO &&
+    || (op_type == OP_GOTO &&
         (  !(SvROK(sub_sv) && SvTYPE(SvRV(sub_sv)) == SVt_PVCV)
         || subr_entry_ix == -1) /* goto out of sub whose entry wasn't profiled */
        )
@@ -2786,7 +2832,8 @@ pp_subcall_profiler(pTHX_ int is_slowop)
         /* now we're in goto'd sub, mortalize the REFCNT_inc's done above */
         sv_2mortal(goto_subr_entry.caller_subnam_sv);
         sv_2mortal(goto_subr_entry.called_subnam_sv);
-        this_subr_entry_ix = subr_entry_setup(aTHX_ &prev_cop_copy, &goto_subr_entry, op_type, sub_sv);
+        this_subr_entry_ix = subr_entry_setup(aTHX_ &prev_cop_copy, &goto_subr_entry,
+                                              op_type, sub_sv);
         SvREFCNT_dec(sub_sv);
     }
 
@@ -2859,7 +2906,8 @@ pp_subcall_profiler(pTHX_ int is_slowop)
             }
             else if (trace_level >= 1) {
                 logwarn("NYTProf is confused about CV %p called as %s at %s line %d (please report as a bug)\n",
-                    (void*)called_cv, SvPV_nolen(sub_sv), OutCopFILE(prev_cop), (int)CopLINE(prev_cop));
+                        (void*)called_cv, SvPV_nolen(sub_sv), OutCopFILE(prev_cop),
+                        (int)CopLINE(prev_cop));
                 /* looks like Class::MOP doesn't give the CV GV stash a name */
                 if (trace_level >= 2) {
                     sv_dump((SV*)called_cv); /* coredumps in Perl_do_gvgv_dump, looks line GvXPVGV is false, presumably on a Class::MOP wierdo sub */
@@ -2873,13 +2921,16 @@ pp_subcall_profiler(pTHX_ int is_slowop)
             const char *what = (is_xs) ? is_xs : "sub";
 
             if (!called_cv) { /* should never get here as pp_entersub would have croaked */
-                logwarn("unknown entersub %s '%s' (please report this as a bug)\n", what, SvPV_nolen(sub_sv));
+                logwarn("unknown entersub %s '%s' (please report this as a bug)\n", what,
+                        SvPV_nolen(sub_sv));
                 stash_name = CopSTASHPV(PL_curcop);
-                sv_setpvf(subr_entry->called_subnam_sv, "__UNKNOWN__[%s,%s])", what, SvPV_nolen(sub_sv));
+                sv_setpvf(subr_entry->called_subnam_sv, "__UNKNOWN__[%s,%s])", what,
+                          SvPV_nolen(sub_sv));
             }
             else { /* unnamed CV, e.g. seen in mod_perl/Class::MOP. XXX do better? */
                 stash_name = HvNAME(CvSTASH(called_cv));
-                sv_setpvf(subr_entry->called_subnam_sv, "__UNKNOWN__[%s,0x%p]", what, (void*)called_cv);
+                sv_setpvf(subr_entry->called_subnam_sv, "__UNKNOWN__[%s,0x%p]", what,
+                          (void*)called_cv);
                 if (trace_level)
                     logwarn("unknown entersub %s assumed to be anon called_cv '%s'\n",
                         what, SvPV_nolen(sub_sv));
@@ -2907,7 +2958,11 @@ pp_subcall_profiler(pTHX_ int is_slowop)
         STRLEN len;
         char *p = SvPV(subr_entry->called_subnam_sv, len);
 
-        if(*p == '_' && (memEQs(p, len, "_CHECK") || memEQs(p, len, "_INIT") || memEQs(p, len, "_END"))) {
+        if (*p == '_' &&
+            (memEQs(p, len, "_CHECK")
+             || memEQs(p, len, "_INIT")
+             || memEQs(p, len, "_END")))
+        {
             subr_entry->already_counted++;
             goto skip_sub_profile;
         }
@@ -2951,9 +3006,8 @@ pp_subcall_profiler(pTHX_ int is_slowop)
     return op;
 }
 
-
 static OP *
-pp_stmt_profiler(pTHX)                            /* handles OP_DBSTATE, OP_SETSTATE, etc */
+pp_stmt_profiler(pTHX)                            /* handles OP_DBSTATE, OP_NEXTSTATE */
 {
     OP *op = run_original_op(PL_op->op_type);
     DB_stmt(aTHX_ NULL, op);
@@ -3053,8 +3107,8 @@ disable_profile(pTHX)
         is_profiling = 0;
     }
     if (trace_level)
-        logwarn("~ disable_profile (previously %s, pid %d, trace %" IVdf ")\n",
-            prev_is_profiling ? "enabled" : "disabled", getpid(), trace_level);
+        logwarn("~ disable_profile (previously %s, pid %d, trace %ld)\n",
+                prev_is_profiling ? "enabled" : "disabled", getpid(), trace_level);
     return prev_is_profiling;
 }
 
@@ -3241,7 +3295,7 @@ init_profiler(pTHX)
     if (profile_stmts && !opt_use_db_sub) {
         PL_ppaddr[OP_NEXTSTATE]  = pp_stmt_profiler;
         PL_ppaddr[OP_DBSTATE]    = pp_stmt_profiler;
-#ifdef OP_SETSTATE
+#if (PERL_VERSION < 11) && defined(OP_SETSTATE)
         PL_ppaddr[OP_SETSTATE]   = pp_stmt_profiler;
 #endif
         if (profile_leave) {
@@ -3277,6 +3331,12 @@ init_profiler(pTHX)
     if (!pkg_fids_hv)
         pkg_fids_hv = newHV();
     PL_ppaddr[OP_ENTERSUB] = pp_entersub_profiler;
+#ifdef USE_CPERL /* since cperl-5.22.1 */
+    PL_ppaddr[OP_ENTERXSSUB] = pp_entersub_profiler;
+    /* TODO: cperl-5.29?
+    PL_ppaddr[OP_ENTERFFI] = pp_entersub_profiler;
+    */
+#endif
     PL_ppaddr[OP_GOTO]     = pp_entersub_profiler;
 
     if (!PL_checkav) PL_checkav = newAV();
@@ -3720,7 +3780,7 @@ write_sub_callers(pTHX)
         }
     }
     if (negative_time_calls) {
-        logwarn("Warning: %d subroutine calls had negative time! See TROUBLESHOOTING in the documentation. (Clock %ld)\n",
+        logwarn("Warning: %d subroutine calls had negative time! See TROUBLESHOOTING in the NYTProf documentation. (Clock %ld)\n",
             negative_time_calls, profile_clock);
     }
 }
@@ -4755,7 +4815,7 @@ load_profile_data_from_stream(pTHX_ loader_callback *callbacks,
         if (NYTP_read_unchecked(in, &c, sizeof(c)) != sizeof(c)) {
           if (NYTP_eof(in))
             break;
-          croak("Profile format error '%s' whilst reading tag at %ld (see TROUBLESHOOTING in docs)",
+          croak("Profile format error '%s' whilst reading tag at %ld (see TROUBLESHOOTING in NYTProf docs)",
                 NYTP_fstrerror(in), NYTP_tell(in));
         }
 
@@ -4905,7 +4965,7 @@ load_profile_data_from_stream(pTHX_ loader_callback *callbacks,
                 char *end = NYTP_gets(in, &buffer, &buffer_len);
                 if (NULL == end)
                     /* probably EOF */
-                    croak("Profile format error reading attribute (see TROUBLESHOOTING in docs)");
+                    croak("Profile format error reading attribute (see TROUBLESHOOTING in NYTProf docs)");
                 --end; /* End, as returned, points 1 after the \n  */
                 if ((NULL == (value = (char *)memchr(buffer, '=', end - buffer)))) {
                     logwarn("attribute malformed '%s'\n", buffer);
@@ -4936,7 +4996,7 @@ load_profile_data_from_stream(pTHX_ loader_callback *callbacks,
                 char *end = NYTP_gets(in, &buffer, &buffer_len);
                 if (NULL == end)
                     /* probably EOF */
-                    croak("Profile format error reading attribute (see TROUBLESHOOTING in docs)");
+                    croak("Profile format error reading attribute (see TROUBLESHOOTING in NYTProf docs)");
                 --end; /* end, as returned, points 1 after the \n  */
                 if ((NULL == (value = (char *)memchr(buffer, '=', end - buffer)))) {
                     logwarn("option malformed '%s'\n", buffer);
@@ -4956,7 +5016,7 @@ load_profile_data_from_stream(pTHX_ loader_callback *callbacks,
                 char *end = NYTP_gets(in, &buffer, &buffer_len);
                 if (!end)
                     /* probably EOF */
-                    croak("Profile format error reading comment (see TROUBLESHOOTING in docs)");
+                    croak("Profile format error reading comment (see TROUBLESHOOTING in NYTProf docs)");
 
                 if (callbacks[nytp_comment])
                     callbacks[nytp_comment](state, nytp_comment, buffer,
@@ -4981,7 +5041,7 @@ load_profile_data_from_stream(pTHX_ loader_callback *callbacks,
             }
 
             default:
-                croak("Profile format error: token %d ('%c'), chunk %lu, pos %ld%s (see TROUBLESHOOTING in docs)",
+                croak("Profile format error: token %d ('%c'), chunk %lu, pos %ld%s (see TROUBLESHOOTING in NYTProf docs)",
                       c, c, state->input_chunk_seqn, NYTP_tell(in)-1,
                       NYTP_type_of_offset(in));
         }
@@ -5027,7 +5087,7 @@ load_profile_to_hv(pTHX_ NYTP_file in)
     if (HvKEYS(state.live_pids_hv)) {
         logwarn("Profile data incomplete, no terminator for %" IVdf " pids %s\n",
             (IV)HvKEYS(state.live_pids_hv),
-            "(refer to TROUBLESHOOTING in the documentation)");
+            "(refer to TROUBLESHOOTING in the NYTProf documentation)");
         store_attrib_sv(aTHX_ state.attr_hv, STR_WITH_LEN("complete"),
                         &PL_sv_no);
     }
