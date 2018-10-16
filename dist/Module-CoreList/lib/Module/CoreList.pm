@@ -17768,6 +17768,12 @@ our %delta :const = (
             'Math::BigInt::Lib'     => '1.999814',
             'Math::BigRat'          => '0.2614',
             'Net::Ping'             => '2.70',
+            'Pod::Man'              => '4.11',
+            'Pod::ParseLink'        => '4.11',
+            'Pod::Text'             => '4.11',
+            'Pod::Text::Color'      => '4.11',
+            'Pod::Text::Overstrike' => '4.11',
+            'Pod::Text::Termcap'    => '4.11',
         },
         removed => {
         }

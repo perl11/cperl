@@ -2010,6 +2010,11 @@ cpan/podlators/t/data/basic.ovr
 cpan/podlators/t/data/basic.pod
 cpan/podlators/t/data/basic.txt
 cpan/podlators/t/data/perl.conf
+cpan/podlators/t/data/snippets/color/escape-wrapping
+cpan/podlators/t/data/snippets/color/tag-width
+cpan/podlators/t/data/snippets/color/tag-wrapping
+cpan/podlators/t/data/snippets/color/width
+cpan/podlators/t/data/snippets/color/wrapping
 cpan/podlators/t/data/snippets/man/agrave
 cpan/podlators/t/data/snippets/man/backslash-man-ref
 cpan/podlators/t/data/snippets/man/bullet-after-nonbullet
@@ -2059,6 +2064,11 @@ cpan/podlators/t/data/snippets/man/utf8-verbatim
 cpan/podlators/t/data/snippets/man/x-whitespace
 cpan/podlators/t/data/snippets/man/x-whitespace-entry
 cpan/podlators/t/data/snippets/README
+cpan/podlators/t/data/snippets/termcap/escape-wrapping
+cpan/podlators/t/data/snippets/termcap/tag-width
+cpan/podlators/t/data/snippets/termcap/tag-wrapping
+cpan/podlators/t/data/snippets/termcap/width
+cpan/podlators/t/data/snippets/termcap/wrapping
 cpan/podlators/t/data/snippets/text/cpp
 cpan/podlators/t/data/termcap
 cpan/podlators/t/general/basic.t

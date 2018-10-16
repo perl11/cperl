@@ -336,6 +336,11 @@ better icmpv6 support.
 
 Fixes for ldlibpthname from 2.71
 
+=item L<Pod::Man>  4.11
+
+Various upstream changes,
+see L<https://metacpan.org/changes/distribution/podlators>
+
 =item L<version> 0.9924_02
 
 more test fixes for 5.6
