@@ -33,6 +33,10 @@ Speed up extract when archive contains lots of files
 
 CVE-2018-12015 directory traversal vulnerability [RT#125523]
 
+=item L<bignum>  0.51c
+
+Better way to catch warnings (CPAN RT #126900).
+
 =item L<Compress::Raw::Bzip2> 2.081
 
 pgcc support

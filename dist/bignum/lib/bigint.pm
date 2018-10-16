@@ -1,11 +1,11 @@
 package bigint;
 
-use 5.006;
+use 5.010;
 use strict;
 #use warnings;
 use cperl;
 
-our $VERSION = '0.47c';
+our $VERSION = '0.51c';
 $VERSION =~ s/c$//;
 
 use Exporter;
