@@ -610,7 +610,7 @@ use File::Glob qw(:case);
     },
 
     'Exporter' => {
-        'DISTRIBUTION' => 'TODDR/Exporter-5.72.tar.gz',
+        'DISTRIBUTION' => 'TODDR/Exporter-5.73.tar.gz',
         'FILES'        => q[dist/Exporter],
         'EXCLUDED' => [
             qw( t/pod.t

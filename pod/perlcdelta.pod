@@ -161,6 +161,10 @@ https://github.com/dankogai/p5-encode/pull/121
 
 Fixed deep recursion in Encode::find_encoding when decoding.
 
+=item L<Exporter>  5.73
+
+More use vars => our
+
 =item L<ExtUtils::Constant> 0.25_01
 
 extend stack by one
