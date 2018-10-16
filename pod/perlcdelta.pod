@@ -255,6 +255,13 @@ Add int casts, assert on 2GB limitation.
 Allow 'peer' to be a coderef.
 Document protocol field, case-sensitive method names.
 
+=item L<IO> 1.39_01
+
+Require v5.8.1
+
+Many other changes, see
+L<https://metacpan.org/changes/distribution/IO> plus some cperl fixes.
+
 =back
 
 =head1 Documentation

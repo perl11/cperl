@@ -7,12 +7,11 @@
 
 package IO::Socket;
 
-require 5.006;
+use 5.008_001;
 
 use IO::Handle ();
 use Socket 1.3;
 use strict;
-our(@ISA, $VERSION, @EXPORT_OK);
 use Exporter ();
 use Errno ();
 
@@ -23,11 +22,9 @@ BEGIN { sub croak($) { require Carp; Carp::croak(@_) } }
 require IO::Socket::INET;
 require IO::Socket::UNIX if ($^O ne 'epoc' && $^O ne 'symbian');
 
-@ISA = qw(IO::Handle);
-
-$VERSION = "1.38_01";
-
-@EXPORT_OK = qw(sockatmark);
+our @ISA = qw(IO::Handle);
+our $VERSION = "1.39_01";
+our @EXPORT_OK = qw(sockatmark);
 
 sub import {
     my $pkg = shift;

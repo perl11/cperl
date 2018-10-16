@@ -17719,6 +17719,17 @@ our %delta :const = (
             'File::Temp'            => '0.2308',
             'Filter::Util::Call'    => '1.59',
             'HTTP::Tiny'            => '0.076_01',
+            'IO'                    => '1.39_01',
+            'IO::Dir'               => '1.39',
+            'IO::File'              => '1.39',
+            'IO::Handle'            => '1.39_01',
+            'IO::Pipe'              => '1.39',
+            'IO::Poll'              => '1.39',
+            'IO::Seekable'          => '1.39',
+            'IO::Select'            => '1.39',
+            'IO::Socket'            => '1.39_01',
+            'IO::Socket::INET'      => '1.39_01',
+            'IO::Socket::UNIX'      => '1.39_01',
         },
         removed => {
         }

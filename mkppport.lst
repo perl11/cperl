@@ -16,5 +16,6 @@ cpan/Scalar-List-Utils
 cpan/Term-ReadKey
 cpan/Win32API-File
 cpan/YAML-LibYAML/LibYAML
+dist/IO
 dist/PathTools
 dist/Time-HiRes
