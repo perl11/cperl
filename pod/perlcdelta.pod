@@ -240,6 +240,16 @@ L<[cpan #121967]|https://rt.cpan.org/Ticket/Display.html?id=121967>.
 
 - update distribution tooling
 
+=item L<Filter::Util::Call> 1.59
+
+XSLoader, our. defer Carp.
+
+Add filter_read_exact tests.
+
+Improve tests using FindBin for filter-util.pl [atoomic]
+
+Add int casts, assert on 2GB limitation.
+
 =back
 
 =head1 Documentation
