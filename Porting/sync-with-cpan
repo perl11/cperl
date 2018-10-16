@@ -174,7 +174,7 @@ use Getopt::Long;
 use Archive::Tar;
 use File::Path qw( remove_tree );
 use File::Find;
-use File::Spec::Functions qw( tmpdir );
+use File::Spec::Functions qw( tmpdir rel2abs );
 use Config qw( %Config ); # for make and _exe only. so it can be another perl
 
 $| = 1;
@@ -356,6 +356,9 @@ for my $module (@modules) {
     say "--force is in effect, so we'll soldier on. Wish me luck!";
   }
 
+  use Cwd 'cwd';
+  my $orig_pwd = cwd();
+  
   if (!$dryrun and $info->{CUSTOMIZED}) {
     print <<"EOF";
 $module has a CUSTOMIZED entry in Porting/Maintainers.pl.
@@ -387,6 +390,22 @@ EOF
     $cpan_mod =~ s/-/::/g;
   }
 
+sub wget {
+    my ($url, $saveas) = @_;
+    eval {
+        require HTTP::Tiny;
+        my $http = HTTP::Tiny->new();
+        $http->mirror( $url => $saveas );
+        -f $saveas
+    } or
+       # Some system do not have wget.  Fall back to curl if we do not
+       # have it.  On Windows, `which wget` is not going to work, so
+       # just use wget, as this script has always done.
+       WIN32 || -x substr(`which wget`, 0, -1)
+         ? system wget => $url, '-qO', $saveas
+         : system curl => $url, '-sSo', $saveas;
+}
+
   #
   # Find the information from CPAN.
   #
@@ -397,12 +416,7 @@ EOF
     # Poor man's cache
     #
     unless (-f $package_file && -M $package_file < 1) {
-        eval {
-            require HTTP::Tiny;
-            my $http= HTTP::Tiny->new();
-            $http->mirror( $package_url => $package_file );
-            1
-        } or system('wget', $package_url, '-qO', $package_file);
+      wget $package_url, $package_file;
     }
 
     my $new_line;
@@ -429,18 +443,13 @@ EOF
 
     # see if we have this already
     if ($force or ($old_version lt $new_version)) {
-      my $url = "http://search.cpan.org/CPAN/authors/id/$new_path";
+      my $url = "https://cpan.metacpan.org/authors/id/$new_path";
       say "Update $url over $old_version";
       #
       # Fetch the new distro
       #
       if (! -f $new_file) {
-        eval {
-          require HTTP::Tiny;
-          my $http= HTTP::Tiny->new();
-          $http->mirror( $url => $new_file );
-          1
-        } or system('wget', $url, '-qO', $new_file);
+        wget $url, $new_file;
       }
     } else {
       say "Already have latest $new_path";
@@ -449,7 +458,8 @@ EOF
     }
   }
   else {
-    if (!$dryrun and (!-e $tarball or !-f _)) {
+    $new_file = rel2abs( $tarball, $orig_pwd );
+    if (!$dryrun and (!-e $new_file or !-f _)) {
       warn "Tarball $tarball does not exist\n";
       chdir "..";
       next MODULES;
