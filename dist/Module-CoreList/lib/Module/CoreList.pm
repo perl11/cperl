@@ -17704,6 +17704,7 @@ our %delta :const = (
             'ExtUtils::MM_Win95'    => '7.35_06',
             'ExtUtils::MY'          => '7.35_06',
             'ExtUtils::Manifest'    => '1.71',
+            'File::Path'            => '3.16_02c',
         },
         removed => {
         }

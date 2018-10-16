@@ -3,7 +3,7 @@
 
 use strict;
 
-use Test::More tests => 165;
+use Test::More tests => 172;
 use Config;
 use Fcntl ':mode';
 use lib './t';
@@ -163,14 +163,13 @@ sub count {
 
 SKIP: {
     # tests for rmtree() of ancestor directory
-    my $nr_tests = 6;
-    my $cwd = getcwd() or skip "failed to getcwd: $!", $nr_tests;
+    my $cwd = getcwd() or skip "failed to getcwd: $!", 6;
     my $dir  = catdir($cwd, 'remove');
     my $dir2 = catdir($cwd, 'remove', 'this', 'dir');
 
-    skip "failed to mkpath '$dir2': $!", $nr_tests
+    skip "failed to mkpath '$dir2': $!", 6
         unless mkpath($dir2, {verbose => 0});
-    skip "failed to chdir dir '$dir2': $!", $nr_tests
+    skip "failed to chdir dir '$dir2': $!", 6
         unless chdir($dir2);
 
     rmtree($dir, {error => \$error});
@@ -185,10 +184,9 @@ SKIP: {
         my $ortho_dir = $^O eq 'MSWin32' ? File::Path::_slash_lc($dir2) : $dir2;
         $^O eq 'MSWin32' and $message
             =~ s/\A(cannot remove path when cwd is )(.*)\Z/$1 . File::Path::_slash_lc("$2")/e;
+
         is($message, "cannot remove path when cwd is $ortho_dir", "ancestor reason");
-
         ok(-d $dir2, "child not removed");
-
         ok(-d $dir, "ancestor not removed");
     }
     else {
@@ -389,9 +387,9 @@ else {
 
 SKIP: {
     # test bug http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=487319
-    skip "Don't need Force_Writeable semantics on $^O", 6
+    skip "Don't need Force_Writeable semantics on $^O", 8
         if grep {$^O eq $_} qw(amigaos dos epoc MSWin32 MacOS os2);
-    skip "Symlinks not available", 6 unless $Config{d_symlink};
+    skip "Symlinks not available", 8 unless $Config{d_symlink};
     $dir  = 'bug487319';
     $dir2 = 'bug487319-symlink';
     @created = make_path($dir, {mask => 0700});
@@ -432,6 +430,8 @@ SKIP: {
 
     remove_tree($dir);
     remove_tree($file);
+    ok(! -e $dir, "$dir removed");
+    ok(! -e $file, "$file removed");
 }
 
 # see what happens if a file exists where we want a directory
@@ -640,8 +640,7 @@ SKIP: {
 }
 
 SKIP: {
-    my $nr_tests = 6;
-    my $cwd = getcwd() or skip "failed to getcwd: $!", $nr_tests;
+    my $cwd = getcwd() or skip "failed to getcwd: $!", 6;
     rmtree($tmp_base, {result => \$list} );
     is(ref($list), 'ARRAY', "received a final list of results");
     ok( !(-d $tmp_base), "test base directory gone" );
@@ -815,8 +814,7 @@ is(
 }
 
 SKIP: {
-    my $skip_count = 3;
-    skip "Windows will not set this error condition", $skip_count
+    skip "Windows will not set this error condition", 4
         if $^O eq 'MSWin32';
 
     # mkpath() with hashref:  case of phony user
@@ -839,7 +837,10 @@ SKIP: {
     cleanup_3_level_subdirs($least_deep);
 }
 
-{
+SKIP: {
+    skip "Invalid uid option on Windows", 3
+        if $^O eq 'MSWin32';
+
     # mkpath() with hashref:  case of valid uid
     my ($least_deep, $next_deepest, $deepest) =
         create_3_level_subdirs( qw| b5wj8CJcc7gl XTJe2C3WGLg5 VZ_y2T0XfKu3 | );
@@ -851,8 +852,7 @@ SKIP: {
 }
 
 SKIP: {
-    my $skip_count = 3;
-    skip "getpwuid() and getgrgid() not implemented on Windows", $skip_count
+    skip "getpwuid() and getgrgid() not implemented on Windows", 3
         if $^O eq 'MSWin32';
 
     # mkpath() with hashref:  case of valid owner
@@ -867,8 +867,7 @@ SKIP: {
 }
 
 SKIP: {
-    my $skip_count = 5;
-    skip "Windows will not set this error condition", $skip_count
+    skip "Invalid group option on Windows", 4
         if $^O eq 'MSWin32';
 
     # mkpath() with hashref:  case of phony group
@@ -891,7 +890,10 @@ SKIP: {
     cleanup_3_level_subdirs($least_deep);
 }
 
-{
+SKIP: {
+    skip "Invalid group option on Windows", 3
+      if $^O eq 'MSWin32';
+
     # mkpath() with hashref:  case of valid group
     my ($least_deep, $next_deepest, $deepest) =
         create_3_level_subdirs( qw| BEcigvaBNisY rd4lJ1iZRyeS OyQnDPIBxP2K | );
@@ -903,8 +905,7 @@ SKIP: {
 }
 
 SKIP: {
-    my $skip_count = 3;
-    skip "getpwuid() and getgrgid() not implemented on Windows", $skip_count
+    skip "getpwuid() and getgrgid() not implemented on Windows", 3
         if $^O eq 'MSWin32';
 
     # mkpath() with hashref:  case of valid group
@@ -919,8 +920,7 @@ SKIP: {
 }
 
 SKIP: {
-    my $skip_count = 3;
-    skip "getpwuid() and getgrgid() not implemented on Windows", $skip_count
+    skip "getpwuid() and getgrgid() not implemented on Windows", 3
         if $^O eq 'MSWin32';
 
     # mkpath() with hashref:  case of valid owner and group
@@ -932,5 +932,35 @@ SKIP: {
     @created = mkpath($deepest, { mode => 0711, owner => $name, group => $group_name, error => \$error });
     is(scalar(@created), 3, "Provide valid 'owner' and 'group' 'group' arguments: 3 subdirectories created");
 
-    cleanup_3_level_subdirs($least_deep);
+    cleanup_3_level_subdirs($least_deep); # 2 tests
+}
+
+SKIP: {
+    # bug with symlink to another mountpoint, i.e. different inode
+    skip "Symlinks not available", 5 unless $Config{d_symlink};
+    skip "~/Perl mountpoint not available", 5 unless -d "$ENV{HOME}/Perl";
+
+    $dir  = "$ENV{HOME}/Perl/tmpbug-cpan";
+    $dir2 = '/tmp/tmpbug-cpan-symlink';
+    my $cwd = Cwd::abs_path(Cwd::getcwd());
+
+    @created = make_path($dir, {mask => 0700});
+    symlink($dir, $dir2);
+    ok(-l $dir2, "setup bug-cpan symlink") or diag($dir2);
+
+    chdir($dir2);
+    @created = make_path("subdir",
+                         "subdir/dir1",
+                         "subdir/dir1/dir2",
+                         {mask => 0700});
+    is( scalar @created, 3, 'symlink setup' );
+ 
+    remove_tree("subdir");
+    ok(! -e "subdir", "subdir removed");
+
+    chdir($cwd);
+    remove_tree($dir2);
+    remove_tree($dir);
+    ok(! -e $dir2, "$dir2 removed");
+    ok(! -e $dir, "$dir removed");
 }
