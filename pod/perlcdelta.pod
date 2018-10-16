@@ -42,6 +42,18 @@ pgcc support
 keep our pgcc support,
 keep our zlib-src fixes: deflateParams bug, FALLTHROUGH hints
 
+=item L<Config::Perl::V> 0.30_01
+
+Add test for 5.26.1-RC1, and some cperl -V's
+
+Fix signature with argument
+
+Ignore ccache and compiler path in signature
+
+Add default_inc_excludes_dot
+
+use vars => our
+
 =item L<Cpanel::JSON::XS>  4.06
 
 Added json_type support, ...
