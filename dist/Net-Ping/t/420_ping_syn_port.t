@@ -33,11 +33,13 @@ BEGIN {
 #
 # $ PERL_CORE=1 make test
 
+# Hopefully this is never a routeable host
+my $fail_ip = $ENV{NET_PING_FAIL_IP} || "172.29.249.249";
+
 # Try a few remote servers
 my %webs;
 my @hosts = (
-  # Hopefully this is never a routeable host
-  "172.29.249.249",
+  $fail_ip,
 
   # Hopefully all these http and https ports are open
   "www.google.com",
@@ -91,11 +93,11 @@ while (my @r = $p->ack()) {
 }
 
 Alarm(0);
-# 172.29.249.249 should not be reachable
+# $fail_ip should not be reachable
 is keys %contacted, 2,
   '2 servers did not acknowledge our ping'
   or diag sort keys %contacted;
 delete $contacted{$_}
-    foreach ('172.29.249.249:80','172.29.249.249:443', 'www.about.com:443');
+    foreach ("$fail_ip:80","$fail_ip:443", 'www.about.com:443');
 is keys %contacted, 0,
     'The servers that did not acknowledge our ping were correct';

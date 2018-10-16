@@ -32,10 +32,12 @@ BEGIN {
 #
 # $ PERL_CORE=1 make test
 
+# Hopefully this is never a routeable host
+my $fail_ip = $ENV{NET_PING_FAIL_IP} || "172.29.249.249";
+
 # Try a few remote servers
 my %webs = (
-  # Hopefully this is never a routeable host
-  "172.29.249.249" => 0,
+  $fail_ip => 0,
 
   # Hopefully all these web ports are open
   "yahoo.com." => 1,
@@ -45,7 +47,7 @@ my %webs = (
 );
 
 use Test::More;
-plan tests => 3 + 2 * keys %webs;
+plan tests => 4 + 2 * keys %webs;
 
 use_ok('Net::Ping');
 
@@ -68,6 +70,12 @@ isa_ok($p, 'Net::Ping', 'new() worked');
 # Change to use the more common web port.
 # (Make sure getservbyname works in scalar context.)
 cmp_ok(($p->{port_num} = getservbyname("http", "tcp")), '>', 0, 'valid port');
+
+# message_type can't be used
+eval {
+  $p->message_type();
+};
+like($@, qr/message type only supported on 'icmp' protocol/, "message_type() API only concern 'icmp' protocol");
 
 # check if network is up
 eval { $p->ping('www.google.com.'); };

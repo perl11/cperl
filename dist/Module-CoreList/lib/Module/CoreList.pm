@@ -17767,6 +17767,7 @@ our %delta :const = (
             'Math::BigInt::FastCalc'  => '0.5008',
             'Math::BigInt::Lib'     => '1.999814',
             'Math::BigRat'          => '0.2614',
+            'Net::Ping'             => '2.70',
         },
         removed => {
         }
