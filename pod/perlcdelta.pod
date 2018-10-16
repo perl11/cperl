@@ -18,6 +18,21 @@ L<perl5262cdelta>, which describes differences between v5.26.1c and v5.26.2c.
 
 =over 4
 
+=item L<Archive::Tar> 2.32
+
+Fix absolute path handling on VMS.
+
+Skip white_space test on MSWin32 as Windows will report that both
+  files exist, which is obviously a 'feature'
+
+fix creating file with trailing whitespace on filename - fixes 103279
+
+allow archiving with absolute pathnames - fixes 97748
+
+Speed up extract when archive contains lots of files
+
+CVE-2018-12015 directory traversal vulnerability [RT#125523]
+
 =item L<DynaLoader> 2.09c
 
 Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a
