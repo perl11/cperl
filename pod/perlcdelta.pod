@@ -95,6 +95,11 @@ Fix for the double opening of the web browser with --open
 
 Updated links in docs from old svn repository to Github
 
+=item L<Devel::PPPort>  3.43_04
+
+Fix test with Visual Studio (space in paths) by quoting $0.
+Note: This fix is not in the public CPAN release.
+
 =item L<DynaLoader> 2.09c
 
 Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a

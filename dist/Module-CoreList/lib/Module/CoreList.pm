@@ -17661,6 +17661,7 @@ our %delta :const = (
             'DB_File'               => '1.842',
             'Devel::NYTProf'        => '6.06_01',
             'Devel::NYTProf::Core'  => '6.06_01',
+            'Devel::PPPort'         => '3.43_04',
             'DynaLoader'            => '2.09c',
             'ExtUtils::Constant'            => '2.25_01',
             'ExtUtils::Constant::Base'      => '2.25_01',

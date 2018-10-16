@@ -23,6 +23,7 @@ use vars '%opt';  # needs to be global, and we can't use 'our'
 unless ($ENV{'PERL_CORE'}) {
   $ENV{'PERL_CORE'} = 1 if grep { $_ eq 'PERL_CORE=1' } @ARGV;
 }
+my $PERL_CORE = $ENV{'PERL_CORE'} ? 'PERL_CORE=1' : '';
 
 @ARGV = map { /^--with-(apicheck)$/ && ++$opt{$1} ? () : $_ } @ARGV;
 
@@ -40,12 +41,12 @@ WriteMakefile(
     },
     resources => {
       bugtracker => {
-        web => 'https://github.com/mhx/Devel-PPPort/issues/',
+        web => 'https://rt.perl.org/rt3/',
       },
       repository => {
         type => 'git',
-        url  => 'git://github.com/mhx/Devel-PPPort.git',
-        web  => 'https://github.com/mhx/Devel-PPPort/',
+        url  => 'git://perl5.git.perl.org/perl.git',
+        web  => 'https://perl5.git.perl.org/perl.git',
       },
     },
   },
@@ -124,16 +125,16 @@ purge_all: realclean
 	@$(RM_F) PPPort.pm t/*.t
 
 regen_pm:
-	$(PERL) -I. -I$(INST_ARCHLIB) -I$(INST_LIB) -I$(PERL_ARCHLIB) -I$(PERL_LIB) PPPort_pm.PL
+	$(PERL) -I. -I$(INST_ARCHLIB) -I$(INST_LIB) -I$(PERL_ARCHLIB) -I$(PERL_LIB) PPPort_pm.PL PERL_CORE=$(PERL_CORE)
 
 regen_xs:
-	$(PERL) -I. -I$(INST_ARCHLIB) -I$(INST_LIB) -I$(PERL_ARCHLIB) -I$(PERL_LIB) PPPort_xs.PL
+	$(PERL) -I. -I$(INST_ARCHLIB) -I$(INST_LIB) -I$(PERL_ARCHLIB) -I$(PERL_LIB) PPPort_xs.PL PERL_CORE=$(PERL_CORE)
 
 regen_tests:
-	$(PERL) -I. -I$(INST_ARCHLIB) -I$(INST_LIB) -I$(PERL_ARCHLIB) -I$(PERL_LIB) mktests.PL
+	$(PERL) -I. -I$(INST_ARCHLIB) -I$(INST_LIB) -I$(PERL_ARCHLIB) -I$(PERL_LIB) mktests.PL PERL_CORE=$(PERL_CORE)
 
 regen_h:
-	$(PERL) -I. -I$(INST_ARCHLIB) -I$(INST_LIB) -I$(PERL_ARCHLIB) -I$(PERL_LIB) ppport_h.PL
+	$(PERL) -I. -I$(INST_ARCHLIB) -I$(INST_LIB) -I$(PERL_ARCHLIB) -I$(PERL_LIB) ppport_h.PL PERL_CORE=$(PERL_CORE)
 
 regen: regen_pm regen_xs regen_tests regen_h
 
