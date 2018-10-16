@@ -17716,6 +17716,7 @@ our %delta :const = (
             'File::Spec::Unix'      => '4.74c',
             'File::Spec::VMS'       => '3.74',
             'File::Spec::Win32'     => '4.74c',
+            'File::Temp'            => '0.2308',
         },
         removed => {
         }

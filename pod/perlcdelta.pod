@@ -219,6 +219,27 @@ Fix method of generating names for dummy users and groups during testing
 (i.e. under docker)
 L<[cpan #121967]|https://rt.cpan.org/Ticket/Display.html?id=121967>.
 
+=item L<File::Temp> 0.2308
+
+- remove File::Temp::Dir from the PAUSE index (it is not in its own
+  .pm file, so it is not 'use'able on its own)
+
+- change EXLOCK default from true to false; addresses RT#123959.
+  Note that this option was always a no-op on non-BSD platforms;
+  changing the default to false makes behaviour more predictable and
+  consistent across platforms.
+
+- switch from 'use vars' to 'our'
+
+- documentation updates for what versions contain what features
+  (thanks, Brian Mowrey! RT#101518)
+
+- fix bad use of skip() in tests (RT#95922)
+
+- Fall back to CSIDL_LOCAL_APPDATA under taint on Windows (RT#60340)
+
+- update distribution tooling
+
 =back
 
 =head1 Documentation
