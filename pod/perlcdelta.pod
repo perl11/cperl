@@ -193,6 +193,10 @@ VMS: add static_lib_pure_cmd
 
 Liblist: support libdirs with spaces
 
+=item L<ExtUtils::Manifest> 1.71
+
+Only pod formatting
+
 =back
 
 =head1 Documentation
