@@ -119,7 +119,8 @@ uLong ZEXPORT zlibCompileFlags()
 #  endif
 int ZLIB_INTERNAL z_verbose = verbose;
 
-void ZLIB_INTERNAL z_error (char *m)
+void ZLIB_INTERNAL z_error (
+    char *m)
 {
     fprintf(stderr, "%s\n", m);
     exit(1);
@@ -129,13 +130,14 @@ void ZLIB_INTERNAL z_error (char *m)
 /* exported to allow conversion of error code to string for compress() and
  * uncompress()
  */
-const char * ZEXPORT zError(int err)
+const char * ZEXPORT zError(
+    int err)
 {
     return ERR_MSG(err);
 }
 
-#if defined(_WIN32_WCE) && _WIN32_WCE < 0x800
-    /* The older Microsoft C Run-Time Library for Windows CE doesn't have
+#if defined(_WIN32_WCE)
+    /* The Microsoft C Run-Time Library for Windows CE doesn't have
      * errno.  We define it as a global variable to simplify porting.
      * Its value is always 0 and should not be used.
      */
@@ -144,9 +146,10 @@ const char * ZEXPORT zError(int err)
 
 #ifndef HAVE_MEMCPY
 
-void ZLIB_INTERNAL zmemcpy(Bytef* dest,
-                           const Bytef* source,
-                           uInt  len)
+void ZLIB_INTERNAL zmemcpy(
+    Bytef* dest,
+    const Bytef* source,
+    uInt  len)
 {
     if (len == 0) return;
     do {
@@ -154,9 +157,10 @@ void ZLIB_INTERNAL zmemcpy(Bytef* dest,
     } while (--len != 0);
 }
 
-int ZLIB_INTERNAL zmemcmp(const Bytef* s1,
-                          const Bytef* s2,
-                          uInt  len)
+int ZLIB_INTERNAL zmemcmp(
+    const Bytef* s1,
+    const Bytef* s2,
+    uInt  len)
 {
     uInt j;
 
@@ -166,8 +170,9 @@ int ZLIB_INTERNAL zmemcmp(const Bytef* s1,
     return 0;
 }
 
-void ZLIB_INTERNAL zmemzero(Bytef* dest,
-                            uInt  len)
+void ZLIB_INTERNAL zmemzero(
+    Bytef* dest,
+    uInt  len)
 {
     if (len == 0) return;
     do {
@@ -297,17 +302,19 @@ extern voidp  calloc OF((uInt items, uInt size));
 extern void   free   OF((voidpf ptr));
 #endif
 
-voidpf ZLIB_INTERNAL zcalloc (voidpf opaque,
-                              unsigned items,
-                              unsigned size)
+voidpf ZLIB_INTERNAL zcalloc (
+    voidpf opaque,
+    unsigned items,
+    unsigned size)
 {
     (void)opaque;
     return sizeof(uInt) > 2 ? (voidpf)malloc(items * size) :
                               (voidpf)calloc(items, size);
 }
 
-void ZLIB_INTERNAL zcfree (voidpf opaque,
-                           voidpf ptr)
+void ZLIB_INTERNAL zcfree (
+    voidpf opaque,
+    voidpf ptr)
 {
     (void)opaque;
     free(ptr);

@@ -278,7 +278,7 @@ use File::Glob qw(:case);
     },
 
     'Compress::Raw::Zlib' => {
-        'DISTRIBUTION' => 'PMQS/Compress-Raw-Zlib-2.076.tar.gz',
+        'DISTRIBUTION' => 'PMQS/Compress-Raw-Zlib-2.081.tar.gz',
         'FILES'    => q[cpan/Compress-Raw-Zlib],
         'EXCLUDED' => [
             qr{^examples/},
@@ -288,7 +288,12 @@ use File::Glob qw(:case);
                 ),
         ],
         # support make -s
-        'CUSTOMIZED'   => [ qw( Makefile.PL ) ],
+        # deflateParams bug, FALLTHROUGH hints
+        'CUSTOMIZED'   => [ qw(
+                            Makefile.PL
+                            zlib-src/deflate.c
+                            zlib-src/inflate.c
+                            ) ],
     },
 
     'Config' => {

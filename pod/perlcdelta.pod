@@ -35,7 +35,12 @@ CVE-2018-12015 directory traversal vulnerability [RT#125523]
 
 =item L<Compress::Raw::Bzip2> 2.081
 
-pgcc fix
+pgcc support
+
+=item L<Compress::Raw::Zlib> 2.081
+
+keep our pgcc support,
+keep our zlib-src fixes: deflateParams bug, FALLTHROUGH hints
 
 =item L<DynaLoader> 2.09c
 

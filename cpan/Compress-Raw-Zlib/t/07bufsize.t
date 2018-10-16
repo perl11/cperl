@@ -1,5 +1,8 @@
 BEGIN {
-    @INC = ("../../../lib") if $ENV{PERL_CORE};
+    if ($ENV{PERL_CORE}) {
+	chdir 't' if -d 't';
+	@INC = ("../lib", "lib/compress");
+    }
 }
 
 use lib qw(t t/compress);
@@ -10,12 +13,13 @@ use bytes;
 use Test::More ;
 use CompTestUtils;
 
-BEGIN
-{
-    #plan skip_all => "Lengthy Tests Disabled\n" .
-    #                 "set COMPRESS_ZLIB_RUN_ALL or COMPRESS_ZLIB_RUN_MOST to run this test suite"
-    #    unless defined $ENV{COMPRESS_ZLIB_RUN_ALL} or defined $ENV{COMPRESS_ZLIB_RUN_MOST};
+BEGIN 
+{ 
+    plan skip_all => "Lengthy Tests Disabled\n" .
+                     "set COMPRESS_ZLIB_RUN_ALL or COMPRESS_ZLIB_RUN_MOST to run this test suite"
+        unless defined $ENV{COMPRESS_ZLIB_RUN_ALL} or defined $ENV{COMPRESS_ZLIB_RUN_MOST};
 
+    
     # use Test::NoWarnings, if available
     my $extra = 0 ;
     $extra = 1
@@ -23,7 +27,7 @@ BEGIN
 
     plan tests => 288 + $extra ;
 
-    use_ok('Compress::Raw::Zlib', 2) ;
+    use_ok('Compress::Raw::Zlib', 2) ; 
 }
 
 
