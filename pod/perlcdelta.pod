@@ -257,10 +257,18 @@ Document protocol field, case-sensitive method names.
 
 =item L<IO> 1.39_01
 
-Require v5.8.1
+replace use vars with our,
+run-time load Carp,
+Bump versions of 3 Socket modules.
+Remove 5.6 support
 
 Many other changes, see
 L<https://metacpan.org/changes/distribution/IO> plus some cperl fixes.
+
+=item C<IO-Compress> 2.081
+
+lots of whitespace fixes in zipdetails
+exclude t/999pod.t also
 
 =back
 
