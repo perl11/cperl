@@ -1262,10 +1262,10 @@ esac
 $spitshell >>$Makefile <<EOT
 
 dist/Storable/lib/Storable/Limit.pm : \$(PERL_EXE) dist/Storable/stacksize $storable_limit_dep
-	cd dist/Storable ; \$(LDLIBPTH) \$(MAKE) lib/Storable/Limit.pm
+	\$(LDLIBPTH) ./perl -Ilib dist/Storable/stacksize --core
 
 lib/Storable/Limit.pm : dist/Storable/lib/Storable/Limit.pm
-	test -d lib/Storable || mkdir lib/Storable
+	test -d lib/Storable || mkdir -p lib/Storable
 	cp dist/Storable/lib/Storable/Limit.pm lib/Storable/Limit.pm
 EOT
 
