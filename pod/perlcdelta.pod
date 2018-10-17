@@ -477,7 +477,12 @@ SP off by 1 in _crt_localtime
 
 =item L<version> 0.9924_02
 
-more test fixes for 5.6
+use vars => our.
+Add updates from 0.9918: Add LAX_DECIMAL_VERSION, LAX_DOTTED_DECIMAL_VERSION,
+STRICT_DECIMAL_VERSION, STRICT_DOTTED_DECIMAL_VERSION regexes.
+Add updates from 0.9921: pod, safer C locale switching.
+Add vpp support for cperl: scmp, c suffix.
+More test fixes for 5.6
 
 =back
 

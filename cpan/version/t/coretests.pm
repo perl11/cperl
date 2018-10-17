@@ -330,7 +330,7 @@ SKIP:    { # https://rt.perl.org/rt3/Ticket/Display.html?id=95544
 
 SKIP: 	{
 	skip 'Cannot test bare v-strings with Perl < 5.6.0', 4
-		if $] < 5.006_000;
+		if $] < 5.006;
 	$version = $CLASS->$method(1.2.3);
 	ok("$version" eq "v1.2.3", '"$version" eq 1.2.3');
 	$version = $CLASS->$method(1.0.0);
@@ -430,7 +430,7 @@ EOF
 
 SKIP: {
     skip "Cannot test \"use parent $CLASS\"  when require is used", 3
-	unless defined $qv_declare;
+	if !defined $qv_declare or $] < 5.008;
     my ($fh, $filename) = tempfile('tXXXXXXX', SUFFIX => '.pm', UNLINK => 1);
     (my $package = basename($filename)) =~ s/\.pm$//;
     print $fh <<"EOF";
@@ -580,9 +580,10 @@ SKIP: {
     }
 
     { # https://rt.cpan.org/Ticket/Display.html?id=88495
+        package ver;
 	@ver::ISA = $CLASS;
-	is ref(ver->new), 'ver', 'ver can inherit from version';
-	is ref(ver->qv("1.2.3")), 'ver', 'ver can inherit from version';
+	main::is(ref(ver->new), 'ver', 'ver can inherit from version');
+	main::is(ref(ver->qv("1.2.3")), 'ver', 'ver can inherit from version');
     }
 
     { # discovered while integrating with bleadperl
@@ -636,4 +637,3 @@ SKIP: {
 }
 
 1;
-

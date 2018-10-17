@@ -164,7 +164,7 @@ VXS(universal_version)
 	}
 
 	if ( VCMP( req, sv ) > 0 ) {
-	    if ( hv_exists(MUTABLE_HV(SvRV(req)), "qv", 2 ) ) {
+	    if ( hv_existss(MUTABLE_HV(SvRV(req)), "qv") ) {
 		req = VNORMAL(req);
 		sv  = VNORMAL(sv);
 	    }
@@ -366,7 +366,7 @@ VXS(version_scmp)
 	       SV *rvs;
 	       SV *robj       = ST(1);
 	       const IV	 swap = SvIV(ST(2));
-               const int lc   = hv_exists(MUTABLE_HV(SvRV(ST(0))), "cperl", 5);
+               const int lc   = hv_existss(MUTABLE_HV(SvRV(ST(0))), "cperl");
                int ri;
                int rc;
 
@@ -375,7 +375,7 @@ VXS(version_scmp)
 		   robj = sv_2mortal(NEW_VERSION(SvOK(robj) ? robj
                                                  : newSVpvs_flags("0", SVs_TEMP)));
 	       }
-               rc  = (SvTYPE(robj) >= SVt_PVHV) && hv_exists(MUTABLE_HV(robj), "cperl", 5);
+               rc  = (SvTYPE(robj) >= SVt_PVHV) && hv_existss(MUTABLE_HV(robj), "cperl");
 	       rvs = SvRV(robj);
 
 	       ri = swap ? VCMP(rvs,lobj) : VCMP(lobj,rvs);

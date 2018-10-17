@@ -15,7 +15,7 @@ BEGIN {
         )
     );
     require $coretests;
-    use_ok("version", 0.9918);
+    use_ok("version", 0.992402);
     # If we made it this far, we are ok.
 }
 
@@ -51,8 +51,7 @@ print $fh <<"EOF";
 # This is an empty subclass
 package $package;
 use parent 'version';
-use vars '\$VERSION';
-\$VERSION=0.001;
+our \$VERSION = 0.001;
 EOF
 close $fh;
 
