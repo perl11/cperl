@@ -346,6 +346,10 @@ better icmpv6 support.
 
 Fixes for ldlibpthname from 2.71
 
+=item L<parent>  0.237
+
+use vars => our.
+
 =item L<Pod::Man>  4.11
 
 Various upstream changes,
