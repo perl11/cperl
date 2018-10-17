@@ -17831,6 +17831,7 @@ our %delta :const = (
             'Thread::Queue'         => '3.13',
             'Time::HiRes'           => '1.9758_01',
             'Time::Local'           => '1.28',
+            'Time::Piece'           => '1.33',
             'version'               => '0.9924_02',
             'version::regex'        => '0.9924_02',
         },

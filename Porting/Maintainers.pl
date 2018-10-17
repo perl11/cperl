@@ -1528,7 +1528,7 @@ use File::Glob qw(:case);
     },
 
     'Time::Piece' => {
-        'DISTRIBUTION' => 'ESAYM/Time-Piece-1.3203.tar.gz',
+        'DISTRIBUTION' => 'ESAYM/Time-Piece-1.33.tar.gz',
         'FILES'        => q[cpan/Time-Piece],
         'EXCLUDED'     => [
             qw( reverse_deps.txt ),

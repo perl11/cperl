@@ -426,6 +426,20 @@ Added timelocal_modern and timegm_modern variants as optional exports. These
 versions do not munge years at all. They treat the year value that they are
 given exactly as-is.
 
+=item L<Time::Piece>  1.33
+
+Switch to XSLoader.
+
+Fix AIX compile
+
+Fix compile errors on MS
+
+Use macro for buf sizes
+
+Remove some compile warnings
+
+SP off by 1 in _crt_localtime
+
 =item L<version> 0.9924_02
 
 more test fixes for 5.6
