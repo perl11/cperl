@@ -378,6 +378,20 @@ L<[cperl #374]|https://github.com/perl11/cperl/issues/374>
 
 Merge Makefile recipes from blead.
 
+=item L<Test::Harness> 3.42_01
+
+Enable rulesfile.t to run in core
+
+Return handle for pipes and sockets #58 (Erik Huelsmann)
+TAP v13 plan allows trailing whitespace (Steffen Schwigon)
+prove: add a --statefile=<path> option to customize the .prove file
+(Ævar Arnfjörð Bjarmason)
+Avoid non-deterministic source handling, make a SourceHandler tie an
+error. (Michael Schwern, Leon Timmermans)
+Fix and simplify MSWin32 colorization (Roy Ivy III)
+Fix file source handler to accept single extensions option (Tomoki Aonuma)
+Spelling fixes (Brian Wightman)
+
 =item L<version> 0.9924_02
 
 more test fixes for 5.6
