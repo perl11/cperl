@@ -1,5 +1,5 @@
 package experimental;
-$experimental::VERSION = '0.019_01c'; #cperl fixed lexical_topic
+$experimental::VERSION = '0.020_01';
 use strict;
 use warnings;
 use version ();
@@ -14,6 +14,9 @@ my %features = map { $_ => 1 } $] > 5.015006 ? keys %feature::feature : do {
 		push @features, qw/switch say state/;
 		push @features, 'unicode_strings' if $] > 5.011002;
 	}
+	if ($^V =~ /c$/ and $] >= 5.024) {
+		push @features, 'lexical_topic';
+        }
 	@features;
 };
 
@@ -23,9 +26,10 @@ my %min_version = (
 	bitwise         => '5.22.0',
 	const_attr      => '5.22.0',
 	current_sub     => '5.16.0',
+	declared_refs   => '5.26.0',
 	evalbytes       => '5.16.0',
 	fc              => '5.16.0',
-	#lexical_topic   => '5.10.0',
+	lexical_topic   => '5.10.0',
 	lexical_subs    => '5.18.0',
 	postderef       => '5.20.0',
 	postderef_qq    => '5.20.0',
@@ -40,16 +44,19 @@ my %min_version = (
 	unicode_strings => '5.12.0',
 );
 my %max_version = (
-	autoderef       => '5.23.1',
-	#lexical_topic   => '5.23.4',
+        autoderef       => '5.23.1',
+        ( $^V =~ /c$/) ? () : (
+	  lexical_topic   => '5.23.4'
+        )
 );
 
 $_ = version->new($_) for values %min_version;
 $_ = version->new($_) for values %max_version;
 
 my %additional = (
-	postderef  => ['postderef_qq'],
-	switch     => ['smartmatch'],
+	postderef     => ['postderef_qq'],
+	switch        => ['smartmatch'],
+	declared_refs => ['refaliasing'],
 );
 
 sub _enable {
@@ -130,7 +137,7 @@ experimental - Experimental features made easy
 
 =head1 VERSION
 
-version 0.019_01c
+version 0.020_01
 
 =head1 SYNOPSIS
 
@@ -182,6 +189,7 @@ This was added in perl 5.22.0.
 =item * C<lexical_topic> - allow the use of lexical C<$_> via C<my $_>.
 
 This was added in perl 5.10.0 and removed in perl 5.23.4.
+cperl 5.24.0 enabled it by default.
 
 =item * C<lexical_subs> - allow the use of lexical subroutines.
 
