@@ -4124,7 +4124,7 @@ PP(pp_iter_ary)
     SV *sv;
     AV *av;
     IV ix;
-    IV inc = 1 - (PL_op->op_private & OPpITER_REVERSED);
+    IV inc = (IV)1 - (IV)(PL_op->op_private & OPpITER_REVERSED);
 
     cx = CX_CUR();
     itersvp = CxITERVAR(cx);
@@ -4245,7 +4245,7 @@ PP(pp_iter)
     case CXt_LOOP_LIST: /* for (1,2,3) */
 
         assert(OPpITER_REVERSED == 2); /* so inc becomes -1 or 1 */
-        inc = 1 - (PL_op->op_private & OPpITER_REVERSED);
+        inc = (IV)1 - (IV)(PL_op->op_private & OPpITER_REVERSED);
         ix = (cx->blk_loop.state_u.stack.ix += inc);
         if (UNLIKELY(inc > 0
                      ? ix > cx->blk_oldsp

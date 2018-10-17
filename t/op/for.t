@@ -5,7 +5,7 @@ BEGIN {
     require "./test.pl";
 }
 
-plan(134);
+plan(136);
 
 # A lot of tests to check that reversed for works.
 
@@ -712,4 +712,18 @@ is ($r, 'abc', 'qw as parens');
   my @b = @a;
   for my $n (@a) {for my $x (@b) { push @r, $x }}
   is (join("",@r), "0101", 'nested lex iter loop');
+}
+
+# RT #133558 'reverse' under AIX was causing loop to terminate
+# immediately, probably due to compiler bug
+
+{
+    my @a = qw(foo);
+    my @b;
+    push @b, $_ for (reverse @a);
+    is "@b", "foo", " RT #133558 reverse array";
+
+    @b = ();
+    push @b, $_ for (reverse 'bar');
+    is "@b", "bar", " RT #133558 reverse list";
 }

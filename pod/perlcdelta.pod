@@ -624,6 +624,17 @@ for static archives.
 
 =back
 
+=item AIX
+
+=over 4
+
+=item *
+
+Fix 'for reverse @array' bug on AIX.
+L<[perl #133558]|https://rt.perl.org/Public/Bug/Display.html?id=133558>
+
+=back
+
 =back
 
 =head1 Internal Changes
