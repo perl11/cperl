@@ -1601,13 +1601,13 @@ endif
 # DynaLoader.pm, so this will have to do
 
 #most of deps of this target are in DYNALOADER and therefore omitted here
-Extensions : $(PERLDEP) $(DYNALOADER) $(GLOBEXE) MakePPPort Normalize_dynamic
+Extensions : $(PERLDEP) $(DYNALOADER) $(GLOBEXE) MakePPPort Extensions_normalize
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic !Unicode/Normalize
 
-Normalize_dynamic : $(PERLDEP) $(DYNALOADER) $(GLOBEXE) $(UNIDATAFILES)
-	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(DISTDIR) --dynamic +Unicode/Normalize
+Extensions_normalize : $(PERLDEP) $(DYNALOADER) Extension_lib $(GLOBEXE) MakePPPort
+	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic +Unicode/Normalize
 
-Normalize_static : $(CONFIGPM) $(GLOBEXE) $(HAVE_COREDIR) $(UNIDATAFILES)
+Normalize_static : $(CONFIGPM) $(GLOBEXE) $(HAVE_COREDIR) $(UNIDATAFILES) MakePPPort
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(DISTDIR) --static +Unicode/Normalize
 
 Extensions_reonly : $(PERLDEP) $(DYNALOADER)
@@ -1654,7 +1654,7 @@ PostExt : ..\lib\Storable\Limit.pm
 ifeq ($(PERLSTATIC),static)
 rebasePE : Normalize_static Extensions $(PERLDLL) $(PERLEXE) $(PERLEXESTATIC)
 else
-rebasePE : Normalize_dynamic Extensions $(PERLDLL) $(PERLEXE)
+rebasePE : Extensions_normalize Extensions $(PERLDLL) $(PERLEXE)
 endif
 	$(NOOP)
 
@@ -1711,7 +1711,7 @@ utils: $(HAVEMINIPERL) ..\utils\Makefile
 	$(MINIPERL) -I..\lib ..\autodoc.pl ..
 	$(MINIPERL) -I..\lib ..\pod\perlmodlib.PL -q ..
 
-..\pod\perltoc.pod: $(PERLEXE) $(PERLDLL) Extensions Extensions_nonxs utils
+..\pod\perltoc.pod: $(PERLEXE) $(PERLDLL) Extensions_normalize Extensions Extensions_nonxs utils
 	$(PERLEXE) -f ..\pod\buildtoc -q
 
 # Note that the pod cleanup in this next section is parsed (and regenerated

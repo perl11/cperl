@@ -9,7 +9,7 @@
 # This is set up to build a perl.exe that runs off a shared library
 # (cperl528.dll).  Also makes individual DLLs for the XS extensions.
 #
-PV = 529
+PV = 528
 
 ##
 ## Make sure you read README.win32 *before* you mess with anything here!
