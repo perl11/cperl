@@ -17724,6 +17724,7 @@ our %delta :const = (
             'File::Temp'            => '0.2308',
             'Filter::Util::Call'    => '1.59',
             'HTTP::Tiny'            => '0.076_01',
+            'if'                    => '0.0608',
             'IO'                    => '1.39_01',
             'IO::Dir'               => '1.39',
             'IO::File'              => '1.39',

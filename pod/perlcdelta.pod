@@ -277,6 +277,10 @@ Add int casts, assert on 2GB limitation.
 Allow 'peer' to be a coderef.
 Document protocol field, case-sensitive method names.
 
+=item L<if>  0.0608
+
+Doc how to import when you want to C<use MODULE ()>
+
 =item L<IO> 1.39_01
 
 replace use vars with our,
