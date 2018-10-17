@@ -412,6 +412,20 @@ clock_gettime() documentation for the available ones
 Merged with our cperl fixes, esp. no __ANONIO__
 See L<https://github.com/rurban/Time-HiRes/commits/cperl>
 
+=item L<Time::Local>  1.28
+
+Some tests which required support for epoch values larger than 2**32 were
+not being skipped when the underlying Perl did not support that.
+
+Fixed the tests so they will not break in the year 2020. The tests were
+passing in 2-digit years on the assumption that a year like "70" would be
+treated as 1970, but starting in 2020 this would be treated as 2070
+instead. Reported by Bernhard M. Wiedemann. RT #124787.
+
+Added timelocal_modern and timegm_modern variants as optional exports. These
+versions do not munge years at all. They treat the year value that they are
+given exactly as-is.
+
 =item L<version> 0.9924_02
 
 more test fixes for 5.6
