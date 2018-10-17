@@ -1464,7 +1464,8 @@ use File::Glob qw(:case);
     },
 
     'threads' => {
-        'DISTRIBUTION' => 'JDHEDDEN/threads-2.16.tar.gz',
+        # https://github.com/rurban/threads/commits/cperl really
+        'DISTRIBUTION' => 'RURBAN/threads-2.22_01.tar.gz',
         'FILES'        => q[dist/threads],
         'EXCLUDED'     => [
             qr{^examples/},

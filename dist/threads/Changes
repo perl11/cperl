@@ -1,5 +1,16 @@
 Revision history for Perl extension threads.
 
+2.22_01 Fri Sep 7 13:00:29 2018 +0200 rurban
+        - locale safety backport
+
+2.22 Tue Jan 23 01:14:04 2018 +0100
+        - more locale safety from perl5
+
+2.21 Mon Jan 22 20:09:07 EST 2018
+	- Fix to CLANG macros
+	- Can return subs from threads.  See docs.
+	- Sync from blead
+
 2.16 Sun May  7 22:32:59 2017
 	- Fix Clang macro backward compatibility per patch by Andy Grundman
 	- Sync from blead
@@ -9,6 +20,9 @@ Revision history for Perl extension threads.
 
 2.14 Sun Feb 26 21:14:26 2017
 	- Sync from blead
+
+2.13_01 Sun Mar 5 19:27:49 2017 +0100
+        - locale safety from cperl
 
 2.13 Sun Feb 26 17:59:01 2017
 	- Added t/kill3.t to test that dir handles are thread-safe

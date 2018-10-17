@@ -20,6 +20,7 @@
 #endif
 #ifdef HAS_PPPORT_H
 #  define NEED_PL_signals
+#  define NEED_newRV_noinc
 #  define NEED_sv_2pv_flags
 #  include "ppport.h"
 #  include "threads.h"
@@ -33,6 +34,22 @@
 #  else
 #    define PERL_UNUSED_RESULT(v) ((void)(v))
 #  endif
+#endif
+
+#if PERL_VERSION < 28
+#define thread_locale_init()
+#define thread_locale_term()
+#endif
+
+#ifndef CLANG_DIAG_IGNORE
+# define CLANG_DIAG_IGNORE(x)
+# define CLANG_DIAG_RESTORE
+#endif
+#ifndef CLANG_DIAG_IGNORE_STMT
+# define CLANG_DIAG_IGNORE_STMT(x) CLANG_DIAG_IGNORE(x) NOOP
+# define CLANG_DIAG_RESTORE_STMT CLANG_DIAG_RESTORE NOOP
+# define CLANG_DIAG_IGNORE_DECL(x) CLANG_DIAG_IGNORE(x) dNOOP
+# define CLANG_DIAG_RESTORE_DECL CLANG_DIAG_RESTORE dNOOP
 #endif
 
 #ifdef USE_ITHREADS
@@ -132,9 +149,9 @@ typedef struct {
     IV page_size;
 } my_pool_t;
 
-#define dMY_POOL \
-    SV *my_pool_sv = *hv_fetch(PL_modglobal, MY_POOL_KEY,               \
-                               sizeof(MY_POOL_KEY)-1, TRUE);            \
+#define dMY_POOL                                                    \
+    SV *my_pool_sv = *hv_fetch(PL_modglobal, MY_POOL_KEY,           \
+                               sizeof(MY_POOL_KEY)-1, TRUE);        \
     my_pool_t *my_poolp = INT2PTR(my_pool_t*, SvUV(my_pool_sv))
 
 #define MY_POOL_set                                                 \
@@ -219,7 +236,7 @@ S_ithread_clear(pTHX_ ithread *thread)
 {
     PerlInterpreter *interp;
 #ifndef WIN32
-    sigset_t origmask;
+    static sigset_t origmask;
 #endif
 
     assert(((thread->state & PERL_ITHR_FINISHED) &&
@@ -583,6 +600,8 @@ S_ithread_run(void * arg)
     S_set_sigmask(&thread->initial_sigmask);
 #endif
 
+    thread_locale_init();
+
     PL_perl_destruct_level = 2;
 
     {
@@ -667,6 +686,8 @@ S_ithread_run(void * arg)
     }
     MUTEX_UNLOCK(&thread->mutex);
     MUTEX_UNLOCK(&MY_POOL.create_destruct_mutex);
+
+    thread_locale_term();
 
     /* Exit application if required */
     if (exit_app) {
@@ -884,15 +905,18 @@ S_ithread_create(
            reallocated (and hence move) as a side effect of calls to
            perl_clone() and sv_dup_inc(). Hence copy the parameters
            somewhere under our control first, before duplicating.  */
+        if (num_params) {
 #if (PERL_VERSION > 8)
-        Copy(parent_perl->Istack_base + params_start, array, num_params, SV *);
+            Copy(parent_perl->Istack_base + params_start, array, num_params, SV *);
 #else
-        Copy(parent_perl->Tstack_base + params_start, array, num_params, SV *);
+            Copy(parent_perl->Tstack_base + params_start, array, num_params, SV *);
 #endif
-        while (num_params--) {
-            *array = sv_dup_inc(*array, clone_param);
-            ++array;
+            while (num_params--) {
+                *array = sv_dup_inc(*array, clone_param);
+                ++array;
+            }
         }
+
 #if (PERL_VERSION > 13) || (PERL_VERSION == 13 && PERL_SUBVERSION > 1)
         Perl_clone_params_del(clone_param);
 #endif
@@ -1030,15 +1054,10 @@ S_ithread_create(
     MUTEX_UNLOCK(&my_pool->create_destruct_mutex);
     return (thread);
 
-#if defined(CLANG_DIAG_IGNORE)
-    CLANG_DIAG_IGNORE(-Wthread-safety);
+    CLANG_DIAG_IGNORE_STMT(-Wthread-safety);
     /* warning: mutex 'thread->mutex' is not held on every path through here [-Wthread-safety-analysis] */
-#endif
 }
-/* perl.h defines CLANG_DIAG_* but only in 5.24+ */
-#if defined(CLANG_DIAG_RESTORE)
-CLANG_DIAG_RESTORE
-#endif
+CLANG_DIAG_RESTORE_DECL;
 
 #endif /* USE_ITHREADS */
 
@@ -1161,6 +1180,7 @@ ithread_create(...)
         }
 
         /* Create thread */
+        /* Unlocked inside S_ithread_create */
         MUTEX_LOCK(&MY_POOL.create_destruct_mutex);
         thread = S_ithread_create(aTHX_ &MY_POOL,
                                         function_to_call,
@@ -1176,10 +1196,10 @@ ithread_create(...)
 
         /* Let thread run. */
         /* See S_ithread_run() for more detail. */
-        CLANG_DIAG_IGNORE(-Wthread-safety);
+        CLANG_DIAG_IGNORE_STMT(-Wthread-safety);
         /* warning: releasing mutex 'thread->mutex' that was not held [-Wthread-safety-analysis] */
         MUTEX_UNLOCK(&thread->mutex);
-        CLANG_DIAG_RESTORE;
+        CLANG_DIAG_RESTORE_STMT;
 
         /* XSRETURN(1); - implied */
 
@@ -1374,6 +1394,9 @@ ithread_join(...)
             ptr_table_store(PL_ptr_table, &other_perl->Isv_undef, &PL_sv_undef);
             ptr_table_store(PL_ptr_table, &other_perl->Isv_no, &PL_sv_no);
             ptr_table_store(PL_ptr_table, &other_perl->Isv_yes, &PL_sv_yes);
+#  ifdef PL_sv_zero
+            ptr_table_store(PL_ptr_table, &other_perl->Isv_zero, &PL_sv_zero);
+#  endif
             params = (AV *)sv_dup((SV*)params_copy, clone_params);
             S_ithread_set(aTHX_ current_thread);
             Perl_clone_params_del(clone_params);
@@ -1802,6 +1825,9 @@ ithread_error(...)
             ptr_table_store(PL_ptr_table, &other_perl->Isv_undef, &PL_sv_undef);
             ptr_table_store(PL_ptr_table, &other_perl->Isv_no, &PL_sv_no);
             ptr_table_store(PL_ptr_table, &other_perl->Isv_yes, &PL_sv_yes);
+#  ifdef PL_sv_zero
+            ptr_table_store(PL_ptr_table, &other_perl->Isv_zero, &PL_sv_zero);
+#  endif
             err = sv_dup(thread->err, clone_params);
             S_ithread_set(aTHX_ current_thread);
             Perl_clone_params_del(clone_params);
@@ -1834,7 +1860,6 @@ BOOT:
     SV *my_pool_sv = *hv_fetch(PL_modglobal, MY_POOL_KEY,
                                sizeof(MY_POOL_KEY)-1, TRUE);
     my_pool_t *my_poolp = (my_pool_t*)SvPVX(newSV(sizeof(my_pool_t)-1));
-
     MY_CXT_INIT;
 
     Zero(my_poolp, 1, my_pool_t);

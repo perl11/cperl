@@ -412,6 +412,20 @@ Spelling fixes (Brian Wightman)
 
 [RT #125868] Fix tests for Test::Simple 1.302138
 
+=item L<threads> 2.22_01
+
+Fix Clang macro backward compatibility per patch by Andy Grundman.
+Keep the old better doc.
+Keep our modglobal fix in global destruction from 2.12_01.
+
+Support PL_sv_zero.
+Don't Copy() null pointer
+
+The documentation now better describes the problems that arise when
+returning values from threads, and no longer warns about creating threads
+in C<BEGIN> blocks.
+L<[perl #96538]|https://rt.perl.org/Ticket/Display.html?id=96538>
+
 =item L<Time::HiRes> 1.9758_01
 
 Updated from upstream since 1.9752:
