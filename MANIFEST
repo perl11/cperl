@@ -3639,9 +3639,8 @@ dist/Storable/hints/linux.pl		Hint for Storable for named architecture
 dist/Storable/Makefile.PL		Storable extension
 dist/Storable/README			Storable extension
 dist/Storable/stacksize			compute stack sizes
-dist/Storable/stacksize_in.h		computed stack sizes
-dist/Storable/Storable.pm		Storable extension
 dist/Storable/Storable.xs		Storable extension
+dist/Storable/Storable_pm.PL		Storable extension
 dist/Storable/t/attach.t		Check STORABLE_attach doesn't create objects unnecessarily
 dist/Storable/t/attach_errors.t		Trigger and test STORABLE_attach errors
 dist/Storable/t/attach_singleton.t	Test STORABLE_attach for the Singleton pattern
@@ -3665,6 +3664,7 @@ dist/Storable/t/HAS_ATTACH.pm		For auto-requiring of modules for STORABLE_attach
 dist/Storable/t/HAS_HOOK.pm		For auto-requiring of modules for STORABLE_thaw
 dist/Storable/t/HAS_OVERLOAD.pm		For auto-requiring of mdoules for overload
 dist/Storable/t/huge.t			See how Storable handles huge data
+dist/Storable/t/hugeids.t
 dist/Storable/t/integer.t		See if Storable works
 dist/Storable/t/interwork56.t		Test compatibility kludge for 64bit data under 5.6.x
 dist/Storable/t/just_plain_nasty.t	See if Storable works
@@ -3676,6 +3676,7 @@ dist/Storable/t/make_overload.pl	Make test data for overload.t
 dist/Storable/t/malice.t		See if Storable copes with corrupt files
 dist/Storable/t/overload.t		See if Storable works
 dist/Storable/t/recurse.t		See if Storable works
+dist/Storable/t/regexp.t
 dist/Storable/t/restrict.t		See if Storable works
 dist/Storable/t/retrieve.t		See if Storable works
 dist/Storable/t/robust.t		See if it survives mangled %INC

@@ -177,11 +177,15 @@ esac
 : is Cwd static or dynamic
 static_cwd='define'
 cwd_dep='$(PERL_EXE)'
+storable_limit_dep=''
+storable_type=''
 list_util_dep='$(PERL_EXE)'
 for f in $dynamic_ext; do
    case $f in
        Cwd) static_cwd='undef'; cwd_dep=lib/auto/Cwd/Cwd.$dlext ;;
-       List/Util) list_util_dep=lib/auto/List/Util/Util.$dlext
+       List/Util) list_util_dep=lib/auto/List/Util/Util.$dlext ;;
+       Storable) storable_limit_dep=lib/auto/Storable/Storable.$dlext
+                 storable_type='dynamic' ;;
    esac
 done
 
@@ -222,6 +226,7 @@ $this_target: lib/auto/re/re\$(LIB_EXT)" ;;
 $this_target: lib/auto/List/Util/Util\$(LIB_EXT)" ;;
 	Unicode/Normalize) extra_dep="$extra_dep
 $this_target: uni.data" ;;
+        Storable) storable_type='static' ;;
     esac
 done
 
@@ -640,7 +645,7 @@ lintflags = \
 .c.s:	perl.h config.h
 	`$(CCCMDSRC)` -S $*.c
 
-all: $(FIRSTMAKEFILE) $(MINIPERL_EXE) $(generated_pods) $(private) $(unidatafiles) $(public) $(dynamic_ext) $(nonxs_ext) extras.make $(MANIFEST_SRT)
+all: $(FIRSTMAKEFILE) $(MINIPERL_EXE) $(generated_pods) $(private) $(unidatafiles) $(public) $(dynamic_ext) $(nonxs_ext) extras.make $(MANIFEST_SRT) common_build
 	@echo " ";
 	@echo "	Everything is up to date. Type '$(MAKE) test' to run test suite."
 
@@ -1179,7 +1184,7 @@ esac
 
 $spitshell >>$Makefile <<'!NO!SUBS!'
 
-.PHONY: preplibrary rebuild_storable
+.PHONY: preplibrary common_build
 preplibrary: $(MINIPERL_EXE) $(CONFIGPM) $(PREPLIBRARY_LIBPERL)
 
 $(CONFIGPM_FROM_CONFIG_SH): $(CONFIGPOD)
@@ -1196,16 +1201,6 @@ uni.data: $(MINIPERL_EXE) $(CONFIGPM) lib/unicore/mktables $(nonxs_ext)
 #	Commented out so always runs, mktables looks at far more files than we
 #	can in this makefile to decide if needs to run or not
 #	touch uni.data
-
-!NO!SUBS!
-$spitshell >>$Makefile <<!GROK!THIS!
-
-rebuild_storable: \$(PERL_EXE) $cwd_dep
-	-\$(RUN_PERL) dist/Storable/stacksize --core
-	\$(MAKE) -C dist/Storable PERL_CORE=1
-
-!GROK!THIS!
-$spitshell >>$Makefile <<'!NO!SUBS!'
 
 # $(PERL_EXE) and ext because pod_lib.pl needs Digest::MD5
 # But also this ensures that all extensions are built before we try to scan
@@ -1238,7 +1233,7 @@ extra.pods: $(MINIPERL_EXE)
 	    echo "pod/perl"$$nx".pod" >> extra.pods ; \
 	done
 
-extras.make: $(PERL_EXE) rebuild_storable
+extras.make: $(PERL_EXE)
 	-@test ! -s extras.lst || PATH="`pwd`:${PATH}" PERL5LIB="`pwd`/lib" $(RUN_PERL) -MCPAN -e '@ARGV&&make(@ARGV)' `cat extras.lst`
 
 extras.test: $(PERL_EXE)
@@ -1258,6 +1253,25 @@ no_install no-install: install-notify
 install: install-all
 !NO!SUBS!
 
+if test "$storable_type" != "" ; then
+
+case "$static_cwd" in
+undef) storable_limit_dep="$storable_limit_dep lib/auto/Cwd/Cwd.$dlext" ;;
+esac
+
+$spitshell >>$Makefile <<EOT
+
+dist/Storable/lib/Storable/Limit.pm : \$(PERL_EXE) dist/Storable/stacksize $storable_limit_dep
+	cd dist/Storable ; \$(LDLIBPTH) \$(MAKE) lib/Storable/Limit.pm
+
+lib/Storable/Limit.pm : dist/Storable/lib/Storable/Limit.pm
+	test -d lib/Storable || mkdir lib/Storable
+	cp dist/Storable/lib/Storable/Limit.pm lib/Storable/Limit.pm
+EOT
+
+common_build_deps="$common_build_deps lib/Storable/Limit.pm"
+
+fi
 
 for name in all notify silent strip verbose; do
     flags="--$name";
@@ -1640,14 +1654,14 @@ test_prep_pre: preplibrary utilities $(nonxs_ext)
 case "$targethost" in
 '') $spitshell >>$Makefile <<'!NO!SUBS!'
 test_prep test-prep: test_prep_pre $(MINIPERL_EXE) $(unidatafiles) $(PERL_EXE) \
-	$(dynamic_ext) extras.make $(TEST_PERL_DLL) runtests $(generated_pods)
+	$(dynamic_ext) extras.make $(TEST_PERL_DLL) runtests $(generated_pods) common_build
 	cd t && (rm -f $(PERL_EXE); $(LNS) ../$(PERL_EXE) $(PERL_EXE))
 !NO!SUBS!
     ;;
 *) $spitshell >>$Makefile <<!GROK!THIS!
 test_prep test-prep: test_prep_pre \$(MINIPERL_EXE) \$(unidatafiles) \$(PERL_EXE) \
 	\$(dynamic_ext) extras.make \$(TEST_PERL_DLL) runtests \
-	\$(generated_pods)
+	\$(generated_pods) common_build
 	$to libperl.*
 	$to t/*
 	$to lib/*
@@ -1763,9 +1777,9 @@ esac
 $spitshell >>$Makefile <<'!NO!SUBS!'
 
 # minitest can't depend on lib/Config.pm because that might be where miniperl
-# is crashing.
+# is crashing. ditto for mktables
 minitest_prep:
-	-@test -f lib/Config.pm || $(MAKE) lib/Config.pm $(unidatafiles)
+	-@test -f lib/Config.pm -a -f lib/unicore/Name.pm || $(MAKE) lib/Config.pm $(unidatafiles)
 	@echo " "
 	@echo "You may see some irrelevant test failures if you have been unable"
 	@echo "to build lib/Config.pm, or the Unicode data files."
@@ -1796,6 +1810,17 @@ test_reonly test-reonly: test_prep_reonly
 
 test_porting test-porting: test_prep
 	cd t && $(RUN_PERL) harness porting/*.t ../lib/diagnostics.t
+
+!NO!SUBS!
+
+$spitshell>>$Makefile <<!GROK!THIS!
+
+# intended as a common way to add dependencies to test-prep and all
+common_build: $common_build_deps
+
+!GROK!THIS!
+
+$spitshell >>$Makefile <<'!NO!SUBS!'
 
 # Handy way to run cperlbug -ok without having to install and run the
 # installed cperlbug. We don't re-run the tests here - we trust the user.
@@ -1842,11 +1867,17 @@ distcheck: FORCE
 
 .PHONY: ctags
 
-TAGS: $(c1) $(c2) $(c3) $(c4) $(c5) $(h)
-	etags $(c1) $(c2) $(c3) $(c4) $(c5) $(h)
+TAGS: $(c1) $(c2) $(c3) $(c4) $(c5) $(h) $(inc)
+	etags $(c1) $(c2) $(c3) $(c4) $(c5) $(h) $(inc) mg_*.h
 
-FULLTAGS: $(c1) $(c2) $(c3) $(c4) $(c5) $(h)
-	etags $(c1) $(c2) $(c3) $(c4) $(c5) $(h) `find cpan dist ext -type f -name \*.[ch]`
+FULLTAGS: $(c1) $(c2) $(c3) $(c4) $(c5) $(h) $(inc)
+	etags $(c1) $(c2) $(c3) $(c4) $(c5) $(h) $(inc) mg_*.h \
+	      `find cpan dist ext -type f -name \*.[ch]`
+
+GTAGS: $(c1) $(c2) $(c3) $(c4) $(c5) $(h) $(inc)
+	echo $(c1) $(c2) $(c3) $(c4) $(c5) $(h) $(inc) mg_*.h | \
+		tr ' ' $(TRNL) > gtags.files
+	gtags -v --file gtags.files
 
 ctags:
 	ctags -f Tags -N --totals --languages=c --langmap=c:+.h --exclude=opmini.c --exclude=perlmini.c *.c *.h

@@ -1272,13 +1272,12 @@ Extensions_clean:
 Extensions_realclean: 
 	-if exist $(MINIPERL) $(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(MAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --all --target=realclean
 
-PostExt: rebuild_storable
+PostExt: ..\lib\Storable\Limit.pm
 
-rebuild_storable: $(PERLEXE)
-	$(PERLEXE) -I..\lib -I. ..\dist\Storable\stacksize --core
-	cd ..\dist\Storable
-	$(MAKE) PERL_CORE=1
-	cd ..\..\win32
+..\lib\Storable\Limit.pm: $(PERLEXE) Extensions
+	cd ..\dist\Storable && $(MAKE) lib\Storable\Limit.pm
+	if not exist ..\lib\Storable mkdir ..\lib\Storable
+	copy ..\dist\Storable\lib\Storable\Limit.pm ..\lib\Storable\Limit.pm
 
 #-------------------------------------------------------------------------------
 
@@ -1334,7 +1333,7 @@ utils: $(PERLEXE) ..\utils\Makefile
 	copy ..\pod\perldelta.pod ..\pod\perl5263delta.pod
 	copy ..\pod\perlcdelta.pod ..\pod\perl5264cdelta.pod
 	cd ..\win32
-	$(PERLEXE) $(PL2BAT) $(UTILS)
+	$(MINIPERL) -I..\lib $(PL2BAT) $(UTILS)
 	$(MINIPERL) -I..\lib ..\autodoc.pl ..
 	$(MINIPERL) -I..\lib ..\pod\perlmodlib.PL -q ..
 
@@ -1361,6 +1360,7 @@ distclean: realclean
 	-del /f $(LIBDIR)\Time\HiRes.pm
 	-del /f $(LIBDIR)\Unicode\Normalize.pm
 	-del /f $(LIBDIR)\Math\BigInt\FastCalc.pm
+	-del /f $(LIBDIR)\Storable.pm $(LIBDIR)\Storable\Limit.pm
 	-del /f $(LIBDIR)\Win32.pm
 	-del /f $(LIBDIR)\Win32CORE.pm
 	-del /f $(LIBDIR)\Win32API\File.pm

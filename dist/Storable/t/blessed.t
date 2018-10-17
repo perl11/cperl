@@ -6,6 +6,19 @@
 #  in the README file that comes with the distribution.
 #
 
+BEGIN {
+    # Do this as the very first thing, in order to avoid problems with the
+    # PADTMP flag on pre-5.19.3 threaded Perls.  On those Perls, compiling
+    # code that contains a constant-folded canonical truth value breaks
+    # the ability to take a reference to that canonical truth value later.
+    $::false = 0;
+    %::immortals = (
+	'u' => \undef,
+	'y' => \!$::false,
+	'n' => \!!$::false,
+    );
+}
+
 sub BEGIN {
     if ($ENV{PERL_CORE}) {
         chdir 'dist/Storable' if -d 'dist/Storable';
@@ -23,23 +36,16 @@ sub BEGIN {
 
 use Test::More;
 
-use Storable qw(freeze thaw store retrieve);
+use Storable qw(freeze thaw store retrieve fd_retrieve);
 
-%::immortals =
-    ('u' => \undef,
-     'y' => \(!!1),  # yes
-     'n' => \(!!0)   # no
-);
-
-
-%::weird_refs = 
+%::weird_refs =
   (REF            => \(my $aref    = []),
    VSTRING        => \(my $vstring = v1.2.3),
    'long VSTRING' => \(my $lvstring = eval "v" . 0 x 300),
    LVALUE         => \(my $substr  = substr((my $str = "foo"), 0, 3)));
 
-my $test = 12;
-my $tests = $test + 23 + (2 * 6 * keys %::immortals) + (3 * keys %::weird_refs);
+my $test = 13;
+my $tests = $test + 41 + (2 * 6 * keys %::immortals) + (3 * keys %::weird_refs);
 plan(tests => $tests);
 
 package SHORT_NAME;
@@ -146,7 +152,12 @@ sub STORABLE_thaw {
     foreach (@refs) {
         $fail++ if $_ != $expect;
     }
-    main::is($fail, undef);
+    TODO: {
+      # ref sv_true is not always sv_true, at least in older threaded perls.
+      local $TODO = "Threaded 5.10/12 does not preserve sv_true ref identity"
+        if $fail and $] < 5.013 and $] > 5.009 and $what eq 'y';
+      main::is($fail, undef, "$x thaw"); # (@refs) == $expect
+    }
 }
 
 package main;
@@ -164,9 +175,9 @@ foreach $count (1..3) {
     my $f = freeze ($i);
   TODO: {
       # ref sv_true is not always sv_true, at least in older threaded perls.
-      local $TODO = "Some 5.10/12 do not preserve ref identity with freeze \\(1 == 1)"
-        if !defined($f) and $] < 5.013 and $] > 5.009 and $immortal eq 'y';
-      isnt($f, undef);
+      local $TODO = "Threaded 5.10/12 do not preserve sv_true ref identity"
+        if !defined($f) and $] < 5.013 and $] > 5.009 and $immortal =~ /[yu]/;
+      isnt($f, undef, "freeze $immortal x $count");
     }
     my $t = thaw $f;
     pass("thaw didn't crash");
@@ -315,4 +326,96 @@ is(ref $t, 'STRESS_THE_STACK');
             is_deeply($thawn, $obj, "get the right value back");
         }
     }
+}
+
+{
+    # [perl #118551]
+    {
+        package RT118551;
+
+        sub new {
+            my $class = shift;
+            my $string = shift;
+            die 'Bad data' unless defined $string;
+            my $self = { string => $string };
+            return bless $self, $class;
+        }
+
+        sub STORABLE_freeze {
+            my $self = shift;
+            my $cloning = shift;
+            return if $cloning;
+            return ($self->{string});
+        }
+
+        sub STORABLE_attach {
+            my $class = shift;
+            my $cloning = shift;
+            my $string = shift;
+            return $class->new($string);
+        }
+    }
+
+    my $x = [ RT118551->new('a'), RT118551->new('') ];
+
+    $y = freeze($x);
+
+    ok(eval {thaw($y)}, "empty serialized") or diag $@; # <-- dies here with "Bad data"
+}
+
+{
+    {
+        package FreezeHookDies;
+        sub STORABLE_freeze {
+            die ${$_[0]}
+        }
+
+	package ThawHookDies;
+	sub STORABLE_freeze {
+	    my ($self, $cloning) = @_;
+	    my $tmp = $$self;
+	    return "a", \$tmp;
+	}
+	sub STORABLE_thaw {
+	    my ($self, $cloning, $str, $obj) = @_;
+	    die $$obj;
+	}
+    }
+    my $x = bless \(my $tmpx = "Foo"), "FreezeHookDies";
+    my $y = bless \(my $tmpy = []), "FreezeHookDies";
+
+    ok(!eval { store($x, "store$$"); 1 }, "store of hook which throws no NL died");
+    ok(!eval { store($y, "store$$"); 1 }, "store of hook which throws ref died");
+
+    ok(!eval { freeze($x); 1 }, "freeze of hook which throws no NL died");
+    ok(!eval { freeze($y); 1 }, "freeze of hook which throws ref died");
+
+    ok(!eval { dclone($x); 1 }, "dclone of hook which throws no NL died");
+    ok(!eval { dclone($y); 1 }, "dclone of hook which throws ref died");
+
+    my $ostr = bless \(my $tmpstr = "Foo"), "ThawHookDies";
+    my $oref = bless \(my $tmpref = []), "ThawHookDies";
+    ok(store($ostr, "store$$"), "save throw Foo on thaw");
+    ok(!eval { retrieve("store$$"); 1 }, "retrieve of throw Foo on thaw died");
+    open FH, "<", "store$$" or die;
+    binmode FH;
+    ok(!eval { fd_retrieve(*FH); 1 }, "fd_retrieve of throw Foo on thaw died");
+    ok(!ref $@, "right thing thrown");
+    close FH;
+    ok(store($oref, "store$$"), "save throw ref on thaw");
+    ok(!eval { retrieve("store$$"); 1 }, "retrieve of throw ref on thaw died");
+    open FH, "<", "store$$" or die;
+    binmode FH;
+    ok(!eval { fd_retrieve(*FH); 1 }, "fd_retrieve of throw [] on thaw died");
+    ok(ref $@, "right thing thrown");
+    close FH;
+
+    my $strdata = freeze($ostr);
+    ok(!eval { thaw($strdata); 1 }, "thaw of throw Foo on thaw died");
+    ok(!ref $@, "and a string thrown");
+    my $refdata = freeze($oref);
+    ok(!eval { thaw($refdata); 1 }, "thaw of throw [] on thaw died");
+    ok(ref $@, "and a ref thrown");
+
+    unlink("store$$");
 }

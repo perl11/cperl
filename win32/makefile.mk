@@ -1165,7 +1165,7 @@ CFG_VARS	=					\
 # Top targets
 #
 
-all : CHECKDMAKE rebasePE Extensions_nonxs $(PERLSTATIC)
+all : CHECKDMAKE rebasePE Extensions_nonxs $(PERLSTATIC) PostExt
 
 ..\regcomp$(o) : ..\regnodes.h ..\regcharclass.h
 
@@ -1508,7 +1508,7 @@ MakePPPort : $(HAVEMINIPERL) $(CONFIGPM)
 
 # also known as $(HAVE_COREDIR)
 .\.coreheaders : $(CORE_H)
-	$(XCOPY) *.h $(COREDIR)\*.* && $(RCOPY) include $(COREDIR)\*.* && $(XCOPY) ..\*.h $(COREDIR)\*.*
+	$(XCOPY) /k *.h $(COREDIR)\*.* && $(RCOPY) /k include $(COREDIR)\*.* && $(XCOPY) /k ..\*.h $(COREDIR)\*.*
 	rem. > $@
 
 perlmain$(o) : runperl.c $(CONFIGPM)
@@ -1545,25 +1545,33 @@ $(PERLEXESTATIC): $(PERLSTATICLIB) $(CONFIGPM) $(PERLEXEST_OBJ) $(PERLEXE_RES)
 # DynaLoader.pm, so this will have to do
 
 #most of deps of this target are in DYNALOADER and therefore omitted here
-Extensions : $(PERLDEP) $(DYNALOADER) $(GLOBEXE) MakePPPort
+Extensions : $(PERLDEP) $(DYNALOADER) Extension_lib $(GLOBEXE) MakePPPort
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic !Unicode/Normalize
 
-Extensions_normalize : $(PERLDEP) $(DYNALOADER) $(GLOBEXE) $(UNIDATAFILES)
+Extensions_normalize : $(PERLDEP) $(DYNALOADER) Extension_lib $(GLOBEXE) MakePPPort
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic +Unicode/Normalize
 
 Extensions_reonly : $(PERLDEP) $(DYNALOADER)
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic +re
 
-Extensions_static : ..\make_ext.pl list_static_libs.pl $(CONFIGPM) $(GLOBEXE) $(HAVE_COREDIR) MakePPPort
+Extensions_static_general : ..\make_ext.pl $(CONFIGPM) Extension_lib $(GLOBEXE) $(HAVE_COREDIR) MakePPPort
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --static
+
+Extensions_static : list_static_libs.pl Extensions_static_general
 	$(MINIPERL) -I..\lib list_static_libs.pl > Extensions_static
 
-Extensions_nonxs : ..\make_ext.pl ..\pod\perlfunc.pod $(CONFIGPM) $(GLOBEXE)
-	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --nonxs !libs
+Extensions_nonxs : ..\make_ext.pl ..\pod\perlfunc.pod $(CONFIGPM) Extension_exporter $(GLOBEXE)
+	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --nonxs !lib
+
+Extension_lib : ..\make_ext.pl $(CONFIGPM)
+	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --nonxs +lib
+
+Extension_exporter : Extension_lib
+	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(DISTDIR) --nonxs +Exporter
 
 #lib must be built, it can't be buildcustomize.pl-ed, and is required for XS building
-$(DYNALOADER) : ..\make_ext.pl $(CONFIGPM) $(HAVE_COREDIR)
-	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(EXTDIR) --dir=$(DISTDIR) --dynaloader lib
+$(DYNALOADER) : ..\make_ext.pl $(CONFIGPM) $(HAVE_COREDIR) Extensions_nonxs
+	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(EXTDIR) --dir=$(DISTDIR) --dynaloader
 
 Extensions_clean :
 	-if exist $(MINIPERL) $(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --all --target=clean
@@ -1575,17 +1583,22 @@ Extensions_realclean :
 # be running in parallel like UNIDATAFILES, this target a placeholder for the
 # future
 .IF "$(BUILD_STATIC)"=="define"
-rebasePE : Extensions $(PERLDLL) Extensions_normalize $(PERLEXE) PostExt $(PERLEXESTATIC)
+rebasePE : Extensions_normalize Extensions $(PERLDLL) $(PERLEXE) $(PERLEXESTATIC)
 .ELSE
-rebasePE : Extensions $(PERLDLL) Extensions_normalize $(PERLEXE) PostExt
+rebasePE : Extensions $(PERLDLL) Extensions_normalize $(PERLEXE)
 .ENDIF
 	$(NOOP)
 
-PostExt: rebuild_storable
+PostExt : ..\lib\Storable\Limit.pm
+	$(NOOP)
 
-rebuild_storable: $(PERLEXE)
-	$(PERLEXE) -I..\lib -I. ..\dist\Storable\stacksize --core
-	cd ..\dist\Storable && $(MAKE) PERL_CORE=1
+# we need the exe, perl(ver).dll, and the Exporter, Storable, Win32 extensions
+# rebasePE most of that, including adjustment for static builds, so we
+# just need non-xs extensions
+..\lib\Storable\Limit.pm : rebasePE Extensions_nonxs
+	cd ..\dist\Storable && $(MAKE) lib\Storable\Limit.pm
+	if not exist ..\lib\Storable mkdir ..\lib\Storable
+	copy ..\dist\Storable\lib\Storable\Limit.pm ..\lib\Storable\Limit.pm
 
 #-------------------------------------------------------------------------------
 
@@ -1659,11 +1672,11 @@ distclean: realclean
 	-del /f $(LIBDIR)\SDBM_File.pm $(LIBDIR)\Socket.pm $(LIBDIR)\POSIX.pm
 	-del /f $(LIBDIR)\B.pm $(LIBDIR)\O.pm $(LIBDIR)\re.pm
 	-del /f $(LIBDIR)\File\Glob.pm
-	-del /f $(LIBDIR)\Storable.pm
 	-del /f $(LIBDIR)\Sys\Hostname.pm
 	-del /f $(LIBDIR)\Time\HiRes.pm
 	-del /f $(LIBDIR)\Unicode\Normalize.pm
 	-del /f $(LIBDIR)\Math\BigInt\FastCalc.pm
+	-del /f $(LIBDIR)\Storable.pm $(LIBDIR)\Storable\Limit.pm
 	-del /f $(LIBDIR)\Win32.pm
 	-del /f $(LIBDIR)\Win32CORE.pm
 	-del /f $(LIBDIR)\Win32API\File.pm

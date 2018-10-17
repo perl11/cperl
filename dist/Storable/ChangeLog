@@ -1,3 +1,84 @@
+2018-04-27 20:40:00 xsawyerx
+    version 3.11
+        * Fix Strawberry Perl build failures.
+
+2018-04-21 22:00:00 xsawyerx
+    Version 3.10
+        * Fix binary artifacts from distribution.
+
+2018-04-21 16:49:00 xsawyerx
+    Version 3.09
+        * Fix "provides" in metadata (META.yml/META.json) to use the Storable
+          template instead of a small other file (which also didn't exist).
+
+2018-04-21 11:23:00 xsawyerx
+    Version 3.08
+        * (perl #132849) try to disable core files when deliberatly segfaulting.
+        * (perl #127743) don't probe Storable limits so much.
+        * (perl #132893) don't probe for Storable recursion limits on old Win32.
+        * (perl #132870) workaround VC2017 compiler bug.
+        * (perl #127743) re-work for debugging builds with MSVC.
+        * (perl #133039) dont build a Storable.so/.dll with a static perl build.
+
+2018-02-07 15:08:00 tonyc
+    Version 3.06
+
+        * support large object ids.  The code in theory supported arrays
+        with more than 2**32 elements, but references to the elements
+        emitted at the end of the array with be retrieved as references to
+        the wrong elements.
+        * 32-bit object ids over 2**31-1 weren't correctly handled.
+        * hook object id generation now supports 64-bit ids where needed
+        * writing 64-bit lengths in network order now works
+        * reading 64-bit lengths in network order now reads the components
+        in the correct order.
+        * retrieving large object tags are now only handled on 64-bit
+        platforms, large object tags should only be emitted for objects
+        that are too large for the 32-bit address space, so it was only
+        wasted code.
+        * reading 32-bit lengths for LSCALAR and LUTF8STR as unsigned
+        (perl #131990)
+        * reading flagged large object hashes didn't read the flags
+        * treat the 32-bit size of hook data as unsigned, values over 2GB
+        were treated as large (close to 2**64) parameters to NEWSV().
+        (perl #131999)
+        * added support for hook data over 4GB in size
+        * zero length data receievd from STORABLE_freeze() no longer
+        results in an invalid SV being passed to STORABLE_thaw/_attach()
+        (perl #118551)
+        * where practical, padding is now cleared when emitting a long
+        double (perl #131136)
+        * cache the value of $Storable::DEBUGME (since cperl enabled
+        Storable TRACEME builds for all -DDEBUGGING builds)
+        * no longer discard exceptions thrown by
+        STORABLE_freeze/_thaw/attach() (perl #25933)
+        * fix dependencies used to build Storable.pm from __Storable__.pm
+        * add experimental support for freezing/thawing regular
+        expressions (perl #50608)
+        * re-work recursion limiting to store the limit in a perl variable
+        instead of baked into Storable.$so.  This allows static Storable
+        builds to work, and avoids the kind of circular reference on
+        Storable.$so.
+
+2017-11-10 13:53:00 rurban
+    Version 3.05_17
+
+        * t/blessed.t: Better fix for pre-5.19.2 threaded perls
+        from p5p.
+
+2017-10-21 17:55:53 rurban
+    Version 3.05_16
+
+        * stacksize: larger stack reserve. Unified to 32 across all platforms.
+
+2017-10-21 10:08:53 rurban
+    Version 3.05_15
+
+        * t/blessed.t: TODO 5.10/5.12 threaded ref sv_true identity,
+        ref sv_true is not sv_true with those old perls.
+        * stacksize: low values only for Windows with unreliable SEGV signals,
+        back to higher depths with all others.
+
 2017-10-15 13:57:00 rurban
     Version 3.05_14
 

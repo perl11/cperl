@@ -364,6 +364,20 @@ Reimplement croak_sv (securely) for older perls (RT124063)
 Recognise %Config key for HAS_GAI_STRERROR (RT124044)
 Add TCP_USER_TIMEOUT (RT123253)
 
+=item L<Storable>  3.12_02
+
+Enable >2GB AvFILL check on store_hook (64bit).
+
+Too many references returned by STORABLE_freeze.
+It wrapped around previously. Fixes Coverity CID #187854.
+This is a B<security issue> on 64bit cperl and perl5, as both allow
+SSize_t arrays.
+
+Move __Storable__.pm into Storable_pm.PL
+L<[cperl #374]|https://github.com/perl11/cperl/issues/374>
+
+Merge Makefile recipes from blead.
+
 =item L<version> 0.9924_02
 
 more test fixes for 5.6
