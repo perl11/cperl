@@ -352,7 +352,7 @@ define?*)
 	$spitshell >>$Makefile <<!GROK!THIS!
 # Macros to invoke a copy of our fully operational perl during the build.
 PERL_EXE = perl\$(EXE_EXT)
-RUN_PERL = \$(LDLIBPTH) \$(RUN) $perl\$(EXE_EXT) -I.
+RUN_PERL = \$(LDLIBPTH) \$(RUN) $perl\$(EXE_EXT) -Ilib -I.
 !GROK!THIS!
 	;;
 *)
@@ -1277,10 +1277,10 @@ esac
 $spitshell >>$Makefile <<EOT
 
 dist/Storable/lib/Storable/Limit.pm : \$(PERL_EXE) dist/Storable/stacksize $storable_limit_dep
-	cd dist/Storable ; \$(LDLIBPTH) \$(MAKE) lib/Storable/Limit.pm
+	\$(LDLIBPTH) \$(RUN_PERL) dist/Storable/stacksize --core
 
 lib/Storable/Limit.pm : dist/Storable/lib/Storable/Limit.pm
-	test -d lib/Storable || mkdir lib/Storable
+	test -d lib/Storable || mkdir -p lib/Storable
 	cp dist/Storable/lib/Storable/Limit.pm lib/Storable/Limit.pm
 EOT
 
