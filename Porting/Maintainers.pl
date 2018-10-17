@@ -1162,7 +1162,7 @@ use File::Glob qw(:case);
     },
 
     'perlfaq' => {
-        'DISTRIBUTION' => 'LLAP/perlfaq-5.021011.tar.gz',
+        'DISTRIBUTION' => 'LLAP/perlfaq-5.20180915.tar.gz',
         'FILES'        => q[cpan/perlfaq],
         'EXCLUDED'     => [
             qw( inc/CreateQuestionList.pm

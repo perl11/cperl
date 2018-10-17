@@ -350,6 +350,8 @@ Fixes for ldlibpthname from 2.71
 
 use vars => our.
 
+=item L<perlfaq>  5.20180915
+
 =item L<Pod::Man>  4.11
 
 Various upstream changes,

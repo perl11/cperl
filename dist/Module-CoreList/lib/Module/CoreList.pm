@@ -17771,6 +17771,7 @@ our %delta :const = (
             'Math::BigRat'          => '0.2614',
             'Net::Ping'             => '2.70',
             'parent'                => '0.237',
+            'perlfaq'               => '5.20180915',
             'Pod::Man'              => '4.11',
             'Pod::ParseLink'        => '4.11',
             'Pod::Text'             => '4.11',
