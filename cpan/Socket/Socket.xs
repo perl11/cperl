@@ -62,7 +62,6 @@
 #  define GCC_DIAG_RESTORE
 #endif
 
-
 #ifdef WIN32
 
 /* VC 6 with its original headers doesn't know about sockaddr_storage, VC 2003 does*/
@@ -199,7 +198,7 @@ NETINET_DEFINE_CONTEXT
 #endif /* !SvPVx_nolen */
 
 #ifndef croak_sv
-# define croak_sv(sv)	croak(SvPVx_nolen(sv))
+# define croak_sv(sv)	croak("%s", SvPVx_nolen(sv))
 #endif
 
 #ifndef hv_stores
@@ -485,7 +484,7 @@ not_here(const char *s)
 
 #include "const-c.inc"
 
-#if defined(HAS_GETADDRINFO) && !defined(I_NETDB)
+#if defined(HAS_GETADDRINFO) && !defined(HAS_GAI_STRERROR)
 static const char *gai_strerror(int err)
 {
   switch (err)
@@ -793,7 +792,8 @@ inet_ntoa(ip_address_sv)
 		    (ip_address[2] & 0xFF) <<  8 |
 		    (ip_address[3] & 0xFF);
 	else
-		croak("Bad arg length for %s, length is %" UVuf ", should be %" UVuf,
+		croak("Bad arg length for %s, length is %" UVuf
+                      ", should be %" UVuf,
 		      "Socket::inet_ntoa", (UV)addrlen, (UV)sizeof(addr));
         GCC_DIAG_RESTORE
 	/* We could use inet_ntoa() but that is broken
@@ -815,7 +815,8 @@ sockaddr_family(sockaddr)
 	char *sockaddr_pv = SvPVbyte(sockaddr, sockaddr_len);
 	CODE:
 	if (sockaddr_len < STRUCT_OFFSET(struct sockaddr, sa_data))
-		croak("Bad arg length for %s, length is %" UVuf ", should be at least %" UVuf,
+		croak("Bad arg length for %s, length is %" UVuf
+                      ", should be at least %" UVuf,
 		      "Socket::sockaddr_family", (UV)sockaddr_len,
 		      (UV)STRUCT_OFFSET(struct sockaddr, sa_data));
 	ST(0) = sv_2mortal(newSViv(((struct sockaddr*)sockaddr_pv)->sa_family));
@@ -838,8 +839,9 @@ pack_sockaddr_un(pathname)
 	sun_ad.sun_family = AF_UNIX;
 	pathname_pv = SvPV(pathname,len);
 	if (len > sizeof(sun_ad.sun_path)) {
-	    warn("Path length (%d) is longer than maximum supported length"
-	         " (%d) and will be truncated", (int)len, (int)sizeof(sun_ad.sun_path));
+	    warn("Path length (%" UVuf ") is longer than maximum supported length"
+	         " (%" UVuf ") and will be truncated",
+	         (UV)len, (UV)sizeof(sun_ad.sun_path));
 	    len = sizeof(sun_ad.sun_path);
 	}
 #  ifdef OS2	/* Name should start with \socket\ and contain backslashes! */
@@ -914,12 +916,14 @@ unpack_sockaddr_un(sun_sv)
 #     ifdef HAS_SOCKADDR_SA_LEN
 	/* In this case, sun_len must be checked */
 	if (sockaddrlen != addr.sun_len)
-		croak("Invalid arg sun_len field for %s, length is %" UVuf ", but sun_len is %" UVuf,
+		croak("Invalid arg sun_len field for %s, length is %" UVuf
+                      ", but sun_len is %" UVuf,
 		      "Socket::unpack_sockaddr_un", (UV)sockaddrlen, (UV)addr.sun_len);
 #     endif
 #   else
 	if (sockaddrlen != sizeof(addr))
-		croak("Bad arg length for %s, length is %" UVuf ", should be %" UVuf,
+		croak("Bad arg length for %s, length is %" UVuf
+                      ", should be %" UVuf,
 		      "Socket::unpack_sockaddr_un", (UV)sockaddrlen, (UV)sizeof(addr));
 	Copy(sun_ad, &addr, sizeof(addr), char);
 #   endif
@@ -979,7 +983,8 @@ pack_sockaddr_in(port_sv, ip_address_sv)
 		    (unsigned int)(ip_address[2] & 0xFF) <<  8 |
 		    (unsigned int)(ip_address[3] & 0xFF);
 	else
-		croak("Bad arg length for %s, length is %" UVuf ", should be %" UVuf,
+		croak("Bad arg length for %s, length is %" UVuf
+                      ", should be %" UVuf,
 		      "Socket::pack_sockaddr_in",
 		      (UV)addrlen, (UV)sizeof(addr));
         GCC_DIAG_RESTORE
@@ -1006,7 +1011,8 @@ unpack_sockaddr_in(sin_sv)
 	    croak("Undefined address for %s", "Socket::unpack_sockaddr_in");
 	sin = SvPVbyte(sin_sv,sockaddrlen);
 	if (sockaddrlen != sizeof(addr)) {
-	    croak("Bad arg length for %s, length is %" UVuf ", should be %" UVuf,
+	    croak("Bad arg length for %s, length is %" UVuf
+                  ", should be %" UVuf,
 		  "Socket::unpack_sockaddr_in", (UV)sockaddrlen, (UV)sizeof(addr));
 	}
 	Copy(sin, &addr, sizeof(addr), char);
@@ -1047,7 +1053,8 @@ pack_sockaddr_in6(port_sv, sin6_addr, scope_id=0, flowinfo=0)
 		croak("Wide character in %s", "Socket::pack_sockaddr_in6");
 	addrbytes = SvPVbyte(sin6_addr, addrlen);
 	if (addrlen != sizeof(sin6.sin6_addr))
-		croak("Bad arg length %s, length is %" UVuf ", should be %" UVuf,
+		croak("Bad arg length %s, length is %" UVuf
+                      ", should be %" UVuf,
 		      "Socket::pack_sockaddr_in6", (UV)addrlen, (UV)sizeof(sin6.sin6_addr));
 	Zero(&sin6, sizeof(sin6), char);
 	sin6.sin6_family = AF_INET6;
@@ -1086,7 +1093,8 @@ unpack_sockaddr_in6(sin6_sv)
 		croak("Undefined address for %s", "Socket::unpack_sockaddr_in6");
 	addrbytes = SvPVbyte(sin6_sv, addrlen);
 	if (addrlen != sizeof(sin6))
-		croak("Bad arg length for %s, length is %" UVuf ", should be %" UVuf,
+		croak("Bad arg length for %s, length is %" UVuf
+                      ", should be %" UVuf,
 		      "Socket::unpack_sockaddr_in6", (UV)addrlen, (UV)sizeof(sin6));
 	Copy(addrbytes, &sin6, sizeof(sin6), char);
 	if (sin6.sin6_family != AF_INET6)
@@ -1233,7 +1241,8 @@ pack_ip_mreq(multiaddr, interface=&PL_sv_undef)
 		croak("Wide character in %s", "Socket::pack_ip_mreq");
 	multiaddrbytes = SvPVbyte(multiaddr, len);
 	if (len != sizeof(mreq.imr_multiaddr))
-		croak("Bad arg length %s, length is %" UVuf ", should be %" UVuf,
+		croak("Bad arg length %s, length is %" UVuf
+                      ", should be %" UVuf,
 		      "Socket::pack_ip_mreq", (UV)len, (UV)sizeof(mreq.imr_multiaddr));
 	Zero(&mreq, sizeof(mreq), char);
 	Copy(multiaddrbytes, &mreq.imr_multiaddr, sizeof(mreq.imr_multiaddr), char);
@@ -1242,7 +1251,8 @@ pack_ip_mreq(multiaddr, interface=&PL_sv_undef)
 			croak("Wide character in %s", "Socket::pack_ip_mreq");
 		interfacebytes = SvPVbyte(interface, len);
 		if (len != sizeof(mreq.imr_interface))
-			croak("Bad arg length %s, length is %" UVuf ", should be %" UVuf,
+			croak("Bad arg length %s, length is %" UVuf
+                              ", should be %" UVuf,
 			      "Socket::pack_ip_mreq", (UV)len, (UV)sizeof(mreq.imr_interface));
 		Copy(interfacebytes, &mreq.imr_interface, sizeof(mreq.imr_interface), char);
 	}
@@ -1264,7 +1274,8 @@ unpack_ip_mreq(mreq_sv)
 	STRLEN mreqlen;
 	char * mreqbytes = SvPVbyte(mreq_sv, mreqlen);
 	if (mreqlen != sizeof(mreq))
-		croak("Bad arg length for %s, length is %" UVuf ", should be %" UVuf,
+		croak("Bad arg length for %s, length is %" UVuf
+                      ", should be %" UVuf,
 		      "Socket::unpack_ip_mreq", (UV)mreqlen, (UV)sizeof(mreq));
 	Copy(mreqbytes, &mreq, sizeof(mreq), char);
 	EXTEND(SP, 2);
@@ -1292,12 +1303,14 @@ pack_ip_mreq_source(multiaddr, source, interface=&PL_sv_undef)
 		croak("Wide character in %s", "Socket::pack_ip_mreq_source");
 	multiaddrbytes = SvPVbyte(multiaddr, len);
 	if (len != sizeof(mreq.imr_multiaddr))
-		croak("Bad arg length %s, length is %" UVuf ", should be %" UVuf,
+		croak("Bad arg length %s, length is %" UVuf
+                      ", should be %" UVuf,
 		      "Socket::pack_ip_mreq", (UV)len, (UV)sizeof(mreq.imr_multiaddr));
 	if (DO_UTF8(source) && !sv_utf8_downgrade(source, 1))
 		croak("Wide character in %s", "Socket::pack_ip_mreq_source");
 	if (len != sizeof(mreq.imr_sourceaddr))
-		croak("Bad arg length %s, length is %" UVuf ", should be %" UVuf,
+		croak("Bad arg length %s, length is %" UVuf
+                      ", should be %" UVuf,
 		      "Socket::pack_ip_mreq", (UV)len, (UV)sizeof(mreq.imr_sourceaddr));
 	sourcebytes = SvPVbyte(source, len);
 	Zero(&mreq, sizeof(mreq), char);
@@ -1308,7 +1321,8 @@ pack_ip_mreq_source(multiaddr, source, interface=&PL_sv_undef)
 			croak("Wide character in %s", "Socket::pack_ip_mreq");
 		interfacebytes = SvPVbyte(interface, len);
 		if (len != sizeof(mreq.imr_interface))
-			croak("Bad arg length %s, length is %" UVuf ", should be %" UVuf,
+			croak("Bad arg length %s, length is %" UVuf
+                              ", should be %" UVuf,
 			      "Socket::pack_ip_mreq", (UV)len, (UV)sizeof(mreq.imr_interface));
 		Copy(interfacebytes, &mreq.imr_interface, sizeof(mreq.imr_interface), char);
 	}
@@ -1332,7 +1346,8 @@ unpack_ip_mreq_source(mreq_sv)
 	STRLEN mreqlen;
 	char * mreqbytes = SvPVbyte(mreq_sv, mreqlen);
 	if (mreqlen != sizeof(mreq))
-		croak("Bad arg length for %s, length is %" UVuf ", should be %" UVuf,
+		croak("Bad arg length for %s, length is %" UVuf
+                      ", should be %" UVuf,
 		      "Socket::unpack_ip_mreq_source", (UV)mreqlen, (UV)sizeof(mreq));
 	Copy(mreqbytes, &mreq, sizeof(mreq), char);
 	EXTEND(SP, 3);
@@ -1359,7 +1374,8 @@ pack_ipv6_mreq(multiaddr, ifindex)
 		croak("Wide character in %s", "Socket::pack_ipv6_mreq");
 	multiaddrbytes = SvPVbyte(multiaddr, len);
 	if (len != sizeof(mreq.ipv6mr_multiaddr))
-		croak("Bad arg length %s, length is %" UVuf ", should be %" UVuf,
+		croak("Bad arg length %s, length is %" UVuf
+                      ", should be %" UVuf,
 		      "Socket::pack_ipv6_mreq", (UV)len, (UV)sizeof(mreq.ipv6mr_multiaddr));
 	Zero(&mreq, sizeof(mreq), char);
 	Copy(multiaddrbytes, &mreq.ipv6mr_multiaddr, sizeof(mreq.ipv6mr_multiaddr), char);
@@ -1382,7 +1398,8 @@ unpack_ipv6_mreq(mreq_sv)
 	STRLEN mreqlen;
 	char * mreqbytes = SvPVbyte(mreq_sv, mreqlen);
 	if (mreqlen != sizeof(mreq))
-		croak("Bad arg length for %s, length is %" UVuf ", should be %" UVuf,
+		croak("Bad arg length for %s, length is %" UVuf
+                      ", should be %" UVuf,
 		      "Socket::unpack_ipv6_mreq", (UV)mreqlen, (UV)sizeof(mreq));
 	Copy(mreqbytes, &mreq, sizeof(mreq), char);
 	EXTEND(SP, 2);

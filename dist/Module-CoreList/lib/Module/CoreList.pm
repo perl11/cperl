@@ -17778,6 +17778,7 @@ our %delta :const = (
             'List::Util::XS'        => '1.50_11',
             'Scalar::Util'          => '1.50_11',
             'Sub::Util'             => '1.50_11',
+            'Socket'                => '2.027_04',
         },
         removed => {
         }

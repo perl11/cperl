@@ -358,6 +358,12 @@ honor C<PERL_NO_QUOTE_PKGSEPERATOR>
 merged C<%DB::sub> tests
 merge with upstream C<%DB::sub> support (main:: or not, utf8)
 
+=item L<Socket>  2.027_04
+
+Reimplement croak_sv (securely) for older perls (RT124063)
+Recognise %Config key for HAS_GAI_STRERROR (RT124044)
+Add TCP_USER_TIMEOUT (RT123253)
+
 =item L<version> 0.9924_02
 
 more test fixes for 5.6
