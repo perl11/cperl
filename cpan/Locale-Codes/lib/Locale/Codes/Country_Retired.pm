@@ -3,7 +3,7 @@ Locale::Codes::Country_Retired;
 
 # This file was automatically generated.  Any changes to this file will
 # be lost the next time 'deprecate_codes' is run.
-#    Generated on: Fri Nov 17 10:39:14 EST 2017
+#    Generated on: Fri Aug 31 12:16:03 EDT 2018
 
 use strict;
 require 5.006;
@@ -11,7 +11,7 @@ use warnings;
 use utf8;
 
 our($VERSION);
-$VERSION='3.55';
+$VERSION='3.58';
 
 $Locale::Codes::Retired{'country'}{'alpha-2'}{'code'} = {
    q(an) => q(Netherlands Antilles),
@@ -376,6 +376,7 @@ $Locale::Codes::Retired{'country'}{'alpha-2'}{'name'} = {
    q(st. helena) => [ q(sh), q(St. Helena) ],
    q(st. pierre and miquelon) => [ q(pm), q(St. Pierre and Miquelon) ],
    q(svalbard and jan mayen islands) => [ q(sj), q(Svalbard and Jan Mayen Islands) ],
+   q(swaziland) => [ q(sz), q(Swaziland) ],
    q(taiwan, province of china) => [ q(tw), q(Taiwan, Province of China) ],
    q(united kingdom) => [ q(gb), q(United Kingdom) ],
    q(united states) => [ q(us), q(United States) ],
@@ -453,6 +454,7 @@ $Locale::Codes::Retired{'country'}{'alpha-3'}{'name'} = {
    q(state of palestine) => [ q(pse), q(State of Palestine) ],
    q(svalbard and jan mayen) => [ q(sjm), q(Svalbard and Jan Mayen) ],
    q(svalbard and jan mayen islands) => [ q(sjm), q(Svalbard and Jan Mayen Islands) ],
+   q(swaziland) => [ q(swz), q(Swaziland) ],
    q(taiwan) => [ q(twn), q(Taiwan) ],
    q(taiwan, province of china) => [ q(twn), q(Taiwan, Province of China) ],
    q(tanzania, united republic of) => [ q(tza), q(Tanzania, United Republic of) ],
@@ -505,6 +507,7 @@ $Locale::Codes::Retired{'country'}{'dom'}{'name'} = {
    q(saint martin) => [ q(MF), q(Saint Martin) ],
    q(soviet union) => [ q(SU), q(Soviet Union) ],
    q(soviet union ) => [ q(SU), q(Soviet Union ) ],
+   q(swaziland) => [ q(sz), q(Swaziland) ],
    q(taiwan) => [ q(TW), q(Taiwan) ],
    q(taiwan, province of china) => [ q(tw), q(Taiwan, Province of China) ],
    q(united kingdom) => [ q(gb), q(United Kingdom) ],
@@ -591,6 +594,7 @@ $Locale::Codes::Retired{'country'}{'numeric'}{'name'} = {
    q(state of palestine) => [ q(275), q(State of Palestine) ],
    q(svalbard and jan mayen) => [ q(744), q(Svalbard and Jan Mayen) ],
    q(svalbard and jan mayen islands) => [ q(744), q(Svalbard and Jan Mayen Islands) ],
+   q(swaziland) => [ q(748), q(Swaziland) ],
    q(taiwan) => [ q(158), q(Taiwan) ],
    q(taiwan, province of china) => [ q(158), q(Taiwan, Province of China) ],
    q(tanzania, united republic of) => [ q(834), q(Tanzania, United Republic of) ],
@@ -617,12 +621,14 @@ $Locale::Codes::Retired{'country'}{'numeric'}{'name'} = {
 $Locale::Codes::Retired{'country'}{'un-alpha-3'}{'name'} = {
    q(czech republic) => [ q(CZE), q(Czech Republic) ],
    q(korea, the democratic people's republic of) => [ q(PRK), q(Korea, The Democratic People's Republic of) ],
+   q(swaziland) => [ q(SWZ), q(Swaziland) ],
 };
 
 $Locale::Codes::Retired{'country'}{'un-numeric'}{'name'} = {
    q(channel islands) => [ q(830), q(Channel Islands) ],
    q(czech republic) => [ q(203), q(Czech Republic) ],
    q(korea, the democratic people's republic of) => [ q(408), q(Korea, The Democratic People's Republic of) ],
+   q(swaziland) => [ q(748), q(Swaziland) ],
 };
 
 

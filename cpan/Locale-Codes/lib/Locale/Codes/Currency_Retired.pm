@@ -3,7 +3,7 @@ Locale::Codes::Currency_Retired;
 
 # This file was automatically generated.  Any changes to this file will
 # be lost the next time 'deprecate_codes' is run.
-#    Generated on: Fri Nov 17 10:39:14 EST 2017
+#    Generated on: Fri Aug 31 12:16:03 EDT 2018
 
 use strict;
 require 5.006;
@@ -11,7 +11,7 @@ use warnings;
 use utf8;
 
 our($VERSION);
-$VERSION='3.55';
+$VERSION='3.58';
 
 $Locale::Codes::Retired{'currency'}{'alpha'}{'code'} = {
    q(ADP) => q(Andorran Peseta),
@@ -40,6 +40,7 @@ $Locale::Codes::Retired{'currency'}{'alpha'}{'code'} = {
    q(LUF) => q(Luxembourg Franc),
    q(LVL) => q(Latvian Lats),
    q(MGF) => q(Malagasy Franc),
+   q(MRO) => q(Ouguiya),
    q(MTL) => q(Maltese Lira),
    q(MZM) => q(Metical),
    q(NLG) => q(Netherlands Guilder),
@@ -51,6 +52,7 @@ $Locale::Codes::Retired{'currency'}{'alpha'}{'code'} = {
    q(SIT) => q(Tolar),
    q(SKK) => q(Slovak Koruna),
    q(SRG) => q(Surinam Guilder),
+   q(STD) => q(Dobra),
    q(TJR) => q(Tajik Ruble),
    q(TMM) => q(Manat),
    q(TPE) => q(Timor Escudo),
@@ -58,6 +60,7 @@ $Locale::Codes::Retired{'currency'}{'alpha'}{'code'} = {
    q(UAK) => q(Karbovanets),
    q(USS) => q(US Dollar (Same day)),
    q(VEB) => q(Bolivar),
+   q(VEF) => q(Bolivar),
    q(XB5) => q(European Unit of Account 17),
    q(XEU) => q(ECU (until 1998-12-31)),
    q(XFO) => q(Gold-Franc),
@@ -71,7 +74,10 @@ $Locale::Codes::Retired{'currency'}{'alpha'}{'code'} = {
 $Locale::Codes::Retired{'currency'}{'num'}{'code'} = {
    q(428) => q(Latvian Lats),
    q(440) => q(Lithuanian Litas),
+   q(478) => q(Ouguiya),
    q(654) => q(Saint Helena Pound),
+   q(678) => q(Dobra),
+   q(937) => q(Bolivar),
    q(998) => q(US Dollar (Same day)),
 };
 
@@ -82,7 +88,7 @@ $Locale::Codes::Retired{'currency'}{'alpha'}{'name'} = {
    q(belarussian ruble) => [ q(BYR), q(Belarussian Ruble) ],
    q(belgian franc) => [ q(BEF), q(Belgian Franc) ],
    q(bermudian dollar (customarily known as bermuda dollar)) => [ q(BMD), q(Bermudian Dollar (customarily known as Bermuda Dollar)) ],
-   q(bolivar) => [ q(VEB), q(Bolivar) ],
+   q(bolivar) => [ q(VEF), q(Bolivar) ],
    q(bolivar fuerte) => [ q(VEF), q(Bolivar Fuerte) ],
    q(bond markets units european composite unit (eurco)) => [ q(XBA), q(Bond Markets Units European Composite Unit (EURCO)) ],
    q(candian dollar) => [ q(CAD), q(Candian Dollar) ],
@@ -138,6 +144,7 @@ $Locale::Codes::Retired{'currency'}{'alpha'}{'name'} = {
    q(new zaire) => [ q(ZRN), q(New Zaire) ],
    q(nuevo sol) => [ q(PEN), q(Nuevo Sol) ],
    q(philippine peso) => [ q(PHP), q(Philippine Peso) ],
+   q(philippine piso) => [ q(PHP), q(Philippine Piso) ],
    q(portuguese escudo) => [ q(PTE), q(Portuguese Escudo) ],
    q(saint helena pound) => [ q(SHP), q(Saint Helena Pound) ],
    q(schilling) => [ q(ATS), q(Schilling) ],
@@ -157,12 +164,14 @@ $Locale::Codes::Retired{'currency'}{'alpha'}{'name'} = {
    q(unidades de fomento) => [ q(CLF), q(Unidades de fomento) ],
    q(unidades de formento) => [ q(CLF), q(Unidades de Formento) ],
    q(uruguay peso en unidades indexadas) => [ q(UYI), q(Uruguay Peso en Unidades Indexadas) ],
+   q(uruguay peso en unidades indexadas (uruiurui)) => [ q(UYI), q(Uruguay Peso en Unidades Indexadas (URUIURUI)) ],
    q(us dollar (same day)) => [ q(USS), q(US Dollar (Same day)) ],
 };
 
 $Locale::Codes::Retired{'currency'}{'num'}{'name'} = {
    q(azerbaijanian manat) => [ q(944), q(Azerbaijanian Manat) ],
    q(belarussian ruble) => [ q(974), q(Belarussian Ruble) ],
+   q(bolivar) => [ q(937), q(Bolivar) ],
    q(bolivar fuerte) => [ q(937), q(Bolivar Fuerte) ],
    q(cape verde escudo) => [ q(132), q(Cape Verde Escudo) ],
    q(cedi) => [ q(936), q(Cedi) ],
@@ -179,8 +188,10 @@ $Locale::Codes::Retired{'currency'}{'num'}{'name'} = {
    q(new romanian leu) => [ q(946), q(New Romanian Leu) ],
    q(nuevo sol) => [ q(604), q(Nuevo Sol) ],
    q(philippine peso) => [ q(608), q(Philippine Peso) ],
+   q(philippine piso) => [ q(608), q(Philippine Piso) ],
    q(saint helena pound) => [ q(654), q(Saint Helena Pound) ],
    q(unidades de fomento) => [ q(990), q(Unidades de fomento) ],
+   q(uruguay peso en unidades indexadas (uruiurui)) => [ q(940), q(Uruguay Peso en Unidades Indexadas (URUIURUI)) ],
    q(us dollar (same day)) => [ q(998), q(US Dollar (Same day)) ],
 };
 

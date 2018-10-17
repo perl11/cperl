@@ -306,6 +306,10 @@ L<RT #91784|https://rt.cpan.org/Ticket/Display.html?id=91784>
 
 HPUX test fixes.
 
+=item L<Locale::Codes> 3.38
+
+new codes
+
 =item L<Math::BigInt> 1.999814
 
 Add C<to_base()> and C<from_base()> to L<Math::BigInt> and corresponding library
