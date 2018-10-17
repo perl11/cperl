@@ -4,7 +4,7 @@ use strict;
 our ( %version, %deprecated, %families );
 
 use version;
-our $VERSION = '5.20181012c';
+our $VERSION = '5.20181017c';
 $VERSION =~ s/c$//;
 
 sub PKG_PATTERN () { q#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z# }
@@ -352,8 +352,8 @@ our %released :const = (
     '5.026003c' => '2018-09-10',
     '5.024004c' => '2018-09-14',
     '5.029000c' => '2018-10-14',
-    '5.026004c' => '2018-10-16',
-    '5.028001c' => '2018-10-18',
+    '5.028001c' => '2018-10-14',
+    '5.026004c' => '2018-10-18',
     5.029000 => '2018-06-26',
     5.029001 => '2018-07-20',
     5.029002 => '2018-08-20',
@@ -17649,8 +17649,8 @@ our %delta :const = (
         delta_from => '5.026003c',
         changed => {
             'B::Op_private'         => '5.026004',
-            'Module::CoreList'      => '5.20181012c',
-            'Module::CoreList::Utils'=> '5.20181012c',
+            'Module::CoreList'      => '5.20181017c',
+            'Module::CoreList::Utils'=> '5.20181017c',
             'Archive::Tar'          => '2.32',
             'Archive::Tar::Constant'=> '2.32',
             'Archive::Tar::File'    => '2.32',

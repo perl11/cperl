@@ -11,20 +11,25 @@ release schedules for the next, current and previous stable versions
 of Perl.  Dates with two or more question marks will only be releases if
 deemed necessary by the Pumpking.
 
+=head2 Perl 5.30
+
+Code freezes (which happen in the 5.29.X series)
+
+  2019-02-20  5.29.8          Contentious changes freeze
+  2019-03-20  5.29.9          User-visible changes to correctly
+                              functioning programs freeze
+  2019-04-20  5.29.10         Full code freeze
+  2019-05-20  5.30.0          Stable release!
+
 =head2 Perl 5.28
 
-Code freezes (which happen in the 5.27.X series)
-
-  2018-01-20  5.27.8          Contentious changes freeze
-  2018-02-20  5.27.9          User-visible changes to correctly
-                              functioning programs freeze
-  2018-03-20  5.27.10         Full code freeze
-  2018-04-20  5.28.0          Stable release!
+  2018-05-20  5.28.0 ✓        Sawyer X
 
 =head2 Perl 5.26
 
   2017-05-30  5.26.0 ✓        Sawyer X
   2017-09-22  5.26.1 ✓        Steve Hay
+  2018-04-14  5.26.2 ✓        Steve Hay
 
 =head2 Perl 5.24
 
@@ -32,6 +37,7 @@ Code freezes (which happen in the 5.27.X series)
   2017-01-14  5.24.1 ✓        Steve Hay
   2017-07-15  5.24.2 ✓        Steve Hay
   2017-09-22  5.24.3 ✓        Steve Hay
+  2018-04-14  5.24.4 ✓        Steve Hay
 
 =head2 Perl 5.22
 
@@ -55,19 +61,19 @@ When shipping a release, you should include the schedule for (at least)
 the next four releases. If a stable version of Perl is released,
 you should reset the version numbers to the next blead series.
 
-=head2 Perl 5.27
+=head2 Perl 5.29
 
-  2017-05-31  5.27.0 ✓        Sawyer X
-  2017-06-20  5.27.1 ✓        Eric Herman
-  2017-07-20  5.27.2 ✓        Aaron Crane
-  2017-08-20  5.27.3 ✓        Matthew Horsfall
-  2017-09-20  5.27.4 ✓        John Anderson
-  2017-10-20  5.27.5 ✓        Steve Hay
-  2017-11-20  5.27.6 ✓        Karen Etheridge
-  2017-12-20  5.27.7          BinGOs
-  2018-01-20  5.27.8          Abigail
-  2018-02-20  5.27.9          Renee Backer
-  2018-03-20  5.27.10         Todd Rinaldo
+  2018-06-26  5.29.0 ✓        Sawyer X
+  2018-07-20  5.29.1 ✓        Steve Hay
+  2018-08-20  5.29.2 ✓        Chris BinGOs Williams
+  2018-09-20  5.29.3          John Anderson
+  2018-10-20  5.29.4          Aaron Crane
+  2018-11-20  5.29.5
+  2018-12-20  5.29.6          Abigail
+  2019-01-20  5.29.7          Abigail
+  2019-02-20  5.29.8
+  2019-03-20  5.29.9
+  2019-04-20  5.29.10
 
 (RC0 for 5.28.0 will be released once we think that all the blockers have been
 addressed.  This typically means some time in April or May.)

@@ -624,6 +624,7 @@ the strings?).
  rurban    5.24.1c      2016-Oct-13
  rurban    5.24.2c      2016-Dec-16
  rurban    5.24.3c      2018-Jan-05
+ rurban    5.24.4c      2018-Sep-14
 
  Ricardo   5.25.0       2016-May-09     The 5.25 development track
  Sawyer X  5.25.1       2016-May-20
@@ -656,7 +657,8 @@ the strings?).
  rurban    5.26.0c      2017-Apr-25
  rurban    5.26.1c      2017-Aug-07
  rurban    5.26.2c      2018-Jan-08
- rurban    5.26.3c      2018-Sep-17
+ rurban    5.26.3c      2018-Sep-10
+ rurban    5.26.4c      2018-Oct-16
 
  Sawyer X  5.27.0       2017-May-31     The 5.27 development track
  Eric      5.27.1       2017-Jun-20
@@ -683,6 +685,14 @@ the strings?).
 
  rurban    5.28.0c-RC1  2018-Sep-08     cperl 5.28
  rurban    5.28.0c      2018-Sep-10
+ rurban    5.28.1c      2018-Oct-18
+
+ Sawyer X  5.29.0       2018-Jun-26     The 5.29 development track
+ Steve     5.29.1       2018-Jul-20
+ BinGOs    5.29.2       2018-Aug-20
+ John      5.29.3       2019-Sep-20
+
+ rurban    5.29.0c      2018-Oct-14
 
 =head2 SELECTED RELEASE MEMORY USAGE
 
@@ -705,7 +715,7 @@ releases, non-threaded. (I<m0>)
   5.24.3	133080
   5.24.3c	144121
   5.26.2        133486
-  5.26.2c       143826
+  5.26.3c       134819
   5.28.0	163441
   5.28.0c       158761
 
@@ -728,7 +738,7 @@ For B<perl -MConfig -Mstrict -Mwarnings -V:ccflags> (I<p0>):
   5.24.3	831401
   5.24.3c	606383
   5.26.2        834947
-  5.26.2c	608035
+  5.26.3c	608299
   5.28.0	771315
   5.28.0c	606807
 
@@ -751,7 +761,7 @@ With unicode: B<perl -C -E'use utf8; my $s="x≈x"; $s=~s/a≈e//i;'> (I<p1>):
   5.24.3	2485808
   5.24.3c	2487197
   5.26.2	2601019
-  5.26.2c	2661508
+  5.26.3c	2661657
   5.28.0	297044  (compiled mph hashes)
   5.28.0c	228825
 
