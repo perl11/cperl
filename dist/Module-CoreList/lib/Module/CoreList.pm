@@ -17828,6 +17828,9 @@ our %delta :const = (
             'TAP::Parser::YAMLish::Reader'=> '3.42_01',
             'TAP::Parser::YAMLish::Writer'=> '3.42_01',
             'Test::Harness'         => '3.42_01',
+            'Thread::Queue'         => '3.13',
+            'version'               => '0.9924_02',
+            'version::regex'        => '0.9924_02',
         },
         removed => {
         }

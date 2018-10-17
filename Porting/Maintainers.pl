@@ -1388,7 +1388,7 @@ use File::Glob qw(:case);
     'Test::Simple' => {
         # bumped to 1.4001014 with cperl modernizations.
         # Test2 based 1.3x versions are not yet modernized,
-        'DISTRIBUTION' => 'EXODIST/Test-Simple-1.4001014.tar.gz',
+        'DISTRIBUTION' => 'EXODIST/Test-Simple-1.4001015.tar.gz',
         'FILES'        => q[dist/Test-Simple],
         'EXCLUDED'     => [
             qr{^t/xt},
@@ -1439,12 +1439,8 @@ use File::Glob qw(:case);
         },
     },
 
-    # Jerry Hedden does take patches that are applied to blead first, even
-    # though that can be hard to discern from the Git history; so it's
-    # correct for this (and Thread::Semaphore, threads, and threads::shared)
-    # to be under dist/ rather than cpan/
     'Thread::Queue' => {
-        'DISTRIBUTION' => 'JDHEDDEN/Thread-Queue-3.12.tar.gz',
+        'DISTRIBUTION' => 'JDHEDDEN/Thread-Queue-3.13.tar.gz',
         'FILES'        => q[dist/Thread-Queue],
         'EXCLUDED'     => [
             qr{^examples/},

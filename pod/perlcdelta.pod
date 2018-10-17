@@ -392,6 +392,10 @@ Fix and simplify MSWin32 colorization (Roy Ivy III)
 Fix file source handler to accept single extensions option (Tomoki Aonuma)
 Spelling fixes (Brian Wightman)
 
+=item L<Thread::Queue>  3.13
+
+[RT #125868] Fix tests for Test::Simple 1.302138
+
 =item L<version> 0.9924_02
 
 more test fixes for 5.6
