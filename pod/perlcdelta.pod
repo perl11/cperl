@@ -396,6 +396,22 @@ Spelling fixes (Brian Wightman)
 
 [RT #125868] Fix tests for Test::Simple 1.302138
 
+=item L<Time::HiRes> 1.9758_01
+
+Updated from upstream since 1.9752:
+
+See L<https://metacpan.org/changes/distribution/Time-HiRes>
+
+Fix MSVC by adding a fake struct timezone.
+
+Add more potential clock constants, like CLOCK_MONOTONIC_FAST
+(available in FreeBSD), and not all potentially found clock constants
+were properly exported to be available from Perl, see your system's
+clock_gettime() documentation for the available ones
+
+Merged with our cperl fixes, esp. no __ANONIO__
+See L<https://github.com/rurban/Time-HiRes/commits/cperl>
+
 =item L<version> 0.9924_02
 
 more test fixes for 5.6

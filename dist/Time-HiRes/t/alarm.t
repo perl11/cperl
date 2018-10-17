@@ -43,6 +43,9 @@ SKIP: {
 	# Perl's deferred signals may be too wimpy to break through
 	# a restartable select(), so use POSIX::sigaction if available.
 
+        # In perl 5.6.2 you will get a likely bogus warning of
+        # "Use of uninitialized value in subroutine entry" from
+        # the following line.
 	POSIX::sigaction(&POSIX::SIGALRM,
 			 POSIX::SigAction->new("tick"),
 			 $oldaction)
@@ -201,8 +204,8 @@ SKIP: {
 	Time::HiRes::alarm(1.1);
 	my $t0 = Time::HiRes::time();
 	1 while Time::HiRes::time() - $t0 <= 2;
-        if (!$alrm and $ENV{TRAVIS_CI}) {
-            ok 1, "SKIP flapping test on overly slow Travis CI";
+        if (!$alrm and ($ENV{TRAVIS} || $ENV{APPVEYOR})) {
+            ok 1, "SKIP flapping test on overly slow CI";
         } else {
             ok $alrm;
         }
@@ -212,11 +215,7 @@ SKIP: {
 	my $alrm = 0;
 	$SIG{ALRM} = sub { $alrm++ };
 	my $got = Time::HiRes::alarm(2.7);
-        if ($got and $ENV{APPVEYOR}) {
-            ok 1, "SKIP flapping test on overly slow Appveyor CI";
-        } else {
-            ok $got == 0 or print("# $got\n");
-        }
+	ok $got == 0 or print("# $got\n");
 
 	my $t0 = Time::HiRes::time();
 	1 while Time::HiRes::time() - $t0 <= 1;
