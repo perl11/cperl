@@ -1,5 +1,9 @@
 Revision history for Perl extension threads::shared.
 
+1.58 Mon Jan 22 20:09:07 EST 2018
+	- Fix CLANG macros.
+	- Sync with blead.
+
 1.57 Sun May  7 22:48:33 2017
 	- Fix Clang macro backward compatibility per patch by Andy Grundman
 

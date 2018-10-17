@@ -426,6 +426,11 @@ returning values from threads, and no longer warns about creating threads
 in C<BEGIN> blocks.
 L<[perl #96538]|https://rt.perl.org/Ticket/Display.html?id=96538>
 
+=item L<threads::shared> 1.58
+
+Fix Clang macro backward compatibility per patch by Andy Grundman.
+RT #131124 Memory allocation fix.
+
 =item L<Time::HiRes> 1.9758_01
 
 Updated from upstream since 1.9752:
