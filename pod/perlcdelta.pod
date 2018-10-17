@@ -341,6 +341,23 @@ Fixes for ldlibpthname from 2.71
 Various upstream changes,
 see L<https://metacpan.org/changes/distribution/podlators>
 
+=item L<Scalar::Util>  1.50_11
+
+fix C<find_rundefsvoffset> logic
+
+Fix F<t/subname.t> and F<t/exotic_names.t> for unstrict names.
+perl5.26 started defining C<$Config{usecperl}>
+as 'UNKNOWN', hence this check is now unreliable.
+
+Merge with 1.50 upstream:
+Ensure C<pairmap> extends its stack correctly (davem)
+Fix name of C<List::Util::unpairs> in its error messages
+
+added C<head>/C<tail>
+honor C<PERL_NO_QUOTE_PKGSEPERATOR>
+merged C<%DB::sub> tests
+merge with upstream C<%DB::sub> support (main:: or not, utf8)
+
 =item L<version> 0.9924_02
 
 more test fixes for 5.6

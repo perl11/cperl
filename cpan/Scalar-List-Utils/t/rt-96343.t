@@ -6,7 +6,7 @@ use warnings;
 use Test::More tests => 2;
 
 TODO: { SKIP: {
-  local $TODO = '5.20' if $] > 5.019 and $] < 5.022;
+  local $TODO = '5.20' if $] > 5.019 and $] < 5.02202;
   skip "on $]",1 if $] < 5.008;
   use List::Util qw( first );
 
