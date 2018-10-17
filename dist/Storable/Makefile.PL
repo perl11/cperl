@@ -75,6 +75,7 @@ EOM
 
 # compute the maximum stacksize, before and after linking
 package MY;
+use Config;
 
 # FORCE finish of INST_DYNAMIC, avoid loading the old Storable (failed XS_VERSION check)
 sub xlinkext {
@@ -94,10 +95,19 @@ sub depend {
         $extra_deps = ' Storable.pm';
     }
     my $linktype = uc($_[0]->{LINKTYPE});
-    "
+    # EUMM bug for core builds, missing ldlibpthname
+    my $s = "LDFULLPERLRUNINST = \$(FULLPERLRUNINST)\n";
+    if ($ENV{PERL_CORE} && $Config{useshrplib}) {
+      my $ldlibpthname = $Config{ldlibpthname};
+      if ($ldlibpthname && $ENV{$ldlibpthname}) {
+        $s = "LDFULLPERLRUNINST = $ldlibpthname=$ENV{$ldlibpthname}" .
+          " \$(FULLPERLRUNINST)\n";
+      }
+    }
+    $s . "
 $limit_pm : stacksize \$(INST_$linktype)$extra_deps
 	\$(MKPATH) \$(INST_LIB)
-	\$(FULLPERLRUNINST) stacksize $options
+	\$(LDFULLPERLRUNINST) stacksize $options
 
 release : dist
 	git tag \$(VERSION)
