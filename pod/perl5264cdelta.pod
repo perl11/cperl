@@ -1,0 +1,677 @@
+=encoding utf8
+
+=head1 NAME
+
+perl5264cdelta - what is new for cperl v5.26.4
+
+=head1 DESCRIPTION
+
+This document describes differences between the cperl 5.26.4 and the cperl
+5.26.3 release.
+
+If you are upgrading from an earlier release such as v5.26.1c, first read
+L<perl5262cdelta>, which describes differences between v5.26.1c and v5.26.2c.
+
+=head1 Modules and Pragmata
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item L<Archive::Tar> 2.32
+
+Fix absolute path handling on VMS.
+
+Skip white_space test on MSWin32 as Windows will report that both
+  files exist, which is obviously a 'feature'
+
+fix creating file with trailing whitespace on filename - fixes 103279
+
+allow archiving with absolute pathnames - fixes 97748
+
+Speed up extract when archive contains lots of files
+
+CVE-2018-12015 directory traversal vulnerability [RT#125523]
+
+=item L<bignum>  0.51c
+
+Better way to catch warnings (CPAN RT #126900).
+
+=item L<Compress::Raw::Bzip2> 2.081
+
+pgcc support
+
+=item L<Compress::Raw::Zlib> 2.081
+
+keep our pgcc support,
+keep our zlib-src fixes: deflateParams bug, FALLTHROUGH hints
+
+=item L<Config::Perl::V> 0.30_01
+
+Add test for 5.26.1-RC1, and some cperl -V's
+
+Fix signature with argument
+
+Ignore ccache and compiler path in signature
+
+Add default_inc_excludes_dot
+
+use vars => our
+
+=item L<Cpanel::JSON::XS>  4.06
+
+Added json_type support, ...
+
+=item L<Cwd> 4.75c
+
+Fixed long pathnames test for getcwd() on older systems, like
+debian-7.11 i386, which still returns ENAMETOOLONG on large enough
+buffers.
+
+Fix the HAS_GET_CURRENT_DIR_NAME check, and the is_ENAMETOOLONG macro.
+
+For getcwd with C<get_current_dir_name()> - i.e. fastcwd - add
+abs_path.  See also L<http://perl11.org/blog/fastcwd.html>
+
+=item L<Data::Dumper>  2.172
+
+Restore deparsing support in the XS dumper, on Perl 5.18 and earlier.
+
+Fix bug when dumping globs with quoting (which now happens for
+all Unicode glob names)
+
+Behavior change: C<$dumper->Useqq(undef)> is now treated as setting the
+"useqq" option, not getting it (and similarly for other options)
+L<[perl #113090]|https://rt.perl.org/Public/Bug/Display.html?id=113090>
+
+Quote glob names better; notably, Unicode globs are
+now handled correctly.
+L<[perl #119831]|https://rt.perl.org/Public/Bug/Display.html?id=119831>
+
+=item L<DB_File>  1.842
+
+Document the MacOS build failures & how MacPort can work around the issue.
+RT #125238, RT #125585, RT #133280
+
+Write all test db files into a directory created by File::Temp
+Protects against any possible races if running a parallel build.
+
+#96357: DB_File destructor is not thread-safe
+Added CLONE_SKIP to DB_File.pm and included the test db-threads.t from the patch.
+Note - This only works with perl >= 5.8.7
+
+RT #124944 allow ppport.h-less builds in core
+
+=item L<Devel::NYTProf>  6.06_01
+
+Fix sorting of numbers ending ...5s as microsec
+
+Fix tests for Strawberry Perl portable
+
+Fixed broken link in the pod to YAPC::NA 2014 talk video
+
+Add "NYTProf" to buffer overflow error message for easier triage
+
+Fix test failures on Perl 5.27.6+
+
+Fix to prevent memory corruption in incr_sub_inclusive_time
+
+Fix test failures on Perl 5.26 w/ PERL_USE_UNSAFE_INC=0
+
+Fix for the double opening of the web browser with --open
+
+Updated links in docs from old svn repository to Github
+
+=item L<Devel::PPPort>  3.43_04
+
+Fix test with Visual Studio (space in paths) by quoting $0.
+Note: This fix is not in the public CPAN release.
+
+=item L<Digest::SHA>  6.02
+
+Silenced compiler warnings from VS2017 RT #124477
+
+=item L<DynaLoader> 2.09c
+
+Fix wrong usage of C<SvREFCNT_inc_simple_NN> with a function, fixes a
+memory leak.
+
+C<dl_load_file>: set NULL xs (bootstrap). When we find the bootname via
+C<dl_find_symbol> early, we still need to set xs from C<dl_install_xsub()>.
+
+=item L<Encode>  2.98
+
+no strict hashpairs in encoding.
+fixed some -Wsign-compare
+See L<https://metacpan.org/changes/distribution/Encode>
+
+Skip the flapping test F<t/Aliases.t> on threaded smokers, with random
+segfaults.  This is a long standing core bug, with PMOP aliases or
+clone. First observed at L<https://github.com/rurban/perl-compiler/issues/73>
+(since 5.6)
+
+Stop directory tweaking C<$Encode::Encoding{utf8}>
+
+Fix gcc warnings for older gcc < 4.0
+
+Where possible do not depend on value of $@, instead use return value
+of eval
+
+Fix more XS problems in Encode.xs file
+
+Load modules Encode::MIME::Name and Storable normally
+
+Remove no warnings 'redefine'; and correctly loaddependences
+
+Remove PP stubs and reformat predefine_encodings()
+
+Run Encode XS BOOT code at compile time
+
+Use Encode::define_encoding and propagate carp/croak message
+
+cperl fixes: encoding undeprecated, no strict hashpairs
+
+Cleanup code for handling fallback/replacement characters
+
+lib/Encode/MIME/Name.pm t/mime-name.t
+Pulled: Add "euc-cn" => "EUC-CN" alias to Encode::MIME::Name
+https://github.com/dankogai/p5-encode/pull/124
+
+lib/Encode/CN/HZ.pm lib/Encode/JP/JIS7.pm lib/Encode/MIME/Header.pm
+t/decode.t
+Pulled: Uninitialized value fixes #122
+https://github.com/dankogai/p5-encode/pull/122
+
+Makefile.PL
+Pulled: Fix -Werror=declaration-after-statement for gcc 4.1.2
+https://github.com/dankogai/p5-encode/pull/121
+
+Fixed deep recursion in Encode::find_encoding when decoding.
+
+=item L<experimental> 0.020_01
+
+eval use feature, minor test fix.
+Add the declared_refs feature.
+Enable lexical_topic for cperl 5.24, added perl5 compat.
+
+=item L<Exporter>  5.73
+
+More use vars => our
+
+=item L<ExtUtils::Constant> 0.25_01
+
+extend stack by one
+
+=item L<ExtUtils::MakeMaker> 8.35_06
+
+Merge our fixes to upstream 7.35_06 (which has e.g. the dlltool mingw
+and parallel MSVC fixes). Many fixes were already in, but some new
+upstream bugs crept in.
+
+Support IO::Scalar handle as $parsefile argument to
+ExtUtils::MM_Unix::parse_version().
+
+fix Invalid Locale symbol name. Invalid identifier "ENCODING_UTF-8"
+while "strict names"
+
+fix XSMULTI static with strict linkers, avoid duplicate symbol
+_boot_XS__Test in: Test.o blib/arch/auto/XS/Test/Test.a(Test.o)
+
+xsstatic: fixup MAKE_APERL_FILE, which was Makefile.aperl.aperl,
+add xs_static_lib_is_xs
+
+MSVC: seperate dbgoutflag
+
+VMS: add static_lib_pure_cmd
+
+Liblist: support libdirs with spaces
+
+=item L<ExtUtils::Manifest> 1.71
+
+Only pod formatting
+
+=item L<File::Path> 3.16_02c
+
+Fix symlink abort crossing mountpoint with CPAN::Distribution
+previous directory ~/.cpan/build changed before entering tmp-32186,
+expected dev=47 ino=244719549, actual dev=47 ino=33303, aborting at
+CPAN/Distribution.pm line 591
+
+Fix method of generating names for dummy users and groups during testing
+(i.e. under docker)
+L<[cpan #121967]|https://rt.cpan.org/Ticket/Display.html?id=121967>.
+
+=item L<File::Temp> 0.2308
+
+- remove File::Temp::Dir from the PAUSE index (it is not in its own
+  .pm file, so it is not 'use'able on its own)
+
+- change EXLOCK default from true to false; addresses RT#123959.
+  Note that this option was always a no-op on non-BSD platforms;
+  changing the default to false makes behaviour more predictable and
+  consistent across platforms.
+
+- switch from 'use vars' to 'our'
+
+- documentation updates for what versions contain what features
+  (thanks, Brian Mowrey! RT#101518)
+
+- fix bad use of skip() in tests (RT#95922)
+
+- Fall back to CSIDL_LOCAL_APPDATA under taint on Windows (RT#60340)
+
+- update distribution tooling
+
+=item L<Filter::Util::Call> 1.59
+
+XSLoader, our. defer Carp.
+
+Add filter_read_exact tests.
+
+Improve tests using FindBin for filter-util.pl [atoomic]
+
+Add int casts, assert on 2GB limitation.
+
+=item L<HTTP::Tiny> 0.076_01
+
+Allow 'peer' to be a coderef.
+Document protocol field, case-sensitive method names.
+
+=item L<if>  0.0608
+
+Doc how to import when you want to C<use MODULE ()>
+
+=item L<IO> 1.39_01
+
+replace use vars with our,
+run-time load Carp,
+Bump versions of 3 Socket modules.
+Remove 5.6 support
+
+Many other changes, see
+L<https://metacpan.org/changes/distribution/IO> plus some cperl fixes.
+
+=item C<IO-Compress> 2.081
+
+lots of whitespace fixes in zipdetails
+exclude t/999pod.t also
+
+=item L<IPC::Cmd> 1.02
+
+Fixed can't use IPC::Cmd->run_forked in the first process of a container
+L<RT #118424|https://rt.cpan.org/Ticket/Display.html?id=118424>
+
+Fixed run_forked("/usr/bin/echo test") captures no output
+L<RT #91784|https://rt.cpan.org/Ticket/Display.html?id=91784>
+
+HPUX test fixes.
+
+=item L<Locale::Codes> 3.38
+
+new codes
+
+=item L<Math::BigInt> 1.999814
+
+Add C<to_base()> and C<from_base()> to L<Math::BigInt> and corresponding library
+methods C<_to_base()> and C<_from_base()> to L<Math::BigInt::Lib>. This was inspired
+by L<CPAN RT #122681|https://rt.cpan.org/Ticket/Display.html?id=122681>.
+
+In the documentation for each of the C<to_(bin|hex|oct|bytes)> methods, add a
+reference to the corresponding C<from_(bin|hex|oct|bytes)> method.
+
+=item L<Math::BigInt::FastCalc>  0.5008
+
+No code nor test changes.
+
+=item L<Math::BigRat>  0.2614
+
+=item L<Net::Ping> 2.70
+
+Fix ping_udp for a started udp echo server (PR#5 by Stephan Loyd)
+
+Fix t/400_ping_syn.t phases
+
+Try to handle Windows Socket::getnameinfo errors
+
+Improve some tests on missing network connections
+
+Keep v5.002 - v5.6 support
+
+Removed outdated demo/fping from the documentation
+(RT #123750 by Steve Morris)
+
+Added t/420_ping_syn_port.t (#4 by Julio Fraire) with fixes.
+
+Added indices and crosslinks to the documentation
+
+use NIx_NOSERV flag for windows.
+
+better icmpv6 support.
+
+Fixes for ldlibpthname from 2.71
+
+=item L<parent>  0.237
+
+use vars => our.
+
+=item L<perlfaq>  5.20180915
+
+=item L<Pod::Man>  4.11
+
+Various upstream changes,
+see L<https://metacpan.org/changes/distribution/podlators>
+
+=item L<Scalar::Util>  1.50_11
+
+fix C<find_rundefsvoffset> logic
+
+Fix F<t/subname.t> and F<t/exotic_names.t> for unstrict names.
+perl5.26 started defining C<$Config{usecperl}>
+as 'UNKNOWN', hence this check is now unreliable.
+
+Merge with 1.50 upstream:
+Ensure C<pairmap> extends its stack correctly (davem)
+Fix name of C<List::Util::unpairs> in its error messages
+
+added C<head>/C<tail>
+honor C<PERL_NO_QUOTE_PKGSEPERATOR>
+merged C<%DB::sub> tests
+merge with upstream C<%DB::sub> support (main:: or not, utf8)
+
+=item L<Socket>  2.027_04
+
+Reimplement croak_sv (securely) for older perls (RT124063)
+Recognise %Config key for HAS_GAI_STRERROR (RT124044)
+Add TCP_USER_TIMEOUT (RT123253)
+
+=item L<Storable>  3.12_02
+
+Enable >2GB AvFILL check on store_hook (64bit).
+
+Too many references returned by STORABLE_freeze.
+It wrapped around previously. Fixes Coverity CID #187854.
+This is a B<security issue> on 64bit cperl and perl5, as both allow
+SSize_t arrays.
+
+Move __Storable__.pm into Storable_pm.PL
+L<[cperl #374]|https://github.com/perl11/cperl/issues/374>
+
+Merge Makefile recipes from blead.
+
+=item L<Test::Harness> 3.42_01
+
+Enable rulesfile.t to run in core
+
+Return handle for pipes and sockets #58 (Erik Huelsmann)
+TAP v13 plan allows trailing whitespace (Steffen Schwigon)
+prove: add a --statefile=<path> option to customize the .prove file
+(Ævar Arnfjörð Bjarmason)
+Avoid non-deterministic source handling, make a SourceHandler tie an
+error. (Michael Schwern, Leon Timmermans)
+Fix and simplify MSWin32 colorization (Roy Ivy III)
+Fix file source handler to accept single extensions option (Tomoki Aonuma)
+Spelling fixes (Brian Wightman)
+
+=item L<Thread::Queue>  3.13
+
+[RT #125868] Fix tests for Test::Simple 1.302138
+
+=item L<threads> 2.22_01
+
+Fix Clang macro backward compatibility per patch by Andy Grundman.
+Keep the old better doc.
+Keep our modglobal fix in global destruction from 2.12_01.
+
+Support PL_sv_zero.
+Don't Copy() null pointer
+
+The documentation now better describes the problems that arise when
+returning values from threads, and no longer warns about creating threads
+in C<BEGIN> blocks.
+L<[perl #96538]|https://rt.perl.org/Ticket/Display.html?id=96538>
+
+=item L<threads::shared> 1.58
+
+Fix Clang macro backward compatibility per patch by Andy Grundman.
+RT #131124 Memory allocation fix.
+
+=item L<Time::HiRes> 1.9758_01
+
+Updated from upstream since 1.9752:
+
+See L<https://metacpan.org/changes/distribution/Time-HiRes>
+
+Fix MSVC by adding a fake struct timezone.
+
+Add more potential clock constants, like CLOCK_MONOTONIC_FAST
+(available in FreeBSD), and not all potentially found clock constants
+were properly exported to be available from Perl, see your system's
+clock_gettime() documentation for the available ones
+
+Merged with our cperl fixes, esp. no __ANONIO__
+See L<https://github.com/rurban/Time-HiRes/commits/cperl>
+
+=item L<Time::Local>  1.28
+
+Some tests which required support for epoch values larger than 2**32 were
+not being skipped when the underlying Perl did not support that.
+
+Fixed the tests so they will not break in the year 2020. The tests were
+passing in 2-digit years on the assumption that a year like "70" would be
+treated as 1970, but starting in 2020 this would be treated as 2070
+instead. Reported by Bernhard M. Wiedemann. RT #124787.
+
+Added timelocal_modern and timegm_modern variants as optional exports. These
+versions do not munge years at all. They treat the year value that they are
+given exactly as-is.
+
+=item L<Time::Piece>  1.33
+
+Switch to XSLoader.
+
+Fix AIX compile
+
+Fix compile errors on MS
+
+Use macro for buf sizes
+
+Remove some compile warnings
+
+SP off by 1 in _crt_localtime
+
+=item L<version> 0.9924_02
+
+use vars => our.
+Add updates from 0.9918: Add LAX_DECIMAL_VERSION, LAX_DOTTED_DECIMAL_VERSION,
+STRICT_DECIMAL_VERSION, STRICT_DOTTED_DECIMAL_VERSION regexes.
+Add updates from 0.9921: pod, safer C locale switching.
+Add vpp support for cperl: scmp, c suffix.
+More test fixes for 5.6
+
+=back
+
+=head1 Documentation
+
+XXX Changes to files in F<pod/> go here.  Consider grouping entries by
+file and be sure to link to the appropriate page, e.g. L<perlfunc>.
+
+=head2 New Documentation
+
+XXX Changes which create B<new> files in F<pod/> go here.
+
+=head3 L<XXX>
+
+XXX Description of the purpose of the new file here
+
+=head2 Changes to Existing Documentation
+
+We have attempted to update the documentation to reflect the changes
+listed in this document.  If you find any we have missed, send email
+to L<perlbug@perl.org|mailto:perlbug@perl.org>.
+
+XXX Changes which significantly change existing files in F<pod/> go here.
+However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
+section.
+
+Additionally, the following selected changes have been made:
+
+=head3 L<XXX>
+
+=over 4
+
+=item *
+
+XXX Description of the change here
+
+=back
+
+=head1 Testing
+
+XXX Any significant changes to the testing of a freshly built perl should be
+listed here.  Changes which create B<new> files in F<t/> go here as do any
+large changes to the testing harness (e.g. when parallel testing was added).
+Changes to existing files in F<t/> aren't worth summarizing, although the bugs
+that they represent may be covered elsewhere.
+
+XXX If there were no significant test changes, say this:
+
+Tests were added and changed to reflect the other additions and changes
+in this release.
+
+XXX If instead there were significant changes, say this:
+
+Tests were added and changed to reflect the other additions and
+changes in this release.  Furthermore, these significant changes were
+made:
+
+[ List each test improvement as an =item entry ]
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Platform Support
+
+=head2 Platform-Specific Notes
+
+XXX List any changes for specific platforms.  This could include configuration
+and compilation changes or changes in portability/compatibility.  However,
+changes within modules for platforms should generally be listed in the
+L</Modules and Pragmata> section.
+
+=over 4
+
+=item XXX-some-platform
+
+XXX
+
+=back
+
+=head1 Internal Changes
+
+XXX Changes which affect the interface available to C<XS> code go here.  Other
+significant internal changes for future core maintainers should be noted as
+well.
+
+[ List each change as an =item entry ]
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Selected Bug Fixes
+
+XXX Important bug fixes in the core language are summarized here.  Bug fixes in
+files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
+
+[ List each fix as an =item entry ]
+
+=over 4
+
+=item *
+
+Harmonize skipped C<main::> prefix in C<%DB::sub>. In cperl the
+debugger uses no C<main::> prefixes for global functions.
+This enables entering debugger breakpoints and c without C<main::>,
+C<newMYSUB> still had C<main::>
+Backported from 5.28.0c
+
+=back
+
+=head1 Known Problems
+
+XXX Descriptions of platform agnostic bugs we know we can't fix go here.  Any
+tests that had to be C<TODO>ed for the release would be noted here.  Unfixed
+platform specific bugs also go here.
+
+[ List each fix as an =item entry ]
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Errata From Previous Releases
+
+=over 4
+
+=item *
+
+XXX Add anything here that we forgot to add, or were mistaken about, in
+the perldelta of a previous release.
+
+=back
+
+=head1 Obituary
+
+XXX If any significant core contributor has died, we've added a short obituary
+here.
+
+=head1 Acknowledgements
+
+XXX Generate this with:
+
+    cperl Porting/acknowledgements.pl cperl-5.26.4..HEAD -c
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the perl bug database
+at L<https://rt.perl.org/> .  There may also be information at
+L<http://www.perl.org/> , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the L<cperlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
+
+If you think it's a cperl specific bug or trust the cperl developers more 
+please file an issue at L<https://github.com/perl11/cperl/issues>.
+
+If the bug you are reporting has security implications which make it
+inappropriate to send to a publicly archived mailing list, then see
+L<perlsec/SECURITY VULNERABILITY CONTACT INFORMATION>
+For details of how to report the issue.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut
