@@ -247,12 +247,10 @@ Patches are needed for `Module::Build`, `IO::Socket::SSL` and `Net::SSLeay`.
 * Stricter Test::More types and API
 * Readonly Config (XSConfig), use Mock::Config instead.
   (*also affects perl5 with the XSConfig module*)
-* Readonly use base @ISA
-  (*since 5.26.0c*)
+* Readonly use base @ISA (*since 5.26.0c*)
 * %hash = map under [use strict](/blog/strict-hashpairs.html) (hashpairs since 5.27.0)
-* subroutine names with `'` are now illegal. You can declare them as bareword but
-  must call them as string.
-* Incomplete OO: role composition, native classes, eval, mop, inlining not yet fully
+* subroutine names with `'` where illegal with 5.26c.
+* Incomplete OO: role composition, native classes, eval, mop. inlining not yet fully
   implemented.
 
 Breakage is much less than with a typical major perl5 release, and the
