@@ -149,9 +149,10 @@ For all versions see [bench-all/](bench-all/index.html)
   multi, has, is, does keywords, proper fields, Mu superclass.
 * thread-safety on darwin for uselocale
 * hash slice consistency, no autovivification as sub args
-* no perl4 `'` package seperator, `'` is not expanded to `::`
+* no perl4 `'` package seperator, `'` was illegal with 5.26c, and later not
+  expanded to `::` anymore
 * Less m/{}/ Unescaped left brace in regex is deprecated here warnings
-* keep utf8 flag for methods
+* keep utf8 flag for method names
 * ffi - a builtin foreign function interface
 
 Most of them only would have a chance to be merged upstream if a p5p

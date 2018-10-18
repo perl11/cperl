@@ -658,7 +658,7 @@ the strings?).
  rurban    5.26.1c      2017-Aug-07
  rurban    5.26.2c      2018-Jan-08
  rurban    5.26.3c      2018-Sep-10
- rurban    5.26.4c      2018-Oct-16
+ rurban    5.26.4c      2018-Oct-18
 
  Sawyer X  5.27.0       2017-May-31     The 5.27 development track
  Eric      5.27.1       2017-Jun-20
@@ -685,7 +685,7 @@ the strings?).
 
  rurban    5.28.0c-RC1  2018-Sep-08     cperl 5.28
  rurban    5.28.0c      2018-Sep-10
- rurban    5.28.1c      2018-Oct-18
+ rurban    5.28.1c      2018-Oct-14
 
  Sawyer X  5.29.0       2018-Jun-26     The 5.29 development track
  Steve     5.29.1       2018-Jul-20
