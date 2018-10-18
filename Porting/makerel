@@ -115,6 +115,18 @@ print "\n";
 
 chdir "$relroot/$reldir" or die $!;
 
+# TODO: for rpm/deb uninstall safety
+#touch $prefix/lib/cperl/site_cperl/$ver/.empty
+#for d in `find $destdir -type d -empty`; do touch "$d"/.empty; done
+
+# TODO: reproducible builds: honor cf_time, no file later than this
+#builddate=`perl -ne'/^cf_time=.(.*).$/ and print $1' $dir/../config.sh`
+#find $destdir -depth -newermt "$builddate" -print0 | \
+#    xargs -0r touch --no-dereference --date="$builddate"
+#tar=cperl-$ver-$rev-$arch.tar.xz
+#if [ -f $tar ]; then
+#    mv -f $tar $tar~
+#fi
 
 print "Setting file permissions...\n";
 system("find . -type f -print     | xargs chmod 0444");
@@ -234,10 +246,16 @@ print "\n";
 system("ls -ld $perl*");
 print "\n";
 
+# TODO: use the official signing key
+system("gpg -a -b $reldir.tar.gz");
+if ($opts{x}) {
+  system("gpg -a -b $reldir.tar.xz");
+}
+
 my $null = $^O eq 'MSWin32' ? 'NUL' : '/dev/null';
-for my $sha (qw(sha1 shasum sha1sum)) {
+for my $sha (qw(sha256sum sha1 shasum sha1sum)) {
     if (`which $sha 2>$null`) {
-	system("$sha $perl*.tar.*");
+	system("$sha $reldir.tar.*");
 	last;
     }
 }

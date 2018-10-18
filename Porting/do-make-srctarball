@@ -1,15 +1,17 @@
 #!/bin/sh
 
-COPYFILE_DISABLE=1
-cd /usr/src/perl/blead/cperl
-ver=$(../perl_version)
+test -f Porting/perl_version || exit 1
+ver=$(Porting/perl_version)
 
-rm -rf ../cperl-${ver}-build ../cperl-${ver} 2>/dev/null
-mkdir ../cperl-${ver}-build 2>/dev/null
+mkdir ../cperl-${ver}-build 2>/dev/null \
+    || rm -rf ../cperl-${ver}-build ../cperl-${ver}
 cp -frp .git ../cperl-${ver}-build/
 cd ../cperl-${ver}-build
 git reset --hard
 git clean -dxf
-#rm -rf .git
 #cp ../cperl/Porting/makerel Porting/
 perl Porting/makerel -x
+
+gpg -a -b cperl-${ver}.tar.gz
+gpg -a -b cperl-${ver}.tar.xz
+sha256sum cperl-${ver}.tar.*
