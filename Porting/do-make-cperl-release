@@ -10,6 +10,7 @@ destdir=cperl-$ver-inst
 curdir=`pwd`
 arch=`uname -m`
 builddate=`perl -ne'/^cf_time=.(.*).$/ and print $1' $dir/../config.sh`
+
 cd $dir/../..
 # dummy files in empty dirs (sitelib, sitearch) to avoid deleting the whole tree on uninstall/updates
 touch $destdir/usr/lib/cperl/site_cperl/$ver/.empty

@@ -1762,7 +1762,6 @@ Added new 'oelem' and 'oelemfast' to :base_core
 =item L<parent> 0.237
 
 use vars => our.
-skip the tests with don't
 
 =item PathTools 4.68c
 
