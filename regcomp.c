@@ -7484,25 +7484,24 @@ Perl_re_op_compile(pTHX_ SV ** const patternp, int pat_count,
         at least some part of the pattern, and therefore must convert the whole
         thing.
         -- dmq */
-            if (flags & NEED_UTF8) {
-                assert(pRExC_state);
+        if (flags & NEED_UTF8) {
 
-                /* We have stored the offset of the final warning output so
-                 * far.  That must be adjusted.  Any variant characters between
-                 * the start of the pattern and this warning count for 2 bytes
-                 * in the final, so just add them again */
-                if (UNLIKELY(RExC_latest_warn_offset > 0)) {
-                    RExC_latest_warn_offset +=
-                                variant_under_utf8_count((U8 *) exp, (U8 *) exp
-                                                    + RExC_latest_warn_offset);
-                }
-                S_pat_upgrade_to_utf8(aTHX_ pRExC_state, &exp, &plen,
-                pRExC_state->code_blocks ? pRExC_state->code_blocks->count : 0);
-                DEBUG_PARSE_r(Perl_re_printf( aTHX_ "Need to redo parse after upgrade\n"));
+            /* We have stored the offset of the final warning output so far.
+             * That must be adjusted.  Any variant characters between the start
+             * of the pattern and this warning count for 2 bytes in the final,
+             * so just add them again */
+            if (UNLIKELY(RExC_latest_warn_offset > 0)) {
+                RExC_latest_warn_offset +=
+                            variant_under_utf8_count((U8 *) exp, (U8 *) exp
+                                                + RExC_latest_warn_offset);
             }
-            else {
-                DEBUG_PARSE_r(Perl_re_printf( aTHX_ "Need to redo parse\n"));
-            }
+            S_pat_upgrade_to_utf8(aTHX_ pRExC_state, &exp, &plen,
+            pRExC_state->code_blocks ? pRExC_state->code_blocks->count : 0);
+            DEBUG_PARSE_r(Perl_re_printf( aTHX_ "Need to redo parse after upgrade\n"));
+        }
+        else {
+            DEBUG_PARSE_r(Perl_re_printf( aTHX_ "Need to redo parse\n"));
+        }
 
         if (RExC_total_parens > 0) {
             /* Make enough room for all the known parens, and zero it */
@@ -7529,8 +7528,8 @@ Perl_re_op_compile(pTHX_ SV ** const patternp, int pat_count,
         /* Clean up what we did in this parse */
         SvREFCNT_dec_NN(RExC_rx_sv);
 
-            goto redo_parse;
-        }
+        goto redo_parse;
+    }
 
     /* Here, we have successfully parsed and generated the pattern's program
      * for the regex engine.  We are ready to finish things up and look for
@@ -8583,36 +8582,36 @@ S_reg_scan_name(pTHX_ RExC_state_t *pRExC_state, U32 flags)
     }
     sv_name = newSVpvn_flags(name_start, (int)(RExC_parse - name_start),
 			     SVs_TEMP | (UTF ? SVf_UTF8 : 0));
-        if ( flags == REG_RSN_RETURN_NAME)
-            return sv_name;
-        else if (flags==REG_RSN_RETURN_DATA) {
-            HE *he_str = NULL;
-            SV *sv_dat = NULL;
-            if ( ! sv_name )      /* should not happen*/
-                Perl_croak(aTHX_ "panic: no svname in reg_scan_name");
-            if (RExC_paren_names)
-                he_str = hv_fetch_ent( RExC_paren_names, sv_name, 0, 0 );
-            if ( he_str )
-                sv_dat = HeVAL(he_str);
-            if ( ! sv_dat ) {   /* Didn't find group */
+    if ( flags == REG_RSN_RETURN_NAME)
+        return sv_name;
+    else if (flags == REG_RSN_RETURN_DATA) {
+        HE *he_str = NULL;
+        SV *sv_dat = NULL;
+        if ( ! sv_name )      /* should not happen*/
+            Perl_croak(aTHX_ "panic: no svname in reg_scan_name");
+        if (RExC_paren_names)
+            he_str = hv_fetch_ent( RExC_paren_names, sv_name, 0, 0 );
+        if ( he_str )
+            sv_dat = HeVAL(he_str);
+        if ( ! sv_dat ) {   /* Didn't find group */
 
-                /* It might be a forward reference; we can't fail until we
-                 * know, by completing the parse to get all the groups, and
-                 * then reparsing */
-                if (RExC_total_parens > 0)  {
+            /* It might be a forward reference; we can't fail until we
+                * know, by completing the parse to get all the groups, and
+                * then reparsing */
+            if (RExC_total_parens > 0)  {
                 vFAIL("Reference to nonexistent named group");
-                }
-                else {
-                    REQUIRE_PARENS_PASS;
-                }
             }
-            return sv_dat;
+            else {
+                REQUIRE_PARENS_PASS;
+            }
         }
-        else {
-            Perl_croak(aTHX_ "panic: bad flag %lx in reg_scan_name",
-		       (unsigned long) flags);
-        }
-        NOT_REACHED; /* NOTREACHED */
+        return sv_dat;
+    }
+    else {
+        Perl_croak(aTHX_ "panic: bad flag %lx in reg_scan_name",
+                   (unsigned long) flags);
+    }
+    NOT_REACHED; /* NOTREACHED */
 }
 
 #define DEBUG_PARSE_MSG(funcname)     DEBUG_PARSE_r({           \
@@ -11452,8 +11451,8 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp, U32 depth)
                          * we know, by completing the parse to get all the
                          * groups, and then reparsing */
                         if (RExC_total_parens > 0)  {
-                        RExC_parse++;
-                        vFAIL("Reference to nonexistent group");
+                            RExC_parse++;
+                            vFAIL("Reference to nonexistent group");
                         }
                         else {
                             REQUIRE_PARENS_PASS;
@@ -11479,20 +11478,20 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp, U32 depth)
                      * then reparsing */
                     if (RExC_total_parens > 0)  {
                         if (num >= RExC_total_parens) {
-			RExC_parse++;
-			vFAIL("Reference to nonexistent group");
+                            RExC_parse++;
+                            vFAIL("Reference to nonexistent group");
                         }
                     }
                     else {
                         REQUIRE_PARENS_PASS;
                     }
                 }
-	            RExC_recurse_count++;
-                    DEBUG_OPTIMISE_MORE_r(Perl_re_printf( aTHX_
-                        "%*s%*s Recurse #%" UVuf " to %" IVdf "\n",
-                              22, "|    |", (int)(depth * 2 + 1), "",
-                              (UV)ARG(REGNODE_p(ret)),
-                              (IV)ARG2L(REGNODE_p(ret))));
+                RExC_recurse_count++;
+                DEBUG_OPTIMISE_MORE_r(Perl_re_printf( aTHX_
+                    "%*s%*s Recurse #%" UVuf " to %" IVdf "\n",
+                            22, "|    |", (int)(depth * 2 + 1), "",
+                            (UV)ARG(REGNODE_p(ret)),
+                            (IV)ARG2L(REGNODE_p(ret))));
                 RExC_seen |= REG_RECURSE_SEEN;
 
                 Set_Node_Length(REGNODE_p(ret),
@@ -12294,9 +12293,9 @@ S_regpiece(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
             if (max < min) {    /* If can't match, warn and optimize to fail
                                    unconditionally */
                 reginsert(pRExC_state, OPFAIL, orig_emit, depth+1);
-                    ckWARNreg(RExC_parse, "Quantifier {n,m} with n > m can't match");
-                    NEXT_OFF(REGNODE_p(orig_emit)) =
-                                        regarglen[OPFAIL] + NODE_STEP_REGNODE;
+                ckWARNreg(RExC_parse, "Quantifier {n,m} with n > m can't match");
+                NEXT_OFF(REGNODE_p(orig_emit)) =
+                                    regarglen[OPFAIL] + NODE_STEP_REGNODE;
                 return ret;
             }
             else if (min == max && *RExC_parse == '?')
@@ -12345,7 +12344,7 @@ S_regpiece(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                     NEXT_OFF(REGNODE_p(ret)) = 3;   /* Go over NOTHING to
                                                        LONGJMP. */
                 REGTAIL(pRExC_state, ret, reg_node(pRExC_state, NOTHING));
-		    RExC_whilem_seen++;
+                RExC_whilem_seen++;
                 MARK_NAUGHTY_EXP(1, 4);     /* compound interest */
 	    }
 	    FLAGS(REGNODE_p(ret)) = 0;
@@ -12354,8 +12353,8 @@ S_regpiece(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 		*flagp = WORST;
 	    if (max > 0)
 		*flagp |= HASWIDTH;
-		ARG1_SET(REGNODE_p(ret), (U16)min);
-		ARG2_SET(REGNODE_p(ret), (U16)max);
+            ARG1_SET(REGNODE_p(ret), (U16)min);
+            ARG2_SET(REGNODE_p(ret), (U16)max);
             if (max == REG_INFTY)
                 RExC_seen |= REG_UNBOUNDED_QUANTIFIER_SEEN;
 
@@ -12986,11 +12985,11 @@ S_alloc_maybe_populate_EXACT(pTHX_ RExC_state_t *pRExC_state,
         change_engine_size(pRExC_state, STR_SZ(len));
     }
 
-        RExC_emit += STR_SZ(len);
-        STR_LEN(REGNODE_p(node)) = len;
-        if (! len_passed_in) {
-            Copy((char *) character, STRING(REGNODE_p(node)), len, char);
-        }
+    RExC_emit += STR_SZ(len);
+    STR_LEN(REGNODE_p(node)) = len;
+    if (! len_passed_in) {
+        Copy((char *) character, STRING(REGNODE_p(node)), len, char);
+    }
 
     *flagp |= HASWIDTH;
 
@@ -13272,7 +13271,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
             /* SBOL is shared with /^/ so we set the flags so we can tell
              * /\A/ from /^/ in split. We check ret because first pass we
              * have no regop struct to set the flags on. */
-                FLAGS(REGNODE_p(ret)) = 1;
+            FLAGS(REGNODE_p(ret)) = 1;
 	    *flagp |= SIMPLE;
 	    goto finish_meta_pat;
 	case 'G':
@@ -13677,7 +13676,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                      * then reparsing */
                     if (RExC_total_parens > 0)  {
                         if (num >= RExC_total_parens)  {
-                        vFAIL("Reference to nonexistent group");
+                            vFAIL("Reference to nonexistent group");
                         }
                     }
                     else {
@@ -17376,27 +17375,27 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
                  * Just add them, in the second pass, to the
                  * unconditionally-matched list */
 
-                    /* Get the list of the above-Latin1 code points this
-                     * matches */
-                    _invlist_intersection_maybe_complement_2nd(PL_AboveLatin1,
-                                          PL_XPosix_ptrs[classnum],
+                /* Get the list of the above-Latin1 code points this
+                    * matches */
+                _invlist_intersection_maybe_complement_2nd(PL_AboveLatin1,
+                                        PL_XPosix_ptrs[classnum],
 
-                                          /* Odd numbers are complements, like
-                                           * NDIGIT, NASCII, ... */
-                                          namedclass % 2 != 0,
-                                          &scratch_list);
-                    /* Checking if 'cp_list' is NULL first saves an extra
-                     * clone.  Its reference count will be decremented at the
-                     * next union, etc, or if this is the only instance, at the
-                     * end of the routine */
-                    if (! cp_list) {
-                        cp_list = scratch_list;
-                    }
-                    else {
-                        _invlist_union(cp_list, scratch_list, &cp_list);
-                        SvREFCNT_dec_NN(scratch_list);
-                    }
-                    continue;   /* Go get next character */
+                                        /* Odd numbers are complements, like
+                                        * NDIGIT, NASCII, ... */
+                                        namedclass % 2 != 0,
+                                        &scratch_list);
+                /* Checking if 'cp_list' is NULL first saves an extra
+                    * clone.  Its reference count will be decremented at the
+                    * next union, etc, or if this is the only instance, at the
+                    * end of the routine */
+                if (! cp_list) {
+                    cp_list = scratch_list;
+                }
+                else {
+                    _invlist_union(cp_list, scratch_list, &cp_list);
+                    SvREFCNT_dec_NN(scratch_list);
+                }
+                continue;   /* Go get next character */
             }
             else {
 
@@ -17750,43 +17749,42 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
         /* Deal with this element of the class */
 
 #ifndef EBCDIC
-            cp_foldable_list = _add_range_to_invlist(cp_foldable_list,
-                                                     prevvalue, value);
+        cp_foldable_list = _add_range_to_invlist(cp_foldable_list,
+                                                    prevvalue, value);
 #else
-            /* On non-ASCII platforms, for ranges that span all of 0..255, and
-             * ones that don't require special handling, we can just add the
-             * range like we do for ASCII platforms */
-            if ((UNLIKELY(prevvalue == 0) && value >= 255)
-                || ! (prevvalue < 256
-                      && (unicode_range
-                          || (! non_portable_endpoint
-                              && ((isLOWER_A(prevvalue) && isLOWER_A(value))
-                                  || (isUPPER_A(prevvalue)
-                                      && isUPPER_A(value)))))))
-            {
+        /* On non-ASCII platforms, for ranges that span all of 0..255, and ones
+         * that don't require special handling, we can just add the range like
+         * we do for ASCII platforms */
+        if ((UNLIKELY(prevvalue == 0) && value >= 255)
+            || ! (prevvalue < 256
+                    && (unicode_range
+                        || (! non_portable_endpoint
+                            && ((isLOWER_A(prevvalue) && isLOWER_A(value))
+                                || (isUPPER_A(prevvalue)
+                                    && isUPPER_A(value)))))))
+        {
+            cp_foldable_list = _add_range_to_invlist(cp_foldable_list,
+                                                        prevvalue, value);
+        }
+        else {
+            /* Here, requires special handling.  This can be because it is a
+             * range whose code points are considered to be Unicode, and so
+             * must be individually translated into native, or because its a
+             * subrange of 'A-Z' or 'a-z' which each aren't contiguous in
+             * EBCDIC, but we have defined them to include only the "expected"
+             * upper or lower case ASCII alphabetics.  Subranges above 255 are
+             * the same in native and Unicode, so can be added as a range */
+            U8 start = NATIVE_TO_LATIN1(prevvalue);
+            unsigned j;
+            U8 end = (value < 256) ? NATIVE_TO_LATIN1(value) : 255;
+            for (j = start; j <= end; j++) {
+                cp_foldable_list = add_cp_to_invlist(cp_foldable_list, LATIN1_TO_NATIVE(j));
+            }
+            if (value > 255) {
                 cp_foldable_list = _add_range_to_invlist(cp_foldable_list,
-                                                         prevvalue, value);
+                                                            256, value);
             }
-            else {
-                /* Here, requires special handling.  This can be because it is
-                 * a range whose code points are considered to be Unicode, and
-                 * so must be individually translated into native, or because
-                 * its a subrange of 'A-Z' or 'a-z' which each aren't
-                 * contiguous in EBCDIC, but we have defined them to include
-                 * only the "expected" upper or lower case ASCII alphabetics.
-                 * Subranges above 255 are the same in native and Unicode, so
-                 * can be added as a range */
-                U8 start = NATIVE_TO_LATIN1(prevvalue);
-                unsigned j;
-                U8 end = (value < 256) ? NATIVE_TO_LATIN1(value) : 255;
-                for (j = start; j <= end; j++) {
-                    cp_foldable_list = add_cp_to_invlist(cp_foldable_list, LATIN1_TO_NATIVE(j));
-                }
-                if (value > 255) {
-                    cp_foldable_list = _add_range_to_invlist(cp_foldable_list,
-                                                             256, value);
-                }
-            }
+        }
 #endif
 
 	range = 0; /* this range (if it was one) is done now */
@@ -19363,8 +19361,8 @@ S_reg_node(pTHX_ RExC_state_t *pRExC_state, U8 op)
 
     assert(regarglen[op] == 0);
 
-        FILL_ADVANCE_NODE(ptr, op);
-        RExC_emit = ptr;
+    FILL_ADVANCE_NODE(ptr, op);
+    RExC_emit = ptr;
     return(ret);
 }
 
@@ -19382,8 +19380,8 @@ S_reganode(pTHX_ RExC_state_t *pRExC_state, U8 op, U32 arg)
     /* ANYOF are special cased to allow non-length 1 args */
     assert(regarglen[op] == 1);
 
-        FILL_ADVANCE_NODE_ARG(ptr, op, arg);
-        RExC_emit = ptr;
+    FILL_ADVANCE_NODE_ARG(ptr, op, arg);
+    RExC_emit = ptr;
     return(ret);
 }
 
@@ -19399,8 +19397,8 @@ S_reg2Lanode(pTHX_ RExC_state_t *pRExC_state, const U8 op, const U32 arg1, const
 
     assert(regarglen[op] == 2);
 
-        FILL_ADVANCE_NODE_2L_ARG(ptr, op, arg1, arg2);
-        RExC_emit = ptr;
+    FILL_ADVANCE_NODE_2L_ARG(ptr, op, arg1, arg2);
+    RExC_emit = ptr;
     return(ret);
 }
 
