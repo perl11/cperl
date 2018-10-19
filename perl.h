@@ -258,8 +258,8 @@
 #define CALLREGFREE(rx_sv) \
     Perl_pregfree(aTHX_ (rx_sv))
 
-#define CALLREGFREE_PVT(rx_sv) \
-    RX_ENGINE(rx_sv)->rxfree(aTHX_ (rx_sv))
+#define CALLREGFREE_PVT(prog) \
+    if(prog && RX_ENGINE(prog)) RX_ENGINE(prog)->rxfree(aTHX_ (prog))
 
 #define CALLREG_NUMBUF_FETCH(rx,paren,usesv)                                \
     RX_ENGINE(rx)->numbered_buff_FETCH(aTHX_ (rx),(paren),(usesv))
