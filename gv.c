@@ -116,8 +116,11 @@ Perl_gv_fetchfile_flags(pTHX_ const char *const name, const STRLEN namelen,
 
     if (tmplen <= sizeof smallbuf)
 	tmpbuf = smallbuf;
-    else
+    else {
+        if (UNLIKELY(tmplen > I32_MAX))
+            Perl_croak(aTHX_ "panic: gv name too long (%" UVuf ")", (UV) namelen);
 	Newx(tmpbuf, tmplen+1, char);
+    }
     /* This is where the debugger's %{"::_<$filename"} hash is created */
     tmpbuf[0] = '_';
     tmpbuf[1] = '<';
