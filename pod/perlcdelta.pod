@@ -1284,6 +1284,11 @@ Stabilized CoreList updater.
 C<ccflags> or C<cc> containing C<-ULTO> does not probe and add
 C<-flto> flags. (This is useful for faster B::C testing)
 
+=item regen.pl
+
+Fixed C<make regen> on cperl with a shared libperl. Need to set
+LD_LIBRARY_PATH for a fullperl with ext/Config.
+
 =item configpm
 
 Avoid bumping F<config.sh>/F<config.h> mtimes when adding valid libffi

@@ -12,19 +12,44 @@ require 5.004;	# keep this compatible, an old perl is all we may have before
 # anything else.
 
 use strict;
+use Config;
 
 my $tap = $ARGV[0] && $ARGV[0] eq '--tap' ? '# ' : '';
+
+#miniperl mostly
 foreach my $pl (map {chomp; "regen/$_"} <DATA>) {
   my @command =  ($^X, '-I.', $pl, @ARGV);
   print "$tap@command\n";
   system @command
     and die "@command failed: $?";
 }
+
+# and now fullperl for Config
 if (!$tap) {
   my $perl = ($^O =~ /^(MSWin32|symbian|os2|cygwin|dos)$/) ? 'perl.exe' : "perl";
   my @command = (($perl eq 'perl' ? './perl' : $perl), '-I.',
                  'ext/Config/Config_xs.PL', '--force', '--regen', @ARGV);
-  print "$tap@command\n";
+  # This is fine to use, we only care about the os here
+  my $ldlibpthname = $Config{ldlibpthname};
+  # But this is a fallback only
+  my $useshrplib = $Config{useshrplib};
+  # as we need the current useshrplib, not the one from the perl
+  # which we are using (like /usr/bin/perl)
+  if (-f 'config.sh') {
+    my $f;
+    open $f, 'config.sh';
+    while (<$f>) {
+      if (/^useshrplib='(.*)'/) {
+        $useshrplib = $1; last;
+      }
+    }
+    close $f;
+  }
+  if ($useshrplib eq 'true' and $ldlibpthname) {
+    require Cwd;
+    $ENV{$ldlibpthname} = Cwd::getcwd();
+  }
+  print "@command\n";
   system @command
     and die "@command failed: $?";
 }
