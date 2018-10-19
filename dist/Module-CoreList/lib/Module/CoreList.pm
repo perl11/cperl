@@ -4,7 +4,7 @@ use strict;
 our ( %version, %deprecated, %families );
 
 use version;
-our $VERSION = '5.20181017c';
+our $VERSION = '5.20181019c';
 $VERSION =~ s/c$//;
 
 sub PKG_PATTERN () { q#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z# }
@@ -359,6 +359,7 @@ our %released :const = (
     5.029002 => '2018-08-20',
     5.029003 => '2018-09-20',
     5.029004 => '2018-10-20',
+    '5.029001c' => '2018-11-27',
  );
 
 sub version_sort {
@@ -17941,6 +17942,16 @@ our %delta :const = (
         removed => {
         }
     },
+    '5.029001c' => {
+        delta_from => '5.029000c',
+        changed => {
+            'B::Op_private'         => '5.029001',
+            'Module::CoreList'      => '5.20181019c',
+            'Module::CoreList::Utils'=> '5.20181019c',
+        },
+        removed => {
+        }
+    },
     5.029000 => {
         delta_from => 5.028,
         changed => {
@@ -19228,6 +19239,11 @@ sub is_core
         removed => {
         }
     },
+    5.028000 => {
+        delta_from => 5.026000,
+        changed => {},
+        removed => {}
+    },
     '5.028000c' => {
         delta_from => '5.027002c',
         changed => {},
@@ -19243,8 +19259,38 @@ sub is_core
         changed => {},
         removed => {}
     },
+    5.029000 => {
+        delta_from => 5.028000,
+        changed => {},
+        removed => {}
+    },
+    5.029001 => {
+        delta_from => 5.029000,
+        changed => {},
+        removed => {}
+    },
+    5.029002 => {
+        delta_from => 5.029001,
+        changed => {},
+        removed => {}
+    },
+    5.029003 => {
+        delta_from => 5.029002,
+        changed => {},
+        removed => {}
+    },
+    5.029004 => {
+        delta_from => 5.029003,
+        changed => {},
+        removed => {}
+    },
     '5.029000c' => {
         delta_from => '5.028000c',
+        changed => {},
+        removed => {}
+    },
+    '5.029001c' => {
+        delta_from => '5.029000c',
         changed => {},
         removed => {}
     },
