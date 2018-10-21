@@ -17948,6 +17948,7 @@ our %delta :const = (
             'B::Op_private'         => '5.029001',
             'Module::CoreList'      => '5.20181019c',
             'Module::CoreList::Utils'=> '5.20181019c',
+            'B::C'                  => '1.55_09',
         },
         removed => {
         }

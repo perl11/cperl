@@ -120,9 +120,9 @@ XXX
 
 =over 4
 
-=item *
+=item L<B::C> 1.55_09
 
-L<XXX> has been upgraded from version A.xx to B.yy.
+Better mconcat support. Fix some XS memory leaks.
 
 =back
 

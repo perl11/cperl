@@ -78,7 +78,7 @@ use File::Basename qw(basename dirname);
 use Cwd ();
 use Pod::Usage;
 # Time::HiRes does not work with 5.6
-# use Time::HiRes qw(gettimeofday tv_interval);
+use Time::HiRes qw(gettimeofday tv_interval sleep);
 our $VERSION = 2.22;
 $| = 1;
 eval { require B::C::Config; };
@@ -89,8 +89,8 @@ use subs qw{
     cc_harness check_read check_write checkopts_byte choose_backend
     compile_byte compile_cstyle compile_module generate_code
     grab_stash parse_argv sanity_check vprint yclept spawnit
-    gettimeofday tv_interval vsystem
-};
+    vsystem
+}; # gettimeofday tv_interval
 sub opt(*); # imal quoting
 sub is_winlike();
 sub is_win32();
@@ -305,15 +305,15 @@ sub parse_argv {
     $Options->{Wc} .= " -DALLOW_PERL_OPTIONS" if opt('A');
 
     if( $Options->{time} or $Options->{spawn} ) {
-      eval { require Time::HiRes; }; # 5.6 has no Time::HiRes
-      if ($@) {
-        warn "--time ignored. No Time::HiRes\n" if $Options->{time};
-        $Options->{time} = 0;
-      } else {
-        *gettimeofday = *Time::HiRes::gettimeofday;
+      # eval { require Time::HiRes; }; # 5.6 has no Time::HiRes
+      # if ($@) {
+      #  warn "--time ignored. No Time::HiRes\n" if $Options->{time};
+      #  $Options->{time} = 0;
+      #} else {
+        # *gettimeofday = *Time::HiRes::gettimeofday;
         Time::HiRes::gettimeofday();
-        Time::HiRes->import('gettimeofday','tv_interval','sleep');
-      }
+        # Time::HiRes->import('gettimeofday','tv_interval','sleep');
+      #}
     }
     $logfh  = new FileHandle(">> " . opt('log')) if (opt('log'));
 
