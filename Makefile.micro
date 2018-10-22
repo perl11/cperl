@@ -1,3 +1,4 @@
+# -*- makefile -*-
 LD = $(CC)
 CCFLAGS = -c
 DEFINES = -DPERL_CORE -DPERL_MICRO -DPERL_USE_SAFE_PUTENV -DNO_MATHOMS
@@ -13,21 +14,21 @@ RUN =
 
 all:	microperl
 
-O = uav$(_O) udeb$(_O) udoio$(_O) udoop$(_O) udquote$(_O) udump$(_O) \
-	uglobals$(_O) ugv$(_O) uhv$(_O) umro$(_O)\
-	umg$(_O) uperlmain$(_O) uop$(_O) ureentr$(_O) \
-	upad$(_O) uperl$(_O) uperlio$(_O) uperly$(_O) upp$(_O) \
-	upp_ctl$(_O) upp_hot$(_O) upp_sys$(_O) upp_pack$(_O) upp_sort$(_O) \
-	uregcomp$(_O) uregexec$(_O) urun$(_O) \
-	uscope$(_O) usv$(_O) utaint$(_O) utime64$(_O) utoke$(_O) \
-	unumeric$(_O) ulocale$(_O) umathoms$(_O) \
-	uuniversal$(_O) uutf8$(_O) uutil$(_O) uperlapi$(_O) uxsutils$(_O) ukeywords$(_O)
+O = 	ugv$(_O) uperl$(_O) uperlmain$(_O) uperly$(_O) utoke$(_O) uop$(_O) \
+	uav$(_O) upad$(_O) usv$(_O) uhv$(_O) \
+        upp_hot$(_O) urun$(_O) upp_ctl$(_O) upp_type$(_O) upp$(_O) \
+        uscope$(_O) upp_sys$(_O) uregcomp$(_O) umg$(_O) udoop$(_O) \
+        uutil$(_O) udoio$(_O) ukeywords$(_O) uxsutils$(_O) \
+	uutf8$(_O) uregexec$(_O) uuniversal$(_O) uperlapi$(_O) \
+	uglobals$(_O) uperlio$(_O) upp_sort$(_O) upp_pack$(_O) \
+	unumeric$(_O) ureentr$(_O) umathoms$(_O) ulocale$(_O) udquote$(_O) \
+        umro$(_O) utaint$(_O) utime64$(_O) udump$(_O) udeb$(_O)
 
 microperl:	$(O)
 	$(LD) -o $@ $(O) $(LDFLAGS) $(LIBS)
 
 generated_headers = uuudmap.h ubitcount.h umg_data.h
-H = av.h uconfig.h cop.h cv.h embed.h embedvar.h form.h gv.h handy.h \
+H = 	av.h uconfig.h cop.h cv.h embed.h embedvar.h form.h gv.h handy.h \
 	hv.h hv_func.h intrpvar.h iperlsys.h mg.h op.h opcode.h opnames.h pad.h \
 	patchlevel.h perl.h perlsdio.h perlvars.h perly.h pp.h \
 	pp_proto.h proto.h reentr.h regexp.h scope.h sv.h \
@@ -128,6 +129,9 @@ upp_ctl$(_O):	$(HE) pp_ctl.c
 
 upp_hot$(_O):	$(HE) pp_hot.c
 	$(CC) $(CCFLAGS) -o $@ $(CFLAGS) pp_hot.c
+
+upp_type$(_O):	$(HE) pp_type.c
+	$(CC) $(CCFLAGS) -o $@ $(CFLAGS) pp_type.c
 
 upp_sys$(_O):	$(HE) pp_sys.c
 	$(CC) $(CCFLAGS) -o $@ $(CFLAGS) pp_sys.c

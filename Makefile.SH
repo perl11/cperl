@@ -545,20 +545,38 @@ c5 = $(mallocsrc)
 
 c = $(c1) $(c2) $(c3) $(c4) $(c5) miniperlmain.c opmini.c perlmini.c xsutilsmini.c ppmini.c
 
-obj1 = $(mallocobj) gv$(OBJ_EXT) toke$(OBJ_EXT) perly$(OBJ_EXT) pad$(OBJ_EXT) regcomp$(OBJ_EXT) dump$(OBJ_EXT) util$(OBJ_EXT) mg$(OBJ_EXT) reentr$(OBJ_EXT) mro_core$(OBJ_EXT) keywords$(OBJ_EXT)
-obj2 = hv$(OBJ_EXT) av$(OBJ_EXT) run$(OBJ_EXT) pp_hot$(OBJ_EXT) sv$(OBJ_EXT) pp_type$(OBJ_EXT) scope$(OBJ_EXT) pp_ctl$(OBJ_EXT) pp_sys$(OBJ_EXT)
-obj3 = doop$(OBJ_EXT) doio$(OBJ_EXT) regexec$(OBJ_EXT) utf8$(OBJ_EXT) taint$(OBJ_EXT) deb$(OBJ_EXT) universal$(OBJ_EXT) globals$(OBJ_EXT) perlio$(OBJ_EXT) perlapi$(OBJ_EXT) numeric$(OBJ_EXT) mathoms$(OBJ_EXT) locale$(OBJ_EXT) pp_pack$(OBJ_EXT) pp_sort$(OBJ_EXT) caretx$(OBJ_EXT) dquote$(OBJ_EXT) time64$(OBJ_EXT)
+# The optimal order of the objects was determined via guided search through all permutations,
+# But -flto and autofdo/llvm-bolt are recommended as they do much more.
+obj1 = $(mallocobj) gv$(OBJ_EXT)
+# perlmini miniperlmain
+obj2 = perly$(OBJ_EXT) toke$(OBJ_EXT)
+# opmini
+obj3 = av$(OBJ_EXT) pad$(OBJ_EXT) sv$(OBJ_EXT) hv$(OBJ_EXT) pp_hot$(OBJ_EXT) run$(OBJ_EXT) \
+       pp_type$(OBJ_EXT)
+# ppmini
+obj4 = scope$(OBJ_EXT) pp_ctl$(OBJ_EXT) pp_sys$(OBJ_EXT) mg$(OBJ_EXT) regcomp$(OBJ_EXT) \
+       doop$(OBJ_EXT) doio$(OBJ_EXT) util$(OBJ_EXT) keywords$(OBJ_EXT)
+# xsutilsmini
+obj5 = regexec$(OBJ_EXT) utf8$(OBJ_EXT) universal$(OBJ_EXT) perlapi$(OBJ_EXT) \
+       globals$(OBJ_EXT) perlio$(OBJ_EXT) pp_sort$(OBJ_EXT) pp_pack$(OBJ_EXT) \
+       numeric$(OBJ_EXT) reentr$(OBJ_EXT) mathoms$(OBJ_EXT) locale$(OBJ_EXT) \
+       dquote$(OBJ_EXT) mro_core$(OBJ_EXT) taint$(OBJ_EXT) time64$(OBJ_EXT) \
+       caretx$(OBJ_EXT) dump$(OBJ_EXT) deb$(OBJ_EXT)
 
 # split the objects into 3 exclusive sets: those used by both miniperl and
 # perl, and those used by just one or the other. Doesn't include the
 # actual perl(mini)main.o, nor any dtrace objects.
 
 common_objs    = $(obj1) $(obj2) $(obj3) $(ARCHOBJS)
-mini_only_objs = opmini$(OBJ_EXT) perlmini$(OBJ_EXT) xsutilsmini$(OBJ_EXT) ppmini$(OBJ_EXT)
+mini_only_objs = perlmini$(OBJ_EXT) opmini$(OBJ_EXT) xsutilsmini$(OBJ_EXT) ppmini$(OBJ_EXT)
 main_only_objs = op$(OBJ_EXT) perl$(OBJ_EXT) xsutils$(OBJ_EXT) pp$(OBJ_EXT)
 
-miniperl_objs_nodt = $(mini_only_objs) $(common_objs) miniperlmain$(OBJ_EXT)
-perllib_objs_nodt  = $(main_only_objs) $(common_objs)
+miniperl_objs_nodt = $(obj1) perlmini$(OBJ_EXT) miniperlmain$(OBJ_EXT) \
+                     $(obj2) opmini$(OBJ_EXT) $(obj3) ppmini$(OBJ_EXT) \
+                     $(obj4) xsutilsmini$(OBJ_EXT) $(obj5) $(ARCHOBJS)
+perllib_objs_nodt  = $(obj1) perl$(OBJ_EXT) \
+                     $(obj2) op$(OBJ_EXT) $(obj3) pp$(OBJ_EXT) \
+                     $(obj4) xsutils$(OBJ_EXT) $(obj5) $(ARCHOBJS)
 
 !NO!SUBS!
 
@@ -836,10 +854,9 @@ $(LIBPERL_NONSHR): $(perllib_objs)
 	$(RMS) $(LIBPERL_NONSHR)
 	$(AR) $(ARFLAGS) $(LIBPERL_NONSHR) $(perllib_objs)
 
-$(MINIPERL_NONSHR): $(LIBPERL_NONSHR) miniperlmain$(OBJ_EXT) \
-                    opmini$(OBJ_EXT) perlmini$(OBJ_EXT) xsutilsmini$(OBJ_EXT) ppmini$(OBJ_EXT)
+$(MINIPERL_NONSHR): $(LIBPERL_NONSHR) miniperlmain$(OBJ_EXT) $(mini_only_objs)
 	$(LD) $(LDFLAGS) -o $(MINIPERL_NONSHR) miniperlmain$(OBJ_EXT) \
-	    opmini$(OBJ_EXT) perlmini$(OBJ_EXT) xsutilsmini$(OBJ_EXT) ppmini$(OBJ_EXT) $(LIBPERL_NONSHR) $(miniperllibs)
+	    $(mini_only_objs) $(LIBPERL_NONSHR) $(miniperllibs)
 
 MINIPERLEXP		= $(MINIPERL_NONSHR)
 

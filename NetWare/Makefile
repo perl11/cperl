@@ -109,7 +109,7 @@ LDFLAGS         = -type generic -stacksize 16384 -zerobss \
 # Debug flags comes here - Not mandatory - required only for debug build
 !if "$(MAKE_TYPE)"=="Debug"
 BLDDIR          = $(DEB_DIR)
-BLDMESG	    = Debug version,
+BLDMESG	        = Debug version,
 !ifdef USE_D2
 BS_CFLAGS	= -opt off -inline off -sym on -sym codeview4 -sym internal -DDEBUGGING -DDKFBPON
 BLDMESG		= $(BLDMESG) Using /d2 option
@@ -128,7 +128,7 @@ LDFLAGS		= $(LDFLAGS) -sym on -sym codeview4 -sym internal -osym $(MAKE_TYPE)\$(
 !endif												# !ifdef NLM_NAME8
 !endif												# !ifdef USE_D2
 !else												# !if "$(MAKE_TYPE)"=="Debug"
-BLDDIR      = $(REL_DIR)
+BLDDIR		= $(REL_DIR)
 BLDMESG		= Release version
 ##BS_CFLAGS	= -opt speed -inline smart -inline auto -sym off
 BS_CFLAGS	= 
@@ -137,8 +137,8 @@ BS_CFLAGS	=
 
 ADD_LOCDEFS =	-DPERL_CORE
 
-NLM_INCLUDE			= -I$(NLMSDKBASE)\include
-NLM_INCLUDE_NLM		= -I$(NLMSDKBASE)\include\nlm
+NLM_INCLUDE	    = -I$(NLMSDKBASE)\include
+NLM_INCLUDE_NLM	    = -I$(NLMSDKBASE)\include\nlm
 NLM_INCLUDE_NLM_SYS = -I$(NLMSDKBASE)\include\nlm\sys
 NLM_INCLUDE_OBSLETE = -I$(NLMSDKBASE)\include\nlm\obsolete
 
@@ -147,16 +147,16 @@ SECURITY_INCLUDE	= -I$(SECURITYBASE)\include
 !endif											#!ifdef SECURITYBASE
 
 !ifdef UCSINC
-NLM_INCLUDE_UCS     = -I$(UCSINC)
+NLM_INCLUDE_UCS = -I$(UCSINC)
 !endif											#!ifndef UCSINC
 
 !if "$(NW_EXTNS)"=="yes" 
-INCLUDE_NW          = -I.\include
+INCLUDE_NW      = -I.\include
 !endif
 
 
-INC_PREV			= -I..
-INC_THIS			= -I.
+INC_PREV	= -I..
+INC_THIS	= -I.
 
 
 NLM_INCLUDE_PATH = $(NLM_INCLUDE) $(NLM_INCLUDE_NLM) $(NLM_INCLUDE_NLM_SYS) $(NLM_INCLUDE_OBSLETE) \
@@ -176,83 +176,82 @@ PATH = $(PATH);$(TOOL_PATH)
 
 NLM_INCLUDES	= -I$(COREDIR) $(INCLUDE_NW)
 
-CCFLAGS     = $(CCFLAGS) $(INCLUDE)
+CCFLAGS     	= $(CCFLAGS) $(INCLUDE)
 
 COMPLER_FLAGS	=  $(BS_CFLAGS) $(ADD_BUILDOPT) $(NW_FLAGS) $(COMPILER_FLAG) $(MPKFLAGS) $(CCFLAGS)
 
 # Source file list
-NW_H_FILES			=	\
-						.\iperlhost.h	\
-						.\interface.h	\
-						.\netware.h \
-						.\nw5iop.h	\
-						.\nw5sck.h	\
-						.\nwpipe.h	\
-						.\nwplglob.h	\
-						.\nwtinfo.h	\
-						.\nwutil.h	\
-						.\nwhashcls.h \
+NW_H_FILES	=	\
+		.\iperlhost.h	\
+		.\interface.h	\
+		.\netware.h 	\
+		.\nw5iop.h	\
+		.\nw5sck.h	\
+		.\nwpipe.h	\
+		.\nwplglob.h	\
+		.\nwtinfo.h	\
+		.\nwutil.h	\
+		.\nwhashcls.h
 
-NW_HOST_H_FILES		=	\
-						.\iperlhost.h	\
-						.\interface.h	\
-						.\netware.h	\
-						.\nw5sck.h	\
-						.\nwperlhost.h	\
+NW_HOST_H_FILES	=	\
+		.\iperlhost.h	\
+		.\interface.h	\
+		.\netware.h	\
+		.\nw5sck.h	\
+		.\nwperlhost.h
 
+CLIB_H_FILES	=	\
+		.\clibsdio.h	\
+		.\clibstr.h	\
+		.\clibstuf.h	\
+		.\stdio.h	\
+		.\string.h
 
-CLIB_H_FILES		=	\
-						.\clibsdio.h	\
-						.\clibstr.h		\
-						.\clibstuf.h	\
-						.\stdio.h	\
-						.\string.h	\
+NW_SRC		=	\
+		.\CLIBstuf.c	\
+		.\sv_nw.c	\
+		.\nw5.c		\
+		.\nw5sck.c	\
+		.\nw5thread.c   \
+		.\nwmain.c	\
+		.\nwpipe.c  	\
+		.\nwplglob.c	\
+		.\nwtinfo.c 	\
+		.\nwutil.c
 
-NW_SRC				=	\
-						.\CLIBstuf.c	\
-						.\sv_nw.c		\
-						.\nw5.c		\
-						.\nw5sck.c	\
-						.\nw5thread.c \
-						.\nwmain.c	\
-						.\nwpipe.c  \
-						.\nwplglob.c	\
-						.\nwtinfo.c \
-						.\nwutil.c  \
+NW_CPP_SRC      =   \
+		.\nwhashcls.cpp \
+		.\interface.cpp \
+		.\perllib.cpp
 
-NW_CPP_SRC          =   \
-						.\nwhashcls.cpp \
-						.\interface.cpp \
-						.\perllib.cpp   \
+EXT_MAIN_SRC	=	\
+		.\Main.c
 
-EXT_MAIN_SRC		=	\
-						.\Main.c	\
+PERL_IO_SRC	=	\
+		..\perlio.c
 
-PERL_IO_SRC			=	\
-						..\perlio.c	
-
-CLIBSTUF_OBJ		=	\
-						.\CLIBstuf.obj
+CLIBSTUF_OBJ	=	\
+		.\CLIBstuf.obj
 
 #PERL_TMP_OBJ       = $(PERL_TEMP_SRC:.c=.obj)
-NW_SRC_OBJ			= $(NW_SRC:.c=.obj)
+NW_SRC_OBJ	    = $(NW_SRC:.c=.obj)
 NW_CPP_SRC_OBJ      = $(NW_CPP_SRC:.cpp=.obj)
-NLM_MICROCORE_OBJ	= $(MICROCORE_SRC:.c=.obj) 
-PERL_LIB_OBJ		= $(PERL_LIB_SRC:.c=.obj)
-PERL_IO_OBJ			= $(PERL_IO_SRC:.c=.obj)
+NLM_MICROCORE_OBJ   = $(MICROCORE_SRC:.c=.obj)
+PERL_LIB_OBJ	    = $(PERL_LIB_SRC:.c=.obj)
+PERL_IO_OBJ	    = $(PERL_IO_SRC:.c=.obj)
 NLM_CORE_OBJ	    = $(NLM_MICROCORE_OBJ)
-EXT_MAIN_OBJ		= $(EXT_MAIN_SRC:.c=.obj)
+EXT_MAIN_OBJ	    = $(EXT_MAIN_SRC:.c=.obj)
 
 # For dependency checking 
 # $(BLDDIR) in place of Release or Debug is not working, should look into this - sgp
 !if "$(BLDDIR)"=="Release" 
-NLM_OBJ				= $(NLM_CORE_OBJ:..\=.\Release\)
+NLM_OBJ			= $(NLM_CORE_OBJ:..\=.\Release\)
 NEWTARE_OBJ_DEP		= $(NW_SRC_OBJ:.\=.\Release\)
 NEWTARE_CPP_OBJ_DEP	= $(NW_CPP_SRC_OBJ:.\=.\Release\)
 PERL_LIB_OBJ_DEP	= $(PERL_LIB_OBJ:.\=.\Release\)
 PERL_IO_OBJ_DEP		= $(PERL_IO_OBJ:..\=.\Release\)
 !else
-NLM_OBJ				= $(NLM_CORE_OBJ:..\=.\Debug\)
+NLM_OBJ			= $(NLM_CORE_OBJ:..\=.\Debug\)
 NEWTARE_OBJ_DEP		= $(NW_SRC_OBJ:.\=.\Debug\)
 NEWTARE_CPP_OBJ_DEP	= $(NW_CPP_SRC_OBJ:.\=.\Debug\)
 PERL_LIB_OBJ_DEP	= $(PERL_LIB_OBJ:.\=.\Debug\)
@@ -265,20 +264,20 @@ NW_CFG_VARS = \
 		"INST_TOP=$(INST_TOP)"			\
 		"INST_VER=$(INST_VER)"			\
 		"INST_ARCH=$(INST_ARCH)"		\
-		"INST_NW_TOP1=$(INST_NW_TOP1)"	\
-		"INST_NW_TOP2=$(INST_NW_TOP2)"	\
-		"INST_NW_VER=$(INST_NW_VER)"	\
+		"INST_NW_TOP1=$(INST_NW_TOP1)"		\
+		"INST_NW_TOP2=$(INST_NW_TOP2)"		\
+		"INST_NW_VER=$(INST_NW_VER)"		\
 		"archname=$(ARCHNAME)"			\
-		"cc=$(C_COMPILER)"				\
+		"cc=$(C_COMPILER)"			\
 		"ar=$(LINK)"				\
-		"ccflags=$(COMPLER_FLAGS)"	\
+		"ccflags=$(COMPLER_FLAGS)"		\
 		"cf_email=$(EMAIL)"			\
 		"d_crypt=$(D_CRYPT)"			\
 		"d_mymalloc=$(PERL_MALLOC)"		\
 #		"libs=$(LIBFILES)"			\
-		"incpath=$(NLM_INCLUDE_PATH)"	\
+		"incpath=$(NLM_INCLUDE_PATH)"		\
 		"libperl=$(PERLIMPLIB:..\=)"		\
-		"libpth=$(LIBPATH)"	\
+		"libpth=$(LIBPATH)"			\
 #		"libc=$(LIBC)"				\
 		"make=nmake"				\
 		"static_ext=$(STATIC_EXT)"		\
@@ -286,18 +285,18 @@ NW_CFG_VARS = \
 		"nonxs_ext=$(NONXS_EXT)"		\
 		"useithreads=$(USE_ITHREADS)"		\
 		"usemultiplicity=$(USE_MULTI)"		\
-		"ld=$(LINK)"			\
+		"ld=$(LINK)"				\
 		"base_import=$(BASE_IMPORT_FILES)"	\
 		"LINK_FLAGS=$(LINK_FLAGS:"=\")"		\
-		"optimize="		\
+		"optimize="				\
 		"d_stdio_cnt_lval=undef"		\
 		"d_stdio_ptr_lval=undef"		\
-		"d_stdiobase=undef"				\
-		"d_stdstdio=undef"				\
-		"d_times=undef"					\
-		"direntrytype=DIR"				\
+		"d_stdiobase=undef"			\
+		"d_stdstdio=undef"			\
+		"d_times=undef"				\
+		"direntrytype=DIR"			\
 		"nlm_version=$(NLM_VERSION)"		\
-		"d_archname=NetWare"	\
+		"d_archname=NetWare"			\
 		"mpktool=$(MPKTOOL) $(XDCFLAGS)"	\
 		"toolpath=$(TOOL_PATH)"
 
@@ -375,8 +374,7 @@ TYPE_NLM	= TestNLM\type\type.nlm
 
 TEST_NLMS	=	\
 			$(ECHO_NLM)	\
-			$(TYPE_NLM)	\
-
+			$(TYPE_NLM)
 
 !ifndef SCREEN
 SCREEN          = 'none'

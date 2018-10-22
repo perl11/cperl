@@ -77,16 +77,13 @@ as an updated module in the L</Modules and Pragmata> section.
 
 =head1 Performance Enhancements
 
-XXX Changes which enhance performance without changing behaviour go here.
-There may well be none in a stable release.
-
-[ List each enhancement as an =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+Optimized the static link order of objects for the default case,
+when you cannot use lto, pgo, autofdo nor bolt.
+See L<http://perl11.org/blog/bolt.html>.
 
 =back
 

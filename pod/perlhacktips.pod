@@ -1747,7 +1747,7 @@ You can expand the macros in a F<foo.c> file by saying
 
     make foo.i
 
-which will expand the macros using cpp.  Don't be scared by the
+which will expand the macros using C<cpp>.  Don't be scared by the
 results.
 
 =head1 AUTHOR
