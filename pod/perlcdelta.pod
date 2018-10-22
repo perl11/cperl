@@ -655,6 +655,12 @@ C<grok_atoUV> supports that too now.
 
 =item *
 
+C<binmode($fh);> or C<binmode($fh, ':raw');> now properly removes the
+C<:utf8> flag from the default C<:crlf> I/O layer on Win32.
+L<[perl #133604]|https://rt.perl.org/Public/Bug/Display.html?id=133604>
+
+=item *
+
 C<pack "u", "invalid uuencoding"> now properly NUL terminates the
 zero-length SV produced.
 L<[perl #132655]|https://rt.perl.org/Public/Bug/Display.html?id=132655>
