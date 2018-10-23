@@ -4754,6 +4754,9 @@ if $cc -o try $ccflags $ldflags try.c; then
 	gccversion=`$run ./try`
 	case "$gccversion" in
 	'') echo "You are not using GNU cc." ;;
+	*Clang*|clang*) echo "You are using clang $gccversion."
+	    ccname=clang
+	    ;;
 	*)  echo "You are using GNU cc $gccversion."
 	    ccname=gcc
 	    ;;
@@ -5069,9 +5072,9 @@ fi
 : Use gcc to determine libpth and incpth
 # If using gcc or clang, we can get better values for libpth, incpth
 # and usrinc directly from the compiler.
-# Note that ccname for clang is also gcc.
+# Note ccname for clang is now seperate.
 case "$ccname" in
-    gcc)
+    gcc|clang)
 	$echo 'extern int foo;' > try.c
 	set X `$cppstdin -v try.c 2>&1 | $awk '/^#include </,/^End of search /'|$cppfilter $grep '/include'`
 	shift
@@ -5690,6 +5693,66 @@ $define)
 	;;
 esac
 
+: probe for -flto
+case "$cc $ccflags $dflt" in
+    *-DDEBUGGING*)
+        echo "Ignoring -flto with DEBUGGING." >&4
+        ;;
+    *-flto*)
+        echo "-flto already in ccflags" >&4
+        ;;
+    *)
+        case "$ccname" in
+            clang)
+                echo "clang: try -flto=thin or -flto"
+                unset wasset
+		set lto-thin "-flto=thin -DLTO" "wasset=1"
+		eval $checkccflag
+	        if test -z wasset; then
+		set lto-thin "-flto=thin -fuse-ld=gold -DLTO" "wasset=1"
+		eval $checkccflag
+	        if test -z wasset; then
+		set lto "-flto -DLTO" "wasset=1"
+		eval $checkccflag
+	        if test -z wasset; then
+		set lto "-flto -fuse-ld=gold -DLTO"
+		eval $checkccflag
+                fi
+                fi
+                fi
+                unset wasset
+                ;;
+            gcc)
+                echo "gcc: try -flto=4 or -flto"
+                unset wasset
+		set lto-4 "-flto=4 -DLTO" "wasset=1"
+		eval $checkccflag
+	        if test -z wasset; then
+		set lto "-flto=4 -fuse-linker-plugin -fuse-ld=gold -DLTO" "wasset=1"
+		eval $checkccflag
+	        if test -z wasset; then
+		set lto "-flto=4 -fuse-ld=gold -DLTO" "wasset=1"
+		eval $checkccflag
+	        if test -z wasset; then
+		set lto "-flto -DLTO" "wasset=1"
+		eval $checkccflag
+	        if test -z wasset; then
+		set lto "-flto -fuse-ld=gold -DLTO"
+		eval $checkccflag
+                fi
+                fi
+                fi
+                fi
+                unset wasset
+                ;;
+            *)  echo "$cc: try -flto"
+	        set lto "-flto -DLTO"
+	        eval $checkccflag
+                ;;
+        esac
+        ;;
+esac
+
 case "$hint" in
 default|recommended) dflt="$ccflags $dflt" ;;
 *) dflt="$ccflags";;
@@ -5793,6 +5856,7 @@ case "$ldflags" in
 	;;
 *) dflt="$ldflags";;
 esac
+
 # See note above about -fstack-protector
 case "$ccflags" in
 *-fsanitize=cfi*)

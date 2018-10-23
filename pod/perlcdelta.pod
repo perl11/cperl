@@ -83,7 +83,9 @@ as an updated module in the L</Modules and Pragmata> section.
 
 Optimized the static link order of objects for the default case,
 when you cannot use lto, pgo, autofdo nor bolt.
-See L<http://perl11.org/blog/bolt.html>.
+Added lto to the default ccflags.
+See L<http://perl11.org/blog/bolt.html> and
+L<[cperl #381]|https://github.com/perl11/cperl/issues/381>.
 
 =back
 
@@ -161,7 +163,7 @@ Additionally, the following selected changes have been made:
 =item *
 
 Added a L<perlhacktips/COMPILER OPTIMIZATIONS> section, with LTO, PGO,
-AutoFDO and BOLT tips.
+AutoFDO, prelink and BOLT tips.
 
 =back
 
@@ -243,7 +245,14 @@ L</Platform Support> section, instead.
 
 =item *
 
-XXX
+Without C<DEBUGGING> the best C<-flto> Link Time Optimization flag is
+now added to the default ccflags.
+See L<http://perl11.org/blog/bolt.html> and
+L<[cperl #381]|https://github.com/perl11/cperl/issues/381>.
+
+=item *
+
+C<ccname> is now set to "clang" for clang, not "gcc".
 
 =back
 
