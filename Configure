@@ -3920,7 +3920,10 @@ if [ "x$SOURCE_DATE_EPOCH" != "x" ]; then
 elif [ -d $rsrc/.git ]; then
     tmppwd=`pwd`
     cd $rsrc || exit
-    cf_file=$(ls -t `git ls-tree --full-tree -r --name-only HEAD` | head -n1)
+    cf_file=$(git ls-tree --full-tree -r --name-only HEAD | xargs ls -t | head -n1)
+    if test -z $cf_file; then
+        cf_file=$(ls -t `git ls-tree --full-tree -r --name-only HEAD` | head -n1)
+    fi
     echo "cf_time from newest git file $cf_file" >&4
     cf_epoch=`$date -r $cf_file +%s 2>&1`
     cd $tmppwd || exit
