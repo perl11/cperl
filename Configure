@@ -21989,6 +21989,27 @@ rp="What is the type of process ids on this system?"
 set pid_t pidtype int stdio.h sys/types.h
 eval $typedef_ask
 
+: clang -flto cannot be used with binutils ar, try llvm-ar*
+case "$ccname $cc $ccflags" in
+    clang*flto*)
+        case "$ar" in
+            ar|*/ar)
+                echo " "
+                echo "Warning: clang -flto used with ar"
+                dflt=`echo $cc|sed -e 's,clang-,llvm-ar-,'`
+                if test -n `which $dflt`; then
+                    ar=$dflt
+                    full_ar=`which $dflt`
+                echo "Replaced ar with $ar for bitcode libs with clang -flto" >&4
+                fi
+                dflt=
+                ;;
+            *)  ;;
+        esac
+        ;;
+    *)  ;;
+esac
+
 : see if ar generates random libraries by itself
 echo " "
 echo "Checking how to generate random libraries on your machine..." >&4
