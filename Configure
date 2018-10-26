@@ -5712,12 +5712,14 @@ case "$cc $ccflags $dflt" in
                 unset wasset
 		set lto-thin "-flto=thin -DLTO" "wasset=1"
 		eval $checkccflag
+                ltoflags="-flto=thin"
 	        if test -z wasset; then
 		set lto-thin "-flto=thin -fuse-ld=gold -DLTO" "wasset=1"
 		eval $checkccflag
 	        if test -z wasset; then
 		set lto "-flto -DLTO" "wasset=1"
 		eval $checkccflag
+                ltoflags="-flto"
 	        if test -z wasset; then
 		set lto "-flto -fuse-ld=gold -DLTO"
 		eval $checkccflag
@@ -5731,6 +5733,7 @@ case "$cc $ccflags $dflt" in
                 unset wasset
 		set lto-4 "-flto=4 -DLTO" "wasset=1"
 		eval $checkccflag
+                ltoflags="-flto=4"
 	        if test -z wasset; then
 		set lto "-flto=4 -fuse-linker-plugin -fuse-ld=gold -DLTO" "wasset=1"
 		eval $checkccflag
@@ -5740,6 +5743,7 @@ case "$cc $ccflags $dflt" in
 	        if test -z wasset; then
 		set lto "-flto -DLTO" "wasset=1"
 		eval $checkccflag
+                ltoflags="-flto"
 	        if test -z wasset; then
 		set lto "-flto -fuse-ld=gold -DLTO"
 		eval $checkccflag
@@ -5752,6 +5756,7 @@ case "$cc $ccflags $dflt" in
             *)  echo "$cc: try -flto"
 	        set lto "-flto -DLTO"
 	        eval $checkccflag
+                ltoflags="-flto"
                 ;;
         esac
         ;;
@@ -5956,7 +5961,12 @@ case "$ccflags" in
     esac
     case "$ccflags" in
         *-flto*) ;;
-	*) ccflags="-DLTO -flto $ccflags" ;;
+        *)  if test -z $ltoflags; then
+                ccflags="$ccflags -DLTO -flto"
+            else
+                ccflags="$ccflags -DLTO $ltoflags"
+            fi
+            ;;
     esac
     case "$ldflags" in
         *-flto*) ;;
@@ -5974,11 +5984,16 @@ case "$ccflags" in
 *-flto*)
     case "$ccflags" in
         *-DLTO*) ;;
-	*) ccflags="-DLTO $ccflags" ;;
+	*) ccflags="$ccflags -DLTO" ;;
     esac
     case "$ldflags" in
         *-flto*) ;;
-        *) ldflags="-flto $ldflags" ;;
+        *)  if test -z $ltoflags; then
+                ldflags="$ldflags -flto"
+            else
+                ldflags="$ldflags $ltoflags"
+            fi
+            ;;
     esac
 esac
 
@@ -9018,7 +9033,12 @@ EOM
 	    *-flto*)
 		case "$dflt" in
 		    *-flto*) ;; # Don't add it again
-		    *) dflt="$dflt -flto" ;;
+		    *) if test -z $ltoflags; then
+                           dflt="$dflt -flto"
+                       else
+                           dflt="$dflt $ltoflags"
+                       fi
+                       ;;
 		esac
 		;;
           esac
@@ -9028,7 +9048,7 @@ EOM
 	. ./myread
 	case "$ans" in
 	    none) lddlflags=' ' ;;
-	    *) lddlflags="$ans" ;;
+	    *)    lddlflags="$ans" ;;
 	esac
 
 	cat <<EOM

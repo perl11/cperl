@@ -250,6 +250,8 @@ now added to the default ccflags.
 See L<http://perl11.org/blog/bolt.html> and
 L<[cperl #381]|https://github.com/perl11/cperl/issues/381>.
 
+The correct -flto= variant is then used for ldflags and lddlflags also.
+
 ar is replaced by llvm-ar-$ver if needed.
 
 =item *
