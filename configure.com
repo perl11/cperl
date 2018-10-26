@@ -7032,6 +7032,7 @@ $ WC "getservbyport_r_proto='0'"
 $ WC "getservent_r_proto='0'"
 $ WC "getspnam_r_proto='0'"
 $ WC "gmtime_r_proto='0'"
+$ WC "llvmversion=''"
 $ WC "localtime_r_proto='0'"
 $ WC "random_r_proto='0'"
 $ WC "readdir_r_proto='REENTRANT_PROTO_I_TSR'"  ! always defined; we roll our own

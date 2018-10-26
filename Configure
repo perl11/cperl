@@ -966,6 +966,7 @@ fpostype=''
 gccansipedantic=''
 gccosandvers=''
 gccversion=''
+llvmversion=''
 gidformat=''
 gidsign=''
 gidsize=''
@@ -4754,8 +4755,10 @@ if $cc -o try $ccflags $ldflags try.c; then
 	gccversion=`$run ./try`
 	case "$gccversion" in
 	'') echo "You are not using GNU cc." ;;
-	*Clang*|clang*) echo "You are using clang $gccversion."
+	*Clang*|clang*)
 	    ccname=clang
+            llvmversion=`$cc --version | head -n1 | sed "s,clang version ,,"`
+            echo "You are using clang $llvmversion."
 	    ;;
 	*)  echo "You are using GNU cc $gccversion."
 	    ccname=gcc
@@ -4772,6 +4775,7 @@ else
 		;;
 	esac
 fi
+
 $rm -f try try.*
 case "$gccversion" in
 1*) cpp=`./loc gcc-cpp $cpp $pth` ;;
@@ -25423,6 +25427,7 @@ lint='$lint'
 lkflags='$lkflags'
 ln='$ln'
 lns='$lns'
+llvmversion='$llvmversion'
 localtime_r_proto='$localtime_r_proto'
 locincpth='$locincpth'
 loclibpth='$loclibpth'

@@ -254,6 +254,11 @@ L<[cperl #381]|https://github.com/perl11/cperl/issues/381>.
 
 C<ccname> is now set to "clang" for clang, not "gcc".
 
+=item *
+
+C<llvmversion> string added, like "6.0.1-9.1 (tags/RELEASE_601/final)",
+analog to C<gccversion>. With clang both variables are set.
+
 =back
 
 =head1 Testing
