@@ -71,7 +71,7 @@ BEGIN {
     cmp_ok( abs($now - $stamp), '<=', 1, 'checking modify time stamp' ) ||
       diag "mtime == $stamp, should be $now";
 
-    sleep(0.2) if $^O eq 'MSWin32';
+    sleep(0.2) if $^O =~ /MSWin32|cygwin/;
     @ARGV = qw(newfile);
     touch();
 
