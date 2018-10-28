@@ -100,6 +100,7 @@ uname_minus_m="${uname_minus_m:-"$targetarch"}"
 # Check if we're about to use Intel's ICC compiler
 case "`${cc:-cc} -V 2>&1`" in
 *"Intel(R) C++ Compiler"*|*"Intel(R) C Compiler"*)
+    ccname='icc'
     # record the version, formats:
     # icc (ICC) 10.1 20080801
     # icpc (ICC) 10.1 20080801
@@ -141,7 +142,7 @@ case "`${cc:-cc} -V 2>&1`" in
 esac
 
 case "$optimize" in
-# use -O2 by default ; -O3 doesn't seem to bring significant benefits with gcc
+# use -O2 by default ; -O3 doesn't seem to bring significant benefits with older gcc's
 '')
     optimize='-O2'
     case "$uname_minus_m" in
@@ -149,7 +150,7 @@ case "$optimize" in
             # on ppc, it seems that gcc (at least gcc 3.3.2) isn't happy
             # with -O2 ; so downgrade to -O1.
             optimize='-O1'
-        ;;
+            ;;
         ia64*)
             # This architecture has had various problems with gcc's
             # in the 3.2, 3.3, and 3.4 releases when optimized to -O2.  See
@@ -159,7 +160,12 @@ case "$optimize" in
                 ccflags="-fno-delete-null-pointer-checks $ccflags"
             ;;
             esac
-        ;;
+            ;;
+        *)  # recent standard compilers prefer inlining with -flto
+            case "`${cc:-cc} -v 2>&1`" in
+            *"gcc version [456789]"*)   optimize='-O3' ;;
+            *"clang version [456789]"*) optimize='-O3' ;;
+            esac
     esac
     if test "$cc" != "pgcc"; then
         optimize="$optimize --pipe"

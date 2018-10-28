@@ -261,6 +261,11 @@ C<ccname> is now set to "clang" for clang, not "gcc".
 
 =item *
 
+On linux "icc" is also set for C<ccname>, and C<-O3> is preferred over C<-O2> in
+most non-DEBUGGING cases with newer compilers.
+
+=item *
+
 C<llvmversion> string added, like "6.0.1-9.1 (tags/RELEASE_601/final)",
 analog to C<gccversion>. With clang both variables are set.
 
