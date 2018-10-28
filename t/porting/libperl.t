@@ -357,7 +357,13 @@ unless (exists $symbols{text}) {
 ok($symbols{obj}{'pp.o'}, "has object pp.o");
 ok($symbols{text}{'Perl_peep'}, "has text Perl_peep");
 ok($symbols{text}{'Perl_pp_uc'}{'pp.o'}, "has text Perl_pp_uc in pp.o");
-if ($nm_style eq 'llvm' and !exists $symbols{data}{const}) {
+if ($Config{ccflags} =~ /flto/ and
+    !exists $symbols{data}{const} and
+    !exists $symbols{data}{data})
+{
+    ok(exists $symbols{data}{common}, "has data common symbols");
+    ok($symbols{data}{common}{PL_beginav}{'globals.o'}, "has PL_beginav");
+} elsif ($nm_style eq 'llvm' and !exists $symbols{data}{const}) {
     ok(exists $symbols{data}{data}, "has data data symbols");
     ok($symbols{data}{data}{PL_no_mem}{'globals.o'}, "has PL_no_mem");
 } else {
@@ -476,7 +482,15 @@ if ($GSP) {
     }
 
     ok($symbols{data}{common}{PL_hash_seed}{'globals.o'}, "has PL_hash_seed");
-    ok($symbols{data}{data}{PL_ppaddr}{'globals.o'}, "has PL_ppaddr");
+    if ($Config{ccflags} =~ /flto/ and # gcc-4.8 -flto=4
+        !exists $symbols{data}{const} and
+        !exists $symbols{data}{data})
+    {
+      $symbols{data}{data} = $symbols{data}{common};
+      ok($symbols{text}{PL_ppaddr}{'globals.o'}, "has PL_ppaddr");
+    } else {
+      ok($symbols{data}{data}{PL_ppaddr}{'globals.o'}, "has PL_ppaddr");
+    }
 
     # None of the GLOBAL_STRUCT* business here.
     ok(! exists $symbols{data}{data}{PL_VarsPtr}, "has no PL_VarsPtr");
@@ -501,7 +515,9 @@ my %expected = (
     time   => 'd_time',
     );
 
-if ($Config{uselongdouble} && $Config{longdblsize} > $Config{doublesize}) {
+if ($Config{ccflags} =~ /flto/) {
+  ; # exp was inlined
+} elsif ($Config{uselongdouble} && $Config{longdblsize} > $Config{doublesize}) {
     $expected{expl} = undef; # There is no Configure symbol for expl.
 } elsif ($Config{usequadmath}) {
     $expected{expq} = undef; # There is no Configure symbol for expq.
@@ -621,6 +637,10 @@ if (defined $nm_err_tmp) {
             # "no name list" but then outputs fine.
             if (/nm: no name list/ && $^O eq 'darwin') {
                 print "# $^O ignoring $nm output: $_";
+                next;
+            }
+            if (/nm: perlapi.o: no symbols/ and $Config{ccflags} =~ /-flto/) {
+                print "# -flto ignoring output $_";
                 next;
             }
             warn "$0: Unexpected $nm error: $_";
