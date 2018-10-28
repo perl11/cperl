@@ -1003,6 +1003,7 @@ i_fp_class=''
 useffi=''
 d_libffi=''
 i_ffi=''
+ffi_targets=''
 i_gdbm=''
 d_grpasswd=''
 i_grp=''
@@ -5582,7 +5583,7 @@ if $cc $_sysroot -O2 $flag -o gcctest gcctest.c 2>gcctest.out && $run ./gcctest;
 	*$check*)
 	    echo "Leaving current flags $ccflags alone." 2>&1
 	    ;;
-	*) dflt="$dflt $flag";
+	*)  dflt="$dflt $flag";
 	    eval $callback
 	    ;;
 	esac
@@ -25253,6 +25254,7 @@ extensions='$extensions'
 extern_C='$extern_C'
 extras='$extras'
 fake_signatures='$fake_signatures'
+ffi_targets=''
 fflushNULL='$fflushNULL'
 fflushall='$fflushall'
 find='$find'
