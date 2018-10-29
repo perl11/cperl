@@ -1166,6 +1166,31 @@ then
     $spitshell >>$Makefile <<'!NO!SUBS!'
 # Special Perl targets: profiled guided https://gcc.gnu.org/wiki/AutoFDO
 
+!NO!SUBS!
+
+    if test -n "$llvmversion"
+    then
+        $spitshell >>$Makefile <<'!NO!SUBS!'
+CREATE_GCOV = create_llvm_prof
+!NO!SUBS!
+    else
+        $spitshell >>$Makefile <<'!NO!SUBS!'
+CREATE_GCOV = create_gcov
+!NO!SUBS!
+    fi
+    if test -n "$useshrplib"
+    then
+        $spitshell >>$Makefile <<'!NO!SUBS!'
+CREATE_GCOV_TARGET = $(LIBPERL)
+!NO!SUBS!
+    else
+        $spitshell >>$Makefile <<'!NO!SUBS!'
+CREATE_GCOV_TARGET = perl
+!NO!SUBS!
+    fi
+
+    $spitshell >>$Makefile <<'!NO!SUBS!'
+
 miniperl.autofdo:	miniperl
 	@echo "Creating minibench.sh ..."
 	@echo '#!/bin/sh' > minibench.sh
@@ -1174,7 +1199,7 @@ miniperl.autofdo:	miniperl
 	perf stat -r2 ./minibench.sh
 	@echo "Creating autofdo branch profile perl.gcov ..."
 	perf record -b -e cpu/event=0xc4,umask=0x20,name=br_inst_retired_near_taken,period=400009/pp -- ./minibench.sh || exit 1
-	create_gcov --binary=./miniperl --profile=perf.data --gcov=perl.gcov -gcov_version=1
+	$(CREATE_GCOV) --binary=./miniperl --profile=perf.data --gcov=perl.gcov -gcov_version=1
 	sed -i.bak 's,extra="",extra="-fauto-profile=perl.gcov",' cflags
 	@echo "Recompile with -fauto-profile=perl.gcov ..."
 	@rm *.o
@@ -1184,17 +1209,18 @@ miniperl.autofdo:	miniperl
 	mv cflags.bak cflags
 
 perl.autofdo:	test_prep
-	@echo "Creating autofdo branch profile perl.gcov ..."
+	@echo "Creating autofdo branch profile perl.gcov for $(CREATE_GCOV_TARGET) ..."
 	perf record -b -e cpu/event=0xc4,umask=0x20,name=br_inst_retired_near_taken,period=400009/pp -- ./perl -Ilib t/harness t/op/*.t || exit 1
-	create_gcov --binary=./perl --profile=perf.data --gcov=perl.gcov -gcov_version=1
+	$(CREATE_GCOV) --binary=$(CREATE_GCOV_TARGET) --profile=perf.data --gcov=perl.gcov -gcov_version=1
 	sed -i.bak 's,extra="",extra="-fauto-profile=perl.gcov",' cflags
-	@echo "Recompile with -fauto-profile=perl.gcov ..."
+	@echo "Recompile $(CREATE_GCOV_TARGET) with -fauto-profile=perl.gcov ..."
 	@rm *.o
 	$(MAKE) test_prep
 	@echo perf stat ./perl -Ilib t/harness t/op/*.t
 	@echo mv cflags.bak cflags
 
 !NO!SUBS!
+
 fi
 
 # Some environment have no system(), which mkpport uses.
