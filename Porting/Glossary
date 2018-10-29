@@ -3875,6 +3875,12 @@ installhtml3dir (html3dir.U):
 	using a different installprefix.  For extra portability, you
 	should only use this variable within your makefiles.
 
+installmandirs (man1dir.U):
+	This variable lets you set and better unset the four variables
+        installman1dir, installman3dir, installsiteman1dir, installsiteman3dir
+        to one combined value. Mostly used with -Uinstallmandirs, which sets
+        all four variables to none, which skips installing all man pages.
+
 installman1dir (man1dir.U):
 	This variable is really the same as man1direxp, unless you are using
 	AFS in which case it points to the read/write location whereas

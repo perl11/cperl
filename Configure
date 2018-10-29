@@ -1161,6 +1161,7 @@ mallocsrc=''
 malloctype=''
 usemallocwrap=''
 usemymalloc=''
+installmandirs=''
 installman1dir=''
 man1dir=''
 man1direxp=''
@@ -9359,6 +9360,13 @@ nroff)
 	'') man1dir="none";;
 	esac;;
 esac
+: support -Uinstallmandirs
+if $test "$installmandirs" = "$undef"; then
+	man1dir=' '
+	man3dir=' '
+	siteman1dir=' '
+	siteman3dir=' '
+fi
 echo "If you don't want the manual sources installed, answer 'none'."
 case "$man1dir" in
 ' ') dflt=none
@@ -9380,6 +9388,7 @@ case "$man1dir" in
 	;;
 esac
 echo " "
+
 fn=dn+~
 rp="Where do the main $spackage manual pages (source) go?"
 . ./getfile

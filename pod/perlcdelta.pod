@@ -278,6 +278,12 @@ See L<perlhacktips/AutoFDO>.
 
 Added two .pgo targets, analog to autofdo. See L<perlhacktips/PGO>.
 
+=item *
+
+With C<-Uinstallmandirs> all four variables C<installman1dir>,
+C<installman3dir>, C<installsiteman1dir> and C<installsiteman3dir> are set to
+none, skipping installing all man pages.
+
 =back
 
 =head1 Testing
