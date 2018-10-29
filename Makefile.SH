@@ -1191,33 +1191,42 @@ CREATE_GCOV_TARGET = perl
 
     $spitshell >>$Makefile <<'!NO!SUBS!'
 
-miniperl.autofdo:	miniperl
+# These can be customized
+minibench.sh: t/opbasic/*.t t/op/[bd-lnoqt-z]*.t
 	@echo "Creating minibench.sh ..."
 	@echo '#!/bin/sh' > minibench.sh
 	@echo 'for t in t/opbasic/*.t t/op/[bd-lnoqt-z]*.t; do ./miniperl -Ilib $$t >/dev/null 2>&1; done' >> minibench.sh
 	@chmod +x minibench.sh
+
+autofdobench.sh: t/harness
+	@echo "Creating autofdobench.sh ..."
+	@echo '#!/bin/sh' > autofdobench.sh
+	@echo './perl -Ilib t/harness t/op/*.t >/dev/null 2>&1;' >> autofdobench.sh
+	@chmod +x autofdobench.sh
+
+miniperl.autofdo: miniperl minibench.sh
 	perf stat -r2 ./minibench.sh
-	@echo "Creating autofdo branch profile perl.gcov ..."
+	@echo "Creating autofdo branch profile miniperl.gcov ..."
 	perf record -b -e cpu/event=0xc4,umask=0x20,name=br_inst_retired_near_taken,period=400009/pp -- ./minibench.sh || exit 1
-	$(CREATE_GCOV) --binary=./miniperl --profile=perf.data --gcov=perl.gcov -gcov_version=1
-	sed -i.bak 's,extra="",extra="-fauto-profile=perl.gcov",' cflags
-	@echo "Recompile with -fauto-profile=perl.gcov ..."
+	$(CREATE_GCOV) --binary=./miniperl --profile=perf.data --gcov=miniperl.gcov -gcov_version=1
+	sed -i.bak 's,extra="",extra="-fauto-profile=miniperl.gcov",' cflags
+	@echo "Recompile with -fauto-profile=miniperl.gcov ..."
 	@rm *.o
 	$(MAKE) -s miniperl ECHO=true
 	@echo "Optimized minibench.sh ..."
 	perf stat -r2 ./minibench.sh
 	mv cflags.bak cflags
 
-perl.autofdo:	test_prep
+perl.autofdo:	test_prep autofdobench.sh
 	@echo "Creating autofdo branch profile perl.gcov for $(CREATE_GCOV_TARGET) ..."
-	perf record -b -e cpu/event=0xc4,umask=0x20,name=br_inst_retired_near_taken,period=400009/pp -- ./perl -Ilib t/harness t/op/*.t || exit 1
+	perf record -b -e cpu/event=0xc4,umask=0x20,name=br_inst_retired_near_taken,period=400009/pp -- ./autofdobench.sh || exit 1
 	$(CREATE_GCOV) --binary=$(CREATE_GCOV_TARGET) --profile=perf.data --gcov=perl.gcov -gcov_version=1
 	sed -i.bak 's,extra="",extra="-fauto-profile=perl.gcov",' cflags
 	@echo "Recompile $(CREATE_GCOV_TARGET) with -fauto-profile=perl.gcov ..."
 	@rm *.o
 	$(MAKE) test_prep
-	@echo perf stat ./perl -Ilib t/harness t/op/*.t
-	@echo mv cflags.bak cflags
+	perf stat -r2 ./autofdobench.sh
+	mv cflags.bak cflags
 
 !NO!SUBS!
 
@@ -1535,6 +1544,7 @@ _clobber:
 	-@rm -f Cross/run-* Cross/to-* Cross/from-* Cross/mkdir
 	-rm -rf host
 	rm -f t/test_state
+	rm -f minibench.sh autofdobench.sh
 	rm -f config.sh cppstdin Policy.sh extras.lst
 	rm -f $(MANIFEST_SRT)
 

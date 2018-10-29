@@ -1514,12 +1514,15 @@ missing type 79 error.
     make -s
     make -s install
 
-The perl/cperl Makefile already contains two targets for gcc:
-C<miniperl.autofdo> and C<perl.autofdo>. For clang just replace
-F<create_gcov> with F<create_llvm_gcov>.  The C<perl.autofdo> target
-just optimizes a static F<perl> executable, not the shared
-F<libperl.so>, so beware. miniperl is always static, so you can
-measure the impact there easier.  For me it's about 20%.
+For me it creates about 20% faster executables.
+
+The perl/cperl Makefile already contains two targets for autofdo on linux:
+C<miniperl.autofdo> and C<perl.autofdo>. These two targets use customizable
+benchmark scripts F<minibench.sh> and F<autofdobench.sh>, which can be tuned
+to your specific workload to be optimized.
+
+Note: Support for a shared F<libcperl.so> and clang came only with cperl 5.29.1c.
+Before you need to profile it by hand.
 
 =head2 prelink
 
