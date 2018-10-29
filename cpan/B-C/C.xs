@@ -333,10 +333,12 @@ name_count(hv)
     B::HV hv
 PPCODE:
     PERL_UNUSED_VAR(RETVAL);
+    PERL_UNUSED_VAR(TARG);
     if (SvOOK(hv))
       mPUSHi(HvAUX(hv)->xhv_name_count);
     else 
       mPUSHi(0);
+    XSRETURN(1);
 
 #endif
 
