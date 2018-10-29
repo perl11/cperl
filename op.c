@@ -22148,7 +22148,7 @@ S_Mu_av_xsub(pTHX_ CV* cv)
         U32 i = 0;
         if (keys > 0) {
 #if LONGSIZE > 2
-            EXTEND_NNEG(SP, keys*2);
+            EXTEND_NNEG(SP, (int)keys*2);
 #else
             EXTEND(SP, keys*2);
 #endif
