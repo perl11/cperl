@@ -779,7 +779,7 @@ bitcount.h: generate_uudmap\$(HOST_EXE_EXT)
 
 $spitshell >>$Makefile <<'!NO!SUBS!'
 generate_uudmap$(HOST_EXE_EXT): generate_uudmap$(OBJ_EXT)
-	$(LD) -o generate_uudmap$(EXE_EXT) $(LDFLAGS) generate_uudmap$(OBJ_EXT) $(miniperllibs)
+	$(LD) -o generate_uudmap$(EXE_EXT) $(CLDFLAGS) generate_uudmap$(OBJ_EXT) $(miniperllibs)
 
 !NO!SUBS!
 ;;
@@ -1161,35 +1161,8 @@ microperl:
 
 fi
 
-if test x$osname = xlinux -a -n "$gccversion"
-then
-    $spitshell >>$Makefile <<'!NO!SUBS!'
-# Special Perl targets: profiled guided https://gcc.gnu.org/wiki/AutoFDO
-
-!NO!SUBS!
-
-    if test -n "$llvmversion"
-    then
-        $spitshell >>$Makefile <<'!NO!SUBS!'
-CREATE_GCOV = create_llvm_prof
-!NO!SUBS!
-    else
-        $spitshell >>$Makefile <<'!NO!SUBS!'
-CREATE_GCOV = create_gcov
-!NO!SUBS!
-    fi
-    if test -n "$useshrplib"
-    then
-        $spitshell >>$Makefile <<'!NO!SUBS!'
-CREATE_GCOV_TARGET = $(LIBPERL)
-!NO!SUBS!
-    else
-        $spitshell >>$Makefile <<'!NO!SUBS!'
-CREATE_GCOV_TARGET = perl
-!NO!SUBS!
-    fi
-
-    $spitshell >>$Makefile <<'!NO!SUBS!'
+$spitshell >>$Makefile <<'!NO!SUBS!'
+# Special Perl targets: profiled guided cperldoc perlhacktips
 
 # These can be customized
 minibench.sh: t/opbasic/*.t t/op/[bd-lnoqt-z]*.t
@@ -1201,11 +1174,47 @@ minibench.sh: t/opbasic/*.t t/op/[bd-lnoqt-z]*.t
 autofdobench.sh: t/harness
 	@echo "Creating autofdobench.sh ..."
 	@echo '#!/bin/sh' > autofdobench.sh
-	@echo './perl -Ilib t/harness t/op/*.t >/dev/null 2>&1;' >> autofdobench.sh
+!NO!SUBS!
+if $test -n "$ldlibpth"; then
+    $spitshell >>$Makefile <<!NO!SUBS!
+	@echo "$ldlibpth ./perl -Ilib t/harness t/op/*.t >/dev/null 2>&1" >> autofdobench.sh
 	@chmod +x autofdobench.sh
+!NO!SUBS!
+else
+    $spitshell >>$Makefile <<'!NO!SUBS!'
+	@echo "./perl -Ilib t/harness t/op/*.t >/dev/null 2>&1" >> autofdobench.sh
+	@chmod +x autofdobench.sh
+!NO!SUBS!
+fi
+
+if test -n "$useshrplib"
+then
+    $spitshell >>$Makefile <<'!NO!SUBS!'
+CREATE_GCOV_TARGET = $(LIBPERL)
+!NO!SUBS!
+else
+    $spitshell >>$Makefile <<'!NO!SUBS!'
+CREATE_GCOV_TARGET = perl
+!NO!SUBS!
+fi
+
+if test x$osname = xlinux -a -n "$gccversion"
+then
+    if test -n "$llvmversion"
+    then
+        $spitshell >>$Makefile <<'!NO!SUBS!'
+CREATE_GCOV = create_llvm_prof
+!NO!SUBS!
+    else
+        $spitshell >>$Makefile <<'!NO!SUBS!'
+CREATE_GCOV = create_gcov
+!NO!SUBS!
+    fi
+    $spitshell >>$Makefile <<'!NO!SUBS!'
 
 miniperl.autofdo: miniperl minibench.sh
 	perf stat -r2 ./minibench.sh
+	cp cflags cflags.orig
 	@echo "Creating autofdo branch profile miniperl.gcov ..."
 	perf record -b -e cpu/event=0xc4,umask=0x20,name=br_inst_retired_near_taken,period=400009/pp -- ./minibench.sh || exit 1
 	$(CREATE_GCOV) --binary=./miniperl --profile=perf.data --gcov=miniperl.gcov -gcov_version=1
@@ -1215,10 +1224,11 @@ miniperl.autofdo: miniperl minibench.sh
 	$(MAKE) -s miniperl ECHO=true
 	@echo "Optimized minibench.sh ..."
 	perf stat -r2 ./minibench.sh
-	mv cflags.bak cflags
+	mv cflags.orig cflags
 
 perl.autofdo:	test_prep autofdobench.sh
 	@echo "Creating autofdo branch profile perl.gcov for $(CREATE_GCOV_TARGET) ..."
+	cp cflags cflags.orig
 	perf record -b -e cpu/event=0xc4,umask=0x20,name=br_inst_retired_near_taken,period=400009/pp -- ./autofdobench.sh || exit 1
 	$(CREATE_GCOV) --binary=$(CREATE_GCOV_TARGET) --profile=perf.data --gcov=perl.gcov -gcov_version=1
 	sed -i.bak 's,extra="",extra="-fauto-profile=perl.gcov",' cflags
@@ -1226,10 +1236,91 @@ perl.autofdo:	test_prep autofdobench.sh
 	@rm *.o
 	$(MAKE) test_prep
 	perf stat -r2 ./autofdobench.sh
-	mv cflags.bak cflags
+	mv cflags.orig cflags
 
 !NO!SUBS!
 
+fi
+
+if test -n "$llvmversion"
+then
+    $spitshell >>$Makefile <<'!NO!SUBS!'
+
+miniperl.pgo: miniperl minibench.sh
+	@echo "Creating llvm pgo branch profile for miniperl ..."
+	cp cflags cflags.orig
+	sed -i.bak 's,extra=".*",extra="-fprofile-instr-generate",' cflags
+	@echo "Compile miniperl with -fprofile-instr-generate ..."
+	@rm *.o
+	$(MAKE) -s miniperl ECHO=true CLDFLAGS="$(CLDFLAGS) -fprofile-instr-generate"
+	@echo "Create llvm profile ..."
+	./minibench.sh || (mv cflags.orig cflags; false)
+	llvm-profdata merge output=default.profdata default.profraw
+	sed -i.bak 's,extra="-fprofile-instr-generate",extra="-fprofile-use",' cflags
+	@echo "Recompile miniperl with -fprofile-use ..."
+	@rm *.o
+	$(MAKE) -s miniperl ECHO=true CLDFLAGS="$(CLDFLAGS) -fprofile-use"
+	mv cflags.orig cflags
+	@echo "Optimized minibench.sh ..."
+	./minibench.sh
+
+perl.pgo:	miniperl autofdobench.sh
+	@echo "Creating llvm pgo branch profile for perl ..."
+	cp cflags cflags.orig
+	sed -i.bak 's,extra=".*",extra="-fprofile-instr-generate",' cflags
+	@echo "Compile perl with -fprofile-instr-generate ..."
+	@rm *.o
+	$(MAKE) -s test_prep ECHO=true CLDFLAGS="$(CLDFLAGS) -fprofile-instr-generate"
+	@echo "Create llvm profile ..."
+	./autofdobench.sh || (mv cflags.orig cflags; false)
+	llvm-profdata merge output=default.profdata default.profraw
+	sed -i.bak 's,extra="-fprofile-instr-generate",extra="-fprofile-use",' cflags
+	@echo "Recompile perl with -fprofile-use ..."
+	@rm *.o
+	$(MAKE) -s test_prep ECHO=true CLDFLAGS="$(CLDFLAGS) -fprofile-use"
+	mv cflags.orig cflags
+	@echo "Optimized autofdobench.sh ..."
+	./autofdobench.sh
+
+!NO!SUBS!
+else
+    $spitshell >>$Makefile <<'!NO!SUBS!'
+
+miniperl.pgo: miniperl minibench.sh
+	@echo "Creating pgo branch profile for miniperl ..."
+	cp cflags cflags.orig
+	sed -i.bak 's,extra="",extra="-fprofile-generate",' cflags
+	@echo "Compile miniperl with -fprofile-generate ..."
+	@rm *.o
+	$(MAKE) -s miniperl ECHO=true CLDFLAGS="$(CLDFLAGS) -fprofile-generate"
+	@echo "Create profile ..."
+	./minibench.sh || (mv cflags.orig cflags; false)
+	sed -i.bak 's,extra="-fprofile-generate",extra="-fprofile-use",' cflags
+	@echo "Recompile miniperl with -fprofile-use ..."
+	@rm *.o
+	$(MAKE) -s miniperl ECHO=true CLDFLAGS="$(CLDFLAGS) -fprofile-use"
+	mv cflags.orig cflags
+	@echo "Optimized minibench.sh ..."
+	./minibench.sh
+
+perl.pgo:	miniperl autofdobench.sh
+	@echo "Creating pgo branch profile for perl ..."
+	cp cflags cflags.orig
+	sed -i.bak 's,extra="",extra="-fprofile-generate",' cflags
+	@echo "Compile perl with -fprofile-generate ..."
+	@rm *.o
+	$(MAKE) -s test_prep ECHO=true CLDFLAGS="$(CLDFLAGS) -fprofile-generate"
+	@echo "Create profile ..."
+	./autofdobench.sh || (mv cflags.orig cflags; false)
+	sed -i.bak 's,extra="-fprofile-generate",extra="-fprofile-use",' cflags
+	@echo "Recompile perl with -fprofile-use ..."
+	@rm *.o
+	$(MAKE) -s test_prep ECHO=true CLDFLAGS="$(CLDFLAGS) -fprofile-use"
+	mv cflags.orig cflags
+	@echo "Optimized autofdobench.sh ..."
+	./autofdobench.sh
+
+!NO!SUBS!
 fi
 
 # Some environment have no system(), which mkpport uses.
@@ -1553,7 +1644,8 @@ clobber:	_realcleaner _mopup _clobber
 distclean:	clobber
 
 archclean:
-	-rm $(PERL_EXE) $(MINIPERL_EXE) lib/buildcustomize.pl
+	-mv cflags.orig cflags
+	-rm $(PERL_EXE) $(MINIPERL_EXE) $(LIBPERL) lib/buildcustomize.pl *.o
 	find . -type f -name \*$(OBJ_EXT) -o -name \*$(LIB_EXT) -o -name \*$(DLSUFFIX) -delete
 	find lib cpan ext dist -type f -name pm_to_blib -delete
 

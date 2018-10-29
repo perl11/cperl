@@ -269,6 +269,15 @@ most non-DEBUGGING cases with newer compilers.
 C<llvmversion> string added, like "6.0.1-9.1 (tags/RELEASE_601/final)",
 analog to C<gccversion>. With clang both variables are set.
 
+=item *
+
+Added clang and useshrplib support for the two .autofdo targets.
+See L<perlhacktips/AutoFDO>.
+
+=item *
+
+Added two .pgo targets, analog to autofdo. See L<perlhacktips/PGO>.
+
 =back
 
 =head1 Testing

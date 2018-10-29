@@ -1482,26 +1482,43 @@ and for clang
 
 The impact is about 10%.
 
+Without C<-DDEBUGGING> F<Configure> probes to set the best C<-flto> flags
+automatically.
+
 =head2 PGO
 
 or "Profile Guided Optimization". This is mostly used on non-linux
 system without F<perf>, and works with most compilers: ICC, GCC,
 clang, Oracle Solaris Studio, MSVC, IBM XL C/C++.
 
+It is not using a sampling profiler, but an instrumenting profiler, with
+some minor run-time overhead.
+
 First you need to compile your binaries with enabled profiling, on gcc
-with C<-fprofile-generate> which generates a F<.gcno> file for each
-object file. (The same file that is used for gcov coverage reports).
-Then you must run a few tests, which records coverage data into F<.gcda> files.
-Then recompile with C<-fprofile-use>: it will compile with the gathered
-F<.gcda> coverage data and infer if an branch is LIKELY or UNLIKELY.
+and most other compilers with C<-fprofile-generate> which generates a
+F<.gcno> file for each object file. (The same file that is used for
+gcov coverage reports).  Then you must run a few tests, which records
+coverage data into F<.gcda> files.  Then recompile with
+C<-fprofile-use>: it will compile with the gathered F<.gcda> coverage
+data and infer if an branch is LIKELY or UNLIKELY.
+On L<llvm|http://clang.llvm.org/docs/UsersManual.html#profiling-with-instrumentation>
+it is creating a F<default.profraw> file, which must be converted via
+C<llvm-profdata> to a F<default.profdata> file.
+
+You can use the new F<miniperl.pgo> and F<perl.pgo> targets to create
+the profile guided optimized binaries.
 
 =head2 AutoFDO
 
 L<AutoFDO|https://gcc.gnu.org/wiki/AutoFDO> can only be used on linux
-systems with F<perf>. The advantage is that you build the fully
-optimized binaries, run a few practical tests through C<perf>, which
-collect statistics using hardware performance counters, which will then
-guide the autofdo optimizer to re-link the binaries.
+systems with F<perf>, a sampling profiler. The advantage is that you
+build the fully optimized binaries, run a few practical tests through
+C<perf> with the L<sampling
+profiler|http://clang.llvm.org/docs/UsersManual.html#using-sampling-profilers>,
+which collect statistics using hardware performance counters, which
+will then guide the autofdo optimizer (via C<-fauto-profile>) to
+re-link the binaries. Not all branches will be profiled, but the
+overall accuracy is generally better.
 
 On most recent kernels you need to recompile
 L<autofdo|https://github.com/google/autofdo> by yourself, if you get a
@@ -1517,12 +1534,15 @@ missing type 79 error.
 For me it creates about 20% faster executables.
 
 The perl/cperl Makefile already contains two targets for autofdo on linux:
-C<miniperl.autofdo> and C<perl.autofdo>. These two targets use customizable
-benchmark scripts F<minibench.sh> and F<autofdobench.sh>, which can be tuned
-to your specific workload to be optimized.
+C<miniperl.autofdo> and C<perl.autofdo>.
 
-Note: Support for a shared F<libcperl.so> and clang came only with cperl 5.29.1c.
-Before you need to profile it by hand.
+Both profiling targets, the sampling autofdo and the instrumented pgo,
+use customizable benchmark scripts F<minibench.sh> and
+F<autofdobench.sh>, which can be tuned to your specific workload to be
+optimized. Per default it only runs some basic op tests.
+
+Note: Support for a shared F<libcperl.so> and clang came only with
+cperl 5.29.1c.  Before you need to profile it by hand.
 
 =head2 prelink
 
