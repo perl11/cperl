@@ -351,16 +351,11 @@ XXX
 
 =head2 Platform-Specific Notes
 
-XXX List any changes for specific platforms.  This could include configuration
-and compilation changes or changes in portability/compatibility.  However,
-changes within modules for platforms should generally be listed in the
-L</Modules and Pragmata> section.
-
 =over 4
 
-=item XXX-some-platform
+=item cygwin
 
-XXX
+Fixed C<boot_Win32CORE> prototype to skip dllexport, fatal with C<-flto>.
 
 =back
 

@@ -22,7 +22,7 @@
 #include "XSUB.h"
 
 
-XS(w32_CORE_all){
+XS(w32_CORE_all) {
     /* I'd use dSAVE_ERRNO() here, but it doesn't save the Win32 error code
      * under cygwin, if that changes this code should change to use that.
      */
@@ -40,7 +40,9 @@ XS(w32_CORE_all){
     call_pv(function, GIMME_V);
 }
 
-XS_EXTERNAL(boot_Win32CORE)
+/* Only used in a static lib, no dllexport */
+PERL_CALLCONV XSPROTO(boot_Win32CORE);
+PERL_CALLCONV XSPROTO(boot_Win32CORE)
 {
     /* This function only exists because writemain.SH, lib/ExtUtils/Embed.pm
      * and win32/buildext.pl will all generate references to it.  The function
