@@ -1508,12 +1508,12 @@ S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o, const CV *c
             }
             if (SvCUR(tmpsv))
                 SvPVX(tmpsv)[SvCUR(tmpsv)-1] = '\0';
-            S_opdump_indent(aTHX_ o, level, bar, file, "%^H = 0x%" UVxf " (%s)\n",
-                            (UV)cCOPo->cop_hints_hash, SvPVX_const(tmpsv));
+            S_opdump_indent(aTHX_ o, level, bar, file, "%^H = 0x%u (%s)\n",
+                            PTR2nat(cCOPo->cop_hints_hash), SvPVX_const(tmpsv));
         }
         if (cCOPo->cop_warnings) {
-            S_opdump_indent(aTHX_ o, level, bar, file, "WARNINGS = 0x%" UVxf "\n",
-                            (UV)cCOPo->cop_warnings);
+            S_opdump_indent(aTHX_ o, level, bar, file, "WARNINGS = 0x%u\n",
+                            PTR2nat(cCOPo->cop_warnings));
         }
 	break;
 
