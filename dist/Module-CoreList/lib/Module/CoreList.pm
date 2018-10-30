@@ -17949,6 +17949,8 @@ our %delta :const = (
             'Module::CoreList'      => '5.20181019c',
             'Module::CoreList::Utils'=> '5.20181019c',
             'B::C'                  => '1.55_09',
+            'ExtUtils::MakeMaker'   => '8.35_07',
+            'ExtUtils::MM_Unix'     => '8.35_07',
         },
         removed => {
         }

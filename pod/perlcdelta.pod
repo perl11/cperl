@@ -123,6 +123,11 @@ XXX
 
 Better mconcat support. Fix some XS memory leaks.
 
+=item L<ExtUtils::MakeMaker> 8.35_07
+
+Added C<-flto> support for static libs (need the lto plugin) and D for
+deterministic builds, using arflags for AR_STATIC_ARGS, not just 'cr'.
+
 =back
 
 =head2 Removed Modules and Pragmata

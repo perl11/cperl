@@ -14,7 +14,7 @@ use ExtUtils::MakeMaker qw($Verbose neatvalue _sprintf562);
 
 # If we make $VERSION an our variable parse_version() breaks
 use vars qw($VERSION);
-$VERSION = '8.35_06';
+$VERSION = '8.35_07';
 $VERSION =~ tr/_//d;
 
 require ExtUtils::MM_Any;
@@ -405,7 +405,7 @@ sub constants {
 
     for my $macro (qw(
 
-              AR_STATIC_ARGS DIRFILESEP DFSEP
+              AR_STATIC_ARGS ARFLAGS DIRFILESEP DFSEP
               NAME NAME_SYM
               VERSION    VERSION_MACRO    VERSION_SYM DEFINE_VERSION
               XS_VERSION XS_VERSION_MACRO             XS_DEFINE_VERSION
@@ -1864,7 +1864,8 @@ EOP
 #    }
 # But I leave it as a placeholder
 
-    $self->{AR_STATIC_ARGS} ||= "cr";
+    $self->{AR_STATIC_ARGS} = $Config{arflags};
+    $self->{AR_STATIC_ARGS} ||= 'cr';
 
     # These should never be needed
     $self->{OBJ_EXT} ||= '.o';
