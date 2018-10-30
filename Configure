@@ -5742,10 +5742,11 @@ case "$cc $ccflags $dflt" in
 		eval $checkccflag
                 ltoflags="-flto=4"
 	        if test -z wasset; then
-		set lto "-flto=4 -fuse-linker-plugin -fuse-ld=gold -DLTO" "wasset=1"
+		set lto "-flto=4 -fuse-ld=gold -DLTO" "wasset=1"
 		eval $checkccflag
 	        if test -z wasset; then
-		set lto "-flto=4 -fuse-ld=gold -DLTO" "wasset=1"
+                # -fuse-linker-plugin should be the default
+		set lto "-flto=4 -fuse-linker-plugin -fuse-ld=gold -DLTO" "wasset=1"
 		eval $checkccflag
 	        if test -z wasset; then
 		set lto "-flto -DLTO" "wasset=1"
@@ -7451,9 +7452,12 @@ case "$myarchname" in
 esac
 case "$targetarch" in
 '') ;;
-*)  archname=`echo $targetarch|sed 's,^[^-]*-,,'` ;;
+*)  archname=`echo $targetarch|sed 's,^[^-]*-,,'`
 esac
-myarchname="$tarch"
+case "$osname" in
+cygwin) myarchname="`uname -m`-pc-cygwin" ;;
+*)      myarchname="$tarch" ;;
+esac
 case "$archname" in
 '') dflt="$tarch";;
 *) dflt="$archname";;
@@ -22102,7 +22106,7 @@ elif $ar ts bar$_a >/dev/null 2>&1 &&
     orderlib=false
     ranlib="$ar ts"
 else
-    if $test -n $llvmsuffix; then
+    if $test -n "$llvmsuffix"; then
         testranlib=llvm-ranlib$llvmsuffix
     else
         testranlib=ranlib
@@ -22130,6 +22134,29 @@ else
     fi
 fi
 $rm -f foo* bar*
+
+if $test -n "$gccversion"; then
+  case "$ccflags" in
+    *flto*)
+        #some old /usr/bin/ar did not support the plugin flag
+        #full_ar=/usr/$archname/bin/ar
+        # needed for static libs (Win32CORE.a)
+        if test -z $myarchname; then myarchname=$archname; fi
+        case "$osname" in
+            cygwin) plugin="/usr/lib/gcc/$myarchname/$gccversion/cyglto_plugin.dll" ;;
+            *)      plugin="/usr/lib/gcc/$myarchname/$gccversion/liblto_plugin.$dlext" ;;
+        esac
+        if test -f "$plugin"; then
+            arflags="$arflags --plugin $plugin"
+        else
+            echo "$plugin for ar with -flto not found" >&4
+        fi
+        unset plugin
+        ;;
+    *)  ;;
+  esac
+fi
+
 
 : Check the max offset that gmtime and localtime accept
 echo "Checking max offsets that gmtime () accepts"

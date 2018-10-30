@@ -261,8 +261,8 @@ C<ccname> is now set to "clang" for clang, not "gcc".
 
 =item *
 
-On linux "icc" is also set for C<ccname>, and C<-O3> is preferred over C<-O2> in
-most non-DEBUGGING cases with newer compilers.
+On linux "icc" is also set for C<ccname>, and C<-O3> is preferred over
+C<-O2> in most non-DEBUGGING cases with newer compilers.
 
 =item *
 
@@ -271,7 +271,13 @@ analog to C<gccversion>. With clang both variables are set.
 
 =item *
 
-Added C<llvmsuffix> config, for bitcode-enabled ar, ranlib, llvm-profdata.
+Added C<llvmsuffix> config, for bitcode-enabled ar, ranlib,
+llvm-profdata.
+
+=item *
+
+Added C<ar --plugin> path to the F<lto_plugin>, required for static
+libs with C<-flto>. Esp. on cygwin.
 
 =item *
 
@@ -364,6 +370,8 @@ XXX
 =item cygwin
 
 Fixed C<boot_Win32CORE> prototype to skip dllexport, fatal with C<-flto>.
+
+Fixed ar for F<Win32CORE.a> by using the gcc liblto plugin.
 
 =back
 
