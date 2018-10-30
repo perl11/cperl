@@ -1246,6 +1246,8 @@ if test -n "$llvmversion"
 then
     $spitshell >>$Makefile <<'!NO!SUBS!'
 
+LLVM_PROFDATA = llvm-profdata$(llvmsuffix)
+
 miniperl.pgo: miniperl minibench.sh
 	@echo "Creating llvm pgo branch profile for miniperl ..."
 	cp cflags cflags.orig
@@ -1255,7 +1257,7 @@ miniperl.pgo: miniperl minibench.sh
 	$(MAKE) -s miniperl ECHO=true CLDFLAGS="$(CLDFLAGS) -fprofile-instr-generate"
 	@echo "Create llvm profile ..."
 	./minibench.sh || (mv cflags.orig cflags; false)
-	llvm-profdata merge output=default.profdata default.profraw
+	$(LLVM_PROFDATA) merge output=default.profdata default.profraw
 	sed -i.bak 's,extra="-fprofile-instr-generate",extra="-fprofile-use",' cflags
 	@echo "Recompile miniperl with -fprofile-use ..."
 	-$(MAKE) -s archclean

@@ -966,6 +966,7 @@ fpostype=''
 gccansipedantic=''
 gccosandvers=''
 gccversion=''
+llvmsuffix=''
 llvmversion=''
 gidformat=''
 gidsign=''
@@ -4763,6 +4764,7 @@ if $cc -o try $ccflags $ldflags try.c; then
 	*Clang*|clang*)
 	    ccname=clang
             llvmversion=`$cc --version | head -n1 | sed "s,clang version ,,"`
+            llvmsuffix=`echo $cc | sed "s,*.clang,,"`
             echo "You are using clang $llvmversion."
 	    ;;
 	*)  echo "You are using GNU cc $gccversion."
@@ -22029,7 +22031,7 @@ case "$ccname $cc $ccflags" in
             ar|*/ar)
                 echo " "
                 echo "Warning: clang -flto used with ar"
-                dflt=`echo $cc|sed -e 's,clang-,llvm-ar-,'`
+                dflt="llvm-ar$llvmsuffix"
                 if test -n `which $dflt`; then
                     ar=$dflt
                     full_ar=`which $dflt`
@@ -22100,10 +22102,15 @@ elif $ar ts bar$_a >/dev/null 2>&1 &&
     orderlib=false
     ranlib="$ar ts"
 else
+    if $test -n $llvmsuffix; then
+        testranlib=llvm-ranlib$llvmsuffix
+    else
+        testranlib=ranlib
+    fi
     case "$ranlib" in
 	:)  ranlib='' ;;
 	'')
-	    ranlib=`./loc ranlib X /usr/bin /bin /usr/local/bin /opt/local/bin`
+	    ranlib=`./loc $testranlib X /usr/bin /bin /usr/local/bin /opt/local/bin`
 	    $test -f $ranlib || ranlib=''
             # -D for determinism
             if $ranlib -D bar$_a; then
@@ -25482,6 +25489,7 @@ lint='$lint'
 lkflags='$lkflags'
 ln='$ln'
 lns='$lns'
+llvmsuffix='$llvmsuffix'
 llvmversion='$llvmversion'
 localtime_r_proto='$localtime_r_proto'
 locincpth='$locincpth'
