@@ -22071,7 +22071,12 @@ else
     if $test x$osname = xdarwin; then
         oldar=$ar
         # D support since llvm-3.7 (trying macports llvm now)
-        ar=llvm-ar-mp-3.9
+        if test -f /opt/local/bin/llvm-ar-mp-3.9; then
+            ar=llvm-ar-mp-3.9
+        # or homebrew llvm-ar
+        elif test -f /usr/local/bin/llvm-ar; then
+            ar=llvm-ar
+        fi
         if $ar $arflags bar$_a bar2$_o bar1$_o >/dev/null 2>&1; then
             echo "$ar $arflags with support for deterministic timestamp stripping." >&4
             full_ar=`which $ar`
