@@ -215,8 +215,8 @@ done
 
 static_list=' '
 for f in $static_ext; do
-	base=`echo "$f" | sed 's/.*\///'`
-	static_list="$static_list lib/auto/$f/$base\$(LIB_EXT)"
+    base=`echo "$f" | sed 's/.*\///'`
+    static_list="$static_list lib/auto/$f/$base\$(LIB_EXT)"
     : Parallel makes reveal that we have some interdependencies
     this_target="lib/auto/$f/$base\$(LIB_EXT)"
     case $f in
