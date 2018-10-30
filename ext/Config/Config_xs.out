@@ -266,7 +266,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1288
+#define TOTAL_KEYWORDS 1290
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 37
 #define MIN_HASH_VALUE 5
@@ -1036,6 +1036,7 @@ struct stringpool_t
     char stringpool_str2384[sizeof ("i_sysaccess")];
     char stringpool_str2386[sizeof ("d_fgetpos")];
     char stringpool_str2387[sizeof ("d_vsnprintf")];
+    char stringpool_str2388[sizeof ("ffi_targets")];
     char stringpool_str2392[sizeof ("d_unsetenv")];
     char stringpool_str2394[sizeof ("d_portable")];
     char stringpool_str2395[sizeof ("cf_epoch")];
@@ -1647,6 +1648,7 @@ struct stringpool_t
     char stringpool_str6911[sizeof ("d_double_has_inf")];
     char stringpool_str6930[sizeof ("d_libm_lib_version")];
     char stringpool_str6962[sizeof ("d_double_style_vax")];
+    char stringpool_str7385[sizeof ("llvmsuffix")];
     char stringpool_str7466[sizeof ("d_double_has_negative_zero")];
     char stringpool_str7649[sizeof ("d_ndbm_h_uses_prototypes")];
     char stringpool_str7787[sizeof ("d_double_has_subnormals")];
@@ -2327,6 +2329,7 @@ static const struct stringpool_t stringpool_contents =
     "i_sysaccess",
     "d_fgetpos",
     "d_vsnprintf",
+    "ffi_targets",
     "d_unsetenv",
     "d_portable",
     "cf_epoch",
@@ -2938,6 +2941,7 @@ static const struct stringpool_t stringpool_contents =
     "d_double_has_inf",
     "d_libm_lib_version",
     "d_double_style_vax",
+    "llvmsuffix",
     "d_double_has_negative_zero",
     "d_ndbm_h_uses_prototypes",
     "d_double_has_subnormals",
@@ -4778,7 +4782,9 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str2386,		T_INV,0,ALN64I"@@d_fgetpos@@"},
 
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str2387,		T_INV,0,ALN64I"@@d_vsnprintf@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+
+      {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str2388,		T_INV,0,ALN64I"@@ffi_targets@@"},
+      {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str2392,		T_INV,0,ALN64I"@@d_unsetenv@@"},
       {XSCNO},
@@ -6790,7 +6796,9 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+
+      {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str7385,		T_INV,0,ALN64I"@@llvmsuffix@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
@@ -7016,7 +7024,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str9205,	T_INV,0,ALN64I"@@known_extensions@@"}
     };
 
-#line 7019 "Config.xs"
+#line 7027 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register unsigned int key = Config_hash (str, len);

@@ -854,6 +854,7 @@ libswanted='net socket inet nsl nm ndbm gdbm dbm db malloc dl ld sun m c cposix 
 line='line'
 lint=''
 lkflags=''
+llvmsuffix=''
 llvmversion=''
 ln=''
 lns='copy'

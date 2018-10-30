@@ -284,7 +284,6 @@ LNS = $lns
 # NOTE: some systems don't grok "cp -f". XXX Configure test needed?
 CPS = $cp
 RMS = rm -f
-ranlib = $ranlib
 
 # The following are mentioned only to make metaconfig include the
 # appropriate questions in Configure.  If you want to change these,
@@ -332,6 +331,7 @@ HOST_GENERATE = $hostgenerate
 SYSTEM_PERL = $perl
 
 # These variables may need to be manually set for non-Unix systems.
+LLVMSUFFIX = $llvmsuffix
 AR      = $full_ar
 ARFLAGS = $arflags
 RANLIB  = $ranlib
@@ -1246,7 +1246,7 @@ if test -n "$llvmversion"
 then
     $spitshell >>$Makefile <<'!NO!SUBS!'
 
-LLVM_PROFDATA = llvm-profdata$(llvmsuffix)
+LLVM_PROFDATA = llvm-profdata$(LLVMSUFFIX)
 
 miniperl.pgo: miniperl minibench.sh
 	@echo "Creating llvm pgo branch profile for miniperl ..."
@@ -1275,7 +1275,7 @@ perl.pgo:	miniperl autofdobench.sh
 	$(MAKE) -s test_prep ECHO=true CLDFLAGS="$(CLDFLAGS) -fprofile-instr-generate"
 	@echo "Create llvm profile ..."
 	./autofdobench.sh || (mv cflags.orig cflags; false)
-	llvm-profdata merge output=default.profdata default.profraw
+	$(LLVM_PROFDATA) merge output=default.profdata default.profraw
 	sed -i.bak 's,extra="-fprofile-instr-generate",extra="-fprofile-use",' cflags
 	@echo "Recompile perl with -fprofile-use ..."
 	-$(MAKE) -s archclean

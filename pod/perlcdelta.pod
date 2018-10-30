@@ -271,12 +271,20 @@ analog to C<gccversion>. With clang both variables are set.
 
 =item *
 
+Added C<llvmsuffix> config, for bitcode-enabled ar, ranlib, llvm-profdata.
+
+=item *
+
 Added clang and useshrplib support for the two .autofdo targets.
 See L<perlhacktips/AutoFDO>.
 
 =item *
 
 Added two .pgo targets, analog to autofdo. See L<perlhacktips/PGO>.
+
+=item *
+
+Fix forgotten C<ffi_target> XSConfig key. (bug introduced in 5.29.0c)
 
 =item *
 
