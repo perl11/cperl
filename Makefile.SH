@@ -75,7 +75,11 @@ true)
 			     -install_name \$(shrpdir)/\$@"
 		;;
 	cygwin*)
-		shrpldflags="$shrpldflags -Wl,--out-implib=libcperl.dll.a -Wl,--image-base,0x52000000"
+	        shrpldflags="$shrpldflags -Wl,--out-implib=libcperl.dll.a"
+                case $ccflags in
+                    *flto*) shrpldflags="$shrpldflags -Wl,--enable-auto-image-base" ;;
+                    *)      shrpldflags="$shrpldflags -Wl,--image-base,0x52000000" ;;
+                esac
 		linklibperl="-L. -lcperl"
 		;;
 	sunos*)
