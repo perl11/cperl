@@ -119,9 +119,12 @@ XXX
 
 =over 4
 
-=item L<B::C> 1.55_09
+=item L<B::C> 1.55_10
 
 Better mconcat support. Fix some XS memory leaks.
+
+Add missing optimize flags to F<cc_harness>, F<TestBC.pm> and F<perlcc>,
+required for C<-flto>.
 
 =item L<ExtUtils::Embed> 1.36
 

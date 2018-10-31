@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.55_09';
+our $VERSION = '1.55_10';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;

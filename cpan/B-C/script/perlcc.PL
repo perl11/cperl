@@ -65,6 +65,7 @@ print OUT <<'!NO!SUBS!';
 # Version 2.20, Reini Urban, 2014-07-23
 # Version 2.21, Reini Urban, 2016-06-12
 # Version 2.22, Reini Urban, 2017-07-23
+# Version 2.23, Reini Urban, 2018-10-31
 
 use strict;
 use warnings;
@@ -79,7 +80,7 @@ use Cwd ();
 use Pod::Usage;
 # Time::HiRes does not work with 5.6
 use Time::HiRes qw(gettimeofday tv_interval sleep);
-our $VERSION = 2.22;
+our $VERSION = 2.23;
 $| = 1;
 eval { require B::C::Config; };
 
@@ -601,7 +602,7 @@ sub cc_harness_msvc {
     $obj .= ".obj" unless $obj =~ /\.obj$/;
     my $compile = "";
     $compile = '-I"..\..\lib\CORE" ' if $ENV{PERL_CORE};
-    my $ccopts = ExtUtils::Embed::ccopts;
+    my $ccopts = ExtUtils::Embed::ccopts();
     my $optWc = opt('Wc');
     # suppress cl : Command line warning D4025 : overriding '/O1' with '/Od'
     $ccopts =~ s/\b[-\/]O.\b/-Od/ if $optWc && ($optWc =~ /\b[-\/]Od\b/);
@@ -641,6 +642,7 @@ sub cc_harness_msvc {
     if ($Config{ccversion} eq '12.0.8804') {
         $link =~ s/ -opt:ref,icf//;
     }
+    $link .= " ".$Config{optimize};
     $link .= " ".opt('Wl') if opt('Wl');
     if (opt('staticxs')) { # TODO: can msvc link to dll's directly? otherwise use dlltool
         $extra_libs =~ s/^\s+|\s+$//g; # code by stengcode@gmail.com
@@ -697,7 +699,7 @@ sub cc_harness {
 print OUT <<"!EXPANDED!";
       \$coredir = \"$srcdir\";
       \$coredir .= \"/lib/CORE\" if \$^O eq 'MSWin32'; # forward slashes yes
-      \$command = "\$Config{ccflags} -I\\\"\$coredir\\\" -L\\\"\$coredir\\\" -o \\\"\$Output\\\" \\\"\$cfile\\\" ";
+      \$command = "\$Config{optimize} \$Config{ccflags} -I\\\"\$coredir\\\" -L\\\"\$coredir\\\" -o \\\"\$Output\\\" \\\"\$cfile\\\" ";
 !EXPANDED!
 print OUT <<'!NO!SUBS!';
     }

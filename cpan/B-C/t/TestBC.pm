@@ -837,12 +837,12 @@ sub run_cc_test {
 	my $command;
         if ($ENV{PERL_CORE}) { # ignore ccopts
             if ($is_mswin) {
-                $command = $Config{ccflags}.' -I"..\..\lib\CORE"';
+                $command = $Config{optimize}." ".$Config{ccflags}.' -I"..\..\lib\CORE"';
             } else {
-                $command = $Config{ccflags}." -I".$coredir;
+                $command = $Config{optimize}." ".$Config{ccflags}." -I".$coredir;
             }
         } else {
-            $command = ExtUtils::Embed::ccopts;
+            $command = ExtUtils::Embed::ccopts();
         }
 	$command .= " -DHAVE_INDEPENDENT_COMALLOC "
 	  if $B::C::Config::have_independent_comalloc;
@@ -911,7 +911,7 @@ sub run_cc_test {
         my $NULL = $is_mswin ? '' : '2>/dev/null';
         my $cmdline = "$Config{cc} $command $NULL";
         if ($is_msvc) {
-            $cmdline = "$Config{ld} $linkargs -out:$exe $obj[0] $command";
+            $cmdline = "$Config{ld} $Config{optimize} $linkargs -out:$exe $obj[0] $command";
         }
 	diag ($cmdline) if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} == 2;
         run_cmd($cmdline, 30);
