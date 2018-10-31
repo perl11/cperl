@@ -46,6 +46,7 @@ $perlcc .= " -UB -uFile::Spec -uCwd";
 $perlcc .= " -uPod::Perldoc::ToText" if $] >= 5.023004;
 #$perlcc .= " -uFile::Temp" if $] > 5.015;
 $perlcc .= " -uExporter" if $] < 5.010;
+$perlcc .= " --Wc=-O1" if $ENV{PERL_CORE} and $Config{ccflags} =~ /-flto/;
 my $exe = $Config{exe_ext};
 my $perldocexe = $^O eq 'MSWin32' ? "perldoc$exe" : "./perldoc$exe";
 # XXX bother File::Which?

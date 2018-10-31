@@ -111,6 +111,9 @@ sub cc_harness_msvc {
     } else {
       # avoid expensive optimisations with low memory (1-2 hours!)
       $compile .= " -Od" if $ENV{APPVEYOR} and $^O eq 'MSWin32';
+      if ($ENV{PERL_CORE} and $Config{ccflags} =~ /-flto/) { # too big
+        $compile =~ s/-O\d / -O1 /;
+      }
     }
     $compile .= "-DHAVE_INDEPENDENT_COMALLOC " if $B::C::Config::have_independent_comalloc;
     $compile .= $B::C::Config::extra_cflags;

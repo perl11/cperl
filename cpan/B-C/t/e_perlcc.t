@@ -15,6 +15,9 @@ BEGIN {
         if (-f File::Spec->catfile($Config{'sitearch'}, "B", "Flags.pm")) {
             @plan = (skip_all => '<sitearch>/B/Flags.pm installed. Possible XS conflict');
         }
+        if ($Config{ccflags} =~ /-flto/ and $ENV{TRAVIS}) {
+            @plan = (skip_all => '-flto times out on TRAVIS CI');
+        }
         if ($^O eq 'MSWin32') { # find perl5*.dll
             $ENV{PATH} .= ';..\..';
         }

@@ -22,6 +22,10 @@ my @skip = (14,21,30,
 	    ((!$DEBUGGING and $] > 5.010) ? (105) : ()),
            );
 push @skip, (38) if $^O eq 'cygwin'; #hangs
+if ($Config{ccflags} =~ m/-flto/ and $ENV{PERL_CORE}) { # just too big files
+  push @todo, (27,41,42,43,44,45,49);
+  push @skip, (27,41,42,43,44,45,49);
+}
 
 run_c_tests("CC", \@todo, \@skip);
 #run_cc_test(105, 'CC', 'my $s=q{ok};END{print $s}END{$x = 0}', 'ok');

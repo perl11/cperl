@@ -43,12 +43,17 @@ my $ccopts;
 BEGIN {
   plan skip_all => "Overlong tests, timeout on Appveyor CI"
     if $^O eq 'MSWin32' and $ENV{APPVEYOR};
+  plan skip_all => "Overlong tests, timeout on TRAVIS CI"
+    if $ENV{TRAVIS} and $ENV{PERL_CORE} and $Config{ccflags} =~ /-flto/;
+
   if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
     # MSVC takes an hour to compile each binary unless -Od
     $ccopts = '"--Wc=-Od"';
   } elsif ($^O eq 'MSWin32' and $Config{cc} eq 'gcc') {
     # mingw is much better but still insane with <= 4GB RAM
     $ccopts = '"--Wc=-O0"';
+  } elsif ($ENV{PERL_CORE} and $Config{ccflags} =~ /-flto/) { # too big
+    $ccopts = '"--Wc=-O1"';
   } else {
     $ccopts = '';
   }

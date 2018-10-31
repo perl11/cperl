@@ -15,6 +15,7 @@ plan tests => 4;
 my $runperl = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
 my $Mblib = Mblib();
 my $perlcc = perlcc();
+$perlcc .= " --Wc=-O1" if $ENV{PERL_CORE} and $Config{ccflags} =~ /-flto/;
 my $exe = $^O eq 'MSWin32' ? 'ccode_argv.exe' : 'ccode_argv';
 my $pl  = $^O eq 'MSWin32' ? "t\\c_argv.pl" : "t/c_argv.pl";
 my $plc = $pl . "c";

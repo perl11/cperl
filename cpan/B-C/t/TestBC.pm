@@ -840,6 +840,11 @@ sub run_cc_test {
                 $command = $Config{optimize}." ".$Config{ccflags}.' -I"..\..\lib\CORE"';
             } else {
                 $command = $Config{optimize}." ".$Config{ccflags}." -I".$coredir;
+                if ($Config{ccflags} =~ /-flto/ and -s $cfile > 50000) { # too big
+                    diag ("$cfile too big, size ", -s $cfile, " use -O1")
+                      if $ENV{TEST_VERBOSE} > 1;
+                    $command =~ s/-O[23] /-O1 /;
+                }
             }
         } else {
             $command = ExtUtils::Embed::ccopts();
@@ -856,7 +861,7 @@ sub run_cc_test {
             my $obj = $obj[0];
             $command =~ s/ \Q-o $exe\E / -c -Fo$obj /;
             my $cmdline = "$Config{cc} $command >NUL"; # need to silence it
-            diag ($cmdline) if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} == 2;
+            diag ($cmdline) if $ENV{TEST_VERBOSE} > 1;
             run_cmd($cmdline, 20);
             $command = '';
         }
