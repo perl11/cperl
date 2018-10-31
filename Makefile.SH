@@ -1220,11 +1220,11 @@ miniperl.autofdo: miniperl minibench.sh
 	$(CREATE_GCOV) --binary=./miniperl --profile=perf.data --gcov=miniperl.gcov -gcov_version=1
 	sed -i.bak 's,extra="",extra="-fauto-profile=miniperl.gcov",' cflags
 	@echo "Recompile with -fauto-profile=miniperl.gcov ..."
-	@rm *.o
+	-$(MAKE) -s archclean
 	$(MAKE) -s miniperl ECHO=true
 	@echo "Optimized minibench.sh ..."
 	perf stat -r2 ./minibench.sh
-	mv cflags.orig cflags
+	-mv cflags.orig cflags
 
 perl.autofdo:	test_prep autofdobench.sh
 	@echo "Creating autofdo branch profile perl.gcov for $(CREATE_GCOV_TARGET) ..."
@@ -1233,10 +1233,10 @@ perl.autofdo:	test_prep autofdobench.sh
 	$(CREATE_GCOV) --binary=$(CREATE_GCOV_TARGET) --profile=perf.data --gcov=perl.gcov -gcov_version=1
 	sed -i.bak 's,extra="",extra="-fauto-profile=perl.gcov",' cflags
 	@echo "Recompile $(CREATE_GCOV_TARGET) with -fauto-profile=perl.gcov ..."
-	@rm *.o
+	-$(MAKE) -s archclean
 	$(MAKE) test_prep
 	perf stat -r2 ./autofdobench.sh
-	mv cflags.orig cflags
+	-mv cflags.orig cflags
 
 !NO!SUBS!
 
@@ -1251,16 +1251,16 @@ miniperl.pgo: miniperl minibench.sh
 	cp cflags cflags.orig
 	sed -i.bak 's,extra=".*",extra="-fprofile-instr-generate",' cflags
 	@echo "Compile miniperl with -fprofile-instr-generate ..."
-	@rm *.o
+	-$(MAKE) -s archclean
 	$(MAKE) -s miniperl ECHO=true CLDFLAGS="$(CLDFLAGS) -fprofile-instr-generate"
 	@echo "Create llvm profile ..."
 	./minibench.sh || (mv cflags.orig cflags; false)
 	llvm-profdata merge output=default.profdata default.profraw
 	sed -i.bak 's,extra="-fprofile-instr-generate",extra="-fprofile-use",' cflags
 	@echo "Recompile miniperl with -fprofile-use ..."
-	@rm *.o
+	-$(MAKE) -s archclean
 	$(MAKE) -s miniperl ECHO=true CLDFLAGS="$(CLDFLAGS) -fprofile-use"
-	mv cflags.orig cflags
+	-mv cflags.orig cflags
 	@echo "Optimized minibench.sh ..."
 	./minibench.sh
 
@@ -1269,14 +1269,14 @@ perl.pgo:	miniperl autofdobench.sh
 	cp cflags cflags.orig
 	sed -i.bak 's,extra=".*",extra="-fprofile-instr-generate",' cflags
 	@echo "Compile perl with -fprofile-instr-generate ..."
-	@rm *.o
+	-$(MAKE) -s archclean
 	$(MAKE) -s test_prep ECHO=true CLDFLAGS="$(CLDFLAGS) -fprofile-instr-generate"
 	@echo "Create llvm profile ..."
 	./autofdobench.sh || (mv cflags.orig cflags; false)
 	llvm-profdata merge output=default.profdata default.profraw
 	sed -i.bak 's,extra="-fprofile-instr-generate",extra="-fprofile-use",' cflags
 	@echo "Recompile perl with -fprofile-use ..."
-	@rm *.o
+	-$(MAKE) -s archclean
 	$(MAKE) -s test_prep ECHO=true CLDFLAGS="$(CLDFLAGS) -fprofile-use"
 	mv cflags.orig cflags
 	@echo "Optimized autofdobench.sh ..."
@@ -1291,15 +1291,15 @@ miniperl.pgo: miniperl minibench.sh
 	cp cflags cflags.orig
 	sed -i.bak 's,extra="",extra="-fprofile-generate",' cflags
 	@echo "Compile miniperl with -fprofile-generate ..."
-	@rm *.o
+	-$(MAKE) -s archclean
 	$(MAKE) -s miniperl ECHO=true CLDFLAGS="$(CLDFLAGS) -fprofile-generate"
 	@echo "Create profile ..."
 	./minibench.sh || (mv cflags.orig cflags; false)
 	sed -i.bak 's,extra="-fprofile-generate",extra="-fprofile-use",' cflags
 	@echo "Recompile miniperl with -fprofile-use ..."
-	@rm *.o
+	-$(MAKE) -s archclean
 	$(MAKE) -s miniperl ECHO=true CLDFLAGS="$(CLDFLAGS) -fprofile-use"
-	mv cflags.orig cflags
+	-mv cflags.orig cflags
 	@echo "Optimized minibench.sh ..."
 	./minibench.sh
 
@@ -1308,15 +1308,15 @@ perl.pgo:	miniperl autofdobench.sh
 	cp cflags cflags.orig
 	sed -i.bak 's,extra="",extra="-fprofile-generate",' cflags
 	@echo "Compile perl with -fprofile-generate ..."
-	@rm *.o
+	-$(MAKE) -s archclean
 	$(MAKE) -s test_prep ECHO=true CLDFLAGS="$(CLDFLAGS) -fprofile-generate"
 	@echo "Create profile ..."
 	./autofdobench.sh || (mv cflags.orig cflags; false)
 	sed -i.bak 's,extra="-fprofile-generate",extra="-fprofile-use",' cflags
 	@echo "Recompile perl with -fprofile-use ..."
-	@rm *.o
+	-$(MAKE) -s archclean
 	$(MAKE) -s test_prep ECHO=true CLDFLAGS="$(CLDFLAGS) -fprofile-use"
-	mv cflags.orig cflags
+	-mv cflags.orig cflags
 	@echo "Optimized autofdobench.sh ..."
 	./autofdobench.sh
 
