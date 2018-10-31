@@ -7,12 +7,12 @@ our ( @Extensions, $opt_o, $opt_s );
 use strict;
 
 # This is not a dual-life module, so no need for development version numbers
-our $VERSION = '1.35'; # cperl variant, but cannot use a 'c' here
+our $VERSION = '1.36'; # cperl variant, but cannot use a 'c' here
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(&xsinit &ldopts
-	     &ccopts &ccflags &ccdlflags &perl_inc
-	     &xsi_header &xsi_protos &xsi_body);
+                 &ccopts &ccflags &ccdlflags &perl_inc
+	         &xsi_header &xsi_protos &xsi_body);
 
 our $Verbose = ($ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} >= 2) ? 1 : 0;
 our $lib_ext = $Config{lib_ext} || '.a';
@@ -270,7 +270,7 @@ sub perl_inc {
 }
 
 sub ccopts {
-   ccflags . perl_inc;
+   $Config{optimize} . ' '. ccflags . perl_inc;
 }
 
 sub canon {
@@ -460,11 +460,14 @@ Just say:
 
 =item ccflags(), ccdlflags()
 
-These functions simply print $Config{ccflags} and $Config{ccdlflags}
+These functions simply print $Config{ccflags} and $Config{ccdlflags}.
+Note that $Config{optimize} need to be added manually for proper compilation,
+esp. with C<flto> which usually requires some kind of C<-O>.
 
 =item ccopts()
 
-This function combines C<perl_inc()>, C<ccflags()> and C<ccdlflags()> into one.
+This function combines C<$Config{optimize}>, C<ccflags()> and C<perl_inc()>
+into one.
 
 =item xsi_header()
 

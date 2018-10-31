@@ -123,6 +123,13 @@ XXX
 
 Better mconcat support. Fix some XS memory leaks.
 
+=item L<ExtUtils::Embed> 1.36
+
+Added optimize to ccopts, required for C<-flto>.
+Fixed documentation of ccopts.
+Fixed test to use ccopts, include local -I.., indentation,
+remove wrong -O hack.
+
 =item L<ExtUtils::MakeMaker> 8.35_07
 
 Added C<-flto> support for static libs (need the lto plugin) and D for
