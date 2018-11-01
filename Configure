@@ -5748,10 +5748,13 @@ i686-pc-cygwin) ;;
 *)
   case "$cc $ccflags $dflt" in
     *-DDEBUGGING*)
-        echo "Ignoring -flto with DEBUGGING." >&4
+        echo "Ignoring -flto with DEBUGGING."
+        ;;
+    *-m32*)
+        echo "Ignoring -flto with -m32."
         ;;
     *-flto*)
-        echo "-flto already in ccflags" >&4
+        echo "-flto already in ccflags"
         ;;
     *)
         case "$ccname" in
