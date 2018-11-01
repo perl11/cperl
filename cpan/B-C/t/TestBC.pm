@@ -999,6 +999,19 @@ sub run_cc_test {
     return 0;
 }
 
+my $is_CI;
+sub is_CI {
+    return $is_CI if defined $is_CI;
+    $is_CI = ($ENV{TRAVIS}
+              or $ENV{APPVEYOR}
+              or $ENV{CI}       # circle ci, drone (tea-ci), gitlab
+              # https://gitlab.com/help/ci/variables/README#variables
+              # TODO: Azure
+             )
+      ? 1 : 0;
+    return $is_CI;
+}
+
 sub prepare_c_tests {
     use Config;
     if ($^O eq 'VMS') {
@@ -1086,6 +1099,12 @@ CCTESTS
             $tests[$i] = $_;
             $i++;
         }
+    }
+    if (is_CI()
+        and ($Config{ccflags} =~ /-flto/ or $ENV{SKIP_SLOW_TESTS})
+        and $ENV{PERL_CORE}) {
+        diag "skipping slow tests, ".$#tests," => 13";
+        @tests = @tests[0..12];
     }
 
     plan tests => scalar @tests;

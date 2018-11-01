@@ -2,6 +2,7 @@
 # GH #219 overload stringify failed 5.18-5.22
 # See also t/issue172.t
 use strict;
+use Config;
 my @plan;
 BEGIN {
   if ($ENV{PERL_CORE}) {
@@ -10,9 +11,11 @@ BEGIN {
     unshift @INC, 't', "blib/arch", "blib/lib";
   }
   require TestBC;
+  $ENV{SKIP_SLOW_TESTS} = 1 if $Config{ccflags} =~ /-flto/;
+  $ENV{SKIP_SLOW_TESTS} = 1 if $^O eq 'MSWin32' and $ENV{APPVEYOR};
 
-  if ($^O eq 'MSWin32' and $ENV{APPVEYOR}) {
-    @plan = (skip_all => 'Overlong tests, timeout on Appveyor CI');
+  if ($ENV{SKIP_SLOW_TESTS}) {
+    @plan = (skip_all => 'SKIP_SLOW_TESTS, timeout on CI');
   } else {
     @plan = (tests => 3);
   }

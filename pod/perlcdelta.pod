@@ -126,6 +126,16 @@ Better mconcat support. Fix some XS memory leaks.
 Add missing optimize flags to F<cc_harness>, F<TestBC.pm> and F<perlcc>,
 required for C<-flto>.
 
+When testing overly large C files > 50k (with modules), apply cc -O1,
+not -O2 or -O3.
+
+Honor and set SKIP_SLOW_TESTS, set with C<-flto>. Applied to all tests
+with large C files. t/c*.t now only execute 13 tests under
+-flto/SKIP_SLOW_TESTS and CI, because they may not be finished in
+under 10min.
+
+Added a C<is_CI()> test detection.
+
 =item L<ExtUtils::Embed> 1.36
 
 Added optimize to ccopts, required for C<-flto>.

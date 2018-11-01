@@ -9,7 +9,9 @@ BEGIN {
   }
   require TestBC;
 }
+use Config;
 use Test::More;
+$ENV{SKIP_SLOW_TESTS} = 1 if $Config{ccflags} =~ /-flto/;
 plan skip_all => "MSWin32" if $ENV{PERL_CORE} and $^O eq 'MSWin32';
 plan tests => 6;
 my $i=0;
@@ -22,6 +24,9 @@ EOF
 ctestok($i++, "C", "ccode46g", <<'EOF', "if stash -O0");
 print 'ok' unless %Exporter::;
 EOF
+
+SKIP: {
+skip "slow tests", 4 if $ENV{SKIP_SLOW_TESTS};
 
 ctestok($i++, "C,-O3", "ccode46g", <<'EOF', "if stash -O3");
 print 'ok' unless %Exporter::;
@@ -39,4 +44,6 @@ my $TODO = $^O eq 'cygwin' ? " TODO " : "";
 ctestok($i++, "C,-O3", "ccode46g", <<'EOF', "$TODO use should not skip, in %INC");
 use Devel::Peek; print 'ok' if keys %Devel::Peek:: > 2;
 EOF
+    
+}
 
