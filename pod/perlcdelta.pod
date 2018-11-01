@@ -319,6 +319,11 @@ Fix forgotten C<ffi_target> XSConfig key. (bug introduced in 5.29.0c)
 
 =item *
 
+Set C<archname> and the target triple C<myarchname> earlier, right
+after osname.
+
+=item *
+
 With C<-Uinstallmandirs> all four variables C<installman1dir>,
 C<installman3dir>, C<installsiteman1dir> and C<installsiteman3dir> are set to
 none, skipping installing all man pages.
@@ -327,30 +332,16 @@ none, skipping installing all man pages.
 
 =head1 Testing
 
-XXX Any significant changes to the testing of a freshly built perl should be
-listed here.  Changes which create B<new> files in F<t/> go here as do any
-large changes to the testing harness (e.g. when parallel testing was added).
-Changes to existing files in F<t/> aren't worth summarizing, although the bugs
-that they represent may be covered elsewhere.
-
-XXX If there were no significant test changes, say this:
-
-Tests were added and changed to reflect the other additions and changes
-in this release.
-
-XXX If instead there were significant changes, say this:
-
 Tests were added and changed to reflect the other additions and
 changes in this release.  Furthermore, these significant changes were
 made:
-
-[ List each test improvement as an =item entry ]
 
 =over 4
 
 =item *
 
-XXX
+Honor more B<SKIP_SLOW_TESTS>, esp. with B-C, esp. with C<-flto>.
+Document all used ENV vars in F<t/harness>.
 
 =back
 
@@ -397,6 +388,10 @@ XXX
 Fixed C<boot_Win32CORE> prototype to skip dllexport, fatal with C<-flto>.
 
 Fixed ar for F<Win32CORE.a> by using the gcc liblto plugin.
+
+Skip probing for C<-flto> on 32bit cygwin. This reliably fails to find
+a proper image-base with that many new symbols, the adress space is just
+too small.
 
 =back
 

@@ -3914,8 +3914,46 @@ esac
 
 . ./posthint.sh
 
-: reproducible builds
+: determine the architecture name
 echo " "
+if xxx=`./loc arch blurfl $pth`; $test -f "$xxx"; then
+	tarch=`arch`"-$osname"
+elif xxx=`./loc uname blurfl $pth`; $test -f "$xxx" ; then
+	if uname -m > tmparch 2>&1 ; then
+		tarch=`$sed -e 's/ *$//' -e 's/ /_/g' \
+			-e 's/$/'"-$osname/" tmparch`
+	else
+		tarch="$osname"
+	fi
+	$rm -f tmparch
+else
+	tarch="$osname"
+fi
+case "$myarchname" in
+''|"$tarch") ;;
+*)
+	echo "(Your architecture name used to be $myarchname.)"
+	archname=''
+	;;
+esac
+case "$targetarch" in
+'') ;;
+*)  archname=`echo $targetarch|sed 's,^[^-]*-,,'` ;;
+esac
+case "$osname" in
+cygwin) myarchname="`uname -m`-pc-cygwin" ;;
+*)      myarchname="$tarch" ;;
+esac
+case "$archname" in
+'') dflt="$tarch";;
+*) dflt="$archname";;
+esac
+rp='What is your architecture name'
+. ./myread
+archname="$ans"
+
+echo " "
+echo "Check support for reproducible builds"
 if [ "x$SOURCE_DATE_EPOCH" != "x" ]; then
     echo "cf_time from SOURCE_DATE_EPOCH" >&4
     cf_epoch=$SOURCE_DATE_EPOCH
@@ -5705,7 +5743,10 @@ $define)
 esac
 
 : probe for -flto
-case "$cc $ccflags $dflt" in
+case "$myarchname" in
+i686-pc-cygwin) ;;
+*)
+  case "$cc $ccflags $dflt" in
     *-DDEBUGGING*)
         echo "Ignoring -flto with DEBUGGING." >&4
         ;;
@@ -5768,6 +5809,7 @@ case "$cc $ccflags $dflt" in
                 ;;
         esac
         ;;
+  esac
 esac
 
 case "$hint" in
@@ -7427,44 +7469,6 @@ case "$longdblkind" in
 9) d_long_double_style_vax=$define ;;
 esac
 $rm_try
-
-: determine the architecture name
-echo " "
-if xxx=`./loc arch blurfl $pth`; $test -f "$xxx"; then
-	tarch=`arch`"-$osname"
-elif xxx=`./loc uname blurfl $pth`; $test -f "$xxx" ; then
-	if uname -m > tmparch 2>&1 ; then
-		tarch=`$sed -e 's/ *$//' -e 's/ /_/g' \
-			-e 's/$/'"-$osname/" tmparch`
-	else
-		tarch="$osname"
-	fi
-	$rm -f tmparch
-else
-	tarch="$osname"
-fi
-case "$myarchname" in
-''|"$tarch") ;;
-*)
-	echo "(Your architecture name used to be $myarchname.)"
-	archname=''
-	;;
-esac
-case "$targetarch" in
-'') ;;
-*)  archname=`echo $targetarch|sed 's,^[^-]*-,,'`
-esac
-case "$osname" in
-cygwin) myarchname="`uname -m`-pc-cygwin" ;;
-*)      myarchname="$tarch" ;;
-esac
-case "$archname" in
-'') dflt="$tarch";;
-*) dflt="$archname";;
-esac
-rp='What is your architecture name'
-. ./myread
-archname="$ans"
 
 : optionally add API version to the architecture for versioned archlibs
 case "$useversionedarchname" in
