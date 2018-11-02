@@ -17953,6 +17953,7 @@ our %delta :const = (
             'ExtUtils::Embed'       => '1.36',
             'ExtUtils::MakeMaker'   => '8.35_07',
             'ExtUtils::MM_Unix'     => '8.35_07',
+            'Win32'                 => '0.52_02',
         },
         removed => {
         }

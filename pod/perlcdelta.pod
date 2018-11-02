@@ -152,6 +152,12 @@ remove wrong -O hack.
 Added C<-flto> support for static libs (need the lto plugin) and D for
 deterministic builds, using arflags for AR_STATIC_ARGS, not just 'cr'.
 
+=item L<Win32> 0.52_02
+
+Fix various -Wunused warnings, added () usage croaks.
+Fixed a -Warray-bounds buffer overflow in LONGPATH,
+and two -Wmaybe-uninitialized.
+
 =back
 
 =head2 Removed Modules and Pragmata

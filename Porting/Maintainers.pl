@@ -1598,6 +1598,8 @@ use File::Glob qw(:case);
     'Win32' => {
         'DISTRIBUTION' => "JDB/Win32-0.52.tar.gz",
         'FILES'        => q[cpan/Win32],
+        # -Wunused-variable warnings, add () usage croaks
+        'CUSTOMIZED'   => [ qw( Win32.xs longpath.inc ) ],
     },
 
     'Win32API::File' => {

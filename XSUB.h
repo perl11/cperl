@@ -141,7 +141,7 @@ is a lexical C<$_> in scope.
 
 #define dAX const I32 ax = (I32)(MARK - PL_stack_base + 1)
 
-#define dAXMARK				\
+#define dAXMARK			\
 	I32 ax = POPMARK;	\
 	SV **mark = PL_stack_base + ax++
 

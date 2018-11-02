@@ -2,6 +2,7 @@
 #include <wctype.h>
 #include <windows.h>
 #include <shlobj.h>
+#include <wchar.h>
 
 #define PERL_NO_GET_CONTEXT
 #include "EXTERN.h"
@@ -114,7 +115,7 @@ typedef void (WINAPI *PFNGetNativeSystemInfo)(LPSYSTEM_INFO lpSystemInfo);
  * WORD type has been replaced by unsigned short because
  * WORD is already used by Perl itself.
  */
-struct {
+struct g_osver_t {
     DWORD dwOSVersionInfoSize;
     DWORD dwMajorVersion;
     DWORD dwMinorVersion;
@@ -126,7 +127,7 @@ struct {
     unsigned short wSuiteMask;
     BYTE  wProductType;
     BYTE  wReserved;
-}   g_osver = {0, 0, 0, 0, 0, "", 0, 0, 0, 0, 0};
+} g_osver = {0, 0, 0, 0, 0, "", 0, 0, 0, 0, 0};
 BOOL g_osver_ex = TRUE;
 
 #define ONE_K_BUFSIZE	1024
@@ -377,6 +378,7 @@ get_childenv(void)
 void
 free_childenv(void *d)
 {
+  PERL_UNUSED_ARG(d);
 }
 
 #  define PerlDir_mapA(dir) (dir)
@@ -388,7 +390,7 @@ XS(w32_ExpandEnvironmentStrings)
     dXSARGS;
 
     if (items != 1)
-	croak("usage: Win32::ExpandEnvironmentStrings($String);\n");
+	croak("usage: Win32::ExpandEnvironmentStrings($String)");
 
     if (IsWin2000()) {
         WCHAR value[31*1024];
@@ -536,7 +538,7 @@ XS(w32_LookupAccountName)
 
     if (items != 5)
 	croak("usage: Win32::LookupAccountName($system, $account, $domain, "
-	      "$sid, $sidtype);\n");
+	      "$sid, $sidtype)");
 
     SIDLen = sizeof(SID);
     DomLen = sizeof(Domain);
@@ -570,7 +572,7 @@ XS(w32_LookupAccountSID)
     BOOL bResult;
 
     if (items != 5)
-	croak("usage: Win32::LookupAccountSID($system, $sid, $account, $domain, $sidtype);\n");
+	croak("usage: Win32::LookupAccountSID($system, $sid, $account, $domain, $sidtype)");
 
     sid = SvPV_nolen(ST(1));
     if (IsValidSid(sid)) {
@@ -601,7 +603,7 @@ XS(w32_InitiateSystemShutdown)
 
     if (items != 5)
 	croak("usage: Win32::InitiateSystemShutdown($machineName, $message, "
-	      "$timeOut, $forceClose, $reboot);\n");
+	      "$timeOut, $forceClose, $reboot)");
 
     machineName = SvPV_nolen(ST(0));
 
@@ -642,7 +644,7 @@ XS(w32_AbortSystemShutdown)
     char *machineName;
 
     if (items != 1)
-	croak("usage: Win32::AbortSystemShutdown($machineName);\n");
+	croak("usage: Win32::AbortSystemShutdown($machineName)");
 
     machineName = SvPV_nolen(ST(0));
 
@@ -680,7 +682,7 @@ XS(w32_MsgBox)
     I32 result;
 
     if (items < 1 || items > 3)
-	croak("usage: Win32::MsgBox($message [, $flags [, $title]]);\n");
+	croak("usage: Win32::MsgBox($message [, $flags [, $title]])");
 
     if (items > 1)
         flags = (DWORD)SvIV(ST(1));
@@ -787,6 +789,8 @@ XS(w32_UnregisterServer)
 XS(w32_GetArchName)
 {
     dXSARGS;
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::GetArchName()");
     XSRETURN_PV(getenv("PROCESSOR_ARCHITECTURE"));
 }
 
@@ -796,6 +800,8 @@ XS(w32_GetChipName)
     SYSTEM_INFO sysinfo;
     HMODULE module;
     PFNGetNativeSystemInfo pfnGetNativeSystemInfo;
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::GetChipName()");
 
     Zero(&sysinfo,1,SYSTEM_INFO);
     module = GetModuleHandle("kernel32.dll");
@@ -814,8 +820,11 @@ XS(w32_GuidGen)
     dXSARGS;
     GUID guid;
     char szGUID[50] = {'\0'};
-    HRESULT  hr     = CoCreateGuid(&guid);
+    HRESULT  hr;
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::GuidGen()");
 
+    hr     = CoCreateGuid(&guid);
     if (SUCCEEDED(hr)) {
 	LPOLESTR pStr = NULL;
 #ifdef __cplusplus
@@ -997,7 +1006,7 @@ XS(w32_GetFileVersion)
     char *data;
 
     if (items != 1)
-	croak("usage: Win32::GetFileVersion($filename)\n");
+	croak("usage: Win32::GetFileVersion($filename)");
 
     filename = SvPV_nolen(ST(0));
     size = GetFileVersionInfoSize(filename, &handle);
@@ -1048,7 +1057,9 @@ XS(w32_SetChildShowWindow)
      * inside the thread_intern structure, the MSWin32 implementation
      * lives in win32/win32.c in the core Perl distribution.
      */
-    dXSARGS;
+    dSP;
+    I32 ax = POPMARK;
+    EXTEND(SP,1);
     XSRETURN_UNDEF;
 }
 #endif
@@ -1056,8 +1067,12 @@ XS(w32_SetChildShowWindow)
 XS(w32_GetCwd)
 {
     dXSARGS;
+    char* ptr;
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::GetCwd()");
+
     /* Make the host for current directory */
-    char* ptr = PerlEnv_get_childdir();
+    ptr = PerlEnv_get_childdir();
     /*
      * If ptr != Nullch
      *   then it worked, set PV valid,
@@ -1108,6 +1123,8 @@ XS(w32_GetNextAvailDrive)
     char ix = 'C';
     char root[] = "_:\\";
 
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::GetNextAvailDrive()");
     EXTEND(SP,1);
     while (ix <= 'Z') {
 	root[0] = ix++;
@@ -1122,6 +1139,8 @@ XS(w32_GetNextAvailDrive)
 XS(w32_GetLastError)
 {
     dXSARGS;
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::GetLastError()");
     EXTEND(SP,1);
     XSRETURN_IV(GetLastError());
 }
@@ -1138,6 +1157,8 @@ XS(w32_SetLastError)
 XS(w32_LoginName)
 {
     dXSARGS;
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::LoginName()");
     EXTEND(SP,1);
     if (IsWin2000()) {
         WCHAR name[128];
@@ -1164,6 +1185,8 @@ XS(w32_NodeName)
     dXSARGS;
     char name[MAX_COMPUTERNAME_LENGTH+1];
     DWORD size = sizeof(name);
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::NodeName()");
     EXTEND(SP,1);
     if (GetComputerName(name,&size)) {
 	/* size does NOT include NULL :-( */
@@ -1178,9 +1201,11 @@ XS(w32_DomainName)
 {
     dXSARGS;
     HMODULE module = LoadLibrary("netapi32.dll");
-    PFNNetApiBufferFree pfnNetApiBufferFree;
-    PFNNetWkstaGetInfo pfnNetWkstaGetInfo;
+    PFNNetApiBufferFree pfnNetApiBufferFree = NULL;
+    PFNNetWkstaGetInfo pfnNetWkstaGetInfo = NULL;
 
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::DomainName()");
     if (module) {
         GETPROC(NetApiBufferFree);
         GETPROC(NetWkstaGetInfo);
@@ -1242,8 +1267,10 @@ XS(w32_FsType)
     dXSARGS;
     char fsname[256];
     DWORD flags, filecomplen;
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::FsType()");
     if (GetVolumeInformation(NULL, NULL, 0, NULL, &filecomplen,
-			 &flags, fsname, sizeof(fsname))) {
+                             &flags, fsname, sizeof(fsname))) {
 	if (GIMME_V == G_ARRAY) {
 	    XPUSHs(sv_2mortal(newSVpvn(fsname,strlen(fsname))));
 	    XPUSHs(sv_2mortal(newSViv(flags)));
@@ -1260,6 +1287,8 @@ XS(w32_FsType)
 XS(w32_GetOSVersion)
 {
     dXSARGS;
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::GetOSVersion()");
 
     if (GIMME_V == G_SCALAR) {
         XSRETURN_IV(g_osver.dwPlatformId);
@@ -1282,6 +1311,8 @@ XS(w32_GetOSVersion)
 XS(w32_IsWinNT)
 {
     dXSARGS;
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::IsWinNT()");
     EXTEND(SP,1);
     XSRETURN_IV(IsWinNT());
 }
@@ -1289,6 +1320,8 @@ XS(w32_IsWinNT)
 XS(w32_IsWin95)
 {
     dXSARGS;
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::IsWin95()");
     EXTEND(SP,1);
     XSRETURN_IV(IsWin95());
 }
@@ -1364,6 +1397,8 @@ XS(w32_GetTickCount)
 {
     dXSARGS;
     DWORD msec = GetTickCount();
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::GetTickCount()");
     EXTEND(SP,1);
     if ((IV)msec > 0)
 	XSRETURN_IV(msec);
@@ -1525,7 +1560,7 @@ XS(w32_GetLongPathName)
         WCHAR wide_path[MAX_PATH+1];
         WCHAR *long_path;
 
-        if (wcslen(wstr) < countof(wide_path)) {
+        if (wcslen(wstr) < (size_t)countof(wide_path)) {
             wcscpy(wide_path, wstr);
             long_path = my_longpathW(wide_path);
             if (long_path) {
@@ -1619,6 +1654,8 @@ XS(w32_OutputDebugString)
 XS(w32_GetCurrentProcessId)
 {
     dXSARGS;
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::GetCurrentProcessId()");
     EXTEND(SP,1);
     XSRETURN_IV(GetCurrentProcessId());
 }
@@ -1626,6 +1663,8 @@ XS(w32_GetCurrentProcessId)
 XS(w32_GetCurrentThreadId)
 {
     dXSARGS;
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::GetCurrentThreadId()");
     EXTEND(SP,1);
     XSRETURN_IV(GetCurrentThreadId());
 }
@@ -1713,6 +1752,8 @@ XS(w32_GetProductInfo)
 XS(w32_GetACP)
 {
     dXSARGS;
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::GetACP()");
     EXTEND(SP,1);
     XSRETURN_IV(GetACP());
 }
@@ -1720,6 +1761,8 @@ XS(w32_GetACP)
 XS(w32_GetConsoleCP)
 {
     dXSARGS;
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::GetConsoleCP()");
     EXTEND(SP,1);
     XSRETURN_IV(GetConsoleCP());
 }
@@ -1727,6 +1770,8 @@ XS(w32_GetConsoleCP)
 XS(w32_GetConsoleOutputCP)
 {
     dXSARGS;
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::GetConsoleOutputCP()");
     EXTEND(SP,1);
     XSRETURN_IV(GetConsoleOutputCP());
 }
@@ -1734,6 +1779,8 @@ XS(w32_GetConsoleOutputCP)
 XS(w32_GetOEMCP)
 {
     dXSARGS;
+    if (items)
+	Perl_croak(aTHX_ "usage: Win32::GetOEMCP()");
     EXTEND(SP,1);
     XSRETURN_IV(GetOEMCP());
 }

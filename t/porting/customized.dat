@@ -134,6 +134,8 @@ Time::HiRes dist/Time-HiRes/t/nanosleep.t 11928d7130c75bfba7f8cae2b1e4af13e8628d
 Time::HiRes dist/Time-HiRes/t/usleep.t c5079315f1328877148d7ae1e56f292a42889d7f
 Time::HiRes dist/Time-HiRes/t/utime.t 6116e6b33d2ba8184fd310c5a607210379fca0a9
 Time::HiRes dist/Time-HiRes/typemap 5da3f9dfd1cac452add4194888173f7b4594e933
+Win32 cpan/Win32/longpath.inc 6a81d65707d11be761285ae3e5d9ae1f91bb1444
+Win32 cpan/Win32/Win32.xs 39725c8892490ccd8fc9ea899f66af39cb9aff92
 Win32API::File cpan/Win32API-File/File.xs 44b80cc1a5c598b75628e92e010c270c75cd6f4b
 YAML::LibYAML cpan/YAML-LibYAML/LibYAML/Makefile.PL af46c9ce20b08189cc0fa26b20c69ea051084365
 YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm 527302db61c55bf695da94adfa66e7c2f34b1f09
