@@ -136,6 +136,10 @@ under 10min.
 
 Added a C<is_CI()> test detection.
 
+=item L<Cpanel::JSON::XS> 4.07
+
+Silence Gconvert -Wunused-result.
+
 =item L<ExtUtils::Embed> 1.36
 
 Added optimize to ccopts, required for C<-flto>.

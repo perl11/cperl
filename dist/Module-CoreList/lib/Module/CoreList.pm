@@ -17949,6 +17949,7 @@ our %delta :const = (
             'Module::CoreList'      => '5.20181019c',
             'Module::CoreList::Utils'=> '5.20181019c',
             'B::C'                  => '1.55_10',
+            'Cpanel::JSON::XS'      => '4.07',
             'ExtUtils::Embed'       => '1.36',
             'ExtUtils::MakeMaker'   => '8.35_07',
             'ExtUtils::MM_Unix'     => '8.35_07',

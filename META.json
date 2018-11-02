@@ -143,5 +143,5 @@
       }
    },
    "version" : "5.029001c",
-   "x_serialization_backend" : "Cpanel::JSON::XS version 4.06"
+   "x_serialization_backend" : "Cpanel::JSON::XS version 4.07"
 }

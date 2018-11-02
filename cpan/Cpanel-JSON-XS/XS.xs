@@ -24,6 +24,14 @@
 # define snprintf _snprintf // C compilers have this in stdio.h
 #endif
 
+#ifndef PERL_UNUSED_RESULT
+#  if defined(__GNUC__) && defined(HASATTRIBUTE_WARN_UNUSED_RESULT)
+#    define PERL_UNUSED_RESULT(v) STMT_START { __typeof__(v) z = (v); (void)sizeof(z); } STMT_END
+#  else
+#    define PERL_UNUSED_RESULT(v) ((void)(v))
+#  endif
+#endif
+
 #if defined(_AIX) && (!defined(HAS_LONG_DOUBLE) || AIX_WORKAROUND)
 #define HAVE_NO_POWL
 #endif
@@ -1810,11 +1818,13 @@ encode_sv (pTHX_ enc_t *enc, SV *sv, SV *typesv)
 # endif
       }
 #endif
+
 #ifdef USE_QUADMATH
       quadmath_snprintf(enc->cur, enc->end - enc->cur, "%.*Qg", (int)NV_DIG, nv);
 #else
-      (void)Gconvert (nv, NV_DIG, 0, enc->cur);
+      PERL_UNUSED_RESULT(Gconvert (nv, NV_DIG, 0, enc->cur));
 #endif
+
 #ifdef NEED_NUMERIC_LOCALE_C
       if (loc_changed) {
 # ifdef HAS_USELOCALE
