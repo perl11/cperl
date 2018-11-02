@@ -187,6 +187,20 @@ $ENV{PERL_DL_NONLAZY} = 1 unless exists $ENV{PERL_DL_NONLAZY};
 # added with 4633a7c4bad06b471d9310620b7fe8ddd15 5.002 beta 1
 $ENV{EMXSHELL} = 'sh' if $^O eq 'os2'; # also done in Test::Harness
 
+# detect if running under one of the popular CI's
+my $is_CI;
+sub is_CI {
+    return $is_CI if defined $is_CI;
+    $is_CI = ($ENV{TRAVIS}
+              or $ENV{APPVEYOR}
+              or $ENV{CI}       # circle ci, drone (tea-ci), gitlab
+              # https://gitlab.com/help/ci/variables/README#variables
+              # TODO: Azure
+             )
+      ? 1 : 0;
+    return $is_CI;
+}
+
 if ($show_elapsed_time) { require Time::HiRes }
 my %timings = (); # testname => [@et] pairs if $show_elapsed_time.
 

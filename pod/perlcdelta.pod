@@ -340,6 +340,10 @@ made:
 
 =item *
 
+Added C<is_CI> detection function to F<t/TEST>.
+
+=item *
+
 Honor more B<SKIP_SLOW_TESTS>, esp. with B-C, esp. with C<-flto>.
 Document all used ENV vars in F<t/harness>.
 
