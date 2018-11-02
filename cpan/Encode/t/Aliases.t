@@ -10,7 +10,7 @@ BEGIN {
         print "1..0 # Skip: Encode was not built\n";
         exit 0;
     }
-    if ($Config{'useithreads'} && ($ENV{TRAVIS} || $ENV{APPVEYOR})) {
+    if ($Config{'useithreads'} && ($ENV{TRAVIS} || $ENV{APPVEYOR} || $ENV{CI})) {
         # Definitely a core bug. Also observable with perlcc with pmop aliases
         # https://github.com/rurban/perl-compiler/issues/73
         print "1..0 # Skip: Encode::Alias flapping tests on CI\n";
