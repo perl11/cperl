@@ -8,12 +8,18 @@ my @plan;
 use File::Spec;
 BEGIN {
     @plan = (tests => 87);
+    push @INC, 't';
+    require TestBC;
+
     if ($ENV{PERL_CORE}) {
         if (-f File::Spec->catfile($Config{'sitearch'}, "Opcodes.pm")) {
             @plan = (skip_all => '<sitearch>/Opcodes.pm installed. Possible XS conflict');
         }
         if (-f File::Spec->catfile($Config{'sitearch'}, "B", "Flags.pm")) {
             @plan = (skip_all => '<sitearch>/B/Flags.pm installed. Possible XS conflict');
+        }
+        if ($Config{ccflags} =~ /-flto/ and is_CI()) {
+            @plan = (skip_all => '-flto times out on CI');
         }
         if ($^O eq 'MSWin32') { # find perl5*.dll
             $ENV{PATH} .= ';..\..';
@@ -37,8 +43,9 @@ BEGIN {
     if ($Config{ccflags} =~ /-DPERL_OLD_COPY_ON_WRITE/) {
         @plan = (skip_all => "no OLD_COPY_ON_WRITE");
     }
-    push @INC, 't';
-    require TestBC;
+    if ($Config{ccflags} =~ /-flto/) {
+        $ENV{SKIP_SLOW_TESTS} = 1;
+    }
 }
 
 use Test::More @plan;
@@ -92,30 +99,33 @@ cleanup;
 
 # Try a simple XS module which exists in 5.6.2 and blead (test 45)
 $e = q("use Data::Dumper ();Data::Dumper::Dumpxs({});print q(ok)");
-is(`$perlcc -r -e $e  $devnull`, "ok", "-r xs ".($usedl ? "dynamic" : "static")); #12
-cleanup;
+SKIP: {
+  skip "slow tests", 9 if $ENV{SKIP_SLOW_TESTS};
+  is(`$perlcc -r -e $e  $devnull`, "ok", "-r xs ".($usedl ? "dynamic" : "static")); #12
+  cleanup;
 
-TODO: {
+ TODO: {
     # fails 5.8 and before sometimes on darwin, msvc also.
     local $TODO = '--staticxs is experimental on darwin and <5.10' if $] < 5.010
       or $^O eq 'darwin';
     is(`$perlcc --staticxs -r -e $e $devnull`, "ok", "-r --staticxs xs"); #13
     ok(-e $a_exe, "keep default executable"); #14
-}
-ok(! -e 'a.out.c',     "delete a.out.c file without -S");
-ok(! -e 'a.out.c.lst', "delete a.out.c.lst without -S");
-cleanup;
+  }
+  ok(! -e 'a.out.c',     "delete a.out.c file without -S");
+  ok(! -e 'a.out.c.lst', "delete a.out.c.lst without -S");
+  cleanup;
 
-TODO: {
+ TODO: {
     local $TODO = '--staticxs -S is experimental on darwin and <5.10'
       if $] < 5.010 or $^O eq 'darwin';
     is(`$perlcc --staticxs -S -o pcc -r -e $e  $devnull`, "ok",
        "-S -o -r --staticxs xs"); #17
     ok(-e $a, "keep executable"); #18
+  }
+  ok(-e 'pcc.c',     "keep pcc.c file with -S");
+  ok(-e 'pcc.c.lst', "keep pcc.c.lst with -S");
+  cleanup;
 }
-ok(-e 'pcc.c',     "keep pcc.c file with -S");
-ok(-e 'pcc.c.lst', "keep pcc.c.lst with -S");
-cleanup;
 
 is(`$perlcc --staticxs -S -o pcc -O3 -r -e "print q(ok)"  $devnull`, "ok", #21
    "-S -o -r --staticxs without xs");

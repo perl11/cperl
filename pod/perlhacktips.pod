@@ -1453,6 +1453,134 @@ on the use of F<gcov> and basic block profiling with gcc, see the
 latest GNU CC manual at
 L<http://gcc.gnu.org/onlinedocs/gcc/Gcov-Intro.html#Gcov-Intro>
 
+=head1 COMPILER OPTIMIZATIONS
+
+cperl's default is C<-O3> which includes inlining, perl5's default is
+C<-O2>.  The most basic optimizations are C<-march=native> (enabling
+CPU specific optimizations and auto-vectorization) and C<-flto> (link
+time optimizations).
+
+=head2 LTO
+
+or "Link Time Optimization" via C<gcc -flto=4> or C<clang -flto=thin>.
+This requires the C<gold> linker, and enables multi-threaded
+link-time optimizations.
+
+For gcc my configure script does
+
+    CC=${CC:-ccache gcc}
+    ./Configure -sder -Dcc="$CC" \
+      -Dld="$CC -fuse-linker-plugin" \
+      -Accflags="-flto=4 -fuse-ld=gold -msse4.2 -march=native" ...
+
+and for clang
+
+    CC=${CC:-ccache clang-7}
+    ./Configure -sder -Dcc="$CC" \
+      -Dranlib=llvm-ranlib-7 -Dar=llvm-ar-7 -Dfull_ar=/usr/bin/llvm-ar-7 \
+      -Accflags="-DLTO -flto=thin -msse4.2 -march=native" ...
+
+The impact is about 10%.
+
+Without C<-DDEBUGGING> F<Configure> probes to set the best C<-flto> flags
+automatically.
+
+=head2 PGO
+
+or "Profile Guided Optimization". This is mostly used on non-linux
+system without F<perf>, and works with most compilers: ICC, GCC,
+clang, Oracle Solaris Studio, MSVC, IBM XL C/C++.
+
+It is not using a sampling profiler, but an instrumenting profiler, with
+some minor run-time overhead.
+
+First you need to compile your binaries with enabled profiling, on gcc
+and most other compilers with C<-fprofile-generate> which generates a
+F<.gcno> file for each object file. (The same file that is used for
+gcov coverage reports).  Then you must run a few tests, which records
+coverage data into F<.gcda> files.  Then recompile with
+C<-fprofile-use>: it will compile with the gathered F<.gcda> coverage
+data and infer if an branch is LIKELY or UNLIKELY.
+On L<llvm|http://clang.llvm.org/docs/UsersManual.html#profiling-with-instrumentation>
+it is creating a F<default.profraw> file, which must be converted via
+C<llvm-profdata> to a F<default.profdata> file.
+
+You can use the new F<miniperl.pgo> and F<perl.pgo> targets to create
+the profile guided optimized binaries.
+
+=head2 AutoFDO
+
+L<AutoFDO|https://gcc.gnu.org/wiki/AutoFDO> can only be used on linux
+systems with F<perf>, a sampling profiler. The advantage is that you
+build the fully optimized binaries, run a few practical tests through
+C<perf> with the L<sampling
+profiler|http://clang.llvm.org/docs/UsersManual.html#using-sampling-profilers>,
+which collect statistics using hardware performance counters, which
+will then guide the autofdo optimizer (via C<-fauto-profile>) to
+re-link the binaries. Not all branches will be profiled, but the
+overall accuracy is generally better.
+
+On most recent kernels you need to recompile
+L<autofdo|https://github.com/google/autofdo> by yourself, if you get a
+missing type 79 error.
+
+    git clone --recursive https://github.com/google/autofdo
+    cd autofdo
+    aclocal -I .; autoheader; autoconf; automake --add-missing -c
+    ./configure --with-llvm=/usr/bin/llvm-config-7
+    make -s
+    make -s install
+
+For me it creates about 20% faster executables.
+
+The perl/cperl Makefile already contains two targets for autofdo on linux:
+C<miniperl.autofdo> and C<perl.autofdo>.
+
+Both profiling targets, the sampling autofdo and the instrumented pgo,
+use customizable benchmark scripts F<minibench.sh> and
+F<autofdobench.sh>, which can be tuned to your specific workload to be
+optimized. Per default it only runs some basic op tests.
+
+Note: Support for a shared F<libcperl.so> and clang came only with
+cperl 5.29.1c.  Before you need to profile it by hand.
+
+=head2 prelink
+
+L<prelink|https://community.linuxmint.com/tutorial/view/473> from
+libreoffice is a post-link optimizer.  It fixes up startup
+relocations, but with PIE, ASLR and constantly updated libraries
+it's a bit of a L<hassle|https://lwn.net/Articles/341244/> and is not
+recommended, esp. not on 32bit systems.
+
+=head2 BOLT
+
+L<llvm-bolt|https://github.com/facebookincubator/BOLT> is also
+post-link optimizer, but mouch more powerful. It analyzes F<perf>
+traces from a running executable or service, and then rewrites the
+binary to be faster, similar to L</AutoFDO>.
+
+I've compiled bolt at F</usr/src/llvm/llvm-bolt/build>, added the bin
+path to my PATH C<export PATH=/usr/src/llvm/llvm-bolt/build/bin:$PATH>,
+added the needed C<-Wl,-q> flag to C<ldflags> and C<lddlflags>:
+
+    sed -i -e"s/ldflags='/ldflags='-Wl,-q /" config.sh
+    sed -i -e"s/lddlflags='/lddlflags='-Wl,-q /" config.sh
+
+Sorry, C<-Alddlflags> is still unusable.
+
+Compile F<miniperl> and use F<minibench.sh> from L</AutoFDO> to create
+the profile.
+
+    perf record -e cycles:u -j any,u -o bolt.data -- ./minibench.sh
+    perf2bolt -p bolt.data -o bolt.fdata miniperl
+    llvm-bolt miniperl -o miniperl.bolt -data=bolt.fdata \
+      -reorder-blocks=cache+ -reorder-functions=hfsort+ \
+      -split-functions=3 -split-all-cold -split-eh -dyno-stats
+
+Which leads to an improvement 9% on the already link-time optimized
+executable. Note that the generated F<bolt.fdata> is readable and can
+lead you to missed manual optimizations in the source code.
+
 =head1 MISCELLANEOUS TRICKS
 
 =head2 PERL_DESTRUCT_LEVEL
@@ -1747,7 +1875,7 @@ You can expand the macros in a F<foo.c> file by saying
 
     make foo.i
 
-which will expand the macros using cpp.  Don't be scared by the
+which will expand the macros using C<cpp>.  Don't be scared by the
 results.
 
 =head1 AUTHOR

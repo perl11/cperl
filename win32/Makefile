@@ -801,56 +801,56 @@ NULL		=
 
 DEL		= del
 
+#Improved order with cperl, see http://perl11.org/blog/bolt.html
 MICROCORE_SRC	=		\
-		..\av.c		\
-		..\caretx.c	\
-		..\deb.c	\
-		..\doio.c	\
-		..\doop.c	\
-		..\dquote.c	\
-		..\dump.c	\
-		..\globals.c	\
 		..\gv.c		\
-		..\mro_core.c	\
-		..\hv.c		\
-		..\locale.c	\
-		..\keywords.c	\
-		..\mathoms.c    \
-		..\mg.c		\
-		..\numeric.c	\
-		..\op.c		\
-		..\pad.c	\
 		..\perl.c	\
-		..\perlapi.c	\
 		..\perly.c	\
-		..\pp.c		\
-		..\pp_ctl.c	\
-		..\pp_hot.c	\
-		..\pp_pack.c	\
-		..\pp_sort.c	\
-		..\pp_sys.c	\
-		..\pp_type.c	\
-		..\reentr.c	\
-		..\regcomp.c	\
-		..\regexec.c	\
-		..\run.c	\
-		..\scope.c	\
+		..\toke.c	\
+		..\op.c		\
+		..\av.c		\
+		..\pad.c	\
 		..\sv.c		\
+		..\hv.c		\
+		..\pp_hot.c	\
+		..\run.c	\
+		..\pp_ctl.c	\
+		..\pp_type.c	\
+		..\pp.c		\
+		..\scope.c	\
+		..\pp_sys.c	\
+		..\regcomp.c	\
+		..\mg.c		\
+		..\doop.c	\
+		..\util.c	\
+		..\doio.c	\
+		..\keywords.c	\
+		..\xsutils.c	\
+		..\utf8.c	\
+		..\regexec.c	\
+		..\universal.c	\
+		..\perlapi.c	\
+		..\globals.c	\
+		..\perlio.c	\
+		..\pp_sort.c	\
+		..\pp_pack.c	\
+		..\numeric.c	\
+		..\reentr.c	\
+		..\mathoms.c    \
+		..\locale.c	\
+		..\dquote.c	\
+		..\mro_core.c	\
 		..\taint.c	\
 		..\time64.c	\
-		..\toke.c	\
-		..\universal.c	\
-		..\utf8.c	\
-		..\util.c	\
-		..\xsutils.c
+		..\caretx.c	\
+		..\dump.c	\
+		..\deb.c
 
 EXTRACORE_SRC	= $(EXTRACORE_SRC) perllib.c
 
 !IF "$(PERL_MALLOC)" == "define"
 EXTRACORE_SRC	= $(EXTRACORE_SRC) ..\malloc.c
 !ENDIF
-
-EXTRACORE_SRC	= $(EXTRACORE_SRC) ..\perlio.c
 
 WIN32_SRC	=		\
 		.\win32.c	\
@@ -911,9 +911,9 @@ MKPPPORTDEP     = ..\dist\PathTools\ppport.h
 MICROCORE_OBJ	= $(MICROCORE_SRC:.c=.obj)
 CORE_OBJ	= $(MICROCORE_OBJ) $(EXTRACORE_SRC:.c=.obj)
 WIN32_OBJ	= $(WIN32_SRC:.c=.obj)
-MINICORE_OBJ	= $(MICROCORE_OBJ:..\=.\mini\)	\
-		  $(MINIDIR)\miniperlmain$(o)	\
-		  $(MINIDIR)\perlio$(o)
+MINICORE_OBJ	= $(MINIDIR)\miniperlmain$(o) \
+		  $(MICROCORE_OBJ:..\=.\mini\)
+
 MINIWIN32_OBJ	= $(WIN32_OBJ:.\=.\mini\)
 MINI_OBJ	= $(MINICORE_OBJ) $(MINIWIN32_OBJ)
 DLL_OBJ		= $(DYNALOADER)

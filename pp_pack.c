@@ -1994,7 +1994,7 @@ Perl_packlist(pTHX_ SV *cat, const char *pat, const char *patend, SV **beglist, 
 }
 
 /* like sv_utf8_upgrade, but also repoint the group start markers */
-STATIC void
+static void
 marked_upgrade(pTHX_ SV *sv, tempsym_t *sym_ptr) {
     STRLEN len;
     tempsym_t *group;
@@ -2063,7 +2063,7 @@ marked_upgrade(pTHX_ SV *sv, tempsym_t *sym_ptr) {
    needed says how many extra bytes we need (not counting the final '\0')
    Only grows the string if there is an actual lack of space
 */
-STATIC char *
+static char *
 S_sv_exp_grow(pTHX_ SV *sv, STRLEN needed) {
     const STRLEN cur = SvCUR(sv);
     const STRLEN len = SvLEN(sv);
@@ -2098,8 +2098,7 @@ S_sv_check_infnan(pTHX_ SV *sv, I32 datumtype)
 #define SvUV_no_inf(sv,d) \
 	((sv) = S_sv_check_infnan(aTHX_ sv,d), SvUV_nomg(sv))
 
-STATIC
-SV **
+static SV **
 S_pack_rec(pTHX_ SV *cat, tempsym_t* symptr, SV **beglist, SV **endlist )
 {
     tempsym_t lookahead;
@@ -2416,8 +2415,10 @@ S_pack_rec(pTHX_ SV *cat, tempsym_t* symptr, SV **beglist, SV **endlist )
 		cur += fromlen;
 		len -= fromlen;
 	    }
-	    memset(cur, datumtype == 'A' ? ' ' : '\0', len);
-	    cur += len;
+            if (LIKELY(len)) {
+                memset(cur, datumtype == 'A' ? ' ' : '\0', len);
+                cur += len;
+            }
 	    SvTAINT(cat);
 	    break;
 	}
@@ -2486,8 +2487,10 @@ S_pack_rec(pTHX_ SV *cat, tempsym_t* symptr, SV **beglist, SV **endlist )
 	    l /= 8;
 	    if (howlen == e_star) field_len = 0;
 	    else field_len -= l;
-	    Zero(cur, field_len, char);
-	    cur += field_len;
+            if (field_len) {
+                Zero(cur, field_len, char);
+                cur += field_len;
+            }
 	    break;
 	}
 	case 'H':

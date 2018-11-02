@@ -837,12 +837,17 @@ sub run_cc_test {
 	my $command;
         if ($ENV{PERL_CORE}) { # ignore ccopts
             if ($is_mswin) {
-                $command = $Config{ccflags}.' -I"..\..\lib\CORE"';
+                $command = $Config{optimize}." ".$Config{ccflags}.' -I"..\..\lib\CORE"';
             } else {
-                $command = $Config{ccflags}." -I".$coredir;
+                $command = $Config{optimize}." ".$Config{ccflags}." -I".$coredir;
+                if ($Config{ccflags} =~ /-flto/ and -s $cfile > 50000) { # too big
+                    diag ("$cfile too big, size ", -s $cfile, " use -O1")
+                      if $ENV{TEST_VERBOSE} > 1;
+                    $command =~ s/-O[23] /-O1 /;
+                }
             }
         } else {
-            $command = ExtUtils::Embed::ccopts;
+            $command = ExtUtils::Embed::ccopts();
         }
 	$command .= " -DHAVE_INDEPENDENT_COMALLOC "
 	  if $B::C::Config::have_independent_comalloc;
@@ -856,7 +861,7 @@ sub run_cc_test {
             my $obj = $obj[0];
             $command =~ s/ \Q-o $exe\E / -c -Fo$obj /;
             my $cmdline = "$Config{cc} $command >NUL"; # need to silence it
-            diag ($cmdline) if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} == 2;
+            diag ($cmdline) if $ENV{TEST_VERBOSE} > 1;
             run_cmd($cmdline, 20);
             $command = '';
         }
@@ -911,7 +916,7 @@ sub run_cc_test {
         my $NULL = $is_mswin ? '' : '2>/dev/null';
         my $cmdline = "$Config{cc} $command $NULL";
         if ($is_msvc) {
-            $cmdline = "$Config{ld} $linkargs -out:$exe $obj[0] $command";
+            $cmdline = "$Config{ld} $Config{optimize} $linkargs -out:$exe $obj[0] $command";
         }
 	diag ($cmdline) if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} == 2;
         run_cmd($cmdline, 30);
@@ -992,6 +997,19 @@ sub run_cc_test {
     }
     unlink ($test, $cfile, $exe, @obj) unless $keep_c_fail;
     return 0;
+}
+
+my $is_CI;
+sub is_CI {
+    return $is_CI if defined $is_CI;
+    $is_CI = ($ENV{TRAVIS}
+              or $ENV{APPVEYOR}
+              or $ENV{CI}       # circle ci, drone (tea-ci), gitlab
+              # https://gitlab.com/help/ci/variables/README#variables
+              # TODO: Azure
+             )
+      ? 1 : 0;
+    return $is_CI;
 }
 
 sub prepare_c_tests {
@@ -1081,6 +1099,12 @@ CCTESTS
             $tests[$i] = $_;
             $i++;
         }
+    }
+    if (is_CI()
+        and ($Config{ccflags} =~ /-flto/ or $ENV{SKIP_SLOW_TESTS})
+        and $ENV{PERL_CORE}) {
+        diag "skipping slow tests, ".$#tests," => 13";
+        @tests = @tests[0..12];
     }
 
     plan tests => scalar @tests;

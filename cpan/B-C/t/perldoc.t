@@ -46,26 +46,41 @@ $perlcc .= " -UB -uFile::Spec -uCwd";
 $perlcc .= " -uPod::Perldoc::ToText" if $] >= 5.023004;
 #$perlcc .= " -uFile::Temp" if $] > 5.015;
 $perlcc .= " -uExporter" if $] < 5.010;
-my $exe = $Config{exe_ext};
-my $perldocexe = $^O eq 'MSWin32' ? "perldoc$exe" : "./perldoc$exe";
+my $has_flto = $Config{ccflags} =~ /-flto/ ? 1 : 0;
+
 # XXX bother File::Which?
 plan skip_all => "$perldoc not found" unless -f $perldoc;
 plan skip_all => "MSVC" if ($^O eq 'MSWin32' and $Config{cc} eq 'cl');
 plan skip_all => "mingw" if ($^O eq 'MSWin32' and $Config{cc} eq 'gcc'); # fail 1,4
+plan skip_all => "-flto too slow" if $ENV{PERL_CORE} and $has_flto;
 plan tests => 7;
+
+$perlcc .= " --Wc=-O1" if $has_flto;
+my $exe = $Config{exe_ext};
+my $perldocexe = $^O eq 'MSWin32' ? "perldoc$exe" : "./perldoc$exe";
+
+my $strip_banner = 0;
+# check if we need to strip 1st and last line. Needed for 5.18-5.20
+sub strip_banner($) {
+  my $s = shift;
+  $s =~ s/^.* User Contributed Perl Documentation (.*?)$//m;
+  $s =~ s/^perl v.*$//m;
+  return $s;
+}
+
+my ($compile, $res, $result, $ori, $out, $err, $t0, $t1, $t2);
 
 # XXX interestingly 5.8 perlcc cannot compile perldoc because Cwd disturbs the method finding
 # vice versa 5.14 cannot compile perldoc manually because File::Temp is not included
-my $compile = "$perlcc -o $perldocexe $perldoc";
+$compile = "$perlcc -o $perldocexe $perldoc";
 diagv $compile;
-my $res = `$compile`;
+$res = `$compile`;
 ok(-s $perldocexe, "$perldocexe compiled"); #1
 
 diagv "see if $perldoc -T works";
 my $T_opt = "-T -f wait";
 my $PAGER = '';
-my ($result, $ori, $out, $err);
-my $t0 = [gettimeofday];
+$t0 = [gettimeofday];
 if ($^O eq 'MSWin32') {
   $T_opt = "-t -f wait";
   $PAGER = "PERLDOC_PAGER=type ";
@@ -73,7 +88,7 @@ if ($^O eq 'MSWin32') {
 } else {
   ($result, $ori, $err) = run_cmd("$X -S $perldoc $T_opt", 20);
 }
-my $t1 = tv_interval( $t0 );
+$t1 = tv_interval( $t0 );
 if ($ori =~ /Unknown option/) {
   $T_opt = "-t -f wait";
   $PAGER = "PERLDOC_PAGER=cat " if $^O ne 'MSWin32';
@@ -84,14 +99,7 @@ if ($ori =~ /Unknown option/) {
 } else {
   diagv "it does";
 }
-my $strip_banner = 0;
-# check if we need to strip 1st and last line. Needed for 5.18-5.20
-sub strip_banner($) {
-  my $s = shift;
-  $s =~ s/^.* User Contributed Perl Documentation (.*?)$//m;
-  $s =~ s/^perl v.*$//m;
-  return $s;
-}
+
 if ($ori =~ / User Contributed Perl Documentation /) {
   $strip_banner++;
   $ori = strip_banner $ori;
@@ -99,7 +107,7 @@ if ($ori =~ / User Contributed Perl Documentation /) {
 
 $t0 = [gettimeofday];
 ($result, $out, $err) = run_cmd("$PAGER $perldocexe $T_opt", 20);
-my $t2 = tv_interval( $t0 );
+$t2 = tv_interval( $t0 );
 # old perldoc 3.14_04-3.15_04: Can't locate object method "can" via package "Pod::Perldoc" at /usr/local/lib/perl5/5.14.1/Pod/Perldoc/GetOptsOO.pm line 34
 # dev perldoc 3.15_13: Can't locate object method "_is_mandoc" via package "Pod::Perldoc::ToMan"
 $ori =~ s{ /\S*perldoc }{ perldoc };

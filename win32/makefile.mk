@@ -980,58 +980,56 @@ XCOPY		= xcopy /f /r /i /d /y
 RCOPY		= xcopy /f /r /i /e /d /y
 NOOP		= @rem
 
-#first ones are arrange in compile time order for faster parallel building
-#see #123867 for details
+#Improved order with cperl, see http://perl11.org/blog/bolt.html
 MICROCORE_SRC	=		\
-		..\toke.c	\
-		..\regcomp.c	\
-		..\regexec.c	\
-		..\op.c		\
-		..\sv.c		\
-		..\pp.c		\
-		..\pp_ctl.c	\
-		..\pp_sys.c	\
-		..\pp_pack.c	\
-		..\pp_hot.c	\
 		..\gv.c		\
 		..\perl.c	\
-		..\utf8.c	\
-		..\dump.c	\
-		..\hv.c		\
-		..\av.c		\
-		..\caretx.c	\
-		..\deb.c	\
-		..\doio.c	\
-		..\doop.c	\
-		..\dquote.c	\
-		..\globals.c	\
-		..\mro_core.c	\
-		..\locale.c	\
-		..\keywords.c	\
-		..\mathoms.c    \
-		..\mg.c		\
-		..\numeric.c	\
-		..\pad.c	\
-		..\perlapi.c	\
 		..\perly.c	\
-		..\pp_sort.c	\
-		..\pp_type.c	\
-		..\reentr.c	\
+		..\toke.c	\
+		..\op.c		\
+		..\av.c		\
+		..\pad.c	\
+		..\sv.c		\
+		..\hv.c		\
+		..\pp_hot.c	\
 		..\run.c	\
+		..\pp_ctl.c	\
+		..\pp_type.c	\
+		..\pp.c		\
 		..\scope.c	\
+		..\pp_sys.c	\
+		..\regcomp.c	\
+		..\mg.c		\
+		..\doop.c	\
+		..\util.c	\
+		..\doio.c	\
+		..\keywords.c	\
+		..\xsutils.c	\
+		..\utf8.c	\
+		..\regexec.c	\
+		..\universal.c	\
+		..\perlapi.c	\
+		..\globals.c	\
+		..\perlio.c	\
+		..\pp_sort.c	\
+		..\pp_pack.c	\
+		..\numeric.c	\
+		..\reentr.c	\
+		..\mathoms.c    \
+		..\locale.c	\
+		..\dquote.c	\
+		..\mro_core.c	\
 		..\taint.c	\
 		..\time64.c	\
-		..\universal.c	\
-		..\util.c	\
-		..\xsutils.c
+		..\caretx.c	\
+		..\dump.c	\
+		..\deb.c
 
 EXTRACORE_SRC	+= perllib.c
 
 .IF "$(PERL_MALLOC)" == "define"
 EXTRACORE_SRC	+= ..\malloc.c
 .ENDIF
-
-EXTRACORE_SRC	+= ..\perlio.c
 
 WIN32_SRC	=		\
 		.\win32.c	\
@@ -1093,7 +1091,8 @@ HAVE_COREDIR	= .\.coreheaders
 MICROCORE_OBJ	= $(MICROCORE_SRC:db:+$(o))
 CORE_OBJ	= $(MICROCORE_OBJ) $(EXTRACORE_SRC:db:+$(o))
 WIN32_OBJ	= $(WIN32_SRC:db:+$(o))
-MINICORE_OBJ	= $(MINIDIR)\{$(MICROCORE_OBJ:f) miniperlmain$(o) perlio$(o)}
+MINICORE_OBJ	= $(MINIDIR)\miniperlmain$(o) \
+		  $(MINIDIR)\{$(MICROCORE_OBJ:f)}
 MINIWIN32_OBJ	= $(MINIDIR)\{$(WIN32_OBJ:f)}
 MINI_OBJ	= $(MINICORE_OBJ) $(MINIWIN32_OBJ)
 DLL_OBJ		= $(DYNALOADER)
@@ -1125,7 +1124,7 @@ DYNALOADER	= ..\DynaLoader$(o)
 # version of config_sh.pl (we were overflowing someone's buffer by
 # trying to fit them all on the command line)
 #	-- BKS 10-17-1999
-CFG_VARS	=					\
+CFG_VARS	=				\
 		INST_TOP=$(INST_TOP)	~	\
 		INST_VER=$(INST_VER)	~	\
 		INST_ARCH=$(INST_ARCH)		~	\

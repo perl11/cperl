@@ -107,7 +107,7 @@ Perl_setfd_cloexec_or_inhexec_by_sysfdness(pTHX_ int fd)
 #define DO_GENOPEN_THEN_CLOEXEC(GENOPEN_NORMAL, GENSETFD_CLOEXEC) \
 	do { \
 	    int res = (GENOPEN_NORMAL); \
-	    if(LIKELY(res != -1)) GENSETFD_CLOEXEC; \
+	    if (LIKELY(res != -1)) GENSETFD_CLOEXEC; \
 	    return res; \
 	} while(0)
 #if defined(HAS_FCNTL) && defined(F_SETFD) && defined(FD_CLOEXEC) && \
@@ -213,17 +213,29 @@ Perl_PerlLIO_dup2_cloexec(pTHX_ int oldfd, int newfd)
 #endif
 }
 
+/* flag is either 0 or O_RDWR|O_LARGEFILE|O_BINARY.
+   glibc checks on required 3rd or 4th args with some flags, and
+   gcc-4.8 -flto doesn't see that they are already impossible.
+ */
 int
 Perl_PerlLIO_open_cloexec(pTHX_ const char *file, int flag)
 {
     PERL_ARGS_ASSERT_PERLLIO_OPEN_CLOEXEC;
+#ifdef O_TMPFILE
+# define DISALLOWED_OFLAGS (O_CREAT|O_TMPFILE)
+#else
+# define DISALLOWED_OFLAGS O_CREAT
+#endif
+    assert(!(flag & DISALLOWED_OFLAGS));  /* Would need a third or forth open arg */
 #if defined(O_CLOEXEC)
     DO_ONEOPEN_EXPERIMENTING_CLOEXEC(
-	PerlLIO_open(file, flag | O_CLOEXEC),
-	PerlLIO_open(file, flag));
+	PerlLIO_open(file, (flag | O_CLOEXEC) & ~DISALLOWED_OFLAGS),
+	PerlLIO_open(file, flag & ~DISALLOWED_OFLAGS));
 #else
+    /* Only recent glibc with O_CLOEXEC checks for a third or forth arg */
     DO_ONEOPEN_THEN_CLOEXEC(PerlLIO_open(file, flag));
 #endif
+#undef DISALLOWED_OFLAGS
 }
 
 int

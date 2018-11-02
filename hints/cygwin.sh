@@ -32,7 +32,9 @@ test -z "$use64bitint" && use64bitint='define'
 # broken since 5.27.x
 test -z "$useithreads" && useithreads='undef'
 ccflags="$ccflags -DPERL_USE_SAFE_PUTENV -U__STRICT_ANSI__ -D_GNU_SOURCE"
-archname="`uname -m`-cygwin"
+machine=`uname -m`
+archname="$machine-pc-cygwin"
+myarchname=$archname
 #if [ -f /usr/lib/libffi.dll.a ]; then
 #    libs="$libs -lffi"
 #    libsfound="$libsfiles /usr/lib/libffi.dll.a"
@@ -84,3 +86,5 @@ lddlflags="$lddlflags $ldflags"
 #ldflags="$ldflags -s"
 #ccdlflags="$ccdlflags -s"
 #lddlflags="$lddlflags -s"
+
+unset machine

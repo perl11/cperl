@@ -3164,9 +3164,10 @@ gccosandvers (gccvers.U):
 	or if nothing useful can be parsed as the os version.
 
 gccversion (gccvers.U):
-	If GNU cc (gcc) is used, this variable holds '1' or '2' to
-	indicate whether the compiler is version 1 or 2.  This is used in
-	setting some of the default cflags.  It is set to '' if not gcc.
+	If GNU cc (gcc) is used, this variable holds '1', '2', '3.8', ...
+        to indicate the compiler version string or gcc compatible reference version,
+        such as with clang.  This is used in setting some of the default cflags.
+        It is set to '' if not gcc nor clang.
 
 getcwdnull (d_getcwd.U):
 	This variable conditionally defines the HAS_GETCWDNULL symbol, which
@@ -3874,6 +3875,12 @@ installhtml3dir (html3dir.U):
 	using a different installprefix.  For extra portability, you
 	should only use this variable within your makefiles.
 
+installmandirs (man1dir.U):
+	This variable lets you set and better unset the four variables
+        installman1dir, installman3dir, installsiteman1dir, installsiteman3dir
+        to one combined value. Mostly used with -Uinstallmandirs, which sets
+        all four variables to none, which skips installing all man pages.
+
 installman1dir (man1dir.U):
 	This variable is really the same as man1direxp, unless you are using
 	AFS in which case it points to the read/write location whereas
@@ -4160,6 +4167,11 @@ lint (Loc.U):
 lkflags (ccflags.U):
 	This variable contains any additional C partial linker flags desired by
 	the user.  It is up to the Makefile to use this.
+
+llvmversion (gccvers.U):
+	If clang is used, this variable holds the first line of the $cc --version string,
+        like "clang version 6.0.1-9.1 (tags/RELEASE_601/final)"
+        Without clang detected as compiler, the default value is ''.
 
 ln (Loc.U):
 	This variable is used internally by Configure to determine the

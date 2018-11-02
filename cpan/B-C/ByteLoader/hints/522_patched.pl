@@ -33,7 +33,7 @@ sub probe_byteloader {
     require Config;
     system "$Config::Config{make} linkext";
   }
-  system "$^X -Mblib -MO=-qq,Bytecode,-H,-o$out -e'print q(ok)'";
+  system "$^X -Mblib -MO=-qq,Bytecode,-H,-o$out -e\"print q(ok)\"";
   return "0" unless -s $out;
   my $ret = `$^X -Mblib $out`;
   unlink $out;

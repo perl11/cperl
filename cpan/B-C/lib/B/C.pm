@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.55_08';
+our $VERSION = '1.55_10';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -442,6 +442,7 @@ our %all_bc_deps = map {$_=>1}
   @B::C::Config::deps ? @B::C::Config::deps
   : qw(AnyDBM_File AutoLoader B B::AV B::Asmdata B::BINOP B::BM B::C B::C::Config B::C::InitSection B::C::Section B::CC B::COP B::CV B::FAKEOP B::FM B::GV B::HE B::HV B::IO B::IV B::LEXWARN B::LISTOP B::LOGOP B::LOOP B::MAGIC B::NULL B::NV B::OBJECT B::OP B::PADLIST B::PADNAME B::PADNAMELIST B::PADOP B::PMOP B::PV B::PVIV B::PVLV B::PVMG B::PVNV B::PVOP B::REGEXP B::RHE B::RV B::SPECIAL B::STASHGV B::SV B::SVOP B::UNOP B::UV CORE CORE::GLOBAL Carp DB DynaLoader Errno Exporter Exporter::Heavy ExtUtils ExtUtils::Constant ExtUtils::Constant::ProxySubs Fcntl FileHandle IO IO::File IO::Handle IO::Poll IO::Seekable IO::Socket Internals O POSIX PerlIO PerlIO::Layer PerlIO::scalar Regexp SelectSaver Symbol UNIVERSAL XSLoader __ANON__ arybase arybase::mg base fields main maybe maybe::next mro next overload re strict threads utf8 vars version warnings warnings::register);
 $all_bc_deps{Socket} = 1 if !@B::C::Config::deps and $] > 5.021;
+$all_bc_deps{overloading} = 1 if !@B::C::Config::deps and $] >= 5.027003;
 
 # B::C stash footprint: mainly caused by blib, warnings, and Carp loaded with DynaLoader
 # perl5.15.7d-nt -MO=C,-o/dev/null -MO=Stash -e0
@@ -1729,9 +1730,10 @@ sub B::UNOP_AUX::save {
   my $sym = objsym($op);
   return $sym if defined $sym;
   $level = 0 unless $level;
+  my $cvref = B::main_cv;
   my @aux_list = $op->name eq 'multideref'
     ? $op->aux_list_thr # our own version. GH#283, GH#341
-    : $op->aux_list;
+    : $op->aux_list($cvref);
   my $auxlen = scalar @aux_list;
   $auxlen = $aux_list[0] + 6 if $op->name eq 'multiconcat';
   $unopauxsect->comment("$opsect_common, first, aux");
@@ -1751,6 +1753,7 @@ sub B::UNOP_AUX::save {
       # symbolize MDEREF, SIGNATURE, MCONCAT actions and flags, just for the comments
       my $cmt = 'action';
       if ($op->name eq 'multiconcat') {
+        # TODO: test 27
         # nargs, consts, len 0, 1, ...
         if ($i == 1) {
           $nargs = $item;

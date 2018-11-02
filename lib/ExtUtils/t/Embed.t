@@ -18,7 +18,7 @@ if ( $Config{usecrosscompile} && !can_run($cc) ) {
     print "1..0 # SKIP Cross-compiling and the target doesn't have $cc";
     exit;
 }
-open(my $fh,">embed_test.c") || die "Cannot open embed_test.c:$!";
+open(my $fh, ">", "embed_test.c") || die "Cannot open embed_test.c:$!";
 print $fh <DATA>;
 close($fh);
 
@@ -41,95 +41,87 @@ my (@cmd2) if $^O eq 'VMS';
 # the usual value for perl_inc(), which is used by ccopts(),
 # will be wrong.
 if ($^O eq 'VMS') {
-    push(@cmd,$cc,"/Obj=$obj");
-    my (@incs) = ($inc);
-    my $crazy = ccflags();
-    if ($crazy =~ s#/inc[^=/]*=([\w\$\_\-\.\[\]\:]+)##i) {
-        push(@incs,$1);
-    }
-    if ($crazy =~ s/-I([a-zA-Z0-9\$\_\-\.\[\]\:]*)//) {
-        push(@incs,$1);
-    }
-    $crazy =~ s#/Obj[^=/]*=[\w\$\_\-\.\[\]\:]+##i;
-    push(@cmd,"/Include=(".join(',',@incs).")");
-    push(@cmd,$crazy);
-    push(@cmd,"embed_test.c");
+  push(@cmd,$cc,"/Obj=$obj");
+  my (@incs) = ($inc);
+  my $crazy = ccflags();
+  if ($crazy =~ s#/inc[^=/]*=([\w\$\_\-\.\[\]\:]+)##i) {
+    push(@incs,$1);
+  }
+  if ($crazy =~ s/-I([a-zA-Z0-9\$\_\-\.\[\]\:]*)//) {
+    push(@incs,$1);
+  }
+  $crazy =~ s#/Obj[^=/]*=[\w\$\_\-\.\[\]\:]+##i;
+  push(@cmd,"/Include=(".join(',',@incs).")");
+  push(@cmd,$crazy);
+  push(@cmd,"embed_test.c");
 
-    push(@cmd2,$Config{'ld'}, $Config{'ldflags'}, "/exe=$exe"); 
-    push(@cmd2,"$obj,[-]perlshr.opt/opt,[-]perlshr_attr.opt/opt");
+  push(@cmd2,$Config{'ld'}, $Config{'ldflags'}, "/exe=$exe");
+  push(@cmd2,"$obj,[-]perlshr.opt/opt,[-]perlshr_attr.opt/opt");
 
 } else {
-   if ($cl) {
+  if ($cl) {
     push(@cmd,$cc,"-Fe$exe");
-   }
-   else {
+  }
+  else {
     push(@cmd,$cc,'-o' => $exe);
-   }
-   if ($^O eq 'dec_osf' && !defined $Config{usedl}) {
-       # The -non_shared is needed in case of -Uusedl or otherwise
-       # the test application will try to use libperl.so
-       # instead of libperl.a.
-       push @cmd, "-non_shared";
-   }
+  }
+  if ($^O eq 'dec_osf' && !defined $Config{usedl}) {
+    # The -non_shared is needed in case of -Uusedl or otherwise
+    # the test application will try to use libperl.so
+    # instead of libperl.a.
+    push @cmd, "-non_shared";
+  }
 
-   # XXX DAPM 12/2014: ExtUtils::Embed doesn't seem to provide API access
-   # to $Config{optimize} and so compiles the test code without
-   # optimisation on optimised perls. This causes the compiler to warn
-   # when -D_FORTIFY_SOURCE is in force without -O. For now, just strip
-   # the fortify on optimised builds to avoid the warning.
-   my $ccflags =  ccflags();
-   $ccflags =~ s/-D_FORTIFY_SOURCE=\d+// if $Config{optimize} =~ /-O/;
-
-   push(@cmd, "-I$inc", $ccflags, 'embed_test.c');
-   if ($^O eq 'MSWin32') {
+  push(@cmd, "-I$inc", ccopts(), 'embed_test.c');
+  if ($^O eq 'MSWin32') {
     $inc = File::Spec->catdir($inc,'win32');
     push(@cmd,"-I$inc");
     $inc = File::Spec->catdir($inc,'include');
     push(@cmd,"-I$inc");
     if ($cc eq 'cl') {
-	push(@cmd,'-link',"-libpath:$lib\\lib\\CORE",$Config{'libperl'},$Config{'libs'});
+      push(@cmd,'-link',"-libpath:$lib\\lib\\CORE",$Config{'libperl'},$Config{'libs'});
     }
     else {
-	push(@cmd,"-L$lib",$lib.'\lib\CORE\\'.$Config{'libperl'},$Config{'libc'});
+      push(@cmd,"-L$lib",$lib.'\lib\CORE\\'.$Config{'libperl'},$Config{'libc'});
     }
-   }
-   elsif ($^O eq 'os390' && $Config{usedl}) {
+  }
+  elsif ($^O eq 'os390' && $Config{usedl}) {
     push(@cmd,"-L$lib", ldopts());
-   } else { # Not MSWin32 or OS/390 (z/OS) dynamic.
+  } else { # Not MSWin32 or OS/390 (z/OS) dynamic.
     push(@cmd,"-L$lib",'-lperl');
     local $SIG{__WARN__} = sub {
-	warn $_[0] unless $_[0] =~ /No library found for .*perl/
+      warn $_[0] unless $_[0] =~ /No library found for .*perl/
     };
     push(@cmd, '-Zlinker', '/PM:VIO')	# Otherwise puts a warning to STDOUT!
-	if $^O eq 'os2' and $Config{ldflags} =~ /(?<!\S)-Zomf\b/;
-    push(@cmd,ldopts());
-   }
+      if $^O eq 'os2' and $Config{ldflags} =~ /(?<!\S)-Zomf\b/;
+    push(@cmd, ldopts());
+  }
 
-   if ($^O eq 'aix') { # AIX needs an explicit symbol export list.
+  if ($^O eq 'aix') { # AIX needs an explicit symbol export list.
     my ($perl_exp) = grep { -f } qw(perl.exp ../perl.exp);
     die "where is perl.exp?\n" unless defined $perl_exp;
     for (@cmd) {
-        s!-bE:(\S+)!-bE:$perl_exp!;
+      s!-bE:(\S+)!-bE:$perl_exp!;
     }
-   }
-   elsif ($^O eq 'cygwin') { # Cygwin needs no special treatment like below
-       ;
-   }
-   elsif ($Config{'libperl'} !~ /\Alibperl\./) {
-     # Everyone needs libperl copied if it's not found by '-lperl'.
-     $testlib = $Config{'libperl'};
-     my $srclib = $testlib;
-     $testlib =~ s/.+(?=\.[^.]*)/libperl/;
-     $testlib = File::Spec::->catfile($lib, $testlib);
-     $srclib = File::Spec::->catfile($lib, $srclib);
-     if (-f $srclib) {
-       unlink $testlib if -f $testlib;
-       my $ln_or_cp = $Config{'ln'} || $Config{'cp'};
-       my $lncmd = "$ln_or_cp $srclib $testlib";
-       #print "# $lncmd\n";
-       $libperl_copied = 1	unless system($lncmd);
-     }
-   }
+  }
+  elsif ($^O eq 'cygwin') { # Cygwin needs no special treatment like below
+    ;
+  }
+  elsif ($Config{'libperl'} !~ /\Alibperl\./) {
+    # Everyone needs libperl copied if it's not found by '-lperl'.
+    $testlib = $Config{'libperl'};
+    my $srclib = $testlib;
+    $testlib =~ s/.+(?=\.[^.]*)/libperl/;
+    $testlib = File::Spec::->catfile($lib, $testlib);
+    $srclib = File::Spec::->catfile($lib, $srclib);
+    if (-f $srclib) {
+      unlink $testlib if -f $testlib;
+      my $ln_or_cp = $Config{'ln'} || $Config{'cp'};
+      my $lncmd = "$ln_or_cp $srclib $testlib";
+      #print "# $lncmd\n";
+      $libperl_copied = 1	unless system($lncmd);
+    }
+  }
 }
 my $status;
 # On OS/2 the linker will always emit an empty line to STDOUT; filter these

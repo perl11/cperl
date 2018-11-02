@@ -15,6 +15,7 @@ BEGIN {
 use strict;
 my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);
 #my $ITHREADS  = ($Config{useithreads});
+$ENV{SKIP_SLOW_TESTS} = 1 if $Config{ccflags} =~ /-flto|-fsanitize/;
 
 prepare_c_tests();
 

@@ -1,3 +1,4 @@
+use strict;
 use ExtUtils::MakeMaker;
 use Config;
 use File::Spec;
@@ -171,7 +172,7 @@ elsif ($] > 5.015005 and $] < 5.019004) {
 
 my $perlcc = File::Spec->catfile("script", "perlcc");
 if ($CORE and $^O eq 'MSWin32') {
-    $perldll = $Config{usecperl} ? "cperl*.dll" : "perl*.dll";
+    my $perldll = $Config{usecperl} ? "cperl*.dll" : "perl*.dll";
     system("copy ..\..\$perldll *.*");
 }
 
@@ -265,17 +266,18 @@ sub try_compile {
     }
     print PROG $testc;
     close PROG;
-    @candidate = ();
-    $devnull = $^O eq 'MSWin32' ? "> NUL" : ">/dev/null 2>&1";
+    my @candidate = ();
+    my $devnull = $^O eq 'MSWin32' ? "> NUL" : ">/dev/null 2>&1";
     my $cmd = "$Config{cc} $Config{ccflags} test.c";
-    push @candidate, "$cmd -o test$Config{EXE_EXT} $libs $devnull";
-    push @candidate, "$cmd -otest$Config{EXE_EXT} $libs $devnull";
+    push @candidate, "$cmd -o test$Config{exe_ext} $libs $devnull";
+    push @candidate, "$cmd -otest$Config{exe_ext} $libs $devnull";
+    my $rc=0;
     while (my $cmd1 = shift (@candidate)) {
 	system ($cmd1);
-	unlink "test.c", "test$Config{EXE_EXT}";
-	$? == 0 && return 1;
+	if ($? == 0) {$rc=1;last}
     }
-    return 0;
+    unlink "test.c", "test$Config{exe_ext}";
+    return $rc;
 }
 
 sub check_op_rettype {
@@ -432,7 +434,7 @@ sub ccflags {
     # Recommended by http://www.network-theory.co.uk/docs/gccintro/gccintro_32.html
     # -ansi -pedantic -Wall -W -Wconversion -Wshadow -Wcast-qual -Wwrite-strings (-W => -WExtra)
     $ccflags .= " -ansi -pedantic -Wall -Wextra -Wconversion -Wshadow -Wcast-qual -Wwrite-strings"
-      if $Config{cc} =~ /\bgcc/ and $Config{gccversion};
+      if $Config::Config{cc} =~ /\bgcc/ and $Config::Config{gccversion};
 }
 
 sub depend {
@@ -463,7 +465,7 @@ TAGS : $asmdata
             $result .= "\ntest :: subdirs-test_\$(LINKTYPE)\n\n";
         }
     }
-    if ($Config{make} eq 'mingw32-make') { # mingw32 make different to msys make
+    if ($Config::Config{make} eq 'mingw32-make') { # mingw32 make different to msys make
         $result .= "\n.PHONY : \$(CONFIGDEP)\n\n";
     }
     $result;
@@ -527,7 +529,7 @@ sub install {
     my $result = shift->SUPER::install(@_);
     my $headerpath = main::headerpath();
     my $cc_runtime_h = File::Spec->catfile($headerpath, 'cc_runtime.h');
-    if ($] > 5.013007 and !-e $cc_runtime.h) {
+    if ($] > 5.013007 and !-e $cc_runtime_h) {
         $result =~ s/install :: pure_install doc_install/install :: pure_install doc_install ccinc_install/;
 	$result .= '
 ccinc_install :: $(PERL_INC)/cc_runtime.h

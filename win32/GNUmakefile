@@ -1016,57 +1016,57 @@ RCOPY		= xcopy /f /r /i /e /d /y
 NOOP		= @rem
 
 #first ones are arrange in compile time order for faster parallel building
-#see #123867 for details
+#see #123867 for details.
+#Improved with cperl, see http://perl11.org/blog/bolt.html
 MICROCORE_SRC	=		\
-		..\toke.c	\
-		..\regcomp.c	\
-		..\regexec.c	\
-		..\op.c		\
-		..\sv.c		\
-		..\pp.c		\
-		..\pp_ctl.c	\
-		..\pp_sys.c	\
-		..\pp_pack.c	\
-		..\pp_hot.c	\
 		..\gv.c		\
 		..\perl.c	\
-		..\utf8.c	\
-		..\dump.c	\
-		..\hv.c		\
-		..\av.c		\
-		..\caretx.c	\
-		..\deb.c	\
-		..\doio.c	\
-		..\doop.c	\
-		..\dquote.c	\
-		..\globals.c	\
-		..\mro_core.c	\
-		..\locale.c	\
-		..\keywords.c	\
-		..\mathoms.c    \
-		..\mg.c		\
-		..\numeric.c	\
-		..\pad.c	\
-		..\perlapi.c	\
 		..\perly.c	\
-		..\pp_sort.c	\
-		..\pp_type.c	\
-		..\reentr.c	\
+		..\toke.c	\
+		..\op.c		\
+		..\av.c		\
+		..\pad.c	\
+		..\sv.c		\
+		..\hv.c		\
+		..\pp_hot.c	\
 		..\run.c	\
+		..\pp_ctl.c	\
+		..\pp_type.c	\
+		..\pp.c		\
 		..\scope.c	\
+		..\pp_sys.c	\
+		..\regcomp.c	\
+		..\mg.c		\
+		..\doop.c	\
+		..\util.c	\
+		..\doio.c	\
+		..\keywords.c	\
+		..\xsutils.c	\
+		..\utf8.c	\
+		..\regexec.c	\
+		..\universal.c	\
+		..\perlapi.c	\
+		..\globals.c	\
+		..\perlio.c	\
+		..\pp_sort.c	\
+		..\pp_pack.c	\
+		..\numeric.c	\
+		..\reentr.c	\
+		..\mathoms.c    \
+		..\locale.c	\
+		..\dquote.c	\
+		..\mro_core.c	\
 		..\taint.c	\
 		..\time64.c	\
-		..\universal.c	\
-		..\util.c	\
-		..\xsutils.c
+		..\caretx.c	\
+		..\dump.c	\
+		..\deb.c
 
 EXTRACORE_SRC	+= perllib.c
 
 ifeq ($(PERL_MALLOC),define)
 EXTRACORE_SRC	+= ..\malloc.c
 endif
-
-EXTRACORE_SRC	+= ..\perlio.c
 
 WIN32_SRC	=		\
 		.\win32.c	\
@@ -1134,9 +1134,8 @@ MICROCORE_OBJ	= $(MICROCORE_SRC:.c=$(o))
 CORE_OBJ	= $(MICROCORE_OBJ) $(EXTRACORE_SRC:.c=$(o))
 WIN32_OBJ	= $(WIN32_SRC:.c=$(o))
 
-MINICORE_OBJ	= $(subst ..\,mini\,$(MICROCORE_OBJ))	\
-		  $(MINIDIR)\miniperlmain$(o)	\
-		  $(MINIDIR)\perlio$(o)
+MINICORE_OBJ	= $(MINIDIR)\miniperlmain$(o)	\
+		  $(subst ..\,mini\,$(MICROCORE_OBJ))
 MINIWIN32_OBJ	= $(subst .\,mini\,$(WIN32_OBJ))
 MINI_OBJ	= $(MINICORE_OBJ) $(MINIWIN32_OBJ)
 DLL_OBJ		= $(DYNALOADER)

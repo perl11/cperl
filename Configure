@@ -966,6 +966,8 @@ fpostype=''
 gccansipedantic=''
 gccosandvers=''
 gccversion=''
+llvmsuffix=''
+llvmversion=''
 gidformat=''
 gidsign=''
 gidsize=''
@@ -1002,6 +1004,7 @@ i_fp_class=''
 useffi=''
 d_libffi=''
 i_ffi=''
+ffi_targets=''
 i_gdbm=''
 d_grpasswd=''
 i_grp=''
@@ -1159,6 +1162,7 @@ mallocsrc=''
 malloctype=''
 usemallocwrap=''
 usemymalloc=''
+installmandirs=''
 installman1dir=''
 man1dir=''
 man1direxp=''
@@ -3910,8 +3914,46 @@ esac
 
 . ./posthint.sh
 
-: reproducible builds
+: determine the architecture name
 echo " "
+if xxx=`./loc arch blurfl $pth`; $test -f "$xxx"; then
+	tarch=`arch`"-$osname"
+elif xxx=`./loc uname blurfl $pth`; $test -f "$xxx" ; then
+	if uname -m > tmparch 2>&1 ; then
+		tarch=`$sed -e 's/ *$//' -e 's/ /_/g' \
+			-e 's/$/'"-$osname/" tmparch`
+	else
+		tarch="$osname"
+	fi
+	$rm -f tmparch
+else
+	tarch="$osname"
+fi
+case "$myarchname" in
+''|"$tarch") ;;
+*)
+	echo "(Your architecture name used to be $myarchname.)"
+	archname=''
+	;;
+esac
+case "$targetarch" in
+'') ;;
+*)  archname=`echo $targetarch|sed 's,^[^-]*-,,'` ;;
+esac
+case "$osname" in
+cygwin) myarchname="`uname -m`-pc-cygwin" ;;
+*)      myarchname="$tarch" ;;
+esac
+case "$archname" in
+'') dflt="$tarch";;
+*) dflt="$archname";;
+esac
+rp='What is your architecture name'
+. ./myread
+archname="$ans"
+
+echo " "
+echo "Check support for reproducible builds"
 if [ "x$SOURCE_DATE_EPOCH" != "x" ]; then
     echo "cf_time from SOURCE_DATE_EPOCH" >&4
     cf_epoch=$SOURCE_DATE_EPOCH
@@ -3919,7 +3961,10 @@ if [ "x$SOURCE_DATE_EPOCH" != "x" ]; then
 elif [ -d $rsrc/.git ]; then
     tmppwd=`pwd`
     cd $rsrc || exit
-    cf_file=$(ls -t `git ls-tree --full-tree -r --name-only HEAD` | head -n1)
+    cf_file=$(git ls-tree --full-tree -r --name-only HEAD | xargs ls -t | head -n1)
+    if test -z $cf_file; then
+        cf_file=$(ls -t `git ls-tree --full-tree -r --name-only HEAD` | head -n1)
+    fi
     echo "cf_time from newest git file $cf_file" >&4
     cf_epoch=`$date -r $cf_file +%s 2>&1`
     cd $tmppwd || exit
@@ -4754,6 +4799,12 @@ if $cc -o try $ccflags $ldflags try.c; then
 	gccversion=`$run ./try`
 	case "$gccversion" in
 	'') echo "You are not using GNU cc." ;;
+	*Clang*|clang*)
+	    ccname=clang
+            llvmversion=`$cc --version | head -n1 | sed "s,clang version ,,"`
+            llvmsuffix=`echo $cc | sed "s,*.clang,,"`
+            echo "You are using clang $llvmversion."
+	    ;;
 	*)  echo "You are using GNU cc $gccversion."
 	    ccname=gcc
 	    ;;
@@ -4769,6 +4820,7 @@ else
 		;;
 	esac
 fi
+
 $rm -f try try.*
 case "$gccversion" in
 1*) cpp=`./loc gcc-cpp $cpp $pth` ;;
@@ -5069,9 +5121,9 @@ fi
 : Use gcc to determine libpth and incpth
 # If using gcc or clang, we can get better values for libpth, incpth
 # and usrinc directly from the compiler.
-# Note that ccname for clang is also gcc.
+# Note ccname for clang is now seperate.
 case "$ccname" in
-    gcc)
+    gcc|clang)
 	$echo 'extern int foo;' > try.c
 	set X `$cppstdin -v try.c 2>&1 | $awk '/^#include </,/^End of search /'|$cppfilter $grep '/include'`
 	shift
@@ -5572,7 +5624,7 @@ if $cc $_sysroot -O2 $flag -o gcctest gcctest.c 2>gcctest.out && $run ./gcctest;
 	*$check*)
 	    echo "Leaving current flags $ccflags alone." 2>&1
 	    ;;
-	*) dflt="$dflt $flag";
+	*)  dflt="$dflt $flag";
 	    eval $callback
 	    ;;
 	esac
@@ -5690,6 +5742,76 @@ $define)
 	;;
 esac
 
+: probe for -flto
+case "$myarchname" in
+i686-pc-cygwin) ;;
+*)
+  case "$cc $ccflags $dflt" in
+    *-DDEBUGGING*)
+        echo "Ignoring -flto with DEBUGGING." >&4
+        ;;
+    *-flto*)
+        echo "-flto already in ccflags" >&4
+        ;;
+    *)
+        case "$ccname" in
+            clang)
+                echo "clang: try -flto=thin or -flto"
+                unset wasset
+		set lto-thin "-flto=thin -DLTO" "wasset=1"
+		eval $checkccflag
+                ltoflags="-flto=thin"
+	        if test -z wasset; then
+		set lto-thin "-flto=thin -fuse-ld=gold -DLTO" "wasset=1"
+		eval $checkccflag
+	        if test -z wasset; then
+		set lto "-flto -DLTO" "wasset=1"
+		eval $checkccflag
+                ltoflags="-flto"
+	        if test -z wasset; then
+		set lto "-flto -fuse-ld=gold -DLTO"
+		eval $checkccflag
+                fi
+                fi
+                fi
+                unset wasset
+                ;;
+            gcc)
+                echo "gcc: try -flto=4 or -flto"
+                unset wasset
+		set lto-4 "-flto=4 -DLTO" "wasset=1"
+		eval $checkccflag
+                ltoflags="-flto=4"
+	        if test -z wasset; then
+		set lto "-flto=4 -fuse-ld=gold -DLTO" "wasset=1"
+		eval $checkccflag
+	        if test -z wasset; then
+                # -fuse-linker-plugin should be the default
+		set lto "-flto=4 -fuse-linker-plugin -fuse-ld=gold -DLTO" "wasset=1"
+		eval $checkccflag
+	        if test -z wasset; then
+		set lto "-flto -DLTO" "wasset=1"
+		eval $checkccflag
+                ltoflags="-flto"
+	        if test -z wasset; then
+		set lto "-flto -fuse-ld=gold -DLTO"
+		eval $checkccflag
+                fi
+                fi
+                fi
+                fi
+                unset wasset
+                ;;
+            *)  echo "$cc: try -flto"
+	        set lto "-flto -DLTO"
+	        eval $checkccflag
+                ltoflags="-flto"
+                ;;
+        esac
+        ;;
+  esac
+esac
+
 case "$hint" in
 default|recommended) dflt="$ccflags $dflt" ;;
 *) dflt="$ccflags";;
@@ -5793,6 +5915,7 @@ case "$ldflags" in
 	;;
 *) dflt="$ldflags";;
 esac
+
 # See note above about -fstack-protector
 case "$ccflags" in
 *-fsanitize=cfi*)
@@ -5888,7 +6011,12 @@ case "$ccflags" in
     esac
     case "$ccflags" in
         *-flto*) ;;
-	*) ccflags="-DLTO -flto $ccflags" ;;
+        *)  if test -z $ltoflags; then
+                ccflags="$ccflags -DLTO -flto"
+            else
+                ccflags="$ccflags -DLTO $ltoflags"
+            fi
+            ;;
     esac
     case "$ldflags" in
         *-flto*) ;;
@@ -5906,11 +6034,16 @@ case "$ccflags" in
 *-flto*)
     case "$ccflags" in
         *-DLTO*) ;;
-	*) ccflags="-DLTO $ccflags" ;;
+	*) ccflags="$ccflags -DLTO" ;;
     esac
     case "$ldflags" in
         *-flto*) ;;
-        *) ldflags="-flto $ldflags" ;;
+        *)  if test -z $ltoflags; then
+                ldflags="$ldflags -flto"
+            else
+                ldflags="$ldflags $ltoflags"
+            fi
+            ;;
     esac
 esac
 
@@ -7336,41 +7469,6 @@ case "$longdblkind" in
 9) d_long_double_style_vax=$define ;;
 esac
 $rm_try
-
-: determine the architecture name
-echo " "
-if xxx=`./loc arch blurfl $pth`; $test -f "$xxx"; then
-	tarch=`arch`"-$osname"
-elif xxx=`./loc uname blurfl $pth`; $test -f "$xxx" ; then
-	if uname -m > tmparch 2>&1 ; then
-		tarch=`$sed -e 's/ *$//' -e 's/ /_/g' \
-			-e 's/$/'"-$osname/" tmparch`
-	else
-		tarch="$osname"
-	fi
-	$rm -f tmparch
-else
-	tarch="$osname"
-fi
-case "$myarchname" in
-''|"$tarch") ;;
-*)
-	echo "(Your architecture name used to be $myarchname.)"
-	archname=''
-	;;
-esac
-case "$targetarch" in
-'') ;;
-*)  archname=`echo $targetarch|sed 's,^[^-]*-,,'` ;;
-esac
-myarchname="$tarch"
-case "$archname" in
-'') dflt="$tarch";;
-*) dflt="$archname";;
-esac
-rp='What is your architecture name'
-. ./myread
-archname="$ans"
 
 : optionally add API version to the architecture for versioned archlibs
 case "$useversionedarchname" in
@@ -8950,7 +9048,12 @@ EOM
 	    *-flto*)
 		case "$dflt" in
 		    *-flto*) ;; # Don't add it again
-		    *) dflt="$dflt -flto" ;;
+		    *) if test -z $ltoflags; then
+                           dflt="$dflt -flto"
+                       else
+                           dflt="$dflt $ltoflags"
+                       fi
+                       ;;
 		esac
 		;;
           esac
@@ -8960,7 +9063,7 @@ EOM
 	. ./myread
 	case "$ans" in
 	    none) lddlflags=' ' ;;
-	    *) lddlflags="$ans" ;;
+	    *)    lddlflags="$ans" ;;
 	esac
 
 	cat <<EOM
@@ -9267,6 +9370,13 @@ nroff)
 	'') man1dir="none";;
 	esac;;
 esac
+: support -Uinstallmandirs
+if $test "$installmandirs" = "$undef"; then
+	man1dir=' '
+	man3dir=' '
+	siteman1dir=' '
+	siteman3dir=' '
+fi
 echo "If you don't want the manual sources installed, answer 'none'."
 case "$man1dir" in
 ' ') dflt=none
@@ -9288,6 +9398,7 @@ case "$man1dir" in
 	;;
 esac
 echo " "
+
 fn=dn+~
 rp="Where do the main $spackage manual pages (source) go?"
 . ./getfile
@@ -21921,6 +22032,27 @@ rp="What is the type of process ids on this system?"
 set pid_t pidtype int stdio.h sys/types.h
 eval $typedef_ask
 
+: clang -flto cannot be used with binutils ar, try llvm-ar*
+case "$ccname $cc $ccflags" in
+    clang*flto*)
+        case "$ar" in
+            ar|*/ar)
+                echo " "
+                echo "Warning: clang -flto used with ar"
+                dflt="llvm-ar$llvmsuffix"
+                if test -n `which $dflt`; then
+                    ar=$dflt
+                    full_ar=`which $dflt`
+                echo "Replaced ar with $ar for bitcode libs with clang -flto" >&4
+                fi
+                dflt=
+                ;;
+            *)  ;;
+        esac
+        ;;
+    *)  ;;
+esac
+
 : see if ar generates random libraries by itself
 echo " "
 echo "Checking how to generate random libraries on your machine..." >&4
@@ -21943,7 +22075,12 @@ else
     if $test x$osname = xdarwin; then
         oldar=$ar
         # D support since llvm-3.7 (trying macports llvm now)
-        ar=llvm-ar-mp-3.9
+        if test -f /opt/local/bin/llvm-ar-mp-3.9; then
+            ar=llvm-ar-mp-3.9
+        # or homebrew llvm-ar
+        elif test -f /usr/local/bin/llvm-ar; then
+            ar=llvm-ar
+        fi
         if $ar $arflags bar$_a bar2$_o bar1$_o >/dev/null 2>&1; then
             echo "$ar $arflags with support for deterministic timestamp stripping." >&4
             full_ar=`which $ar`
@@ -21978,10 +22115,15 @@ elif $ar ts bar$_a >/dev/null 2>&1 &&
     orderlib=false
     ranlib="$ar ts"
 else
+    if $test -n "$llvmsuffix"; then
+        testranlib=llvm-ranlib$llvmsuffix
+    else
+        testranlib=ranlib
+    fi
     case "$ranlib" in
 	:)  ranlib='' ;;
 	'')
-	    ranlib=`./loc ranlib X /usr/bin /bin /usr/local/bin /opt/local/bin`
+	    ranlib=`./loc $testranlib X /usr/bin /bin /usr/local/bin /opt/local/bin`
 	    $test -f $ranlib || ranlib=''
             # -D for determinism
             if $ranlib -D bar$_a; then
@@ -22001,6 +22143,29 @@ else
     fi
 fi
 $rm -f foo* bar*
+
+if $test -n "$gccversion"; then
+  case "$ccflags" in
+    *flto*)
+        #some old /usr/bin/ar did not support the plugin flag
+        #full_ar=/usr/$archname/bin/ar
+        # needed for static libs (Win32CORE.a)
+        if test -z $myarchname; then myarchname=$archname; fi
+        case "$osname" in
+            cygwin) plugin="/usr/lib/gcc/$myarchname/$gccversion/cyglto_plugin.dll" ;;
+            *)      plugin="/usr/lib/gcc/$myarchname/$gccversion/liblto_plugin.$dlext" ;;
+        esac
+        if test -f "$plugin"; then
+            arflags="$arflags --plugin $plugin"
+        else
+            echo "$plugin for ar with -flto not found" >&4
+        fi
+        unset plugin
+        ;;
+    *)  ;;
+  esac
+fi
+
 
 : Check the max offset that gmtime and localtime accept
 echo "Checking max offsets that gmtime () accepts"
@@ -25141,6 +25306,7 @@ extensions='$extensions'
 extern_C='$extern_C'
 extras='$extras'
 fake_signatures='$fake_signatures'
+ffi_targets=''
 fflushNULL='$fflushNULL'
 fflushall='$fflushall'
 find='$find'
@@ -25359,6 +25525,8 @@ lint='$lint'
 lkflags='$lkflags'
 ln='$ln'
 lns='$lns'
+llvmsuffix='$llvmsuffix'
+llvmversion='$llvmversion'
 localtime_r_proto='$localtime_r_proto'
 locincpth='$locincpth'
 loclibpth='$loclibpth'

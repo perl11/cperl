@@ -77,16 +77,15 @@ as an updated module in the L</Modules and Pragmata> section.
 
 =head1 Performance Enhancements
 
-XXX Changes which enhance performance without changing behaviour go here.
-There may well be none in a stable release.
-
-[ List each enhancement as an =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+Optimized the static link order of objects for the default case,
+when you cannot use lto, pgo, autofdo nor bolt.
+Added lto to the default ccflags.
+See L<http://perl11.org/blog/bolt.html> and
+L<[cperl #381]|https://github.com/perl11/cperl/issues/381>.
 
 =back
 
@@ -120,9 +119,34 @@ XXX
 
 =over 4
 
-=item *
+=item L<B::C> 1.55_10
 
-L<XXX> has been upgraded from version A.xx to B.yy.
+Better mconcat support. Fix some XS memory leaks.
+
+Add missing optimize flags to F<cc_harness>, F<TestBC.pm> and F<perlcc>,
+required for C<-flto>.
+
+When testing overly large C files > 50k (with modules), apply cc -O1,
+not -O2 or -O3.
+
+Honor and set SKIP_SLOW_TESTS, set with C<-flto>. Applied to all tests
+with large C files. t/c*.t now only execute 13 tests under
+-flto/SKIP_SLOW_TESTS and CI, because they may not be finished in
+under 10min.
+
+Added a C<is_CI()> test detection.
+
+=item L<ExtUtils::Embed> 1.36
+
+Added optimize to ccopts, required for C<-flto>.
+Fixed documentation of ccopts.
+Fixed test to use ccopts, include local -I.., indentation,
+remove wrong -O hack.
+
+=item L<ExtUtils::MakeMaker> 8.35_07
+
+Added C<-flto> support for static libs (need the lto plugin) and D for
+deterministic builds, using arflags for AR_STATIC_ARGS, not just 'cr'.
 
 =back
 
@@ -155,19 +179,16 @@ We have attempted to update the documentation to reflect the changes
 listed in this document.  If you find any we have missed, send email
 to L<perlbug@perl.org|mailto:perlbug@perl.org>.
 
-XXX Changes which significantly change existing files in F<pod/> go here.
-However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
-section.
-
 Additionally, the following selected changes have been made:
 
-=head3 L<XXX>
+=head3 L<perlhacktips>
 
 =over 4
 
 =item *
 
-XXX Description of the change here
+Added a L<perlhacktips/COMPILER OPTIMIZATIONS> section, with LTO, PGO,
+AutoFDO, prelink and BOLT tips.
 
 =back
 
@@ -249,36 +270,78 @@ L</Platform Support> section, instead.
 
 =item *
 
-XXX
+Without C<DEBUGGING> the best C<-flto> Link Time Optimization flag is
+now added to the default ccflags.
+See L<http://perl11.org/blog/bolt.html> and
+L<[cperl #381]|https://github.com/perl11/cperl/issues/381>.
+
+The correct -flto= variant is then used for ldflags and lddlflags also.
+cldflags contains now also the optimize settings, needed for -flto.
+
+ar is replaced by llvm-ar-$ver if needed.
+
+=item *
+
+C<ccname> is now set to "clang" for clang, not "gcc".
+
+=item *
+
+On linux "icc" is also set for C<ccname>, and C<-O3> is preferred over
+C<-O2> in most non-DEBUGGING cases with newer compilers.
+
+=item *
+
+C<llvmversion> string added, like "6.0.1-9.1 (tags/RELEASE_601/final)",
+analog to C<gccversion>. With clang both variables are set.
+
+=item *
+
+Added C<llvmsuffix> config, for bitcode-enabled ar, ranlib,
+llvm-profdata.
+
+=item *
+
+Added C<ar --plugin> path to the F<lto_plugin>, required for static
+libs with C<-flto>. Esp. on cygwin.
+
+=item *
+
+Added clang and useshrplib support for the two .autofdo targets.
+See L<perlhacktips/AutoFDO>.
+
+=item *
+
+Added two .pgo targets, analog to autofdo. See L<perlhacktips/PGO>.
+
+=item *
+
+Fix forgotten C<ffi_target> XSConfig key. (bug introduced in 5.29.0c)
+
+=item *
+
+Set C<archname> and the target triple C<myarchname> earlier, right
+after osname.
+
+=item *
+
+With C<-Uinstallmandirs> all four variables C<installman1dir>,
+C<installman3dir>, C<installsiteman1dir> and C<installsiteman3dir> are set to
+none, skipping installing all man pages.
 
 =back
 
 =head1 Testing
 
-XXX Any significant changes to the testing of a freshly built perl should be
-listed here.  Changes which create B<new> files in F<t/> go here as do any
-large changes to the testing harness (e.g. when parallel testing was added).
-Changes to existing files in F<t/> aren't worth summarizing, although the bugs
-that they represent may be covered elsewhere.
-
-XXX If there were no significant test changes, say this:
-
-Tests were added and changed to reflect the other additions and changes
-in this release.
-
-XXX If instead there were significant changes, say this:
-
 Tests were added and changed to reflect the other additions and
 changes in this release.  Furthermore, these significant changes were
 made:
-
-[ List each test improvement as an =item entry ]
 
 =over 4
 
 =item *
 
-XXX
+Honor more B<SKIP_SLOW_TESTS>, esp. with B-C, esp. with C<-flto>.
+Document all used ENV vars in F<t/harness>.
 
 =back
 
@@ -318,16 +381,17 @@ XXX
 
 =head2 Platform-Specific Notes
 
-XXX List any changes for specific platforms.  This could include configuration
-and compilation changes or changes in portability/compatibility.  However,
-changes within modules for platforms should generally be listed in the
-L</Modules and Pragmata> section.
-
 =over 4
 
-=item XXX-some-platform
+=item cygwin
 
-XXX
+Fixed C<boot_Win32CORE> prototype to skip dllexport, fatal with C<-flto>.
+
+Fixed ar for F<Win32CORE.a> by using the gcc liblto plugin.
+
+Skip probing for C<-flto> on 32bit cygwin. This reliably fails to find
+a proper image-base with that many new symbols, the adress space is just
+too small.
 
 =back
 
