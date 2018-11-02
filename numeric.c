@@ -1289,6 +1289,13 @@ S_my_atof_infnan(pTHX_ const char* s, bool negative, const char* send, NV* value
     const int infnan = grok_infnan(&p, send);
     if (infnan && p != p0) {
         /* If we can generate inf/nan directly, let's do so. */
+        /*
+          double result;
+          I32 *res = (I32*) &result;
+          res[0] = -1;
+          res[1] = -1;
+          nv = (NV)result;
+        */
 #ifdef NV_INF
         if ((infnan & IS_NUMBER_INFINITY)) {
             *value = (infnan & IS_NUMBER_NEG) ? -NV_INF: NV_INF;
