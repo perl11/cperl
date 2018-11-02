@@ -4,7 +4,7 @@ This project adheres to **No Code of Conduct**.
 
 We are all adults.
 We accept anyone's contributions.
-If you are feeling harrassed speak up by yourself.
+If you are feeling harassed speak up by yourself.
 We do not censor, we don't stop any discussions.
 Nothing else matters.
 
@@ -12,4 +12,4 @@ Compare the conflicting [p5p STANDARDS OF CONDUCT](http://perldoc.perl.org/perlp
 cperl can stand criticsm and encourages criticism, but doesn't allow abuse.
 perl5 silences them via code of conduct and still is toxic and effectively dead.
 
-For more information please visit the [No Code of Conduct](https://nocodeofconduct.com) homepage.
+For more information please see the old [No Code of Conduct](https://web.archive.org/web/20150619202349/http://nocodeofconduct.com/) homepage.
