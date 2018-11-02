@@ -24,7 +24,7 @@ if (-e '.fast') {
 # cperl is getting too fast for it's own good,
 # causing too many flapping tests here.
 if ($ENV{TRAVIS}) {
-  print "1..0 # Skip on TRAVIS CI\n";
+  print "1..0 # Skip on Travis CI\n";
   exit 0;
 }
 
