@@ -5,7 +5,7 @@ BEGIN {
     #require './test.pl';
 }
 local($\, $", $,) = (undef, ' ', '');
-print "1..35\n";
+print "1..39\n";
 my $test = 1;
 
 # allow has hash fields (YAML::Mo)
@@ -113,14 +113,27 @@ class Baz4 does Foo2 {
 print "ok $test # parsed role composition\n"; $test++;
 my $b4 = new Baz4;
 if (1) {
-  $b4->test; # TODO type adjustment for does (copied roles)
+  $b4->test; # type adjustment for does (copied roles)
   $b4->foo2;
 } else {
   print "ok $test # TODO type adjustment for does (copied roles)\n"; $test++;
   print "ok $test #  -\"-\n"; $test++;
 }
 
-# TODO: crash with wrong padoffset
+class Baz5 {
+  has int $i;
+}
+my $b5;
+eval { $b5 = new Baz5("wrong"); }; #  typecheck
+print !$@ ? "not " : "", "ok ", $test++, " # compile-time typecheck Mu::new fields\n";
+print $b5->i ? "not " : "", "ok ", $test++, " # ", $b5->i, " value\n";
+
+my $xx = "wrong";
+$b5 = new Baz5($xx);
+print !$@ ? "not " : "", "ok ", $test++, " # run-time typecheck Mu::new fields\n";
+print $b5->i ? "not " : "", "ok ", $test++, " # ", $b5->i, " value\n";
+
+# crashed with wrong padoffset [cperl #389]
 eval { do './op/class1.inc'; };
 eval q|
 role Foo3 {

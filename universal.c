@@ -1087,8 +1087,10 @@ XS(XS_Mu_new)
                 fields += l+padsize+1;
                 /* use a pseudohash or string with all the names as first element?
                    no, this is just an optional new method. */
-                if (items > i) { /* copy from args */
+                if (items > i) { /* new CLASS(field1, field2); copy fields from args */
                     /* deref [ah]vrefs to lists? */
+                    /* TODO check arity "Too many arguments for %s%s%s %s. Want: %" UVuf
+                               ", but got: %" UVuf */
                     SV* arg = ST(i+1);
                     if (UNLIKELY(*PadnamePV(pn) != '$') && SvROK(arg)) {
                         arg = SvRV(arg);
@@ -1096,9 +1098,10 @@ XS(XS_Mu_new)
                           || (*PadnamePV(pn) == '%' && SvTYPE(arg) != SVt_PVHV) )
                             Perl_croak(aTHX_ "Invalid object field type");
                     }
+                    /* TODO: typecheck typed fields #387, see op_signature */
                     AvARRAY(av)[i] = arg;
                 }
-                else { /* new CLASS field1, field2, ... */
+                else { /* new CLASS; copy fields from decl */
                     SV * const sv = PAD_SVl(po);
                     SvPADSTALE_off(sv);
                     AvARRAY(av)[i] = SvREFCNT_inc_NN(sv);
