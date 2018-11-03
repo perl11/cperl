@@ -22145,7 +22145,6 @@ else
 	ranlib=":"
     fi
 fi
-$rm -f foo* bar*
 
 if $test -n "$gccversion"; then
   case "$ccflags" in
@@ -22158,17 +22157,40 @@ if $test -n "$gccversion"; then
             cygwin) plugin="/usr/lib/gcc/$myarchname/$gccversion/cyglto_plugin.dll" ;;
             *)      plugin="/usr/lib/gcc/$myarchname/$gccversion/liblto_plugin.$dlext" ;;
         esac
-        if test -f "$plugin"; then
-            arflags="$arflags --plugin $plugin"
+        if $test -f "$plugin"; then
+            echo "lto plugin found"
         else
-            echo "$plugin for ar with -flto not found" >&4
+            for f in $libpth; do
+                $test -f $plugin || plugin="$f/liblto_plugin.$dlext"
+            done
+        fi
+        if $test -f "$plugin"; then
+            case $ar in
+                *llvm-ar*) ;;
+                *)  if $ar $arflags --plugin $plugin bar$_a bar2$_o bar1$_o >/dev/null 2>&1; then
+                        echo "can use $ar with lto --plugin $plugin" >&4
+                        arflags="$arflags --plugin $plugin"
+                    fi
+                    ;;
+            esac
+            case $ranlib in
+                *llvm-ranlib*) ;;
+                :) ;;
+                *) if $ranlib --plugin $plugin bar$_a; then
+                        echo "can use $ranlib with lto --plugin $plugin" >&4
+                        ranlib="$ranlib --plugin $plugin"
+                   fi
+                   ;;
+            esac
+        else
+            echo "$plugin for ar with lto not found" >&4
         fi
         unset plugin
         ;;
     *)  ;;
   esac
 fi
-
+$rm -f foo* bar*
 
 : Check the max offset that gmtime and localtime accept
 echo "Checking max offsets that gmtime () accepts"

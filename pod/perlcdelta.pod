@@ -311,8 +311,9 @@ llvm-profdata.
 
 =item *
 
-Added C<ar --plugin> path to the F<lto_plugin>, required for static
-libs with C<-flto>. Esp. on cygwin.
+Added C<ar --plugin> path to the gcc F<lto_plugin>, required for
+binutils C<ar> with static libs with C<-flto>. Esp. on cygwin.
+Ditto for C<ranlib>.
 
 =item *
 
