@@ -75,9 +75,13 @@ true)
 			     -install_name \$(shrpdir)/\$@"
 		;;
 	cygwin*)
-	        shrpldflags="$shrpldflags -Wl,--out-implib=libcperl.dll.a \
+                pkg=$package
+                if $test "$package" = "perl5"; then
+                    pkg=perl
+                fi
+	        shrpldflags="$shrpldflags -Wl,--out-implib=lib${pkg}.dll.a \
 			     -Wl,--image-base,0x52000000"
-		linklibperl="-L. -lcperl"
+		linklibperl="-L. -l${pkg}"
 		;;
 	sunos*)
 		linklibperl="-lperl"
@@ -92,29 +96,29 @@ true)
 	aix*)
 		case "$cc" in
 		gcc*)
-			shrpldflags="-shared -Wl,-H512 -Wl,-T512 -Wl,-bhalt:4 -Wl,-bM:SRE -Wl,-bE:perl.exp"
-			case "$osvers" in
+		    shrpldflags="-shared -Wl,-H512 -Wl,-T512 -Wl,-bhalt:4 -Wl,-bM:SRE -Wl,-bE:perl.exp"
+		    case "$osvers" in
 			3*)	shrpldflags="$shrpldflags -e _nostart"
 				;;
 			*)	shrpldflags="$shrpldflags -Wl,-bnoentry"
 				;;
-			esac
-			shrpldflags="$shrpldflags $ldflags $perllibs $cryptlib"
-			linklibperl="-L $archlibexp/CORE -L `pwd | sed 's/\/UU$//'` -lperl"
-			linklibperl_nonshr='-lperl_nonshr'
-			;;
+		    esac
+		    shrpldflags="$shrpldflags $ldflags $perllibs $cryptlib"
+		    linklibperl="-L $archlibexp/CORE -L `pwd | sed 's/\/UU$//'` -lperl"
+		    linklibperl_nonshr='-lperl_nonshr'
+		    ;;
 		*)
-			shrpldflags="-H512 -T512 -bhalt:4 -bM:SRE -bE:perl.exp"
-			case "$osvers" in
+		    shrpldflags="-H512 -T512 -bhalt:4 -bM:SRE -bE:perl.exp"
+		    case "$osvers" in
 			3*)	shrpldflags="$shrpldflags -e _nostart"
 				;;
 			*)	shrpldflags="$shrpldflags -b noentry"
 				;;
-			esac
-			shrpldflags="$shrpldflags $ldflags $perllibs $cryptlib"
-			linklibperl="-L $archlibexp/CORE -L `pwd | sed 's/\/UU$//'` -lperl"
-			linklibperl_nonshr='-lperl_nonshr'
-			;;
+		    esac
+		    shrpldflags="$shrpldflags $ldflags $perllibs $cryptlib"
+		    linklibperl="-L $archlibexp/CORE -L `pwd | sed 's/\/UU$//'` -lperl"
+		    linklibperl_nonshr='-lperl_nonshr'
+		    ;;
 		esac
 		;;
 	hpux*)
@@ -974,10 +978,12 @@ $(LIBPERL): $& $(perllib_dep) $(DYNALOADER) $(LIBPERLEXPORT)
 !NO!SUBS!
 		    ;;
 	        cygwin) # cperl compat: make -lperl work
-		    $spitshell >>$Makefile <<'!NO!SUBS!'
+                    if $test "$package" != "perl5"; then
+		        $spitshell >>$Makefile <<'!NO!SUBS!'
 	rm -f libperl.dll.a
 	ln -s libcperl.dll.a libperl.dll.a
 !NO!SUBS!
+                    fi
 		    ;;
 		esac
 		;;
