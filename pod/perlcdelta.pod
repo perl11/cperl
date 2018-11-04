@@ -404,9 +404,10 @@ Fixed C<boot_Win32CORE> prototype to skip dllexport, fatal with C<-flto>.
 
 Fixed ar for F<Win32CORE.a> by using the gcc liblto plugin.
 
-Skip probing for C<-flto> on 32bit cygwin. This reliably fails to find
-a proper image-base with that many new symbols, the adress space is just
-too small.
+Skip probing for C<-flto> on cygwin. This reliably fails to find a
+proper image-base with that many new symbols, the adress space is just
+too small:
+C<Invalid relocation. Offset 0x.. at address 0x.. doesn't fit into 32 bits>
 
 =back
 

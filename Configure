@@ -5743,8 +5743,8 @@ $define)
 esac
 
 : probe for -flto
-case "$myarchname" in
-i686-pc-cygwin) ;;
+case "$osname" in
+cygwin) ;;
 *)
   case "$cc $ccflags $dflt" in
     *-DDEBUGGING*)
