@@ -1080,6 +1080,11 @@ XS(XS_Mu_new)
             AvFILLp(av) = fill;
             items--; /* skip $self */
             fields++;
+            if (UNLIKELY(items > fill)) { /* check arity */
+                Perl_croak(aTHX_ "Too many arguments for %s%s%s %s. Want: %" UVuf
+                      ", but got: %" UVuf,
+                      "", "", "method", "new", (UV)fill, (UV)items);
+            }
             for (i=0; *fields; i++ ) {
                 int l = strlen(fields);
                 const PADOFFSET po = fields_padoffset(fields, l+1, padsize);
@@ -1089,8 +1094,6 @@ XS(XS_Mu_new)
                    no, this is just an optional new method. */
                 if (items > i) { /* new CLASS(field1, field2); copy fields from args */
                     /* deref [ah]vrefs to lists? */
-                    /* TODO check arity "Too many arguments for %s%s%s %s. Want: %" UVuf
-                               ", but got: %" UVuf */
                     SV* arg = ST(i+1);
                     if (UNLIKELY(*PadnamePV(pn) != '$') && SvROK(arg)) {
                         arg = SvRV(arg);

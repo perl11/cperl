@@ -5,7 +5,7 @@ BEGIN {
     #require './test.pl';
 }
 local($\, $", $,) = (undef, ' ', '');
-print "1..39\n";
+print "1..40\n";
 my $test = 1;
 
 # allow has hash fields (YAML::Mo)
@@ -127,6 +127,10 @@ my $b5;
 eval { $b5 = new Baz5("wrong"); }; #  typecheck
 print !$@ ? "not " : "", "ok ", $test++, " # compile-time typecheck Mu::new fields\n";
 print $b5->i ? "not " : "", "ok ", $test++, " # ", $b5->i, " value\n";
+
+eval { $b5 = new Baz5(1, "wrong"); }; #  arity check
+print $@ =~ /Too many arguments for method / ? "" : "not ", "ok ", $test++, " # arity check Mu::new fields\n";
+$@ = '';
 
 my $xx = "wrong";
 $b5 = new Baz5($xx);
