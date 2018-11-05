@@ -736,6 +736,19 @@ generic technique when the platform-specific one fails (for example, a Linux
 system with F</proc> not mounted).  This was a regression in Perl 5.28.0.
 L<[perl #133573]|https://rt.perl.org/Public/Bug/Display.html?id=133573>
 
+=item *
+
+The experimental reference aliasing feature was misinterpreting array and
+hash slice assignment as being localised, e.g.
+
+    \(@a[3,5,7]) = \(....);
+
+was being interpreted as:
+
+    local \(@a[3,5,7]) = \(....);
+
+L<[perl #133538]|https://rt.perl.org/Public/Bug/Display.html?id=133538>
+
 =back
 
 =head1 Known Problems
