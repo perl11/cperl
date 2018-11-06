@@ -44,7 +44,7 @@ BEGIN {
   plan skip_all => "Overlong tests, timeout on Appveyor CI"
     if $^O eq 'MSWin32' and $ENV{APPVEYOR};
   plan skip_all => "Overlong tests, timeout on CI"
-    if is_CI() and $ENV{PERL_CORE} and $Config{ccflags} =~ /-flto/;
+    if is_CI() and $ENV{PERL_CORE};
   plan skip_all => "SKIP_SLOW_TESTS, timeout on CI"
     if $ENV{SKIP_SLOW_TESTS};
 
