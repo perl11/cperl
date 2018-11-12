@@ -66,6 +66,11 @@ to 65535
 This means if you specify C<qr/a+/> that there can be anywhere from 1
 through 65535 C<"a">'s in a row, instead of 32267 as previously.
 
+=head2 C<-Drv> now means something on C<-DDEBUGGING> builds
+
+Now, adding the verbose flag (C<-Dv>) to the C<-Dr> flag turns on all
+possible regular expression debugging, as with C<use re 'debug';>. See L<re>.
+
 =head1 Security
 
 XXX Any security-related notices go here.  In particular, any security
@@ -348,6 +353,10 @@ Typos in pod.
 
 Use quadmath versions of log10, ldexp and signbit
 L<[perl #133510]|https://rt.perl.org/Public/Bug/Display.html?id=133510>
+
+=item L<re> 0.37_01
+
+Document C<-Drv>
 
 =item L<Safe> 2.40_03c
 

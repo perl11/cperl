@@ -53,6 +53,11 @@ aspect of 11.0 is being left in, with the option to back it out if
 things haven't improved by that time, or if we get too many complaints
 about the development release being unusable for Georgian users.
 
+=head2 C<-Drv> now means something on C<-DDEBUGGING> builds
+
+Now, adding the verbose flag (C<-Dv>) to the C<-Dr> flag turns on all
+possible regular expression debugging.
+
 =head1 Security
 
 XXX Any security-related notices go here.  In particular, any security

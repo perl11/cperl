@@ -18427,6 +18427,7 @@ our %delta :const = (
             'ODBM_File'             => '1.16',
             'POSIX'                 => '1.85_03',
             'PerlIO::scalar'        => '0.30',
+            're'                    => '0.37_01',
             'SDBM_File'             => '1.15',
             'Safe'                  => '2.40_03c',
             'sigtrap'               => '1.09',
