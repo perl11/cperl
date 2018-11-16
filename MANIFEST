@@ -1,4 +1,5 @@
 .whitesource			WhiteSource configuration on github
+.build.yml			builds.sr.ht CI
 .cirrus.yml			Cirrus CI (continuous integration) for FreeBSD
 .dir-locals.el			Emacs control file
 .github/FUNDING.yml		github sponsor and patreon cfg

@@ -1,0 +1,17 @@
+# builds.sr.ht
+image: freebsd
+sources:
+  - https://github.com/perl11/cperl.git
+environment:
+  CI: 1
+packages:
+  - libffi
+tasks:
+  - build: |
+      cd cperl
+      sh ./Configure -des
+      make -s
+  - test: |
+      cd cperl
+      make -s test
+
