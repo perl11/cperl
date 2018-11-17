@@ -10535,28 +10535,12 @@ STATIC char*	S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s, cons
 #define PERL_ARGS_ASSERT_FIND_BYCLASS	\
 	assert(prog); assert(c); assert(s); assert(strend)
 
-STATIC char *	S_find_next_ascii(char* s, const char * send, const bool is_utf8)
-			__attribute__global__
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(1)
-			__attribute__nonnull__(2);
-#define PERL_ARGS_ASSERT_FIND_NEXT_ASCII	\
-	assert(s); assert(send)
-
 STATIC U8 *	S_find_next_masked(U8 * s, const U8 * send, const U8 byte, const U8 mask)
 			__attribute__global__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(1)
 			__attribute__nonnull__(2);
 #define PERL_ARGS_ASSERT_FIND_NEXT_MASKED	\
-	assert(s); assert(send)
-
-STATIC char *	S_find_next_non_ascii(char* s, const char * send, const bool is_utf8)
-			__attribute__global__
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(1)
-			__attribute__nonnull__(2);
-#define PERL_ARGS_ASSERT_FIND_NEXT_NON_ASCII	\
 	assert(s); assert(send)
 
 STATIC U8 *	S_find_span_end(U8* s, const U8 * send, const U8 span_byte)
@@ -10576,10 +10560,13 @@ STATIC U8 *	S_find_span_end_mask(U8 * s, const U8 * send, const U8 span_byte, co
 	assert(s); assert(send)
 
 #ifndef PERL_NO_INLINE_FUNCTIONS
-PERL_STATIC_INLINE I32	S_foldEQ_latin1_s2_folded(const char* a, const char* b, I32 len);
+PERL_STATIC_INLINE I32	S_foldEQ_latin1_s2_folded(const char* a, const char* b, I32 len)
+			__attribute__nonnull__(1)
+			__attribute__nonnull__(2);
 #define PERL_ARGS_ASSERT_FOLDEQ_LATIN1_S2_FOLDED	\
 	assert(a); assert(b)
 #endif
+
 STATIC bool	S_isFOO_utf8_lc(pTHX_ const U8 classnum, const U8* character, const U8* e)
 			__attribute__global__
 			__attribute__warn_unused_result__
