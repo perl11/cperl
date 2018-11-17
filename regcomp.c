@@ -2653,7 +2653,7 @@ S_make_trie(pTHX_ RExC_state_t *pRExC_state, regnode *startbranch,
 #endif
 
     switch (flags) {
-        case EXACT: case EXACTL: break;
+        case EXACT: case EXACT_ONLY8: case EXACTL: break;
 	case EXACTFAA:
         case EXACTFU_SS:
 	case EXACTFU:
@@ -2668,7 +2668,7 @@ S_make_trie(pTHX_ RExC_state_t *pRExC_state, regnode *startbranch,
     trie->wordcount = word_count;
     RExC_rxi->data->data[ data_slot ] = (void*)trie;
     trie->charmap = (U16 *) PerlMemShared_calloc( 256, sizeof(U16) );
-    if (flags == EXACT || flags == EXACTL)
+    if (flags == EXACT || flags == EXACT_ONLY8 || flags == EXACTL)
 	trie->bitmap = (char *) PerlMemShared_calloc( ANYOF_BITMAP_SIZE, 1 );
     trie->wordinfo = (reg_trie_wordinfo *) PerlMemShared_calloc(
                        trie->wordcount+1, sizeof(reg_trie_wordinfo));
@@ -2742,15 +2742,11 @@ S_make_trie(pTHX_ RExC_state_t *pRExC_state, regnode *startbranch,
                 noper= noper_next;
         }
 
-        if ( noper < tail &&
-                (
-                    OP(noper) == flags ||
-                    (
-                        flags == EXACTFU &&
-                        OP(noper) == EXACTFU_SS
-                    )
-                )
-        ) {
+        if (    noper < tail
+            && (    OP(noper) == flags
+                || (flags == EXACT && OP(noper) == EXACT_ONLY8)
+                || (flags == EXACTFU && OP(noper) == EXACTFU_SS)))
+        {
             uc= (U8*)STRING(noper);
             e= uc + STR_LEN(noper);
         } else {
@@ -2963,7 +2959,11 @@ S_make_trie(pTHX_ RExC_state_t *pRExC_state, regnode *startbranch,
                     noper= noper_next;
             }
 
-            if ( noper < tail && ( OP(noper) == flags || ( flags == EXACTFU && OP(noper) == EXACTFU_SS ) ) ) {
+            if (    noper < tail
+                && (    OP(noper) == flags
+                    || (flags == EXACT && OP(noper) == EXACT_ONLY8)
+                    || (flags == EXACTFU && OP(noper) == EXACTFU_SS) ) )
+            {
                 const U8 *uc= (U8*)STRING(noper);
                 const U8 *e= uc + STR_LEN(noper);
 
@@ -3183,7 +3183,11 @@ S_make_trie(pTHX_ RExC_state_t *pRExC_state, regnode *startbranch,
                     noper= noper_next;
             }
 
-            if ( noper < tail && ( OP(noper) == flags || ( flags == EXACTFU && OP(noper) == EXACTFU_SS ) ) ) {
+            if (    noper < tail
+                && (    OP(noper) == flags
+                    || (flags == EXACT && OP(noper) == EXACT_ONLY8)
+                    || (flags == EXACTFU && OP(noper) == EXACTFU_SS) ) )
+            {
                 const U8 *uc= (U8*)STRING(noper);
                 const U8 *e= uc + STR_LEN(noper);
 
@@ -4017,7 +4021,7 @@ S_join_exact(pTHX_ RExC_state_t *pRExC_state, regnode *scan,
      * this final joining, sequences could have been split over boundaries, and
      * hence missed).  The sequences only happen in folding, hence for any
      * non-EXACT EXACTish node */
-    if (OP(scan) != EXACT && OP(scan) != EXACTL) {
+    if (OP(scan) != EXACT && OP(scan) != EXACT_ONLY8 && OP(scan) != EXACTL) {
         U8* s0 = (U8*) STRING(scan);
         U8* s = s0;
         U8* s_end = s0 + STR_LEN(scan);
@@ -4670,9 +4674,10 @@ S_study_chunk(pTHX_ RExC_state_t *pRExC_state, regnode **scanp,
                                 ----------------+-----------
                                 NOTHING         | NOTHING
                                 EXACT           | EXACT
+                                EXACT_ONLY8     | EXACT
                                 EXACTFU         | EXACTFU
                                 EXACTFU_SS      | EXACTFU
-                                EXACTFAA         | EXACTFAA
+                                EXACTFAA        | EXACTFAA
                                 EXACTL          | EXACTL
                                 EXACTFLU8       | EXACTFLU8
 
@@ -4680,7 +4685,7 @@ S_study_chunk(pTHX_ RExC_state_t *pRExC_state, regnode **scanp,
                         */
 #define TRIE_TYPE(X) ( ( NOTHING == (X) )                                   \
                        ? NOTHING                                            \
-                       : ( EXACT == (X) )                                   \
+                       : ( EXACT == (X) || EXACT_ONLY8 == (X) )             \
                          ? EXACT                                            \
                          : ( EXACTFU == (X) || EXACTFU_SS == (X) )          \
                            ? EXACTFU                                        \
@@ -5004,7 +5009,10 @@ S_study_chunk(pTHX_ RExC_state_t *pRExC_state, regnode **scanp,
 	        continue;
 	    }
 	}
-	else if (OP(scan) == EXACT || OP(scan) == EXACTL) {
+	else if (   OP(scan) == EXACT
+                 || OP(scan) == EXACT_ONLY8
+                 || OP(scan) == EXACTL)
+        {
 	    SSize_t l = STR_LEN(scan);
 	    UV uc;
             assert(l);
@@ -5123,7 +5131,8 @@ S_study_chunk(pTHX_ RExC_state_t *pRExC_state, regnode **scanp,
 	    case PLUS:
 		if (flags & (SCF_DO_SUBSTR | SCF_DO_STCLASS)) {
 		    next = NEXTOPER(scan);
-		    if (OP(next) == EXACT
+		    if (   OP(next) == EXACT
+                        || OP(next) == EXACT_ONLY8
                         || OP(next) == EXACTL
                         || (flags & SCF_DO_STCLASS))
                     {
@@ -7719,8 +7728,12 @@ Perl_re_op_compile(pTHX_ SV ** const patternp, int pat_count,
         DEBUG_PEEP("first:", first, 0, flags);
         /* Ignore EXACT as we deal with it later. */
 	if (PL_regkind[OP(first)] == EXACT) {
-	    if (OP(first) == EXACT || OP(first) == EXACTL)
+	    if (   OP(first) == EXACT
+                || OP(first) == EXACT_ONLY8
+                || OP(first) == EXACTL)
+            {
 		NOOP;	/* Empty, get anchored substr later. */
+            }
 	    else
 		RExC_rxi->regstclass = first;
 	}
@@ -8062,7 +8075,7 @@ Perl_re_op_compile(pTHX_ SV ** const patternp, int pat_count,
                  && nop == END)
             RExC_rx->extflags |= RXf_WHITE;
         else if ( RExC_rx->extflags & RXf_SPLIT
-                  && (fop == EXACT || fop == EXACTL)
+                  && (fop == EXACT || fop == EXACT_ONLY8 || fop == EXACTL)
                   && STR_LEN(first) == 1
                   && *(STRING(first)) == ' '
                   && nop == END )
@@ -13806,6 +13819,10 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
              * as the latter's folds aren't known until runtime. */
             bool maybe_exactfu = FOLD;
 
+            /* Does this node contain something that can't match unless the
+             * target string is (also) in UTF-8 */
+            bool requires_utf8_target = FALSE;
+
             /* Allocate an EXACT node.  The node_type may change below to
              * another EXACTish node, but since the size of the node doesn't
              * change, it works */
@@ -14208,7 +14225,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 
                 if (! FOLD) {  /* The simple case, just append the literal */
 
-                not_fold_common:
+                  not_fold_common:
                     if (UVCHR_IS_INVARIANT(ender) || ! UTF) {
                         *(s++) = (char) ender;
                     }
@@ -14216,6 +14233,10 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                         U8 * new_s = uvchr_to_utf8((U8*)s, ender);
                         added_len = (char *) new_s - s;
                         s = (char *) new_s;
+
+                        if (ender > 255)  {
+                            requires_utf8_target = TRUE;
+                        }
                     }
                 }
                 else if (LOC && is_PROBLEMATIC_LOCALE_FOLD_cp(ender)) {
@@ -14291,6 +14312,10 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                                                     ? FOLD_FLAGS_NOMIX_ASCII
                                                     : 0));
                             s += added_len;
+
+                            if (ender > 255)  {
+                                requires_utf8_target = TRUE;
+                            }
                         }
                     }
                     else {
@@ -14524,10 +14549,13 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                 OP(REGNODE_p(ret)) = node_type;
 
                 /* If the node type is EXACT here, check to see if it
-                 * should be EXACTL. */
+                 * should be EXACTL, or EXACT_ONLY8. */
                 if (node_type == EXACT) {
                     if (LOC) {
                         OP(REGNODE_p(ret)) = EXACTL;
+                    }
+                    else if (requires_utf8_target) {
+                        OP(REGNODE_p(ret)) = EXACT_ONLY8;
                     }
                 }
 
@@ -19328,6 +19356,7 @@ S_regtail_study(pTHX_ RExC_state_t *pRExC_state, regnode_offset p,
         if ( exact ) {
             switch (OP(REGNODE_p(scan))) {
                 case EXACT:
+                case EXACT_ONLY8:
                 case EXACTL:
                 case EXACTF:
                 case EXACTFAA_NO_TRIE:
