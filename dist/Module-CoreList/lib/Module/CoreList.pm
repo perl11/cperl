@@ -18416,6 +18416,7 @@ our %delta :const = (
             'Data::Dumper'          => '2.173',
             'Devel::Peek'           => '1.28_03',
             'Devel::NYTProf'        => '6.06_02',
+            'Errno'                 => '1.30_01',
             'feature'               => '1.54_01',
             'File::Copy'            => '2.34',
             'File::Glob'            => '1.32',

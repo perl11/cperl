@@ -2,7 +2,7 @@ use ExtUtils::MakeMaker;
 use Config;
 use strict;
 
-our $VERSION = "1.29_01";
+our $VERSION = "1.30_01";
 
 my %err = ();
 
@@ -113,6 +113,17 @@ sub default_cpp {
 
 sub get_files {
     my %file = ();
+    # When cross-compiling we may store a path for gcc's "sysroot" option:
+    my $sysroot = $Config{sysroot} || '';
+    my $linux_errno_h;
+    if ($^O eq 'linux') {
+	# Some Linuxes have weird errno.hs which generate
+	# no #file or #line directives
+	($linux_errno_h) = grep { -e $_ } map { "$_/errno.h" }
+	    "$sysroot/usr/include", "$sysroot/usr/local/include",
+	    split / / => $Config{locincpth};
+    }
+
     # VMS keeps its include files in system libraries
     if ($^O eq 'VMS') {
 	$file{'Sys$Library:DECC$RTLDEF.TLB'} = 1;
@@ -127,17 +138,10 @@ sub get_files {
 	}
     } elsif ($^O eq 'linux' &&
 	      $Config{gccversion} ne '' && 
-	      $Config{gccversion} !~ /intel/i
+	      $Config{gccversion} !~ /intel/i &&
 	      # might be using, say, Intel's icc
+	      $linux_errno_h
 	     ) {
-    # When cross-compiling we may store a path for gcc's "sysroot" option:
-    my $sysroot = $Config{sysroot} || '';
-	# Some Linuxes have weird errno.hs which generate
-	# no #file or #line directives
-	my ($linux_errno_h) = grep { -e $_ } map { "$_/errno.h" }
-	    "$sysroot/usr/include", "$sysroot/usr/local/include",
-	    split / / => $Config{locincpth} or
-		die "Cannot find errno.h";
 	$file{$linux_errno_h} = 1;
     } elsif ($^O eq 'haiku') {
 	# hidden in a special place

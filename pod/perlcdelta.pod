@@ -282,6 +282,10 @@ adjust Devel::Peek pod to cperl FLAGS
 
 simplify pp_subcall_profiler op_type check.
 
+=item L<Errno> 1.30_01
+
+Make F<Errno_pm.PL> compatible with F<< /usr/include/<ARCH>/errno.h >>
+
 =item L<feature> 1.54_01
 
 C<array_base> was removed.
