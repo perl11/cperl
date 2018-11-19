@@ -717,6 +717,12 @@ C<grok_atoUV> supports that too now.
 
 =item *
 
+L<SDBM_File> is now more robust with corrupt database files.  The
+improvements do not make SDBM files suitable as an interchange format.
+L<[perl #132147]|https://rt.perl.org/Public/Bug/Display.html?id=132147>
+
+=item *
+
 C<binmode($fh);> or C<binmode($fh, ':raw');> now properly removes the
 C<:utf8> flag from the default C<:crlf> I/O layer on Win32.
 L<[perl #133604]|https://rt.perl.org/Public/Bug/Display.html?id=133604>
