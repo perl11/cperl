@@ -1491,7 +1491,7 @@ Perl_nextargv(pTHX_ GV *gv, bool nomagicopen)
 }
 
 #ifdef ARGV_USE_ATFUNCTIONS
-#  if defined(__FreeBSD__)
+#  if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
 
 /* FreeBSD 11 renameat() mis-behaves strangely with absolute paths in cases where the
  * equivalent rename() succeeds
@@ -1511,7 +1511,7 @@ S_my_renameat(int olddfd, const char *oldpath, int newdfd, const char *newpath) 
 
 #  else
 #    define S_my_renameat(dh1, pv1, dh2, pv2) renameat((dh1), (pv1), (dh2), (pv2))
-#  endif /* if defined(__FreeBSD__) */
+#  endif /* if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) */
 #endif
 
 static bool
