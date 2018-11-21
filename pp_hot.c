@@ -1616,7 +1616,7 @@ PPt(pp_add, "(:Number,:Number):Number")
 			auv = aiv;
 			auvok = 1;	/* Now acting as a sign flag.  */
 		    } else {
-			auv = (aiv == IV_MIN) ? (UV)aiv : (UV)(-aiv);
+			auv = -(UV)aiv;
 		    }
 		}
 #endif
@@ -1668,7 +1668,7 @@ PPt(pp_add, "(:Number,:Number):Number")
 		    buv = biv;
 		    buvok = 1;
 		} else
-                    buv = (biv == IV_MIN) ? (UV)biv : (UV)(-biv);
+                    buv = -(UV)biv;
 	    }
 	    /* ?uvok if value is >= 0. basically, flagged as UV if it's +ve,
 	       else "IV" now, independent of how it came in.

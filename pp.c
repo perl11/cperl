@@ -1731,7 +1731,7 @@ PP(pp_multiply)
 		    auvok = TRUE; /* effectively it's a UV now */
 		} else {
                     /* abs, auvok == false records sign */
-		    alow = (aiv == IV_MIN) ? (UV)aiv : (UV)(-aiv);
+		    alow = -(UV)aiv;
 		}
 	    }
 	    if (buvok) {
@@ -1743,7 +1743,7 @@ PP(pp_multiply)
 		    buvok = TRUE; /* effectively it's a UV now */
 		} else {
                     /* abs, buvok == false records sign */
-		    blow = (biv == IV_MIN) ? (UV)biv : (UV)(-biv);
+		    blow = -(UV)biv;
 		}
 	    }
 
@@ -1877,8 +1877,15 @@ PP(pp_divide)
                 right = biv;
                 right_non_neg = TRUE; /* effectively it's a UV now */
             }
-            else {
-                right = (biv == IV_MIN) ? (UV)biv : (UV)(-biv);
+	    else {
+		const IV biv = SvIVX(svr);
+                if (biv >= 0) {
+                    right = biv;
+                    right_non_neg = TRUE; /* effectively it's a UV now */
+                }
+		else {
+                    right = -(UV)biv;
+                }
             }
         }
         /* historically undef()/0 gives a "Use of uninitialized value"
@@ -1898,8 +1905,15 @@ PP(pp_divide)
                 left = aiv;
                 left_non_neg = TRUE; /* effectively it's a UV now */
             }
-            else {
-                left = (aiv == IV_MIN) ? (UV)aiv : (UV)(-aiv);
+	    else {
+		const IV aiv = SvIVX(svl);
+                if (aiv >= 0) {
+                    left = aiv;
+                    left_non_neg = TRUE; /* effectively it's a UV now */
+                }
+		else {
+                    left = -(UV)aiv;
+                }
             }
         }
 
@@ -1989,7 +2003,7 @@ PPt(pp_modulo, "(:Numeric,:Numeric):Numeric")
                     right = biv;
                     right_neg = FALSE; /* effectively it's a UV now */
                 } else {
-                    right = (biv == IV_MIN) ? (UV)biv : (UV)(-biv);
+                    right = -(UV)biv;
                 }
             }
         }
@@ -2019,7 +2033,13 @@ PPt(pp_modulo, "(:Numeric,:Numeric):Numeric")
                     left = aiv;
                     left_neg = FALSE; /* effectively it's a UV now */
                 } else {
-                    left = (aiv == IV_MIN) ? (UV)aiv : (UV)(-aiv);
+		    const IV aiv = SvIVX(svl);
+                    if (aiv >= 0) {
+                        left = aiv;
+                        left_neg = FALSE; /* effectively it's a UV now */
+                    } else {
+                        left = -(UV)aiv;
+                    }
                 }
             }
         }
@@ -2314,8 +2334,8 @@ PP(pp_subtract)
 		    if (aiv >= 0) {
 			auv = aiv;
 			auvok = 1;	/* Now acting as a sign flag.  */
-		    } else { /* 2s complement assumption for IV_MIN */
-			auv = (aiv == IV_MIN) ? (UV)aiv : (UV)-aiv;
+		    } else {
+			auv = -(UV)aiv;
 		    }
 		}
 		a_valid = 1;
@@ -2335,7 +2355,7 @@ PP(pp_subtract)
 		    buv = biv;
 		    buvok = 1;
 		} else
-                    buv = (biv == IV_MIN) ? (UV)biv : (UV)-biv;
+                    buv = -(UV)biv;
 	    }
 	    /* ?uvok if value is >= 0. basically, flagged as UV if it's +ve,
 	       else "IV" now, independent of how it came in.
