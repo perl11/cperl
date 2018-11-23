@@ -716,7 +716,7 @@ XS(XS_PerlIO_get_layers)
 	GV *	gv;
 	IO *	io;
 	bool	input = TRUE;
-	bool	details = FALSE;
+	bool	detailed = FALSE;
 
 	if (items > 1) {
 	     SV * const *svp;
@@ -741,7 +741,7 @@ XS(XS_PerlIO_get_layers)
 		       goto fail;
 		  case 'd':
                        if (memEQs(key, klen, "details")) {
-			    details = SvTRUE(*valp);
+			    detailed = SvTRUE(*valp);
 			    break;
 		       }
 		       goto fail;
@@ -779,7 +779,7 @@ XS(XS_PerlIO_get_layers)
 		  const bool flgok = flgsvp && *flgsvp && SvIOK(*flgsvp);
 
 		  EXTEND(SP, 3); /* Three is the max in all branches: better check just once */
-		  if (details) {
+		  if (detailed) {
 		      /* Indents of 5? Yuck.  */
 		      /* We know that PerlIO_get_layers creates a new SV for
 			 the name and flags, so we can just take a reference
