@@ -1754,6 +1754,8 @@ PPCODE:
         GV* oldgv = CvGV(cv);
         HV* oldhv = GvSTASH(oldgv);
         SV* old_full_name;
+        if (!oldhv)
+          oldhv = PL_defstash;
 #ifdef USE_CPERL
         if (oldhv == PL_defstash) {
           old_full_name = sv_2mortal(newSVpvs(""));
