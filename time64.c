@@ -329,7 +329,7 @@ static struct tm * S_gmtime_r(const time_t *clock, struct tm *result) {
 #ifdef __VMS
     dTHX;    /* the following is defined as Perl_my_localtime(aTHX_ ...) */
 #endif
-    const struct tm * const static_result = gmtime(clock);
+    const struct tm * const static_result = gmtime(clock); /* lgtm [cpp/potentially-dangerous-function] */
 
     assert(result != NULL);
 
