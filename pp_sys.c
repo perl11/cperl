@@ -3829,8 +3829,7 @@ PP(pp_readlink)
     len = readlink(tmps, buf, sizeof(buf) - 1);
     if (len < 0)
 	RETPUSHUNDEF;
-    if (len != -1)
-        buf[len] = '\0';
+    buf[len] = '\0';
     PUSHp(buf, len);
     RETURN;
 #else
