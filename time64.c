@@ -1,6 +1,7 @@
 /*
 
 Copyright (c) 2007-2008  Michael G Schwern
+Copyright (c) 2018  Reini Urban
 
 This software originally derived from Paul Sheer's pivotal_gmtime_r.c.
 
@@ -308,7 +309,16 @@ static struct tm * S_localtime_r(const time_t *clock, struct tm *result) {
 #ifdef __VMS
     dTHX;    /* the following is defined as Perl_my_localtime(aTHX_ ...) */
 #endif
+#if defined(USE_ITHREADS) && defined(I_PTHREAD)
+    static pthread_mutex_t timelock = PTHREAD_MUTEX_INITIALIZER;
+    const struct tm *static_result;
+    if (pthread_mutex_lock(&timelock))
+        return NULL;
+    static_result = localtime(clock);
+    pthread_mutex_unlock(&timelock);
+#else
     const struct tm * const static_result = localtime(clock);
+#endif
 
     assert(result != NULL);
 
@@ -324,12 +334,21 @@ static struct tm * S_localtime_r(const time_t *clock, struct tm *result) {
 #endif
 
 #ifndef HAS_GMTIME_R
-/* Simulate gmtime_r() to the best of our ability */
+/* Simulate gmtime_r() to the best of our ability. */
 static struct tm * S_gmtime_r(const time_t *clock, struct tm *result) {
 #ifdef __VMS
     dTHX;    /* the following is defined as Perl_my_localtime(aTHX_ ...) */
 #endif
+#if defined(USE_ITHREADS) && defined(I_PTHREAD)
+    static pthread_mutex_t timelock = PTHREAD_MUTEX_INITIALIZER;
+    const struct tm *static_result;
+    if (pthread_mutex_lock(&timelock))
+        return NULL;
+    static_result = gmtime(clock); /* lgtm [cpp/potentially-dangerous-function] */
+    pthread_mutex_unlock(&timelock);
+#else
     const struct tm * const static_result = gmtime(clock); /* lgtm [cpp/potentially-dangerous-function] */
+#endif
 
     assert(result != NULL);
 

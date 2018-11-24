@@ -438,7 +438,7 @@ files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 
 =item *
 
-XXX
+Made the C<gmtime_r> and C<localtime_r> fallbacks thread-safe.
 
 =back
 
