@@ -65,6 +65,7 @@ perldtrace.h
 
 # general build products (darwin)
 *.dylib
+*.dSYM
 
 # general build products (Win32)
 *.def
