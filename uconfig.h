@@ -3213,7 +3213,7 @@
 /* USE_REENTRANT_API:
  *	This symbol, if defined, indicates that Perl should
  *	try to use the various _r versions of library functions.
- *	This is extremely experimental.
+ *	This is the default with threads. See F<reentr.c>
  */
 /*#define	USE_5005THREADS		/ **/
 /*#define	USE_ITHREADS		/ **/
@@ -5463,6 +5463,6 @@
 #endif
 
 /* Generated from:
- * 92eaa91ae80515c4a23b994fcce432f58914eedca1f81082385e393048655c64 config_h.SH
+ * eecaa621180a3b5fddc6c7217b4ba2377e04545fa38b90b3559f8e09f56dfa9c config_h.SH
  * b42b503456cc4b0ddfbc1c17c10a46d6f0fa0c8c4551a70db4c0370b7a2b75c4 uconfig.sh
  * ex: set ro: */

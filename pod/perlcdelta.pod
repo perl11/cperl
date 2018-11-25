@@ -423,7 +423,8 @@ well.
 
 =item *
 
-XXX
+Enabled USE_REENTRANT_API with threads by default on all platforms. See F<reentr.c>.
+Previously it was only enabled by default on darwin.
 
 =back
 

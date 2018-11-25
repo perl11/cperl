@@ -4560,6 +4560,8 @@ if $test $patchlevel -lt 9; then
 	esac
 	set use5005threads
 	eval $setvar
+        : Use the _r libc functions if available
+        usereentran="$define"
 	;;
     *)
 	useithreads="$undef"
