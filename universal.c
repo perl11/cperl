@@ -1385,7 +1385,7 @@ struct xsub_details {
     const char *proto;
 };
 
-static const struct xsub_details details[] = {
+static const struct xsub_details these_details[] = {
     {"UNIVERSAL::isa", XS_UNIVERSAL_isa, NULL},
     {"UNIVERSAL::can", XS_UNIVERSAL_can, NULL},
     {"UNIVERSAL::DOES", XS_UNIVERSAL_DOES, NULL},
@@ -1478,8 +1478,8 @@ void
 Perl_boot_core_UNIVERSAL(pTHX)
 {
     static const char file[] = __FILE__;
-    const struct xsub_details *xsub = details;
-    const struct xsub_details *end = C_ARRAY_END(details);
+    const struct xsub_details *xsub = these_details;
+    const struct xsub_details *end = C_ARRAY_END(these_details);
     /* pre-extend internals stashes to avoid splits from small */
     hv_ksplit(gv_stashpvs("version", GV_ADD), 64);
     hv_ksplit(gv_stashpvs("utf8", GV_ADD), 16);
