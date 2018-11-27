@@ -2745,7 +2745,8 @@ S_make_trie(pTHX_ RExC_state_t *pRExC_state, regnode *startbranch,
         if (    noper < tail
             && (    OP(noper) == flags
                 || (flags == EXACT && OP(noper) == EXACT_ONLY8)
-                || (flags == EXACTFU && OP(noper) == EXACTFU_SS)))
+                || (flags == EXACTFU && (   OP(noper) == EXACTFU_ONLY8
+                                         || OP(noper) == EXACTFU_SS))) )
         {
             uc= (U8*)STRING(noper);
             e= uc + STR_LEN(noper);
@@ -2962,7 +2963,8 @@ S_make_trie(pTHX_ RExC_state_t *pRExC_state, regnode *startbranch,
             if (    noper < tail
                 && (    OP(noper) == flags
                     || (flags == EXACT && OP(noper) == EXACT_ONLY8)
-                    || (flags == EXACTFU && OP(noper) == EXACTFU_SS) ) )
+                    || (flags == EXACTFU && (   OP(noper) == EXACTFU_ONLY8
+                                             || OP(noper) == EXACTFU_SS))) )
             {
                 const U8 *uc= (U8*)STRING(noper);
                 const U8 *e= uc + STR_LEN(noper);
@@ -3186,7 +3188,8 @@ S_make_trie(pTHX_ RExC_state_t *pRExC_state, regnode *startbranch,
             if (    noper < tail
                 && (    OP(noper) == flags
                     || (flags == EXACT && OP(noper) == EXACT_ONLY8)
-                    || (flags == EXACTFU && OP(noper) == EXACTFU_SS) ) )
+                    || (flags == EXACTFU && (   OP(noper) == EXACTFU_ONLY8
+                                             || OP(noper) == EXACTFU_SS))) )
             {
                 const U8 *uc= (U8*)STRING(noper);
                 const U8 *e= uc + STR_LEN(noper);
@@ -4676,6 +4679,7 @@ S_study_chunk(pTHX_ RExC_state_t *pRExC_state, regnode **scanp,
                                 EXACT           | EXACT
                                 EXACT_ONLY8     | EXACT
                                 EXACTFU         | EXACTFU
+                                EXACTFU_ONLY8   | EXACTFU
                                 EXACTFU_SS      | EXACTFU
                                 EXACTFAA        | EXACTFAA
                                 EXACTL          | EXACTL
@@ -4687,7 +4691,9 @@ S_study_chunk(pTHX_ RExC_state_t *pRExC_state, regnode **scanp,
                        ? NOTHING                                            \
                        : ( EXACT == (X) || EXACT_ONLY8 == (X) )             \
                          ? EXACT                                            \
-                         : ( EXACTFU == (X) || EXACTFU_SS == (X) )          \
+                         : (     EXACTFU == (X)                             \
+                              || EXACTFU_ONLY8 == (X)                       \
+                              || EXACTFU_SS == (X) )                        \
                            ? EXACTFU                                        \
                            : ( EXACTFAA == (X) )                             \
                              ? EXACTFAA                                      \
@@ -13823,6 +13829,8 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
              * target string is (also) in UTF-8 */
             bool requires_utf8_target = FALSE;
 
+            bool has_micro_sign = FALSE;
+
             /* Allocate an EXACT node.  The node_type may change below to
              * another EXACTish node, but since the size of the node doesn't
              * change, it works */
@@ -14315,6 +14323,9 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 
                             if (ender > 255)  {
                                 requires_utf8_target = TRUE;
+                                if (UNLIKELY(ender == GREEK_SMALL_LETTER_MU)) {
+                                    has_micro_sign = TRUE;
+                                }
                             }
                         }
                     }
@@ -14356,6 +14367,10 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                             }
                         }
 #endif
+
+                        else if (UNLIKELY(ender == MICRO_SIGN)) {
+                            has_micro_sign = TRUE;
+                        }
 
                         /* Even when folding, we store just the input
                          * character, as we have an array that finds its fold
@@ -14574,6 +14589,16 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                     else if (node_type == EXACTF) {
                         RExC_seen_d_op = TRUE;
                     }
+
+                    /* The micro sign is the only below 256 character that
+                     * folds to above 255 */
+                    if (   OP(REGNODE_p(ret)) == EXACTFU
+                        && requires_utf8_target
+                        && LIKELY(! has_micro_sign))
+                    {
+                        OP(REGNODE_p(ret)) = EXACTFU_ONLY8;
+                    }
+
                 }
 
                 alloc_maybe_populate_EXACT(pRExC_state, ret, flagp, len,
@@ -19362,6 +19387,7 @@ S_regtail_study(pTHX_ RExC_state_t *pRExC_state, regnode_offset p,
                 case EXACTFAA_NO_TRIE:
                 case EXACTFAA:
                 case EXACTFU:
+                case EXACTFU_ONLY8:
                 case EXACTFLU8:
                 case EXACTFU_SS:
                 case EXACTFL:
