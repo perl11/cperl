@@ -1058,17 +1058,6 @@
  */
 /*#define VOID_CLOSEDIR		/ **/
 
-/* HASCONST:
- *	This symbol, if defined, indicates that this C compiler knows about
- *	the const type. There is no need to actually test for that symbol
- *	within your programs. The mere use of the "const" keyword will
- *	trigger the necessary tests.
- */
-/*#define HASCONST	/ **/
-#ifndef HASCONST
-#define const
-#endif
-
 /* HAS_CRYPT_R:
  *	This symbol, if defined, indicates that the crypt_r routine
  *	is available to crypt re-entrantly.
@@ -5463,6 +5452,6 @@
 #endif
 
 /* Generated from:
- * 501ad0733bc61d22517fcb3f08ce74b813283f3405ddc4e420f3bfb005d1e4c3 config_h.SH
- * b42b503456cc4b0ddfbc1c17c10a46d6f0fa0c8c4551a70db4c0370b7a2b75c4 uconfig.sh
+ * 370bb9e3d2dfc29584c5a531c64fc067950f9b2fae0a1df67c8126dc97fcabba config_h.SH
+ * 57553c0793611a689276ebd0ea65d6f3be76d53ae4e24449dd5c75cb6d43fb50 uconfig.sh
  * ex: set ro: */

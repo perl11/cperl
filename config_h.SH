@@ -1103,17 +1103,6 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$d_void_closedir VOID_CLOSEDIR		/**/
 
-/* HASCONST:
- *	This symbol, if defined, indicates that this C compiler knows about
- *	the const type. There is no need to actually test for that symbol
- *	within your programs. The mere use of the "const" keyword will
- *	trigger the necessary tests.
- */
-#$d_const HASCONST	/**/
-#ifndef HASCONST
-#define const
-#endif
-
 /* HAS_CRYPT_R:
  *	This symbol, if defined, indicates that the crypt_r routine
  *	is available to crypt re-entrantly.

@@ -33,3 +33,4 @@ strerror
 SPRINTF_RETURNS_STRLEN
 index
 rindex
+const
