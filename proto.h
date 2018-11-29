@@ -10870,12 +10870,14 @@ PERL_STATIC_INLINE void	S_sv_unglob(pTHX_ SV *const sv, U32 flags)
 	assert(sv)
 #endif
 
-STATIC char *	S_uiv_2buf(char *const buf, const IV iv, UV uv, const int is_uv, char **const peob)
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE char *	S_uiv_2buf(char *const buf, const IV iv, UV uv, const int is_uv, char **const peob)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(1)
 			__attribute__nonnull__(5);
 #define PERL_ARGS_ASSERT_UIV_2BUF	\
 	assert(buf); assert(peob)
+#endif
 
 STATIC void	S_utf8_mg_len_cache_update(pTHX_ SV *const sv, MAGIC **const mgp, const STRLEN ulen)
 			__attribute__nonnull__(pTHX_1)
