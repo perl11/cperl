@@ -83,6 +83,13 @@ extern char * cuserid(char *);
 # include <sys/resource.h>
 #endif
 
+/* Cygwin's stdio.h doesn't make cuserid() visible with -D_GNU_SOURCE,
+   unlike Linux.
+*/
+#ifdef __CYGWIN__
+# undef HAS_CUSERID
+#endif
+
 #if defined(USE_QUADMATH) && defined(I_QUADMATH)
 
 #  undef M_E
