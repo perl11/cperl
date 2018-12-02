@@ -9793,14 +9793,6 @@ STATIC AV*	S_add_multi_match(pTHX_ AV* multi_char_matches, SV* multi_string, con
 #define PERL_ARGS_ASSERT_ADD_MULTI_MATCH	\
 	assert(multi_string)
 
-#ifndef PERL_NO_INLINE_FUNCTIONS
-PERL_STATIC_INLINE void	S_alloc_maybe_populate_EXACT(pTHX_ RExC_state_t *pRExC_state, regnode_offset node, I32 *flagp, STRLEN len, UV code_point, bool downgradable)
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_3);
-#define PERL_ARGS_ASSERT_ALLOC_MAYBE_POPULATE_EXACT	\
-	assert(pRExC_state); assert(flagp)
-#endif
-
 STATIC void	S_change_engine_size(pTHX_ RExC_state_t *pRExC_state, const Ptrdiff_t size)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
