@@ -1,0 +1,9 @@
+# Build configuration for https://cirrus-ci.org
+
+freebsd_instance:
+  image: freebsd-11-2-release-amd64
+  cpu: 4
+task:
+  install_script: pkg install -y libffi perl5-devel
+  build_script: ./Configure -des && make -j4 -s
+  test_script: TEST_JOBS=4 make -j4 -s test
