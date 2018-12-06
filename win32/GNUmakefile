@@ -1604,7 +1604,7 @@ endif
 Extensions : $(PERLDEP) $(DYNALOADER) $(GLOBEXE) MakePPPort Extensions_normalize
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic !Unicode/Normalize
 
-Extensions_normalize : $(PERLDEP) $(DYNALOADER) Extension_lib $(GLOBEXE) MakePPPort
+Extensions_normalize : $(PERLDEP) $(DYNALOADER) Extension_lib $(GLOBEXE) $(UNIDATAFILES) MakePPPort
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic +Unicode/Normalize
 
 Normalize_static : $(CONFIGPM) $(GLOBEXE) $(HAVE_COREDIR) $(UNIDATAFILES) MakePPPort
