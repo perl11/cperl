@@ -56,7 +56,7 @@ plan( tests => 47 );
     }
 
     SKIP: {
-        eval { require B; 1 } or skip "no B", 28;
+        eval { require B; 1 } or skip "no B", 26;
     
         *b = \&B::svref_2object;
         my $CVf_ANON = B::CVf_ANON();
