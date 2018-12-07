@@ -6931,6 +6931,7 @@ t/re/uniprops10.t		Test unicode \p{} regex constructs
 t/README			Instructions for regression tests
 t/run/cloexec.t			Test close-on-exec.
 t/run/dtrace.t			Test for DTrace probes
+t/run/envsize.t			See if the %ENV ARG_MAX check works
 t/run/exit.t			Test perl's exit status.
 t/run/flib/broken.pm		Bad .pm file for switchM.t
 t/run/flib/t2.pm		Test for .pmcs with -I/dir/

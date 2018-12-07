@@ -7,7 +7,7 @@ perlcdelta - what is new for cperl v5.29.1
 =head1 DESCRIPTION
 
 This document describes differences between the cperl 5.29.1 and the cperl
-5.28.0 release.
+5.29.0 release.
 
 If you are upgrading from an earlier release such as v5.28.1c, first read
 L<perl5290cdelta>, which describes differences between v5.28.1c and v5.29.0c.
@@ -26,11 +26,24 @@ here, but most should go in the L</Performance Enhancements> section.
 
 =head1 Security
 
-XXX Any security-related notices go here.  In particular, any security
-vulnerabilities closed should be noted here rather than in the
-L</Selected Bug Fixes> section.
+=head2 [CVE-2018-18311] Integer overflow leading to buffer overflow and segmentation fault
 
-[ List each security issue as a =head2 entry ]
+Integer arithmetic in C<Perl_my_setenv()> could wrap when the combined length
+of the environment variable name and value exceeded around 0x7fffffff.  This
+could lead to writing beyond the end of an allocated buffer with attacker
+supplied data.
+
+L<[perl #133204]|https://rt.perl.org/Ticket/Display.html?id=133204>
+
+=head2 Restrict my_setenv to ARG_MAX
+
+perl5 fixed C<Perl_my_setenv()> by allowing C<%ENV> sizes larger than
+C<ARG_MAX> (typically 128Kb), up to 2GB. This is considered a security
+risk. It writes onto the kernel stack, even if often caught by MAXEXECARGS
+"Argument list too long" kernel errors on the next exec call.
+cperl disallows C<%ENV> larger than the sysconf(_SC_ARG_MAX)/MAX_ARG_STRLEN/
+ARG_MAX/NCARGS size with a new L<perldiag/"Environment size %d larger than the allowed %d">
+error.
 
 =head1 Incompatible Changes
 
@@ -425,6 +438,16 @@ well.
 
 Enabled USE_REENTRANT_API with threads by default on all platforms. See F<reentr.c>.
 Previously it was only enabled by default on darwin.
+
+=back
+
+=head1 Testing
+
+=over 4
+
+=item *
+
+Added F<t/run/envsize.t> for L</Restrict my_setenv to ARG_MAX>
 
 =back
 

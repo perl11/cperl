@@ -2232,6 +2232,13 @@ effective uids or gids failed.
 aliased to another hash, so it doesn't reflect anymore the state of the
 program's environment.  This is potentially insecure.
 
+=item Environment size %d larger than the allowed %d
+
+(F) The maximal size of all C<%ENV> variable keys and values being summed
+up may not exceed the system ARG_MAX limits. This is potentially insecure,
+and will lead to "Argument list too long" kernel errors on the next exec call,
+action at a distance.
+
 =item Error converting file specification %s
 
 (F) An error peculiar to VMS.  Because Perl may have to deal with file

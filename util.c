@@ -2222,13 +2222,23 @@ Perl_new_warnings_bitfield(pTHX_ STRLEN *buffer, const char *const bits,
  * we can use that info to make things faster than
  * sprintf(s, "%s=%s", nam, val)
  */
-#define my_setenv_format(s, nam, nlen, val, vlen) \
+#define my_setenv_format(s, nam, nlen, val, vlen, arg_max)     \
+   /* execve security: [cperl #359] */                         \
+   if ((long)(nlen+vlen+2) > arg_max)                          \
+     Perl_croak_nocontext("Environment size %ld larger than the allowed %ld", \
+                          (long)(nlen+vlen+2), (long)arg_max); \
    Copy(nam, s, nlen, char); \
    *(s+nlen) = '='; \
    Copy(val, s+(nlen+1), vlen, char); \
    *(s+(nlen+1+vlen)) = '\0'
 
 #ifdef USE_ENVIRON_ARRAY
+
+#if defined(PERL_USE_SAFE_PUTENV) && (defined(__CYGWIN__)|| defined(__SYMBIAN32__) || defined(__riscos__) || (defined(__sun) && defined(HAS_UNSETENV)) || defined(PERL_DARWIN)) && defined(HAS_SETENV)
+
+/* no need for S_env_alloc, call setenv() directly */
+
+#else
 
 /* small wrapper for use by Perl_my_setenv that mallocs, or reallocs if
  * 'current' is non-null, with up to three sizes that are added together.
@@ -2259,9 +2269,20 @@ S_env_alloc(void *current, Size_t l1, Size_t l2, Size_t l3, Size_t size)
     croak_memory_wrap();
 }
 
+#endif
 
 /* VMS' my_setenv() is in vms.c */
 #if !defined(WIN32) && !defined(NETWARE)
+
+#ifdef MAX_ARG_STRLEN
+# define MAX_ENV MAX_ARG_STRLEN
+#elif defined ARG_MAX
+# define MAX_ENV ARG_MAX
+#elif defined NCARGS
+# define MAX_ENV NCARGS
+#else
+# define MAX_ENV 131072
+#endif
 
 void
 Perl_my_setenv(pTHX_ const char *nam, const char *val)
@@ -2282,6 +2303,11 @@ Perl_my_setenv(pTHX_ const char *nam, const char *val)
         /* most putenv()s leak, so we manipulate environ directly */
         UV i;
         Size_t vlen, nlen = strlen(nam);
+#if defined(_SC_ARG_MAX) && defined(HAS_SYSCONF)
+        Size_t arg_max = sysconf(_SC_ARG_MAX);
+#else
+        Size_t arg_max = MAX_ENV;
+#endif
 
         /* where does it go? */
         for (i = 0; environ[i]; i++) {
@@ -2296,6 +2322,10 @@ Perl_my_setenv(pTHX_ const char *nam, const char *val)
             max = i;
             while (environ[max])
                 max++;
+            /* execve security: [cperl #359] */
+            if (max+2 > arg_max)
+                Perl_croak_nocontext("Environment size %ld larger than the allowed %ld",
+                                     (long)(max+2), (long)arg_max);
             /* XXX shouldn't that be max+1 rather than max+2 ??? - DAPM */
             tmpenv = (char**)S_env_alloc(NULL, max, 2, 0, sizeof(char*));
             for (j=0; j<max; j++) {         /* copy environment */
@@ -2335,10 +2365,21 @@ Perl_my_setenv(pTHX_ const char *nam, const char *val)
 #endif
         */
         /* all that work just for this */
-        my_setenv_format(environ[i], nam, nlen, val, vlen);
+        my_setenv_format(environ[i], nam, nlen, val, vlen, arg_max);
     } else {
 # endif /* !PERL_USE_SAFE_PUTENV */
 # if (defined(__CYGWIN__)|| defined(__SYMBIAN32__) || defined(__riscos__) || (defined(__sun) && defined(HAS_UNSETENV)) || defined(PERL_DARWIN)) && defined(HAS_SETENV)
+        const Size_t nlen = strlen(nam);
+        const Size_t vlen = val ? strlen(val) : 0;
+#if defined(_SC_ARG_MAX) && defined(HAS_SYSCONF)
+        Size_t arg_max = sysconf(_SC_ARG_MAX);
+#else
+        Size_t arg_max = MAX_ENV;
+#endif
+        /* execve security: [cperl #359] */
+        if (nlen+vlen+2 > arg_max)
+            Perl_croak_nocontext("Environment size %ld larger than the allowed %ld",
+                                 (long)(nlen+vlen+2), (long)arg_max);
 #  if defined(HAS_UNSETENV)
         if (val == NULL) {
             (void)unsetenv(nam);
@@ -2357,20 +2398,31 @@ Perl_my_setenv(pTHX_ const char *nam, const char *val)
 	    const Size_t nlen = strlen(nam);
 	    const Size_t vlen = strlen(val);
 	    char * const new_env = S_env_alloc(NULL, nlen, vlen, 2, 1);
-            my_setenv_format(new_env, nam, nlen, val, vlen);
+#if defined(_SC_ARG_MAX) && defined(HAS_SYSCONF)
+            Size_t arg_max = sysconf(_SC_ARG_MAX);
+#else
+            Size_t arg_max = MAX_ENV;
+#endif
+            my_setenv_format(new_env, nam, nlen, val, vlen, arg_max);
             (void)putenv(new_env);
         }
 #  else /* ! HAS_UNSETENV */
         char *new_env;
 	const Size_t nlen = strlen(nam);
+#if defined(_SC_ARG_MAX) && defined(HAS_SYSCONF)
+        Size_t arg_max = sysconf(_SC_ARG_MAX);
+#else
+        Size_t arg_max = MAX_ENV;
+#endif
 	Size_t vlen;
+
         if (!val) {
 	   val = "";
         }
         vlen = strlen(val);
         new_env = S_env_alloc(NULL, nlen, vlen, 2, 1);
         /* all that work just for this */
-        my_setenv_format(new_env, nam, nlen, val, vlen);
+        my_setenv_format(new_env, nam, nlen, val, vlen, arg_max);
         (void)putenv(new_env);
 #  endif /* HAS_UNSETENV */
 # endif /* __CYGWIN__ */
@@ -2393,13 +2445,18 @@ Perl_my_setenv(pTHX_ const char *nam, const char *val)
     char *envstr;
     const Size_t nlen = strlen(nam);
     Size_t vlen;
+    const Size_t arg_max = 32767; /* 8191 before NT */
 
     if (!val) {
        val = "";
     }
     vlen = strlen(val);
+    /* https://docs.microsoft.com/en-us/windows/desktop/procthread/environment-variables */
+    if (nlen > arg_max || vlen > arg_max)
+        Perl_croak_nocontext("Environment size %ld larger than the allowed %ld",
+                             (long)(nlen > vlen ? nlen : vlen), (long)arg_max);
     envstr = S_env_alloc(NULL, nlen, vlen, 2, 1);
-    my_setenv_format(envstr, nam, nlen, val, vlen);
+    my_setenv_format(envstr, nam, nlen, val, vlen, arg_max);
     (void)PerlEnv_putenv(envstr);
     Safefree(envstr);
 }
