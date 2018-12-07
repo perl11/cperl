@@ -4,7 +4,7 @@ use strict;
 our ( %version, %families, %deprecated );
 
 use version;
-our $VERSION = '5.20181017c';
+our $VERSION = '5.20181207c';
 $VERSION =~ s/c$//;
 
 sub PKG_PATTERN () { q#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z# }
@@ -359,6 +359,10 @@ our %released :const = (
     5.029002 => '2018-08-20',
     5.029003 => '2018-09-20',
     5.029004 => '2018-10-20',
+    5.029005 => '2018-11-20',
+    5.026003 => '2018-11-29',
+    5.028001 => '2018-11-29',
+    '5.028002c' => '2018-12-??',
  );
 
 sub version_sort {
@@ -18267,10 +18271,98 @@ our %delta :const = (
     5.029004 => {
         delta_from => 5.029003,
         changed => {
+            'App::Cpan'             => '1.671',
+            'B'                     => '1.75',
+            'B::Concise'            => '1.004',
+            'B::Deparse'            => '1.49',
             'B::Op_private'         => '5.029004',
+            'B::Terse'              => '1.09',
+            'CPAN'                  => '2.21',
+            'CPAN::Distribution'    => '2.21',
+            'CPAN::Mirrors'         => '2.21',
+            'CPAN::Plugin'          => '0.97',
+            'CPAN::Shell'           => '5.5008',
             'Config'                => '5.029004',
+            'Devel::Peek'           => '1.28',
+            'File::Copy'            => '2.34',
+            'File::Glob'            => '1.32',
+            'Math::BigFloat::Trace' => '0.51',
+            'Math::BigInt::Trace'   => '0.51',
             'Module::CoreList'      => '5.20181020',
             'Module::CoreList::Utils'=> '5.20181020',
+            'Unicode::UCD'          => '0.72',
+            'bigint'                => '0.51',
+            'bignum'                => '0.51',
+            'bigrat'                => '0.51',
+            'bytes'                 => '1.07',
+            'feature'               => '1.54',
+            'sigtrap'               => '1.09',
+            'vars'                  => '1.05',
+        },
+        removed => {
+            'B::Debug'              => 1,
+            'arybase'               => 1,
+        }
+    },
+    5.029005 => {
+        delta_from => 5.029004,
+        changed => {
+            'B::Op_private'         => '5.029005',
+            'Config'                => '5.029005',
+            'Cwd'                   => '3.76',
+            'Data::Dumper'          => '2.173',
+            'Errno'                 => '1.30',
+            'File::Spec'            => '3.76',
+            'File::Spec::AmigaOS'   => '3.76',
+            'File::Spec::Cygwin'    => '3.76',
+            'File::Spec::Epoc'      => '3.76',
+            'File::Spec::Functions' => '3.76',
+            'File::Spec::Mac'       => '3.76',
+            'File::Spec::OS2'       => '3.76',
+            'File::Spec::Unix'      => '3.76',
+            'File::Spec::VMS'       => '3.76',
+            'File::Spec::Win32'     => '3.76',
+            'GDBM_File'             => '1.18',
+            'Module::CoreList'      => '5.20181120',
+            'Module::CoreList::Utils'=> '5.20181120',
+            'NDBM_File'             => '1.15',
+            'ODBM_File'             => '1.16',
+            'SDBM_File'             => '1.15',
+            're'                    => '0.37',
+        },
+        removed => {
+        }
+    },
+    5.026003 => {
+        delta_from => 5.026002,
+        changed => {
+            'Archive::Tar'          => '2.24_01',
+            'B::Op_private'         => '5.026003',
+            'Config'                => '5.026003',
+            'Module::CoreList'      => '5.20181129_26',
+            'Module::CoreList::TieHashDelta'=> '5.20181129_26',
+            'Module::CoreList::Utils'=> '5.20181129_26',
+        },
+        removed => {
+        }
+    },
+    5.028001 => {
+        delta_from => 5.028,
+        changed => {
+            'B::Op_private'         => '5.028001',
+            'Config'                => '5.028001',
+            'Module::CoreList'      => '5.20181129_28',
+            'Module::CoreList::Utils'=> '5.20181129_28',
+        },
+        removed => {
+        }
+    },
+    '5.028002c' => {
+        delta_from => '5.028001c',
+        changed => {
+            'B::Op_private'         => '5.028002',
+            'Module::CoreList'      => '5.20181207c',
+            'Module::CoreList::Utils'=> '5.20181207c',
         },
         removed => {
         }

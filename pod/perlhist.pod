@@ -34,7 +34,7 @@ Chris C<BinGOs> Williams, Zefram, Ævar Arnfjörð Bjarmason, Stevan
 Little, Dave Rolsky, Max Maischein, Abigail, Jesse Luehrs, Tony Cook,
 Dominic Hargreaves, Aaron Crane, Aristotle Pagaltzis, Matthew Horsfall,
 Peter Martini, Sawyer X, Chad 'Exodist' Granum, Renee Bäcker, Eric Herman,
-and John SJ Anderson.
+John SJ Anderson, and Karen Etheridge.
 
 =head2 PUMPKIN?
 
@@ -652,6 +652,8 @@ the strings?).
  Steve     5.26.1       2017-Sep-22
  Steve     5.26.2-RC1   2018-Mar-24
  Steve     5.26.2       2018-Apr-14
+ Steve     5.26.3-RC1   2018-Nov-08
+ Steve     5.26.3       2018-Nov-29
 
  rurban    5.26.0c-RC1  2017-Apr-19     cperl 5.26
  rurban    5.26.0c      2017-Apr-25
@@ -682,6 +684,8 @@ the strings?).
  Sawyer X  5.28.0-RC3   2018-Jun-18
  Sawyer X  5.28.0-RC4   2018-Jun-19
  Sawyer X  5.28.0       2018-Jun-22
+ Steve     5.28.1-RC1   2018-Nov-08
+ Steve     5.28.1       2018-Nov-29
 
  rurban    5.28.0c-RC1  2018-Sep-08     cperl 5.28
  rurban    5.28.0c      2018-Sep-10
@@ -691,6 +695,8 @@ the strings?).
  Steve     5.29.1       2018-Jul-20
  BinGOs    5.29.2       2018-Aug-20
  John      5.29.3       2019-Sep-20
+ Aaron     5.29.4       2019-Oct-20
+ Ether     5.29.5       2019-Nov-20
 
  rurban    5.29.0c      2018-Oct-14
 
@@ -852,6 +858,7 @@ explained below.
  5.24.0         7922 113   1287  77  19535 2677   9994 2465   5702 177
  5.26.0         9140 121  24925 1200 40643 3017  10514 2614   7854 211
  5.26.0c        9650 119   1305  79  22011 2950   4237  640   5952 196
+ 5.28.0        13056 128  27267 1230 41745 3130  10952 2715   8185 218
  5.28.0c        4048 122   1374  83  20991 2952  11086 2734   6698 199
 
 The "core"..."doc" mean the following files from the Perl source code

@@ -1,0 +1,336 @@
+=encoding utf8
+
+=head1 NAME
+
+perl5281cdelta - what is new for cperl v5.28.1
+
+=head1 DESCRIPTION
+
+This document describes the differences between the cperl 5.28.0
+and the cperl 5.28.1 release.
+
+If you are upgrading from an earlier release such as v5.26.0c, first
+read the C<perl526*cdelta> documentation, which describes differences
+between v5.26.0c and v5.26.3c
+
+=head1 Core Enhancements
+
+=head2 Check bless name under use strict names
+
+The second argument to bless, the new classname, is now checked to be a
+valid package name identifier when B<strict names> is in effect, and the
+name is now normalized.
+L<[cperl #376]|https://github.com/perl11/cperl/issues/376>
+
+This is a bugfix, but a major compatibility change.
+
+=head1 Performance Enhancements
+
+=over 4
+
+=item Improve newSVpvn_share
+
+Don't downgrade twice, the is_utf8 flags can be taken from the
+returned hek, which does the downgrading to bytes already.
+
+=back
+
+=head1 Deprecations
+
+=head2 Undeprecate "Unescaped left brace in regex" warnings and errors
+
+In cperl only the following special unicode groups within regexes are reserved:
+
+   Name:     \N{
+   Property: \p{ \P{
+   Break:    \b{ \B{
+   Code:     \x{ \o{
+   Group:    \g{
+
+All other C</{}/> sequences are allowed in cperl and not deprecated
+anymore. There's no need to quote the literal C<\{> and C<\}>, only if
+it's ambiguous and can be mixed up with those reserved unicode groups.
+
+B<automake> and more widespread utils does not need to be plagued by
+spurious "Unescaped left brace in regex" warnings, when they dont need
+to be quoted.  We undeprecated those new warnings and errors, there's
+nothing more to reserve (yet).
+L<[cperl #362]|https://github.com/perl11/cperl/issues/362>
+
+=head1 Modules and Pragmata
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item L<CPAN> 2.21_01
+
+Update to 2.21 upstream with our cperl fixes. Some of our fixes were
+accepted upstream.
+
+Fixed critical rmtree bug with a symlink crossing mountpoints
+previous directory ~/.cpan/build changed before entering tmp-32186,
+expected dev=47 ino=244719549, actual dev=47 ino=33303, aborting at
+CPAN/Distribution.pm line 591
+
+Add many upstream tests.
+
+Add the distroprefs from CPAN and cperl. Install them by copying them
+to your F<~/.cpan/prefs/> or see
+L<https://github.com/rurban/distroprefs/>.
+
+=item L<Cwd> 4.75c
+
+Fixed long pathnames test for getcwd() on older systems, like
+debian-7.11 i386, which still returns ENAMETOOLONG on large enough
+buffers.
+
+Fix the HAS_GET_CURRENT_DIR_NAME check, and the is_ENAMETOOLONG macro.
+
+For getcwd with C<get_current_dir_name()> - i.e. fastcwd - add
+abs_path.  See also L<http://perl11.org/blog/fastcwd.html>
+
+=item L<DynaLoader> 2.09c
+
+dl_load_file: set NULL xs (bootstrap). When we find the bootname via
+dl_find_symbol early, we still need to set xs from dl_install_xsub().
+Coverity CID #165325
+
+=item L<Errno> 1.29_01
+
+Protect from including some avx512 intrinsics directly on mingw.
+
+=item L<File::Path> 3.16_02c
+
+Fix symlink abort crossing mountpoint with CPAN::Distribution
+previous directory ~/.cpan/build changed before entering tmp-32186,
+expected dev=47 ino=244719549, actual dev=47 ino=33303, aborting at
+CPAN/Distribution.pm line 591
+
+Fix method of generating names for dummy users and groups during testing
+(i.e. under docker)
+L<[cpan #121967]|https://rt.cpan.org/Ticket/Display.html?id=121967>.
+
+=item L<Storable> 3.12_02
+
+Enable >2GB AvFILL check on store_hook (64bit)
+Too many references returned by STORABLE_freeze.
+It wrapped around previously. Fixes Coverity CID #187854.
+Move __Storable__.pm into Storable_pm.PL
+L<[cperl #374]|https://github.com/perl11/cperl/issues/374>
+
+=back
+
+=head1 Documentation
+
+=head2 Changes to Existing Documentation
+
+=head3 L<perldata>
+
+=over 4
+
+=item *
+
+Document the perl4-style single-quote C<'> behaviour in identifiers.
+See also L<http://perl11.org/blog/quote-identifiers.html>
+
+=back
+
+=head1 Configuration and Compilation
+
+=over 4
+
+=item *
+
+Configure: fix doubleinfbytes=undef ...
+#define DOUBLEINFBYTES undef is illegal
+Backported from 5.29.0c
+
+=back
+
+=head1 Testing
+
+=over 4
+
+=item *
+
+Skip C<==\d+==WARNING: LeakSanitizer is disabled in forked process>
+STDERR messages in some tests.
+
+=item *
+
+Fixed F<t/op/chdir.t> when pwd is a symlink and thus C<abs_path> returns
+the real path.  Also fix the inclusion of F<test.pl> and some more
+minitests.
+
+The early requirement of F<test.pl>, when not in F<t/> would lead go a
+C<fresh_perl> tempfile of F<t/tmpXXXX>, which is then later when we chdir'd
+into F<t/> illegal.
+
+=item *
+
+Check for dtrace locking everywhere.
+Not only on darwin. Mostly also on solaris, but also on oraclelinux
+and Windows 10 now.
+
+=back
+
+=head1 Platform Support
+
+=head2 Platform-Specific Notes
+
+=over 4
+
+=item mingw
+
+=over
+
+=item Fixed Errno from processing some protected intrinsics directly
+
+which fail with #error "Never use <avx512vpopcntdqintrin.h>, <avx512ifmaintrin.h>
+directly; include <immintrin.h> instead.",
+#error "Never use <fmaintrin.h> directly; include <immintrin.h> instead.",
+#error "Never use <xsavesintrin.h> directly; include <x86intrin.h> instead."
+
+=item Undefine i_dlfcn
+
+on mingw and new architectures. See L<https://sourceforge.net/p/mingw-w64/bugs/25/>
+
+=back
+
+=item MSVC 11.0
+
+Enable HAS_BOOL, fixes F<xkeycheck.h> redefinition errors.
+
+=back
+
+=head1 Internal Changes
+
+=over 4
+
+=item *
+
+Fixed C<getcwd_sv> to add C<abs_path> when using the fast and preferred glibc call
+C<get_current_dir_name()>. Until 5.28.1c C<get_current_dir_name()> was never used.
+This affected several CPAN modules: DBD::File, CPAN::Distribution, File::Path.
+
+=item *
+
+Fix Unicode methods with -> syntax: keep WAS_UTF8 flag.
+
+See L<[cperl #377]|https://github.com/perl11/cperl/issues/377>
+A direct method call with C<::> stays utf8,
+but a method call with C<<< -> >>> stripped the utf8 flag.
+In cperl this lead to an invalid identifier error under strict names.
+
+Føø::Bær::nèw() keeps the METHOP/ENTERSUB utf8 flag in the GV SVOP.  But
+with Føø::Bær->nèw() the nèw is stored interim as shared pvn, which strips
+off the utf8 to be stored in the strtab - newSVpvn_share: bytes_from_utf8
+&is_utf8 - which leads to the conversion to the entersub gv without the utf8
+flag.  The WAS_UTF8 flag is not stored.
+
+=back
+
+=head1 Selected Bug Fixes
+
+=over 4
+
+=item *
+
+Fix C<valid_ident()> for 128-255 chars not to use isIDFIRST_A nor
+isIDCONT_A, _A does not match them.  Fixes F<t/uni/method.t> for chars
+like oslash.
+See L<[cperl #377]|https://github.com/perl11/cperl/issues/377>
+
+=item *
+
+Fix C<newSVpvn_share> to store the HEK_WASUTF8 flag if downgraded.
+Improve C<newSVpvn_share> to downgrade only once, not twice.
+
+A shared string and a GV with chars in the range 128-255 are downgraded to
+bytes without the UTF8 flag. Store at least the HEK_WASUTF8 flag then.
+
+=item *
+
+Check bless name under use strict names.
+
+The second argument to bless, the new classname, is now checked to be a
+valid package name identifier when B<strict names> is in effect, and the
+name is now normalized.
+L<[cperl #376]|https://github.com/perl11/cperl/issues/376>
+
+=item *
+
+Fix cperl 5.28.0c regression disallowing calling subnames with a quote
+in a package qualifier position.
+L<[cperl #371]|https://github.com/perl11/cperl/issues/371>
+
+This is now valid again:
+
+  sub don't { 0 } print don't;
+
+With v5.28.0c only the declaration C<sub don't { 0 }> was valid, it
+accepted the subroutine C<don't>, but the call C<print don't;> was
+invalid, it was looking for a second single-quote string delimiter.
+Note that in cperl since 5.28c C<'> is no perl4-style package seperator
+anymore.
+
+=back
+
+=head1 Acknowledgements
+
+cperl 5.28.1 represents approximately 5 weeks of development since cperl
+5.28.0c and contains approximately 40,000 lines of changes across 940 files
+from 2 authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 5,300 lines of changes to 110 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements that
+became cperl 5.28.1:
+
+Reini Urban, Andreas König.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please
+see the F<AUTHORS> file in the Perl source distribution.
+
+Generated with:
+
+    cperl Porting/acknowledgements.pl cperl-5.28.0..HEAD -c
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the articles recently
+posted to the comp.lang.perl.misc newsgroup and the perl bug database at
+L<https://rt.perl.org/> .  There may also be information at
+L<http://www.perl.org/> , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the L<cperlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
+
+If you think it's a cperl specific bug or trust the cperl developers more 
+please file an issue at L<https://github.com/perl11/cperl/issues>.
+
+If the bug you are reporting has security implications which make it
+inappropriate to send to a publicly archived mailing list, then see
+L<perlsec/SECURITY VULNERABILITY CONTACT INFORMATION>
+For details of how to report the issue.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut
