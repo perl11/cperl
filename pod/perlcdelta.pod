@@ -26,12 +26,13 @@ L<[perl #133204]|https://rt.perl.org/Ticket/Display.html?id=133204>
 
 =head2 Restrict my_setenv to ARG_MAX
 
-perl5 fixed C<Perl_my_setenv()> by allowing ENV sizes larger than
+perl5 fixed C<Perl_my_setenv()> by allowing C<%ENV> sizes larger than
 C<ARG_MAX> (typically 128Kb), up to 2GB. This is considered a security
-risk, it writes onto the kernel stack, even if often caught by MAXEXECARGS
-"Argument list too long" kernel errors.
-cperl disallows ENV larger than the static MAX_ARG_STRLEN/ARG_MAX/NCARGS,
-even if the dynamic kernel configuration would allow more.
+risk. It writes onto the kernel stack, even if often caught by MAXEXECARGS
+"Argument list too long" kernel errors on the next exec call.
+cperl disallows C<%ENV> larger than the sysconf(_SC_ARG_MAX)/MAX_ARG_STRLEN/
+ARG_MAX/NCARGS size with a new L<perldiag/"Environment size %d larger than the allowed %d">
+error.
 
 L<[cperl #329]|https://github.com/perl11/cperl/issues/390>
 
@@ -57,6 +58,16 @@ L<[perl #133423]|https://rt.perl.org/Ticket/Display.html?id=133423>
 =over 4
 
 =item *
+
+=back
+
+=head1 Testing
+
+=over 4
+
+=item *
+
+Added F<t/run/envsize.t> for L</Restrict my_setenv to ARG_MAX>
 
 =back
 
