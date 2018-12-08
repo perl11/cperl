@@ -1,23 +1,37 @@
 version: 5.28.2.{build}
 #skip_tags: true
 #os: MinGW
-#os: Visual Studio 2015
+os: Visual Studio 2015
 #os: Default Azure
 #build:
 #  verbosity: minimal
 max_jobs: 4
 build:
   parallel: true
-platform:
-  - x64
-  - x86
+#platform:
+#  - x64
+#  - x86
 environment:
   matrix:
+    #- MINGW: 1
+    #  CFG: Debug
+    #  PLATFORM: x86
     - MINGW: 1
-    - MSVC_VERSION: 10
+      PLATFORM: x86
+    - MINGW: 1
+      PLATFORM: x64
     - CYGWIN: 1
-    - MSVC_VERSION: 12
+      PLATFORM: x86
+    - CYGWIN: 1
+      PLATFORM: x64
+    #- MSVC_VERSION: 10
+    #  PLATFORM: x86
+    - MSVC_VERSION: 10
+      PLATFORM: x64
+    #- MSVC_VERSION: 12
+    #  PLATFORM: x86
     - MSVC_VERSION: 14
+      PLATFORM: x86
     #- MSVC_VERSION: 14
     #  CFG: Debug
     #- MSVC_VERSION: 12
@@ -26,9 +40,9 @@ environment:
     #  CFG: Debug
 matrix:
   exclude:
-    - platform: x64
+    - PLATFORM: x64
       MSVC_VERSION: 14
-    - platform: x64
+    - PLATFORM: x64
       MSVC_VERSION: 12
   allow_failures:
     - CYGWIN: 1
@@ -61,20 +75,35 @@ init:
   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
   - if "%MINGW%"=="1" set PROCESSOR_ARCHITECTURE=%PLATFORM%
   - if "%PLATFORM%"=="x64" set PROCESSOR_ARCHITECTURE=AMD64
+  - if "%PLATFORM%"=="x86" set WIN64=undef
+  - if "%PLATFORM%"=="x86" set BITS=32
+  - if "%PLATFORM%"=="x64" set BITS=64
   #- if "%MINGW%"=="1" set PATH=%MSYS64%\bin;c:\Windows\system32;c:\Windows;C:\MinGW\msys\1.0\bin;c:\Windows\system32\Wbem;C:\MinGW\bin;C:\Program Files\Git\cmd
-  - if "%MINGW%"=="1" cinst strawberryperl -i
+  - if "%MINGW%"=="1" if "%PLATFORM%"=="x86" cinst --x86 strawberryperl -iy
+  - if "%MINGW%"=="1" if "%PLATFORM%"=="x64" cinst strawberryperl -iy
   - if "%MINGW%"=="1" set PATH=c:\Windows\system32;c:\Windows;C:\strawberry\c\bin;C:\strawberry\perl\bin;c:\Windows\system32\Wbem;C:\Program Files\Git\cmd
   #- if "%MINGW%"=="1" rename c:\MinGW\lib lib.old
   #- if "%MINGW%"=="1" rename c:\MinGW\include include.old
   - if "%MINGW%"=="1" rename c:\MinGW MinGW.old
   - if "%MINGW%"=="1" set CCHOME=c:\strawberry\c & set MKOPT="CCHOME=c:\strawberry\c"
   - if "%CFG%"=="Debug" set
-  - if "%PLATFORM%"=="x86" set WIN64=undef
-  - if "%CYGWIN%"=="1" set CYGR=c:\cygwin
+  - set CYGR=c:\cygwin
   - if "%PLATFORM%"=="x64" set CYGR=c:\cygwin64
+  - if "%CYGWIN%"=="1" set CYGSETUP=setup-x86
+  - if "%PLATFORM%"=="x64" set CYGSETUP=setup-x86_64
+  #- if not "%CYGWIN%"=="1" nuget install libffi
+  #- cinst -y wget
+  #- if not "%CYGWIN%"=="1" set PATH=%PATH%;%CYGR%\bin
+  #- if "%CYGWIN%"=="1" rm -rf 'c:\projects\cperl'
 
+# we cannot set the cygwin path in init, to use the system git with \ pathsep for downloading
 build_script:
   - if "%CYGWIN%"=="1" set PATH=%CYGR%\bin;c:\Windows\system32;c:\Windows;c:\Windows\system32\Wbem
+  - if "%CYGWIN%"=="1" wget -q https://cygwin.com/%CYGSETUP%.exe -O %CYGR%\%CYGSETUP%.exe
+  - if "%CYGWIN%"=="1" chmod +x %CYGR%\%CYGSETUP%.exe
+  - if "%CYGWIN%"=="1" %CYGR%\%CYGSETUP% -qnNdO -R %CYGR%
+      -s http://cygwin.mirror.constant.com
+      -l %CYGR%/var/cache/setup -P libgdbm-devel
   - if "%MINGW%"=="1"  gmake -s -C win32 %MKOPT%
   #- if "%CFG%"=="Debug" type config.sh
   - if "%CYGWIN%"=="1" sh ./Configure -des -Dusedevel & make
@@ -88,7 +117,7 @@ test_script:
   #- if "%CYGWIN%"=="1" ./cperl -pi -e 's/\r\n/\n/g' Porting/appveyor-deploy.sh
   - if "%CYGWIN%"=="1" sh -c Porting/appveyor-deploy.sh
   - if "%MINGW%"=="1" rename c:\MinGW.old MinGW
-  - if "%MINGW%"=="1" set PATH=c:\Windows\system32;c:\Windows;C:\strawberry\c\bin;C:\strawberry\perl\bin;c:\Windows\system32\Wbem;C:\MinGW\bin;C:\MinGW\msys\1.0\bin;
+  - if "%MINGW%"=="1" set PATH=c:\Windows\system32;c:\Windows;C:\strawberry\c\bin;C:\strawberry\perl\bin;c:\Windows\system32\Wbem;C:\MinGW\bin;C:\MinGW\msys\1.0\bin;C:\projects\cperl;C:\projects\cperl\win32\bin;
   - if "%MINGW%"=="1" sh -c Porting/appveyor-deploy.sh
 
 # appveyor cannot glob * in names
