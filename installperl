@@ -1,7 +1,7 @@
 #!./perl -w
 
 BEGIN {
-    chdir '..' if !-d 'lib' and -d '../lib';
+    chdir '..' if -f '../MANIFEST' && -d '../lib';
     @INC = 'lib';
     $ENV{PERL5LIB} = 'lib';
 
@@ -12,7 +12,7 @@ BEGIN {
 
 use strict;
 our ($Is_VMS, $Is_W32, $Is_OS2, $Is_Cygwin, $Is_Darwin, $Is_NetWare, $Is_AmigaOS,
-	    %opts, $packlist);
+     %opts, $packlist);
 my $versiononly;
 
 BEGIN {
