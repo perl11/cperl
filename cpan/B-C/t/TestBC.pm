@@ -1103,8 +1103,8 @@ CCTESTS
     if (is_CI()
         and ($Config{ccflags} =~ /-flto/ or $ENV{SKIP_SLOW_TESTS})
         and $ENV{PERL_CORE}) {
-        diag "skipping slow tests, ".$#tests," => 13";
-        @tests = @tests[0..12];
+        diag "skipping slow tests, ".$#tests," => 10";
+        @tests = @tests[0..9];
     }
 
     plan tests => scalar @tests;
