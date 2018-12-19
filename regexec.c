@@ -2297,7 +2297,6 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
     case EXACTF:   /* This node only generated for non-utf8 patterns */
         assert(! is_utf8_pat);
         if (utf8_target) {
-            utf8_fold_flags = 0;
             goto do_exactf_utf8;
         }
         fold_array = PL_fold;
@@ -2339,7 +2338,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
 
     case EXACTFU:
         if (is_utf8_pat || utf8_target) {
-            utf8_fold_flags = is_utf8_pat ? FOLDEQ_S2_ALREADY_FOLDED : 0;
+            utf8_fold_flags = FOLDEQ_S2_ALREADY_FOLDED;
             goto do_exactf_utf8;
         }
 
@@ -2347,7 +2346,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
          * so we don't have to worry here about this single special case
          * in the Latin1 range */
         fold_array = PL_fold_latin1;
-        folder = foldEQ_latin1;
+        folder = foldEQ_latin1_s2_folded;
 
         /* FALLTHROUGH */
 
@@ -6413,7 +6412,7 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
             }
             fold_utf8_flags =  FOLDEQ_LOCALE | FOLDEQ_S2_ALREADY_FOLDED
                                              | FOLDEQ_S2_FOLDS_SANE;
-	    folder = foldEQ_latin1;
+	    folder = foldEQ_latin1_s2_folded;
 	    fold_array = PL_fold_latin1;
 	    goto do_exactf;
 
@@ -6428,11 +6427,15 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
         case EXACTFUP:          /*  /foo/iu, and something is problematic in
                                     'foo' so can't take shortcuts. */
             assert(! is_utf8_pat);
-            /* FALLTHROUGH */
-	case EXACTFU:            /*  /abc/iu      */
-	    folder = foldEQ_latin1;
+            folder = foldEQ_latin1;
 	    fold_array = PL_fold_latin1;
-	    fold_utf8_flags = is_utf8_pat ? FOLDEQ_S2_ALREADY_FOLDED : 0;
+	    fold_utf8_flags = 0;
+	    goto do_exactf;
+
+	case EXACTFU:            /*  /abc/iu      */
+            folder = foldEQ_latin1_s2_folded;
+	    fold_array = PL_fold_latin1;
+	    fold_utf8_flags = FOLDEQ_S2_ALREADY_FOLDED;
 	    goto do_exactf;
 
         case EXACTFAA_NO_TRIE:   /* This node only generated for non-utf8
@@ -9363,9 +9366,7 @@ S_regrepeat(pTHX_ regexp *prog, char **startposp, const regnode *p,
         goto do_exactf;
 
     case EXACTFU:
-	if (reginfo->is_utf8_pat) {
-            utf8_flags = FOLDEQ_S2_ALREADY_FOLDED;
-        }
+        utf8_flags = FOLDEQ_S2_ALREADY_FOLDED;
         /* FALLTHROUGH */
 
     case EXACTFUP:
