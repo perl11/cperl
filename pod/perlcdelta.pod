@@ -332,7 +332,7 @@ C<array_base> was removed.
 
 Add note to close or flush filehandles before calling copy or move.
 
-=item L<File::Find> 1.35
+=item L<File::Find> 1.36
 
 C<$File::Find::dont_use_nlink> now defaults to 1 on all platforms.
 Fixes L<[perl #133673]|https://rt.perl.org/Public/Bug/Display.html?id=133673>,
