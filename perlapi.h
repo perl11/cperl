@@ -153,6 +153,8 @@ END_EXTERN_C
 #define PL_hash_seed_set	(*Perl_Ghash_seed_set_ptr(NULL))
 #undef  PL_hints_mutex
 #define PL_hints_mutex		(*Perl_Ghints_mutex_ptr(NULL))
+#undef  PL_in_some_fold
+#define PL_in_some_fold		(*Perl_Gin_some_fold_ptr(NULL))
 #undef  PL_keyword_plugin
 #define PL_keyword_plugin	(*Perl_Gkeyword_plugin_ptr(NULL))
 #undef  PL_keyword_plugin_mutex
@@ -211,8 +213,6 @@ END_EXTERN_C
 #define PL_utf8_charname_begin	(*Perl_Gutf8_charname_begin_ptr(NULL))
 #undef  PL_utf8_charname_continue
 #define PL_utf8_charname_continue	(*Perl_Gutf8_charname_continue_ptr(NULL))
-#undef  PL_utf8_foldable
-#define PL_utf8_foldable	(*Perl_Gutf8_foldable_ptr(NULL))
 #undef  PL_utf8_foldclosures
 #define PL_utf8_foldclosures	(*Perl_Gutf8_foldclosures_ptr(NULL))
 #undef  PL_utf8_idcont
