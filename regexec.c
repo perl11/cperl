@@ -4535,7 +4535,7 @@ S_setup_EXACTISH_ST_c1_c2(pTHX_ const regnode * const text_node, int *c1p,
             }
         }
 
-        if ((is_utf8_pat && is_MULTI_CHAR_FOLD_utf8_safe(pat, pat_end))
+        if (    ( is_utf8_pat && is_MULTI_CHAR_FOLD_utf8_safe(pat, pat_end))
              || (!is_utf8_pat && is_MULTI_CHAR_FOLD_latin1_safe(pat, pat_end)))
         {
             /* Multi-character folds require more context to sort out.  Also
@@ -4584,12 +4584,12 @@ S_setup_EXACTISH_ST_c1_c2(pTHX_ const regnode * const text_node, int *c1p,
                 }
             }
             else /* Here, c1 is <= 255 */
-                if (utf8_target
+                if (   utf8_target
                     && HAS_NONLATIN1_FOLD_CLOSURE(c1)
                     && ( ! (OP(text_node) == EXACTFL && ! IN_UTF8_CTYPE_LOCALE))
-                    && ((OP(text_node) != EXACTFAA
-                        && OP(text_node) != EXACTFAA_NO_TRIE)
-                        || ! isASCII(c1)))
+                    && (   (   OP(text_node) != EXACTFAA
+                            && OP(text_node) != EXACTFAA_NO_TRIE)
+                        ||   ! isASCII(c1)))
             {
                 /* Here, there could be something above Latin1 in the target
                  * which folds to this character in the pattern.  All such
@@ -6350,7 +6350,8 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
 	    break;
 	    }
 
-	case EXACTFL: {          /*  /abc/il      */
+	case EXACTFL:            /*  /abc/il      */
+          {
 	    re_fold_t folder;
 	    const U8 * fold_array;
 	    const char * s;
@@ -6410,7 +6411,7 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
 	    s = STRING(scan);
 	    ln = STR_LEN(scan);
 
-	    if (utf8_target
+	    if (   utf8_target
                 || is_utf8_pat
                 || state_num == EXACTFU_SS
                 || (state_num == EXACTFL && IN_UTF8_CTYPE_LOCALE))
@@ -8242,15 +8243,6 @@ NULL
 		    regnode *text_node = ST.B;
 		    if (! HAS_TEXT(text_node))
 			FIND_NEXT_IMPT(text_node);
-	            /* this used to be 
-	                
-	                (HAS_TEXT(text_node) && PL_regkind[OP(text_node)] == EXACT)
-	                
-	            	But the former is redundant in light of the latter.
-	            	
-	            	if this changes back then the macro for 
-	            	IS_TEXT and friends need to change.
-	             */
 		    if (PL_regkind[OP(text_node)] == EXACT) {
                         if (! S_setup_EXACTISH_ST_c1_c2(aTHX_
                            text_node, &ST.c1, ST.c1_utf8, &ST.c2, ST.c2_utf8,
@@ -8418,13 +8410,6 @@ NULL
 			ST.c1 = ST.c2 = CHRTEST_VOID;
 		    }
 		    else {
-                    
-                    /*  Currently we only get here when 
-                        
-                        PL_rekind[OP(text_node)] == EXACT
-                    
-                        if this changes back then the macro for IS_TEXT and 
-                        friends need to change. */
                         if (! S_setup_EXACTISH_ST_c1_c2(aTHX_
                            text_node, &ST.c1, ST.c1_utf8, &ST.c2, ST.c2_utf8,
                            reginfo))
