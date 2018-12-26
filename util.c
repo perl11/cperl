@@ -1518,6 +1518,7 @@ S_with_queued_errors(pTHX_ SV *ex)
 STATIC bool
 S_invoke_exception_hook(pTHX_ SV *ex, bool warn)
 {
+    dVAR;
     HV *stash;
     GV *gv;
     CV *cv;

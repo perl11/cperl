@@ -4679,6 +4679,7 @@ PP(pp_ucfirst)
 
 PP(pp_uc)
 {
+    dVAR;
     dSP;
     SV *source = TOPs;
     STRLEN len;

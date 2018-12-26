@@ -16104,6 +16104,8 @@ Perl_clone_params_new(PerlInterpreter *const from, PerlInterpreter *const to)
 void
 Perl_init_constants(pTHX)
 {
+    dVAR;
+
     SvREFCNT(UNDEF)	= SvREFCNT_IMMORTAL;
     SvFLAGS(UNDEF)	= SVf_READONLY|SVf_PROTECT|SVt_NULL;
     SvANY(UNDEF)	= NULL;
