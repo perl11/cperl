@@ -182229,7 +182229,7 @@ static const UV UNI__PERL_PROBLEMATIC_LOCALE_FOLDEDS_START_invlist[] = {  /* for
 	0x0,
 	0x100,
 	0x130,
-	0x132,
+	0x131,
 	0x149,
 	0x14A,
 	0x178,
@@ -182255,14 +182255,14 @@ static const UV UNI__PERL_PROBLEMATIC_LOCALE_FOLDEDS_START_invlist[] = {  /* for
 };
 
 static const UV UNI__PERL_PROBLEMATIC_LOCALE_FOLDS_invlist[] = {  /* for all charsets */
-	26,	/* Number of elements */
+	24,	/* Number of elements */
 	148565664, /* Version and data structure type */
 	0,	/* 0 if the list starts at 0;
 		   1 if it starts at the element beyond 0 */
 	0x0,
 	0x100,
 	0x130,
-	0x132,
+	0x131,
 	0x149,
 	0x14A,
 	0x178,
@@ -182271,8 +182271,6 @@ static const UV UNI__PERL_PROBLEMATIC_LOCALE_FOLDS_invlist[] = {  /* for all cha
 	0x180,
 	0x1F0,
 	0x1F1,
-	0x307,
-	0x308,
 	0x39C,
 	0x39D,
 	0x3BC,
@@ -381548,7 +381546,7 @@ static const UV UNI__PERL_SURROGATE_invlist[] = {  /* for all charsets */
 	0xE000
 };
 
-const char * deprecated_property_msgs[] = {
+const char * const deprecated_property_msgs[] = {
 	"",
 	"Surrogates should never appear in well-formed text, and therefore shouldn't be the basis for line breaking",
 	"Supplanted by Line_Break property values; see www.unicode.org/reports/tr14"
@@ -384086,5 +384084,5 @@ static const U8 WB_table[23][23] = {
  * 7bd6bcbe3813e0cd55e0998053d182b7bc8c97dcfd0b85028e9f7f55af4ad61b lib/unicore/version
  * 4bb677187a1a64e39d48f2e341b5ecb6c99857e49d7a79cf503bd8a3c709999b regen/charset_translations.pl
  * 03e51b0f07beebd5da62ab943899aa4934eee1f792fa27c1fb638c33bf4ac6ea regen/mk_PL_charclass.pl
- * 24d4b8c46e3aa8a9a3d575708341b7a9eea7713e2d3eb7eb1c20117cf918801b regen/mk_invlists.pl
+ * 1e80f4b3617c3db8f66b9e017a1492d7e8ea78926e6c4081b394f81c2e6a3a69 regen/mk_invlists.pl
  * ex: set ro: */
