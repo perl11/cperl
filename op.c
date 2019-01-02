@@ -7180,6 +7180,25 @@ S_op_integerize(pTHX_ OP *o)
     return o;
 }
 
+/* This function exists solely to provide a scope to limit
+   setjmp/longjmp() messing with auto variables.
+ */
+PERL_STATIC_INLINE int
+S_fold_constants_eval(pTHX) {
+    int ret = 0;
+    dJMPENV;
+
+    JMPENV_PUSH(ret);
+
+    if (ret == 0) {
+	CALLRUNOPS(aTHX);
+    }
+
+    JMPENV_POP;
+
+    return ret;
+}
+
 /*
 =for apidoc fold_constants
 
@@ -7193,19 +7212,18 @@ static OP *
 S_fold_constants(pTHX_ OP *const o)
 {
     dVAR;
-    OP * volatile curop;
-    SV * volatile sv = NULL;
     COP not_compiling;
+    OP *curop;
+    SV *sv = NULL;
     OP *newop;
     OP *old_next;
     SV * const oldwarnhook = PL_warnhook;
     SV * const olddiehook  = PL_diehook;
     int ret = 0;
-    volatile I32 type = o->op_type;
+    I32 type = o->op_type;
     I32 old_cxix;
     U8 oldwarn = PL_dowarn;
     bool is_stringify;
-    dJMPENV;
 
     PERL_ARGS_ASSERT_FOLD_CONSTANTS;
 
@@ -7316,15 +7334,15 @@ S_fold_constants(pTHX_ OP *const o)
     assert(IN_PERL_RUNTIME);
     PL_warnhook = PERL_WARNHOOK_FATAL;
     PL_diehook  = NULL;
-    JMPENV_PUSH(ret);
 
     /* Effective $^W=1.  */
     if ( ! (PL_dowarn & G_WARN_ALL_MASK))
 	PL_dowarn |= G_WARN_ON;
 
+    ret = S_fold_constants_eval(aTHX);
+
     switch (ret) {
     case 0:
-	CALLRUNOPS(aTHX);
 	sv = *(PL_stack_sp--);
 	if (o->op_targ && sv == PAD_SV(o->op_targ)) {	/* grab pad temp? */
 	    pad_swipe(o->op_targ,  FALSE);
@@ -7342,7 +7360,6 @@ S_fold_constants(pTHX_ OP *const o)
 	OpNEXT(o) = old_next;
 	break;
     default:
-	JMPENV_POP;
 	/* Don't expect 1 (setjmp failed) or 2 (something called my_exit)  */
 	PL_warnhook = oldwarnhook;
 	PL_diehook  = olddiehook;
@@ -7350,7 +7367,6 @@ S_fold_constants(pTHX_ OP *const o)
 	 * the stack - eg any nested evals */
 	Perl_croak(aTHX_ "panic: fold_constants JMPENV_PUSH returned %d", ret);
     }
-    JMPENV_POP;
     PL_dowarn   = oldwarn;
     PL_warnhook = oldwarnhook;
     PL_diehook  = olddiehook;
