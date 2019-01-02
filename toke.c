@@ -9481,9 +9481,9 @@ Perl_yylex(pTHX)
                         have_proto = FALSE;
                     else {
                         s = scan_str(s,FALSE,FALSE,FALSE,NULL);
-                        COPLINE_SET_FROM_MULTI_END;
                         if (!s)
                             Perl_croak(aTHX_ "Prototype not terminated");
+                        COPLINE_SET_FROM_MULTI_END;
                         have_proto = validate_proto(PL_subname, PL_lex_stuff,
                                                     ckWARN(WARN_ILLEGALPROTO), FALSE, TRUE);
                     }
