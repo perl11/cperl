@@ -916,7 +916,7 @@ use File::Glob qw(:case);
     },
 
     'lib' => {
-        'DISTRIBUTION' => 'SMUELLER/lib-0.63.tar.gz',
+        'DISTRIBUTION' => 'SMUELLER/lib-0.65.tar.gz',
         'FILES'        => q[dist/lib/],
         'EXCLUDED'     => [
             qw( forPAUSE/lib.pm

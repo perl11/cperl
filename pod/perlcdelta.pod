@@ -362,6 +362,10 @@ Add SECURITY AND PORTABILITY warning paragraph to pod.
 
 Add SECURITY AND PORTABILITY warning paragraph to pod.
 
+=item L<lib> 0.65
+
+Hint about $dir/$version is checked by lib.pm and deleted from @INC
+
 =item L<IO> 1.39_02
 
 Skip EINVAL on FreeBSD tests when binding a tcp listener on localhost.

@@ -18430,6 +18430,7 @@ our %delta :const = (
             'IO'                    => '1.39_02',
             'IO::Socket::IP'        => '0.39_03',
             'IO::Zlib'              => '1.10_01',
+            'lib'                   => '0.65',
             'NDBM_File'             => '1.15',
             'Net::Ping'             => '2.72',
             'ODBM_File'             => '1.16',
