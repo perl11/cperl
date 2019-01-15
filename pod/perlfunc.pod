@@ -6486,11 +6486,13 @@ value indicates the type of object.  If the unblessed referent is not
 a scalar, then the return value will be one of the strings C<ARRAY>,
 C<HASH>, C<CODE>, C<FORMAT>, or C<IO>, indicating only which kind of
 object it is.  If the unblessed referent is a scalar, then the return
-value will be one of the strings C<SCALAR>, C<VSTRING>, C<REF>, C<GLOB>,
-C<LVALUE>, or C<Regexp>, depending on the kind of value the scalar
-currently has.  Beware that these built-in type names can also be used as
-class names, so C<ref> returning one of these names doesn't unambiguously
-indicate that the referent is of the kind to which the name refers.
+value will be one of the strings C<SCALAR>, C<VSTRING>, C<REF>,
+C<GLOB>, C<LVALUE>, or C<REGEXP>, depending on the kind of value the
+scalar currently has.  But note that C<qr//> scalars are created
+already blessed, so C<ref qr/.../> will likely return C<Regexp>.
+Beware that these built-in type names can also be used as class names,
+so C<ref> returning one of these names doesn't unambiguously indicate
+that the referent is of the kind to which the name refers.
 
 The ambiguity between built-in type names and class names significantly
 limits the utility of C<ref>.  For unambiguous information, use
