@@ -298,8 +298,7 @@ do_test('reference to hash',
     MAX = 7
     Elt "123" HASH = $ADDR' . $c_pattern,
 	'',
-	$] < 5.015
-	 && 'The hash iterator used in dump.c sets the OOK flag');
+	($] < 5.015) ? 'The hash iterator used in dump.c sets the OOK flag' : undef);
 
 do_test('reference to anon sub with empty prototype',
         sub(){@_},
@@ -473,7 +472,7 @@ do_test('reference to blessed hash',
     FILL = 0
     MAX = 7', '',
 	$] >= 5.015
-	     ? 0
+	     ? undef
 	     : 'The hash iterator used in dump.c sets the OOK flag');
 
 if ($Config{usecperl} and $] >= 5.025001) {
@@ -577,7 +576,7 @@ do_test('reference to hash containing Unicode',
       COW_REFCNT = 1				# $] < 5.019007
 ',      '',
 	$] >= 5.015
-	    ?  0
+	    ? undef
 	    : 'The hash iterator used in dump.c sets the OOK flag');
 } else {
 do_test('reference to hash containing Unicode',
@@ -604,7 +603,7 @@ do_test('reference to hash containing Unicode',
       COW_REFCNT = 1				# $] < 5.019007
 ',      '',
 	$] >= 5.015
-	    ?  0
+	    ? undef
 	    : 'The hash iterator used in dump.c sets the OOK flag');
 }
 
@@ -813,7 +812,7 @@ do_test('blessing to a class with embedded NUL characters',
     FILL = 0
     MAX = 7', '',
 	$] >= 5.015
-	    ?  0
+	    ? undef
 	    : 'The hash iterator used in dump.c sets the OOK flag');
 
 do_test('ENAME on a stash',
@@ -998,7 +997,7 @@ do_test('large hash',
 # Dump with arrays, hashes, and operator return values
 # The default maxnested limit is 4
 @array = 1..3;
-do_test('Dump @array', '@array', <<'EOF', '', '', 1);
+do_test('Dump @array', '@array', <<'EOF', '', undef, 1);
 SV = PVAV\($ADDR\) at $ADDR
   REFCNT = 1
   FLAGS = 0x4000000b \(REAL\)
@@ -1022,7 +1021,7 @@ SV = PVAV\($ADDR\) at $ADDR
     IV = 3
 EOF
 
-do_test('Dump @array,1', '@array,1', <<'EOF', '', '', 1);
+do_test('Dump @array,1', '@array,1', <<'EOF', '', undef, 1);
 SV = PVAV\($ADDR\) at $ADDR
   REFCNT = 1
   FLAGS = 0x4000000b \(REAL\)
@@ -1039,7 +1038,7 @@ EOF
 # skipping marker added with v5.25.3c
 
 %hash = 1..2;
-do_test('Dump %hash', '%hash', <<'HASH', '', '', 1);
+do_test('Dump %hash', '%hash', <<'HASH', '', undef, 1);
 SV = PVHV\($ADDR\) at $ADDR
   REFCNT = 1
   FLAGS = \(SHAREKEYS\)
@@ -1056,7 +1055,7 @@ SV = PVHV\($ADDR\) at $ADDR
 HASH
 
 $_ = "hello";
-do_test('rvalue substr', 'substr $_, 1, 2', <<'SUBSTR', '', '', 1);
+do_test('rvalue substr', 'substr $_, 1, 2', <<'SUBSTR', '', undef, 1);
 SV = PV\($ADDR\) at $ADDR
   REFCNT = 1
   FLAGS = \(PADTMP,POK,pPOK\)
