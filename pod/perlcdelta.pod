@@ -804,6 +804,12 @@ C<grok_atoUV> supports that too now.
 
 =item *
 
+Regular expression matching no longer leaves stale UTF-8 length magic
+when updating C<$^R>. This could result in C<length($^R)> returning
+an incorrect value.
+
+=item *
+
 Fixed a failure to match properly.
 
 An EXACTFish regnode has a finite length it can hold for the string
