@@ -710,11 +710,7 @@ BOOT:
     cv = newXS("B::diehook", intrpvar_sv_common, file);
     ASSIGN_COMMON_ALIAS(I, diehook);
     sv = get_svs("B::OP::does_parent", GV_ADDMULTI);
-#ifdef PERL_OP_PARENT
     sv_setsv(sv, &PL_sv_yes);
-#else
-    sv_setsv(sv, &PL_sv_no);
-#endif
 }
 
 #ifndef PL_formfeed
@@ -1146,11 +1142,7 @@ next(o)
 			PTR2IV(CopHINTHASH_get(cCOPo)));
 		break;
 	    case 52: /* B::OP::parent */
-#ifdef PERL_OP_PARENT
 		ret = make_op_object(op_parent(o));
-#else
-		ret = make_op_object(NULL);
-#endif
 		break;
 	    case 53: /* B::METHOP::first   */
                 /* METHOP struct has an op_first/op_meth_sv union

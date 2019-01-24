@@ -538,11 +538,9 @@ Perl_Slab_Alloc(pTHX_ size_t sz)
 
   gotit:
     assert(!o->op_rettype);
-#ifdef PERL_OP_PARENT
     /* moresib == 0, op_sibling == 0 implies a solitary unattached op */
     assert(!o->op_moresib);
     assert(!o->op_sibparent);
-#endif
 
     return (void *)o;
 }
@@ -1853,7 +1851,6 @@ Perl_op_sibling_splice(OP *parent, OP *start, int del_count, OP* insert)
     Perl_croak_nocontext("panic: op_sibling_splice(): NULL parent");
 }
 
-
 /*
 =for apidoc Apd|OP*	|op_linklist	|NN OP *o
 
@@ -1906,8 +1903,6 @@ Perl_op_linklist(pTHX_ OP *o)
     return OpNEXT(o);
 }
 
-#ifdef PERL_OP_PARENT
-
 /*
 =for apidoc op_parent
 
@@ -1926,9 +1921,6 @@ Perl_op_parent(OP *o)
         o = OpSIBLING(o);
     return o->op_sibparent;
 }
-
-#endif
-
 
 /*
 =for apidoc s|OP*  |op_sibling_newUNOP	|NULLOK OP *parent|NULLOK OP *start|I32 type|I32 flags
@@ -3663,7 +3655,7 @@ S_maybe_multiconcat(pTHX_ OP *o)
         kid = OpFIRST(topop); /* pushmark */
         op_null(kid);
         assert(OpSIBLING(kid));
-        op_null(kid->_OP_SIBPARENT_FIELDNAME); /* const, NN */
+        op_null(kid->op_sibparent); /* const, NN */
         if (o != topop) {
             kid = op_sibling_splice(topop, NULL, -1, NULL); /* cut all args */
             op_sibling_splice(o, NULL, 0, kid); /* and attach to o */
@@ -4593,16 +4585,11 @@ S_finalize_op(pTHX_ OP* o)
               );
 
         for (kid = OpFIRST(o); kid; kid = OpSIBLING(kid)) {
-#  ifdef PERL_OP_PARENT
             if (!OpHAS_SIBLING(kid)) {
                 if (has_last)
                     assert(kid == OpLAST(o));
                 assert(kid->op_sibparent == o);
             }
-#  else
-            if (has_last && !OpHAS_SIBLING(kid))
-                assert(kid == OpLAST(o));
-#  endif
         }
 #endif
 
@@ -10763,19 +10750,15 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
 	LOOP *tmp;
 	NewOp(1234,tmp,1,LOOP);
 	Copy(loop,tmp,1,LISTOP);
-#ifdef PERL_OP_PARENT
         assert(OpLAST(loop)->op_sibparent == (OP*)loop);
         OpLASTSIB_set(OpLAST(loop), (OP*)tmp); /*point back to new parent */
-#endif
 	S_op_destroy(aTHX_ (OP*)loop);
 	loop = tmp;
     }
     else if (!loop->op_slabbed)
     {
 	loop = (LOOP*)PerlMemShared_realloc(loop, sizeof(LOOP));
-#ifdef PERL_OP_PARENT
         OpLASTSIB_set(OpLAST(loop), (OP*)loop);
-#endif
     }
     loop->op_targ = padoff;
     wop = newWHILEOP(flags, 1, loop, newOP(optype, OPf_KIDS),

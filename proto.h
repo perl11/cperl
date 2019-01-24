@@ -4502,6 +4502,12 @@ PERL_CALLCONV void	Perl_op_null(pTHX_ OP* o)
 #define PERL_ARGS_ASSERT_OP_NULL	\
 	assert(o)
 
+PERL_CALLCONV OP*	Perl_op_parent(OP *o)
+			__attribute__global__
+			__attribute__nonnull__(1);
+#define PERL_ARGS_ASSERT_OP_PARENT	\
+	assert(o)
+
 PERL_CALLCONV OP*	Perl_op_prepend_elem(pTHX_ I32 optype, OP* first, OP* last)
 			__attribute__global__;
 
@@ -11309,14 +11315,6 @@ PERL_CALLCONV Malloc_t	Perl_mem_log_realloc(const UV n, const UV typesize, const
 			__attribute__nonnull__(8);
 #define PERL_ARGS_ASSERT_MEM_LOG_REALLOC	\
 	assert(type_name); assert(filename); assert(funcname)
-
-#endif
-#if defined(PERL_OP_PARENT)
-PERL_CALLCONV OP*	Perl_op_parent(OP *o)
-			__attribute__global__
-			__attribute__nonnull__(1);
-#define PERL_ARGS_ASSERT_OP_PARENT	\
-	assert(o)
 
 #endif
 #if defined(PERL_USES_PL_PIDSTATUS) && defined(PERL_IN_UTIL_C)

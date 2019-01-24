@@ -2008,7 +2008,6 @@ S_padhv_rv2hv_common(pTHX_ HV *hv, U8 gimme, bool is_keys, bool has_targ)
                 PUSHi(i);
             }
             else
-#ifdef PERL_OP_PARENT
             if (is_keys) {
                 /* parent op should be an unused OP_KEYS whose targ we can
                  * use */
@@ -2022,7 +2021,6 @@ S_padhv_rv2hv_common(pTHX_ HV *hv, U8 gimme, bool is_keys, bool has_targ)
                 PUSHi(i);
             }
             else
-#endif
                 mPUSHi(i);
         }
     }

@@ -483,9 +483,7 @@ EOS
 # test op_parent
 
 SKIP: {
-    unless ($B::OP::does_parent) {
-        skip "op_parent only present with -DPERL_OP_PARENT builds", 6;
-    }
+    ok($B::OP::does_parent, "does_parent always set");
     my $lineseq = B::svref_2object(sub{my $x = 1})->ROOT->first;
     is ($lineseq->type,  B::opnumber('lineseq'),
                                 'op_parent: top op is lineseq');

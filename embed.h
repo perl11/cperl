@@ -606,6 +606,7 @@
 #define op_linklist(a)		Perl_op_linklist(aTHX_ a)
 #define op_lvalue_flags(a,b,c)	Perl_op_lvalue_flags(aTHX_ a,b,c)
 #define op_null(a)		Perl_op_null(aTHX_ a)
+#define op_parent		Perl_op_parent
 #define op_prepend_elem(a,b,c)	Perl_op_prepend_elem(aTHX_ a,b,c)
 #define op_refcnt_lock()	Perl_op_refcnt_lock(aTHX)
 #define op_refcnt_unlock()	Perl_op_refcnt_unlock(aTHX)
@@ -1080,9 +1081,6 @@
 #define sv_setpvf_nocontext	Perl_sv_setpvf_nocontext
 #define warn_nocontext		Perl_warn_nocontext
 #define warner_nocontext	Perl_warner_nocontext
-#endif
-#if defined(PERL_OP_PARENT)
-#define op_parent		Perl_op_parent
 #endif
 #if defined(UNLINK_ALL_VERSIONS)
 #define unlnk(a)		Perl_unlnk(aTHX_ a)
