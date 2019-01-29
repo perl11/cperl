@@ -9340,6 +9340,12 @@ STATIC OP*	S_too_many_arguments_pv(pTHX_ OP *o, const char* name, U32 flags)
 #define PERL_ARGS_ASSERT_TOO_MANY_ARGUMENTS_PV	\
 	assert(o); assert(name)
 
+STATIC OP*	S_traverse_op_tree(pTHX_ OP* top, OP* o)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_TRAVERSE_OP_TREE	\
+	assert(top); assert(o)
+
 STATIC const char*	S_typename(pTHX_ const HV* stash);
 #  if defined(USE_ITHREADS)
 STATIC void	S_op_clear_gv(pTHX_ OP* o, PADOFFSET *ixp)

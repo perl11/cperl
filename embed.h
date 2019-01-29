@@ -2069,6 +2069,7 @@
 #define stash_to_coretype(a)	S_stash_to_coretype(aTHX_ a)
 #define too_few_arguments_pv(a,b,c)	S_too_few_arguments_pv(aTHX_ a,b,c)
 #define too_many_arguments_pv(a,b,c)	S_too_many_arguments_pv(aTHX_ a,b,c)
+#define traverse_op_tree(a,b)	S_traverse_op_tree(aTHX_ a,b)
 #define typename(a)		S_typename(aTHX_ a)
 #    if defined(USE_ITHREADS)
 #define op_clear_gv(a,b)	S_op_clear_gv(aTHX_ a,b)

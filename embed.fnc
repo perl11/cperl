@@ -577,6 +577,7 @@ i	|OP*	|newMETHOP_internal	|I32 type|I32 flags|NULLOK OP* dynamic_meth \
 					|NULLOK SV* const_meth
 : FIXME
 s	|OP*	|fold_constants	|NN OP * const o
+s	|OP*	|traverse_op_tree|NN OP* top|NN OP* o
 s       |SV*    |op_const_sv    |NN const OP *o|NN CV *cv|bool allow_lex
 s	|void	|class_isamagic |NN OP* o|NN SV* pkg|NN const char* what|int len
 s	|void	|add_isa_fields	|NN HV* klass|NN AV* isa
