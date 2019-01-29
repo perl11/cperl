@@ -4278,9 +4278,10 @@ to optimise any children.
 STATIC void
 S_optimize_op(pTHX_ OP* o)
 {
-    OP *kid;
+    dDEFER_OP;
 
     PERL_ARGS_ASSERT_OPTIMIZE_OP;
+    do {
     assert(o->op_type != OP_FREED);
 
     switch (o->op_type) {
@@ -4299,18 +4300,21 @@ S_optimize_op(pTHX_ OP* o)
 
     case OP_SUBST:
 	if (cPMOPo->op_pmreplrootu.op_pmreplroot)
-	    optimize_op(cPMOPo->op_pmreplrootu.op_pmreplroot);
+	    DEFER_OP(cPMOPo->op_pmreplrootu.op_pmreplroot);
 	break;
 
     default:
 	break;
     }
 
-    if (!(o->op_flags & OPf_KIDS))
-        return;
+    if (OpKIDS(o)) {
+        OP *kid;
+        for (kid = OpFIRST(o); kid; kid = OpSIBLING(kid))
+            DEFER_OP(kid);
+    }
+    } while ( ( o = POP_DEFERRED_OP() ) );
 
-    for (kid = OpFIRST(o); kid; kid = OpSIBLING(kid))
-        optimize_op(kid);
+    DEFER_OP_CLEANUP;
 }
 
 
@@ -4381,8 +4385,8 @@ S_traverse_op_tree(pTHX_ OP *top, OP *o)
 {
     PERL_ARGS_ASSERT_TRAVERSE_OP_TREE;
 
-    if ((o->op_flags & OPf_KIDS) && cUNOPo->op_first) {
-        return cUNOPo->op_first;
+    if (OpKIDS(o) && OpFIRST(o)) {
+        return OpFIRST(o);
     }
     else if (OpHAS_SIBLING(o)) {
         return OpSIBLING(o);
