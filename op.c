@@ -269,6 +269,22 @@ const char * S_typename(pTHX_ const HV* stash)
     } \
     defer_stack[++defer_ix] = o; \
   } STMT_END
+#define DEFER_REVERSE(count)                            \
+    STMT_START {                                        \
+        UV cnt = (count);                               \
+        if (cnt > 1) {                                  \
+            OP **top = defer_stack + defer_ix;          \
+            /* top - (cnt) + 1 isn't safe here */       \
+            OP **bottom = top - (cnt - 1);              \
+            OP *tmp;                                    \
+            assert(bottom >= defer_stack);              \
+            while (top > bottom) {                      \
+                tmp = *top;                             \
+                *top-- = *bottom;                       \
+                *bottom++ = tmp;                        \
+            }                                           \
+        }                                               \
+    } STMT_END;
 
 #define POP_DEFERRED_OP() (defer_ix >= 0 ? defer_stack[defer_ix--] : (OP *)NULL)
 
@@ -4308,8 +4324,12 @@ S_optimize_op(pTHX_ OP* o)
 
         if (OpKIDS(o)) {
             OP *kid;
-            for (kid = OpFIRST(o); kid; kid = OpSIBLING(kid))
+            IV child_count = 0;
+            for (kid = OpFIRST(o); kid; kid = OpSIBLING(kid)) {
                 DEFER_OP(kid);
+                ++child_count;
+            }
+            DEFER_REVERSE(child_count);
         }
     } while ( ( o = POP_DEFERRED_OP() ) );
 
