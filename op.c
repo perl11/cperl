@@ -254,6 +254,11 @@ const char * S_typename(pTHX_ const HV* stash)
   L<perlapi/op_free>().
 */
 
+#define dDEFER_OP  \
+    SSize_t defer_stack_alloc = 0; \
+    SSize_t defer_ix = -1; \
+    OP **defer_stack = NULL;
+#define DEFER_OP_CLEANUP Safefree(defer_stack)
 #define DEFERRED_OP_STEP 100
 #define DEFER_OP(o) \
   STMT_START { \
@@ -1081,9 +1086,7 @@ Perl_op_free(pTHX_ OP *o)
     dVAR;
 #endif
     OPCODE type;
-    SSize_t defer_ix = -1;
-    SSize_t defer_stack_alloc = 0;
-    OP **defer_stack = NULL;
+    dDEFER_OP;
 
     do {
         /* During the forced freeing of ops after compilation failure, kidops
@@ -1185,7 +1188,7 @@ Perl_op_free(pTHX_ OP *o)
             PL_op = NULL;
     } while ( (o = POP_DEFERRED_OP()) );
 
-    Safefree(defer_stack);
+    DEFER_OP_CLEANUP;
 }
 
 /*
@@ -2348,10 +2351,9 @@ Perl_scalarvoid(pTHX_ OP *arg)
     dVAR;
     OP *kid;
     SV* sv;
-    SSize_t defer_stack_alloc = 0;
-    SSize_t defer_ix = -1;
-    OP **defer_stack = NULL;
     OP *o = arg;
+    dDEFER_OP;
+
     PERL_ARGS_ASSERT_SCALARVOID;
 
     do {
@@ -2712,7 +2714,7 @@ Perl_scalarvoid(pTHX_ OP *arg)
         }
     } while ( (o = POP_DEFERRED_OP()) );
 
-    Safefree(defer_stack);
+    DEFER_OP_CLEANUP;
 
     return arg;
 }
