@@ -4535,6 +4535,7 @@ PP(pp_ucfirst)
 
 		/* Assert tculen is 2 here because the only two characters that
 		 * get to this part of the code have 2-byte UTF-8 equivalents */
+                assert(tculen == 2);
 		*d++ = *tmpbuf;
 		*d++ = *(tmpbuf + 1);
 		s++;	/* We have just processed the 1st char */
