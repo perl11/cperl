@@ -494,7 +494,7 @@ PP(pp_rv2cv)
 	cv = SvTYPE(SvRV(gv)) == SVt_PVCV
 	    ? MUTABLE_CV(SvRV(gv))
 	    : MUTABLE_CV(gv);
-    }    
+    }
     else
 	cv = MUTABLE_CV(UNDEF);
     SETs(MUTABLE_SV(cv));
@@ -918,7 +918,7 @@ PP(pp_study)
 
 PP(pp_trans)
 {
-    dSP; 
+    dSP;
     SV *sv;
 
     if (OpSTACKED(PL_op))
@@ -3667,7 +3667,7 @@ PPt(pp_oct, "(:Numeric):UInt")
 	 /* If Unicode, try to downgrade
 	  * If not possible, croak. */
 	 SV* const tsv = sv_2mortal(newSVsv(sv));
-	
+
 	 SvUTF8_on(tsv);
 	 sv_utf8_downgrade(tsv, FALSE);
 	 tmps = SvPV_const(tsv, len);
@@ -4161,7 +4161,7 @@ PP(pp_index)
             /* $lex = (index() == -1) */
             sv_setsv(TARG, TOPs);
     }
-    else 
+    else
         PUSHi(retval);
     RETURN;
 }
@@ -4326,7 +4326,7 @@ PP(pp_crypt)
 #endif
 }
 
-/* Generally UTF-8 and UTF-EBCDIC are indistinguishable at this level.  So 
+/* Generally UTF-8 and UTF-EBCDIC are indistinguishable at this level.  So
  * most comments below say UTF-8, when in fact they mean UTF-EBCDIC as well */
 
 
@@ -4392,12 +4392,15 @@ PP(pp_ucfirst)
 #endif
 	}
         else {
+
 #ifdef USE_LOCALE_CTYPE
+
 	    _toLOWER_utf8_flags(s, s + slen, tmpbuf, &tculen, IN_LC_RUNTIME(LC_CTYPE));
 #else
 	    _toLOWER_utf8_flags(s, s + slen, tmpbuf, &tculen, 0);
 #endif
-	}
+
+        }
 
         /* we can't do in-place if the length changes.  */
         if (ulen != tculen) inplace = FALSE;
@@ -4405,7 +4408,7 @@ PP(pp_ucfirst)
     }
     else { /* Non-zero length, non-UTF-8,  Need to consider locale and if
 	    * latin1 is treated as caseless.  Note that a locale takes
-	    * precedence */ 
+	    * precedence */
 	ulen = 1;	/* Original character is 1 byte */
 	tculen = 1;	/* Most characters will require one byte, but this will
 			 * need to be overridden for the tricky ones */
@@ -4556,7 +4559,7 @@ PP(pp_ucfirst)
 	}
 
     }
-    else {  /* Neither source nor dest are in or need to be UTF-8 */
+    else {  /* Neither source nor dest are, nor need to be UTF-8 */
 	if (slen) {
 	    if (inplace) {  /* in-place, only need to change the 1st char */
 		*d = *tmpbuf;
@@ -4597,9 +4600,6 @@ PP(pp_ucfirst)
     return NORMAL;
 }
 
-/* There's so much setup/teardown code common between uc and lc, I wonder if
-   it would be worth merging the two, and just having a switch outside each
-   of the three tight loops.  There is less and less commonality though */
 PP(pp_uc)
 {
     dSP;
@@ -4714,9 +4714,10 @@ PP(pp_uc)
 
                     /* If someone uppercases one million U+03B0s we SvGROW()
                      * one million times.  Or we could try guessing how much to
-                     * allocate without allocating too much.  Such is life.
-                     * See corresponding comment in lc code for another option
-                     * */
+                     * allocate without allocating too much.  But we can't
+                     * really guess without examining the rest of the string.
+                     * Such is life.  See corresponding comment in lc code for
+                     * another option */
                     d = o + (U8*) SvGROW(dest, min);
                 }
                 Copy(tmpbuf, d, ulen, U8);
@@ -4778,7 +4779,7 @@ PP(pp_uc)
 
 			/* uc() of this requires 2 characters, but they are
 			 * ASCII.  If not enough room, grow the string */
-			if (SvLEN(dest) < ++min) {	
+			if (SvLEN(dest) < ++min) {
 			    const UV o = d - (U8*)SvPVX_const(dest);
 			    d = o + (U8*) SvGROW(dest, min);
 			}
@@ -4789,29 +4790,30 @@ PP(pp_uc)
 
 		    /* The other two special handling characters have their
 		     * upper cases outside the latin1 range, hence need to be
-		     * in UTF-8, so the whole result needs to be in UTF-8.  So,
-		     * here we are somewhere in the middle of processing a
-		     * non-UTF-8 string, and realize that we will have to convert
-		     * the whole thing to UTF-8.  What to do?  There are
-		     * several possibilities.  The simplest to code is to
-		     * convert what we have so far, set a flag, and continue on
-		     * in the loop.  The flag would be tested each time through
-		     * the loop, and if set, the next character would be
-		     * converted to UTF-8 and stored.  But, I (khw) didn't want
-		     * to slow down the mainstream case at all for this fairly
-		     * rare case, so I didn't want to add a test that didn't
-		     * absolutely have to be there in the loop, besides the
-		     * possibility that it would get too complicated for
-		     * optimizers to deal with.  Another possibility is to just
-		     * give up, convert the source to UTF-8, and restart the
-		     * function that way.  Another possibility is to convert
-		     * both what has already been processed and what is yet to
-		     * come separately to UTF-8, then jump into the loop that
-		     * handles UTF-8.  But the most efficient time-wise of the
-		     * ones I could think of is what follows, and turned out to
-		     * not require much extra code.  */
+		     * in UTF-8, so the whole result needs to be in UTF-8.
+                     *
+                     * So, here we are somewhere in the middle of processing a
+                     * non-UTF-8 string, and realize that we will have to
+                     * convert the whole thing to UTF-8.  What to do?  There
+                     * are several possibilities.  The simplest to code is to
+                     * convert what we have so far, set a flag, and continue on
+                     * in the loop.  The flag would be tested each time through
+                     * the loop, and if set, the next character would be
+                     * converted to UTF-8 and stored.  But, I (khw) didn't want
+                     * to slow down the mainstream case at all for this fairly
+                     * rare case, so I didn't want to add a test that didn't
+                     * absolutely have to be there in the loop, besides the
+                     * possibility that it would get too complicated for
+                     * optimizers to deal with.  Another possibility is to just
+                     * give up, convert the source to UTF-8, and restart the
+                     * function that way.  Another possibility is to convert
+                     * both what has already been processed and what is yet to
+                     * come separately to UTF-8, then jump into the loop that
+                     * handles UTF-8.  But the most efficient time-wise of the
+                     * ones I could think of is what follows, and turned out to
+                     * not require much extra code. */
 
-		    /* Convert what we have so far into UTF-8, telling the
+                    /* Convert what we have so far into UTF-8, telling the
 		     * function that we know it should be converted, and to
 		     * allow extra space for what we haven't processed yet.
 		     * Assume the worst case space requirements for converting
@@ -4827,10 +4829,8 @@ PP(pp_uc)
 						(send -s) * 2 + 1);
 		    d = (U8*)SvPVX(dest) + len;
 
-		    /* Now process the remainder of the source, converting to
-		     * upper and UTF-8.  If a resulting byte is invariant in
-		     * UTF-8, output it as-is, otherwise convert to UTF-8 and
-		     * append it to the output. */
+                    /* Now process the remainder of the source, simultaneously
+                     * converting to upper and UTF-8. */
 		    for (; s < send; s++) {
 			(void) _to_upper_title_latin1(*s, d, &len, 'S');
 			d += len;
@@ -4918,13 +4918,15 @@ PP(pp_lc)
 	    STRLEN ulen;
 
 #ifdef USE_LOCALE_CTYPE
+
 	    _toLOWER_utf8_flags(s, send, tmpbuf, &ulen, IN_LC_RUNTIME(LC_CTYPE));
 #else
 	    _toLOWER_utf8_flags(s, send, tmpbuf, &ulen, 0);
 #endif
 
-	    /* Here is where we would do context-sensitive actions.  See the
-	     * commit message for 86510fb15 for why there isn't any */
+            /* Here is where we would do context-sensitive actions for the
+             * Greek final sigma.  See the commit message for 86510fb15 for why
+             * there isn't any */
 
 	    if (ulen > u && (SvLEN(dest) < (min += ulen - u))) {
 
@@ -5021,7 +5023,7 @@ PP(pp_quotemeta)
 #ifdef USE_LOCALE_CTYPE
 		    /* In locale, we quote all non-ASCII Latin1 chars.
 		     * Otherwise use the quoting rules */
-		    
+
 		    IN_LC_RUNTIME(LC_CTYPE)
 			||
 #endif
@@ -5168,10 +5170,12 @@ PP(pp_fc)
 #ifdef USE_LOCALE_CTYPE
         do_uni_folding:
 #endif
-            /* For ASCII and the Latin-1 range, there's only two troublesome
-             * folds, \x{DF} (\N{LATIN SMALL LETTER SHARP S}), which under full
-             * casefolding becomes 'ss'; and \x{B5} (\N{MICRO SIGN}), which
-             * under any fold becomes \x{3BC} (\N{GREEK SMALL LETTER MU}) --
+            /* For ASCII and the Latin-1 range, there's two
+             * troublesome folds:
+             *      \x{DF} (\N{LATIN SMALL LETTER SHARP S}), which under full
+             *             casefolding becomes 'ss';
+             *      \x{B5} (\N{MICRO SIGN}), which under any fold becomes
+             *             \x{3BC} (\N{GREEK SMALL LETTER MU})
              * For the rest, the casefold is their lowercase.  */
             /* Actually not: There are many FC special rules [cperl #332] */
             for (; s < send; d++, s++) {
@@ -5194,6 +5198,7 @@ PP(pp_fc)
                     Copy(GREEK_SMALL_LETTER_MU_UTF8, d, small_mu_len, U8);
                     d += small_mu_len;
                     s++;
+
                     for (; s < send; s++) {
                         STRLEN ulen;
                         UV fc = _to_uni_fold_flags(*s, tmpbuf, &ulen, flags);
@@ -5226,8 +5231,7 @@ PP(pp_fc)
                     *(d)++ = 's';
                     *d = 's';
                 }
-                else { /* If it's not one of those two, the fold is their lower
-                          case */
+                else { /* Else, the fold is the lower case */
                     *d = toLOWER_LATIN1(*s);
                 }
              }
@@ -6059,7 +6063,7 @@ PP(pp_splice)
 	i = -diff;
 	while (i)
 	    dst[--i] = NULL;
-	
+
 	if (newlen) {
  	    Copy( tmparyval, AvARRAY(ary) + offset, newlen, SV* );
 	    Safefree(tmparyval);
@@ -6512,7 +6516,7 @@ PP(pp_split)
             } else {
                 while (m < strend && !isSPACE(*m))
                     ++m;
-            }  
+            }
 	    if (m >= strend)
 		break;
 
@@ -6550,7 +6554,7 @@ PP(pp_split)
             } else {
                 while (s < strend && isSPACE(*s))
                     ++s;
-            } 	    
+            }
 	}
     }
     else if (RX_EXTFLAGS(rx) & RXf_START_ONLY) {
@@ -7229,7 +7233,7 @@ PP(pp_lvref)
         }
       }
       else if (arg) {
-	S_localise_gv_slot(aTHX_ (GV *)arg, 
+	S_localise_gv_slot(aTHX_ (GV *)arg,
 				 PL_op->op_private & OPpLVREF_TYPE);
       }
       else if (!(PL_op->op_private & OPpPAD_STATE))
