@@ -4282,36 +4282,35 @@ S_optimize_op(pTHX_ OP* o)
 
     PERL_ARGS_ASSERT_OPTIMIZE_OP;
     do {
-    assert(o->op_type != OP_FREED);
+        assert(o->op_type != OP_FREED);
 
-    switch (o->op_type) {
-    case OP_NEXTSTATE:
-    case OP_DBSTATE:
-	PL_curcop = ((COP*)o);		/* for warnings */
-	break;
+        switch (o->op_type) {
+        case OP_NEXTSTATE:
+        case OP_DBSTATE:
+            PL_curcop = ((COP*)o);		/* for warnings */
+            break;
 
+        case OP_CONCAT:
+        case OP_SASSIGN:
+        case OP_STRINGIFY:
+        case OP_SPRINTF:
+            maybe_multiconcat(o);
+            break;
 
-    case OP_CONCAT:
-    case OP_SASSIGN:
-    case OP_STRINGIFY:
-    case OP_SPRINTF:
-        maybe_multiconcat(o);
-        break;
+        case OP_SUBST:
+            if (cPMOPo->op_pmreplrootu.op_pmreplroot)
+                DEFER_OP(cPMOPo->op_pmreplrootu.op_pmreplroot);
+            break;
 
-    case OP_SUBST:
-	if (cPMOPo->op_pmreplrootu.op_pmreplroot)
-	    DEFER_OP(cPMOPo->op_pmreplrootu.op_pmreplroot);
-	break;
+        default:
+            break;
+        }
 
-    default:
-	break;
-    }
-
-    if (OpKIDS(o)) {
-        OP *kid;
-        for (kid = OpFIRST(o); kid; kid = OpSIBLING(kid))
-            DEFER_OP(kid);
-    }
+        if (OpKIDS(o)) {
+            OP *kid;
+            for (kid = OpFIRST(o); kid; kid = OpSIBLING(kid))
+                DEFER_OP(kid);
+        }
     } while ( ( o = POP_DEFERRED_OP() ) );
 
     DEFER_OP_CLEANUP;
