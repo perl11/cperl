@@ -18926,7 +18926,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
             }
         }
 
-        if (! posixl) {
+        if (! (anyof_flags & ANYOF_LOCALE_FLAGS)) {
             PERL_UINT_FAST8_T type;
             SV * intersection = NULL;
             SV* d_invlist = NULL;
