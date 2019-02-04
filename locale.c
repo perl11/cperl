@@ -1559,6 +1559,8 @@ S_new_ctype(pTHX_ const char *newctype)
             }
         }
 
+            PL_in_utf8_turkic_locale = FALSE;
+
 #  ifdef MB_CUR_MAX
         /* We only handle single-byte locales (outside of UTF-8 ones; so if
          * this locale requires more than one byte, there are going to be
