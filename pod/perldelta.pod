@@ -18,9 +18,9 @@ sv_utf8_(downgrade|decode) are no longer marked as experimental [perl #133788]
 
 =head1 Core Enhancements
 
-=head2 Unicode 11.0 is supported
+=head2 Unicode 12.1 is supported
 
-For details, see L<https://www.unicode.org/versions/Unicode11.0.0/>.
+For details, see L<https://www.unicode.org/versions/Unicode12.1.0/>.
 
 The Word_Break property, as in past Perl releases, remains tailored to
 behave more in line with expectations of Perl users.  This means that
@@ -44,6 +44,15 @@ aspect of 11.0 is being left in, with the option to back it out if
 things haven't improved by that time, or if we get too many complaints
 about the development release being unusable for Georgian users.
 
+Unicode 12.1 differs from 12.0 only in the addition of a single
+character, that for the new Japanese era name.  The intent is to ship
+Perl 5.30 with Unicode 12.1.  The final release of 12.1 is scheduled for
+May 7, 2019.  Hopefully, there won't be any code changes to the draft
+after the release of Perl 5.29.10.
+
+Because of a change in Unicode release cycles, Perl jumps from Unicode
+10.0 in Perl 5.28 to Unicode 12.1 in Perl 5.30.
+
 =head2 The upper limit C<"n"> specifiable in a regular expression
 quantifier of the form C<"{m,n}"> has been doubled to 65534
 
@@ -51,20 +60,15 @@ The meaning of an unbounded upper quantifier C<"{m,}"> remains unchanged.
 It matches 2**31 - 1 times on most platforms, and more on ones where a C
 language short variable is more than 4 bytes long.
 
-=head2 Unicode 12.0 is supported
+=head2 Turkic UTF-8 locales are now seamlessly supported
 
-For details, see L<https://www.unicode.org/versions/Unicode12.0.0/>.
-
-Because of a change in Unicode release cycles, Perl jumps from Unicode
-10.0 in Perl 5.28 to Unicode 12.0 in Perl 5.30.
-
-=head2 Perl now supports draft Unicode 12.1
-
-Unicode 12.1 differs from 12.0 only in the addition of a single
-character, that for the new Japanese era name.  The intent is to ship
-Perl 5.30 with Unicode 12.1.  The final release of 12.1 is scheduled for
-May 7, 2019.  Hopefully, there won't be any code changes to the draft
-after the release of Perl 5.29.10.
+Turkic languages have different casing rules than other languages for
+the characters C<"i"> and C<"I">.  The uppercase of C<"i"> is LATIN
+CAPITAL LETTER I WITH DOT ABOVE (U+0130); and the lowercase of C<"I"> is LATIN
+SMALL LETTER DOTLESS I (U+0131).  Unicode furnishes alternate casing
+rules for use with Turkic languages.  Previously, Perl ignored these,
+but now, it uses them when it detects that it is operating under a
+Turkic UTF-8 locale.
 
 =head2 Wildcards in Unicode property value specifications are now
 partially supported
