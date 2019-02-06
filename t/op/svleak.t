@@ -13,7 +13,7 @@ BEGIN {
         or skip_all("XS::APItest not available");
 }
 
-plan tests => 156;
+plan tests => 157;
 use Config;
 
 # run some code N times. If the number of SVs at the end of loop N is
@@ -654,4 +654,24 @@ leak 2,2,sub{XS::APItest::PerlIO_exportFILE(*STDIN,"");0},
     my %rh= ( qr/^foo/ => 1);
     sub Regex_Key_Leak { my ($r)= keys %rh; "foo"=~$r; }
     leak 2, 0, \&Regex_Key_Leak,"RT #132892 - regex patterns should not leak";
+}
+
+{
+    # perl #133660
+    fresh_perl_is(<<'PERL', "ok", {}, "check goto core sub doesn't leak");
+# done this way to avoid overloads for all of svleak.t
+use B;
+BEGIN {
+    *CORE::GLOBAL::open = sub (*;$@) {
+        goto \&CORE::open;
+    };
+}
+
+my $refcount;
+{
+    open(my $fh, '<', 'TEST');
+    my $sv = B::svref_2object($fh);
+    print $sv->REFCNT == 1 ? "ok" : "not ok";
+}
+PERL
 }
