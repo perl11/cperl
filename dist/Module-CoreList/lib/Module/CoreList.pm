@@ -363,6 +363,7 @@ our %released :const = (
     5.026003 => '2018-11-29',
     5.028001 => '2018-11-29',
     '5.028002c' => '2018-12-??',
+    '5.029001c' => '????',
  );
 
 sub version_sort {
@@ -17941,6 +17942,22 @@ our %delta :const = (
             'warnings'              => '1.43',
             'version'               => '0.9924_02',
             'version::regex'        => '0.9924_02',
+        },
+        removed => {
+        }
+    },
+    '5.029001c' => {
+        delta_from => '5.029000c',
+        changed => {
+            'B::Op_private'         => '5.029001',
+            'Module::CoreList'      => '5.20181019c',
+            'Module::CoreList::Utils'=> '5.20181019c',
+            'B::C'                  => '1.55_10',
+            'Cpanel::JSON::XS'      => '4.09',
+            'ExtUtils::Embed'       => '1.36',
+            'ExtUtils::MakeMaker'   => '8.35_07',
+            'ExtUtils::MM_Unix'     => '8.35_07',
+            'Win32'                 => '0.52_02',
         },
         removed => {
         }

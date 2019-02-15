@@ -24,6 +24,14 @@
 # define snprintf _snprintf // C compilers have this in stdio.h
 #endif
 
+#ifndef PERL_UNUSED_RESULT
+#  if defined(__GNUC__) && defined(HASATTRIBUTE_WARN_UNUSED_RESULT)
+#    define PERL_UNUSED_RESULT(v) STMT_START { __typeof__(v) z = (v); (void)sizeof(z); } STMT_END
+#  else
+#    define PERL_UNUSED_RESULT(v) ((void)(v))
+#  endif
+#endif
+
 #if defined(_AIX) && (!defined(HAS_LONG_DOUBLE) || AIX_WORKAROUND)
 #define HAVE_NO_POWL
 #endif
@@ -268,10 +276,12 @@ mingw_modfl(long double x, long double *ip)
 #define F_ESCAPE_SLASH    0x00080000UL
 #define F_SORT_BY         0x00100000UL
 #define F_ALLOW_STRINGIFY 0x00200000UL
+#define F_UNBLESSED_BOOL  0x00400000UL
+#define F_ALLOW_DUPKEYS   0x00800000UL
 #define F_HOOK            0x80000000UL /* some hooks exist, so slow-path processing */
 
 #define F_PRETTY    F_INDENT | F_SPACE_BEFORE | F_SPACE_AFTER
-#define SET_RELAXED (F_RELAXED | F_ALLOW_BAREKEY | F_ALLOW_SQUOTE)
+#define SET_RELAXED (F_RELAXED | F_ALLOW_BAREKEY | F_ALLOW_SQUOTE | F_ALLOW_DUPKEYS)
 
 #define INIT_SIZE   32 /* initial scalar size to be allocated */
 #define INDENT_STEP 3  /* default spaces per indentation level */
@@ -1810,11 +1820,13 @@ encode_sv (pTHX_ enc_t *enc, SV *sv, SV *typesv)
 # endif
       }
 #endif
+
 #ifdef USE_QUADMATH
       quadmath_snprintf(enc->cur, enc->end - enc->cur, "%.*Qg", (int)NV_DIG, nv);
 #else
-      (void)Gconvert (nv, NV_DIG, 0, enc->cur);
+      PERL_UNUSED_RESULT(Gconvert (nv, NV_DIG, 0, enc->cur));
 #endif
+
 #ifdef NEED_NUMERIC_LOCALE_C
       if (loc_changed) {
 # ifdef HAS_USELOCALE
@@ -3243,7 +3255,7 @@ decode_hv (pTHX_ dec_t *dec, SV *typesv)
   SV *typerv;
   int allow_squote = dec->json.flags & F_ALLOW_SQUOTE;
   int allow_barekey = dec->json.flags & F_ALLOW_BAREKEY;
-  int relaxed = dec->json.flags & F_RELAXED;
+  int allow_dupkeys = dec->json.flags & F_ALLOW_DUPKEYS;
   char endstr = '"';
 
   DEC_INC_DEPTH;
@@ -3303,14 +3315,16 @@ decode_hv (pTHX_ dec_t *dec, SV *typesv)
                   if (!key)
                     goto fail;
 
+                  if (!allow_dupkeys && UNLIKELY(hv_exists_ent (hv, key, 0))) {
+                    ERR ("Duplicate keys not allowed");
+                  }
                   decode_ws (dec); EXPECT_CH (':');
-
                   decode_ws (dec);
 
                   if (typesv)
                     {
                       value_typesv = newSV (0);
-                      hv_store_ent (typehv, key, value_typesv, 0);
+                      (void)hv_store_ent (typehv, key, value_typesv, 0);
                     }
 
                   value = decode_sv (aTHX_ dec, value_typesv);
@@ -3320,7 +3334,7 @@ decode_hv (pTHX_ dec_t *dec, SV *typesv)
                       goto fail;
                     }
 
-                  hv_store_ent (hv, key, value, 0);
+                  (void)hv_store_ent (hv, key, value, 0);
                   SvREFCNT_dec (key);
 
                   break;
@@ -3340,14 +3354,12 @@ decode_hv (pTHX_ dec_t *dec, SV *typesv)
                   if (UNLIKELY(p - key > I32_MAX))
                     ERR ("Hash key too large");
 #endif
-                  if (!relaxed && UNLIKELY(hv_exists (hv, key, len))) {
+                  if (!allow_dupkeys && UNLIKELY(hv_exists (hv, key, len))) {
                     ERR ("Duplicate keys not allowed");
                   }
 
                   dec->cur = p + 1;
-
                   decode_ws (dec); if (*p != ':') EXPECT_CH (':');
-
                   decode_ws (dec);
 
                   if (typesv)
@@ -3590,6 +3602,8 @@ decode_sv (pTHX_ dec_t *dec, SV *typesv)
             dec->cur += 4;
             if (typesv)
               sv_setiv_mg (typesv, JSON_TYPE_BOOL);
+            if (dec->json.flags & F_UNBLESSED_BOOL)
+              return newSVsv (&PL_sv_yes);
             return newSVsv(MY_CXT.json_true);
           }
         else
@@ -3604,6 +3618,8 @@ decode_sv (pTHX_ dec_t *dec, SV *typesv)
             dec->cur += 5;
             if (typesv)
               sv_setiv_mg (typesv, JSON_TYPE_BOOL);
+            if (dec->json.flags & F_UNBLESSED_BOOL)
+              return newSVsv (&PL_sv_no);
             return newSVsv(MY_CXT.json_false);
           }
         else
@@ -4093,6 +4109,8 @@ void ascii (JSON *self, int enable = 1)
         allow_bignum    = F_ALLOW_BIGNUM
         escape_slash    = F_ESCAPE_SLASH
         allow_stringify = F_ALLOW_STRINGIFY
+        unblessed_bool  = F_UNBLESSED_BOOL
+        allow_dupkeys   = F_ALLOW_DUPKEYS
     PPCODE:
         if (enable)
           self->flags |=  ix;
@@ -4121,7 +4139,9 @@ void get_ascii (JSON *self)
         get_allow_singlequote = F_ALLOW_SQUOTE
         get_allow_bignum    = F_ALLOW_BIGNUM
         get_escape_slash    = F_ESCAPE_SLASH
-        get_allow_stringify  = F_ALLOW_STRINGIFY
+        get_allow_stringify = F_ALLOW_STRINGIFY
+        get_unblessed_bool  = F_UNBLESSED_BOOL
+        get_allow_dupkeys   = F_ALLOW_DUPKEYS
     PPCODE:
         XPUSHs (boolSV (self->flags & ix));
 
