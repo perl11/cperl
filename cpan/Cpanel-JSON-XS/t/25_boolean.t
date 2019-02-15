@@ -1,7 +1,15 @@
 use strict;
-use Test::More tests => 32;
+use Test::More tests => 42;
 use Cpanel::JSON::XS ();
 use Config;
+
+my $have_blessed;
+BEGIN {
+  if (eval { require Scalar::Util }) {
+    Scalar::Util->import('blessed');
+    $have_blessed = 1;
+  }
+}
 
 my $booltrue  = q({"is_true":true});
 my $boolfalse = q({"is_false":false});
@@ -11,6 +19,7 @@ my $true  = Cpanel::JSON::XS::true;
 my $false = Cpanel::JSON::XS::false;
 
 my $nonref_cjson = Cpanel::JSON::XS->new->allow_nonref;
+my $unblessed_bool_cjson = Cpanel::JSON::XS->new->unblessed_bool;
 
 # from JSON::MaybeXS
 my $data = $cjson->decode('{"foo": true, "bar": false, "baz": 1}');
@@ -86,3 +95,27 @@ ok( Cpanel::JSON::XS::is_bool($js->[1]), "false is_bool");
 
 # GH #53
 ok( !Cpanel::JSON::XS::is_bool( [] ), "[] !is_bool");
+
+
+$js = $unblessed_bool_cjson->decode($booltrue);
+SKIP: {
+  skip "no Scalar::Util in $]", 1 unless $have_blessed;
+  ok(!blessed($js->{is_true}), "->unblessed_bool for JSON true does not return blessed object");
+}
+cmp_ok($js->{is_true}, "==", 1, "->unblessed_bool for JSON true returns correct Perl bool value");
+cmp_ok($js->{is_true}, "eq", "1", "->unblessed_bool for JSON true returns correct Perl bool value");
+
+$js = $unblessed_bool_cjson->decode($boolfalse);
+SKIP: {
+  skip "no Scalar::Util in $]", 1 unless $have_blessed;
+  ok(!blessed($js->{is_false}), "->unblessed_bool for JSON false does not return blessed object");
+}
+cmp_ok($js->{is_false}, "==", 0, "->unblessed_bool for JSON false returns correct Perl bool value");
+cmp_ok($js->{is_false}, "eq", "", "->unblessed_bool for JSON false returns correct Perl bool value");
+
+is($unblessed_bool_cjson->encode(do { my $struct = $unblessed_bool_cjson->decode($truefalse, my $types); ($struct, $types) }), $truefalse, "encode(decode(boolean)) is identity with ->unblessed_bool");
+is($cjson->encode(do { my $struct = $unblessed_bool_cjson->decode($truefalse, my $types); ($struct, $types) }), $truefalse, "booleans decoded by ->unblessed_bool(1) are encoded by ->unblessed_bool(0) in the same way");
+
+$js = $unblessed_bool_cjson->decode($truefalse);
+ok eval { $js->[0] = "new value 0" }, "decoded 'true' is modifiable" or diag($@);
+ok eval { $js->[1] = "new value 1" }, "decoded 'false' is modifiable" or diag($@);

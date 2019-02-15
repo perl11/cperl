@@ -149,9 +149,16 @@ under 10min.
 
 Added a C<is_CI()> test detection.
 
-=item L<Cpanel::JSON::XS> 4.07
+=item L<Cpanel::JSON::XS> 4.09
 
 Silence Gconvert -Wunused-result.
+
+Add unblessed_bool property (PR #118 by Pali)
+
+Add seperate allow_dupkeys property, in relaxed (#122),
+Fixed allow_dupkeys for the XS slow path,
+Silence 2 -Wunused-value warnings,
+Fix ->unblessed_bool to produce modifiable perl structures (PR #121 by Pali).
 
 =item L<ExtUtils::Embed> 1.36
 
