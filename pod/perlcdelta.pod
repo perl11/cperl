@@ -888,6 +888,13 @@ Added C<my_atof3()> to support parsing strings which are not necessarily
 NUL-terminated to an NV.
 C<grok_atoUV> supports that too now.
 
+=item *
+
+It is now forbidden to malloc more than C<PTRDIFF_T_MAX> bytes.  Much
+code (including C optimizers) assumes that all data structures will not
+be larger than this, so this catches such attempts before overflow
+happens.
+
 =back
 
 =head1 Selected Bug Fixes
