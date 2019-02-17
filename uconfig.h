@@ -424,12 +424,6 @@
  */
 /*#define HAS_SETLINEBUF		/ **/
 
-/* HAS_SETLOCALE:
- *	This symbol, if defined, indicates that the setlocale routine is
- *	available to handle locale-specific ctype implementations.
- */
-/*#define HAS_SETLOCALE	/ **/
-
 /* HAS_SETPGID:
  *	This symbol, if defined, indicates that the setpgid(pid, gpid)
  *	routine is available to set process group ID.
@@ -4268,6 +4262,17 @@
  */
 /*#define HAS_SETITIMER		/ **/
 
+/* HAS_SETLOCALE:
+ *	This symbol, if defined, indicates that the setlocale routine is
+ *	available to handle locale-specific ctype implementations.
+ */
+/* SETLOCALE_ACCEPTS_ANY_LOCALE_NAME:
+ *	This symbol, if defined, indicates that the setlocale routine is
+ *	available and it accepts any input locale name as valid.
+ */
+/*#define HAS_SETLOCALE	/ **/
+/*#define SETLOCALE_ACCEPTS_ANY_LOCALE_NAME	/ **/
+
 /* HAS_SETPROCTITLE:
  *	This symbol, if defined, indicates that the setproctitle routine is
  *	available to set process title.
@@ -4497,13 +4502,13 @@
 /*#define HAS_TIMEGM		/ **/
 
 /* HAS_TOWLOWER:
- *	This symbol, if defined, indicates that the towlower () routine is
+ *	This symbol, if defined, indicates that a native towlower() routine is
  *	available to do string concatenation.
  */
 /*#define HAS_TOWLOWER		/ **/
 
 /* HAS_TOWUPPER:
- *	This symbol, if defined, indicates that the towupper () routine is
+ *	This symbol, if defined, indicates that a native towupper() routine is
  *	available to do string concatenation.
  */
 /*#define HAS_TOWUPPER		/ **/
@@ -5469,6 +5474,6 @@
 #endif
 
 /* Generated from:
- * 6756e284bad85a63df03899986260b21dda02aa26735e2826068d236c035d030 config_h.SH
- * 685e4e3252a98bf80c97f14ea932eec355d474f13cc6831dff47dcd79b007fa0 uconfig.sh
+ * 5c9d3d01bf6555adaafad3b06bd8bab8def40101a8c1a6eb8f8a8c5c4f7a8b52 config_h.SH
+ * 667391663a59e4b5271836dfa7d39e839eee35c8459606f8616f51f57dd92255 uconfig.sh
  * ex: set ro: */
