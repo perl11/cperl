@@ -4833,6 +4833,11 @@
  */
 /*#define   I_WCHAR	/ **/
 
+/* I_WCTYPE:
+ *	This symbol, if defined, indicates that <wctype.h> exists.
+ */
+/*#define   I_WCTYPE	/ **/
+
 /* LDLIBPTHNAME:
  *	This symbol indicates the name of the shared library
 	search path. On a unix typically LD_LIBRARY_PATH, LIBPATH,
@@ -5452,6 +5457,6 @@
 #endif
 
 /* Generated from:
- * 370bb9e3d2dfc29584c5a531c64fc067950f9b2fae0a1df67c8126dc97fcabba config_h.SH
- * 57553c0793611a689276ebd0ea65d6f3be76d53ae4e24449dd5c75cb6d43fb50 uconfig.sh
+ * f67c723b86629bbd05842c83273db907d3b44348eb5efc66898c7fb226521a98 config_h.SH
+ * 29b0aa3293428735b0fd23a7bf483273c626201119451c3814008859311329a3 uconfig.sh
  * ex: set ro: */

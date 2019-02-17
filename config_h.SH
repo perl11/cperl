@@ -4878,6 +4878,11 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$i_wchar   I_WCHAR	/**/
 
+/* I_WCTYPE:
+ *	This symbol, if defined, indicates that <wctype.h> exists.
+ */
+#$i_wctype   I_WCTYPE	/**/
+
 /* LDLIBPTHNAME:
  *	This symbol indicates the name of the shared library
 	search path. On a unix typically LD_LIBRARY_PATH, LIBPATH,
