@@ -779,9 +779,6 @@ PERLVARI(I, padlist_generation, U32, 1)	/* id to identify padlist clones */
 #ifdef PERL_IMPLICIT_CONTEXT
 PERLVARI(I, my_cxt_list, void **, NULL) /* per-module array of MY_CXT pointers */
 PERLVARI(I, my_cxt_size, int,	0)	/* size of PL_my_cxt_list */
-#  ifdef PERL_GLOBAL_STRUCT_PRIVATE
-PERLVARI(I, my_cxt_keys, const char **, NULL) /* per-module array of pointers to MY_CXT_KEY constants */
-#  endif
 #endif
 
 #if defined(PERL_IMPLICIT_CONTEXT) || defined(PERL_DEBUG_READONLY_COW)
