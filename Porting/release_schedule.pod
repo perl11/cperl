@@ -50,14 +50,14 @@ you should reset the version numbers to the next blead series.
   2018-06-26  5.29.0 ✓        Sawyer X
   2018-07-20  5.29.1 ✓        Steve Hay
   2018-08-20  5.29.2 ✓        Chris BinGOs Williams
-  2018-09-20  5.29.3          John Anderson
-  2018-10-20  5.29.4          Aaron Crane
-  2018-11-20  5.29.5
-  2018-12-20  5.29.6          Abigail
-  2019-01-20  5.29.7          Abigail
-  2019-02-20  5.29.8
+  2018-09-20  5.29.3 ✓        John Anderson (genehack)
+  2018-10-20  5.29.4 ✓        Aaron Crane
+  2018-11-20  5.29.5 ✓        Karen Etheridge (ether)
+  2018-12-18  5.29.6 ✓        Abigail
+  2019-01-20  5.29.7 ✓        Abigail
+  2019-02-20  5.29.8          Nicolas R. (atoomic)
   2019-03-20  5.29.9          Zak B. Elep
-  2019-04-20  5.29.10
+  2019-04-20  5.29.10         Sawyer X
 
 (RC0 for 5.28.0 will be released once we think that all the blockers have been
 addressed.  This typically means some time in April or May.)
