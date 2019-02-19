@@ -296,7 +296,6 @@ unless ($define{'DEBUGGING'}) {
                     PL_sv_count
 		    PL_watchaddr
 		    PL_watchok
-		    PL_watch_pvx
 			 );
 }
 
