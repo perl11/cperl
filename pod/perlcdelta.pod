@@ -472,6 +472,13 @@ Don't translate F<...> to F<..\..> on Win32.
 (an old C<command.com> limitation)
 L<[perl #123724]|https://rt.perl.org/Public/Bug/Display.html?id=123724>
 
+=item L<PerlIO::encoding> 0.27_01
+
+Warnings enabled by setting the C<WARN_ON_ERR> flag in
+C<$PerlIO::encoding::fallback> are now only produced if warnings are
+enabled with C<use warnings "utf8";> or setting C<$^W>.
+L<[perl #131683]|https://rt.perl.org/Public/Bug/Display.html?id=131683>
+
 =item L<PerlIO::scalar> 0.30
 
 Allow Off_t smaller than size_t. (Win64 with USE_LARGE_FILES=undef)
