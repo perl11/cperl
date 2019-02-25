@@ -23125,6 +23125,27 @@ Perl_method_field_type(pTHX_ OP* o)
     return METHOD_FIELD_NONE;
 }
 
+/* Copy an existing cop->cop_warnings field.
+ * If it's one of the standard addresses, just re-use the address.
+ * This is the re-implementation for the DUP_WARNINGS() macro.
+ */
+
+STRLEN*
+Perl_dup_warnings(pTHX_ STRLEN* warnings)
+{
+    Size_t size;
+    STRLEN *new_warnings;
+
+    if (specialWARN(warnings))
+        return warnings;
+
+    size = sizeof(*warnings) + *warnings;
+
+    new_warnings = (STRLEN*)PerlMemShared_malloc(size);
+    Copy(warnings, new_warnings, size, char);
+    return new_warnings;
+}
+
 /*
  * ex: set ts=8 sts=4 sw=4 et:
  */
