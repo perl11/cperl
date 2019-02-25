@@ -3537,4 +3537,6 @@ Apd	|void	|prep_ffi_sig	|NN CV* cv|const unsigned int num_args \
 				|NN SV** argp|NN void **argvalues
 Apd	|void	|prep_ffi_ret	|NN CV* cv|NN SV** sp|NULLOK char *rvalue
 
+XEop	|STRLEN*|dup_warnings	|NULLOK STRLEN* warnings
+
 : ex: set ts=8 sts=4 sw=4 noet:
