@@ -18462,6 +18462,7 @@ our %delta :const = (
             'Net::Ping'             => '2.72',
             'ODBM_File'             => '1.16',
             'POSIX'                 => '1.87_03',
+            'PerlIO::encoding'      => '0.27_01',
             'PerlIO::scalar'        => '0.30',
             're'                    => '0.37_01',
             'SDBM_File'             => '1.15',
