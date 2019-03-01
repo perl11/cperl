@@ -1218,11 +1218,11 @@ pod/perlmodlib.pod: $(MINIPERL_EXE) pod/perlmodlib.PL MANIFEST
 
 pod/perl5263delta.pod: pod/perldelta.pod
 	$(RMS) $@
-	$(LNS) pod/perldelta.pod $@
+	$(LNS) perldelta.pod $@
 
 pod/perl5265cdelta.pod: pod/perlcdelta.pod
 	$(RMS) $@
-	$(LNS) pod/perlcdelta.pod $@
+	$(LNS) perlcdelta.pod $@
 
 extra.pods: $(MINIPERL_EXE)
 	-@test ! -f extra.pods || rm -f `cat extra.pods`

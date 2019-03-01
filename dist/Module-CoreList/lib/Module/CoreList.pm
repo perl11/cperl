@@ -4,7 +4,7 @@ use strict;
 our ( %version, %deprecated, %families );
 
 use version;
-our $VERSION = '5.20181017c';
+our $VERSION = '5.20190301c';
 $VERSION =~ s/c$//;
 
 sub PKG_PATTERN () { q#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z# }
@@ -359,6 +359,7 @@ our %released :const = (
     5.029002 => '2018-08-20',
     5.029003 => '2018-09-20',
     5.029004 => '2018-10-20',
+    '5.026005c' => '2019-03-??',
  );
 
 sub version_sort {
@@ -18275,6 +18276,14 @@ our %delta :const = (
         removed => {
         }
     },
+    '5.026005c' => {
+        delta_from => '5.026004c',
+        changed => {
+            'B::Op_private'         => '5.026005',
+            'Module::CoreList'      => '5.20190301c',
+            'Module::CoreList::Utils'=> '5.20190301c',
+        }
+  }
 );
 
 sub is_core

@@ -9,8 +9,8 @@ perl5264cdelta - what is new for cperl v5.26.4
 This document describes differences between the cperl 5.26.4 and the cperl
 5.26.3 release.
 
-If you are upgrading from an earlier release such as v5.26.1c, first read
-L<perl5262cdelta>, which describes differences between v5.26.1c and v5.26.2c.
+If you are upgrading from an earlier release such as v5.26.3c, first read
+L<perl5263cdelta>, which describes differences between v5.26.2c and v5.26.3c.
 
 =head1 Modules and Pragmata
 
