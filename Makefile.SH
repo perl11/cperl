@@ -599,7 +599,7 @@ perlmain_dep = $(perlmain_objs)
 esac
 
 $spitshell >>$Makefile <<'!NO!SUBS!'
-perltoc_pod_prereqs = extra.pods pod/perl5263delta.pod pod/perl5264cdelta.pod pod/perlapi.pod pod/perlintern.pod pod/perlmodlib.pod pod/perluniprops.pod
+perltoc_pod_prereqs = extra.pods pod/perl5263delta.pod pod/perl5265cdelta.pod pod/perlapi.pod pod/perlintern.pod pod/perlmodlib.pod pod/perluniprops.pod
 
 generated_pods = pod/perltoc.pod $(perltoc_pod_prereqs)
 generated_headers = uudmap.h bitcount.h mg_data.h
@@ -1218,11 +1218,11 @@ pod/perlmodlib.pod: $(MINIPERL_EXE) pod/perlmodlib.PL MANIFEST
 
 pod/perl5263delta.pod: pod/perldelta.pod
 	$(RMS) $@
-	$(LNS) perldelta.pod $@
+	$(LNS) pod/perldelta.pod $@
 
-pod/perl5264cdelta.pod: pod/perlcdelta.pod
+pod/perl5265cdelta.pod: pod/perlcdelta.pod
 	$(RMS) $@
-	$(LNS) perlcdelta.pod $@
+	$(LNS) pod/perlcdelta.pod $@
 
 extra.pods: $(MINIPERL_EXE)
 	-@test ! -f extra.pods || rm -f `cat extra.pods`
