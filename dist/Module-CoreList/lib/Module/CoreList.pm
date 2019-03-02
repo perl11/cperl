@@ -18338,6 +18338,7 @@ our %delta :const = (
             'B::Op_private'         => '5.026005',
             'Module::CoreList'      => '5.20190301c',
             'Module::CoreList::Utils'=> '5.20190301c',
+            'Storable'              => '3.12_03',
         }
   }
 );

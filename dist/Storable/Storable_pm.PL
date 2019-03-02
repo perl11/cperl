@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 package Storable;
-our $VERSION = '3.12_02';
+our $VERSION = '3.12_03';
 
 use Config;
 use File::Basename qw(dirname);
@@ -37,7 +37,7 @@ print OUT <<'!FIRSTPART';
 #  Copyright (c) 1995-2001, Raphael Manfredi
 #  Copyright (c) 2002-2014 by the Perl 5 Porters
 #  Copyright (c) 2015-2016 cPanel Inc
-#  Copyright (c) 2017-2018 Reini Urban
+#  Copyright (c) 2017-2019 Reini Urban
 #
 #  You may redistribute only under the same terms as Perl 5, as specified
 #  in the README file that comes with the distribution.
@@ -1253,8 +1253,8 @@ See CVE-2015-1592 and its metasploit module.
 If your application requires accepting data from untrusted sources,
 you are best off with a less powerful and more-likely safe
 serialization format and implementation. If your data is sufficiently
-simple, Cpanel::JSON::XS, Data::MessagePack or Serial are the best
-choices and offers maximum interoperability, but note that Serial is
+simple, L<Cpanel::JSON::XS>, L<Data::MessagePack> or L<Serial> are the best
+choices and offers maximum interoperability, but note that L<Serial> is
 unsafe by default.
 
 =head1 WARNING
@@ -1273,7 +1273,7 @@ part of the stringified references, will probably differ from the
 original addresses. The topology of your structure is preserved,
 but not hidden semantics like those.
 
-On platforms where it matters, be sure to call C<binmode()> on the
+On platforms where it matters, be sure to call C<binmode> on the
 descriptors that you pass to Storable functions.
 
 Storing data canonically that contains large hashes can be
@@ -1435,6 +1435,7 @@ Thank you to (in chronological order):
 	Reini Urban <rurban@cpan.org>
 	Todd Rinaldo <toddr@cpanel.net>
 	Aaron Crane <arc@cpan.org>
+        Tony Cook <tony@develop-help.com>
 
 for their bug reports, suggestions and contributions.
 
@@ -1449,7 +1450,7 @@ Murray Nesbitt made Storable thread-safe.  Marc Lehmann added overloading
 and references to tied items support.  Benjamin Holzman added a performance
 improvement for overloaded classes; thanks to Grant Street Group for footing
 the bill.
-Reini Urban took over maintainance from p5p, and added security fixes
+Reini Urban took over maintenance from p5p, and added security fixes
 and huge object support.
 
 =head1 AUTHOR
@@ -1465,6 +1466,22 @@ Storable, and your message will be delayed while he forwards it to us.
 =head1 SEE ALSO
 
 L<Clone>.
+
+=head1 LICENSE
+
+    Copyright (c) 1995-2000 Raphael Manfredi
+    Copyright (c) 2001-2004 Larry Wall
+    Copyright (c) 2015-2017 cPanel Inc
+    Copyright (c) 2017-2019 Reini Urban
+    Copyright (c) 2017-2018 by the Perl 5 Porters
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl 5 itself.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+LICENSE for more details.
 
 =cut
 

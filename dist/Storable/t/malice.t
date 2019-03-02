@@ -37,7 +37,7 @@ $major = 2;
 $minor = 11;
 $minor_write = $] >= 5.019 ? 11 : $] > 5.008 ? 9 : $] > 5.005_50 ? 8 : 4;
 
-use Test::More;
+use Test::More 0.50;
 
 # If it's 5.7.3 or later the hash will be stored with flags, which is
 # 2 extra bytes. There are 2 * 2 * 2 tests per byte in the body and header
@@ -47,7 +47,7 @@ use Test::More;
 # present in files, but not in things store()ed to memory
 $fancy = ($] > 5.007 ? 2 : 0);
 
-plan tests => 372 + length ($byteorder) * 4 + $fancy * 8;
+plan tests => 377 + length ($byteorder) * 4 + $fancy * 8;
 
 use Storable qw (store retrieve freeze thaw nstore nfreeze);
 require 'testlib.pl';
@@ -310,3 +310,74 @@ my $hash = store_and_retrieve("pst0\5\6\3\0\0\0\1\1\0\0\0\0\0\0\0\5empty");
 ok(!$@, "no exception");
 is(ref($hash), "HASH", "got a hash");
 is($hash->{empty}, "", "got empty element");
+
+# Protect against PST changing Storable recursion limits [cperl #393]
+# via hooks or class, and overwriting other globals or functions.
+
+package Bypass_Limit_freeze;
+
+sub STORABLE_freeze {
+  #my $self = shift;
+  $Storable::recursion_limit *= 2;
+}
+
+package Bypass_Limit_thaw;
+
+sub STORABLE_freeze { shift }
+
+sub STORABLE_thaw {
+  #my $self = shift;
+  #my $cloning = shift;
+  $Storable::recursion_limit *= 2;
+}
+
+package main;
+
+eval { freeze (bless [], 'Storable') };
+like ($@, qr/^Illegal store to class Storable/,
+      'Catch illegal store to class Storable');
+
+my $f = freeze (bless [], 'Storablf');
+$f =~ s/Storablf/Storable/;
+eval { thaw ($f) };
+like ($@, qr/^Illegal retrieve from class Storable/,
+  'Catch illegal retrieve from class Storable');
+
+my $old_limit = $Storable::recursion_limit;
+note "recursion_limit = $Storable::recursion_limit";
+$Storable::recursion_limit *= 2;
+eval { freeze (bless []) };
+like ($@, qr/^Illegal \$Storable::recursion_limit/,
+      'Catch illegal recursion_limit at init');
+note "recursion_limit = $Storable::recursion_limit";
+$Storable::recursion_limit = $old_limit;
+
+#$Storable::DEBUGME = 7;
+eval { freeze (bless [], 'Bypass_Limit_freeze') };
+like ($@, qr/^hook illegally changed \$Storable::recursion_limit/,
+      'Catch freeze hook illegally changed recursion_limit');
+note "recursion_limit = $Storable::recursion_limit";
+$Storable::recursion_limit = $old_limit;
+#$Storable::DEBUGME = 0;
+
+$f = freeze (bless [], 'Bypass_Limit_thaw');
+#$Storable::DEBUGME = 7;
+eval { thaw ($f) };
+like ($@, qr/^hook illegally changed \$Storable::recursion_limit/,
+      'Catch thaw hook illegally changed recursion_limit');
+note "recursion_limit = $Storable::recursion_limit";
+#$Storable::DEBUGME = 0;
+
+# This is not evaluated on thaw, just when the sub is recreated.
+# The sub code must change the global via side-effects on
+# compilation, which is doable, just not so easy. That's why I
+# refrain here to show how to do it.
+#sub mangle_limit { $Storable::recursion_limit *= 2; }
+#$Storable::Deparse++;
+#$Storable::Eval++;
+#$f = freeze (\&mangle_limit);
+#$Storable::DEBUGME = 7;
+#eval { thaw ($f) };
+#like ($@, qr/^hook illegally changed \$Storable::recursion_limit/,
+#      'Catch thawed code illegally changed recursion_limit');
+#note "recursion_limit = $Storable::recursion_limit";
