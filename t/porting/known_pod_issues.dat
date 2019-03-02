@@ -394,6 +394,7 @@ dist/pod-simple/lib/pod/simple/textcontent.pm	Apparent broken link	1
 dist/pod-simple/lib/pod/simple/xhtml.pm	Apparent broken link	5
 dist/pod-simple/lib/pod/simple/xhtml.pm	Verbatim line length including indents exceeds 79 by	3
 dist/pod-simple/lib/pod/simple/xmloutstream.pm	Apparent broken link	3
+dist/storable/storable.pm	Apparent broken link	3
 dist/storable/storable.pm	Verbatim line length including indents exceeds 79 by	4
 dist/test-simple/lib/ok.pm	Apparent broken link	1
 dist/test-simple/lib/ok.pm	Non-ASCII character seen before =encoding. Assuming UTF-8	1
@@ -453,7 +454,7 @@ pod/perl5280cdelta.pod	Apparent broken link	8
 pod/perl5280cdelta.pod	Apparent internal link is missing its forward slash	4
 pod/perl5280cdelta.pod	Verbatim line length including indents exceeds 79 by	4
 pod/perl5280cdelta.pod	alternative text. contains non-escaped | or /	1
-pod/perl5282cdelta.pod	=item has no contents	2
+pod/perl5282cdelta.pod	=item has no contents	1
 pod/perl5282cdelta.pod	Apparent broken link	1
 pod/perl5290cdelta.pod	Apparent broken link	27
 pod/perl5290cdelta.pod	Apparent internal link is missing its forward slash	1

@@ -5,8 +5,7 @@ use Test::More;
 
 my $version = int(($]-5)*1000);
 
-$version >= 8
-  or plan skip_all => "regexps not supported before 5.8";
+$version >= 8 or plan skip_all => "regexps not supported before 5.8";
 
 my @tests;
 while (<DATA>) {
@@ -42,21 +41,21 @@ plan tests => 9 + 3*scalar(@tests);
 SKIP:
 {
     $version >= 14 && $version < 20
-      or skip "p introduced in 5.14, pointless from 5.20", 4;
+      or skip "qr//p introduced in 5.14, pointless from 5.20", 4;
     my $q1 = eval "qr/b/p";
     my $q2 = eval "qr/b/";
     my $c1 = dclone($q1);
     my $c2 = dclone($q2);
     ok("abc" =~ $c1, "abc matches $c1");
-    is(${^PREMATCH}, "a", "check p worked");
+    is(${^PREMATCH}, "a", "check qr//p worked");
     ok("cba" =~ $c2, "cba matches $c2");
-    isnt(${^PREMATCH}, "c", "check no p worked");
+    isnt(${^PREMATCH}, "c", "check no qr//p worked");
 }
 
 SKIP:
 {
     $version >= 24
-      or skip "n introduced in 5.22", 4;
+      or skip "qr//n introduced in 5.22", 4;
     my $c1 = dclone(eval "qr/(\\w)/");
     my $c2 = dclone(eval "qr/(\\w)/n");
     ok("a" =~ $c1, "a matches $c1");

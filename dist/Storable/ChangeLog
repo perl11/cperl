@@ -1,3 +1,30 @@
+2019-03-01 rurban
+    Version 3.12_03
+        * SECURITY: fix p5p-introduced user stacklimits. Must not be higher
+        than the probed hard limits, when overridden by user code or data,
+        via hooks or even pst data. [cperl #393]
+        add t/malice.t
+        Don't use any p5p provided Storable <= 3.12. They are all insecure and
+        refuse to accept bugreports and fixes.
+        install it with `cpan RURBAN/Storable-3.12_03.tar.gz`
+        * Add hard_stack_depth() and hard_stack_depth_hash() functions,
+        returning the hard limits.
+        * Add some author tests as t/z_*.t, add LICENSE and MANIFEST.SKIP
+
+2018-10-17 rurban
+    Version 3.12_02
+        * SECURITY: Enable >2GB AvFILL check on store_hook (64bit).
+        Too many references returned by STORABLE_freeze.
+        It wrapped around previously. Fixes Coverity CID #187854.
+        This is a security issue on 64bit cperl and perl5, as both allow
+        SSize_t arrays.
+        * Move __Storable__.pm into Storable_pm.PL [cperl #374]
+
+2018-09-05 rurban
+    Version 3.11_01
+        * re-add various minor cperl fixes: protect empty hvname,
+        fixup pod, t/recurse.t
+
 2018-04-27 20:40:00 xsawyerx
     version 3.11
         * Fix Strawberry Perl build failures.

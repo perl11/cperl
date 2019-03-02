@@ -1,6 +1,6 @@
 #
 #  Copyright (c) 1995-2000, Raphael Manfredi
-#  Copyright (c) 2017-2018, Reini Urban
+#  Copyright (c) 2017-2019, Reini Urban
 #  
 #  You may redistribute only under the same terms as Perl 5, as specified
 #  in the README file that comes with the distribution.
@@ -13,6 +13,8 @@ use Config;
 use File::Copy qw(move copy);
 use File::Spec;
 
+my ($fn, $in) = ("stacksize.h", "stacksize_in.h");
+copy $in, $fn;
 unlink "lib/Storable/Limit.pm";
 
 my $limit_pm = File::Spec->catfile('lib', 'Storable', 'Limit.pm');
@@ -25,29 +27,45 @@ unless ($ENV{PERL_CORE}) {
 
 WriteMakefile(
     NAME            => 'Storable',
-    AUTHOR          => 'Perl 5 Porters',
+    AUTHOR          => 'Reini Urban',
     LICENSE         => 'perl',
     DISTNAME        => "Storable",
     PL_FILES        => { }, # prevent default behaviour
     PM              => $pm,
-    PREREQ_PM       => { XSLoader => 0 },
+    PREREQ_PM       => { XSLoader => 0, perl => '5.004' },
     INSTALLDIRS     => ($] >= 5.007 && $] < 5.012) ? 'perl' : 'site',
     VERSION_FROM    => 'Storable_pm.PL',
     ABSTRACT_FROM   => 'Storable_pm.PL',
     ($ExtUtils::MakeMaker::VERSION > 6.45 ?
      (META_MERGE    => { resources =>
-                          { bugtracker => 'http://rt.perl.org/perlbug/' },
-                            provides    => {
-                                'Storable'  => {
-                                    file        => '__Storable__.pm',
-                                    version     => MM->parse_version('__Storable__.pm'),
-                                },
-                            },
-
+                         { bugtracker => 'http://rt.perl.org/perlbug/',
+                           repository => 'https://github.com/rurban/Storable/',
+                         },
+                         provides => {
+                           'Storable'  => {
+                             file        => 'Storable_pm.PL',
+                             version     => MM->parse_version('Storable_pm.PL'),
                            },
-    ) : ()),
+                         },
+                         recommends => {
+                           'Test::Kwalitee'      => '1.00',
+                           'Test::CheckManifest' => '1.42',
+                           'Test::CPAN::Meta'    => 0,
+                           'Pod::Spell::CommonMistakes' => 0,
+                           'Test::Spelling'      => 0,
+                           'Test::Pod'           => 0,
+                           'Devel::Refcount'     => 0,
+                         }
+      },
+     ) : ()),
+    ($ExtUtils::MakeMaker::VERSION >= 6.64 ?
+     (TEST_REQUIRES => {
+        'Test::More'          => '0.82', # for t/malice.t using note()
+      }
+     ) : ()),
     dist            => { SUFFIX => 'gz', COMPRESS => 'gzip -f' },
-    clean           => { FILES => 'Storable-* Storable.pm lib' },
+    clean           => { FILES => 'Storable-* Storable.pm stacksize.h lib' },
+    SIGN            => 1,
 );
 
 # Unlink the .pm file included with the distribution
@@ -77,37 +95,41 @@ EOM
 package MY;
 use Config;
 
-# FORCE finish of INST_DYNAMIC, avoid loading the old Storable (failed XS_VERSION check)
-sub xlinkext {
-    my $s = shift->SUPER::linkext(@_);
-    $s =~ s|( :: .*)| $1 FORCE stacksize|;
-    $s
-}
-
 sub depend {
     my $extra_deps = "";
     my $options = "";
-    if ($ENV{PERL_CORE}) {
-        $options = "--core";
-    }
-    else {
-        # blib.pm needs arch/lib
-        $extra_deps = ' Storable.pm';
-    }
+    my $mkblib = '';
     my $linktype = uc($_[0]->{LINKTYPE});
+    my $s;
     # EUMM bug for core builds, missing ldlibpthname
-    my $s = "LDFULLPERLRUNINST = \$(FULLPERLRUNINST)\n";
-    if ($ENV{PERL_CORE} && $Config{useshrplib}) {
+    if ($ENV{PERL_CORE}) {
+      $options = "--core";
+      # $extra_deps = ' $(PERLEXE)' if $^O eq 'MSWin32';
       my $ldlibpthname = $Config{ldlibpthname};
-      if ($ldlibpthname && $ENV{$ldlibpthname}) {
-        $s = "LDFULLPERLRUNINST = $ldlibpthname=$ENV{$ldlibpthname}" .
-          " \$(FULLPERLRUNINST)\n";
+      if ($Config{useshrplib} && $ldlibpthname && $ENV{$ldlibpthname}) {
+          $s = "LDPERLRUNINST = $ldlibpthname=$ENV{$ldlibpthname}" .
+            " \$(FULLPERLRUNINST)\n";
+      } else {
+        $s = "LDPERLRUNINST = \$(FULLPERLRUNINST)\n";
       }
+    } else {
+      # blib.pm needs arch/lib
+      $extra_deps = ' Storable.pm';
+      $s = "LDPERLRUNINST = \$(FULLPERLRUNINST)\n";
+      $mkblib = "-\$(MKPATH) \$(INST_ARCHLIB)\n\t" .
+        "-\$(CHMOD) \$(PERM_RW) \$(INST_ARCHLIB)/Storable.pm\n\t" .
+        "\$(CP) Storable.pm \$(INST_ARCHLIB)/Storable.pm\n\t";
     }
     $s . "
-$limit_pm : stacksize \$(INST_$linktype)$extra_deps
-	\$(MKPATH) \$(INST_LIB)
-	\$(LDFULLPERLRUNINST) stacksize $options
+stacksize: Makefile \$(INST_$linktype)$extra_deps
+	$mkblib\$(LDPERLRUNINST) stacksize $options
+
+Storable\$(OBJ_EXT) Storable.c: stacksize.h
+
+stacksize.h: stacksize_in.h
+	\$(CP) stacksize_in.h stacksize.h
+
+$limit_pm : stacksize
 
 release : dist
 	git tag \$(VERSION)
@@ -136,5 +158,6 @@ all :: Storable.pm
 
 Storable.pm :: Storable_pm.PL
 	$(PERLRUN) Storable_pm.PL
+
 '
 }

@@ -60,6 +60,12 @@ Fixed allow_dupkeys for the XS slow path,
 Silence 2 -Wunused-value warnings,
 Fix ->unblessed_bool to produce modifiable perl structures (PR #121 by Pali).
 
+=item L<Storable> 1.12_03
+
+Fix stacklimit security issues introduced in the p5p release [cperl #393].
+User limits must not be higher than the probed hard limits, when
+overridden by user code or data, via hooks or even pst data.
+
 =back
 
 =head1 Configuration and Compilation
