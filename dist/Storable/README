@@ -1,9 +1,8 @@
-                         Storable 3.11_01
-               Copyright (c) 1995-2000, Raphael Manfredi
-               Copyright (c) 2001-2004, Larry Wall
-               Copyright (c) 2016,2017 cPanel Inc
-               Copyright (c) 2015-2016 cPanel Inc
-               Copyright (c) 2017-2018 Reini Urban
+                         Storable 3.12_03
+               Copyright (c) 1995-2000 Raphael Manfredi
+               Copyright (c) 2001-2004 Larry Wall
+               Copyright (c) 2015-2017 cPanel Inc
+               Copyright (c) 2017-2019 Reini Urban
                Copyright (c) 2017-2018 by the Perl 5 Porters
 
 ------------------------------------------------------------------------
@@ -21,6 +20,12 @@
 | Perl core distribution, as of perl 5.8. 
 | Maintenance is partially done by the perl5-porters, and for cperl by cPanel.
 | We thank Raphael Manfredi for providing us with this very useful module.
++=======================================================================
+
++=======================================================================
+| Don't use any p5p provided Storable <= 3.12. They are all insecure and
+| the upstream maintainers p5p refuse to accept bugreports and fixes.
+| Install it with `cpan RURBAN/Storable-3.12_03.tar.gz`
 +=======================================================================
 
 The Storable extension brings persistence to your data.
@@ -74,7 +79,7 @@ Thanks to (in chronological order):
     Albert N. Micheev <Albert.N.Micheev@f80.n5049.z2.fidonet.org>
     Marc Lehmann <pcg@opengroup.org>
     Justin Banks <justinb@wamnet.com>
-    Jarkko Hietaniemi <jhi@iki.fi> (AGAIN, as perl 5.7.0 Pumpkin!)
+    Jarkko Hietaniemi <jhi@iki.fi> (AGAIN, as perl 5.7.0 Pumpkin)
     Todd Rinaldo <toddr@cpanel.net> and JD Lightsey <jd@cpanel.net>
       for optional disabling tie and bless for increased security.
     Reini Urban <rurban@cpanel.net> for the 3.0x >2G support and rewrite

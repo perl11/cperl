@@ -99,6 +99,12 @@ remove wrong -O hack.
 Added C<-flto> support for static libs (need the lto plugin) and D for
 deterministic builds, using arflags for AR_STATIC_ARGS, not just 'cr'.
 
+=item L<Storable> 1.12_03
+
+Fix stacklimit security issues introduced in the p5p release [cperl #393].
+User limits must not be higher than the probed hard limits, when
+overridden by user code or data, via hooks or even pst data.
+
 =item L<Win32> 0.52_02
 
 Fix various -Wunused warnings, added () usage croaks.

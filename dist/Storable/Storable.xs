@@ -2,9 +2,9 @@
  *
  *  Fast store and retrieve mechanism.
  *
- *  Copyright (c) 1995-2000, Raphael Manfredi
- *  Copyright (c) 2016, 2017 cPanel Inc
- *  Copyright (c) 2017, 2018 Reini Urban
+ *  Copyright (c) 1995-2000 Raphael Manfredi
+ *  Copyright (c) 2016,2017 cPanel Inc
+ *  Copyright (c) 2017-2019 Reini Urban
  *
  *  You may redistribute only under the same terms as Perl 5, as specified
  *  in the README file that comes with the distribution.
@@ -15,6 +15,8 @@
 #include <EXTERN.h>
 #include <perl.h>
 #include <XSUB.h>
+
+#include "stacksize.h"
 
 #ifndef PATCHLEVEL
 #include <patchlevel.h>		/* Perl's one, needed since 5.6 */
@@ -103,6 +105,23 @@
 #ifndef strEQc
 #  define strEQc(s,c) memEQ(s, ("" c ""), sizeof(c))
 #endif
+
+#ifndef get_svs
+#  define get_svs(str, flags) Perl_get_sv(aTHX_ (str), (flags))
+#endif
+
+/* 5.6 backcompat */
+#ifndef LIKELY
+#  define LIKELY(x) (x)
+#  define UNLIKELY(x) (x)
+#endif
+#ifndef GV_NOADD_NOINIT
+#  define GV_NOADD_NOINIT GV_NOINIT
+#endif
+#ifndef GV_NOEXPAND
+#  define GV_NOEXPAND 0
+#endif
+
 
 #ifdef DEBUGME
 
@@ -422,8 +441,8 @@ typedef struct stcxt {
     int in_retrieve_overloaded; /* performance hack for retrieving overloaded objects */
     int flags;			/* controls whether to bless or tie objects */
     IV recur_depth;        	/* avoid stack overflows RT #97526 */
-    IV max_recur_depth;        /* limit for recur_depth */
-    IV max_recur_depth_hash;   /* limit for recur_depth for hashes */
+    IV max_recur_depth;         /* limit for recur_depth */
+    IV max_recur_depth_hash;    /* limit for recur_depth for hashes */
 #ifdef DEBUGME
     int traceme;                /* TRACEME() produces output */
 #endif
@@ -1303,9 +1322,13 @@ static U32 Sntohl(U32 x) {
 #define BLESS(s,stash)							\
     STMT_START {							\
         SV *ref;                                                        \
+        char *classname;                                                \
         if (cxt->flags & FLAG_BLESS_OK) {                               \
+            classname = HvNAME_get(stash);                              \
             TRACEME(("blessing 0x%" UVxf " in %s", PTR2UV(s),           \
-                     HvNAME_get(stash)));                               \
+                     classname));                                       \
+            if (strEQc(classname, "Storable"))                          \
+                CROAK(("Illegal bless to class Storable\n"));           \
             ref = newRV_noinc(s);                                       \
             if (cxt->in_retrieve_overloaded && Gv_AMG(stash)) {         \
                 cxt->in_retrieve_overloaded = 0;                        \
@@ -1527,6 +1550,44 @@ static const sv_retrieve_t sv_retrieve[] = {
 
 static SV *mbuf2sv(pTHX);
 
+/* check initial static $Storable::recursion_limit* settings,
+   from e.g. reading Storable::Limit */
+static void check_limit_init(pTHX_ stcxt_t *cxt)
+{
+#ifdef MAX_RECUR_DEPTH
+    if (UNLIKELY(cxt->max_recur_depth > MAX_RECUR_DEPTH)) {
+        IV val = cxt->max_recur_depth;
+        cxt->max_recur_depth = (int) (0.6 * MAX_RECUR_DEPTH);
+        CROAK(("Illegal $Storable::recursion_limit %" IVdf " > %d",
+               val, MAX_RECUR_DEPTH));
+    }
+    if (UNLIKELY(cxt->max_recur_depth_hash > MAX_RECUR_DEPTH_HASH)) {
+        IV val = cxt->max_recur_depth_hash;
+        cxt->max_recur_depth_hash = (int) (0.6 * MAX_RECUR_DEPTH_HASH);
+        CROAK(("Illegal $Storable::recursion_limit_hash %" IVdf " > %d",
+               val, MAX_RECUR_DEPTH_HASH));
+    }
+#endif
+}
+
+/* check dynamic $Storable::recursion_limit* changes, from e.g. hooks */
+static void check_limit_changes(pTHX_ stcxt_t *cxt)
+{
+#ifdef MAX_RECUR_DEPTH
+    SV *gv = get_svs("Storable::recursion_limit", GV_NOADD_NOINIT|GV_NOEXPAND);
+    if (gv && UNLIKELY(SvIV(gv) > MAX_RECUR_DEPTH)) {
+        SvIVX(gv) = (int) (0.6 * MAX_RECUR_DEPTH);
+        CROAK(("hook illegally changed $Storable::recursion_limit\n"));
+    }
+    gv = get_svs("Storable::recursion_limit_hash", GV_NOADD_NOINIT|GV_NOEXPAND);
+    if (gv && UNLIKELY(SvIV(gv) > MAX_RECUR_DEPTH_HASH)) {
+        SvIVX(gv) = (int) (0.6 * MAX_RECUR_DEPTH_HASH);
+        CROAK(("hook illegally changed $Storable::recursion_limit_hash\n"));
+    }
+#endif
+}
+
+
 /***
  *** Context management.
  ***/
@@ -1662,8 +1723,9 @@ static void init_store_context(pTHX_
 
     cxt->hook_seen = newAV(); /* Lists SVs returned by STORABLE_freeze */
 
-    cxt->max_recur_depth = SvIV(get_sv("Storable::recursion_limit", GV_ADD));
-    cxt->max_recur_depth_hash = SvIV(get_sv("Storable::recursion_limit_hash", GV_ADD));
+    cxt->max_recur_depth = SvIV(get_svs("Storable::recursion_limit", GV_ADD));
+    cxt->max_recur_depth_hash = SvIV(get_svs("Storable::recursion_limit_hash", GV_ADD));
+    check_limit_init(aTHX_ cxt);
 }
 
 /*
@@ -1809,8 +1871,9 @@ static void init_retrieve_context(pTHX_
     cxt->accept_future_minor = -1;/* Fetched from perl if needed */
     cxt->in_retrieve_overloaded = 0;
 
-    cxt->max_recur_depth = SvIV(get_sv("Storable::recursion_limit", GV_ADD));
-    cxt->max_recur_depth_hash = SvIV(get_sv("Storable::recursion_limit_hash", GV_ADD));
+    cxt->max_recur_depth = SvIV(get_svs("Storable::recursion_limit", GV_ADD));
+    cxt->max_recur_depth_hash = SvIV(get_svs("Storable::recursion_limit_hash", GV_ADD));
+    check_limit_init(aTHX_ cxt);
 }
 
 /*
@@ -2128,9 +2191,7 @@ static SV *scalar_call(pTHX_
     dSP;
     int count;
     SV *sv = 0;
-#ifdef DEBUGME
     dSTCXT;
-#endif
 
     TRACEME(("scalar_call (cloning=%d)", cloning));
 
@@ -2158,6 +2219,7 @@ static SV *scalar_call(pTHX_
     TRACEME(("count = %d", count));
 
     SPAGAIN;
+    check_limit_changes(aTHX_ cxt);
 
     if (count) {
         sv = POPs;
@@ -2186,9 +2248,7 @@ static AV *array_call(pTHX_
     int count;
     AV *av;
     int i;
-#ifdef DEBUGME
     dSTCXT;
-#endif
 
     TRACEME(("array_call (cloning=%d)", cloning));
 
@@ -2203,6 +2263,7 @@ static AV *array_call(pTHX_
     count = call_sv(hook, G_ARRAY);	/* Go back to Perl code */
 
     SPAGAIN;
+    check_limit_changes(aTHX_ cxt);
 
     av = newAV();
     for (i = count - 1; i >= 0; i--) {
@@ -3622,8 +3683,7 @@ static int store_tied_item(pTHX_ stcxt_t *cxt, SV *sv)
  * serialization stream, the underlying magic object is serialized, just like
  * any other tied variable.
  */
-static int store_hook(
-                      pTHX_
+static int store_hook(pTHX_
                       stcxt_t *cxt,
                       SV *sv,
                       int type,
@@ -3706,6 +3766,8 @@ static int store_hook(
     classname = HvNAME_get(pkg);
     if (!classname)
         return 0;
+    if (strEQc(classname, "Storable"))
+        CROAK(("Illegal store to class Storable\n"));
     len = strlen(classname);
 
     /*
@@ -3747,7 +3809,6 @@ static int store_hook(
         /*
          * They must not change their mind in the middle of a serialization.
          */
-
         if (hv_fetch(cxt->hclass, classname, len, FALSE))
             CROAK(("Too late to ignore hooks for %s class \"%s\"",
                    (cxt->optype & ST_CLONE) ? "cloning" : "storing",
@@ -4144,6 +4205,8 @@ static int store_blessed(
     classname = HvNAME_get(pkg);
     if (!classname)
         return 0;
+    if (strEQc(classname, "Storable"))
+        CROAK(("Illegal store to class Storable\n"));
     len = strlen(classname);
 
     TRACEME(("blessed 0x%" UVxf " in %s, no hook: tagged #%d",
@@ -4770,14 +4833,12 @@ static SV *retrieve_idx_blessed(pTHX_ stcxt_t *cxt, const char *cname)
     /*
      * Fetch classname in 'aclass'
      */
-
     sva = av_fetch(cxt->aclass, idx, FALSE);
     if (!sva)
         CROAK(("Class name #%" IVdf " should have been seen already",
                (IV) idx));
 
     classname = SvPVX(*sva);	/* We know it's a PV, by construction */
-
     TRACEME(("class ID %d => %s", (int)idx, classname));
 
     /*
@@ -5004,7 +5065,6 @@ static SV *retrieve_hook_common(pTHX_ stcxt_t *cxt, const char *cname, int large
 
         classname = SvPVX(*sva);	/* We know it's a PV, by construction */
         TRACEME(("class ID %d => %s", (int)idx, classname));
-
     } else {
         /*
          * Decode class name length and read that name.
@@ -5078,13 +5138,11 @@ static SV *retrieve_hook_common(pTHX_ stcxt_t *cxt, const char *cname, int large
     (void) SvPOK_only(frozen);		/* Validates string pointer */
     if (cxt->s_tainted)			/* Is input source tainted? */
         SvTAINT(frozen);
-
     TRACEME(("frozen string: %d bytes", (int)len2));
 
     /*
      * Decode object-ID list length, if present.
      */
-
     if (flags & SHF_HAS_LIST) {
         if (flags & SHF_LARGE_LISTLEN) {
             RLEN(len3);
@@ -5218,7 +5276,6 @@ static SV *retrieve_hook_common(pTHX_ stcxt_t *cxt, const char *cname, int large
     /*
      * Bless the object and look up the STORABLE_thaw hook.
      */
-
     BLESS(sv, stash);
 
     hook = pkg_can(aTHX_ cxt->hook, stash, "STORABLE_thaw");
@@ -6764,6 +6821,7 @@ static SV *retrieve_code(pTHX_ stcxt_t *cxt, const char *cname)
         CROAK(("code %s did not evaluate to a subroutine reference\n",
                SvPV_nolen(sub)));
     }
+    check_limit_changes(aTHX_ cxt);
 
     SvREFCNT_inc(sv); /* XXX seems to be necessary */
     SvREFCNT_dec(sub);
@@ -7276,7 +7334,6 @@ static SV *retrieve(pTHX_ stcxt_t *cxt, const char *cname)
      */
 
     GETMARK(type);
-
     TRACEME(("retrieve type = %d", type));
 
     /*
@@ -7326,6 +7383,8 @@ static SV *retrieve(pTHX_ stcxt_t *cxt, const char *cname)
     /*
      * Okay, first time through for this one.
      */
+    if (cname && strEQc(cname, "Storable"))
+        CROAK(("Illegal retrieve from class Storable\n"));
 
     sv = RETRIEVE(cxt, type)(aTHX_ cxt, cname);
     if (!sv)
@@ -7379,8 +7438,7 @@ static SV *retrieve(pTHX_ stcxt_t *cxt, const char *cname)
  * Retrieve data held in file and return the root object.
  * Common routine for pretrieve and mretrieve.
  */
-static SV *do_retrieve(
-                       pTHX_
+static SV *do_retrieve(pTHX_
                        PerlIO *f,
                        SV *in,
                        int optype,
@@ -7687,7 +7745,7 @@ static SV *dclone(pTHX_ SV *sv)
      */
 
     if (!do_store(aTHX_ (PerlIO*) 0, sv, ST_CLONE, FALSE, (SV**) 0))
-        return &PL_sv_undef;				/* Error during store */
+        return &PL_sv_undef;			/* Error during store */
 
     /*
      * Because of the above optimization, we have to refresh the context,
@@ -7695,7 +7753,7 @@ static SV *dclone(pTHX_ SV *sv)
      */
 
     { dSTCXT; real_context = cxt; }		/* Sub-block needed for macro */
-    cxt = real_context;					/* And we need this temporary... */
+    cxt = real_context;				/* And we need this temporary... */
 
     /*
      * Now, 'cxt' may refer to a new context.
@@ -7875,15 +7933,37 @@ CODE:
 
 
 IV
+hard_stack_depth()
+CODE:
+#ifdef MAX_RECUR_DEPTH
+    RETVAL = MAX_RECUR_DEPTH;
+#else
+    RETVAL = -1;
+#endif
+OUTPUT:
+    RETVAL
+
+IV
+hard_stack_depth_hash()
+CODE:
+#ifdef MAX_RECUR_DEPTH_HASH
+    RETVAL = MAX_RECUR_DEPTH_HASH;
+#else
+    RETVAL = -1;
+#endif
+OUTPUT:
+    RETVAL
+
+IV
 stack_depth()
 CODE:
-    RETVAL = SvIV(get_sv("Storable::recursion_limit", GV_ADD));
+    RETVAL = SvIV(get_svs("Storable::recursion_limit", GV_ADD));
 OUTPUT:
     RETVAL
 
 IV
 stack_depth_hash()
 CODE:
-    RETVAL = SvIV(get_sv("Storable::recursion_limit_hash", GV_ADD));
+    RETVAL = SvIV(get_svs("Storable::recursion_limit_hash", GV_ADD));
 OUTPUT:
     RETVAL

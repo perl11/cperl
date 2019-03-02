@@ -77,10 +77,22 @@ if ($^O eq "MSWin32") {
     my ($str, $major, $minor) = Win32::GetOSVersion();
     if ($major < 6 || $major == 6 && $minor < 1) {
 	print "Using defaults for older Win32\n";
-	write_limits(500, 256);
+	write_limits(500, 250);
 	exit;
     }
 }
+# see if we already have proper limits
+if (-f 'stacksize.h' && -f 'lib/Storable/Limit.pm') {
+  my $fh;
+  if (open $fh, "stacksize.h") {
+    <$fh>;
+    my $s = <$fh>;
+    if ($s =~ /^#define/) {
+      exit;
+    }
+  }
+}
+
 my ($n, $good, $bad, $found) =
     (65000, 100, $bad1, undef);
 print "probe for max. stack sizes...\n" unless QUIET;
@@ -104,7 +116,7 @@ if (PARALLEL) {
 
 my $use_W32J = 0;
 if ($^O eq 'MSWin32' && $^V ge v5.18.0) {
-    eval { require Win32::Job;$use_W32J=1;}
+    eval { require Win32::Job; $use_W32J=1; }
 }
 sub runcmd {
     my $cmd = shift;
@@ -175,11 +187,14 @@ while (!$found) {
         $n = bad($n);
     }
 }
+if ($n == $good) {
+  $n = 500;
+}
 print "MAX_DEPTH = $n\n" unless QUIET;
 my $max_depth = $n;
 
 ($n, $good, $bad, $found) =
-  (int($n/2), 50, $n, undef);
+  (int($n/2), $^O eq 'MSWin32' ? 32 : 50, $n, undef);
 # pack j only since 5.8
 my $max = ($] > 5.007 and length(pack "j", 0) < 8)
   ? ($^O eq 'MSWin32' ? 3000 : 8000)
@@ -195,8 +210,8 @@ while (!$found) {
         $n = bad($n);
     }
 }
-if ($max_depth == $bad1-1
-    and $n == $bad2-1)
+if (($max_depth == $bad1-1 and $n == $bad2-1)
+    or ($n == $good))
 {
     # more likely the shell. travis docker ubuntu, mingw e.g.
     print "Error: Apparently your system(SHELLSTRING) cannot catch stack overflows\n"
@@ -235,10 +250,24 @@ write_limits($max_depth, $max_depth_hash);
 sub write_limits {
     my ($max_depth, $max_depth_hash) = @_;
     my $f;
+    # The system max limits
+    my $fh = 'stacksize.h';
+    chmod 0644, $fh if -e $fh && !-w $fh;
+    open $f, ">", $fh or die "$fh $!";
+    print $f "/* max limits bisected by stacksize. See also Storable::Limit */\n";
+    print $f "#define MAX_RECUR_DEPTH  $max_depth\n";
+    print $f "#define MAX_RECUR_DEPTH_HASH $max_depth_hash\n";
+    close $f
+      or die "Failed to close $fh: $!\n";
+
+    # and now the user limits, a bit lower
+    $max_depth = int(0.6 * $max_depth);
+    $max_depth_hash = int(0.6 * $max_depth);
+
     chmod 0644, $fn if -e $fn && !-w $fn;
     open $f, ">", $fn or die "$fn $!";
     print $f <<EOS;
-# bisected by stacksize
+# Overridable current limits bisected by stacksize. See also stacksize.h
 \$Storable::recursion_limit = $max_depth
   unless defined \$Storable::recursion_limit;
 \$Storable::recursion_limit_hash = $max_depth_hash

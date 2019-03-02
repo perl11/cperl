@@ -337,7 +337,7 @@ sub OVERFLOW () { 35000 }
 {
     my (@t);
     push @t, [{}] for 1..5000;
-    #diag 'trying simple array[5000] stack overflow, no recursion';
+    print "# trying simple array[5000] stack overflow, no recursion\n";
     dclone \@t;
     is $@, '', 'No simple array[5000] stack overflow #257';
 }

@@ -4,7 +4,7 @@ use strict;
 our ( %version, %deprecated, %families );
 
 use version;
-our $VERSION = '5.20181019c';
+our $VERSION = '5.20190301c';
 $VERSION =~ s/c$//;
 
 sub PKG_PATTERN () { q#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z# }
@@ -359,7 +359,12 @@ our %released :const = (
     5.029002 => '2018-08-20',
     5.029003 => '2018-09-20',
     5.029004 => '2018-10-20',
-    '5.029001c' => '????',
+    5.029005 => '2018-11-20',
+    5.026003 => '2018-11-29',
+    5.028001 => '2018-11-29',
+    '5.026005c' => '2019-03-??',
+    '5.028002c' => '2019-03-??',
+    '5.029001c' => '2019-03-??',
  );
 
 sub version_sort {
@@ -17942,22 +17947,6 @@ our %delta :const = (
         removed => {
         }
     },
-    '5.029001c' => {
-        delta_from => '5.029000c',
-        changed => {
-            'B::Op_private'         => '5.029001',
-            'Module::CoreList'      => '5.20181019c',
-            'Module::CoreList::Utils'=> '5.20181019c',
-            'B::C'                  => '1.55_10',
-            'Cpanel::JSON::XS'      => '4.09',
-            'ExtUtils::Embed'       => '1.36',
-            'ExtUtils::MakeMaker'   => '8.35_07',
-            'ExtUtils::MM_Unix'     => '8.35_07',
-            'Win32'                 => '0.52_02',
-        },
-        removed => {
-        }
-    },
     5.029000 => {
         delta_from => 5.028,
         changed => {
@@ -18288,6 +18277,114 @@ our %delta :const = (
             'Config'                => '5.029004',
             'Module::CoreList'      => '5.20181020',
             'Module::CoreList::Utils'=> '5.20181020',
+            'Unicode::UCD'          => '0.72',
+            'bigint'                => '0.51',
+            'bignum'                => '0.51',
+            'bigrat'                => '0.51',
+            'bytes'                 => '1.07',
+            'feature'               => '1.54',
+            'sigtrap'               => '1.09',
+            'vars'                  => '1.05',
+        },
+        removed => {
+            'B::Debug'              => 1,
+            'arybase'               => 1,
+        }
+    },
+    5.029005 => {
+        delta_from => 5.029004,
+        changed => {
+            'B::Op_private'         => '5.029005',
+            'Config'                => '5.029005',
+            'Cwd'                   => '3.76',
+            'Data::Dumper'          => '2.173',
+            'Errno'                 => '1.30',
+            'File::Spec'            => '3.76',
+            'File::Spec::AmigaOS'   => '3.76',
+            'File::Spec::Cygwin'    => '3.76',
+            'File::Spec::Epoc'      => '3.76',
+            'File::Spec::Functions' => '3.76',
+            'File::Spec::Mac'       => '3.76',
+            'File::Spec::OS2'       => '3.76',
+            'File::Spec::Unix'      => '3.76',
+            'File::Spec::VMS'       => '3.76',
+            'File::Spec::Win32'     => '3.76',
+            'GDBM_File'             => '1.18',
+            'Module::CoreList'      => '5.20181120',
+            'Module::CoreList::Utils'=> '5.20181120',
+            'NDBM_File'             => '1.15',
+            'ODBM_File'             => '1.16',
+            'SDBM_File'             => '1.15',
+            're'                    => '0.37',
+        },
+        removed => {
+        }
+    },
+    5.026003 => {
+        delta_from => 5.026002,
+        changed => {
+            'Archive::Tar'          => '2.24_01',
+            'B::Op_private'         => '5.026003',
+            'Config'                => '5.026003',
+            'Module::CoreList'      => '5.20181129_26',
+            'Module::CoreList::TieHashDelta'=> '5.20181129_26',
+            'Module::CoreList::Utils'=> '5.20181129_26',
+        },
+        removed => {
+        }
+    },
+    5.028001 => {
+        delta_from => 5.028,
+        changed => {
+            'B::Op_private'         => '5.028001',
+            'Config'                => '5.028001',
+            'Module::CoreList'      => '5.20181129_28',
+            'Module::CoreList::Utils'=> '5.20181129_28',
+        },
+        removed => {
+        }
+    },
+    '5.026005c' => {
+        delta_from => '5.026004c',
+        changed => {
+            'B::Op_private'         => '5.026005',
+            'Module::CoreList'      => '5.20190301c',
+            'Module::CoreList::Utils'=> '5.20190301c',
+            'Cpanel::JSON::XS'      => '4.09',
+            'ExtUtils::MakeMaker'   => '8.35_08',
+            'ExtUtils::MM_Unix'     => '8.35_08',
+            'Storable'              => '3.12_04',
+        },
+        removed => {
+        }
+    },
+    '5.028002c' => {
+        delta_from => '5.028001c',
+        changed => {
+            'B::Op_private'         => '5.028002',
+            'Module::CoreList'      => '5.20190301c',
+            'Module::CoreList::Utils'=> '5.20190301c',
+            'Cpanel::JSON::XS'      => '4.09',
+            'ExtUtils::MakeMaker'   => '8.35_08',
+            'ExtUtils::MM_Unix'     => '8.35_08',
+            'Storable'              => '3.12_03',
+        },
+        removed => {
+        }
+    },
+    '5.029001c' => {
+        delta_from => '5.029000c',
+        changed => {
+            'B::Op_private'         => '5.029001',
+            'Module::CoreList'      => '5.20190301c',
+            'Module::CoreList::Utils'=> '5.20190301c',
+            'B::C'                  => '1.55_10',
+            'Cpanel::JSON::XS'      => '4.09',
+            'ExtUtils::Embed'       => '1.36',
+            'ExtUtils::MakeMaker'   => '8.35_07',
+            'ExtUtils::MM_Unix'     => '8.35_07',
+            'Storable'              => '3.12_03',
+            'Win32'                 => '0.52_02',
         },
         removed => {
         }
