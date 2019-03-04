@@ -108,6 +108,16 @@ rules for use with Turkic languages.  Previously, Perl ignored these,
 but now, it uses them when it detects that it is operating under a
 Turkic UTF-8 locale.
 
+=head2 It is now possible to compile perl to always use thread-safe
+locale operations.
+
+Previously, these calls were only used when the perl was compiled to be
+multi-threaded.  To always enable them, add
+
+  -Accflags='-DUSE_THREAD_SAFE_LOCALE'
+
+to your F<Configure> flags.
+
 =head1 Security
 
 XXX Any security-related notices go here.  In particular, any security
