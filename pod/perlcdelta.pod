@@ -18,9 +18,9 @@ XXX Any important notices here
 
 =head1 Core Enhancements
 
-=head2 Unicode 11.0 is supported
+=head2 Unicode 12.0 is supported
 
-For details, see L<https://www.unicode.org/versions/Unicode11.0.0/>.
+For details, see L<https://www.unicode.org/versions/Unicode12.0.0/>.
 
 The Word_Break property, as in past Perl releases, remains tailored to
 behave more in line with expectations of Perl users.  This means that
@@ -31,18 +31,23 @@ as causing breaks: TAB, NO BREAK SPACE, and FIGURE SPACE (U+2007).  We
 have decided to continue to use the previous Perl tailoring with regards
 to these.
 
-As of July 2018, another aspect of Unicode 11.0 is causing problems, and
-that is the changing the Georgian script to have both lower and
+As of July 2018, another aspect of Unicode 11.0 is causing problems,
+and that is the changing the Georgian script to have both lower and
 uppercase letters.  It turns out that many devices do not have fonts
 installed that can display the new uppercase letters, and people using
 Georgian are finding their text more or less illegible.  It is being
 suggested that implementations delay their adoption of this portion of
-11.0.
+11.0. But since the next stable release of Perl is almost a year away,
+this aspect of 11.0 is being left in, with the option to back it out
+if things haven't improved by that time, or if we get too many
+complaints about the development release being unusable for Georgian
+users.
 
-But since the next stable release of Perl is almost a year away, this
-aspect of 11.0 is being left in, with the option to back it out if
-things haven't improved by that time, or if we get too many complaints
-about the development release being unusable for Georgian users.
+Because of a change in Unicode release cycles, Perl jumps from Unicode
+10.0 in Perl 5.28 to Unicode 12.0 in Perl 5.30.
+
+There are few new scripts: Elymaic, Nandinagari,
+Nyiakeng_Puachue_Hmong (Hmnp), Wancho.
 
 =head2 Handle qr!\p{nv=6/8}!
 
