@@ -435,6 +435,7 @@ S_new_slab(pTHX_ size_t sz)
 Creates a new memory region, a slab, for some ops, with room for sz
 pointers. sz starts with PERL_SLAB_SIZE (=64) and is then extended by
 factor two.
+If PL_compcv isn't compiling, malloc() instead.
 
 =cut
 */
@@ -704,7 +705,12 @@ Perl_opslab_free_nopad(pTHX_ OPSLAB *slab)
 /*
 =for apidoc p|void	|opslab_free	|NN OPSLAB* slab
 
-Frees the slab area.
+Free a chain of OP slabs. Should only be called after all ops contained
+in it have been freed. At this point, its reference count should be 1,
+because OpslabREFCNT_dec() skips doing rc-- when it detects that rc == 1,
+and just directly calls opslab_free().
+(Note that the reference count which PL_compcv held on the slab should
+have been removed once compilation of the sub was complete).
 
 =cut
 */
@@ -757,6 +763,8 @@ Perl_opslab_free(pTHX_ OPSLAB *slab)
 
 Forcefully frees the slab area, even if there are still live OPs in
 it.  Frees all the containing OPs.
+Like opslab_free(), but first calls op_free() on any ops in the slab
+not marked as OP_FREED.
 
 =cut
 */
