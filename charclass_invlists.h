@@ -3465,7 +3465,7 @@ static const int Case_Folding_invmap[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV Case_Folding_invlist[] = {  /* for EBCDIC 1047 */
 	1412,	/* Number of elements */
@@ -4895,7 +4895,7 @@ static const UV Case_Folding_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -6940,7 +6940,7 @@ static const int Case_Folding_invmap[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV Case_Folding_invlist[] = {  /* for EBCDIC 037 */
 	1408,	/* Number of elements */
@@ -8366,7 +8366,7 @@ static const UV Case_Folding_invlist[] = {  /* for EBCDIC 037 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -12976,7 +12976,7 @@ static const int Lowercase_Mapping_invmap[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV Lowercase_Mapping_invlist[] = {  /* for EBCDIC 1047 */
 	1275,	/* Number of elements */
@@ -14269,7 +14269,7 @@ static const UV Lowercase_Mapping_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -15587,7 +15587,7 @@ static const int Lowercase_Mapping_invmap[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV Lowercase_Mapping_invlist[] = {  /* for EBCDIC 037 */
 	1271,	/* Number of elements */
@@ -16876,7 +16876,7 @@ static const UV Lowercase_Mapping_invlist[] = {  /* for EBCDIC 037 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -22149,7 +22149,7 @@ static const GCB_enum _Perl_GCB_invmap[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV _Perl_GCB_invlist[] = {  /* for EBCDIC 1047 */
 	1778,	/* Number of elements */
@@ -23945,7 +23945,7 @@ static const UV _Perl_GCB_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 typedef enum {
 	GCB_Other = 0,
@@ -25760,7 +25760,7 @@ static const GCB_enum _Perl_GCB_invmap[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV _Perl_GCB_invlist[] = {  /* for EBCDIC 037 */
 	1778,	/* Number of elements */
@@ -27556,7 +27556,7 @@ static const UV _Perl_GCB_invlist[] = {  /* for EBCDIC 037 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 typedef enum {
 	GCB_Other = 0,
@@ -32255,7 +32255,7 @@ static const int _Perl_IVCF_invmap[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV _Perl_IVCF_invlist[] = {  /* for EBCDIC 1047 */
 	1323,	/* Number of elements */
@@ -33596,7 +33596,7 @@ static const UV _Perl_IVCF_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -35173,7 +35173,7 @@ static const int _Perl_IVCF_invmap[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV _Perl_IVCF_invlist[] = {  /* for EBCDIC 037 */
 	1323,	/* Number of elements */
@@ -36514,7 +36514,7 @@ static const UV _Perl_IVCF_invlist[] = {  /* for EBCDIC 037 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -42935,7 +42935,7 @@ static const LB_enum _Perl_LB_invmap[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV _Perl_LB_invlist[] = {  /* for EBCDIC 1047 */
 	2400,	/* Number of elements */
@@ -45353,7 +45353,7 @@ static const UV _Perl_LB_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 typedef enum {
 	LB_Alphabetic = 0,
@@ -47809,7 +47809,7 @@ static const LB_enum _Perl_LB_invmap[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV _Perl_LB_invlist[] = {  /* for EBCDIC 037 */
 	2400,	/* Number of elements */
@@ -50227,7 +50227,7 @@ static const UV _Perl_LB_invlist[] = {  /* for EBCDIC 037 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 typedef enum {
 	LB_Alphabetic = 0,
@@ -58922,7 +58922,7 @@ static const SB_enum _Perl_SB_invmap[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV _Perl_SB_invlist[] = {  /* for EBCDIC 1047 */
 	3121,	/* Number of elements */
@@ -62061,7 +62061,7 @@ static const UV _Perl_SB_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 typedef enum {
 	SB_Other = 0,
@@ -65215,7 +65215,7 @@ static const SB_enum _Perl_SB_invmap[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV _Perl_SB_invlist[] = {  /* for EBCDIC 037 */
 	3117,	/* Number of elements */
@@ -68350,7 +68350,7 @@ static const UV _Perl_SB_invlist[] = {  /* for EBCDIC 037 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 typedef enum {
 	SB_Other = 0,
@@ -75724,7 +75724,7 @@ static const SCX_enum _Perl_SCX_invmap[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV _Perl_SCX_invlist[] = {  /* for EBCDIC 1047 */
 	1670,	/* Number of elements */
@@ -77410,7 +77410,7 @@ static const UV _Perl_SCX_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -77636,7 +77636,7 @@ typedef enum {
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 #define HAS_SCX_AUX_TABLES
 
@@ -80009,7 +80009,7 @@ static const SCX_enum _Perl_SCX_invmap[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV _Perl_SCX_invlist[] = {  /* for EBCDIC 037 */
 	1666,	/* Number of elements */
@@ -81691,7 +81691,7 @@ static const UV _Perl_SCX_invlist[] = {  /* for EBCDIC 037 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -81917,7 +81917,7 @@ typedef enum {
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 #define HAS_SCX_AUX_TABLES
 
@@ -88038,7 +88038,7 @@ static const WB_enum _Perl_WB_invmap[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV _Perl_WB_invlist[] = {  /* for EBCDIC 1047 */
 	1871,	/* Number of elements */
@@ -89927,7 +89927,7 @@ static const UV _Perl_WB_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 typedef enum {
 	WB_Other = 0,
@@ -91842,7 +91842,7 @@ static const WB_enum _Perl_WB_invmap[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV _Perl_WB_invlist[] = {  /* for EBCDIC 037 */
 	1867,	/* Number of elements */
@@ -93727,7 +93727,7 @@ static const UV _Perl_WB_invlist[] = {  /* for EBCDIC 037 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 typedef enum {
 	WB_Other = 0,
@@ -98236,7 +98236,7 @@ static const int Simple_Case_Folding_invmap[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV Simple_Case_Folding_invlist[] = {  /* for EBCDIC 1047 */
 	1304,	/* Number of elements */
@@ -99558,7 +99558,7 @@ static const UV Simple_Case_Folding_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const int Simple_Case_Folding_invmap[] = {  /* for EBCDIC 1047 */
 	0,
@@ -100876,7 +100876,7 @@ static const int Simple_Case_Folding_invmap[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV Simple_Case_Folding_invlist[] = {  /* for EBCDIC 037 */
 	1300,	/* Number of elements */
@@ -102194,7 +102194,7 @@ static const UV Simple_Case_Folding_invlist[] = {  /* for EBCDIC 037 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const int Simple_Case_Folding_invmap[] = {  /* for EBCDIC 037 */
 	0,
@@ -106597,7 +106597,7 @@ static const int Titlecase_Mapping_invmap[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV Titlecase_Mapping_invlist[] = {  /* for EBCDIC 1047 */
 	1350,	/* Number of elements */
@@ -107965,7 +107965,7 @@ static const UV Titlecase_Mapping_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -109724,7 +109724,7 @@ static const int Titlecase_Mapping_invmap[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV Titlecase_Mapping_invlist[] = {  /* for EBCDIC 037 */
 	1348,	/* Number of elements */
@@ -111090,7 +111090,7 @@ static const UV Titlecase_Mapping_invlist[] = {  /* for EBCDIC 037 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -116254,7 +116254,7 @@ static const int Uppercase_Mapping_invmap[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV Uppercase_Mapping_invlist[] = {  /* for EBCDIC 1047 */
 	1401,	/* Number of elements */
@@ -117673,7 +117673,7 @@ static const UV Uppercase_Mapping_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -119699,7 +119699,7 @@ static const int Uppercase_Mapping_invmap[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV Uppercase_Mapping_invlist[] = {  /* for EBCDIC 037 */
 	1399,	/* Number of elements */
@@ -121116,7 +121116,7 @@ static const UV Uppercase_Mapping_invlist[] = {  /* for EBCDIC 037 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 /* Negative enum values indicate the need to use an auxiliary table
  * consisting of the list of enums this one expands to.  The absolute
@@ -123154,7 +123154,7 @@ static const UV UpperLatin1_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UpperLatin1_invlist[] = {  /* for EBCDIC 1047 */
 	55,	/* Number of elements */
@@ -123223,7 +123223,7 @@ static const UV UpperLatin1_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UpperLatin1_invlist[] = {  /* for EBCDIC 037 */
 	57,	/* Number of elements */
@@ -123307,7 +123307,7 @@ static const UV UNI_ASCII_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_ASCII_invlist[] = {  /* for EBCDIC 1047 */
 	54,	/* Number of elements */
@@ -123375,7 +123375,7 @@ static const UV UNI_ASCII_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_ASCII_invlist[] = {  /* for EBCDIC 037 */
 	56,	/* Number of elements */
@@ -125076,7 +125076,7 @@ static const UV UNI_CASED_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_CASED_invlist[] = {  /* for EBCDIC 1047 */
 	307,	/* Number of elements */
@@ -125397,7 +125397,7 @@ static const UV UNI_CASED_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_CASED_invlist[] = {  /* for EBCDIC 037 */
 	303,	/* Number of elements */
@@ -125988,7 +125988,7 @@ static const UV UNI_CASEDLETTER_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_CASEDLETTER_invlist[] = {  /* for EBCDIC 1047 */
 	295,	/* Number of elements */
@@ -126297,7 +126297,7 @@ static const UV UNI_CASEDLETTER_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_CASEDLETTER_invlist[] = {  /* for EBCDIC 037 */
 	291,	/* Number of elements */
@@ -127898,7 +127898,7 @@ static const UV UNI_LOWERCASELETTER_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LOWERCASELETTER_invlist[] = {  /* for EBCDIC 1047 */
 	1299,	/* Number of elements */
@@ -129211,7 +129211,7 @@ static const UV UNI_LOWERCASELETTER_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LOWERCASELETTER_invlist[] = {  /* for EBCDIC 037 */
 	1299,	/* Number of elements */
@@ -130542,7 +130542,7 @@ static const UV UNI_POSIXALNUM_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_POSIXALNUM_invlist[] = {  /* for EBCDIC 1047 */
 	15,	/* Number of elements */
@@ -130571,7 +130571,7 @@ static const UV UNI_POSIXALNUM_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_POSIXALNUM_invlist[] = {  /* for EBCDIC 037 */
 	15,	/* Number of elements */
@@ -130616,7 +130616,7 @@ static const UV UNI_POSIXALPHA_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_POSIXALPHA_invlist[] = {  /* for EBCDIC 1047 */
 	13,	/* Number of elements */
@@ -130643,7 +130643,7 @@ static const UV UNI_POSIXALPHA_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_POSIXALPHA_invlist[] = {  /* for EBCDIC 037 */
 	13,	/* Number of elements */
@@ -130686,7 +130686,7 @@ static const UV UNI_POSIXBLANK_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_POSIXBLANK_invlist[] = {  /* for EBCDIC 1047 */
 	5,	/* Number of elements */
@@ -130705,7 +130705,7 @@ static const UV UNI_POSIXBLANK_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_POSIXBLANK_invlist[] = {  /* for EBCDIC 037 */
 	5,	/* Number of elements */
@@ -130739,7 +130739,7 @@ static const UV UNI_POSIXCNTRL_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_POSIXCNTRL_invlist[] = {  /* for EBCDIC 1047 */
 	26,	/* Number of elements */
@@ -130779,7 +130779,7 @@ static const UV UNI_POSIXCNTRL_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_POSIXCNTRL_invlist[] = {  /* for EBCDIC 037 */
 	26,	/* Number of elements */
@@ -130833,7 +130833,7 @@ static const UV UNI_POSIXDIGIT_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_POSIXDIGIT_invlist[] = {  /* for EBCDIC 1047 */
 	3,	/* Number of elements */
@@ -130850,7 +130850,7 @@ static const UV UNI_POSIXDIGIT_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_POSIXDIGIT_invlist[] = {  /* for EBCDIC 037 */
 	3,	/* Number of elements */
@@ -130881,7 +130881,7 @@ static const UV UNI_POSIXGRAPH_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_POSIXGRAPH_invlist[] = {  /* for EBCDIC 1047 */
 	29,	/* Number of elements */
@@ -130924,7 +130924,7 @@ static const UV UNI_POSIXGRAPH_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_POSIXGRAPH_invlist[] = {  /* for EBCDIC 037 */
 	31,	/* Number of elements */
@@ -130983,7 +130983,7 @@ static const UV UNI_POSIXLOWER_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_POSIXLOWER_invlist[] = {  /* for EBCDIC 1047 */
 	7,	/* Number of elements */
@@ -131004,7 +131004,7 @@ static const UV UNI_POSIXLOWER_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_POSIXLOWER_invlist[] = {  /* for EBCDIC 037 */
 	7,	/* Number of elements */
@@ -131039,7 +131039,7 @@ static const UV UNI_POSIXPRINT_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_POSIXPRINT_invlist[] = {  /* for EBCDIC 1047 */
 	31,	/* Number of elements */
@@ -131084,7 +131084,7 @@ static const UV UNI_POSIXPRINT_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_POSIXPRINT_invlist[] = {  /* for EBCDIC 037 */
 	33,	/* Number of elements */
@@ -131151,7 +131151,7 @@ static const UV UNI_POSIXPUNCT_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_POSIXPUNCT_invlist[] = {  /* for EBCDIC 1047 */
 	21,	/* Number of elements */
@@ -131186,7 +131186,7 @@ static const UV UNI_POSIXPUNCT_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_POSIXPUNCT_invlist[] = {  /* for EBCDIC 037 */
 	23,	/* Number of elements */
@@ -131239,7 +131239,7 @@ static const UV UNI_POSIXSPACE_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_POSIXSPACE_invlist[] = {  /* for EBCDIC 1047 */
 	9,	/* Number of elements */
@@ -131262,7 +131262,7 @@ static const UV UNI_POSIXSPACE_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_POSIXSPACE_invlist[] = {  /* for EBCDIC 037 */
 	9,	/* Number of elements */
@@ -131299,7 +131299,7 @@ static const UV UNI_POSIXUPPER_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_POSIXUPPER_invlist[] = {  /* for EBCDIC 1047 */
 	7,	/* Number of elements */
@@ -131320,7 +131320,7 @@ static const UV UNI_POSIXUPPER_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_POSIXUPPER_invlist[] = {  /* for EBCDIC 037 */
 	7,	/* Number of elements */
@@ -131361,7 +131361,7 @@ static const UV UNI_POSIXWORD_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_POSIXWORD_invlist[] = {  /* for EBCDIC 1047 */
 	17,	/* Number of elements */
@@ -131392,7 +131392,7 @@ static const UV UNI_POSIXWORD_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_POSIXWORD_invlist[] = {  /* for EBCDIC 037 */
 	17,	/* Number of elements */
@@ -131441,7 +131441,7 @@ static const UV UNI_POSIXXDIGIT_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_POSIXXDIGIT_invlist[] = {  /* for EBCDIC 1047 */
 	7,	/* Number of elements */
@@ -131462,7 +131462,7 @@ static const UV UNI_POSIXXDIGIT_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_POSIXXDIGIT_invlist[] = {  /* for EBCDIC 037 */
 	7,	/* Number of elements */
@@ -132795,7 +132795,7 @@ static const UV UNI_UPPERCASELETTER_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_UPPERCASELETTER_invlist[] = {  /* for EBCDIC 1047 */
 	1291,	/* Number of elements */
@@ -134100,7 +134100,7 @@ static const UV UNI_UPPERCASELETTER_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_UPPERCASELETTER_invlist[] = {  /* for EBCDIC 037 */
 	1287,	/* Number of elements */
@@ -135419,7 +135419,7 @@ static const UV UNI_VERTSPACE_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_VERTSPACE_invlist[] = {  /* for EBCDIC 1047 */
 	9,	/* Number of elements */
@@ -135442,7 +135442,7 @@ static const UV UNI_VERTSPACE_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_VERTSPACE_invlist[] = {  /* for EBCDIC 037 */
 	9,	/* Number of elements */
@@ -136907,7 +136907,7 @@ static const UV UNI_XPOSIXALNUM_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_XPOSIXALNUM_invlist[] = {  /* for EBCDIC 1047 */
 	1455,	/* Number of elements */
@@ -138376,7 +138376,7 @@ static const UV UNI_XPOSIXALNUM_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_XPOSIXALNUM_invlist[] = {  /* for EBCDIC 037 */
 	1451,	/* Number of elements */
@@ -141211,7 +141211,7 @@ static const UV UNI_XPOSIXALPHA_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_XPOSIXALPHA_invlist[] = {  /* for EBCDIC 1047 */
 	1385,	/* Number of elements */
@@ -142610,7 +142610,7 @@ static const UV UNI_XPOSIXALPHA_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_XPOSIXALPHA_invlist[] = {  /* for EBCDIC 037 */
 	1381,	/* Number of elements */
@@ -144033,7 +144033,7 @@ static const UV UNI_XPOSIXBLANK_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_XPOSIXBLANK_invlist[] = {  /* for EBCDIC 1047 */
 	15,	/* Number of elements */
@@ -144062,7 +144062,7 @@ static const UV UNI_XPOSIXBLANK_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_XPOSIXBLANK_invlist[] = {  /* for EBCDIC 037 */
 	15,	/* Number of elements */
@@ -144106,7 +144106,7 @@ static const UV UNI_XPOSIXCNTRL_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_XPOSIXCNTRL_invlist[] = {  /* for EBCDIC 1047 */
 	4,	/* Number of elements */
@@ -144124,7 +144124,7 @@ static const UV UNI_XPOSIXCNTRL_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_XPOSIXCNTRL_invlist[] = {  /* for EBCDIC 037 */
 	4,	/* Number of elements */
@@ -144272,7 +144272,7 @@ static const UV UNI_XPOSIXDIGIT_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_XPOSIXDIGIT_invlist[] = {  /* for EBCDIC 1047 */
 	119,	/* Number of elements */
@@ -144405,7 +144405,7 @@ static const UV UNI_XPOSIXDIGIT_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_XPOSIXDIGIT_invlist[] = {  /* for EBCDIC 037 */
 	119,	/* Number of elements */
@@ -145892,7 +145892,7 @@ static const UV UNI_XPOSIXGRAPH_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_XPOSIXGRAPH_invlist[] = {  /* for EBCDIC 1047 */
 	1343,	/* Number of elements */
@@ -147249,7 +147249,7 @@ static const UV UNI_XPOSIXGRAPH_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_XPOSIXGRAPH_invlist[] = {  /* for EBCDIC 037 */
 	1343,	/* Number of elements */
@@ -149916,7 +149916,7 @@ static const UV UNI_XPOSIXLOWER_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_XPOSIXLOWER_invlist[] = {  /* for EBCDIC 1047 */
 	1307,	/* Number of elements */
@@ -151237,7 +151237,7 @@ static const UV UNI_XPOSIXLOWER_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_XPOSIXLOWER_invlist[] = {  /* for EBCDIC 037 */
 	1307,	/* Number of elements */
@@ -153906,7 +153906,7 @@ static const UV UNI_XPOSIXPRINT_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_XPOSIXPRINT_invlist[] = {  /* for EBCDIC 1047 */
 	1337,	/* Number of elements */
@@ -155257,7 +155257,7 @@ static const UV UNI_XPOSIXPRINT_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_XPOSIXPRINT_invlist[] = {  /* for EBCDIC 037 */
 	1337,	/* Number of elements */
@@ -156974,7 +156974,7 @@ static const UV UNI_XPOSIXPUNCT_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_XPOSIXPUNCT_invlist[] = {  /* for EBCDIC 1047 */
 	363,	/* Number of elements */
@@ -157351,7 +157351,7 @@ static const UV UNI_XPOSIXPUNCT_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_XPOSIXPUNCT_invlist[] = {  /* for EBCDIC 037 */
 	365,	/* Number of elements */
@@ -157762,7 +157762,7 @@ static const UV UNI_XPOSIXSPACE_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_XPOSIXSPACE_invlist[] = {  /* for EBCDIC 1047 */
 	23,	/* Number of elements */
@@ -157799,7 +157799,7 @@ static const UV UNI_XPOSIXSPACE_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_XPOSIXSPACE_invlist[] = {  /* for EBCDIC 037 */
 	23,	/* Number of elements */
@@ -159130,7 +159130,7 @@ static const UV UNI_XPOSIXUPPER_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_XPOSIXUPPER_invlist[] = {  /* for EBCDIC 1047 */
 	1301,	/* Number of elements */
@@ -160445,7 +160445,7 @@ static const UV UNI_XPOSIXUPPER_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_XPOSIXUPPER_invlist[] = {  /* for EBCDIC 037 */
 	1297,	/* Number of elements */
@@ -163202,7 +163202,7 @@ static const UV UNI_XPOSIXWORD_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_XPOSIXWORD_invlist[] = {  /* for EBCDIC 1047 */
 	1459,	/* Number of elements */
@@ -164675,7 +164675,7 @@ static const UV UNI_XPOSIXWORD_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_XPOSIXWORD_invlist[] = {  /* for EBCDIC 037 */
 	1455,	/* Number of elements */
@@ -166168,7 +166168,7 @@ static const UV UNI_XPOSIXXDIGIT_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_XPOSIXXDIGIT_invlist[] = {  /* for EBCDIC 1047 */
 	13,	/* Number of elements */
@@ -166195,7 +166195,7 @@ static const UV UNI_XPOSIXXDIGIT_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_XPOSIXXDIGIT_invlist[] = {  /* for EBCDIC 037 */
 	13,	/* Number of elements */
@@ -166500,7 +166500,7 @@ static const UV UNI__PERL_ANY_FOLDS_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI__PERL_ANY_FOLDS_invlist[] = {  /* for EBCDIC 1047 */
 	299,	/* Number of elements */
@@ -166813,7 +166813,7 @@ static const UV UNI__PERL_ANY_FOLDS_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI__PERL_ANY_FOLDS_invlist[] = {  /* for EBCDIC 037 */
 	295,	/* Number of elements */
@@ -168366,7 +168366,7 @@ static const UV UNI__PERL_CHARNAME_BEGIN_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI__PERL_CHARNAME_BEGIN_invlist[] = {  /* for EBCDIC 1047 */
 	1259,	/* Number of elements */
@@ -169639,7 +169639,7 @@ static const UV UNI__PERL_CHARNAME_BEGIN_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI__PERL_CHARNAME_BEGIN_invlist[] = {  /* for EBCDIC 037 */
 	1255,	/* Number of elements */
@@ -172370,7 +172370,7 @@ static const UV UNI__PERL_CHARNAME_CONTINUE_invlist[] = {  /* for ASCII/Latin1 *
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI__PERL_CHARNAME_CONTINUE_invlist[] = {  /* for EBCDIC 1047 */
 	1477,	/* Number of elements */
@@ -173861,7 +173861,7 @@ static const UV UNI__PERL_CHARNAME_CONTINUE_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI__PERL_CHARNAME_CONTINUE_invlist[] = {  /* for EBCDIC 037 */
 	1473,	/* Number of elements */
@@ -175418,7 +175418,7 @@ static const UV UNI__PERL_FOLDS_TO_MULTI_CHAR_invlist[] = {  /* for ASCII/Latin1
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI__PERL_FOLDS_TO_MULTI_CHAR_invlist[] = {  /* for EBCDIC 1047 */
 	59,	/* Number of elements */
@@ -175491,7 +175491,7 @@ static const UV UNI__PERL_FOLDS_TO_MULTI_CHAR_invlist[] = {  /* for EBCDIC 1047 
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI__PERL_FOLDS_TO_MULTI_CHAR_invlist[] = {  /* for EBCDIC 037 */
 	59,	/* Number of elements */
@@ -177020,7 +177020,7 @@ static const UV UNI__PERL_IDCONT_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI__PERL_IDCONT_invlist[] = {  /* for EBCDIC 1047 */
 	1469,	/* Number of elements */
@@ -178503,7 +178503,7 @@ static const UV UNI__PERL_IDCONT_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI__PERL_IDCONT_invlist[] = {  /* for EBCDIC 037 */
 	1465,	/* Number of elements */
@@ -181232,7 +181232,7 @@ static const UV UNI__PERL_IDSTART_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI__PERL_IDSTART_invlist[] = {  /* for EBCDIC 1047 */
 	1265,	/* Number of elements */
@@ -182511,7 +182511,7 @@ static const UV UNI__PERL_IDSTART_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI__PERL_IDSTART_invlist[] = {  /* for EBCDIC 037 */
 	1261,	/* Number of elements */
@@ -183876,7 +183876,7 @@ static const UV UNI__PERL_IS_IN_MULTI_CHAR_FOLD_invlist[] = {  /* for ASCII/Lati
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI__PERL_IS_IN_MULTI_CHAR_FOLD_invlist[] = {  /* for EBCDIC 1047 */
 	81,	/* Number of elements */
@@ -183971,7 +183971,7 @@ static const UV UNI__PERL_IS_IN_MULTI_CHAR_FOLD_invlist[] = {  /* for EBCDIC 104
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI__PERL_IS_IN_MULTI_CHAR_FOLD_invlist[] = {  /* for EBCDIC 037 */
 	81,	/* Number of elements */
@@ -184116,7 +184116,7 @@ static const UV UNI__PERL_NON_FINAL_FOLDS_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI__PERL_NON_FINAL_FOLDS_invlist[] = {  /* for EBCDIC 1047 */
 	39,	/* Number of elements */
@@ -184169,7 +184169,7 @@ static const UV UNI__PERL_NON_FINAL_FOLDS_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI__PERL_NON_FINAL_FOLDS_invlist[] = {  /* for EBCDIC 037 */
 	39,	/* Number of elements */
@@ -184377,7 +184377,7 @@ static const UV UNI__PERL_QUOTEMETA_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI__PERL_QUOTEMETA_invlist[] = {  /* for EBCDIC 1047 */
 	92,	/* Number of elements */
@@ -184483,7 +184483,7 @@ static const UV UNI__PERL_QUOTEMETA_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI__PERL_QUOTEMETA_invlist[] = {  /* for EBCDIC 037 */
 	90,	/* Number of elements */
@@ -189079,7 +189079,7 @@ static const UV UNI_BC__B_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_BC__B_invlist[] = {  /* for EBCDIC 1047 */
 	11,	/* Number of elements */
@@ -189104,7 +189104,7 @@ static const UV UNI_BC__B_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_BC__B_invlist[] = {  /* for EBCDIC 037 */
 	11,	/* Number of elements */
@@ -189204,7 +189204,7 @@ static const UV UNI_BC__BN_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_BC__BN_invlist[] = {  /* for EBCDIC 1047 */
 	70,	/* Number of elements */
@@ -189288,7 +189288,7 @@ static const UV UNI_BC__BN_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_BC__BN_invlist[] = {  /* for EBCDIC 037 */
 	70,	/* Number of elements */
@@ -189410,7 +189410,7 @@ static const UV UNI_BC__CS_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_BC__CS_invlist[] = {  /* for EBCDIC 1047 */
 	29,	/* Number of elements */
@@ -189453,7 +189453,7 @@ static const UV UNI_BC__CS_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_BC__CS_invlist[] = {  /* for EBCDIC 037 */
 	29,	/* Number of elements */
@@ -189532,7 +189532,7 @@ static const UV UNI_BC__EN_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_BC__EN_invlist[] = {  /* for EBCDIC 1047 */
 	25,	/* Number of elements */
@@ -189571,7 +189571,7 @@ static const UV UNI_BC__EN_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_BC__EN_invlist[] = {  /* for EBCDIC 037 */
 	25,	/* Number of elements */
@@ -189640,7 +189640,7 @@ static const UV UNI_BC__ES_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_BC__ES_invlist[] = {  /* for EBCDIC 1047 */
 	19,	/* Number of elements */
@@ -189673,7 +189673,7 @@ static const UV UNI_BC__ES_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_BC__ES_invlist[] = {  /* for EBCDIC 037 */
 	19,	/* Number of elements */
@@ -189766,7 +189766,7 @@ static const UV UNI_BC__ET_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_BC__ET_invlist[] = {  /* for EBCDIC 1047 */
 	57,	/* Number of elements */
@@ -189837,7 +189837,7 @@ static const UV UNI_BC__ET_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_BC__ET_invlist[] = {  /* for EBCDIC 037 */
 	57,	/* Number of elements */
@@ -190833,7 +190833,7 @@ static const UV UNI_BC__L_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_BC__L_invlist[] = {  /* for EBCDIC 1047 */
 	930,	/* Number of elements */
@@ -191777,7 +191777,7 @@ static const UV UNI_BC__L_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_BC__L_invlist[] = {  /* for EBCDIC 037 */
 	926,	/* Number of elements */
@@ -193763,7 +193763,7 @@ static const UV UNI_BC__ON_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_BC__ON_invlist[] = {  /* for EBCDIC 1047 */
 	377,	/* Number of elements */
@@ -194154,7 +194154,7 @@ static const UV UNI_BC__ON_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_BC__ON_invlist[] = {  /* for EBCDIC 037 */
 	373,	/* Number of elements */
@@ -194693,7 +194693,7 @@ static const UV UNI_BC__S_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_BC__S_invlist[] = {  /* for EBCDIC 1047 */
 	7,	/* Number of elements */
@@ -194714,7 +194714,7 @@ static const UV UNI_BC__S_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_BC__S_invlist[] = {  /* for EBCDIC 037 */
 	7,	/* Number of elements */
@@ -194761,7 +194761,7 @@ static const UV UNI_BC__WS_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_BC__WS_invlist[] = {  /* for EBCDIC 1047 */
 	15,	/* Number of elements */
@@ -194790,7 +194790,7 @@ static const UV UNI_BC__WS_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_BC__WS_invlist[] = {  /* for EBCDIC 037 */
 	15,	/* Number of elements */
@@ -195149,7 +195149,7 @@ static const UV UNI_BIDIM_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_BIDIM_invlist[] = {  /* for EBCDIC 1047 */
 	225,	/* Number of elements */
@@ -195388,7 +195388,7 @@ static const UV UNI_BIDIM_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_BIDIM_invlist[] = {  /* for EBCDIC 037 */
 	223,	/* Number of elements */
@@ -195819,7 +195819,7 @@ static const UV UNI_BPT__C_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_BPT__C_invlist[] = {  /* for EBCDIC 1047 */
 	121,	/* Number of elements */
@@ -195954,7 +195954,7 @@ static const UV UNI_BPT__C_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_BPT__C_invlist[] = {  /* for EBCDIC 037 */
 	121,	/* Number of elements */
@@ -196159,7 +196159,7 @@ static const UV UNI_BPT__N_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_BPT__N_invlist[] = {  /* for EBCDIC 1047 */
 	61,	/* Number of elements */
@@ -196234,7 +196234,7 @@ static const UV UNI_BPT__N_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_BPT__N_invlist[] = {  /* for EBCDIC 037 */
 	59,	/* Number of elements */
@@ -196439,7 +196439,7 @@ static const UV UNI_BPT__O_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_BPT__O_invlist[] = {  /* for EBCDIC 1047 */
 	121,	/* Number of elements */
@@ -196574,7 +196574,7 @@ static const UV UNI_BPT__O_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_BPT__O_invlist[] = {  /* for EBCDIC 037 */
 	121,	/* Number of elements */
@@ -198115,7 +198115,7 @@ static const UV UNI_C_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_C_invlist[] = {  /* for EBCDIC 1047 */
 	1335,	/* Number of elements */
@@ -199464,7 +199464,7 @@ static const UV UNI_C_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_C_invlist[] = {  /* for EBCDIC 037 */
 	1335,	/* Number of elements */
@@ -202491,7 +202491,7 @@ static const UV UNI_CF_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_CF_invlist[] = {  /* for EBCDIC 1047 */
 	41,	/* Number of elements */
@@ -202546,7 +202546,7 @@ static const UV UNI_CF_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_CF_invlist[] = {  /* for EBCDIC 037 */
 	41,	/* Number of elements */
@@ -203465,7 +203465,7 @@ static const UV UNI_CI_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_CI_invlist[] = {  /* for EBCDIC 1047 */
 	801,	/* Number of elements */
@@ -204280,7 +204280,7 @@ static const UV UNI_CI_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_CI_invlist[] = {  /* for EBCDIC 037 */
 	799,	/* Number of elements */
@@ -208078,7 +208078,7 @@ static const UV UNI_CWCF_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_CWCF_invlist[] = {  /* for EBCDIC 1047 */
 	1245,	/* Number of elements */
@@ -209337,7 +209337,7 @@ static const UV UNI_CWCF_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_CWCF_invlist[] = {  /* for EBCDIC 037 */
 	1241,	/* Number of elements */
@@ -210850,7 +210850,7 @@ static const UV UNI_CWCM_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_CWCM_invlist[] = {  /* for EBCDIC 1047 */
 	279,	/* Number of elements */
@@ -211143,7 +211143,7 @@ static const UV UNI_CWCM_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_CWCM_invlist[] = {  /* for EBCDIC 037 */
 	275,	/* Number of elements */
@@ -213090,7 +213090,7 @@ static const UV UNI_CWKCF_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_CWKCF_invlist[] = {  /* for EBCDIC 1047 */
 	1657,	/* Number of elements */
@@ -214761,7 +214761,7 @@ static const UV UNI_CWKCF_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_CWKCF_invlist[] = {  /* for EBCDIC 037 */
 	1655,	/* Number of elements */
@@ -217640,7 +217640,7 @@ static const UV UNI_CWL_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_CWL_invlist[] = {  /* for EBCDIC 1047 */
 	1217,	/* Number of elements */
@@ -218871,7 +218871,7 @@ static const UV UNI_CWL_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_CWL_invlist[] = {  /* for EBCDIC 037 */
 	1213,	/* Number of elements */
@@ -221340,7 +221340,7 @@ static const UV UNI_CWT_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_CWT_invlist[] = {  /* for EBCDIC 1047 */
 	1245,	/* Number of elements */
@@ -222599,7 +222599,7 @@ static const UV UNI_CWT_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_CWT_invlist[] = {  /* for EBCDIC 037 */
 	1245,	/* Number of elements */
@@ -225102,7 +225102,7 @@ static const UV UNI_CWU_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_CWU_invlist[] = {  /* for EBCDIC 1047 */
 	1247,	/* Number of elements */
@@ -226363,7 +226363,7 @@ static const UV UNI_CWU_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_CWU_invlist[] = {  /* for EBCDIC 037 */
 	1247,	/* Number of elements */
@@ -227752,7 +227752,7 @@ static const UV UNI_DASH_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_DASH_invlist[] = {  /* for EBCDIC 1047 */
 	43,	/* Number of elements */
@@ -227809,7 +227809,7 @@ static const UV UNI_DASH_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_DASH_invlist[] = {  /* for EBCDIC 037 */
 	43,	/* Number of elements */
@@ -227968,7 +227968,7 @@ static const UV UNI_DI_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_DI_invlist[] = {  /* for EBCDIC 1047 */
 	35,	/* Number of elements */
@@ -228017,7 +228017,7 @@ static const UV UNI_DI_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_DI_invlist[] = {  /* for EBCDIC 037 */
 	35,	/* Number of elements */
@@ -228420,7 +228420,7 @@ static const UV UNI_DIA_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_DIA_invlist[] = {  /* for EBCDIC 1047 */
 	343,	/* Number of elements */
@@ -228777,7 +228777,7 @@ static const UV UNI_DIA_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_DIA_invlist[] = {  /* for EBCDIC 037 */
 	341,	/* Number of elements */
@@ -229690,7 +229690,7 @@ static const UV UNI_DT__CAN_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_DT__CAN_invlist[] = {  /* for EBCDIC 1047 */
 	467,	/* Number of elements */
@@ -230171,7 +230171,7 @@ static const UV UNI_DT__CAN_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_DT__CAN_invlist[] = {  /* for EBCDIC 037 */
 	467,	/* Number of elements */
@@ -230812,7 +230812,7 @@ static const UV UNI_DT__COM_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_DT__COM_invlist[] = {  /* for EBCDIC 1047 */
 	149,	/* Number of elements */
@@ -230975,7 +230975,7 @@ static const UV UNI_DT__COM_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_DT__COM_invlist[] = {  /* for EBCDIC 037 */
 	147,	/* Number of elements */
@@ -231554,7 +231554,7 @@ static const UV UNI_DT__FRA_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_DT__FRA_invlist[] = {  /* for EBCDIC 1047 */
 	7,	/* Number of elements */
@@ -231575,7 +231575,7 @@ static const UV UNI_DT__FRA_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_DT__FRA_invlist[] = {  /* for EBCDIC 037 */
 	7,	/* Number of elements */
@@ -232116,7 +232116,7 @@ static const UV UNI_DT__NB_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_DT__NB_invlist[] = {  /* for EBCDIC 1047 */
 	11,	/* Number of elements */
@@ -232141,7 +232141,7 @@ static const UV UNI_DT__NB_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_DT__NB_invlist[] = {  /* for EBCDIC 037 */
 	11,	/* Number of elements */
@@ -232548,7 +232548,7 @@ static const UV UNI_DT__NONCANON_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_DT__NONCANON_invlist[] = {  /* for EBCDIC 1047 */
 	377,	/* Number of elements */
@@ -232939,7 +232939,7 @@ static const UV UNI_DT__NONCANON_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_DT__NONCANON_invlist[] = {  /* for EBCDIC 037 */
 	375,	/* Number of elements */
@@ -234118,7 +234118,7 @@ static const UV UNI_DT__NONE_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_DT__NONE_invlist[] = {  /* for EBCDIC 1047 */
 	777,	/* Number of elements */
@@ -234909,7 +234909,7 @@ static const UV UNI_DT__NONE_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_DT__NONE_invlist[] = {  /* for EBCDIC 037 */
 	779,	/* Number of elements */
@@ -235818,7 +235818,7 @@ static const UV UNI_DT__SUP_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_DT__SUP_invlist[] = {  /* for EBCDIC 1047 */
 	51,	/* Number of elements */
@@ -235883,7 +235883,7 @@ static const UV UNI_DT__SUP_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_DT__SUP_invlist[] = {  /* for EBCDIC 037 */
 	51,	/* Number of elements */
@@ -236354,7 +236354,7 @@ static const UV UNI_EA__A_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_EA__A_invlist[] = {  /* for EBCDIC 1047 */
 	363,	/* Number of elements */
@@ -236731,7 +236731,7 @@ static const UV UNI_EA__A_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_EA__A_invlist[] = {  /* for EBCDIC 037 */
 	361,	/* Number of elements */
@@ -237700,7 +237700,7 @@ static const UV UNI_EA__N_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_EA__N_invlist[] = {  /* for EBCDIC 1047 */
 	545,	/* Number of elements */
@@ -238259,7 +238259,7 @@ static const UV UNI_EA__N_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_EA__N_invlist[] = {  /* for EBCDIC 037 */
 	545,	/* Number of elements */
@@ -238844,7 +238844,7 @@ static const UV UNI_EA__NA_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_EA__NA_invlist[] = {  /* for EBCDIC 1047 */
 	37,	/* Number of elements */
@@ -238895,7 +238895,7 @@ static const UV UNI_EA__NA_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_EA__NA_invlist[] = {  /* for EBCDIC 037 */
 	35,	/* Number of elements */
@@ -239452,7 +239452,7 @@ static const UV UNI_EXT_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_EXT_invlist[] = {  /* for EBCDIC 1047 */
 	63,	/* Number of elements */
@@ -239529,7 +239529,7 @@ static const UV UNI_EXT_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_EXT_invlist[] = {  /* for EBCDIC 037 */
 	63,	/* Number of elements */
@@ -239655,7 +239655,7 @@ static const UV UNI_GCB__CN_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_GCB__CN_invlist[] = {  /* for EBCDIC 1047 */
 	38,	/* Number of elements */
@@ -239707,7 +239707,7 @@ static const UV UNI_GCB__CN_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_GCB__CN_invlist[] = {  /* for EBCDIC 037 */
 	38,	/* Number of elements */
@@ -241432,7 +241432,7 @@ static const UV UNI_GCB__XX_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_GCB__XX_invlist[] = {  /* for EBCDIC 1047 */
 	604,	/* Number of elements */
@@ -242050,7 +242050,7 @@ static const UV UNI_GCB__XX_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_GCB__XX_invlist[] = {  /* for EBCDIC 037 */
 	604,	/* Number of elements */
@@ -244540,7 +244540,7 @@ static const UV UNI_GRBASE_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_GRBASE_invlist[] = {  /* for EBCDIC 1047 */
 	1639,	/* Number of elements */
@@ -246193,7 +246193,7 @@ static const UV UNI_GRBASE_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_GRBASE_invlist[] = {  /* for EBCDIC 037 */
 	1639,	/* Number of elements */
@@ -249068,7 +249068,7 @@ static const UV UNI_HYPHEN_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_HYPHEN_invlist[] = {  /* for EBCDIC 1047 */
 	21,	/* Number of elements */
@@ -249103,7 +249103,7 @@ static const UV UNI_HYPHEN_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_HYPHEN_invlist[] = {  /* for EBCDIC 037 */
 	21,	/* Number of elements */
@@ -250576,7 +250576,7 @@ static const UV UNI_IDC_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_IDC_invlist[] = {  /* for EBCDIC 1047 */
 	1451,	/* Number of elements */
@@ -252041,7 +252041,7 @@ static const UV UNI_IDC_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_IDC_invlist[] = {  /* for EBCDIC 037 */
 	1447,	/* Number of elements */
@@ -254782,7 +254782,7 @@ static const UV UNI_IDS_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_IDS_invlist[] = {  /* for EBCDIC 1047 */
 	1245,	/* Number of elements */
@@ -256041,7 +256041,7 @@ static const UV UNI_IDS_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_IDS_invlist[] = {  /* for EBCDIC 037 */
 	1241,	/* Number of elements */
@@ -282958,7 +282958,7 @@ static const UV UNI_INSC__CONSONANTPLACEHOLDER_invlist[] = {  /* for ASCII/Latin
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_INSC__CONSONANTPLACEHOLDER_invlist[] = {  /* for EBCDIC 1047 */
 	31,	/* Number of elements */
@@ -283003,7 +283003,7 @@ static const UV UNI_INSC__CONSONANTPLACEHOLDER_invlist[] = {  /* for EBCDIC 1047
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_INSC__CONSONANTPLACEHOLDER_invlist[] = {  /* for EBCDIC 037 */
 	31,	/* Number of elements */
@@ -283358,7 +283358,7 @@ static const UV UNI_INSC__NUMBER_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_INSC__NUMBER_invlist[] = {  /* for EBCDIC 1047 */
 	89,	/* Number of elements */
@@ -283461,7 +283461,7 @@ static const UV UNI_INSC__NUMBER_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_INSC__NUMBER_invlist[] = {  /* for EBCDIC 037 */
 	89,	/* Number of elements */
@@ -284212,7 +284212,7 @@ static const UV UNI_INSC__OTHER_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_INSC__OTHER_invlist[] = {  /* for EBCDIC 1047 */
 	627,	/* Number of elements */
@@ -284853,7 +284853,7 @@ static const UV UNI_INSC__OTHER_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_INSC__OTHER_invlist[] = {  /* for EBCDIC 037 */
 	627,	/* Number of elements */
@@ -285600,7 +285600,7 @@ static const UV UNI_INSC__SYLLABLEMODIFIER_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_INSC__SYLLABLEMODIFIER_invlist[] = {  /* for EBCDIC 1047 */
 	41,	/* Number of elements */
@@ -285655,7 +285655,7 @@ static const UV UNI_INSC__SYLLABLEMODIFIER_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_INSC__SYLLABLEMODIFIER_invlist[] = {  /* for EBCDIC 037 */
 	41,	/* Number of elements */
@@ -288956,7 +288956,7 @@ static const UV UNI_JT__T_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_JT__T_invlist[] = {  /* for EBCDIC 1047 */
 	661,	/* Number of elements */
@@ -289631,7 +289631,7 @@ static const UV UNI_JT__T_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_JT__T_invlist[] = {  /* for EBCDIC 037 */
 	661,	/* Number of elements */
@@ -291020,7 +291020,7 @@ static const UV UNI_JT__U_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_JT__U_invlist[] = {  /* for EBCDIC 1047 */
 	703,	/* Number of elements */
@@ -291737,7 +291737,7 @@ static const UV UNI_JT__U_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_JT__U_invlist[] = {  /* for EBCDIC 037 */
 	703,	/* Number of elements */
@@ -293914,7 +293914,7 @@ static const UV UNI_L_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_L_invlist[] = {  /* for EBCDIC 1047 */
 	1245,	/* Number of elements */
@@ -295173,7 +295173,7 @@ static const UV UNI_L_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_L_invlist[] = {  /* for EBCDIC 037 */
 	1241,	/* Number of elements */
@@ -296490,7 +296490,7 @@ static const UV UNI_LATIN1_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LATIN1_invlist[] = {  /* for EBCDIC 1047 */
 	55,	/* Number of elements */
@@ -296559,7 +296559,7 @@ static const UV UNI_LATIN1_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LATIN1_invlist[] = {  /* for EBCDIC 037 */
 	57,	/* Number of elements */
@@ -296780,7 +296780,7 @@ static const UV UNI_LATN_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LATN_invlist[] = {  /* for EBCDIC 1047 */
 	105,	/* Number of elements */
@@ -296899,7 +296899,7 @@ static const UV UNI_LATN_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LATN_invlist[] = {  /* for EBCDIC 037 */
 	101,	/* Number of elements */
@@ -297244,7 +297244,7 @@ static const UV UNI_LB__AI_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__AI_invlist[] = {  /* for EBCDIC 1047 */
 	225,	/* Number of elements */
@@ -297483,7 +297483,7 @@ static const UV UNI_LB__AI_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__AI_invlist[] = {  /* for EBCDIC 037 */
 	225,	/* Number of elements */
@@ -299244,7 +299244,7 @@ static const UV UNI_LB__AL_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__AL_invlist[] = {  /* for EBCDIC 1047 */
 	1539,	/* Number of elements */
@@ -300797,7 +300797,7 @@ static const UV UNI_LB__AL_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__AL_invlist[] = {  /* for EBCDIC 037 */
 	1535,	/* Number of elements */
@@ -302562,7 +302562,7 @@ static const UV UNI_LB__BA_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__BA_invlist[] = {  /* for EBCDIC 1047 */
 	193,	/* Number of elements */
@@ -302769,7 +302769,7 @@ static const UV UNI_LB__BA_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__BA_invlist[] = {  /* for EBCDIC 037 */
 	193,	/* Number of elements */
@@ -303036,7 +303036,7 @@ static const UV UNI_LB__BB_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__BB_invlist[] = {  /* for EBCDIC 1047 */
 	49,	/* Number of elements */
@@ -303099,7 +303099,7 @@ static const UV UNI_LB__BB_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__BB_invlist[] = {  /* for EBCDIC 037 */
 	49,	/* Number of elements */
@@ -303178,7 +303178,7 @@ static const UV UNI_LB__BK_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__BK_invlist[] = {  /* for EBCDIC 1047 */
 	5,	/* Number of elements */
@@ -303197,7 +303197,7 @@ static const UV UNI_LB__BK_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__BK_invlist[] = {  /* for EBCDIC 037 */
 	5,	/* Number of elements */
@@ -303466,7 +303466,7 @@ static const UV UNI_LB__CL_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__CL_invlist[] = {  /* for EBCDIC 1047 */
 	167,	/* Number of elements */
@@ -303647,7 +303647,7 @@ static const UV UNI_LB__CL_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__CL_invlist[] = {  /* for EBCDIC 037 */
 	167,	/* Number of elements */
@@ -304377,7 +304377,7 @@ static const UV UNI_LB__CM_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__CM_invlist[] = {  /* for EBCDIC 1047 */
 	542,	/* Number of elements */
@@ -304933,7 +304933,7 @@ static const UV UNI_LB__CM_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__CM_invlist[] = {  /* for EBCDIC 037 */
 	542,	/* Number of elements */
@@ -305505,7 +305505,7 @@ static const UV UNI_LB__CP_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__CP_invlist[] = {  /* for EBCDIC 1047 */
 	5,	/* Number of elements */
@@ -305524,7 +305524,7 @@ static const UV UNI_LB__CP_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__CP_invlist[] = {  /* for EBCDIC 037 */
 	5,	/* Number of elements */
@@ -305557,7 +305557,7 @@ static const UV UNI_LB__CR_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__CR_invlist[] = {  /* for EBCDIC 1047 */
 	3,	/* Number of elements */
@@ -305574,7 +305574,7 @@ static const UV UNI_LB__CR_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__CR_invlist[] = {  /* for EBCDIC 037 */
 	3,	/* Number of elements */
@@ -305741,7 +305741,7 @@ static const UV UNI_LB__EX_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__EX_invlist[] = {  /* for EBCDIC 1047 */
 	49,	/* Number of elements */
@@ -305804,7 +305804,7 @@ static const UV UNI_LB__EX_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__EX_invlist[] = {  /* for EBCDIC 037 */
 	49,	/* Number of elements */
@@ -305903,7 +305903,7 @@ static const UV UNI_LB__GL_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__GL_invlist[] = {  /* for EBCDIC 1047 */
 	25,	/* Number of elements */
@@ -305942,7 +305942,7 @@ static const UV UNI_LB__GL_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__GL_invlist[] = {  /* for EBCDIC 037 */
 	25,	/* Number of elements */
@@ -307635,7 +307635,7 @@ static const UV UNI_LB__HY_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__HY_invlist[] = {  /* for EBCDIC 1047 */
 	3,	/* Number of elements */
@@ -307652,7 +307652,7 @@ static const UV UNI_LB__HY_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__HY_invlist[] = {  /* for EBCDIC 037 */
 	3,	/* Number of elements */
@@ -308051,7 +308051,7 @@ static const UV UNI_LB__IS_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__IS_invlist[] = {  /* for EBCDIC 1047 */
 	23,	/* Number of elements */
@@ -308088,7 +308088,7 @@ static const UV UNI_LB__IS_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__IS_invlist[] = {  /* for EBCDIC 037 */
 	23,	/* Number of elements */
@@ -308139,7 +308139,7 @@ static const UV UNI_LB__LF_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__LF_invlist[] = {  /* for EBCDIC 1047 */
 	3,	/* Number of elements */
@@ -308156,7 +308156,7 @@ static const UV UNI_LB__LF_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__LF_invlist[] = {  /* for EBCDIC 037 */
 	3,	/* Number of elements */
@@ -308187,7 +308187,7 @@ static const UV UNI_LB__NL_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__NL_invlist[] = {  /* for EBCDIC 1047 */
 	3,	/* Number of elements */
@@ -308204,7 +308204,7 @@ static const UV UNI_LB__NL_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__NL_invlist[] = {  /* for EBCDIC 037 */
 	3,	/* Number of elements */
@@ -308393,7 +308393,7 @@ static const UV UNI_LB__NU_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__NU_invlist[] = {  /* for EBCDIC 1047 */
 	119,	/* Number of elements */
@@ -308526,7 +308526,7 @@ static const UV UNI_LB__NU_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__NU_invlist[] = {  /* for EBCDIC 037 */
 	119,	/* Number of elements */
@@ -308841,7 +308841,7 @@ static const UV UNI_LB__OP_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__OP_invlist[] = {  /* for EBCDIC 1047 */
 	169,	/* Number of elements */
@@ -309024,7 +309024,7 @@ static const UV UNI_LB__OP_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__OP_invlist[] = {  /* for EBCDIC 037 */
 	169,	/* Number of elements */
@@ -309265,7 +309265,7 @@ static const UV UNI_LB__PO_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__PO_invlist[] = {  /* for EBCDIC 1047 */
 	47,	/* Number of elements */
@@ -309326,7 +309326,7 @@ static const UV UNI_LB__PO_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__PO_invlist[] = {  /* for EBCDIC 037 */
 	47,	/* Number of elements */
@@ -309447,7 +309447,7 @@ static const UV UNI_LB__PR_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__PR_invlist[] = {  /* for EBCDIC 1047 */
 	51,	/* Number of elements */
@@ -309512,7 +309512,7 @@ static const UV UNI_LB__PR_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__PR_invlist[] = {  /* for EBCDIC 037 */
 	51,	/* Number of elements */
@@ -309615,7 +309615,7 @@ static const UV UNI_LB__QU_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__QU_invlist[] = {  /* for EBCDIC 1047 */
 	25,	/* Number of elements */
@@ -309654,7 +309654,7 @@ static const UV UNI_LB__QU_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__QU_invlist[] = {  /* for EBCDIC 037 */
 	25,	/* Number of elements */
@@ -309795,7 +309795,7 @@ static const UV UNI_LB__SP_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__SP_invlist[] = {  /* for EBCDIC 1047 */
 	3,	/* Number of elements */
@@ -309812,7 +309812,7 @@ static const UV UNI_LB__SP_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__SP_invlist[] = {  /* for EBCDIC 037 */
 	3,	/* Number of elements */
@@ -309843,7 +309843,7 @@ static const UV UNI_LB__SY_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LB__SY_invlist[] = {  /* for EBCDIC 1047 */
 	3,	/* Number of elements */
@@ -309860,7 +309860,7 @@ static const UV UNI_LB__SY_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LB__SY_invlist[] = {  /* for EBCDIC 037 */
 	3,	/* Number of elements */
@@ -312366,7 +312366,7 @@ static const UV UNI_LO_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_LO_invlist[] = {  /* for EBCDIC 1047 */
 	951,	/* Number of elements */
@@ -313331,7 +313331,7 @@ static const UV UNI_LO_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_LO_invlist[] = {  /* for EBCDIC 037 */
 	951,	/* Number of elements */
@@ -315282,7 +315282,7 @@ static const UV UNI_MATH_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_MATH_invlist[] = {  /* for EBCDIC 1047 */
 	279,	/* Number of elements */
@@ -315575,7 +315575,7 @@ static const UV UNI_MATH_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_MATH_invlist[] = {  /* for EBCDIC 037 */
 	279,	/* Number of elements */
@@ -317496,7 +317496,7 @@ static const UV UNI_N_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_N_invlist[] = {  /* for EBCDIC 1047 */
 	261,	/* Number of elements */
@@ -317771,7 +317771,7 @@ static const UV UNI_N_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_N_invlist[] = {  /* for EBCDIC 037 */
 	261,	/* Number of elements */
@@ -319017,7 +319017,7 @@ static const UV UNI_NFDQC__Y_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NFDQC__Y_invlist[] = {  /* for EBCDIC 1047 */
 	467,	/* Number of elements */
@@ -319498,7 +319498,7 @@ static const UV UNI_NFDQC__Y_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NFDQC__Y_invlist[] = {  /* for EBCDIC 037 */
 	467,	/* Number of elements */
@@ -320487,7 +320487,7 @@ static const UV UNI_NFKCQC__N_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NFKCQC__N_invlist[] = {  /* for EBCDIC 1047 */
 	503,	/* Number of elements */
@@ -321004,7 +321004,7 @@ static const UV UNI_NFKCQC__N_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NFKCQC__N_invlist[] = {  /* for EBCDIC 037 */
 	501,	/* Number of elements */
@@ -322101,7 +322101,7 @@ static const UV UNI_NFKCQC__Y_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NFKCQC__Y_invlist[] = {  /* for EBCDIC 1047 */
 	577,	/* Number of elements */
@@ -322692,7 +322692,7 @@ static const UV UNI_NFKCQC__Y_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NFKCQC__Y_invlist[] = {  /* for EBCDIC 037 */
 	575,	/* Number of elements */
@@ -324071,7 +324071,7 @@ static const UV UNI_NFKDQC__N_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NFKDQC__N_invlist[] = {  /* for EBCDIC 1047 */
 	777,	/* Number of elements */
@@ -324862,7 +324862,7 @@ static const UV UNI_NFKDQC__N_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NFKDQC__N_invlist[] = {  /* for EBCDIC 037 */
 	779,	/* Number of elements */
@@ -325851,7 +325851,7 @@ static const UV UNI_NO_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NO_invlist[] = {  /* for EBCDIC 1047 */
 	143,	/* Number of elements */
@@ -326008,7 +326008,7 @@ static const UV UNI_NO_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NO_invlist[] = {  /* for EBCDIC 037 */
 	143,	/* Number of elements */
@@ -326229,7 +326229,7 @@ static const UV UNI_NT__DI_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NT__DI_invlist[] = {  /* for EBCDIC 1047 */
 	43,	/* Number of elements */
@@ -326286,7 +326286,7 @@ static const UV UNI_NT__DI_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NT__DI_invlist[] = {  /* for EBCDIC 037 */
 	43,	/* Number of elements */
@@ -326655,7 +326655,7 @@ static const UV UNI_NT__NU_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NT__NU_invlist[] = {  /* for EBCDIC 1047 */
 	301,	/* Number of elements */
@@ -326970,7 +326970,7 @@ static const UV UNI_NT__NU_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NT__NU_invlist[] = {  /* for EBCDIC 037 */
 	301,	/* Number of elements */
@@ -327475,7 +327475,7 @@ static const UV UNI_NV__0_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NV__0_invlist[] = {  /* for EBCDIC 1047 */
 	159,	/* Number of elements */
@@ -327648,7 +327648,7 @@ static const UV UNI_NV__0_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NV__0_invlist[] = {  /* for EBCDIC 037 */
 	159,	/* Number of elements */
@@ -328101,7 +328101,7 @@ static const UV UNI_NV__1_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NV__1_invlist[] = {  /* for EBCDIC 1047 */
 	269,	/* Number of elements */
@@ -328384,7 +328384,7 @@ static const UV UNI_NV__1_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NV__1_invlist[] = {  /* for EBCDIC 037 */
 	269,	/* Number of elements */
@@ -328767,7 +328767,7 @@ static const UV UNI_NV__1_SLASH_2_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NV__1_SLASH_2_invlist[] = {  /* for EBCDIC 1047 */
 	35,	/* Number of elements */
@@ -328816,7 +328816,7 @@ static const UV UNI_NV__1_SLASH_2_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NV__1_SLASH_2_invlist[] = {  /* for EBCDIC 037 */
 	35,	/* Number of elements */
@@ -328957,7 +328957,7 @@ static const UV UNI_NV__1_SLASH_4_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NV__1_SLASH_4_invlist[] = {  /* for EBCDIC 1047 */
 	27,	/* Number of elements */
@@ -328998,7 +328998,7 @@ static const UV UNI_NV__1_SLASH_4_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NV__1_SLASH_4_invlist[] = {  /* for EBCDIC 037 */
 	27,	/* Number of elements */
@@ -330023,7 +330023,7 @@ static const UV UNI_NV__2_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NV__2_invlist[] = {  /* for EBCDIC 1047 */
 	267,	/* Number of elements */
@@ -330304,7 +330304,7 @@ static const UV UNI_NV__2_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NV__2_invlist[] = {  /* for EBCDIC 037 */
 	267,	/* Number of elements */
@@ -331143,7 +331143,7 @@ static const UV UNI_NV__3_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NV__3_invlist[] = {  /* for EBCDIC 1047 */
 	261,	/* Number of elements */
@@ -331418,7 +331418,7 @@ static const UV UNI_NV__3_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NV__3_invlist[] = {  /* for EBCDIC 037 */
 	261,	/* Number of elements */
@@ -331763,7 +331763,7 @@ static const UV UNI_NV__3_SLASH_4_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NV__3_SLASH_4_invlist[] = {  /* for EBCDIC 1047 */
 	19,	/* Number of elements */
@@ -331796,7 +331796,7 @@ static const UV UNI_NV__3_SLASH_4_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NV__3_SLASH_4_invlist[] = {  /* for EBCDIC 037 */
 	19,	/* Number of elements */
@@ -332329,7 +332329,7 @@ static const UV UNI_NV__4_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NV__4_invlist[] = {  /* for EBCDIC 1047 */
 	247,	/* Number of elements */
@@ -332590,7 +332590,7 @@ static const UV UNI_NV__4_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NV__4_invlist[] = {  /* for EBCDIC 037 */
 	247,	/* Number of elements */
@@ -333333,7 +333333,7 @@ static const UV UNI_NV__5_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NV__5_invlist[] = {  /* for EBCDIC 1047 */
 	253,	/* Number of elements */
@@ -333600,7 +333600,7 @@ static const UV UNI_NV__5_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NV__5_invlist[] = {  /* for EBCDIC 037 */
 	253,	/* Number of elements */
@@ -334293,7 +334293,7 @@ static const UV UNI_NV__6_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NV__6_invlist[] = {  /* for EBCDIC 1047 */
 	223,	/* Number of elements */
@@ -334530,7 +334530,7 @@ static const UV UNI_NV__6_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NV__6_invlist[] = {  /* for EBCDIC 037 */
 	223,	/* Number of elements */
@@ -335093,7 +335093,7 @@ static const UV UNI_NV__7_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NV__7_invlist[] = {  /* for EBCDIC 1047 */
 	217,	/* Number of elements */
@@ -335324,7 +335324,7 @@ static const UV UNI_NV__7_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NV__7_invlist[] = {  /* for EBCDIC 037 */
 	217,	/* Number of elements */
@@ -335903,7 +335903,7 @@ static const UV UNI_NV__8_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NV__8_invlist[] = {  /* for EBCDIC 1047 */
 	211,	/* Number of elements */
@@ -336128,7 +336128,7 @@ static const UV UNI_NV__8_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NV__8_invlist[] = {  /* for EBCDIC 037 */
 	211,	/* Number of elements */
@@ -336673,7 +336673,7 @@ static const UV UNI_NV__9_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NV__9_invlist[] = {  /* for EBCDIC 1047 */
 	215,	/* Number of elements */
@@ -336902,7 +336902,7 @@ static const UV UNI_NV__9_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NV__9_invlist[] = {  /* for EBCDIC 037 */
 	215,	/* Number of elements */
@@ -337653,7 +337653,7 @@ static const UV UNI_NV__NAN_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_NV__NAN_invlist[] = {  /* for EBCDIC 1047 */
 	405,	/* Number of elements */
@@ -338072,7 +338072,7 @@ static const UV UNI_NV__NAN_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_NV__NAN_invlist[] = {  /* for EBCDIC 037 */
 	405,	/* Number of elements */
@@ -338995,7 +338995,7 @@ static const UV UNI_P_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_P_invlist[] = {  /* for EBCDIC 1047 */
 	373,	/* Number of elements */
@@ -339382,7 +339382,7 @@ static const UV UNI_P_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_P_invlist[] = {  /* for EBCDIC 037 */
 	371,	/* Number of elements */
@@ -339845,7 +339845,7 @@ static const UV UNI_PATSYN_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_PATSYN_invlist[] = {  /* for EBCDIC 1047 */
 	61,	/* Number of elements */
@@ -339920,7 +339920,7 @@ static const UV UNI_PATSYN_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_PATSYN_invlist[] = {  /* for EBCDIC 037 */
 	59,	/* Number of elements */
@@ -340027,7 +340027,7 @@ static const UV UNI_PC_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_PC_invlist[] = {  /* for EBCDIC 1047 */
 	13,	/* Number of elements */
@@ -340054,7 +340054,7 @@ static const UV UNI_PC_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_PC_invlist[] = {  /* for EBCDIC 037 */
 	13,	/* Number of elements */
@@ -340147,7 +340147,7 @@ static const UV UNI_PD_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_PD_invlist[] = {  /* for EBCDIC 1047 */
 	35,	/* Number of elements */
@@ -340196,7 +340196,7 @@ static const UV UNI_PD_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_PD_invlist[] = {  /* for EBCDIC 037 */
 	35,	/* Number of elements */
@@ -340401,7 +340401,7 @@ static const UV UNI_PE_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_PE_invlist[] = {  /* for EBCDIC 1047 */
 	145,	/* Number of elements */
@@ -340560,7 +340560,7 @@ static const UV UNI_PE_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_PE_invlist[] = {  /* for EBCDIC 037 */
 	145,	/* Number of elements */
@@ -340763,7 +340763,7 @@ static const UV UNI_PF_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_PF_invlist[] = {  /* for EBCDIC 1047 */
 	21,	/* Number of elements */
@@ -340798,7 +340798,7 @@ static const UV UNI_PF_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_PF_invlist[] = {  /* for EBCDIC 037 */
 	21,	/* Number of elements */
@@ -340951,7 +340951,7 @@ static const UV UNI_PI_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_PI_invlist[] = {  /* for EBCDIC 1047 */
 	23,	/* Number of elements */
@@ -340988,7 +340988,7 @@ static const UV UNI_PI_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_PI_invlist[] = {  /* for EBCDIC 037 */
 	23,	/* Number of elements */
@@ -341405,7 +341405,7 @@ static const UV UNI_PO_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_PO_invlist[] = {  /* for EBCDIC 1047 */
 	363,	/* Number of elements */
@@ -341782,7 +341782,7 @@ static const UV UNI_PO_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_PO_invlist[] = {  /* for EBCDIC 037 */
 	363,	/* Number of elements */
@@ -342333,7 +342333,7 @@ static const UV UNI_PS_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_PS_invlist[] = {  /* for EBCDIC 1047 */
 	151,	/* Number of elements */
@@ -342498,7 +342498,7 @@ static const UV UNI_PS_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_PS_invlist[] = {  /* for EBCDIC 037 */
 	151,	/* Number of elements */
@@ -342753,7 +342753,7 @@ static const UV UNI_QMARK_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_QMARK_invlist[] = {  /* for EBCDIC 1047 */
 	25,	/* Number of elements */
@@ -342792,7 +342792,7 @@ static const UV UNI_QMARK_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_QMARK_invlist[] = {  /* for EBCDIC 037 */
 	25,	/* Number of elements */
@@ -343375,7 +343375,7 @@ static const UV UNI_S_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_S_invlist[] = {  /* for EBCDIC 1047 */
 	459,	/* Number of elements */
@@ -343848,7 +343848,7 @@ static const UV UNI_S_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_S_invlist[] = {  /* for EBCDIC 037 */
 	457,	/* Number of elements */
@@ -344373,7 +344373,7 @@ static const UV UNI_SB__AT_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_SB__AT_invlist[] = {  /* for EBCDIC 1047 */
 	9,	/* Number of elements */
@@ -344396,7 +344396,7 @@ static const UV UNI_SB__AT_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_SB__AT_invlist[] = {  /* for EBCDIC 037 */
 	9,	/* Number of elements */
@@ -344519,7 +344519,7 @@ static const UV UNI_SB__CL_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_SB__CL_invlist[] = {  /* for EBCDIC 1047 */
 	91,	/* Number of elements */
@@ -344624,7 +344624,7 @@ static const UV UNI_SB__CL_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_SB__CL_invlist[] = {  /* for EBCDIC 037 */
 	89,	/* Number of elements */
@@ -345353,7 +345353,7 @@ static const UV UNI_SB__FO_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_SB__FO_invlist[] = {  /* for EBCDIC 1047 */
 	41,	/* Number of elements */
@@ -345408,7 +345408,7 @@ static const UV UNI_SB__FO_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_SB__FO_invlist[] = {  /* for EBCDIC 037 */
 	41,	/* Number of elements */
@@ -347785,7 +347785,7 @@ static const UV UNI_SB__LO_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_SB__LO_invlist[] = {  /* for EBCDIC 1047 */
 	1301,	/* Number of elements */
@@ -349100,7 +349100,7 @@ static const UV UNI_SB__LO_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_SB__LO_invlist[] = {  /* for EBCDIC 037 */
 	1301,	/* Number of elements */
@@ -350547,7 +350547,7 @@ static const UV UNI_SB__NU_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_SB__NU_invlist[] = {  /* for EBCDIC 1047 */
 	121,	/* Number of elements */
@@ -350682,7 +350682,7 @@ static const UV UNI_SB__NU_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_SB__NU_invlist[] = {  /* for EBCDIC 037 */
 	121,	/* Number of elements */
@@ -350867,7 +350867,7 @@ static const UV UNI_SB__SC_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_SB__SC_invlist[] = {  /* for EBCDIC 1047 */
 	41,	/* Number of elements */
@@ -350922,7 +350922,7 @@ static const UV UNI_SB__SC_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_SB__SC_invlist[] = {  /* for EBCDIC 037 */
 	41,	/* Number of elements */
@@ -350993,7 +350993,7 @@ static const UV UNI_SB__SE_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_SB__SE_invlist[] = {  /* for EBCDIC 1047 */
 	5,	/* Number of elements */
@@ -351012,7 +351012,7 @@ static const UV UNI_SB__SE_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_SB__SE_invlist[] = {  /* for EBCDIC 037 */
 	5,	/* Number of elements */
@@ -351061,7 +351061,7 @@ static const UV UNI_SB__SP_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_SB__SP_invlist[] = {  /* for EBCDIC 1047 */
 	17,	/* Number of elements */
@@ -351092,7 +351092,7 @@ static const UV UNI_SB__SP_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_SB__SP_invlist[] = {  /* for EBCDIC 037 */
 	17,	/* Number of elements */
@@ -351277,7 +351277,7 @@ static const UV UNI_SB__ST_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_SB__ST_invlist[] = {  /* for EBCDIC 1047 */
 	143,	/* Number of elements */
@@ -351434,7 +351434,7 @@ static const UV UNI_SB__ST_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_SB__ST_invlist[] = {  /* for EBCDIC 037 */
 	143,	/* Number of elements */
@@ -352887,7 +352887,7 @@ static const UV UNI_SB__UP_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_SB__UP_invlist[] = {  /* for EBCDIC 1047 */
 	1303,	/* Number of elements */
@@ -354204,7 +354204,7 @@ static const UV UNI_SB__UP_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_SB__UP_invlist[] = {  /* for EBCDIC 037 */
 	1299,	/* Number of elements */
@@ -357107,7 +357107,7 @@ static const UV UNI_SB__XX_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_SB__XX_invlist[] = {  /* for EBCDIC 1047 */
 	1599,	/* Number of elements */
@@ -358720,7 +358720,7 @@ static const UV UNI_SB__XX_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_SB__XX_invlist[] = {  /* for EBCDIC 037 */
 	1597,	/* Number of elements */
@@ -360385,7 +360385,7 @@ static const UV UNI_SC_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_SC_invlist[] = {  /* for EBCDIC 1047 */
 	47,	/* Number of elements */
@@ -360446,7 +360446,7 @@ static const UV UNI_SC_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_SC_invlist[] = {  /* for EBCDIC 037 */
 	47,	/* Number of elements */
@@ -361425,7 +361425,7 @@ static const UV UNI_SC__LATN_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_SC__LATN_invlist[] = {  /* for EBCDIC 1047 */
 	91,	/* Number of elements */
@@ -361530,7 +361530,7 @@ static const UV UNI_SC__LATN_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_SC__LATN_invlist[] = {  /* for EBCDIC 037 */
 	87,	/* Number of elements */
@@ -362578,7 +362578,7 @@ static const UV UNI_SC__ZYYY_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_SC__ZYYY_invlist[] = {  /* for EBCDIC 1047 */
 	370,	/* Number of elements */
@@ -362962,7 +362962,7 @@ static const UV UNI_SC__ZYYY_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_SC__ZYYY_invlist[] = {  /* for EBCDIC 037 */
 	366,	/* Number of elements */
@@ -363416,7 +363416,7 @@ static const UV UNI_SD_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_SD_invlist[] = {  /* for EBCDIC 1047 */
 	65,	/* Number of elements */
@@ -363495,7 +363495,7 @@ static const UV UNI_SD_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_SD_invlist[] = {  /* for EBCDIC 037 */
 	65,	/* Number of elements */
@@ -363774,7 +363774,7 @@ static const UV UNI_SK_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_SK_invlist[] = {  /* for EBCDIC 1047 */
 	57,	/* Number of elements */
@@ -363845,7 +363845,7 @@ static const UV UNI_SK_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_SK_invlist[] = {  /* for EBCDIC 037 */
 	55,	/* Number of elements */
@@ -364054,7 +364054,7 @@ static const UV UNI_SM_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_SM_invlist[] = {  /* for EBCDIC 1047 */
 	131,	/* Number of elements */
@@ -364199,7 +364199,7 @@ static const UV UNI_SM_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_SM_invlist[] = {  /* for EBCDIC 037 */
 	131,	/* Number of elements */
@@ -364736,7 +364736,7 @@ static const UV UNI_SO_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_SO_invlist[] = {  /* for EBCDIC 1047 */
 	361,	/* Number of elements */
@@ -365111,7 +365111,7 @@ static const UV UNI_SO_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_SO_invlist[] = {  /* for EBCDIC 037 */
 	361,	/* Number of elements */
@@ -365700,7 +365700,7 @@ static const UV UNI_STERM_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_STERM_invlist[] = {  /* for EBCDIC 1047 */
 	149,	/* Number of elements */
@@ -365863,7 +365863,7 @@ static const UV UNI_STERM_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_STERM_invlist[] = {  /* for EBCDIC 037 */
 	149,	/* Number of elements */
@@ -366652,7 +366652,7 @@ static const UV UNI_TERM_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_TERM_invlist[] = {  /* for EBCDIC 1047 */
 	207,	/* Number of elements */
@@ -366873,7 +366873,7 @@ static const UV UNI_TERM_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_TERM_invlist[] = {  /* for EBCDIC 037 */
 	207,	/* Number of elements */
@@ -367490,7 +367490,7 @@ static const UV UNI_VO__R_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_VO__R_invlist[] = {  /* for EBCDIC 1047 */
 	171,	/* Number of elements */
@@ -367675,7 +367675,7 @@ static const UV UNI_VO__R_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_VO__R_invlist[] = {  /* for EBCDIC 037 */
 	171,	/* Number of elements */
@@ -368234,7 +368234,7 @@ static const UV UNI_VO__U_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_VO__U_invlist[] = {  /* for EBCDIC 1047 */
 	249,	/* Number of elements */
@@ -368497,7 +368497,7 @@ static const UV UNI_VO__U_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_VO__U_invlist[] = {  /* for EBCDIC 037 */
 	249,	/* Number of elements */
@@ -368810,7 +368810,7 @@ static const UV UNI_WB__DQ_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_WB__DQ_invlist[] = {  /* for EBCDIC 1047 */
 	3,	/* Number of elements */
@@ -368827,7 +368827,7 @@ static const UV UNI_WB__DQ_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_WB__DQ_invlist[] = {  /* for EBCDIC 037 */
 	3,	/* Number of elements */
@@ -368877,7 +368877,7 @@ static const UV UNI_WB__EX_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_WB__EX_invlist[] = {  /* for EBCDIC 1047 */
 	15,	/* Number of elements */
@@ -368906,7 +368906,7 @@ static const UV UNI_WB__EX_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_WB__EX_invlist[] = {  /* for EBCDIC 037 */
 	15,	/* Number of elements */
@@ -369561,7 +369561,7 @@ static const UV UNI_WB__FO_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_WB__FO_invlist[] = {  /* for EBCDIC 1047 */
 	39,	/* Number of elements */
@@ -369614,7 +369614,7 @@ static const UV UNI_WB__FO_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_WB__FO_invlist[] = {  /* for EBCDIC 037 */
 	39,	/* Number of elements */
@@ -370781,7 +370781,7 @@ static const UV UNI_WB__LE_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_WB__LE_invlist[] = {  /* for EBCDIC 1047 */
 	1101,	/* Number of elements */
@@ -371896,7 +371896,7 @@ static const UV UNI_WB__LE_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_WB__LE_invlist[] = {  /* for EBCDIC 037 */
 	1097,	/* Number of elements */
@@ -373031,7 +373031,7 @@ static const UV UNI_WB__MB_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_WB__MB_invlist[] = {  /* for EBCDIC 1047 */
 	13,	/* Number of elements */
@@ -373058,7 +373058,7 @@ static const UV UNI_WB__MB_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_WB__MB_invlist[] = {  /* for EBCDIC 037 */
 	13,	/* Number of elements */
@@ -373113,7 +373113,7 @@ static const UV UNI_WB__ML_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_WB__ML_invlist[] = {  /* for EBCDIC 1047 */
 	17,	/* Number of elements */
@@ -373144,7 +373144,7 @@ static const UV UNI_WB__ML_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_WB__ML_invlist[] = {  /* for EBCDIC 037 */
 	17,	/* Number of elements */
@@ -373215,7 +373215,7 @@ static const UV UNI_WB__MN_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_WB__MN_invlist[] = {  /* for EBCDIC 1047 */
 	29,	/* Number of elements */
@@ -373258,7 +373258,7 @@ static const UV UNI_WB__MN_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_WB__MN_invlist[] = {  /* for EBCDIC 037 */
 	29,	/* Number of elements */
@@ -373319,7 +373319,7 @@ static const UV UNI_WB__NL_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_WB__NL_invlist[] = {  /* for EBCDIC 1047 */
 	7,	/* Number of elements */
@@ -373340,7 +373340,7 @@ static const UV UNI_WB__NL_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_WB__NL_invlist[] = {  /* for EBCDIC 037 */
 	7,	/* Number of elements */
@@ -373493,7 +373493,7 @@ static const UV UNI_WB__NU_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_WB__NU_invlist[] = {  /* for EBCDIC 1047 */
 	121,	/* Number of elements */
@@ -373628,7 +373628,7 @@ static const UV UNI_WB__NU_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_WB__NU_invlist[] = {  /* for EBCDIC 037 */
 	121,	/* Number of elements */
@@ -373777,7 +373777,7 @@ static const UV UNI_WB__SQ_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_WB__SQ_invlist[] = {  /* for EBCDIC 1047 */
 	3,	/* Number of elements */
@@ -373794,7 +373794,7 @@ static const UV UNI_WB__SQ_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_WB__SQ_invlist[] = {  /* for EBCDIC 037 */
 	3,	/* Number of elements */
@@ -373835,7 +373835,7 @@ static const UV UNI_WB__WSEGSPACE_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_WB__WSEGSPACE_invlist[] = {  /* for EBCDIC 1047 */
 	13,	/* Number of elements */
@@ -373862,7 +373862,7 @@ static const UV UNI_WB__WSEGSPACE_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_WB__WSEGSPACE_invlist[] = {  /* for EBCDIC 037 */
 	13,	/* Number of elements */
@@ -375365,7 +375365,7 @@ static const UV UNI_WB__XX_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_WB__XX_invlist[] = {  /* for EBCDIC 1047 */
 	1489,	/* Number of elements */
@@ -376868,7 +376868,7 @@ static const UV UNI_WB__XX_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_WB__XX_invlist[] = {  /* for EBCDIC 037 */
 	1485,	/* Number of elements */
@@ -379831,7 +379831,7 @@ static const UV UNI_XIDC_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_XIDC_invlist[] = {  /* for EBCDIC 1047 */
 	1465,	/* Number of elements */
@@ -381310,7 +381310,7 @@ static const UV UNI_XIDC_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_XIDC_invlist[] = {  /* for EBCDIC 037 */
 	1461,	/* Number of elements */
@@ -384029,7 +384029,7 @@ static const UV UNI_XIDS_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_XIDS_invlist[] = {  /* for EBCDIC 1047 */
 	1259,	/* Number of elements */
@@ -385302,7 +385302,7 @@ static const UV UNI_XIDS_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_XIDS_invlist[] = {  /* for EBCDIC 037 */
 	1255,	/* Number of elements */
@@ -386679,7 +386679,7 @@ static const UV UNI_Z_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_Z_invlist[] = {  /* for EBCDIC 1047 */
 	15,	/* Number of elements */
@@ -386708,7 +386708,7 @@ static const UV UNI_Z_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_Z_invlist[] = {  /* for EBCDIC 037 */
 	15,	/* Number of elements */
@@ -386793,7 +386793,7 @@ static const UV UNI_ZS_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_ZS_invlist[] = {  /* for EBCDIC 1047 */
 	13,	/* Number of elements */
@@ -386820,7 +386820,7 @@ static const UV UNI_ZS_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_ZS_invlist[] = {  /* for EBCDIC 037 */
 	13,	/* Number of elements */
@@ -387150,7 +387150,7 @@ static const UV UNI_ZYYY_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI_ZYYY_invlist[] = {  /* for EBCDIC 1047 */
 	318,	/* Number of elements */
@@ -387482,7 +387482,7 @@ static const UV UNI_ZYYY_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI_ZYYY_invlist[] = {  /* for EBCDIC 037 */
 	314,	/* Number of elements */
@@ -389211,7 +389211,7 @@ static const UV UNI__PERL_PATWS_invlist[] = {  /* for ASCII/Latin1 */
 #  if 'A' == 193 /* EBCDIC 1047 */ \
      && '\\' == 224 && '[' == 173 && ']' == 189 && '{' == 192 && '}' == 208 \
      && '^' == 95 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 21
 
 static const UV UNI__PERL_PATWS_invlist[] = {  /* for EBCDIC 1047 */
 	15,	/* Number of elements */
@@ -389240,7 +389240,7 @@ static const UV UNI__PERL_PATWS_invlist[] = {  /* for EBCDIC 1047 */
 #  if 'A' == 193 /* EBCDIC 037 */ \
      && '\\' == 224 && '[' == 186 && ']' == 187 && '{' == 192 && '}' == 208 \
      && '^' == 176 && '~' == 161 && '!' == 90 && '#' == 123 && '|' == 79 \
-     && '$' == 91 && '@' == 124 && '`' == 121
+     && '$' == 91 && '@' == 124 && '`' == 121 && '\n' == 37
 
 static const UV UNI__PERL_PATWS_invlist[] = {  /* for EBCDIC 037 */
 	15,	/* Number of elements */
@@ -391862,7 +391862,7 @@ static const U8 WB_table[23][23] = {
  * 6278722699123f3890e4b1cc42011e96d8960e4958a3b93484361530983d2611 lib/unicore/extracted/DNumValues.txt
  * ca5f9fabd2bcb43bcbf180d18e53aa3f38cdb74a56ba8cf6ec9ccaa23811d8fd lib/unicore/mktables
  * a712c758275b460d18fa77a26ed3589689bb3f69dcc1ea99b913e32db92a5cd2 lib/unicore/version
- * 4bb677187a1a64e39d48f2e341b5ecb6c99857e49d7a79cf503bd8a3c709999b regen/charset_translations.pl
+ * 2680b9254eb236c5c090f11b149605043e8c8433661b96efc4a42fb4709342a5 regen/charset_translations.pl
  * 03e51b0f07beebd5da62ab943899aa4934eee1f792fa27c1fb638c33bf4ac6ea regen/mk_PL_charclass.pl
  * 1e80f4b3617c3db8f66b9e017a1492d7e8ea78926e6c4081b394f81c2e6a3a69 regen/mk_invlists.pl
  * ex: set ro: */
