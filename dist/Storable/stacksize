@@ -40,9 +40,9 @@ if ($^O eq "MSWin32") {
     SetErrorMode(SEM_NOGPFAULTERRORBOX() | SEM_FAILCRITICALERRORS());
 }
 # the ; here is to ensure system() passes this to the shell
-elsif (system("ulimit -c 0 ;") == 0) {
+elsif (system("ulimit -c 0;") == 0) {
     # try to prevent core dumps
-    $prefix = "ulimit -c 0 ; ";
+    $prefix = "ulimit -c 0;";
 }
 if (@ARGV and $ARGV[0] eq '--core') {
     $ENV{PERL_CORE} = 1;
@@ -77,7 +77,7 @@ if ($^O eq "MSWin32") {
     my ($str, $major, $minor) = Win32::GetOSVersion();
     if ($major < 6 || $major == 6 && $minor < 1) {
 	print "Using defaults for older Win32\n";
-	write_limits(500, 256);
+	write_limits(500, 250);
 	exit;
     }
 }
@@ -114,29 +114,19 @@ if (PARALLEL) {
     sleep(2.0);
 }
 
-my $use_W32J = 0;
-if ($^O eq 'MSWin32' && $^V ge v5.18.0) {
-    eval { require Win32::Job;$use_W32J=1;}
-}
 sub runcmd {
     my $cmd = shift;
-    unless ($use_W32J) {
-      return `$cmd` =~ /\bok\b/ ? 0 : 1;
-    }
-    my $job = Win32::Job->new;
-    my $pid = $job->spawn(q{perl}, $cmd);
-    $job->run(5);
-    my $status = $job->status;
-    return $job->status->{$pid}{exitcode};
+    return `$cmd` =~ /\bok\b/ ? 0 : 1;
 }
 
 sub cmd {
     my ($i, $try, $limit_name) = @_;
     die unless $i;
-    my $code = "my \$t; \$Storable::$limit_name = -1; $try for 1..$i;dclone(\$t); print qq/ok\n/";
+    my $code = "my \$t; \$Storable::$limit_name = -1; " .
+               "$try for 1..$i; dclone(\$t); print qq/ok\n/";
     my $q = ($^O eq 'MSWin32') ? '"' : "'";
 
-    "$prefix $PERL $mblib -MStorable=dclone -e$q$code$q"
+    "$prefix$PERL $mblib -MStorable=dclone -e$q$code$q"
 }
 # try more
 sub good {
@@ -187,11 +177,15 @@ while (!$found) {
         $n = bad($n);
     }
 }
+if ($n == 100) {
+  $n = 500;
+}
 print "MAX_DEPTH = $n\n" unless QUIET;
 my $max_depth = $n;
 
 ($n, $good, $bad, $found) =
-  (int($n/2), 50, $n, undef);
+  (int($n/2), $^O eq 'MSWin32' ? 32 : 50, $n, undef);
+my $good_orig = $good;
 # pack j only since 5.8
 my $max = ($] > 5.007 and length(pack "j", 0) < 8)
   ? ($^O eq 'MSWin32' ? 3000 : 8000)
@@ -207,8 +201,8 @@ while (!$found) {
         $n = bad($n);
     }
 }
-if ($max_depth == $bad1-1
-    and $n == $bad2-1)
+if (($max_depth == $bad1-1 and $n == $bad2-1)
+    or ($n == $good_orig))
 {
     # more likely the shell. travis docker ubuntu, mingw e.g.
     print "Error: Apparently your system(SHELLSTRING) cannot catch stack overflows\n"
