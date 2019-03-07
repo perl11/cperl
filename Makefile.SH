@@ -186,7 +186,7 @@ esac
 : is Cwd static or dynamic
 static_cwd='define'
 cwd_dep='$(PERL_EXE)'
-storable_limit_dep=''
+storable_limit_dep='$(PERL_EXE)'
 storable_type=''
 list_util_dep='$(PERL_EXE)'
 for f in $dynamic_ext; do
