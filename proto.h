@@ -10330,10 +10330,7 @@ PERL_STATIC_INLINE UV*	S_invlist_array(SV* const invlist)
 
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE bool	S_is_invlist(SV* const invlist)
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(1);
-#define PERL_ARGS_ASSERT_IS_INVLIST	\
-	assert(invlist)
+			__attribute__warn_unused_result__;
 #endif
 
 #endif
