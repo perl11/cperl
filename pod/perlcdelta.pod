@@ -18,7 +18,7 @@ L<perl5262cdelta>, which describes differences between v5.26.1c and v5.26.2c.
 
 =over 4
 
-=item L<ExtUtils::MakeMaker> 8.35_07
+=item L<ExtUtils::MakeMaker> 8.35_08
 
 Added C<-flto> support for static libs (need the lto plugin) and D for
 deterministic builds, using arflags for AR_STATIC_ARGS, not just 'cr'.

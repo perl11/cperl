@@ -18339,9 +18339,11 @@ our %delta :const = (
             'Module::CoreList'      => '5.20190301c',
             'Module::CoreList::Utils'=> '5.20190301c',
             'Cpanel::JSON::XS'      => '4.09',
-            'ExtUtils::MakeMaker'   => '8.35_07',
-            'ExtUtils::MM_Unix'     => '8.35_07',
+            'ExtUtils::MakeMaker'   => '8.35_08',
+            'ExtUtils::MM_Unix'     => '8.35_08',
             'Storable'              => '3.12_04',
+        },
+        removed => {
         }
   }
 );

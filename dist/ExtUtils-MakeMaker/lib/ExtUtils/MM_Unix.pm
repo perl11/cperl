@@ -14,7 +14,7 @@ use ExtUtils::MakeMaker qw($Verbose neatvalue _sprintf562);
 
 # If we make $VERSION an our variable parse_version() breaks
 use vars qw($VERSION);
-$VERSION = '8.35_07';
+$VERSION = '8.35_08';
 $VERSION =~ tr/_//d;
 
 require ExtUtils::MM_Any;
@@ -2049,6 +2049,7 @@ sub init_PERL {
     my $perl_name = 'perl';
     $perl_name = 'ndbgperl' if $Is{VMS} &&
       defined $Config{usevmsdebug} && $Config{usevmsdebug} eq 'define';
+    $perl_name = 'cperl' if $Is{Win32} && $^V =~ /c$/;
 
     # XXX This logic is flawed.  If "miniperl" is anywhere in the path
     # it will get confused.  It should be fixed to work only on the filename.
