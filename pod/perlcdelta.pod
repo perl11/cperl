@@ -94,10 +94,12 @@ Fixed documentation of ccopts.
 Fixed test to use ccopts, include local -I.., indentation,
 remove wrong -O hack.
 
-=item L<ExtUtils::MakeMaker> 8.35_07
+=item L<ExtUtils::MakeMaker> 8.35_08
 
 Added C<-flto> support for static libs (need the lto plugin) and D for
 deterministic builds, using arflags for AR_STATIC_ARGS, not just 'cr'.
+
+fix FULLPERL for win32 cperl
 
 =item L<Storable> 1.12_04
 

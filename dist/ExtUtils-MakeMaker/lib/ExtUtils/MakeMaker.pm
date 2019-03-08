@@ -29,7 +29,7 @@ our %macro_dep; # whether a macro is a dependency
 use constant SILENT => (defined $ENV{MAKEFLAGS}
                         and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) ? 1 : 0;
 
-our $VERSION = '8.35_07';
+our $VERSION = '8.35_08';
 $VERSION =~ tr/_//d;
 
 # Emulate something resembling CVS $Revision$
