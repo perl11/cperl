@@ -60,10 +60,12 @@ Fixed allow_dupkeys for the XS slow path,
 Silence 2 -Wunused-value warnings,
 Fix ->unblessed_bool to produce modifiable perl structures (PR #121 by Pali).
 
-=item L<ExtUtils::MakeMaker> 8.35_07
+=item L<ExtUtils::MakeMaker> 8.35_08
 
 Added C<-flto> support for static libs (need the lto plugin) and D for
 deterministic builds, using arflags for AR_STATIC_ARGS, not just 'cr'.
+
+fix FULLPERL for win32 cperl
 
 =item L<Storable> 1.12_03
 
