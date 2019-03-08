@@ -2916,18 +2916,20 @@ S_modkids(pTHX_ OP *o, I32 type)
 
 
 /*
-=for apidoc s|void	|check_hash_fields_and_hekify	|NULLOK UNOP *rop|NN SVOP *key_op
+=for apidoc s|void	|check_hash_fields_and_hekify	|NULLOK UNOP *rop|NN SVOP *key_op|int real
 
 for a helem/hslice/kvslice, if its a fixed hash, croak on invalid
 const fields. Also, convert CONST keys to HEK-in-SVs.
-rop is the op that retrieves the hash;
-key_op is the first key
+
+rop    is the op that retrieves the hash;
+key_op is the first key;
+real   if false, only check (and possibly croak); don't update op
 
 =cut
 */
 
 static void
-S_check_hash_fields_and_hekify(pTHX_ UNOP *rop, SVOP *key_op)
+S_check_hash_fields_and_hekify(pTHX_ UNOP *rop, SVOP *key_op, int real)
 {
     PADNAME *lexname;
     GV **fields;
@@ -2983,7 +2985,8 @@ S_check_hash_fields_and_hekify(pTHX_ UNOP *rop, SVOP *key_op)
         if (   !SvIsCOW_shared_hash(sv = *svp)
             && SvTYPE(sv) < SVt_PVMG
             && SvOK(sv)
-            && !SvROK(sv))
+            && !SvROK(sv)
+            && real)
         {
             SSize_t keylen;
             const char * const key = SvPV_const(sv, *(STRLEN*)&keylen);
@@ -4601,7 +4604,7 @@ S_finalize_op(pTHX_ OP* o)
           check_keys:
             if (o->op_private & OPpLVAL_INTRO || ISNT_TYPE(rop, RV2HV))
                 rop = NULL;
-            S_check_hash_fields_and_hekify(aTHX_ rop, key_op);
+            S_check_hash_fields_and_hekify(aTHX_ rop, key_op, 1);
             break;
         }
         case OP_NULL:
@@ -19127,6 +19130,9 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
 
                 case OP_CONST:
                     if (next_is_hash) {
+                        UNOP *rop = NULL;
+                        OP * helem_op = OpNEXT(o);
+
                         /* it's a constant hash index */
                         if (!(SvFLAGS(cSVOPo_sv) & (SVf_IOK|SVf_NOK|SVf_POK)))
                             /* "use constant foo => FOO; $h{+foo}" for
@@ -19136,25 +19142,27 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                             break;
 
                         if (PASS2) {
-                            UNOP *rop = NULL;
-                            OP * helem_op = OpNEXT(o);
-
                             ASSUME(   IS_TYPE(helem_op, HELEM)
                                    || IS_NULL_OP(helem_op));
-                            if (IS_TYPE(helem_op, HELEM)) {
-                                rop = (UNOP*)OpFIRST(helem_op);
-                                if (helem_op->op_private & OPpLVAL_INTRO
-                                    || ISNT_TYPE(rop, RV2HV))
-                                    rop = NULL;
-                            }
-                            /* is $self->{field} -> aelemfast_lex_u */
+                        }
+                        if (IS_TYPE(helem_op, HELEM)) {
+                            rop = (UNOP*)OpFIRST(helem_op);
+                            if (helem_op->op_private & OPpLVAL_INTRO
+                                || ISNT_TYPE(rop, RV2HV))
+                                rop = NULL;
+                        }
+                        /* is $self->{field} -> aelemfast_lex_u */
 #if 0
-                            if (PL_parser->in_class && start->op_targ == 1) {
-                                ; /* TODO: get class and check if key is a field */
-                            }
+                        if (PL_parser->in_class && start->op_targ == 1) {
+                            ; /* TODO: get class and check if key is a field */
+                        }
 #endif
-                            S_check_hash_fields_and_hekify(aTHX_ rop, cSVOPo);
+                        /* on first pass just check; on second pass
+                         * hekify */
+                        S_check_hash_fields_and_hekify(aTHX_ rop, cSVOPo,
+                                                       pass);
 
+                        if (PASS2) {
 #ifdef USE_ITHREADS
                             /* Relocate sv to the pad for thread safety */
                             op_relocate_sv(&cSVOPo->op_sv, &o->op_targ);

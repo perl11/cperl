@@ -2381,7 +2381,7 @@ s	|void	|op_clear_gv	|NULLOK OP* o|NN SV** svp
 #endif
 s	|OP*	|op_sibling_newUNOP	|NULLOK OP *parent|NULLOK OP *start|I32 type|I32 flags
 sM	|void	|process_optree	|NULLOK CV *cv|NN OP *root|NN OP *start
-s	|void	|check_hash_fields_and_hekify	|NULLOK UNOP *rop|NN SVOP *key_op
+s	|void	|check_hash_fields_and_hekify	|NULLOK UNOP *rop|NN SVOP *key_op|int real
 #ifdef PERL_FAKE_SIGNATURE
 s	|void	|maybe_op_signature	|NN CV *cv|NN OP *o
 #endif

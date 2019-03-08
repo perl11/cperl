@@ -8984,7 +8984,7 @@ STATIC void	S_check_for_bool_cxt(OP* o, bool safe_and, U8 bool_flag, U8 maybe_fl
 #define PERL_ARGS_ASSERT_CHECK_FOR_BOOL_CXT	\
 	assert(o)
 
-STATIC void	S_check_hash_fields_and_hekify(pTHX_ UNOP *rop, SVOP *key_op)
+STATIC void	S_check_hash_fields_and_hekify(pTHX_ UNOP *rop, SVOP *key_op, int real)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_CHECK_HASH_FIELDS_AND_HEKIFY	\
 	assert(key_op)
