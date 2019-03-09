@@ -34,8 +34,11 @@ my $VERSION_DATA_STRUCTURE_TYPE = 148565664;
 # but also for IVCF, SB, SC, SCX, Case_Folding, Lowercase_Mapping, Simple_Case_Folding,
 # Titlecase_Mapping, Uppercase_Mapping.
 
-# integer or float
-my $numeric_re = qr/ ^ -? \d+ (:? \. \d+ )? $ /x;
+# integer or float (no exponent)
+my $integer_or_float_re = qr/ ^ -? \d+ (:? \. \d+ )? $ /x;
+
+# Also includes rationals
+my $numeric_re = qr! $integer_or_float_re | ^ -? \d+ / \d+ $ !x;
 
 # More than one code point may have the same code point as their fold.  This
 # gives the maximum number in the current Unicode release.  (The folded-to
@@ -167,7 +170,7 @@ sub a2n($) {
 
     # Returns the input Unicode code point translated to native.
 
-    return $cp if $cp !~ $numeric_re || $cp > 255;
+    return $cp if $cp !~ $integer_or_float_re || $cp > 255;
     return $a2n[$cp];
 }
 
@@ -2697,7 +2700,9 @@ foreach my $prop (@props) {
                     if (ref $invmap[0]) {
                         $bucket = join "\cK", map { a2n($_) }  @{$invmap[0]};
                     }
-                    elsif ($maps_to_code_point && $invmap[0] =~ $numeric_re) {
+                    elsif (   $maps_to_code_point
+                           && $invmap[0] =~ $integer_or_float_re)
+                    {
 
                         # Do convert to native for maps to single code points.
                         # There are some properties that have a few outlier
@@ -2720,7 +2725,7 @@ foreach my $prop (@props) {
 
                                # Skip any non-numeric maps: these are outliers
                                # that aren't code points.
-                            && $base_map =~ $numeric_re
+                            && $base_map =~ $integer_or_float_re
 
                                #  'ne' because the default can be a string
                             && $base_map ne $map_default)
@@ -2808,8 +2813,10 @@ foreach my $prop (@props) {
                     for my $i (0 .. @new_invlist - 1) {
                         next if $i > 0
                                 && $new_invlist[$i-1] + 1 == $new_invlist[$i]
-                                && $xlated{$new_invlist[$i-1]} =~ $numeric_re
-                                && $xlated{$new_invlist[$i]} =~ $numeric_re
+                                && $xlated{$new_invlist[$i-1]}
+                                                        =~ $integer_or_float_re
+                                && $xlated{$new_invlist[$i]}
+                                                        =~ $integer_or_float_re
                                 && $xlated{$new_invlist[$i-1]} + 1 == $xlated{$new_invlist[$i]};
                         push @temp, $new_invlist[$i];
                     }
