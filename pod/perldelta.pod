@@ -120,16 +120,6 @@ There is a special inline function that's used when converting a single
 byte to UTF-8, that is faster than the more general one used prior to
 this commit.
 
-=head2 Turkic UTF-8 locales are now seamlessly supported
-
-Turkic languages have different casing rules than other languages for
-the characters C<"i"> and C<"I">.  The uppercase of C<"i"> is LATIN
-CAPITAL LETTER I WITH DOT ABOVE (U+0130); and the lowercase of C<"I"> is LATIN
-SMALL LETTER DOTLESS I (U+0131).  Unicode furnishes alternate casing
-rules for use with Turkic languages.  Previously, Perl ignored these,
-but now, it uses them when it detects that it is operating under a
-Turkic UTF-8 locale.
-
 =head2 Eliminate opASSIGN macro usage from core
 
 This macro is still defined but no longer used in core
