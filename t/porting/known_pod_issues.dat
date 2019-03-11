@@ -442,6 +442,8 @@ pod/perl5280cdelta.pod	Apparent broken link	50
 pod/perl5280cdelta.pod	Apparent internal link is missing its forward slash	7
 pod/perl5280cdelta.pod	Verbatim line length including indents exceeds 79 by	4
 pod/perl5280cdelta.pod	alternative text. contains non-escaped | or /	1
+pod/perl5282cdelta.pod	=item has no contents	1
+pod/perl5282cdelta.pod	Apparent broken link	2
 pod/perl5290cdelta.pod	Apparent broken link	29
 pod/perl5290cdelta.pod	Pod NAME already used	1
 pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	3

@@ -36,19 +36,18 @@ Added C<-flto> support for static libs (need the lto plugin) and D for
 deterministic builds, using arflags for AR_STATIC_ARGS, not just 'cr'.
 
 Fixed FULLPERL patch for cperl on Win32.
+cperl-only.
 
 =item L<Storable> 1.12_04
 
 Fix stacklimit security issues introduced in the p5p release [cperl #393].
 User limits must not be higher than the probed hard limits, when
 overridden by user code or data, via hooks or even pst data.
+cperl-only.
 
 =back
 
 =head1 Documentation
-
-XXX Changes to files in F<pod/> go here.  Consider grouping entries by
-file and be sure to link to the appropriate page, e.g. L<perlfunc>.
 
 =head2 Changes to Existing Documentation
 
@@ -84,118 +83,49 @@ was added.
 
 =back
 
-=head1 Testing
-
-XXX Any significant changes to the testing of a freshly built perl should be
-listed here.  Changes which create B<new> files in F<t/> go here as do any
-large changes to the testing harness (e.g. when parallel testing was added).
-Changes to existing files in F<t/> aren't worth summarizing, although the bugs
-that they represent may be covered elsewhere.
-
-XXX If there were no significant test changes, say this:
-
-Tests were added and changed to reflect the other additions and changes
-in this release.
-
-XXX If instead there were significant changes, say this:
-
-Tests were added and changed to reflect the other additions and
-changes in this release.  Furthermore, these significant changes were
-made:
-
-[ List each test improvement as an =item entry ]
-
-=over 4
-
-=item *
-
-XXX
-
-=back
-
-=head1 Platform Support
-
-=head2 Platform-Specific Notes
-
-XXX List any changes for specific platforms.  This could include configuration
-and compilation changes or changes in portability/compatibility.  However,
-changes within modules for platforms should generally be listed in the
-L</Modules and Pragmata> section.
-
-=over 4
-
-=item XXX-some-platform
-
-XXX
-
-=back
-
-=head1 Internal Changes
-
-XXX Changes which affect the interface available to C<XS> code go here.  Other
-significant internal changes for future core maintainers should be noted as
-well.
-
-[ List each change as an =item entry ]
-
-=over 4
-
-=item *
-
-XXX
-
-=back
-
 =head1 Selected Bug Fixes
 
-XXX Important bug fixes in the core language are summarized here.  Bug fixes in
-files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
-
-[ List each fix as an =item entry ]
-
 =over 4
 
 =item *
 
-XXX
-
-=back
-
-=head1 Known Problems
-
-XXX Descriptions of platform agnostic bugs we know we can't fix go here.  Any
-tests that had to be C<TODO>ed for the release would be noted here.  Unfixed
-platform specific bugs also go here.
-
-[ List each fix as an =item entry ]
-
-=over 4
+Fixed assert in extended charclass.
+L<[perl #131649]|https://rt.perl.org/Ticket/Display.html?id=131649>
 
 =item *
 
-XXX
+Fixed SHIFT_VAR with SHORTSIZE != SIZE16.
+E.g. with -m32 use64bitint. cperl-only.
 
 =back
-
-=head1 Errata From Previous Releases
-
-=over 4
-
-=item *
-
-XXX Add anything here that we forgot to add, or were mistaken about, in
-the perldelta of a previous release.
-
-=back
-
-=head1 Obituary
-
-XXX If any significant core contributor has died, we've added a short obituary
-here.
 
 =head1 Acknowledgements
 
-XXX Generate this with:
+cperl 5.26.5 represents approximately 5 months of development since cperl
+5.26.4c and contains approximately 2,700 lines of changes across 63 files from
+2 authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 390 lines of changes to 17 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements that became
+cperl 5.26.5:
+
+Reini Urban, Yves Orton.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history including the perl and cperl repos. In particular,
+it does not include the names of the (very much appreciated) contributors who
+reported issues to the Perl bug tracker and the cperl github issues.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+Generated with:
 
     cperl Porting/acknowledgements.pl cperl-5.26.4..HEAD -c
 

@@ -5207,6 +5207,7 @@ pod/perl5280cdelta.pod		cperl changes in version 5.28.0c
 pod/perl5280delta.pod		Perl changes in version 5.28.0
 pod/perl5281cdelta.pod		cperl changes in version 5.28.1c
 pod/perl5281delta.pod		Perl changes in version 5.28.1
+pod/perl5282cdelta.pod		cperl changes in version 5.28.2c
 pod/perl5290cdelta.pod		cperl changes in version 5.29.0c
 pod/perl5290delta.pod		Perl changes in version 5.29.0
 pod/perl5291delta.pod		Perl changes in version 5.29.1
@@ -5230,7 +5231,7 @@ pod/perlbook.pod		Perl book information
 pod/perlboot.pod		
 pod/perlbot.pod			
 pod/perlcall.pod		Perl calling conventions from C
-pod/perlcdelta.pod		cperl changes in version 5.26.4c
+pod/perlcdelta.pod		cperl changes in version 5.26.5c
 pod/perlcheat.pod		Perl cheat sheet
 pod/perlclib.pod		Internal replacements for standard C library functions
 pod/perlcommunity.pod		Perl community information
