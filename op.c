@@ -6786,7 +6786,10 @@ Perl_newPROG(pTHX_ OP *o)
 	PL_main_start = LINKLIST(PL_main_root);
 	OpNEXT(PL_main_root) = NULL;
         process_optree(NULL, PL_main_root, PL_main_start);
-	cv_forget_slab(PL_compcv);
+        if (!PL_parser->error_count)
+            /* on error, leave CV slabbed so that ops left lying around
+             * will be cleaned up. Else unslab */
+            cv_forget_slab(PL_compcv);
 	PL_compcv = 0;
 
 	/* Register with debugger */
