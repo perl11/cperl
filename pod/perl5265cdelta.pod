@@ -1,0 +1,162 @@
+=encoding utf8
+
+=head1 NAME
+
+perl5265cdelta - what is new for cperl v5.26.5
+
+=head1 DESCRIPTION
+
+This document describes differences between the cperl 5.26.5 and the cperl
+5.26.4 release.
+
+If you are upgrading from an earlier release such as v5.26.1c, first read
+L<perl5262cdelta>, which describes differences between v5.26.1c and v5.26.2c.
+
+=head1 Modules and Pragmata
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item L<Cpanel::JSON::XS>  4.09
+
+Add seperate allow_dupkeys property, in relaxed (#122).
+Fixed allow_dupkeys for the XS slow path.
+Silence 2 -Wunused-value warnings.
+Fix ->unblessed_bool to produce modifiable perl structures (PR #121 by Pali).
+
+Add unblessed_bool property (PR #118 by Pali).
+
+Silence Gconvert -Wunused-result.
+gcvt returns a string, sprintf int, so suppress the retval.
+
+=item L<ExtUtils::MakeMaker> 8.35_08
+
+Added C<-flto> support for static libs (need the lto plugin) and D for
+deterministic builds, using arflags for AR_STATIC_ARGS, not just 'cr'.
+
+Fixed FULLPERL patch for cperl on Win32.
+cperl-only.
+
+=item L<Storable> 1.12_04
+
+Fix stacklimit security issues introduced in the p5p release [cperl #393].
+User limits must not be higher than the probed hard limits, when
+overridden by user code or data, via hooks or even pst data.
+cperl-only.
+
+=back
+
+=head1 Documentation
+
+=head2 Changes to Existing Documentation
+
+We have attempted to update the documentation to reflect the changes
+listed in this document.  If you find any we have missed, send email
+to L<perlbug@perl.org|mailto:perlbug@perl.org>.
+
+Additionally, the following selected changes have been made:
+
+=head3 L<perldiag>
+
+=over 4
+
+=item *
+
+C<Syntax error in (?[...]) in regex m/%s/> changed to
+C<Syntax error in (?[...]) in regex; marked by <-- HERE in m/%s/>
+
+=item *
+
+C<Unexpected ']' with no following ')' in (?[... in regex; marked by <-- HERE in m/%s/>
+was added.
+
+=item *
+
+C<Expecting close paren for nested extended charclass in regex; marked by <-- HERE in m/%s/>
+was added.
+
+=item *
+
+C<Expecting close paren for wrapper for nested extended charclass in regex; marked by <-- HERE in m/%s/>
+was added.
+
+=back
+
+=head1 Selected Bug Fixes
+
+=over 4
+
+=item *
+
+Fixed assert in extended charclass.
+L<[perl #131649]|https://rt.perl.org/Ticket/Display.html?id=131649>
+
+=item *
+
+Fixed SHIFT_VAR with SHORTSIZE != SIZE16.
+E.g. with -m32 use64bitint. cperl-only.
+
+=back
+
+=head1 Acknowledgements
+
+cperl 5.26.5 represents approximately 5 months of development since cperl
+5.26.4c and contains approximately 2,700 lines of changes across 63 files from
+2 authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 390 lines of changes to 17 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements that became
+cperl 5.26.5:
+
+Reini Urban, Yves Orton.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history including the perl and cperl repos. In particular,
+it does not include the names of the (very much appreciated) contributors who
+reported issues to the Perl bug tracker and the cperl github issues.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+Generated with:
+
+    cperl Porting/acknowledgements.pl cperl-5.26.4..HEAD -c
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the perl bug database
+at L<https://rt.perl.org/> .  There may also be information at
+L<http://www.perl.org/> , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the L<cperlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
+
+If you think it's a cperl specific bug or trust the cperl developers more 
+please file an issue at L<https://github.com/perl11/cperl/issues>.
+
+If the bug you are reporting has security implications which make it
+inappropriate to send to a publicly archived mailing list, then see
+L<perlsec/SECURITY VULNERABILITY CONTACT INFORMATION>
+For details of how to report the issue.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut
