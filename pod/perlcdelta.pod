@@ -18,6 +18,18 @@ L<perl5262cdelta>, which describes differences between v5.26.1c and v5.26.2c.
 
 =over 4
 
+=item L<Cpanel::JSON::XS>  4.09
+
+Add seperate allow_dupkeys property, in relaxed (#122).
+Fixed allow_dupkeys for the XS slow path.
+Silence 2 -Wunused-value warnings.
+Fix ->unblessed_bool to produce modifiable perl structures (PR #121 by Pali).
+
+Add unblessed_bool property (PR #118 by Pali).
+
+Silence Gconvert -Wunused-result.
+gcvt returns a string, sprintf int, so suppress the retval.
+
 =item L<ExtUtils::MakeMaker> 8.35_08
 
 Added C<-flto> support for static libs (need the lto plugin) and D for
