@@ -12,18 +12,6 @@ This document describes differences between the cperl 5.29.1 and the cperl
 If you are upgrading from an earlier release such as v5.28.1c, first read
 L<perl5290cdelta>, which describes differences between v5.28.1c and v5.29.0c.
 
-=head1 Notice
-
-XXX Any important notices here
-
-=head1 Core Enhancements
-
-XXX New core language features go here.  Summarize user-visible core language
-enhancements.  Particularly prominent performance optimisations could go
-here, but most should go in the L</Performance Enhancements> section.
-
-[ List each enhancement as a =head2 entry ]
-
 =head1 Security
 
 =head2 [CVE-2018-18311] Integer overflow leading to buffer overflow and segmentation fault
@@ -45,49 +33,6 @@ cperl disallows C<%ENV> larger than the sysconf(_SC_ARG_MAX)/MAX_ARG_STRLEN/
 ARG_MAX/NCARGS size with a new L<perldiag/"Environment size %d larger than the allowed %d">
 error.
 
-=head1 Incompatible Changes
-
-XXX For a release on a stable branch, this section aspires to be:
-
-    There are no changes intentionally incompatible with 5.XXX.XXX
-    If any exist, they are bugs, and we request that you submit a
-    report.  See L</Reporting Bugs> below.
-
-[ List each incompatible change as a =head2 entry ]
-
-=head1 Deprecations
-
-XXX Any deprecated features, syntax, modules etc. should be listed here.
-
-=head2 Module removals
-
-XXX Remove this section if inapplicable.
-
-The following modules will be removed from the core distribution in a
-future release, and will at that time need to be installed from CPAN.
-Distributions on CPAN which require these modules will need to list them as
-prerequisites.
-
-The core versions of these modules will now issue C<"deprecated">-category
-warnings to alert you to this fact.  To silence these deprecation warnings,
-install the modules in question from CPAN.
-
-Note that these are (with rare exceptions) fine modules that you are encouraged
-to continue to use.  Their disinclusion from core primarily hinges on their
-necessity to bootstrapping a fully functional, CPAN-capable Perl installation,
-not usually on concerns over their design.
-
-=over
-
-=item XXX
-
-XXX Note that deprecated modules should be listed here even if they are listed
-as an updated module in the L</Modules and Pragmata> section.
-
-=back
-
-[ List each other deprecation as a =head2 entry ]
-
 =head1 Performance Enhancements
 
 =over 4
@@ -104,29 +49,11 @@ L<[cperl #381]|https://github.com/perl11/cperl/issues/381>.
 
 =head1 Modules and Pragmata
 
-XXX All changes to installed files in F<cpan/>, F<dist/>, F<ext/> and F<lib/>
-go here.  If Module::CoreList is updated, generate an initial draft of the
-following sections using F<Porting/corelist-perldelta.pl>.  A paragraph summary
-for important changes should then be added by hand.  In an ideal world,
-dual-life modules would have a F<Changes> file that could be cribbed.
-
 The list of new and updated modules is modified automatically as part of
 preparing a Perl release, so the only reason to manually add entries here is if
 you're summarising the important changes in the module update. (Also, if the
 manually-added details don't match the automatically-generated ones, the
 release manager will have to investigate the situation carefully.)
-
-[ Within each section, list entries as an =item entry ]
-
-=head2 New Modules and Pragmata
-
-=over 4
-
-=item *
-
-XXX
-
-=back
 
 =head2 Updated Modules and Pragmata
 
@@ -180,28 +107,7 @@ and two -Wmaybe-uninitialized.
 
 =back
 
-=head2 Removed Modules and Pragmata
-
-=over 4
-
-=item *
-
-XXX
-
-=back
-
 =head1 Documentation
-
-XXX Changes to files in F<pod/> go here.  Consider grouping entries by
-file and be sure to link to the appropriate page, e.g. L<perlfunc>.
-
-=head2 New Documentation
-
-XXX Changes which create B<new> files in F<pod/> go here.
-
-=head3 L<XXX>
-
-XXX Description of the purpose of the new file here
 
 =head2 Changes to Existing Documentation
 
@@ -222,79 +128,7 @@ AutoFDO, prelink and BOLT tips.
 
 =back
 
-=head1 Diagnostics
-
-The following additions or changes have been made to diagnostic output,
-including warnings and fatal error messages.  For the complete list of
-diagnostic messages, see L<perldiag>.
-
-XXX New or changed warnings emitted by the core's C<C> code go here.  Also
-include any changes in L<perldiag> that reconcile it to the C<C> code.
-
-=head2 New Diagnostics
-
-XXX Newly added diagnostic messages go under here, separated into New Errors
-and New Warnings
-
-=head3 New Errors
-
-=over 4
-
-=item *
-
-XXX L<message|perldiag/"message">
-
-=back
-
-=head3 New Warnings
-
-=over 4
-
-=item *
-
-XXX L<message|perldiag/"message">
-
-=back
-
-=head2 Changes to Existing Diagnostics
-
-XXX Changes (i.e. rewording) of diagnostic messages go here
-
-=over 4
-
-=item *
-
-XXX Describe change here
-
-=back
-
-=head1 Utility Changes
-
-XXX Changes to installed programs such as F<perlbug> and F<xsubpp> go here.
-Most of these are built within the directory F<utils>.
-
-[ List utility changes as a =head2 entry for each utility and =item
-entries for each change
-Use L<XXX> with program names to get proper documentation linking. ]
-
-=head2 L<XXX>
-
-=over 4
-
-=item *
-
-XXX
-
-=back
-
 =head1 Configuration and Compilation
-
-XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
-go here.  Any other changes to the Perl build process should be listed here.
-However, any platform-specific changes should be listed in the
-L</Platform Support> section, instead.
-
-[ List changes as an =item entry ].
 
 =over 4
 
@@ -382,38 +216,6 @@ Document all used ENV vars in F<t/harness>.
 
 =head1 Platform Support
 
-XXX Any changes to platform support should be listed in the sections below.
-
-[ Within the sections, list each platform as an =item entry with specific
-changes as paragraphs below it. ]
-
-=head2 New Platforms
-
-XXX List any platforms that this version of perl compiles on, that previous
-versions did not.  These will either be enabled by new files in the F<hints/>
-directories, or new subdirectories and F<README> files at the top level of the
-source tree.
-
-=over 4
-
-=item XXX-some-platform
-
-XXX
-
-=back
-
-=head2 Discontinued Platforms
-
-XXX List any platforms that this version of perl no longer compiles on.
-
-=over 4
-
-=item XXX-some-platform
-
-XXX
-
-=back
-
 =head2 Platform-Specific Notes
 
 =over 4
@@ -432,12 +234,6 @@ C<Invalid relocation. Offset 0x.. at address 0x.. doesn't fit into 32 bits>
 =back
 
 =head1 Internal Changes
-
-XXX Changes which affect the interface available to C<XS> code go here.  Other
-significant internal changes for future core maintainers should be noted as
-well.
-
-[ List each change as an =item entry ]
 
 =over 4
 
@@ -460,11 +256,6 @@ Added F<t/run/envsize.t> for L</Restrict my_setenv to ARG_MAX>
 
 =head1 Selected Bug Fixes
 
-XXX Important bug fixes in the core language are summarized here.  Bug fixes in
-files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
-
-[ List each fix as an =item entry ]
-
 =over 4
 
 =item *
@@ -473,41 +264,34 @@ Made the C<gmtime_r> and C<localtime_r> fallbacks thread-safe.
 
 =back
 
-=head1 Known Problems
-
-XXX Descriptions of platform agnostic bugs we know we can't fix go here.  Any
-tests that had to be C<TODO>ed for the release would be noted here.  Unfixed
-platform specific bugs also go here.
-
-[ List each fix as an =item entry ]
-
-=over 4
-
-=item *
-
-XXX
-
-=back
-
-=head1 Errata From Previous Releases
-
-=over 4
-
-=item *
-
-XXX Add anything here that we forgot to add, or were mistaken about, in
-the perldelta of a previous release.
-
-=back
-
-=head1 Obituary
-
-XXX If any significant core contributor has died, we've added a short obituary
-here.
-
 =head1 Acknowledgements
 
-XXX Generate this with:
+cperl 5.29.1 represents approximately 5 months of development since cperl
+5.29.0c and contains approximately 15,000 lines of changes across 140 files
+from 4 authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 1,200 lines of changes to 52 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements that
+became cperl 5.29.1:
+
+Reini Urban, David Mitchell, Dominic Hargreaves, Karl Williamson.
+
+The list above is almost certainly incomplete as it is automatically
+generated from version control history including the perl and cperl repos.
+In particular, it does not include the names of the (very much appreciated)
+contributors who reported issues to the Perl bug tracker and the cperl
+github issues.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please
+see the F<AUTHORS> file in the Perl source distribution.
+
+Generated with:
 
     cperl Porting/acknowledgements.pl cperl-5.29.0..HEAD -c
 
