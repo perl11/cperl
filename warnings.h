@@ -130,7 +130,8 @@
 /* Warnings Categories added in Perl 5.029 */
 
 #define WARN_EXPERIMENTAL__PRIVATE_USE	 73
-#define WARN_FFI			 74
+#define WARN_EXPERIMENTAL__UNIPROP_WILDCARDS 74
+#define WARN_FFI			 75
 
 #define WARNsize			 19
 #define WARN_ALLstring			 "\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125"
