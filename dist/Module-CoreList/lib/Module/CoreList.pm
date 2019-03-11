@@ -17947,22 +17947,6 @@ our %delta :const = (
         removed => {
         }
     },
-    '5.029001c' => {
-        delta_from => '5.029000c',
-        changed => {
-            'B::Op_private'         => '5.029001',
-            'Module::CoreList'      => '5.20181019c',
-            'Module::CoreList::Utils'=> '5.20181019c',
-            'B::C'                  => '1.55_10',
-            'Cpanel::JSON::XS'      => '4.09',
-            'ExtUtils::Embed'       => '1.36',
-            'ExtUtils::MakeMaker'   => '8.35_07',
-            'ExtUtils::MM_Unix'     => '8.35_07',
-            'Win32'                 => '0.52_02',
-        },
-        removed => {
-        }
-    },
     5.029000 => {
         delta_from => 5.028,
         changed => {
@@ -18399,6 +18383,23 @@ our %delta :const = (
             'ExtUtils::MakeMaker'   => '8.35_08',
             'ExtUtils::MM_Unix'     => '8.35_08',
             'Storable'              => '3.12_03',
+        },
+        removed => {
+        }
+    },
+    '5.029001c' => {
+        delta_from => '5.029000c',
+        changed => {
+            'B::Op_private'         => '5.029001',
+            'Module::CoreList'      => '5.20181019c',
+            'Module::CoreList::Utils'=> '5.20181019c',
+            'B::C'                  => '1.55_10',
+            'Cpanel::JSON::XS'      => '4.09',
+            'ExtUtils::Embed'       => '1.36',
+            'ExtUtils::MakeMaker'   => '8.35_07',
+            'ExtUtils::MM_Unix'     => '8.35_07',
+            'Storable'              => '3.12_04',
+            'Win32'                 => '0.52_02',
         },
         removed => {
         }
