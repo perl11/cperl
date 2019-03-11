@@ -1,7 +1,7 @@
 package Module::CoreList;
 use strict;
 
-our ( %version, %deprecated, %families );
+our ( %version, %families, %deprecated );
 
 use version;
 our $VERSION = '5.20190301c';
@@ -363,6 +363,8 @@ our %released :const = (
     5.026003 => '2018-11-29',
     5.028001 => '2018-11-29',
     '5.026005c' => '2019-03-??',
+    '5.028002c' => '2019-03-??',
+    '5.029001c' => '2019-03-??',
  );
 
 sub version_sort {
@@ -17945,6 +17947,22 @@ our %delta :const = (
         removed => {
         }
     },
+    '5.029001c' => {
+        delta_from => '5.029000c',
+        changed => {
+            'B::Op_private'         => '5.029001',
+            'Module::CoreList'      => '5.20181019c',
+            'Module::CoreList::Utils'=> '5.20181019c',
+            'B::C'                  => '1.55_10',
+            'Cpanel::JSON::XS'      => '4.09',
+            'ExtUtils::Embed'       => '1.36',
+            'ExtUtils::MakeMaker'   => '8.35_07',
+            'ExtUtils::MM_Unix'     => '8.35_07',
+            'Win32'                 => '0.52_02',
+        },
+        removed => {
+        }
+    },
     5.029000 => {
         delta_from => 5.028,
         changed => {
@@ -18271,12 +18289,37 @@ our %delta :const = (
     5.029004 => {
         delta_from => 5.029003,
         changed => {
+            'App::Cpan'             => '1.671',
+            'B'                     => '1.75',
+            'B::Concise'            => '1.004',
+            'B::Deparse'            => '1.49',
             'B::Op_private'         => '5.029004',
+            'B::Terse'              => '1.09',
+            'CPAN'                  => '2.21',
+            'CPAN::Distribution'    => '2.21',
+            'CPAN::Mirrors'         => '2.21',
+            'CPAN::Plugin'          => '0.97',
+            'CPAN::Shell'           => '5.5008',
             'Config'                => '5.029004',
+            'Devel::Peek'           => '1.28',
+            'File::Copy'            => '2.34',
+            'File::Glob'            => '1.32',
+            'Math::BigFloat::Trace' => '0.51',
+            'Math::BigInt::Trace'   => '0.51',
             'Module::CoreList'      => '5.20181020',
             'Module::CoreList::Utils'=> '5.20181020',
+            'Unicode::UCD'          => '0.72',
+            'bigint'                => '0.51',
+            'bignum'                => '0.51',
+            'bigrat'                => '0.51',
+            'bytes'                 => '1.07',
+            'feature'               => '1.54',
+            'sigtrap'               => '1.09',
+            'vars'                  => '1.05',
         },
         removed => {
+            'B::Debug'              => 1,
+            'arybase'               => 1,
         }
     },
     5.029005 => {
@@ -18345,7 +18388,21 @@ our %delta :const = (
         },
         removed => {
         }
-  }
+    },
+    '5.028002c' => {
+        delta_from => '5.028001c',
+        changed => {
+            'B::Op_private'         => '5.028002',
+            'Module::CoreList'      => '5.20181207c',
+            'Module::CoreList::Utils'=> '5.20181207c',
+            'Cpanel::JSON::XS'      => '4.09',
+            'ExtUtils::MakeMaker'   => '8.35_08',
+            'ExtUtils::MM_Unix'     => '8.35_08',
+            'Storable'              => '3.12_03',
+        },
+        removed => {
+        }
+    },
 );
 
 sub is_core
@@ -19316,6 +19373,21 @@ sub is_core
     },
     '5.029000c' => {
         delta_from => '5.028000c',
+        changed => {},
+        removed => {}
+    },
+    '5.026005c' => {
+        delta_from => '5.026004c',
+        changed => {},
+        removed => {}
+    },
+    '5.028002c' => {
+        delta_from => '5.028001c',
+        changed => {},
+        removed => {}
+    },
+    '5.029001c' => {
+        delta_from => '5.029000c',
         changed => {},
         removed => {}
     },
