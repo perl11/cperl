@@ -38,12 +38,12 @@ The BSD's and Solaris are only tested before a release.
 
 The current stable releases are
 
-* [5.28.1c](https://github.com/perl11/cperl/releases/tag/cperl-5.28.1) - [perl5281cdelta](perl5281cdelta.html).
-* [5.26.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.26.4) - [perl5264cdelta](perl5264cdelta.html).
+* [5.28.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.28.2) - [perl5282cdelta](perl5282cdelta.html).
+* [5.26.5c](https://github.com/perl11/cperl/releases/tag/cperl-5.26.5) - [perl5265cdelta](perl5265cdelta.html).
   
 the latest development release:
 
-* [5.29.0c](https://github.com/perl11/cperl/releases/tag/cperl-5.29.0) - [perl5290cdelta](perl5290cdelta.html).
+* [5.29.1c](https://github.com/perl11/cperl/releases/tag/cperl-5.29.1) - [perl5291cdelta](perl5291cdelta.html).
 
 We also have:
 
@@ -57,7 +57,7 @@ v5.24.0c, v5.24.1c and v5.24.3c have
 [about 24 fixes](perldelta.html#Known-Problems-fixed-elsewhere),
 for problems which are not fixed in perl-5.24.1.  Ditto with 5.26,
 cperl-5.22.4c has about 20 fixes which are not in the latest
-perl-5.22.3. Similar numbers for v5.29.0c, as p5p is still actively 
+perl-5.22.3. Similar numbers for v5.29.1c, as p5p is still actively 
 adding more API, security and performance problems than fixing.
 Since cperl development is about 10x faster than p5p
 development, and damage done within p5p increases, these numbers do
@@ -154,6 +154,7 @@ For all versions see [bench-all/](bench-all/index.html)
 * Less m/{}/ Unescaped left brace in regex is deprecated here warnings
 * keep utf8 flag for method names
 * ffi - a builtin foreign function interface
+* defaults to -flto compilation "Link Time Optimization"
 * many more and much better dump functions.
 
 Most of them only would have a chance to be merged upstream if a p5p
@@ -461,4 +462,4 @@ They also revert some wrong decisions p5p already made.
 
 --
 
-2018-10-12 rurban
+2019-03-12 rurban
