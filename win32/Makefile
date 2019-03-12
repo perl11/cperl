@@ -1336,7 +1336,7 @@ utils: $(PERLEXE) ..\utils\Makefile
 	copy ..\README.vos      ..\pod\perlvos.pod
 	copy ..\README.win32    ..\pod\perlwin32.pod
 	copy ..\pod\perlcdelta.pod ..\pod\perl5292cdelta.pod
-	copy ..\pod\perldelta.pod ..\pod\perl5294delta.pod
+	copy ..\pod\perldelta.pod ..\pod\perl5299delta.pod
 	cd ..\win32
 	$(MINIPERL) -I..\lib $(PL2BAT) $(UTILS)
 	$(MINIPERL) -I..\lib ..\autodoc.pl ..
@@ -1443,7 +1443,7 @@ distclean: realclean
 	-if exist $(LIBDIR)\YAML rmdir /s /q $(LIBDIR)\YAML
 	-if exist $(LIBDIR)\YAML\XS rmdir /s /q $(LIBDIR)\YAML\XS
 	-cd $(PODDIR) && del /f *.html *.bat roffitall \
-	    perl5292cdelta.pod perl5294delta.pod perlaix.pod perlamiga.pod \
+	    perl5292cdelta.pod perl5299delta.pod perlaix.pod perlamiga.pod \
 	    perlandroid.pod perlapi.pod perlbs2000.pod perlce.pod \
 	    perlcn.pod perlcygwin.pod perldos.pod perlfreebsd.pod \
 	    perlhaiku.pod perlhpux.pod perlhurd.pod perlintern.pod \

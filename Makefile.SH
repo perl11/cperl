@@ -628,7 +628,7 @@ perlmain_dep = $(perlmain_objs)
 esac
 
 $spitshell >>$Makefile <<'!NO!SUBS!'
-perltoc_pod_prereqs = extra.pods pod/perl5292cdelta.pod pod/perl5294delta.pod pod/perlapi.pod pod/perlintern.pod pod/perlmodlib.pod pod/perluniprops.pod
+perltoc_pod_prereqs = extra.pods pod/perl5292cdelta.pod pod/perl5299delta.pod pod/perlapi.pod pod/perlintern.pod pod/perlmodlib.pod pod/perluniprops.pod
 
 generated_pods = pod/perltoc.pod $(perltoc_pod_prereqs)
 generated_headers = uudmap.h bitcount.h mg_data.h
@@ -1398,7 +1398,7 @@ pod/perl5292cdelta.pod: pod/perlcdelta.pod
 	$(RMS) $@
 	$(LNS) perlcdelta.pod $@
 
-pod/perl5294delta.pod: pod/perldelta.pod
+pod/perl5299delta.pod: pod/perldelta.pod
 	$(RMS) $@
 	$(LNS) perldelta.pod $@
 
