@@ -5401,7 +5401,7 @@
 /* USE_NAMED_ANONCV:
  *	This symbol, if defined, indicates that Perl is compiled with usenamedanoncv,
  *      using name@ instead of __ANON__.
- *      It is the default since cperl-5.29.1.
+ *      It is the default since cperl-5.29.2.
  */
 #ifndef USE_NAMED_ANONCV
 #define	USE_NAMED_ANONCV		/**/
@@ -5463,6 +5463,6 @@
 #endif
 
 /* Generated from:
- * eecaa621180a3b5fddc6c7217b4ba2377e04545fa38b90b3559f8e09f56dfa9c config_h.SH
+ * 501ad0733bc61d22517fcb3f08ce74b813283f3405ddc4e420f3bfb005d1e4c3 config_h.SH
  * b42b503456cc4b0ddfbc1c17c10a46d6f0fa0c8c4551a70db4c0370b7a2b75c4 uconfig.sh
  * ex: set ro: */
