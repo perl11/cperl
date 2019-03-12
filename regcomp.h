@@ -1099,7 +1099,7 @@ re.pm, especially to the documentation.
         if (re_debug_flags_sv) { \
             if (!SvIOK(re_debug_flags_sv)) \
                 sv_setuv(re_debug_flags_sv, RE_DEBUG_COMPILE_DUMP | RE_DEBUG_EXECUTE_MASK ); \
-            re_debug_flags=SvIV(re_debug_flags_sv); \
+            re_debug_flags = SvIV(re_debug_flags_sv); \
         }\
 })
 
