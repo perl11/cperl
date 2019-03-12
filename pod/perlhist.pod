@@ -691,7 +691,7 @@ the strings?).
  rurban    5.28.0c-RC1  2018-Sep-08     cperl 5.28
  rurban    5.28.0c      2018-Sep-10
  rurban    5.28.1c      2018-Oct-14
- rurban    5.28.1c      2019-Mar-12
+ rurban    5.28.2c      2019-Mar-12
 
  Sawyer X  5.29.0       2018-Jun-26     The 5.29 development track
  Steve     5.29.1       2018-Jul-20

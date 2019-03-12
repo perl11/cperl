@@ -1,0 +1,336 @@
+=encoding utf8
+
+=head1 NAME
+
+perl5291cdelta - what is new for cperl v5.29.1
+
+=head1 DESCRIPTION
+
+This document describes differences between the cperl 5.29.1 and the cperl
+5.29.0 release.
+
+If you are upgrading from an earlier release such as v5.28.1c, first read
+L<perl5290cdelta>, which describes differences between v5.28.1c and v5.29.0c.
+
+=head1 Security
+
+=head2 [CVE-2018-18311] Integer overflow leading to buffer overflow and segmentation fault
+
+Integer arithmetic in C<Perl_my_setenv()> could wrap when the combined length
+of the environment variable name and value exceeded around 0x7fffffff.  This
+could lead to writing beyond the end of an allocated buffer with attacker
+supplied data.
+
+L<[perl #133204]|https://rt.perl.org/Ticket/Display.html?id=133204>
+
+=head2 Restrict my_setenv to ARG_MAX
+
+perl5 fixed C<Perl_my_setenv()> by allowing C<%ENV> sizes larger than
+C<ARG_MAX> (typically 128Kb), up to 2GB. This is considered a security
+risk. It writes onto the kernel stack, even if often caught by MAXEXECARGS
+"Argument list too long" kernel errors on the next exec call.
+cperl disallows C<%ENV> larger than the sysconf(_SC_ARG_MAX)/MAX_ARG_STRLEN/
+ARG_MAX/NCARGS size with a new L<perldiag/"Environment size %d larger than the allowed %d">
+error.
+
+=head1 Performance Enhancements
+
+=over 4
+
+=item *
+
+Optimized the static link order of objects for the default case,
+when you cannot use lto, pgo, autofdo nor bolt.
+Added lto to the default ccflags.
+See L<http://perl11.org/blog/bolt.html> and
+L<[cperl #381]|https://github.com/perl11/cperl/issues/381>.
+
+=back
+
+=head1 Modules and Pragmata
+
+The list of new and updated modules is modified automatically as part of
+preparing a Perl release, so the only reason to manually add entries here is if
+you're summarising the important changes in the module update. (Also, if the
+manually-added details don't match the automatically-generated ones, the
+release manager will have to investigate the situation carefully.)
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item L<B::C> 1.55_10
+
+Better mconcat support. Fix some XS memory leaks.
+
+Add missing optimize flags to F<cc_harness>, F<TestBC.pm> and F<perlcc>,
+required for C<-flto>.
+
+When testing overly large C files > 50k (with modules), apply cc -O1,
+not -O2 or -O3.
+
+Honor and set SKIP_SLOW_TESTS, set with C<-flto>. Applied to all tests
+with large C files. t/c*.t now only execute 13 tests under
+-flto/SKIP_SLOW_TESTS and CI, because they may not be finished in
+under 10min.
+
+Added a C<is_CI()> test detection.
+
+=item L<Cpanel::JSON::XS> 4.09
+
+Silence Gconvert -Wunused-result.
+
+Add unblessed_bool property (PR #118 by Pali)
+
+Add seperate allow_dupkeys property, in relaxed (#122),
+Fixed allow_dupkeys for the XS slow path,
+Silence 2 -Wunused-value warnings,
+Fix ->unblessed_bool to produce modifiable perl structures (PR #121 by Pali).
+
+=item L<ExtUtils::Embed> 1.36
+
+Added optimize to ccopts, required for C<-flto>.
+Fixed documentation of ccopts.
+Fixed test to use ccopts, include local -I.., indentation,
+remove wrong -O hack.
+
+=item L<ExtUtils::MakeMaker> 8.35_08
+
+Added C<-flto> support for static libs (need the lto plugin) and D for
+deterministic builds, using arflags for AR_STATIC_ARGS, not just 'cr'.
+
+fix FULLPERL for win32 cperl
+
+=item L<Storable> 1.12_04
+
+Fix stacklimit security issues introduced in the p5p release [cperl #393].
+User limits must not be higher than the probed hard limits, when
+overridden by user code or data, via hooks or even pst data.
+
+=item L<Win32> 0.52_02
+
+Fix various -Wunused warnings, added () usage croaks.
+Fixed a -Warray-bounds buffer overflow in LONGPATH,
+and two -Wmaybe-uninitialized.
+
+=back
+
+=head1 Documentation
+
+=head2 Changes to Existing Documentation
+
+We have attempted to update the documentation to reflect the changes
+listed in this document.  If you find any we have missed, send email
+to L<perlbug@perl.org|mailto:perlbug@perl.org>.
+
+Additionally, the following selected changes have been made:
+
+=head3 L<perlhacktips>
+
+=over 4
+
+=item *
+
+Added a L<perlhacktips/COMPILER OPTIMIZATIONS> section, with LTO, PGO,
+AutoFDO, prelink and BOLT tips.
+
+=back
+
+=head1 Configuration and Compilation
+
+=over 4
+
+=item *
+
+Without C<DEBUGGING> the best C<-flto> Link Time Optimization flag is
+now added to the default ccflags.
+See L<http://perl11.org/blog/bolt.html> and
+L<[cperl #381]|https://github.com/perl11/cperl/issues/381>.
+
+The correct -flto= variant is then used for ldflags and lddlflags also.
+cldflags contains now also the optimize settings, needed for -flto.
+
+ar is replaced by llvm-ar-$ver if needed.
+
+=item *
+
+C<ccname> is now set to "clang" for clang, not "gcc".
+
+=item *
+
+On linux "icc" is also set for C<ccname>, and C<-O3> is preferred over
+C<-O2> in most non-DEBUGGING cases with newer compilers.
+
+=item *
+
+C<llvmversion> string added, like "6.0.1-9.1 (tags/RELEASE_601/final)",
+analog to C<gccversion>. With clang both variables are set.
+
+=item *
+
+Added C<llvmsuffix> config, for bitcode-enabled ar, ranlib,
+llvm-profdata.
+
+=item *
+
+Added C<ar --plugin> path to the gcc F<lto_plugin>, required for
+binutils C<ar> with static libs with C<-flto>. Esp. on cygwin.
+Ditto for C<ranlib>.
+
+=item *
+
+Added clang and useshrplib support for the two .autofdo targets.
+See L<perlhacktips/AutoFDO>.
+
+=item *
+
+Added two .pgo targets, analog to autofdo. See L<perlhacktips/PGO>.
+
+=item *
+
+Fix forgotten C<ffi_target> XSConfig key. (bug introduced in 5.29.0c)
+
+=item *
+
+Set C<archname> and the target triple C<myarchname> earlier, right
+after osname.
+
+=item *
+
+With C<-Uinstallmandirs> all four variables C<installman1dir>,
+C<installman3dir>, C<installsiteman1dir> and C<installsiteman3dir> are set to
+none, skipping installing all man pages.
+
+=back
+
+=head1 Testing
+
+Tests were added and changed to reflect the other additions and
+changes in this release.  Furthermore, these significant changes were
+made:
+
+=over 4
+
+=item *
+
+Added C<is_CI> detection function to F<t/TEST>.
+
+=item *
+
+Honor more B<SKIP_SLOW_TESTS>, esp. with B-C, esp. with C<-flto>.
+Document all used ENV vars in F<t/harness>.
+
+=back
+
+=head1 Platform Support
+
+=head2 Platform-Specific Notes
+
+=over 4
+
+=item cygwin
+
+Fixed C<boot_Win32CORE> prototype to skip dllexport, fatal with C<-flto>.
+
+Fixed ar for F<Win32CORE.a> by using the gcc liblto plugin.
+
+Skip probing for C<-flto> on cygwin. This reliably fails to find a
+proper image-base with that many new symbols, the adress space is just
+too small:
+C<Invalid relocation. Offset 0x.. at address 0x.. doesn't fit into 32 bits>
+
+=back
+
+=head1 Internal Changes
+
+=over 4
+
+=item *
+
+Enabled USE_REENTRANT_API with threads by default on all platforms. See F<reentr.c>.
+Previously it was only enabled by default on darwin.
+
+=back
+
+=head1 Testing
+
+=over 4
+
+=item *
+
+Added F<t/run/envsize.t> for L</Restrict my_setenv to ARG_MAX>
+
+=back
+
+=head1 Selected Bug Fixes
+
+=over 4
+
+=item *
+
+Made the C<gmtime_r> and C<localtime_r> fallbacks thread-safe.
+
+=back
+
+=head1 Acknowledgements
+
+cperl 5.29.1 represents approximately 5 months of development since cperl
+5.29.0c and contains approximately 15,000 lines of changes across 140 files
+from 4 authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 1,200 lines of changes to 52 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements that
+became cperl 5.29.1:
+
+Reini Urban, David Mitchell, Dominic Hargreaves, Karl Williamson.
+
+The list above is almost certainly incomplete as it is automatically
+generated from version control history including the perl and cperl repos.
+In particular, it does not include the names of the (very much appreciated)
+contributors who reported issues to the Perl bug tracker and the cperl
+github issues.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please
+see the F<AUTHORS> file in the Perl source distribution.
+
+Generated with:
+
+    cperl Porting/acknowledgements.pl cperl-5.29.0..HEAD -c
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the perl bug database
+at L<https://rt.perl.org/> .  There may also be information at
+L<http://www.perl.org/> , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the L<cperlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
+
+If you think it's a cperl specific bug or trust the cperl developers more 
+please file an issue at L<https://github.com/perl11/cperl/issues>.
+
+If the bug you are reporting has security implications which make it
+inappropriate to send to a publicly archived mailing list, then see
+L<perlsec/SECURITY VULNERABILITY CONTACT INFORMATION>
+For details of how to report the issue.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut

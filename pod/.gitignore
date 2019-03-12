@@ -40,7 +40,7 @@
 /pod2man
 /pod2man.bat
 /pod2text
-/pod2text.bat
+/pod2text.bat 
 /pod2usage
 /pod2usage.bat
 /podchecker
@@ -51,7 +51,7 @@
 
 # generated
 /perl5294delta.pod
-/perl5291cdelta.pod
+/perl5292cdelta.pod
 /perlapi.pod
 /perlintern.pod
 /perlmodlib.pod
