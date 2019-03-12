@@ -666,12 +666,11 @@ use File::Glob qw(:case);
     },
 
     'ExtUtils::MakeMaker' => {
-        'DISTRIBUTION' => 'BINGOS/ExtUtils-MakeMaker-7.34.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/ExtUtils-MakeMaker-8.35_08.tar.gz',
         'FILES'        => q[dist/ExtUtils-MakeMaker],
         'EXCLUDED'     => [
             qr{^t/lib/Test/},
             qr{^(bundled|my)/},
-            qr{^t/Liblist_Kid.t},
             qr{^t/liblist/},
             qr{^\.perlcriticrc},
             'PATCHING',
@@ -687,6 +686,7 @@ use File::Glob qw(:case);
                 lib/ExtUtils/MM_Unix.pm
                 lib/ExtUtils/MM.pm
                 lib/ExtUtils/MakeMaker.pm
+                lib/ExtUtils/MakeMaker/Locale.pm
                 lib/ExtUtils/Mkbootstrap.pm
                 lib/ExtUtils/Liblist/Kid.pm
                 t/basic.t
