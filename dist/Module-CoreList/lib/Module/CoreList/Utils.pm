@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Module::CoreList;
 
-our $VERSION = '5.20190301c';
+our $VERSION = '5.20190312c';
 $VERSION =~ s/c$//;
 our %utilities;
 
@@ -1071,32 +1071,6 @@ our %delta :const = (
         removed => {
         }
     },
-    '5.022001c' => {
-        delta_from => 5.023000,
-        changed => {
-            'cperlbug'              => 1,
-            'cperlivp'              => 1,
-        },
-        removed => {}
-    },
-    '5.022002c' => {
-        delta_from => '5.022001c',
-        changed => {
-            'cperlbug'              => 1,
-        },
-        removed => {}
-    },
-    '5.022003c' => {
-        delta_from => '5.022002c',
-        changed => {
-        },
-        removed => {}
-    },
-    '5.022004c' => {
-        delta_from => '5.022003c',
-        changed => {},
-        removed => {}
-    },
     5.023001 => {
         delta_from => 5.023,
         changed => {
@@ -1117,6 +1091,14 @@ our %delta :const = (
         },
         removed => {
         }
+    },
+    '5.022001c' => {
+        delta_from => 5.023000,
+        changed => {
+            'cperlbug'              => 1,
+            'cperlivp'              => 1,
+        },
+        removed => {}
     },
     5.023003 => {
         delta_from => 5.023002,
@@ -1174,12 +1156,19 @@ our %delta :const = (
         removed => {
         }
     },
-    5.023010 => {
-        delta_from => 5.023009,
+    5.022002 => {
+        delta_from => 5.022001,
         changed => {
         },
         removed => {
         }
+    },
+    '5.022002c' => {
+        delta_from => '5.022001c',
+        changed => {
+            'cperlbug'              => 1,
+        },
+        removed => {}
     },
     5.024000 => {
         delta_from => 5.023010,
@@ -1187,33 +1176,6 @@ our %delta :const = (
         },
         removed => {
         }
-    },
-    '5.024000c' => {
-        delta_from => '5.022003c',
-        changed => {
-            'cperlbug'              => 1,
-        },
-        removed => {}
-    },
-    '5.024001c' => {
-        delta_from => '5.024000c',
-        changed => {},
-        removed => {}
-    },
-    '5.024002c' => {
-        delta_from => '5.024001c',
-        changed => {},
-        removed => {}
-    },
-    '5.024003c' => {
-        delta_from => '5.024002c',
-        changed => {},
-        removed => {}
-    },
-    '5.024004c' => {
-        delta_from => '5.024003c',
-        changed => {},
-        removed => {}
     },
     5.025000 => {
         delta_from => 5.024000,
@@ -1229,6 +1191,12 @@ our %delta :const = (
         removed => {
         }
     },
+    '5.022003c' => {
+        delta_from => '5.022002c',
+        changed => {
+        },
+        removed => {}
+    },
     5.025002 => {
         delta_from => 5.025001,
         changed => {
@@ -1242,6 +1210,23 @@ our %delta :const = (
         },
         removed => {
         }
+    },
+    '5.022004c' => {
+        delta_from => '5.022003c',
+        changed => {},
+        removed => {}
+    },
+    '5.024000c' => {
+        delta_from => '5.022003c',
+        changed => {
+            'cperlbug'              => 1,
+        },
+        removed => {}
+    },
+    '5.025000c' => {
+        delta_from => '5.024000c',
+        changed => {},
+        removed => {}
     },
     5.025004 => {
         delta_from => 5.025003,
@@ -1257,6 +1242,16 @@ our %delta :const = (
         removed => {
         }
     },
+    '5.024001c' => {
+        delta_from => '5.024000c',
+        changed => {},
+        removed => {}
+    },
+    '5.025001c' => {
+        delta_from => '5.025000c',
+        changed => {},
+        removed => {}
+    },
     5.025006 => {
         delta_from => 5.025005,
         changed => {
@@ -1270,6 +1265,18 @@ our %delta :const = (
         },
         removed => {
         }
+    },
+    '5.025002c' => {
+        delta_from => '5.025001c',
+        changed => {
+            'c2ph'              => 1,
+        },
+        removed => {}
+    },
+    '5.024002c' => {
+        delta_from => '5.024001c',
+        changed => {},
+        removed => {}
     },
     5.025008 => {
         delta_from => 5.025007,
@@ -1308,6 +1315,11 @@ our %delta :const = (
         removed => {
         }
     },
+    '5.025003c' => {
+        delta_from => '5.025002c',
+        changed => {},
+        removed => {}
+    },
     5.025011 => {
         delta_from => 5.025010,
         changed => {
@@ -1322,25 +1334,15 @@ our %delta :const = (
         removed => {
         }
     },
-    '5.025000c' => {
-        delta_from => '5.024000c',
-        changed => {},
-        removed => {}
-    },
-    '5.025001c' => {
-        delta_from => '5.025000c',
-        changed => {},
-        removed => {}
-    },
-    '5.025002c' => {
-        delta_from => '5.025001c',
+    '5.026000c' => {
+        delta_from => '5.025003c',
         changed => {
-            'c2ph'              => 1,
+            'cperlivp'          => 1,
         },
         removed => {}
     },
-    '5.025003c' => {
-        delta_from => '5.025002c',
+    '5.027000c' => {
+        delta_from => '5.026000c',
         changed => {},
         removed => {}
     },
@@ -1350,20 +1352,6 @@ our %delta :const = (
         },
         removed => {
         }
-    },
-    '5.026000c' => {
-        delta_from => '5.025003c',
-        changed => {
-            'cperlivp'          => 1,
-        },
-        removed => {}
-    },
-    '5.026001c' => {
-        delta_from => '5.026000c',
-        changed => {
-            'cperlivp'          => 1,
-        },
-        removed => {}
     },
     5.027000 => {
         delta_from => 5.026,
@@ -1378,18 +1366,6 @@ our %delta :const = (
         },
         removed => {
         }
-    },
-    '5.027000c' => {
-        delta_from => '5.026000c',
-        changed => {},
-        removed => {}
-    },
-    '5.027001c' => {
-        delta_from => '5.027000c',
-        changed => {
-            'cperlivp'          => 1,
-        },
-        removed => {}
     },
     5.022004 => {
         delta_from => 5.022003,
@@ -1411,6 +1387,20 @@ our %delta :const = (
         },
         removed => {
         }
+    },
+    '5.026001c' => {
+        delta_from => '5.026000c',
+        changed => {
+            'cperlivp'          => 1,
+        },
+        removed => {}
+    },
+    '5.027001c' => {
+        delta_from => '5.027000c',
+        changed => {
+            'cperlivp'          => 1,
+        },
+        removed => {}
     },
     5.027003 => {
         delta_from => 5.027002,
@@ -1447,27 +1437,17 @@ our %delta :const = (
         removed => {
         }
     },
-    '5.027002c' => {
-        delta_from => '5.027001c',
-        changed => {},
-        removed => {}
-    },
-    '5.022005c' => {
-        delta_from => '5.022004c',
-        changed => {},
-        removed => {}
-    },
-    '5.026002c' => {
-        delta_from => '5.026001c',
-        changed => {},
-        removed => {}
-    },
     5.027006 => {
         delta_from => 5.027005,
         changed => {
         },
         removed => {
         }
+    },
+    '5.027002c' => {
+        delta_from => '5.027001c',
+        changed => {},
+        removed => {}
     },
     5.027007 => {
         delta_from => 5.027006,
@@ -1482,6 +1462,21 @@ our %delta :const = (
         },
         removed => {
         }
+    },
+    '5.022005c' => {
+        delta_from => '5.022004c',
+        changed => {},
+        removed => {}
+    },
+    '5.024003c' => {
+        delta_from => '5.024002c',
+        changed => {},
+        removed => {}
+    },
+    '5.026002c' => {
+        delta_from => '5.026001c',
+        changed => {},
+        removed => {}
     },
     5.027009 => {
         delta_from => 5.027008,
@@ -1525,32 +1520,6 @@ our %delta :const = (
         removed => {
         }
     },
-    '5.026003c' => {
-        delta_from => '5.026002c',
-        changed => {
-        },
-        removed => {}
-    },
-    '5.028000c' => {
-        delta_from => '5.027002c',
-        changed => {},
-        removed => {}
-    },
-    '5.024004c' => {
-        delta_from => '5.024003c',
-        changed => {},
-        removed => {}
-    },
-    '5.026004c' => {
-        delta_from => '5.026003c',
-        changed => {},
-        removed => {}
-    },
-    '5.028001c' => {
-        delta_from => '5.028000c',
-        changed => {},
-        removed => {}
-    },
     5.029000 => {
         delta_from => 5.028,
         changed => {
@@ -1572,12 +1541,43 @@ our %delta :const = (
         removed => {
         }
     },
+    '5.028000c' => {
+        delta_from => '5.027002c',
+        changed => {},
+        removed => {}
+    },
+    '5.026003c' => {
+        delta_from => '5.026002c',
+        changed => {
+        },
+        removed => {}
+    },
+    '5.024004c' => {
+        delta_from => '5.024003c',
+        changed => {},
+        removed => {}
+    },
     5.029003 => {
         delta_from => 5.029002,
         changed => {
         },
         removed => {
         }
+    },
+    '5.029000c' => {
+        delta_from => '5.028000c',
+        changed => {},
+        removed => {}
+    },
+    '5.028001c' => {
+        delta_from => '5.028000c',
+        changed => {},
+        removed => {}
+    },
+    '5.026004c' => {
+        delta_from => '5.026003c',
+        changed => {},
+        removed => {}
     },
     5.029004 => {
         delta_from => 5.029003,
@@ -1586,13 +1586,22 @@ our %delta :const = (
         removed => {
         }
     },
+    5.029005 => {
+        delta_from => 5.029004,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.026003 => {
+        delta_from => 5.026002,
+        changed => {
+        },
+        removed => {
+        }
+    },
     5.028001 => {
         delta_from => 5.028000,
-        changed => {},
-        removed => {}
-    },
-    '5.029000c' => {
-        delta_from => '5.028000c',
         changed => {},
         removed => {}
     },
