@@ -4,7 +4,7 @@ use strict;
 our ( %version, %families, %deprecated );
 
 use version;
-our $VERSION = '5.20190301c';
+our $VERSION = '5.20190312c';
 $VERSION =~ s/c$//;
 
 sub PKG_PATTERN () { q#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z# }
@@ -18363,8 +18363,8 @@ our %delta :const = (
         delta_from => '5.026004c',
         changed => {
             'B::Op_private'         => '5.026005',
-            'Module::CoreList'      => '5.20190301c',
-            'Module::CoreList::Utils'=> '5.20190301c',
+            'Module::CoreList'      => '5.20190312c',
+            'Module::CoreList::Utils'=> '5.20190312c',
             'Cpanel::JSON::XS'      => '4.09',
             'ExtUtils::MakeMaker'   => '8.35_08',
             'ExtUtils::MM_Unix'     => '8.35_08',
@@ -18377,8 +18377,8 @@ our %delta :const = (
         delta_from => '5.028001c',
         changed => {
             'B::Op_private'         => '5.028002',
-            'Module::CoreList'      => '5.20190301c',
-            'Module::CoreList::Utils'=> '5.20190301c',
+            'Module::CoreList'      => '5.20190312c',
+            'Module::CoreList::Utils'=> '5.20190312c',
             'Cpanel::JSON::XS'      => '4.09',
             'ExtUtils::MakeMaker'   => '8.35_08',
             'ExtUtils::MM_Unix'     => '8.35_08',
@@ -18391,8 +18391,8 @@ our %delta :const = (
         delta_from => '5.029000c',
         changed => {
             'B::Op_private'         => '5.029001',
-            'Module::CoreList'      => '5.20190301c',
-            'Module::CoreList::Utils'=> '5.20190301c',
+            'Module::CoreList'      => '5.20190312c',
+            'Module::CoreList::Utils'=> '5.20190312c',
             'B::C'                  => '1.55_10',
             'Cpanel::JSON::XS'      => '4.09',
             'ExtUtils::Embed'       => '1.36',
