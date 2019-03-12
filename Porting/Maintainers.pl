@@ -653,7 +653,7 @@ use File::Glob qw(:case);
     },
 
     'ExtUtils::MakeMaker' => {
-        'DISTRIBUTION' => 'RURBAN/ExtUtils-MakeMaker-8.35_06.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/ExtUtils-MakeMaker-8.35_08.tar.gz',
         'FILES'        => q[dist/ExtUtils-MakeMaker],
         'EXCLUDED'     => [
             qr{^t/lib/Test/},

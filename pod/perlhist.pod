@@ -660,7 +660,8 @@ the strings?).
  rurban    5.26.1c      2017-Aug-07
  rurban    5.26.2c      2018-Jan-08
  rurban    5.26.3c      2018-Sep-10
- rurban    5.26.4c      2018-Oct-18
+ rurban    5.26.4c      2018-Oct-17
+ rurban    5.26.5c      2019-Mar-12
 
  Sawyer X  5.27.0       2017-May-31     The 5.27 development track
  Eric      5.27.1       2017-Jun-20
@@ -690,6 +691,7 @@ the strings?).
  rurban    5.28.0c-RC1  2018-Sep-08     cperl 5.28
  rurban    5.28.0c      2018-Sep-10
  rurban    5.28.1c      2018-Oct-14
+ rurban    5.28.1c      2019-Mar-12
 
  Sawyer X  5.29.0       2018-Jun-26     The 5.29 development track
  Steve     5.29.1       2018-Jul-20
@@ -699,6 +701,7 @@ the strings?).
  Ether     5.29.5       2019-Nov-20
 
  rurban    5.29.0c      2018-Oct-14
+ rurban    5.29.1c      2019-Mar-12
 
 =head2 SELECTED RELEASE MEMORY USAGE
 
@@ -857,8 +860,8 @@ explained below.
  5.22.0         7819 115   1284  77  19121 2635   9772 2434   5615 176
  5.24.0         7922 113   1287  77  19535 2677   9994 2465   5702 177
  5.26.0         9140 121  24925 1200 40643 3017  10514 2614   7854 211
- 5.26.0c        9650 119   1305  79  22011 2950   4237  640   5952 196
  5.28.0        13056 128  27267 1230 41745 3130  10952 2715   8185 218
+ 5.26.0c        9650 119   1305  79  22011 2950   4237  640   5952 196
  5.28.0c        4048 122   1374  83  20991 2952  11086 2734   6698 199
 
 The "core"..."doc" mean the following files from the Perl source code
