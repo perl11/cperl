@@ -7948,7 +7948,7 @@ STATIC void	S_regdump_extflags(pTHX_ const char *lead, const U32 flags)
 STATIC void	S_regdump_intflags(pTHX_ const char *lead, const U32 flags)
 			__attribute__global__;
 
-STATIC U8	S_regtail_study(pTHX_ RExC_state_t *pRExC_state, regnode_offset p, const regnode_offset val, U32 depth)
+STATIC bool	S_regtail_study(pTHX_ RExC_state_t *pRExC_state, regnode_offset p, const regnode_offset val, U32 depth)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_REGTAIL_STUDY	\
@@ -10116,7 +10116,7 @@ STATIC regnode_offset	S_regpiece(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U3
 #define PERL_ARGS_ASSERT_REGPIECE	\
 	assert(pRExC_state); assert(flagp)
 
-STATIC void	S_regtail(pTHX_ RExC_state_t * pRExC_state, const regnode_offset p, const regnode_offset val, const U32 depth)
+STATIC bool	S_regtail(pTHX_ RExC_state_t * pRExC_state, const regnode_offset p, const regnode_offset val, const U32 depth)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_REGTAIL	\
