@@ -5,7 +5,7 @@ use warnings;
 no warnings 'surrogate';    # surrogates can be inputs to this
 use charnames ();
 
-our $VERSION = '0.71_02';
+our $VERSION = '0.71_03';
 
 require Exporter;
 
@@ -990,8 +990,9 @@ sub _charscripts {
         }
     }
     foreach my $entry (@SCRIPTS) {
-        # $entry->[2] =~ s/(_\w)/\L$1/g;  # Preserve old-style casing
-        push @{$SCRIPTS{$entry->[2]}}, $entry;
+        my $name = $entry->[2];
+        $name =~ s/(_\w)/\L$1/g;  # Preserve old-style casing
+        push @{$SCRIPTS{$name}}, $entry;
     }
 }
 

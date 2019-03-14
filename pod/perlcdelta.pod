@@ -120,9 +120,10 @@ XXX
 
 =over 4
 
-=item *
+=item L<Unicode::UCD> 0.71_03
 
-L<XXX> has been upgraded from version A.xx to B.yy.
+Preserve old-style casing for C<%SCRIPTS>, i.e.
+C<Egyptian_hieroglyphs> for C<Egyptian_Hieroglyphs>.
 
 =back
 
