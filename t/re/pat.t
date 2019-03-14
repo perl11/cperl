@@ -23,7 +23,7 @@ BEGIN {
 skip_all('no re module') unless defined &DynaLoader::boot_DynaLoader;
 skip_all_without_unicode_tables();
 
-plan tests => 853;  # Update this when adding/deleting tests.
+plan tests => 854;  # Update this when adding/deleting tests.
 
 run_tests() unless caller;
 
@@ -1995,6 +1995,10 @@ while( "\N{U+100}bc" =~ /(..?)(?{$^N})/g ) {
   print "ok\n" if length($^R)==length("$^R");
 }
 CODE
+    }
+    {   # [perl #133871], ASAN/valgrind out-of-bounds access
+;
+        fresh_perl_like('qr/(?|(())|())|//', qr/syntax error/, {}, "[perl #133871]");
     }
 
 } # End of sub run_tests
