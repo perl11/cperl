@@ -23,7 +23,7 @@ BEGIN {
     skip_all_without_unicode_tables();
 }
 
-plan tests => 852;  # Update this when adding/deleting tests.
+plan tests => 853;  # Update this when adding/deleting tests.
 
 run_tests() unless caller;
 
@@ -1347,6 +1347,7 @@ EOP
         unlike "\x{100}", qr/(?i:\w)/, "(?i: shouldn't lose the passed in /a";
         use re '/aa';
         unlike 'k', qr/(?i:\N{KELVIN SIGN})/, "(?i: shouldn't lose the passed in /aa";
+        unlike 'k', qr'(?i:\N{KELVIN SIGN})', "(?i: shouldn't lose the passed in /aa";
     }
 
     {
