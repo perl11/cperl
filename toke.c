@@ -4001,16 +4001,17 @@ S_scan_const(pTHX_ char *start)
                     const char *str = SvPV_const(res, len);
                     if (PL_lex_inpat) {
 
-                        if (! len) { /* The name resolved to an empty string */
-                            Copy("\\N{}", d, 4, char);
-                            d += 4;
-                        }
-                        else {
-                            /* In order to not lose information for the regex
-                            * compiler, pass the result in the specially made
-                            * syntax: \N{U+c1.c2.c3...}, where c1 etc. are
-                            * the code points in hex of each character
-                            * returned by charnames */
+			if (! len) { /* The name resolved to an empty string */
+                            const char empty_N[] = "\\N{_}";
+                            Copy(empty_N, d, sizeof(empty_N) - 1, char);
+                            d += sizeof(empty_N) - 1;
+			}
+			else {
+			    /* In order to not lose information for the regex
+			    * compiler, pass the result in the specially made
+			    * syntax: \N{U+c1.c2.c3...}, where c1 etc. are
+			    * the code points in hex of each character
+			    * returned by charnames */
 
                             const char *str_end = str + len;
                             const STRLEN off = d - SvPVX_const(sv);
