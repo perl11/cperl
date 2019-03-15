@@ -663,6 +663,7 @@ my @warning_only_under_strict = (
     "/[$low_mixed_alpha-$high_mixed_alpha]/" => "Ranges of ASCII printables should be some subset of \"0-9\", \"A-Z\", or \"a-z\" {#} m/[$low_mixed_alpha-$high_mixed_alpha\{#}]/",
     "/[$low_mixed_digit-$high_mixed_digit]/" => "Ranges of ASCII printables should be some subset of \"0-9\", \"A-Z\", or \"a-z\" {#} m/[$low_mixed_digit-$high_mixed_digit\{#}]/",
     #'/\b<GCB}/' => 'Unescaped literal \'}\' {#} m/\b<GCB}{#}/',
+    '/\b<GCB}/' => '',
     '/[ ]def]/' => 'Unescaped literal \']\' {#} m/[ ]def]{#}/',
 );
 
@@ -694,13 +695,13 @@ my @deprecated = (
  '/^{/'          => "",
  '/foo|{/'       => "",
  '/foo|^{/'      => "",
- #'/foo({bar)/'   => 'Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.32), passed through {#} m/foo({{#}bar)/',
+ #'/foo({bar)/'   => 'Unescaped left brace in regex passed through {#} m/foo({{#}bar)/',
  '/foo(:?{bar)/' => "",
  '/\s*{/'        => "",
  '/a{3,4}{/'     => "",
- #'/.{/'         => 'Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.30), passed through {#} m/.{{#}/',
- #'/[x]{/'       => 'Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.30), passed through {#} m/[x]{{#}/',
- #'/\p{Latin}{/' => 'Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.30), passed through {#} m/\p{Latin}{{#}/',
+ #'/.{/'         => 'Unescaped left brace in regex passed through {#} m/.{{#}/',
+ #'/[x]{/'       => 'Unescaped left brace in regex passed through {#} m/[x]{{#}/',
+ #'/\p{Latin}{/' => 'Unescaped left brace in regex passed through {#} m/\p{Latin}{{#}/',
 );
 
 for my $strict ("", "use re 'strict';") {

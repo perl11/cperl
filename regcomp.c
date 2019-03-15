@@ -820,6 +820,7 @@ static const scan_data_t zero_scan_data = {
 	                                    REPORT_LOCATION_ARGS(loc)); \
 } STMT_END
 
+/* now unused */
 #define	ckWARNregdep(loc,m) STMT_START {				    \
     __ASSERT_(PASS2) Perl_ck_warner_d(aTHX_ packWARN2(WARN_DEPRECATED,      \
                                                       WARN_REGEXP),         \
@@ -11641,10 +11642,9 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp, U32 depth)
                 && UCHARAT(RExC_parse-2) == '\\'
                 && strpbrk(RExC_parse-1, "NpPbBxog") == RExC_parse-1)
             {
-                ckWARNregdep(RExC_parse + 1,
-                            "Unescaped left brace in regex is "
-                            "deprecated here (and will be fatal "
-                            "in Perl 5.32), passed through");
+                ckWARNreg(RExC_parse + 1,
+                          "Unescaped left brace in regex is "
+                          "passed through");
             }
             /* Not bothering to indent here, as the above 'else' is temporary
              * */
@@ -13869,6 +13869,22 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                      * cperl special-cases only \NpPbBxog{} [cperl #362], later ({...}),
                      * all other cases are legal. */
 #ifndef USE_CPERL
+                    /* perl5 policy: */
+                    /* Trying to gain new uses for '{' without breaking too
+                     * much existing code is hard.  The solution currently
+                     * adopted is:
+                     *  1)  If there is no ambiguity that a '{' should always
+                     *      be taken literally, at the start of a construct, we
+                     *      just do so.
+                     *  2)  If the literal '{' conflicts with our desired use
+                     *      of it as a metacharacter, we die.  The deprecation
+                     *      cycles for this have come and gone.
+                     *  3)  If there is ambiguity, we raise a simple warning.
+                     *      This could happen, for example, if the user
+                     *      intended it to introduce a quantifier, but slightly
+                     *      misspelled the quantifier.  Without this warning,
+                     *      the quantifier would silently be taken as a literal
+                     *      string of characters instead of a meta construct */
 		    if (!(p - RExC_parse > 1
                           && UCHARAT(p-2) == '\\'
                           && strpbrk(p-1, "NpPbBxog") == p-1))
@@ -13886,10 +13902,8 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                             vFAIL("Unescaped left brace in regex is illegal here");
                         }
                         if (PASS2) {
-                            ckWARNregdep(p + 1,
-                                        "Unescaped left brace in regex is "
-                                        "deprecated here (and will be fatal "
-                                        "in Perl 5.30), passed through");
+                            ckWARNreg(p + 1, "Unescaped left brace in regex is"
+                                             " passed through");
                          }
 		    }
 #endif
@@ -14407,7 +14421,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
         && UCHARAT(RExC_parse-2) == '\\'
         && strpbrk(RExC_parse-1, "NpPbBxog") == RExC_parse-1)  /* [cperl #362] */
     {
-        ckWARNregdep(RExC_parse + 1, "Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.30), passed through");
+        ckWARNreg(RExC_parse + 1, "Unescaped left brace in regex is passed through");
     }
 
     return(ret);

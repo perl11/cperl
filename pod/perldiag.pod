@@ -6826,11 +6826,9 @@ C<undef *foo>.
 (A) You've accidentally run your script through B<csh> instead of Perl.
 Check the #! line, or manually feed your script into Perl yourself.
 
-=item Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.30), passed through in regex; marked by S<<-- HERE> in m/%s/
+=item Unescaped left brace in regex is passed through in regex; marked by S<<-- HERE> in m/%s/
 
-=item Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.32), passed through in regex; marked by S<<-- HERE> in m/%s/
-
-(D deprecated, regexp)  The simple rule to remember, if you want to
+(W regexp)  The simple rule to remember, if you want to
 match a literal C<"{"> character (U+007B C<LEFT CURLY BRACKET>) in a
 regular expression pattern, is to escape each literal instance of it in
 some way.  Generally easiest is to precede it with a backslash, like
@@ -6883,7 +6881,7 @@ as the first character following a quantifier
 
 =item *
 
-in cperl only if the unicode group is one of the following reserved:
+in cperl only if the unicode group is one of the following reserved prefixes:
 
  Name:     /\N{/
  Property: /\p{/ /\P{/
