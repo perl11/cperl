@@ -119,6 +119,14 @@ of slow pure-perl invlist walks at run-time, esp. for all numeric
 properties (70 more).
 Also avoids more swash creations.
 
+=item *
+
+Translating from UTF-8 into the code point it represents now is done via a
+deterministic finite automaton, speeding it up.  As a typical example,
+C<ord("\x7fff")> now requires 12% fewer instructions than before.  The
+performance of checking that a sequence of bytes is valid UTF-8 is similarly
+improved, again by using a dfa.
+
 =back
 
 =head1 Modules and Pragmata
