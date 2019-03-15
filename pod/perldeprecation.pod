@@ -228,7 +228,7 @@ with the circumflex hovering over the "R".
 
 As of Perl 5.30, use of delimiters which are non-standalone graphemes is
 fatal, in order to move the language to be able to accept
-multi-character graphemes as delimiters.
+multi-character graphemes as delimiters. cperl already fatalized with 5.26.0c.
 
 Also, as of Perl 5.30, delimiters which which are unassigned code points
 but that may someday become assigned are prohibited.  Otherwise, code
@@ -237,7 +237,7 @@ delimiter ends up being something that isn't a stand-alone grapheme.
 Because Unicode is never going to assign L<non-character code
 points|perlunicode/Noncharacter code points>, nor L<code points that are
 above the legal Unicode maximum| perlunicode/Beyond Unicode code
-points>, those can be delimiters.
+points>, those can be delimiters. cperl already fatalized with 5.26.0c.
 
 =head3 In XS code, use of various macros dealing with UTF-8.
 
