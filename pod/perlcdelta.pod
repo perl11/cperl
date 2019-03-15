@@ -208,13 +208,19 @@ XXX L<message|perldiag/"message">
 
 =head2 Changes to Existing Diagnostics
 
-XXX Changes (i.e. rewording) of diagnostic messages go here
-
 =over 4
 
 =item *
 
-XXX Describe change here
+cperl fatalized the error on non-grapheme string delimiters (ie. illegal utf8)
+in v5.25.3c already, e.g with C<qr ̂foobar̂>.
+perl5 did it with v5.29.0 but used 3 error lines instead of just one.
+
+"Use of unassigned code point or non-standalone grapheme for a delimiter"
+uses now 3 lines:
+"Use of unassigned code point or non-standalone grapheme for a delimiter is not allowed at -, near"
+"Use of unassigned code point or non-standalone grapheme for a delimiter is not allowed at -, near"
+"Execution of - aborted due to compilation errors."
 
 =back
 
