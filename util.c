@@ -2224,7 +2224,7 @@ Perl_new_warnings_bitfield(pTHX_ STRLEN *buffer, const char *const bits,
  */
 #define my_setenv_format(s, nam, nlen, val, vlen, arg_max)     \
    /* execve security: [cperl #359] */                         \
-   if ((long)(nlen+vlen+2) > arg_max)                          \
+    if ((long)(nlen+vlen+2) > (long)arg_max)                   \
      Perl_croak_nocontext("Environment size %ld larger than the allowed %ld", \
                           (long)(nlen+vlen+2), (long)arg_max); \
    Copy(nam, s, nlen, char); \
@@ -2377,7 +2377,7 @@ Perl_my_setenv(pTHX_ const char *nam, const char *val)
         Size_t arg_max = MAX_ENV;
 #endif
         /* execve security: [cperl #359] */
-        if (nlen+vlen+2 > arg_max)
+        if ((long)(nlen+vlen+2) > (long)arg_max)
             Perl_croak_nocontext("Environment size %ld larger than the allowed %ld",
                                  (long)(nlen+vlen+2), (long)arg_max);
 #  if defined(HAS_UNSETENV)
