@@ -18,11 +18,21 @@ XXX Any important notices here
 
 =head1 Core Enhancements
 
-XXX New core language features go here.  Summarize user-visible core language
-enhancements.  Particularly prominent performance optimisations could go
-here, but most should go in the L</Performance Enhancements> section.
+=head2 Handle qr!\p{nv=6/8}!
 
-[ List each enhancement as a =head2 entry ]
+Allow a rational number specified in looking up the Numeric
+Value Unicode property to not be in lowest possible terms.
+
+The Numeric Value property allows one to find all code points that have
+a certain numeric value.  An example would be to match against any
+character in any of the world's scripts which is effectively equivalent
+to the digit zero.
+
+We accept either integers (like C<\p{nv=9}>) or rationals (like C<\p{nv=1/2}>).
+But we also accept floating point representations in case a conversion to numeric
+has happened, (like C<\p{nv=0.5}>).
+The necessary precision is now automatically pre-calculated and the lookup
+normalized.
 
 =head1 Security
 
@@ -73,20 +83,41 @@ as an updated module in the L</Modules and Pragmata> section.
 
 =back
 
-[ List each other deprecation as a =head2 entry ]
+=head2 Remove support for C<qr/\p{_Case_Ignorable}>
+
+This property is no longer used in the core, nor in cpan, and is marked
+as for core use only, not necessarily stable.  I have kept it around
+because it was work to remove it, but now the revamping of the property
+lookup scheme was causing failures with it, when compiling on early
+Unicode releases.  That could be fixed with extra work, but simply
+removing it also fixes the problem and avoids future maintenance
+costs.
+
+=head2 Remove support for C<qr/\p{_Comb_Above}>
+
+This property is no longer used in the core, nor in cpan, and is marked
+as for core use only, not necessarily stable.  I have kept it around
+because it was work to remove it, but now the revamping of the property
+lookup scheme was causing failures with a similar property, and the
+previous commit removed that one.
+
+=head2 Remove support for C<qr/\p{_CanonDCIJ}>
+
+The property is not used in cpan, and is being removed as part of the cleanup
+instigated because another of the 3 would
+require extra code to handle if we were to keep it around.
 
 =head1 Performance Enhancements
-
-XXX Changes which enhance performance without changing behaviour go here.
-There may well be none in a stable release.
-
-[ List each enhancement as an =item entry ]
 
 =over 4
 
 =item *
 
-XXX
+Improved Unicode numeric property lookups, for C<\p{nv=float}>,
+in size and speed by using more pre-compiled perfect hashes instead
+of slow pure-perl invlist walks at run-time, esp. for all numeric
+properties (70 more).
+Also avoids more swash creations.
 
 =back
 
@@ -340,17 +371,13 @@ XXX
 
 =head1 Internal Changes
 
-XXX Changes which affect the interface available to C<XS> code go here.  Other
-significant internal changes for future core maintainers should be noted as
-well.
-
-[ List each change as an =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+Added C<my_atof3()> to support parsing strings which are not necessarily
+NUL-terminated to an NV.
+C<grok_atoUV> supports that too now.
 
 =back
 
