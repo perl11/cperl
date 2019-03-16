@@ -131,11 +131,12 @@
 
 #define WARN_EXPERIMENTAL__PRIVATE_USE	 73
 #define WARN_EXPERIMENTAL__UNIPROP_WILDCARDS 74
-#define WARN_FFI			 75
+#define WARN_EXPERIMENTAL__VLB		 75
+#define WARN_FFI			 76
 
-#define WARNsize			 19
-#define WARN_ALLstring			 "\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125"
-#define WARN_NONEstring			 "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+#define WARNsize			 20
+#define WARN_ALLstring			 "\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125"
+#define WARN_NONEstring			 "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
 
 #define isLEXWARN_on	cBOOL(PL_curcop->cop_warnings != pWARN_STD)
 #define isLEXWARN_off	cBOOL(PL_curcop->cop_warnings == pWARN_STD)
