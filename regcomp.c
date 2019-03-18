@@ -2706,7 +2706,7 @@ S_make_trie(pTHX_ RExC_state_t *pRExC_state, regnode *startbranch,
         trie_words = newAV();
     });
 
-    re_trie_maxbuff = get_svs(RE_TRIE_MAXBUF_NAME, 1);
+    re_trie_maxbuff = get_svs(RE_TRIE_MAXBUF_NAME, GV_ADD);
     assert(re_trie_maxbuff);
     if (!SvIOK(re_trie_maxbuff)) {
         sv_setiv(re_trie_maxbuff, RE_TRIE_MAXBUF_INIT);
