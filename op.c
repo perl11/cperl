@@ -8879,6 +8879,11 @@ Perl_pmruntime(pTHX_ OP *o, OP *expr, OP *repl, UV flags, I32 floor)
 		pm->op_pmflags &= ~PMf_HAS_CV;
 	    }
 
+            /* Skip compiling if parser found an error for this pattern */
+            if (pm->op_pmflags & PMf_HAS_ERROR) {
+                return o;
+            }
+
 	    PM_SETRE(pm,
 		eng->op_comp
 		    ? eng->op_comp(aTHX_ NULL, 0, expr, eng, NULL, NULL,
@@ -8890,7 +8895,15 @@ Perl_pmruntime(pTHX_ OP *o, OP *expr, OP *repl, UV flags, I32 floor)
 	}
 	else {
 	    /* compile-time pattern that includes literal code blocks */
-	    REGEXP* re = eng->op_comp(aTHX_ NULL, 0, expr, eng, NULL, NULL,
+
+	    REGEXP* re;
+
+            /* Skip compiling if parser found an error for this pattern */
+            if (pm->op_pmflags & PMf_HAS_ERROR) {
+                return o;
+            }
+
+	    re = eng->op_comp(aTHX_ NULL, 0, expr, eng, NULL, NULL,
 			rx_flags,
 			(pm->op_pmflags |
 			    ((PL_hints & HINT_RE_EVAL) ? PMf_USE_RE_EVAL : 0))
