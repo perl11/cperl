@@ -404,6 +404,20 @@ my @death_only_under_strict = (
                       => 'Unrecognized escape \z in character class {#} m/[a\z{#}b]\x{100}/',
     '/[ab]/'          => "",
                         => 'Literal vertical space in [] is illegal except under /x {#} m/[a{#}b]/',
+    #'/:{4,a}/'     => 'Unescaped left brace in regex is passed through {#} m/:{{#}4,a}/',
+    #               => 'Unescaped left brace in regex is illegal here {#} m/:{{#}4,a}/',
+    #'/xa{3\,4}y/'  => 'Unescaped left brace in regex is passed through {#} m/xa{{#}3\,4}y/',
+    #               => 'Unescaped left brace in regex is illegal here {#} m/xa{{#}3\,4}y/',
+    #'/\\${[^\\}]*}/' => 'Unescaped left brace in regex is passed through {#} m/\\${{#}[^\\}]*}/',
+    #                 => 'Unescaped left brace in regex is illegal here {#} m/\\${{#}[^\\}]*}/',
+    #'/.{/'         => 'Unescaped left brace in regex is passed through {#} m/.{{#}/',
+    #               => 'Unescaped left brace in regex is illegal here {#} m/.{{#}/',
+    #'/[x]{/'       => 'Unescaped left brace in regex is passed through {#} m/[x]{{#}/',
+    #               => 'Unescaped left brace in regex is illegal here {#} m/[x]{{#}/',
+    #'/\p{Latin}{/' => 'Unescaped left brace in regex is passed through {#} m/\p{Latin}{{#}/',
+    #               => 'Unescaped left brace in regex is illegal here {#} m/\p{Latin}{{#}/',
+    '/\x{100}\x/'  => "",
+                   => "Empty \\x {#} m/\\x{100}\\x{#}/",
 );
 
 # These need the character 'ネ' as a marker for mark_as_utf8()
