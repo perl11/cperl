@@ -4664,6 +4664,12 @@ the meantime, try using scientific notation (e.g. "1e6" instead of
 a number.  This happens, for example with C<\o{}>, with no number between
 the braces.
 
+=item Numeric format result too large
+
+(F) The length of the result of a numeric format supplied to sprintf()
+or printf() would have been too large for the underlying C function to
+report.  This limit is typically 2GB.
+
 =item Object field %s in class %s not found
 
 (F) The second argument to oelem, a run-time object field was not found in
