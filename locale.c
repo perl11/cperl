@@ -693,7 +693,7 @@ S_emulate_setlocale(const int category,
 #    endif
         return NULL;
 #  endif
-    }
+    } /* if (locale == NULL) */
 
     /* Here, we are switching locales. */
 
@@ -935,6 +935,7 @@ S_emulate_setlocale(const int category,
 #  endif
 
     if (! old_obj) {
+
 #  ifdef DEBUGGING
         if (DEBUG_L_TEST || debug_initialization) {
             dSAVE_ERRNO;
@@ -942,12 +943,15 @@ S_emulate_setlocale(const int category,
             RESTORE_ERRNO;
         }
 #  endif
+
         return NULL;
     }
 
 #  ifdef DEBUGGING
     if (DEBUG_Lv_TEST || debug_initialization) {
-        PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale now using %p\n", __FILE__, __LINE__, PL_C_locale_obj);
+        PerlIO_printf(Perl_debug_log,
+                      "%s:%d: emulate_setlocale now using %p\n",
+                      __FILE__, __LINE__, PL_C_locale_obj);
     }
 #  endif
 
@@ -956,90 +960,106 @@ S_emulate_setlocale(const int category,
     if (mask == LC_ALL_MASK && isNAME_C_OR_POSIX(locale)) {
 
 #  ifdef DEBUGGING
-
         if (DEBUG_Lv_TEST || debug_initialization) {
             PerlIO_printf(Perl_debug_log,
                           "%s:%d: will stay in C object\n", __FILE__, __LINE__);
         }
-
 #  endif
 
         new_obj = PL_C_locale_obj;
 
         /* We already had switched to the C locale in preparation for freeing
-         * old_obj */
+         * 'old_obj' */
         if (old_obj != LC_GLOBAL_LOCALE && old_obj != PL_C_locale_obj) {
             freelocale(old_obj);
         }
     }
     else {
-    /* If we weren't in a thread safe locale, set so that newlocale() below
-     which uses 'old_obj', uses an empty one.  Same for our reserved C object.
-     The latter is defensive coding, so that, even if there is some bug, we
-     will never end up trying to modify either of these, as if passed to
-     newlocale(), they can be. */
-    if (old_obj == LC_GLOBAL_LOCALE || old_obj == PL_C_locale_obj) {
-        old_obj = (locale_t) 0;
-    }
-
-    /* Ready to create a new locale by modification of the exising one */
-    new_obj = newlocale(mask, locale, old_obj);
-
-    if (! new_obj) {
-        dSAVE_ERRNO;
-
-#  ifdef DEBUGGING
-        if (DEBUG_L_TEST || debug_initialization) {
-            PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale creating new object failed: %d\n", __FILE__, __LINE__, GET_ERRNO);
+        /* If we weren't in a thread safe locale, set so that newlocale() below
+         * which uses 'old_obj', uses an empty one.  Same for our reserved C
+         * object.  The latter is defensive coding, so that, even if there is
+         * some bug, we will never end up trying to modify either of these, as
+         * if passed to newlocale(), they can be. */
+        if (old_obj == LC_GLOBAL_LOCALE || old_obj == PL_C_locale_obj) {
+            old_obj = (locale_t) 0;
         }
-#  endif
-        if (! uselocale(old_obj)) {
+
+        /* Ready to create a new locale by modification of the exising one */
+        new_obj = newlocale(mask, locale, old_obj);
+
+        if (! new_obj) {
+            dSAVE_ERRNO;
+
 #  ifdef DEBUGGING
             if (DEBUG_L_TEST || debug_initialization) {
-                PerlIO_printf(Perl_debug_log, "%s:%d: switching back failed: %d\n", __FILE__, __LINE__, GET_ERRNO);
+                PerlIO_printf(Perl_debug_log,
+                              "%s:%d: emulate_setlocale creating new object"
+                              " failed: %d\n", __FILE__, __LINE__, GET_ERRNO);
             }
 #  endif
+
+            if (! uselocale(old_obj)) {
+
+#  ifdef DEBUGGING
+                if (DEBUG_L_TEST || debug_initialization) {
+                    PerlIO_printf(Perl_debug_log,
+                                  "%s:%d: switching back failed: %d\n",
+                                  __FILE__, __LINE__, GET_ERRNO);
+                }
+#  endif
+
+            }
+            RESTORE_ERRNO;
+            return NULL;
         }
-        RESTORE_ERRNO;
-        return NULL;
+
+#  ifdef DEBUGGING
+        if (DEBUG_Lv_TEST || debug_initialization) {
+            PerlIO_printf(Perl_debug_log,
+                          "%s:%d: emulate_setlocale created %p",
+                          __FILE__, __LINE__, new_obj);
+            if (old_obj) {
+                PerlIO_printf(Perl_debug_log,
+                              "; should have freed %p", old_obj);
+            }
+            PerlIO_printf(Perl_debug_log, "\n");
+        }
+#  endif
+
+        /* And switch into it */
+        if (! uselocale(new_obj)) {
+            dSAVE_ERRNO;
+
+#  ifdef DEBUGGING
+            if (DEBUG_L_TEST || debug_initialization) {
+                PerlIO_printf(Perl_debug_log,
+                              "%s:%d: emulate_setlocale switching to new object"
+                              " failed\n", __FILE__, __LINE__);
+            }
+#  endif
+
+            if (! uselocale(old_obj)) {
+
+#  ifdef DEBUGGING
+                if (DEBUG_L_TEST || debug_initialization) {
+                    PerlIO_printf(Perl_debug_log,
+                                  "%s:%d: switching back failed: %d\n",
+                                  __FILE__, __LINE__, GET_ERRNO);
+                }
+#  endif
+
+            }
+            freelocale(new_obj);
+            RESTORE_ERRNO;
+            return NULL;
+        }
     }
 
 #  ifdef DEBUGGING
     if (DEBUG_Lv_TEST || debug_initialization) {
-        PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale created %p", __FILE__, __LINE__, new_obj);
-        if (old_obj) {
-            PerlIO_printf(Perl_debug_log, "; should have freed %p", old_obj);
-        }
-        PerlIO_printf(Perl_debug_log, "\n");
-    }
-#  endif
-
-    /* And switch into it */
-    if (! uselocale(new_obj)) {
-        dSAVE_ERRNO;
-
-#  ifdef DEBUGGING
-        if (DEBUG_L_TEST || debug_initialization) {
-            PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale switching to new object failed\n", __FILE__, __LINE__);
-        }
-#  endif
-
-        if (! uselocale(old_obj)) {
-#  ifdef DEBUGGING
-            if (DEBUG_L_TEST || debug_initialization) {
-                PerlIO_printf(Perl_debug_log, "%s:%d: switching back failed: %d\n", __FILE__, __LINE__, GET_ERRNO);
-            }
-#  endif
-        }
-        freelocale(new_obj);
-        RESTORE_ERRNO;
-        return NULL;
-    }
-    }
-
-#  ifdef DEBUGGING
-    if (DEBUG_Lv_TEST || debug_initialization) {
-        PerlIO_printf(Perl_debug_log, "%s:%d: emulate_setlocale now using %p\n", __FILE__, __LINE__, new_obj);
+        PerlIO_printf(Perl_debug_log,
+                      "%s:%d: emulate_setlocale now using %p\n",
+                      __FILE__, __LINE__, new_obj);
     }
 #  endif
 
@@ -1152,9 +1172,11 @@ S_locking_setlocale(pTHX_
     if (! is_index_valid) {
         unsigned int i;
 
+#  ifdef DEBUGGING
         if (DEBUG_Lv_TEST || debug_initialization) {
             PerlIO_printf(Perl_debug_log, "%s:%d: converting category %d to index\n", __FILE__, __LINE__, category);
         }
+#  endif
         for (i = 0; i <= LC_ALL_INDEX; i++) {
             if (category == categories[i]) {
                 index = i;
@@ -1170,10 +1192,12 @@ S_locking_setlocale(pTHX_
 
       found_index: ;
 
+#  ifdef DEBUGGING
         if (DEBUG_Lv_TEST || debug_initialization) {
             PerlIO_printf(Perl_debug_log, "%s:%d: index is 0x%x\n", __FILE__, __LINE__, index);
         }
     }
+#  endif
 
     /* For a query, just return what's in our records */
     if (new_locale == NULL) {
@@ -1302,7 +1326,7 @@ S_new_numeric(pTHX_ const char *newnum)
     PL_numeric_underlying = TRUE;
     PL_numeric_standard = isNAME_C_OR_POSIX(save_newnum);
 
-#ifndef TS_W32_BROKEN_LOCALECONV
+#  ifndef TS_W32_BROKEN_LOCALECONV
 
     /* If its name isn't C nor POSIX, it could still be indistinguishable from
      * them.  But on broken Windows systems calling my_nl_langinfo() for
@@ -1314,7 +1338,7 @@ S_new_numeric(pTHX_ const char *newnum)
                                  && strEQ("",  my_nl_langinfo(THOUSEP, FALSE)));
     }
 
-#endif
+#  endif
 
     /* Save the new name if it isn't the same as the previous one, if any */
     if (! PL_numeric_name || strNE(PL_numeric_name, save_newnum)) {
@@ -1328,16 +1352,16 @@ S_new_numeric(pTHX_ const char *newnum)
     PL_numeric_underlying_is_standard = PL_numeric_standard;
 
 #  ifdef HAS_POSIX_2008_LOCALE
-
     PL_underlying_numeric_obj = newlocale(LC_NUMERIC_MASK,
                                           PL_numeric_name,
                                           PL_underlying_numeric_obj);
+#  endif
 
-#endif
-
+#  ifdef DEBUGGING
     if (DEBUG_L_TEST || debug_initialization) {
         PerlIO_printf(Perl_debug_log, "Called new_numeric with %s, PL_numeric_name=%s\n", newnum, PL_numeric_name);
     }
+#  endif
 
     /* Keep LC_NUMERIC in the C locale.  This is for XS modules, so they don't
      * have to worry about the radix being a non-dot.  (Core operations that
@@ -3203,9 +3227,11 @@ Perl_init_i18nl10n(pTHX_ int printwarn)
         Perl_croak_nocontext(
             "panic: Cannot create POSIX 2008 C locale object; errno=%d", errno);
     }
+#    ifdef DEBUGGING
     if (DEBUG_Lv_TEST || debug_initialization) {
         PerlIO_printf(Perl_debug_log, "%s:%d: created C object %p\n", __FILE__, __LINE__, PL_C_locale_obj);
     }
+#    endif
 
 #  endif
 
@@ -4108,7 +4134,6 @@ Perl__mem_collxfrm(pTHX_ const char *input_string,
             PL_strxfrm_is_behaved = FALSE;
 
 #  ifdef DEBUGGING
-
             if (DEBUG_Lv_TEST || debug_initialization) {
                 PerlIO_printf(Perl_debug_log,
                 "_mem_collxfrm required more space than previously calculated"
@@ -4116,9 +4141,7 @@ Perl__mem_collxfrm(pTHX_ const char *input_string,
                 PL_collation_name, (int) COLLXFRM_HDR_LEN,
                 xAlloc - COLLXFRM_HDR_LEN);
             }
-
 #  endif
-
         }
 
         Renew(xbuf, xAlloc, char);
@@ -4133,16 +4156,13 @@ Perl__mem_collxfrm(pTHX_ const char *input_string,
 
 
 #  ifdef DEBUGGING
-
     if (DEBUG_Lv_TEST || debug_initialization) {
-
         print_collxfrm_input_and_return(s, s + len, xlen, utf8);
         PerlIO_printf(Perl_debug_log, "Its xfrm is:");
         PerlIO_printf(Perl_debug_log, "%s\n",
                       _byte_dump_string((U8 *) xbuf + COLLXFRM_HDR_LEN,
                        *xlen, 1));
     }
-
 #  endif
 
     /* Free up unneeded space; retain ehough for trailing NUL */
@@ -4162,11 +4182,9 @@ Perl__mem_collxfrm(pTHX_ const char *input_string,
     *xlen = 0;
 
 #  ifdef DEBUGGING
-
     if (DEBUG_Lv_TEST || debug_initialization) {
         print_collxfrm_input_and_return(s, s + len, NULL, utf8);
     }
-
 #  endif
 
     return NULL;
@@ -4413,12 +4431,10 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
         is_utf8 = *(name_pos + input_name_len_with_overhead - 1) - '0';
 
 #  ifdef DEBUGGING
-
         if (DEBUG_Lv_TEST || debug_initialization) {
             PerlIO_printf(Perl_debug_log, "UTF8ness for locale %s=%d, \n",
                                           save_input_locale, is_utf8);
         }
-
 #  endif
 
         /* And, if not already in that position, move it to the beginning of
@@ -4873,7 +4889,6 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
     }
 
 #  ifdef DEBUGGING
-
     if (DEBUG_Lv_TEST) {
         const char * s = PL_locale_utf8ness;
 
@@ -4918,15 +4933,12 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
             }
             s = e + 1;
         }
-    }
-
-    if (DEBUG_Lv_TEST || debug_initialization) {
-
-        PerlIO_printf(Perl_debug_log,
+        if (debug_initialization) {
+            PerlIO_printf(Perl_debug_log,
                 "PL_locale_utf8ness is now %s; returning %d\n",
                                      PL_locale_utf8ness, is_utf8);
+        }
     }
-
 #  endif
 
     /* free only when not using the buffer */
