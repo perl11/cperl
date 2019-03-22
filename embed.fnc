@@ -2697,6 +2697,7 @@ EpX	|SV *	|parse_uniprop_string|NN const char * const name	    \
 				     |const bool is_utf8		    \
 				     |const bool to_fold		    \
 				     |const bool runtime		    \
+				     |const bool deferrable		    \
 				     |NN bool * user_defined_ptr	    \
 				     |NN SV * msg			    \
 				     |const STRLEN level
@@ -2705,6 +2706,7 @@ EXp	|SV *	|handle_user_defined_property|NN const char * name	    \
 					     |const bool is_utf8	    \
 					     |const bool to_fold	    \
 					     |const bool runtime	    \
+					     |const bool deferrable	    \
 					     |NN SV* contents		    \
 					     |NN bool *user_defined_ptr	    \
 					     |NN SV * msg		    \
