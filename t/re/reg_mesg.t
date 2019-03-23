@@ -685,6 +685,7 @@ my @warning_only_under_strict = (
     #'/\b<GCB}/' => 'Unescaped literal \'}\' {#} m/\b<GCB}{#}/',
     '/\b<GCB}/' => '',
     '/[ ]def]/' => 'Unescaped literal \']\' {#} m/[ ]def]{#}/',
+    '/(?)/' => 'Empty (?) without any modifiers {#} m/(?){#}/', [perl #132851]
 );
 
 my @warning_utf8_only_under_strict = mark_as_utf8(
