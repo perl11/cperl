@@ -1376,6 +1376,25 @@ XS(XS_PerlIO_exportFILE)
 }
 #endif
 
+#ifdef HAS_GETCWD
+
+XS(XS_Internals_getcwd)
+{
+    dXSARGS;
+    SV *sv = sv_newmortal();
+
+    if (items != 0)
+        croak_xs_usage(cv, "");
+
+    (void)getcwd_sv(sv);
+
+    SvTAINTED_on(sv);
+    PUSHs(sv);
+    XSRETURN(1);
+}
+
+#endif
+
 #include "vutil.h"
 #include "vxs.inc"
 
@@ -1422,6 +1441,9 @@ static const struct xsub_details these_details[] = {
     {"fields::set_value", XS_fields_set_value, "$$"},
 #ifdef TEST_PERLIO_EXPORTFILE
     {"XS::APItest::PerlIO_exportFILE", XS_PerlIO_exportFILE, "$$"},
+#endif
+#ifdef HAS_GETCWD
+    {"Internals::getcwd", XS_Internals_getcwd, ""},
 #endif
 };
 
