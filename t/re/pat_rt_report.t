@@ -20,7 +20,7 @@ use warnings;
 use 5.010;
 use Config;
 
-plan tests => 2510;  # Update this when adding/deleting tests.
+plan tests => 2511;  # Update this when adding/deleting tests.
 
 run_tests() unless caller;
 
@@ -1152,6 +1152,15 @@ EOP
         like($w, qr/^Quantifier \{n,m\} with n > m can't match in regex;.*/,
              "impossible quantifier warning");
     }
+	{
+		# RT #133892 Coredump in Perl_re_intuit_start
+		# Second match flips to checking floating substring before fixed
+		# substring, which triggers a pathway that failed to check there
+		# was a non-utf8 version of the string before trying to use it
+		# resulting in a SEGV.
+		my $result = grep /b\x{1c0}ss0/i, qw{ xxxx xxxx0 };
+		ok($result == 0);
+	}
 
 } # End of sub run_tests
 
