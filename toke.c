@@ -1140,6 +1140,7 @@ function is more convenient.
 void
 Perl_lex_stuff_pvn(pTHX_ const char *pv, STRLEN len, U32 flags)
 {
+    dVAR;
     char *bufptr;
     PERL_ARGS_ASSERT_LEX_STUFF_PVN;
     if (flags & ~(LEX_STUFF_UTF8))
@@ -1574,6 +1575,7 @@ is encountered, an exception is generated.
 I32
 Perl_lex_peek_unichar(pTHX_ U32 flags)
 {
+    dVAR;
     char *s, *bufend;
     if (flags & ~(LEX_KEEP_PREVIOUS))
         Perl_croak(aTHX_ "Lexing code internal error (%s)", "lex_peek_unichar");
@@ -2190,7 +2192,7 @@ S_force_next(pTHX_ I32 type)
 }
 
 /*
-=for apidoc postderef
+for apidoc postderef
 
 This subroutine handles postfix deref syntax after the arrow has already
 been emitted.  @* $* etc. are emitted as two separate tokens right here.
@@ -2207,7 +2209,8 @@ S_postderef(pTHX_ int const funny, char const next)
         if (PL_lex_state == LEX_INTERPNORMAL && !PL_lex_brackets) {
             assert('@' == funny || '$' == funny || DOLSHARP == funny);
             PL_lex_state = LEX_INTERPEND;
-            force_next(POSTJOIN);
+	    if ('@' == funny)
+                force_next(POSTJOIN);
         }
         force_next(next);
         PL_bufptr += 2;
@@ -6176,7 +6179,8 @@ Perl_yylex(pTHX)
     case '*':
         if (PL_expect == XPOSTDEREF) POSTDEREF('*');
         if (PL_expect != XOPERATOR) {
-            s = scan_ident(s, PL_bufend, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &normalize);
+            s = scan_ident(s, PL_bufend, PL_tokenbuf, sizeof PL_tokenbuf,
+                           TRUE, &normalize);
             if (UNLIKELY(normalize)) {
                 d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
                 Copy(d, PL_tokenbuf, len+1, char);
@@ -6224,7 +6228,7 @@ Perl_yylex(pTHX)
         else if (PL_expect == XPOSTDEREF) POSTDEREF('%');
         PL_tokenbuf[0] = '%';
         s = scan_ident(s, PL_bufend, PL_tokenbuf + 1,
-                sizeof PL_tokenbuf - 1, FALSE, &normalize);
+                       sizeof PL_tokenbuf - 1, FALSE, &normalize);
         pl_yylval.ival = 0;
         if (!PL_tokenbuf[1]) {
             PREREF('%');
@@ -11201,22 +11205,25 @@ S_scan_heredoc(pTHX_ char *s)
                     le++;
 
                 sv_catpvn(newstr, ss, le);
+		ss += le;
 
-                ss += le;
+	    /* Line doesn't begin with our indentation? Croak */
+	    }
+            else {
+                Safefree(indent);
+		Perl_croak(aTHX_
+		    "Indentation on line %d of here-doc doesn't match delimiter",
+		    (int)linecount
+		);
+	    }
+	} /* while */
 
-            /* Line doesn't begin with our indentation? Croak */
-            } else {
-                Perl_croak(aTHX_
-                    "Indentation on line %d of here-doc doesn't match delimiter",
-                    (int)linecount
-                );
-            }
-        }
         /* avoid sv_setsv() as we dont wan't to COW here */
         sv_setpvn(tmpstr,SvPVX(newstr),SvCUR(newstr));
         Safefree(indent);
         SvREFCNT_dec_NN(newstr);
     }
+
     /*if (SvCUR(tmpstr) + 5 < SvLEN(tmpstr)) {
         SvPV_shrink_to_cur(tmpstr);
     }*/
@@ -11231,6 +11238,8 @@ S_scan_heredoc(pTHX_ char *s)
     return s;
 
   interminable:
+    if (indent)
+	Safefree(indent);
     SvREFCNT_dec(tmpstr);
     CopLINE_set(PL_curcop, origline);
     missingterm(PL_tokenbuf + 1, sizeof(PL_tokenbuf) - 1);
