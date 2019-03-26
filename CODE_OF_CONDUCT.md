@@ -12,4 +12,4 @@ Compare the conflicting [p5p STANDARDS OF CONDUCT](http://perldoc.perl.org/perlp
 cperl can stand criticsm and encourages criticism, but doesn't allow abuse.
 perl5 silences them via code of conduct and still is toxic and effectively dead.
 
-For more information please see the old [No Code of Conduct](https://web.archive.org/web/20150619202349/http://nocodeofconduct.com/) homepage.
+For more information please see the [No Code of Conduct](https://github.com/domgetter/NCoC#what-is-ncoc) page.
