@@ -11628,6 +11628,7 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
     if (cv) {	/* must reuse cv in case stub is referenced elsewhere */
 	/* transfer PL_compcv to cv */
 	if (block) {
+            bool free_file = CvFILE(cv) && CvDYNFILE(cv);
 	    cv_flags_t preserved_flags =
 		CvFLAGS(cv) & (CVf_BUILTIN_ATTRS|CVf_NAMED);
 	    PADLIST *const temp_padl = CvPADLIST(cv);
@@ -11648,8 +11649,9 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
 	    CvFLAGS(compcv) &= ~(CVf_SLABBED|CVf_WEAKOUTSIDE);
 	    CvFLAGS(compcv) |= other_flags;
 
-	    if (CvFILE(cv) && CvDYNFILE(cv)) {
+	    if (free_file) {
 		Safefree(CvFILE(cv));
+		CvFILE(cv) = NULL;
 	    }
 
 	    /* inner references to compcv must be fixed up ... */
@@ -11689,6 +11691,8 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
     if (const_sv)
         goto clone;
 
+    if (CvFILE(cv) && CvDYNFILE(cv))
+        Safefree(CvFILE(cv));
     CvFILE_set_from_cop(cv, PL_curcop);
     CvSTASH_set(cv, PL_curstash);
 
