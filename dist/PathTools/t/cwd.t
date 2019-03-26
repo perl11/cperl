@@ -11,6 +11,7 @@ chdir 't';     # potentially affecting symlinks
 use Config;
 use File::Spec;
 use File::Path;
+use Errno qw(EACCES);
 
 use lib File::Spec->catdir('t', 'lib');
 use Test::More;
@@ -210,7 +211,15 @@ SKIP: {
 
     like($abs_path,      qr|$want$|i, "Cwd::abs_path produced $abs_path");
     like($fast_abs_path, qr|$want$|i, "Cwd::fast_abs_path produced $fast_abs_path");
-    like($pas,           qr|$want$|i, "Cwd::_perl_abs_path produced $pas") if $EXTRA_ABSPATH_TESTS;
+    if ($EXTRA_ABSPATH_TESTS) {
+        # _perl_abs_path() can fail if some ancestor directory isn't readable
+        if (defined $pas) {
+            like($pas,           qr|$want$|i, "Cwd::_perl_abs_path produced $pas");
+        }
+        else {
+            is($!+0, EACCES, "check we got the expected error on failure");
+        }
+    }
 
     rmtree($test_dirs[0], 0, 0);
     1 while unlink $file;
