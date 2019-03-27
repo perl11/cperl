@@ -5549,6 +5549,13 @@ PERL_CALLCONV NV	Perl_scan_oct(pTHX_ const char* start, STRLEN len, STRLEN* retl
 #define PERL_ARGS_ASSERT_SCAN_OCT	\
 	assert(start); assert(retlen)
 
+PERL_CALLCONV char*	Perl_scan_str(pTHX_ char *start, int keep_quoted, int keep_delims, int re_reparse, char **delimp)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_SCAN_STR	\
+	assert(start)
+
 PERL_CALLCONV const char*	Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
@@ -5563,6 +5570,14 @@ PERL_CALLCONV char*	Perl_scan_vstring(pTHX_ const char *s, const char *const e, 
 			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_SCAN_VSTRING	\
 	assert(s); assert(e); assert(sv)
+
+PERL_CALLCONV char*	Perl_scan_word(pTHX_ char *s, char *dest, STRLEN destlen, int allow_package, STRLEN *slp, int *normalize)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_5);
+#define PERL_ARGS_ASSERT_SCAN_WORD	\
+	assert(s); assert(dest); assert(slp)
 
 PERL_CALLCONV U32	Perl_seed(pTHX)
 			__attribute__global__;
@@ -5610,6 +5625,13 @@ PERL_CALLCONV SV*	Perl_signature_stringify(pTHX_ const OP* o, CV *cv)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_SIGNATURE_STRINGIFY	\
 	assert(o); assert(cv)
+
+PERL_CALLCONV char*	Perl_skipspace_flags(pTHX_ char *s, U32 flags)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_SKIPSPACE_FLAGS	\
+	assert(s)
 
 PERL_CALLCONV void	Perl_sortsv(pTHX_ SV** array, size_t num_elts, SVCOMPARE_t cmp)
 			__attribute__global__
@@ -11038,12 +11060,6 @@ STATIC char*	S_scan_pat(pTHX_ char *start, I32 type)
 #define PERL_ARGS_ASSERT_SCAN_PAT	\
 	assert(start)
 
-STATIC char*	S_scan_str(pTHX_ char *start, int keep_quoted, int keep_delims, int re_reparse, char **delimp)
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_1);
-#define PERL_ARGS_ASSERT_SCAN_STR	\
-	assert(start)
-
 STATIC char*	S_scan_subst(pTHX_ char *start)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
@@ -11055,19 +11071,6 @@ STATIC char*	S_scan_trans(pTHX_ char *start)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SCAN_TRANS	\
 	assert(start)
-
-STATIC char*	S_scan_word(pTHX_ char *s, char *dest, STRLEN destlen, int allow_package, STRLEN *slp, int *normalize)
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2)
-			__attribute__nonnull__(pTHX_5);
-#define PERL_ARGS_ASSERT_SCAN_WORD	\
-	assert(s); assert(dest); assert(slp)
-
-STATIC char*	S_skipspace_flags(pTHX_ char *s, U32 flags)
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_1);
-#define PERL_ARGS_ASSERT_SKIPSPACE_FLAGS	\
-	assert(s)
 
 STATIC I32	S_sublex_done(pTHX)
 			__attribute__warn_unused_result__;

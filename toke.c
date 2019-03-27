@@ -2065,8 +2065,8 @@ adjusting PL_linestart.
 #define skipspace(s) skipspace_flags(s, 0)
 #define peekspace(s) skipspace_flags(s, LEX_NO_INCLINE)
 
-STATIC char *
-S_skipspace_flags(pTHX_ char *s, U32 flags)
+char *
+Perl_skipspace_flags(pTHX_ char *s, U32 flags)
 {
     PERL_ARGS_ASSERT_SKIPSPACE_FLAGS;
     if (PL_lex_formbrack && PL_lex_brackets <= PL_lex_formbrack) {
@@ -10227,13 +10227,13 @@ S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_package,
 =for apidoc scan_word
 
 Returns a NUL terminated string, with the length of the string written to
-*slp
+*slp. Note that the perl5 API misses the normalize argument.
 
 =cut
 */
-STATIC char *
-S_scan_word(pTHX_ char *s, char *dest, STRLEN destlen, int allow_package,
-            STRLEN *slp, int *normalize)
+char *
+Perl_scan_word(pTHX_ char *s, char *dest, STRLEN destlen, int allow_package,
+               STRLEN *slp, int *normalize)
 {
     char *d = dest;
     char * const e = d + destlen - 3;  /* two-character token, ending NUL */
@@ -11478,10 +11478,9 @@ SvIVX of the SV.
 
 =cut
 */
-STATIC char *
-S_scan_str(pTHX_ char *start, int keep_bracketed_quoted, int keep_delims, int re_reparse,
-                 char **delimp
-    )
+char *
+Perl_scan_str(pTHX_ char *start, int keep_bracketed_quoted, int keep_delims,
+                    int re_reparse, char **delimp)
 {
     SV *sv;                     /* scalar value: string */
     const char *tmps;           /* temp string, used for delimiter matching */

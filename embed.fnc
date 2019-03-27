@@ -2944,6 +2944,14 @@ EXpR	|SV*	|get_and_check_backslash_N_name|NN const char* s	\
 				|const bool is_utf8			\
 				|NN const char** error_msg
 
+: For use ONLY in B::Hooks::Parser, by special dispensation
+EXpMR	|char*	|scan_str	|NN char *start|int keep_quoted \
+				|int keep_delims|int re_reparse \
+				|NULLOK char **delimp
+: perl5 misses normalize
+EXpM	|char*	|scan_word	|NN char *s|NN char *dest|STRLEN destlen \
+				|int allow_package|NN STRLEN *slp|NULLOK int *normalize
+EXpMR	|char*	|skipspace_flags|NN char *s|U32 flags
 #if defined(PERL_IN_TOKE_C)
 s	|void	|check_uni
 s	|void	|force_next	|I32 type
@@ -2962,16 +2970,10 @@ s	|char*	|scan_ident	|NN char *s|NN const char *end|NN char *dest \
 				|STRLEN destlen|I32 ck_uni|NULLOK int *normalize
 sR	|char*	|scan_inputsymbol|NN char *start
 sR	|char*	|scan_pat	|NN char *start|I32 type
-sR	|char*	|scan_str	|NN char *start|int keep_quoted \
-				|int keep_delims|int re_reparse \
-				|NULLOK char **delimp
 sR	|char*	|scan_subst	|NN char *start
 sR	|char*	|scan_trans	|NN char *start
-s	|char*	|scan_word	|NN char *s|NN char *dest|STRLEN destlen \
-				|int allow_package|NN STRLEN *slp|NULLOK int *normalize
 s	|void	|update_debugger_info|NULLOK SV *orig_sv \
 				|NULLOK const char *const buf|STRLEN len
-sR	|char*	|skipspace_flags|NN char *s|U32 flags
 sR	|char*	|swallow_bom	|NN U8 *s
 #ifndef PERL_NO_UTF16_FILTER
 s	|I32	|utf16_textfilter|int idx|NN SV *sv|int maxlen
