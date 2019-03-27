@@ -28,7 +28,15 @@ Net::IDN::Encode::domain_to_ascii(42);
 print q(ok);
 EOS
 
+SKIP:
+{
+  skip "SKIP_SLOW_TESTS timeout on CI", 2
+    if (is_CI()
+        and ($Config{ccflags} =~ /-flto/ or $ENV{SKIP_SLOW_TESTS})
+        and $ENV{PERL_CORE});
+
 ctestok(2, "C,-O3", 'ccode143i', 'BEGIN{package Foo;our $DOT=qr/[.]/;};package main;print "ok\n" if "dot.dot" =~ m/($Foo::DOT)/',
         $todo."our qr");
 ctestok(3, "C,-O3", 'ccode143i', 'BEGIN{$DOT=qr/[.]/}print "ok\n" if "dot.dot" =~ m/($DOT)/',
         $todo."global qr");
+}

@@ -1103,8 +1103,8 @@ CCTESTS
     if (is_CI()
         and ($Config{ccflags} =~ /-flto/ or $ENV{SKIP_SLOW_TESTS})
         and $ENV{PERL_CORE}) {
-        diag "skipping slow tests, ".$#tests," => 10";
-        @tests = @tests[0..9];
+        diag "skipping slow tests, ".$#tests," => 5";
+        @tests = @tests[0..4];
     }
 
     plan tests => scalar @tests;
@@ -1400,6 +1400,7 @@ sub todo_tests_default {
 	push @todo, (29)    if $] >= 5.021006 and $what eq 'cc_o1';
 	push @todo, (24,29) if $] >= 5.021006 and $what eq 'cc_o2';
         push @todo, (103)   if $CPERL and $ITHREADS;
+        push @todo, (103)   if $^O eq 'cygwin';
         push @todo, (9,10,15,24,26,27,41..45,103) if $] > 5.023007 and !$CPERL;
     }
     push @todo, (48)   if $] > 5.007 and $] < 5.009 and $^O =~ /MSWin32|cygwin/i;

@@ -3,6 +3,7 @@
 # unicode value not preserved when passed to a function with -O3
 # lc("\x{1E9E}") and "\x{df}" were hashed as the same string in const %strtable
 use strict;
+use Config;
 my @plan;
 BEGIN {
   if ($ENV{PERL_CORE}) {
@@ -12,8 +13,11 @@ BEGIN {
   }
   require TestBC;
 
-  if ($^O eq 'MSWin32' and $ENV{APPVEYOR}) {
-    @plan = (skip_all => 'Overlong tests, timeout on Appveyor CI');
+  $ENV{SKIP_SLOW_TESTS} = 1 if $Config{ccflags} =~ /-flto/;
+  $ENV{SKIP_SLOW_TESTS} = 1 if $^O =~ /MSWin32|cygwin/ and is_CI();
+
+  if ($ENV{SKIP_SLOW_TESTS}) {
+    @plan = (skip_all => 'SKIP_SLOW_TESTS, timeout on CI');
   } else {
     @plan = (tests => 1);
   }
