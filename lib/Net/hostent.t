@@ -36,6 +36,8 @@ my $h = gethost('localhost');
 SKIP: {
 skip "Can't resolve localhost and you don't have /etc/hosts", 6
     if (!defined($h) && !-e '/etc/hosts');
+skip "FreeBSD refuses to resolve localhost", 6
+    if (!defined($h) && $^O eq 'freebsd');
 
 ok(defined $h,  "gethost('localhost')") ||
   DIE("Can't continue without working gethost: $!");

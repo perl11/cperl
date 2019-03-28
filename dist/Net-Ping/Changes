@@ -1,5 +1,21 @@
 CHANGES
 -------
+2.72  Thu 28 Mar 2019 09:01:39 AM CET (rurban)
+      Features
+      - add .cirrus.yml smoker https://cirrus-ci.com/github/rurban/Net-Ping
+      Test fixes
+      - Skip failing freebsd localhost resolver tests
+
+2.71  Tue Oct 16 18:41:51 CEST 2018 (rurban)
+       Features
+       - Allow data_size > 1024, up to 65535, i.e. fragmented packets.
+         It is recommended to stay below 1472 though for the typical 1500 MTU.
+         Many simple devices do not allow fragmented ICMP packets (> 1472).
+         RT #17409
+       Bugfixes
+       - Fix the max_datasize documentation
+       Test fixes
+       - The 2 sudo tests on PERL_CORE with a shared perl lib
 
 2.70  Tue Aug  7 10:33:24 CEST 2018 (rurban)
        Test fixes

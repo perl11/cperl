@@ -163,6 +163,24 @@ XXX
 
 Add the FREEBSD_KERNEL_VERSION key for FreeBSD.
 
+=item L<Net::Ping> 2.72
+
+Features
+
+Allow data_size > 1024, up to 65535, i.e. fragmented packets.
+It is recommended to stay below 1472 though for the typical 1500 MTU.
+Many simple devices do not allow fragmented ICMP packets (> 1472).
+L<[cpan #17409]|https://rt.cpan.org/Ticket/Display.html?id=17409>
+
+Bugfixes
+
+Fix the max_datasize documentation
+
+Test fixes
+
+The 2 sudo tests on PERL_CORE with a shared perl lib.
+Skip failing freebsd localhost resolver tests.
+
 =item L<Unicode::UCD> 0.71_03
 
 Preserve old-style casing for C<%SCRIPTS>, i.e.

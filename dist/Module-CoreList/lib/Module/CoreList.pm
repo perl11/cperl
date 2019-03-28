@@ -18411,6 +18411,7 @@ our %delta :const = (
             'B::Op_private'         => '5.029002',
             'Module::CoreList'      => '5.20190313c',
             'Module::CoreList::Utils'=> '5.20190313c',
+            'Net::Ping'             => '2.72',
         },
         removed => {
         }

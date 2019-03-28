@@ -42,7 +42,7 @@ eval {
 like($@, qr/Data for ping must be from/, "new() errors for invalid data size");
 
 eval {
-    $p = Net::Ping->new("udp", 10, 1025);
+    $p = Net::Ping->new("udp", 10, 70000);
 };
 like($@, qr/Data for ping must be from/, "new() errors for invalid data size");
 

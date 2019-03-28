@@ -21,7 +21,7 @@ use Time::HiRes;
 @ISA = qw(Exporter);
 @EXPORT = qw(pingecho);
 @EXPORT_OK = qw(wakeonlan);
-$VERSION = "2.70";
+$VERSION = "2.72";
 
 # Globals
 
@@ -29,7 +29,7 @@ $def_timeout = 5;           # Default timeout to wait for a reply
 $def_proto = "tcp";         # Default protocol to use for pinging
 $def_factor = 1.2;          # Default exponential backoff rate.
 $def_family = AF_INET;      # Default family.
-$max_datasize = 1024;       # Maximum data bytes in a packet
+$max_datasize = 65535;      # Maximum data bytes. recommended: 1472 (Ethernet MTU: 1500)
 # The data we exchange with the server for the stream protocol
 $pingstring = "pingschwingping!\n";
 $source_verify = 1;         # Default is to verify source endpoint
@@ -186,6 +186,7 @@ sub new
 
   $min_datasize = ($proto eq "udp") ? 1 : 0;  # Determine data size
   $data_size = $min_datasize unless defined($data_size) && $proto ne "tcp";
+  # allow for fragmented packets if data_size>1472 (MTU 1500)
   croak("Data for ping must be from $min_datasize to $max_datasize bytes")
     if ($data_size < $min_datasize) || ($data_size > $max_datasize);
   $data_size-- if $self->{proto} eq "udp";  # We provide the first byte
@@ -2129,7 +2130,8 @@ are included in the ping packet sent to the remote host. The number of
 data bytes is ignored if the protocol is "tcp".  The minimum (and
 default) number of data bytes is 1 if the protocol is "udp" and 0
 otherwise.  The maximum number of data bytes that can be specified is
-1024.
+65535, but staying below the MTU (1472 bytes for ICMP) is recommended.
+Many small devices cannot deal with fragmented ICMP packets.
 
 If C<device> is given, this device is used to bind the source endpoint
 before sending the ping packet.  I believe this only works with

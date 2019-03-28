@@ -6,6 +6,8 @@ use strict;
 use Config;
 use Net::Ping;
 use Test::More;
+use Cwd;
+use File::Spec;
 
 BEGIN {
   unless (eval "require Socket") {
@@ -26,6 +28,11 @@ if (!Net::Ping::_isroot()) {
     my $env = "PERL_DESTRUCT_LEVEL=2";
     if ($ENV{TEST_PING6_HOST}) {
       $env .= " TEST_PING6_HOST=$ENV{TEST_PING6_HOST}";
+    }
+    if ($ENV{PERL_CORE} && $Config{ldlibpthname}) {
+      my $up = File::Spec->updir();
+      my $dir = Cwd::abs_path(File::Spec->catdir($up, $up));
+      $env .= " $Config{ldlibpthname}=\"$dir\"";
     }
     if ($is_devel and
         system("sudo -n $env \"$^X\" $lib $file") == 0) {
