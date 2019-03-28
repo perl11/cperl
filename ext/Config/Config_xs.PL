@@ -169,6 +169,7 @@ if ($gperf_ok) {
           libdb_needs_pthread mad malloc_cflags passcat sysroot
           targetdir targetenv targethost targetmkdir targetport
           uselanginfo useversionedarchname
+          FREEBSD_KERNEL_VERSION
 
       );
     unless ($in_core) { # cperl doesn't need these, CPAN does

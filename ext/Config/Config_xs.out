@@ -266,7 +266,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1290
+#define TOTAL_KEYWORDS 1291
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 37
 #define MIN_HASH_VALUE 5
@@ -285,9 +285,9 @@ Config_hash (register const char *str, register size_t len)
       9206, 9206, 9206, 9206, 9206, 9206, 9206, 9206, 9206, 9206,
       9206, 9206, 9206, 9206, 9206, 9206, 9206, 9206,    6,   55,
         22,   39,    4,   75,    9,   57,    3,   93,    8,    5,
-         2, 9206, 9206, 9206, 9206,    5,    2,    2,    1,    1,
+         2, 9206, 9206, 9206, 9206,    5,    3,    2,    1,    1,
          2,    3,   12,    2,    2, 9206,    3,    1,    1,    2,
-        27,   17,    2,    2,    1,    1,    1,    3,    1,    1,
+        27,   17,    2,    2,    1,    1,    1,    2,    1,    1,
       9206, 9206, 9206, 9206, 9206,    3, 1293,  107, 1033,  159,
          3,    3,  455,  888, 1676,    2, 1581, 2777,    1,  209,
         71,   31,   57,  986,    8,    2,    4,  260, 1746, 1365,
@@ -384,7 +384,7 @@ struct stringpool_t
     char stringpool_str36[sizeof ("_o")];
     char stringpool_str37[sizeof ("to")];
     char stringpool_str49[sizeof ("sort")];
-    char stringpool_str50[sizeof ("SUBVERSION")];
+    char stringpool_str51[sizeof ("SUBVERSION")];
     char stringpool_str59[sizeof ("i_stdint")];
     char stringpool_str60[sizeof ("lp")];
     char stringpool_str61[sizeof ("d_llrint")];
@@ -395,6 +395,7 @@ struct stringpool_t
     char stringpool_str67[sizeof ("pr")];
     char stringpool_str68[sizeof ("PATCHLEVEL")];
     char stringpool_str69[sizeof ("lpr")];
+    char stringpool_str70[sizeof ("FREEBSD_KERNEL_VERSION")];
     char stringpool_str71[sizeof ("sleep")];
     char stringpool_str72[sizeof ("n")];
     char stringpool_str73[sizeof ("perl")];
@@ -416,7 +417,7 @@ struct stringpool_t
     char stringpool_str109[sizeof ("d_PRId64")];
     char stringpool_str111[sizeof ("i_prot")];
     char stringpool_str112[sizeof ("_a")];
-    char stringpool_str113[sizeof ("PERL_PATCHLEVEL")];
+    char stringpool_str114[sizeof ("PERL_PATCHLEVEL")];
     char stringpool_str117[sizeof ("ar")];
     char stringpool_str118[sizeof ("tail")];
     char stringpool_str119[sizeof ("Date")];
@@ -1688,6 +1689,7 @@ static const struct stringpool_t stringpool_contents =
     "pr",
     "PATCHLEVEL",
     "lpr",
+    "FREEBSD_KERNEL_VERSION",
     "sleep",
     "n",
     "perl",
@@ -2998,9 +3000,10 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO},
 
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str49,			T_INV,0,ALN64I"@@sort@@"},
+      {XSCNO},
 
-      {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str50,		T_INV,0,ALN64I"@@SUBVERSION@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str51,		T_INV,0,ALN64I"@@SUBVERSION@@"},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str59,		T_INV,0,ALN64I"@@i_stdint@@"},
 
@@ -3022,7 +3025,8 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str68,		T_INV,0,ALN64I"@@PATCHLEVEL@@"},
 
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str69,			T_INV,0,ALN64I"@@lpr@@"},
-      {XSCNO},
+
+      {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str70,	T_INV,0,ALN64I"@@FREEBSD_KERNEL_VERSION@@"},
 
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str71,			T_INV,0,ALN64I"@@sleep@@"},
 
@@ -3076,9 +3080,10 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str111,			T_INV,0,ALN64I"@@i_prot@@"},
 
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str112,			T_INV,0,ALN64I"@@_a@@"},
+      {XSCNO},
 
-      {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str113,	T_INV,0,ALN64I"@@PERL_PATCHLEVEL@@"},
-      {XSCNO}, {XSCNO}, {XSCNO},
+      {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str114,	T_INV,0,ALN64I"@@PERL_PATCHLEVEL@@"},
+      {XSCNO}, {XSCNO},
 
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str117,			T_INV,0,ALN64I"@@ar@@"},
 
@@ -7024,7 +7029,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str9205,	T_INV,0,ALN64I"@@known_extensions@@"}
     };
 
-#line 7027 "Config.xs"
+#line 7032 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register unsigned int key = Config_hash (str, len);

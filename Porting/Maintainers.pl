@@ -296,7 +296,7 @@ use File::Glob qw(:case);
     },
 
     'Config' => {
-        'DISTRIBUTION' => 'RURBAN/XSConfig-6.22.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/XSConfig-6.23.tar.gz',
         'FILES'      => q[
                  ext/Config/Config.pm
                  ext/Config/Config_xs.{in,out,PL}

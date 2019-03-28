@@ -159,6 +159,10 @@ XXX
 
 =over 4
 
+=item L<Config> 6.23
+
+Add the FREEBSD_KERNEL_VERSION key for FreeBSD.
+
 =item L<Unicode::UCD> 0.71_03
 
 Preserve old-style casing for C<%SCRIPTS>, i.e.

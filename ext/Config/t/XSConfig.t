@@ -88,6 +88,7 @@ if (exists $XSConfig{canned_gperf}) { #fix up PP Config to look like XS Config
           ld_can_script libdb_needs_pthread mad malloc_cflags passcat
           sysroot targetdir targetenv targethost targetmkdir
           targetport uselanginfo useversionedarchname
+          FREEBSD_KERNEL_VERSION
 
   );
   unless ($in_core) { # cperl doesn't need these, CPAN does
@@ -178,6 +179,7 @@ if (exists $XSConfig{canned_gperf}) { #fix up PP Config to look like XS Config
 
       );
   }
+
   for my $k (@cannedkeys) {
     $Config_copy{$k} = '' unless exists $Config{$k};
   }
