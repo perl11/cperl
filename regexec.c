@@ -4702,7 +4702,7 @@ S_isGCB(pTHX_ const GCB_enum before, const GCB_enum after, const U8 * const strb
                 }
                 while (prev == GCB_Extend);
 
-                return prev != GCB_E_Base && prev != GCB_E_Base_GAZ;
+                return prev != GCB_E_Base /*&& prev != GCB_E_Base_GAZ*/; /* both are 16 */
             }
 
         case GCB_Maybe_Emoji_NonBreak:
