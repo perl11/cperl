@@ -273,7 +273,7 @@ typedef long intptr_t
  * If not, subtracting 1 would leave the uppermost bit set, so the & would
  * yield non-zero */
 #if defined(PERL_CORE) || defined(PERL_EXT)
-#  define isPOWER_OF_2(n) (n && (n & (n-1)) == 0)
+#  define isPOWER_OF_2(n) ((n) && ((n) & ((n)-1)) == 0)
 #endif
 
 /* This is a helper macro to avoid preprocessor issues, replaced by nothing
