@@ -163,6 +163,11 @@ XXX
 
 Add the FREEBSD_KERNEL_VERSION key for FreeBSD.
 
+=item L<IO::Socket::IP> 0.39_03
+
+Allow ETIMEDOUT on FreeBSD INET6 socket with V6Only true.
+L<[cpan #128986]|https://rt.cpan.org/Ticket/Display.html?id=128986>
+
 =item L<Net::Ping> 2.72
 
 Features

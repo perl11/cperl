@@ -866,8 +866,11 @@ use File::Glob qw(:case);
         'EXCLUDED'     => [
             qr{^examples/},
         ],
-        # demand-load Carp
-        'CUSTOMIZED'   => [ qw( lib/IO/Socket/IP.pm )],
+        # demand-load Carp, allow freebsd ETIMEDOUT on INET6 socket
+        'CUSTOMIZED'   => [
+            qw( lib/IO/Socket/IP.pm
+                t/16v6only.t
+              )],
     },
 
     'IO::Zlib' => {

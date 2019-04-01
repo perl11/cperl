@@ -19,6 +19,8 @@ $^O eq "irix" and
    plan skip_all => "$^O: IPV6_V6ONLY exists but getnameinfo() fails with EAI_NONAME";
 
 # Don't be locale-sensitive
+$! = Errno::ETIMEDOUT;
+my $ETIMEDOUT_STR = "$!";
 $! = Errno::ECONNREFUSED;
 my $ECONNREFUSED_STR = "$!";
 
@@ -44,7 +46,12 @@ my $ECONNREFUSED_STR = "$!";
    my $err = "$@";
 
    ok( !defined $testsock, 'Unable to connect PF_INET socket to PF_INET6 socket with V6Only true' );
-   like( $err, qr/\Q$ECONNREFUSED_STR/, 'Socket creation fails with connection refused' );
+   if ($^O eq 'freebsd') {
+     like( $err, qr/(\Q$ECONNREFUSED_STR\E|\Q$ETIMEDOUT_STR\E)/,
+           'Socket creation fails with ECONNREFUSED or ETIMEDOUT' );
+   } else {
+     like( $err, qr/\Q$ECONNREFUSED_STR/, 'Socket creation fails with connection refused' );
+   }
 }
 
 SKIP: {
