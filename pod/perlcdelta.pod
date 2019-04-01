@@ -163,6 +163,10 @@ XXX
 
 Add the FREEBSD_KERNEL_VERSION key for FreeBSD.
 
+=item L<IO> 1.39_02
+
+Skip EINVAL on FreeBSD tests when binding a tcp listener on localhost.
+
 =item L<IO::Socket::IP> 0.39_03
 
 Allow ETIMEDOUT on FreeBSD INET6 socket with V6Only true.

@@ -3,6 +3,7 @@
 use Config;
 
 BEGIN {
+    require($ENV{PERL_CORE} ? '../../t/test.pl' : './t/test.pl');
     my $can_fork = $Config{d_fork} ||
 		    (($^O eq 'MSWin32' || $^O eq 'NetWare') and
 		     $Config{useithreads} and 
@@ -18,16 +19,12 @@ BEGIN {
     elsif (!$can_fork) {
         $reason = 'no fork';
     }
-    if ($reason) {
-	print "1..0 # Skip: $reason\n";
-	exit 0;
-    }
+    skip_all($reason) if $reason;
 }
 
 my $has_perlio = find PerlIO::Layer 'perlio';
 
 $| = 1;
-print "1..26\n";
 
 eval {
     $SIG{ALRM} = sub { die; };
@@ -35,6 +32,9 @@ eval {
 };
 
 use IO::Socket;
+# Don't be locale-sensitive
+$! = Errno::EINVAL;
+my $EINVAL_STR = "$!";
 
 $listen = IO::Socket::INET->new(LocalAddr => 'localhost',
 				Listen => 2,
@@ -42,8 +42,16 @@ $listen = IO::Socket::INET->new(LocalAddr => 'localhost',
 				# some systems seem to need as much as 10,
 				# so be generous with the timeout
 				Timeout => 15,
-			       ) or die "$!";
+			       );
+unless ($listen) {
+  if ($^O eq 'freebsd' && $! eq $EINVAL_STR) {
+    skip_all("tcp listener on localhost disallowed on this $^O");
+  } else {
+    die "$!";
+  }
+}
 
+print "1..26\n";
 print "ok 1\n";
 
 # Check if can fork with dynamic extensions (bug in CRT):

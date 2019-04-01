@@ -1,9 +1,9 @@
 #!./perl
 
+use Config;
+
 BEGIN {
     require($ENV{PERL_CORE} ? '../../t/test.pl' : './t/test.pl');
-
-    use Config;
     my $can_fork = $Config{d_fork} ||
 		    (($^O eq 'MSWin32' || $^O eq 'NetWare') and
 		     $Config{useithreads} and 
@@ -24,7 +24,6 @@ BEGIN {
 
 $| = 1;
 
-print "1..8\n";
 watchdog(15);
 
 package Multi;
@@ -73,13 +72,24 @@ sub connect
 package main;
 
 use IO::Socket;
+# Don't be locale-sensitive
+$! = Errno::EINVAL;
+my $EINVAL_STR = "$!";
 
 $listen = IO::Socket::INET->new(LocalAddr => 'localhost',
 				Listen => 2,
 				Proto => 'tcp',
 				Timeout => 5,
-			       ) or die "$!";
+                               );
+unless ($listen) {
+  if ($^O eq 'freebsd' && $! eq $EINVAL_STR) {
+    skip_all("tcp listener on localhost disallowed on this $^O");
+  } else {
+    die "$!";
+  }
+}
 
+print "1..8\n";
 print "ok 1\n";
 
 $port = $listen->sockport;

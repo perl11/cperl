@@ -6,7 +6,7 @@ use XSLoader ();
 use strict;
 use warnings;
 
-our $VERSION = "1.39_01";
+our $VERSION = "1.39_02";
 our $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 XSLoader::load 'IO', $XS_VERSION;

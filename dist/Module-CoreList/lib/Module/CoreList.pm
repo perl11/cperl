@@ -18411,6 +18411,7 @@ our %delta :const = (
             'B::Op_private'         => '5.029002',
             'Module::CoreList'      => '5.20190313c',
             'Module::CoreList::Utils'=> '5.20190313c',
+            'IO'                    => '1.39_02',
             'IO::Socket::IP'        => '0.39_03',
             'Net::Ping'             => '2.72',
         },
