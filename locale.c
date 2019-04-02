@@ -5405,6 +5405,7 @@ Perl_thread_locale_term()
      * we want to not be in the global locale */
 #  ifndef WIN32
     {   /* Free up */
+        dVAR;
         locale_t cur_obj = uselocale(LC_GLOBAL_LOCALE);
         if (cur_obj != LC_GLOBAL_LOCALE && cur_obj != PL_C_locale_obj) {
             freelocale(cur_obj);
