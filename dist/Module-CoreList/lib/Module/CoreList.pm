@@ -18414,6 +18414,7 @@ our %delta :const = (
             'IO'                    => '1.39_02',
             'IO::Socket::IP'        => '0.39_03',
             'Net::Ping'             => '2.72',
+            'PerlIO::scalar'        => '0.30',
         },
         removed => {
         }
