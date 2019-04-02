@@ -105,6 +105,7 @@ case "$osvers" in
 	;;
 esac
 
+# Since FreeBSD 10.0 the default compiler is clang
 case "$osvers" in
 10.*)
 	# dtrace on 10.x needs libelf symbols, but we don't know if the
@@ -142,9 +143,11 @@ case "$osvers" in
 *)
        libpth="/usr/lib /usr/local/lib"
        glibpth="/usr/lib /usr/local/lib"
+       incpth="$incpth /usr/local/include"
+       sysincpth="$sysincpth /usr/local/include"
        ldflags="-Wl,-E "
-        lddlflags="-shared "
-        cccdlflags='-DPIC -fPIC'
+       lddlflags="-shared "
+       cccdlflags='-DPIC -fPIC'
        ;;
 esac
 
@@ -349,6 +352,12 @@ case `uname -p` in
 arm|mips)
   ;;
 *)
-  test "$optimize" || optimize='-O2'
+  test "$optimize" || optimize='-O3'
   ;;
 esac
+
+# BSD ar based on libarchive
+# The llvm ar would be better still for --plugin lto support, needs llvm ports
+test -n $ar || ar=ar
+test -n $full_ar || full_ar=/usr/bin/ar
+test -n $arflags || arflags="-r -Dc"

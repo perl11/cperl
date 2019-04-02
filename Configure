@@ -5137,6 +5137,9 @@ case "$ccname" in
         else
             incpth="$incpth $sysincpth"
         fi
+        if $test X$osname = Xfreebsd; then
+            incpth="$incpth /usr/local/include"
+        fi
         # wouldnt it be nice if the linker would actually agree with this order?
         # at least macports is lying here. /opt/local/lib is missing
 	$echo 'int main(){};' > try.c
@@ -22040,7 +22043,8 @@ set pid_t pidtype int stdio.h sys/types.h
 eval $typedef_ask
 
 : clang -flto cannot be used with binutils ar, try llvm-ar*
-case "$ccname $cc $ccflags" in
+case "$ccname $cc $ccflags $osname" in
+    clang*freebsd) ;;
     clang*flto*)
         case "$ar" in
             ar|*/ar)
@@ -22050,7 +22054,7 @@ case "$ccname $cc $ccflags" in
                 if test -n `which $dflt`; then
                     ar=$dflt
                     full_ar=`which $dflt`
-                echo "Replaced ar with $ar for bitcode libs with clang -flto" >&4
+                    echo "Replaced ar with $ar for bitcode libs with clang -flto" >&4
                 fi
                 dflt=
                 ;;
@@ -22075,7 +22079,13 @@ EOP
 $cc $ccflags -c bar1.c >/dev/null 2>&1
 $cc $ccflags -c bar2.c >/dev/null 2>&1
 $cc $ccflags -c foo.c >/dev/null 2>&1
-arflags=Dcr
+test -n $arflags || arflags=Dcr
+if $test x$osname = xfreebsd; then
+    if $test -z $FREEBSD_KERNEL_VERSION -o $FREEBSD_KERNEL_VERSION -ge 1000000; then
+        arflags="-r -Dc"
+        echo "FreeBSD 10.0 ar set to use $arflags." >&4
+    fi
+fi
 if $ar $arflags bar$_a bar2$_o bar1$_o >/dev/null 2>&1; then
     echo "$ar $arflags with support for deterministic timestamp stripping." >&4
 else
@@ -22160,6 +22170,7 @@ if $test -n "$gccversion"; then
         case "$osname" in
             cygwin) plugin="/usr/lib/gcc/$myarchname/$gccversion/cyglto_plugin.dll" ;;
             *)      plugin="/usr/lib/gcc/$myarchname/$gccversion/liblto_plugin.$dlext" ;;
+            # on FreeBSD they are in /usr/local/llvm-*/lib/ or /usr/lib/clang/6.0.1/lib
         esac
         if $test -f "$plugin"; then
             echo "lto plugin found"

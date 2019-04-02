@@ -460,6 +460,27 @@ needed for better -flto and inlining support, instead of -O2.
 
 =back
 
+=item FreeBSD
+
+=over 4
+
+=item *
+
+Added F</usr/local/include> to C<incpth>, which helps probing libffi during F<configpm>.
+If was only in ccflags via C<-I>.
+
+=item *
+
+Fixed wrong clang C<llvm-ar$llvmsuffix> and C<arflags>. BSD ar is fine to use C<-D>.
+
+=item *
+
+Improved clang -flto support, set default optimize to -O3.
+-flto still needs the extra gold linker from a clang/llvm ports package
+for static archives.
+
+=back
+
 =back
 
 =head1 Internal Changes
