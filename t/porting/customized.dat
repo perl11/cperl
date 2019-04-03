@@ -48,7 +48,7 @@ Devel::PPPort dist/Devel-PPPort/parts/embed.fnc 4f0089448f0054db52df4684b4b2466a
 Devel::PPPort dist/Devel-PPPort/parts/inc/gv ac0ff3ba4cf4b86852c4338a12c5fe27fe7016a6
 Devel::PPPort dist/Devel-PPPort/parts/inc/HvNAME 5919c59dd593633ffedd07a2d92e49b3b41e0217
 Devel::PPPort dist/Devel-PPPort/parts/inc/magic_defs ac209f122b095dc87065f9bed88e7408a9bccb31
-Devel::PPPort dist/Devel-PPPort/parts/inc/misc 074a3eec13e391360605dd7149f035c31bc6881e
+Devel::PPPort dist/Devel-PPPort/parts/inc/misc 54743b28433bc491ab55196021401fd757799f62
 Devel::PPPort dist/Devel-PPPort/parts/inc/ppphbin e700553a5f9b790f3f712394658a86d94e108f03
 Devel::PPPort dist/Devel-PPPort/parts/todo/5013007 0446df4a31dcd58b8e27ab9e810711f0e4840fee
 Devel::PPPort dist/Devel-PPPort/parts/todo/5015004 4bdb7b2545380ade42e22dbb097f7fbf07737393
@@ -94,8 +94,6 @@ IO::Compress::Base cpan/IO-Compress/t/cz-14gzopen.t dee09dbad5cb1cad6027fd61d145
 IO::Socket::IP cpan/IO-Socket-IP/lib/IO/Socket/IP.pm fc6a12ce9d77f7a940e3a9834bc2961d201a77a6
 IO::Socket::IP cpan/IO-Socket-IP/t/16v6only.t 50ecbfed098d923935a78a83d2865823af0556e2
 IPC::Cmd cpan/IPC-Cmd/t/01_IPC-Cmd.t ff641405d0578b4c799c9457bcecec1495046fa1
-JSON::PP cpan/JSON-PP/lib/JSON/PP.pm e57863a7094f6270810dadfdf596cb55cc86eb97
-JSON::PP cpan/JSON-PP/lib/JSON/PP/Boolean.pm ccc6b9b4daa99ac651e1b65dad2b8508d4e3194a
 Math::BigInt cpan/Math-BigInt/t/mbimbf.inc 275f07bef354d2d3c53b1d18a43d3241d194a54e
 Math::BigRat cpan/Math-BigRat/t/bigfltpm.inc 4788d57971a056c31c232ee18984b77618e105f9
 Math::BigRat cpan/Math-BigRat/t/bigfltrt.t 83756157f90ac51fef7b1a151c164ec910685095
