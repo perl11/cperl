@@ -693,7 +693,8 @@ S_emulate_setlocale(const int category,
 #    endif
         return NULL;
 #  endif
-    } /* if (locale == NULL) */
+
+    }   /* End of this being setlocale(LC_foo, NULL) */
 
     /* Here, we are switching locales. */
 
@@ -809,7 +810,7 @@ S_emulate_setlocale(const int category,
                 }
             }
         }
-    }
+    }   /* End of this being setlocale(LC_foo, "") */
     else if (strchr(locale, ';')) {
 
         /* LC_ALL may actually incude a conglomeration of various categories.
@@ -906,7 +907,8 @@ S_emulate_setlocale(const int category,
         assert(category == LC_ALL);
 
         return do_setlocale_c(LC_ALL, NULL);
-    }
+    }   /* End of this being setlocale(LC_ALL,
+           "LC_CTYPE=foo;LC_NUMERIC=bar;...") */
 
   ready_to_set: ;
 
@@ -952,7 +954,9 @@ S_emulate_setlocale(const int category,
     }
 #  endif
 
-    /* If we are switching to the LC_ALL C locale, it already exists.  Use
+    /* If this call is to switch to the LC_ALL C locale, it already exists, and
+     * in fact, we already have switched to it (in preparation for what
+     * normally is to come).  But since we're already there, continue to use
      * it instead of trying to create a new locale */
     if (mask == LC_ALL_MASK && isNAME_C_OR_POSIX(locale)) {
 
