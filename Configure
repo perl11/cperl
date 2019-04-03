@@ -24053,7 +24053,7 @@ cat <<EOM
 
 Would you like to build Perl which automatically converts many functions
 to use faster signatures internally? All functions which do start with
-something like 'my ($arg, ...) = @_;' are detected and converted then,
+something like 'my (\$arg, ...) = @_;' are detected and converted then,
 unless you are using 'no fake_signatures;'
 
 If this doesn't make any sense to you, just accept the default '$dflt'.
