@@ -12,6 +12,7 @@ use strict;
 my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);
 #my $ITHREADS  = ($Config{useithreads});
 $ENV{SKIP_SLOW_TESTS} = 1 if $Config{ccflags} =~ /-flto|-fsanitize/;
+$ENV{SKIP_SLOW_TESTS} = 1 if is_CI() && $^O eq 'cygwin';
 
 prepare_c_tests();
 
