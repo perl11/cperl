@@ -1570,13 +1570,8 @@ The function never actually returns.
 =cut
 */
 
-#ifdef _MSC_VER
-#  pragma warning( push )
-#  pragma warning( disable : 4646 ) /* warning C4646: function declared with
-    __declspec(noreturn) has non-void return type */
-#  pragma warning( disable : 4645 ) /* warning C4645: function declared with
-__declspec(noreturn) has a return statement */
-#endif
+/* silence __declspec(noreturn) warnings */
+MSVC_DIAG_IGNORE(4646 4645)
 OP *
 Perl_die_sv(pTHX_ SV *baseex)
 {
@@ -1585,9 +1580,7 @@ Perl_die_sv(pTHX_ SV *baseex)
     /* NOTREACHED */
     NORETURN_FUNCTION_END;
 }
-#ifdef _MSC_VER
-#  pragma warning( pop )
-#endif
+MSVC_DIAG_RESTORE
 
 /*
 =for apidoc Am|OP *	|die	|const char *pat|...
@@ -1600,13 +1593,9 @@ The function never actually returns.
 */
 
 #if defined(PERL_IMPLICIT_CONTEXT)
-#ifdef _MSC_VER
-#  pragma warning( push )
-#  pragma warning( disable : 4646 ) /* warning C4646: function declared with
-    __declspec(noreturn) has non-void return type */
-#  pragma warning( disable : 4645 ) /* warning C4645: function declared with
-__declspec(noreturn) has a return statement */
-#endif
+
+/* silence __declspec(noreturn) warnings */
+MSVC_DIAG_IGNORE(4646 4645)
 OP *
 Perl_die_nocontext(const char* pat, ...)
 {
@@ -1618,18 +1607,12 @@ Perl_die_nocontext(const char* pat, ...)
     va_end(args);
     NORETURN_FUNCTION_END;
 }
-#ifdef _MSC_VER
-#  pragma warning( pop )
-#endif
+MSVC_DIAG_RESTORE
+
 #endif /* PERL_IMPLICIT_CONTEXT */
 
-#ifdef _MSC_VER
-#  pragma warning( push )
-#  pragma warning( disable : 4646 ) /* warning C4646: function declared with
-    __declspec(noreturn) has non-void return type */
-#  pragma warning( disable : 4645 ) /* warning C4645: function declared with
-__declspec(noreturn) has a return statement */
-#endif
+/* silence __declspec(noreturn) warnings */
+MSVC_DIAG_IGNORE(4646 4645)
 OP *
 Perl_die(pTHX_ const char* pat, ...)
 {
@@ -1640,9 +1623,7 @@ Perl_die(pTHX_ const char* pat, ...)
     va_end(args);
     NORETURN_FUNCTION_END;
 }
-#ifdef _MSC_VER
-#  pragma warning( pop )
-#endif
+MSVC_DIAG_RESTORE
 
 /*
 =for apidoc Am|void	|croak_sv	|SV *baseex
