@@ -116,13 +116,13 @@ build_script:
   - if "%MINGW%"=="1"  copy win32\lib\libffi.dll.a *.*
   - if "%MINGW%"=="1"  gmake -s -C win32 %MKOPT%
   #- if "%CFG%"=="Debug" type config.sh
-  - if "%CYGWIN%"=="1" sh ./Configure -des -Dusedevel & make
+  - if "%CYGWIN%"=="1" sh ./Configure -des -Dusedevel & make -s -j4 ECHO=true
 
 test_script:
   - ps: if ($env:MSVC_VERSION -gt 0) { $env:MSVC = 1 }
   - if not "%CYGWIN%"=="1" copy win32\bin\libffi*.dll t\
   - if "%MSVC%"=="1"   t\appveyor-smoke.bat
-  - if "%CYGWIN%"=="1" make -s test
+  - if "%CYGWIN%"=="1" make -s -j4 test ECHO=true
   - if "%MINGW%"=="1"  gmake -s -C win32 %MKOPT% test
   - if "%CFG%"=="Debug" exit
   #- if "%CYGWIN%"=="1" ./cperl -pi -e 's/\r\n/\n/g' Porting/appveyor-deploy.sh
