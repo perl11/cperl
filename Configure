@@ -8220,7 +8220,7 @@ case "$usemymalloc" in
 [yY]*|true|$define)	dflt='y' ;;
 [nN]*|false|$undef)	dflt='n' ;;
 *)	case "$ptrsize" in
-	4) dflt='y' ;;
+	4) dflt='n' ;;
 	*) dflt='n' ;;
 	esac
 	if test "$useithreads" = "$define"; then dflt='n'; fi
