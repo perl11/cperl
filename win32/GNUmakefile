@@ -195,6 +195,8 @@ DEFAULT_INC_EXCLUDES_DOT := define
 #CCTYPE		:= MSVC140
 # Visual C++ 2017 (aka Visual C++ 14.1) (full version or Community Edition)
 #CCTYPE		:= MSVC141
+# Visual C++ 2019 (aka Visual C++ 14.2) (full version or Community Edition)
+#CCTYPE		:= MSVC142
 # MinGW or mingw-w64 with gcc-3.4.5 or later
 #CCTYPE		:= GCC
 
@@ -416,6 +418,8 @@ else ifeq ($(CCTYPE),MSVC70FREE)
 CCHOME		:= $(MSVCDir)
 else ifeq ($(CCTYPE),MSVC141)
 CCHOME		:= $(VCToolsInstallDir)
+else ifeq ($(CCTYPE),MSVC142)
+CCHOME		:= $(VCToolsInstallDir)
 else
 CCHOME		:= $(VCINSTALLDIR)
 endif
@@ -526,6 +530,12 @@ ARCHPREFIX :=
 else
 CCINCDIR := $(CCHOME)\include
 ifeq ($(CCTYPE),MSVC141)
+ifeq ($(WIN64),define)
+CCLIBDIR := $(CCHOME)\lib\x64
+else
+CCLIBDIR := $(CCHOME)\lib\x86
+endif
+else ifeq ($(CCTYPE),MSVC142)
 ifeq ($(WIN64),define)
 CCLIBDIR := $(CCHOME)\lib\x64
 else
@@ -724,6 +734,8 @@ ifeq ($(CCTYPE),MSVC140)
 LIBC		= ucrt.lib
 else ifeq ($(CCTYPE),MSVC141)
 LIBC		= ucrt.lib
+else ifeq ($(CCTYPE),MSVC142)
+LIBC		= ucrt.lib
 else
 LIBC		= msvcrt.lib
 endif
@@ -738,6 +750,8 @@ else ifeq ($(CFG),DebugFull)
 ifeq ($(CCTYPE),MSVC140)
 LIBC		= ucrtd.lib
 else ifeq ($(CCTYPE),MSVC141)
+LIBC		= ucrtd.lib
+else ifeq ($(CCTYPE),MSVC142)
 LIBC		= ucrtd.lib
 else
 LIBC		= msvcrtd.lib
@@ -779,6 +793,8 @@ ifeq ($(CCTYPE),MSVC140)
 DEFINES		+= -D_WINSOCK_DEPRECATED_NO_WARNINGS
 else ifeq ($(CCTYPE),MSVC141)
 DEFINES		+= -D_WINSOCK_DEPRECATED_NO_WARNINGS
+else ifeq ($(CCTYPE),MSVC142)
+DEFINES		+= -D_WINSOCK_DEPRECATED_NO_WARNINGS
 endif
 
 # The Windows Server 2003 SP1 SDK compiler only defines _configthreadlocale() if
@@ -816,6 +832,12 @@ else
 LIBBASEFILES	+= msvcrt.lib vcruntime.lib
 endif
 else ifeq ($(CCTYPE),MSVC141)
+ifeq ($(CFG),DebugFull)
+LIBBASEFILES	+= msvcrtd.lib vcruntimed.lib
+else
+LIBBASEFILES	+= msvcrt.lib vcruntime.lib
+endif
+else ifeq ($(CCTYPE),MSVC142)
 ifeq ($(CFG),DebugFull)
 LIBBASEFILES	+= msvcrtd.lib vcruntimed.lib
 else
@@ -893,6 +915,20 @@ LINK_FLAGS	+= -subsystem:console,"5.01"
 endif
 
 else ifeq ($(CCTYPE),MSVC140)
+ifeq ($(WIN64),define)
+LINK_FLAGS	+= -subsystem:console,"5.02"
+else
+LINK_FLAGS	+= -subsystem:console,"5.01"
+endif
+
+else ifeq ($(CCTYPE),MSVC141)
+ifeq ($(WIN64),define)
+LINK_FLAGS	+= -subsystem:console,"5.02"
+else
+LINK_FLAGS	+= -subsystem:console,"5.01"
+endif
+
+else ifeq ($(CCTYPE),MSVC142)
 ifeq ($(WIN64),define)
 LINK_FLAGS	+= -subsystem:console,"5.02"
 else
@@ -1409,6 +1445,16 @@ ifeq ($(CCTYPE),MSVC140)
 	echo #define FILE_bufsiz^(fp^) ^(PERLIO_FILE_cnt^(fp^) + PERLIO_FILE_ptr^(fp^) - PERLIO_FILE_base^(fp^)^)&& \
 	echo #define I_STDBOOL)>> config.h
 else ifeq ($(CCTYPE),MSVC141)
+	@(echo #undef FILE_ptr&& \
+	echo #undef FILE_cnt&& \
+	echo #undef FILE_base&& \
+	echo #undef FILE_bufsiz&& \
+	echo #define FILE_ptr^(fp^) PERLIO_FILE_ptr^(fp^)&& \
+	echo #define FILE_cnt^(fp^) PERLIO_FILE_cnt^(fp^)&& \
+	echo #define FILE_base^(fp^) PERLIO_FILE_base^(fp^)&& \
+	echo #define FILE_bufsiz^(fp^) ^(PERLIO_FILE_cnt^(fp^) + PERLIO_FILE_ptr^(fp^) - PERLIO_FILE_base^(fp^)^)&& \
+	echo #define I_STDBOOL)>> config.h
+else ifeq ($(CCTYPE),MSVC142)
 	@(echo #undef FILE_ptr&& \
 	echo #undef FILE_cnt&& \
 	echo #undef FILE_base&& \

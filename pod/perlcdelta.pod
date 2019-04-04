@@ -840,6 +840,11 @@ C<sleep()> with warnings enabled for a C<USE_IMP_SYS> build no longer
 warns about the sleep timeout being too large.
 L<[perl #133376]|https://rt.perl.org/Public/Bug/Display.html?id=133376>
 
+=item *
+
+Support for compiling perl on Windows using Microsoft Visual Studio 2019
+(containing Visual C++ 14.2) has been added.
+
 =back
 
 =item Linux
