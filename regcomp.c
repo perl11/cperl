@@ -16052,8 +16052,7 @@ redo_curchar:
                               FALSE, /* Require return to be an ANYOF */
                               &current))
                 {
-                    FAIL2("panic: regclass returned failure to handle_sets, "
-                          "flags=%#" UVxf, (UV) *flagp);
+                    goto regclass_failed;
                 }
 
                 /* regclass() will return with parsing just the \ sequence,
@@ -16089,8 +16088,7 @@ redo_curchar:
                                 FALSE, /* Require return to be an ANYOF */
                                 &current))
                 {
-                    FAIL2("panic: regclass returned failure to handle_sets, "
-                          "flags=%#" UVxf, (UV) *flagp);
+                    goto regclass_failed;
                 }
 
                 if (! current) {
@@ -16451,8 +16449,7 @@ redo_curchar:
     }
 
     if (!node)
-        FAIL2("panic: regclass returned failure to handle_sets, flags=%#" UVxf,
-                    PTR2UV(flagp));
+        goto regclass_failed;
 
     /* Fix up the node type if we are in locale.  (We have pretended we are
      * under /u for the purposes of regclass(), as this construct will only
@@ -16483,6 +16480,10 @@ redo_curchar:
     nextchar(pRExC_state);
     Set_Node_Length(REGNODE_p(node), RExC_parse - oregcomp_parse + 1); /* MJD */
     return node;
+
+  regclass_failed:
+    FAIL2("panic: regclass returned failure to handle_sets, " "flags=%#" UVxf,
+                                                                (UV) *flagp);
 }
 
 #ifdef ENABLE_REGEX_SETS_DEBUGGING
