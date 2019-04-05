@@ -1557,7 +1557,7 @@ AUTOGEN_FILES = opcode.h opnames.h pp_proto.h proto.h embed.h embedvar.h \
 		lib/feature.pm feature.h \
 		ext/Config/Config_xs.out ext/Config/Config.xs
 
-.PHONY: regen regen_headers regen_all regen_uni
+.PHONY: regen regen_headers regen_meta regen_uni regen_all
 
 regen:	FORCE
 	-perl regen.pl
@@ -1606,6 +1606,7 @@ manicheck:	FORCE
 #
 # DynaLoader may be needed for extensions that use Makefile.PL.
 
+.PHONY: d_dummy s_dummy n_dummy
 $(DYNALOADER) $(DL_SRC): preplibrary FORCE $(nonxs_ext)
 	$(MINIPERL) make_ext.pl $@ $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL) LINKTYPE=static $(STATIC_LDFLAGS)
 
