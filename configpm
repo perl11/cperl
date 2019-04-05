@@ -1304,11 +1304,13 @@ sub ffi_targets {
         $file = "$olddir\config.h";
     }
     my $content = read_file($file);
-    if ($content !~ m/^\/\* valid libffi targets/m) {
+    if ($content && $content !~ m/^\/\* valid libffi targets/m) {
         $content =~ s{(\t+USE_FFI\t+/ ?\*\*/\n)}{$1$splice};
-        print "Updating $file\n"
+        print "Updating $file keeping its timestamp\n"
           unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
+        my ($a_time, $m_time) = (stat($file))[8,9];
         write_file($file, $content);
+        utime($a_time, $m_time, $file);
     }
 
     # write_file('have_ffi.h', $splice);
@@ -1320,11 +1322,13 @@ sub update_ffi_targets_sh {
     my $file = 'config.sh';
     $file = '..\config.sh' if -d 'mini' and !-f $file;
     if (-f $file) {
-        print "Updating $file with $ffi_target"
+        print "Updating $file with $ffi_target keeping its timestamp\n"
           unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
         my $content = read_file($file);
         $content =~ s{(useffi='define'\n)}{$1$ffi_target}m;
+        my ($a_time, $m_time) = (stat($file))[8,9];
         write_file($file, $content);
+        utime($a_time, $m_time, $file);
     }
 }
 

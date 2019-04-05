@@ -361,7 +361,9 @@ L</Platform Support> section, instead.
 
 =item *
 
-XXX
+Avoid bumping F<config.sh>/F<config.h> mtimes when adding valid libffi
+targets in F<configpm>.  This caused massive miniperl rebuilds, but
+is only needed for perl-dependent targets much later.
 
 =back
 
