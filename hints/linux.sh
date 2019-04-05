@@ -156,15 +156,15 @@ case "$optimize" in
             # in the 3.2, 3.3, and 3.4 releases when optimized to -O2.  See
             # RT #37156 for a discussion of the problem.
             case "`${cc:-gcc} -v 2>&1`" in
-            *"version 3.2"*|*"version 3.3"*|*"version 3.4"*)
+            *"version 3."[234]*)
                 ccflags="-fno-delete-null-pointer-checks $ccflags"
             ;;
             esac
             ;;
         *)  # recent standard compilers prefer inlining with -flto
-            case "`${cc:-cc} -v 2>&1`" in
-            *"gcc version [456789]"*)   optimize='-O3' ;;
-            *"clang version [456789]"*) optimize='-O3' ;;
+            case "`${cc:-cc} -v 2>&1 | grep version`" in
+            *"gcc version "[456789]*)   optimize='-O3' ;;
+            *"clang version "[456789]*) optimize='-O3' ;;
             esac
     esac
     if test "$cc" != "pgcc"; then

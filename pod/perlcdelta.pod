@@ -449,6 +449,17 @@ L<[perl #133376]|https://rt.perl.org/Public/Bug/Display.html?id=133376>
 
 =back
 
+=item Linux
+
+=over 4
+
+=item *
+
+The hints now detect newer compilers and set optimize=-O3 by default,
+needed for better -flto and inlining support, instead of -O2.
+
+=back
+
 =back
 
 =head1 Internal Changes
