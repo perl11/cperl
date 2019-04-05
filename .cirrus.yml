@@ -1,9 +1,13 @@
 # Build configuration for https://cirrus-ci.org
 
 freebsd_instance:
+  # or freebsd-12-0-release-amd64
   image: freebsd-11-2-release-amd64
   cpu: 4
 task:
+  name: FreeBSD 11
+  auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'release/.*'
+  only_if: $CIRRUS_BRANCH =~ 'smoke/.*' || $CIRRUS_BRANCH =~ 'cirrus/.*' || $CIRRUS_BRANCH =~ '.*maint.*' || $CIRRUS_BRANCH == 'master'
   install_script: pkg install -y libffi perl5-devel
   build_script: ./Configure -des && make -j4 -s
   test_script: TEST_JOBS=4 make -j4 -s test
