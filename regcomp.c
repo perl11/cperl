@@ -23518,7 +23518,7 @@ Perl_parse_uniprop_string(pTHX_
                 else {  /* Otherwise, it is %e with a known precision */
                     char * exp_ptr;
 
-                    /* TODO: mingw rounds .03125 up to 3.13e-02, all other down to 3.12e-02 */
+                    /* mingw rounds .03125 up to 3.13e-02, all other down to 3.12e-02 */
                     canonical = Perl_form(aTHX_ "%.*s%.*" NVef,
                                           equals_pos, lookup_name,
                                           PL_E_FORMAT_PRECISION, value);
