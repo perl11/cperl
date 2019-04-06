@@ -1811,9 +1811,9 @@ EXpRM	|SV*	|swash_init	|NN const char* pkg|NN const char* name|NN SV* listsv \
 EXpM	|UV	|swash_fetch	|NN SV *swash|NN const U8 *ptr|bool do_utf8
 #ifdef PERL_IN_REGCOMP_C
 EiMR	|SV*	|add_cp_to_invlist	|NULLOK SV* invlist|const UV cp
-EiM	|void	|invlist_set_len	|NN SV* const invlist|const UV len|const bool offset
 EiMRn	|bool	|invlist_is_iterating	|NN SV* const invlist
 #ifndef PERL_EXT_RE_BUILD
+EiM	|void	|invlist_set_len	|NN SV* const invlist|const UV len|const bool offset
 EiMRn	|UV*	|_invlist_array_init	|NN SV* const invlist|const bool will_have_0
 EiMRn	|UV	|invlist_max		|NN SV* const invlist
 EsM	|void	|_append_range_to_invlist|NN SV* const invlist|const UV start|const UV end
