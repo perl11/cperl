@@ -3605,22 +3605,33 @@ S_scan_const(pTHX_ char *start)
             if (!esc)
                 in_charclass = FALSE;
         }
-            /* skip for regexp comments /(?#comment)/, except for the last
-             * char, which will be done separately.  Stop on (?{..}) and
-             * friends */
-        else if (*s == '(' && PL_lex_inpat && s[1] == '?' && !in_charclass) {
-            if (s[2] == '#') {
-                while (s+1 < send && *s != ')')
+        /* skip for regexp comments /(?#comment)/, except for the last
+         * char, which will be done separately.  Stop on (?{..}) and
+         * friends */
+	else if (*s == '(' && PL_lex_inpat && s[1] == '?' && !in_charclass) {
+	    if (s[2] == '#') {
+                if (s_is_utf8) {
+                    PERL_UINT_FAST8_T  len = UTF8SKIP(s);
+
+                    while (s + len < send && *s != ')') {
+                        Copy(s, d, len, U8);
+                        d += len;
+                        s += len;
+                        len = UTF8_SAFE_SKIP(s, send);
+                    }
+                }
+                else while (s+1 < send && *s != ')') {
                     *d++ = *s++;
-            }
-            else if (!PL_lex_casemods
-                     && ( s[2] == '{' /* This should match regcomp.c */
-                          || (s[2] == '?' && s[3] == '{')))
-            {
-                break;
-            }
-        }
-            /* likewise skip #-initiated comments in //x patterns */
+                }
+	    }
+	    else if (!PL_lex_casemods
+                     && (    s[2] == '{' /* This should match regcomp.c */
+		         || (s[2] == '?' && s[3] == '{')))
+	    {
+		break;
+	    }
+	}
+        /* likewise skip #-initiated comments in //x patterns */
         else if (*s == '#'
                  && PL_lex_inpat
                  && !in_charclass
@@ -3629,13 +3640,13 @@ S_scan_const(pTHX_ char *start)
             while (s < send && *s != '\n')
                 *d++ = *s++;
         }
-            /* no further processing of single-quoted regex */
+        /* no further processing of single-quoted regex */
         else if (PL_lex_inpat && SvIVX(PL_linestr) == '\'')
             goto default_action;
 
-            /* check for embedded arrays
-             * (@foo, @::foo, @'foo, @{foo}, @$foo, @+, @-)
-             */
+        /* check for embedded arrays
+         * (@foo, @::foo, @'foo, @{foo}, @$foo, @+, @-)
+         */
         else if (*s == '@' && s[1]) {
             if (UTF
                ? isIDFIRST_utf8_safe(s+1, send)
