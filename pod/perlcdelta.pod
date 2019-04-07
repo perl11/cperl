@@ -225,6 +225,11 @@ Skip failing freebsd localhost resolver tests.
 Allow Off_t smaller than size_t. (Win64 with USE_LARGE_FILES=undef)
 L<[perl #133422]|https://rt.perl.org/Public/Bug/Display.html?id=133422>
 
+=item L<Storable> 3.13_04
+
+fix and clarify handling of recurs_sv.
+L<[perl #133326]|https://rt.perl.org/Public/Bug/Display.html?id=133326>
+
 =item L<Time::HiRes> 1.9760_02
 
 make utime() available only if we have both fd and name setting
