@@ -1506,7 +1506,7 @@ use File::Glob qw(:case);
     },
 
     'Time::HiRes' => {
-        'DISTRIBUTION' => 'JHI/Time-HiRes-1.9758.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Time-HiRes-1.9760_02.tar.gz',
         'FILES'        => q[dist/Time-HiRes],
         # for overly slow smokers. See https://github.com/rurban/Time-HiRes
         # also typemap fixes for ANONIO

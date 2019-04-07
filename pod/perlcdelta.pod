@@ -225,6 +225,18 @@ Skip failing freebsd localhost resolver tests.
 Allow Off_t smaller than size_t. (Win64 with USE_LARGE_FILES=undef)
 L<[perl #133422]|https://rt.perl.org/Public/Bug/Display.html?id=133422>
 
+=item L<Time::HiRes> 1.9760_02
+
+make utime() available only if we have both fd and name setting
+L<[perl #133030]|https://rt.perl.org/Public/Bug/Display.html?id=133030>
+
+Adjust Makefile.PL for windows: the DEFINE() in Makefile.PL
+can't be be in sub init() because that sub isn't called on windows
+
+t/itimer.t: avoid race condition. don't truncate nanosec utime
+
+fallback/const-c.inc: Avoid compiler warning showing up on darwin.
+
 =item L<Unicode::UCD> 0.71_03
 
 Preserve old-style casing for C<%SCRIPTS>, i.e.

@@ -1,5 +1,25 @@
 Revision history for the Perl extension Time::HiRes.
 
+{{NEXT}}
+
+1.9760_02 [2019-04-07]
+ - merge with our old cperl fixes, but keep the Windows fixes
+   (skip 1.9759, smokes fine)
+
+1.9760 [2019-02-18]
+ - make utime() available only if we have both fd and name setting
+   [RT #133030]
+ - Adjutst Makefile.PL for windows: the DEFINE() in Makefile.PL
+   can't be be in sub init() because that sub isn't called on windows
+ - t/itimer.t: avoid race condition.
+ - don't truncate nanosec utime
+ - fallback/const-c.inc: Avoid compiler warning showing up on darwin.
+
+ 1.9759 [2018-03-23]
+  - This version reverts the changes on CPAN that were included in 1.9754 - 1.9758.
+    Several of these changes caused instability on some windows platforms. We can
+    revisit these fixes if necessary in Perl 5.29.0
+
 1.9758_01 2018-09-06 rurban
  - merge with our old cperl fixes
 
