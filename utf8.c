@@ -2326,7 +2326,7 @@ Perl_utf8_length(pTHX_ const U8 *s, const U8 *e)
 
     if (e != s) {
 	len--;
-        warn_and_return:
+      warn_and_return:
 	if (PL_op)
 	    Perl_ck_warner_d(aTHX_ packWARN(WARN_UTF8),
 			     "%s in %s", unees, OP_DESC(PL_op));
@@ -3923,7 +3923,8 @@ S_check_and_deprecate(pTHX_ const U8 *p,
         warn_on_first_deprecated_use(name, alternative, use_locale, file, line);
     }
     else {
-        assert (p < *e);
+        if (p >= *e)
+            Perl_croak(aTHX_ "panic: Invalid utf8 endpointer");
     }
 
     return utf8n_flags;
@@ -4147,6 +4148,7 @@ Perl__to_utf8_fold_flags(pTHX_ const U8 *p,
     assert (! ((flags & FOLD_FLAGS_LOCALE) && (flags & FOLD_FLAGS_NOMIX_ASCII)));
 
     assert(p != ustrp); /* Otherwise overwrites */
+    assert(e >= p);
 
     CASE_CHANGE_BODY_START(FOLD_FLAGS_LOCALE, toFOLD_LC, _to_fold_latin1,
                            ((flags) & (FOLD_FLAGS_FULL | FOLD_FLAGS_NOMIX_ASCII)));
@@ -4157,11 +4159,11 @@ Perl__to_utf8_fold_flags(pTHX_ const U8 *p,
 
 #define LONG_S_T      LATIN_SMALL_LIGATURE_LONG_S_T_UTF8
 #ifdef LATIN_CAPITAL_LETTER_SHARP_S_UTF8
-#  define CAP_SHARP_S   LATIN_CAPITAL_LETTER_SHARP_S_UTF8
+# define CAP_SHARP_S   LATIN_CAPITAL_LETTER_SHARP_S_UTF8
 
         /* Special case these two characters, as what normally gets
          * returned under locale doesn't work */
-        if (memBEGINs((char *) p, e - p, CAP_SHARP_S))
+        if (memBEGINs((char *) p, (size_t)(e - p), CAP_SHARP_S))
         {
             /* diag_listed_as: Can't do %s("%s") on non-UTF-8 locale; resolved to "%s". */
             Perl_ck_warner(aTHX_ packWARN(WARN_LOCALE),
@@ -4171,7 +4173,7 @@ Perl__to_utf8_fold_flags(pTHX_ const U8 *p,
         }
         else
 #endif
-        if (memBEGINs((char *) p, e - p, LONG_S_T))
+        if (memBEGINs((char *) p, (size_t)(e - p), LONG_S_T))
         {
             /* diag_listed_as: Can't do %s("%s") on non-UTF-8 locale; resolved to "%s". */
             Perl_ck_warner(aTHX_ packWARN(WARN_LOCALE),
@@ -4183,19 +4185,18 @@ Perl__to_utf8_fold_flags(pTHX_ const U8 *p,
 #if    UNICODE_MAJOR_VERSION   == 3         \
     && UNICODE_DOT_VERSION     == 0         \
     && UNICODE_DOT_DOT_VERSION == 1
-#  define DOTTED_I   LATIN_CAPITAL_LETTER_I_WITH_DOT_ABOVE_UTF8
+# define DOTTED_I   LATIN_CAPITAL_LETTER_I_WITH_DOT_ABOVE_UTF8
 
         /* And special case this on this Unicode version only, for the same
          * reasons the other two are special cased.  They would cross the
          * 255/256 boundary which is forbidden under /l, and so the code
          * wouldn't catch that they are equivalent (which they are only in
          * this release) */
-        else if (memBEGINs((char *) p, e - p, DOTTED_I)) {
-        {
+        else if (memBEGINs((char *) p, (size_t)(e - p), DOTTED_I)) {
             /* diag_listed_as: Can't do %s("%s") on non-UTF-8 locale; resolved to "%s". */
             Perl_ck_warner(aTHX_ packWARN(WARN_LOCALE),
-                              "Can't do fc(\"\\x{0130}\") on non-UTF-8 locale; "
-                              "resolved to \"\\x{0131}\".");
+                           "Can't do fc(\"\\x{0130}\") on non-UTF-8 locale; "
+                           "resolved to \"\\x{0131}\".");
             goto return_dotless_i;
         }
 #endif

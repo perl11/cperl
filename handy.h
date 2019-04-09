@@ -551,20 +551,20 @@ based on the underlying C library functions):
  * guaranteed to be long enough use memEQc instead.
  * Previously called strEQs
  */
-#define strBEGINs(s1,s2) (strncmp(s1,"" s2 "", sizeof(s2)-1) == 0)
+#define strBEGINs(s1,s2) (strncmp(s1, "" s2 "", sizeof(s2)-1) == 0)
 
-#define memBEGINs(s1, l, s2)                                            \
+#define memBEGINs(s1, l, s2)                                                \
             (   (l) >= sizeof(s2) - 1                                       \
-             && memEQ(s1, "" s2 "", sizeof(s2)-1))
+             && memEQc(s1, "" s2 ""))
 #define memBEGINPs(s1, l, s2)                                               \
             (   (l) > sizeof(s2) - 1                                        \
-             && memEQ(s1, "" s2 "", sizeof(s2)-1))
+                && memEQc(s1, "" s2 ""))
 #define memENDs(s1, l, s2)                                                  \
             (   (l) >= sizeof(s2) - 1                                       \
-             && memEQ(s1 + (l) - (sizeof(s2) - 1), "" s2 "", sizeof(s2)-1))
+                && memEQc(s1 + (l) - (sizeof(s2) - 1), "" s2 ""))
 #define memENDPs(s1, l, s2)                                                 \
             (   (l) > sizeof(s2)                                            \
-             && memEQ(s1 + (l) - (sizeof(s2) - 1), "" s2 "", sizeof(s2)-1))
+                && memEQc(s1 + (l) - (sizeof(s2) - 1), "" s2 ""))
 #endif  /* End of making macros private */
 
 #define memLT(s1,s2,l) (memcmp(s1,s2,l) < 0)
