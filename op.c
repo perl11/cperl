@@ -7839,12 +7839,15 @@ Perl_newLISTOP(pTHX_ I32 type, I32 flags, OP *first, OP *last)
 {
     dVAR;
     LISTOP *listop;
+    /* Note that allocating an OP_PUSHMARK can die under Safe.pm if
+     * pushmark is banned. So do it now while existing ops are in a
+     * consistent state, in case they suddenly get freed */
+    OP* const pushop = type == OP_LIST ? newOP(OP_PUSHMARK, 0) : NULL;
 
     assert((PL_opargs[type] & OA_CLASS_MASK) == OA_LISTOP
 	|| type == OP_CUSTOM);
 
     NewOp(1101, listop, 1, LISTOP);
-
     OpTYPE_set(listop, type);
     if (first || last)
 	flags |= OPf_KIDS;
@@ -7858,8 +7861,8 @@ Perl_newLISTOP(pTHX_ I32 type, I32 flags, OP *first, OP *last)
 	OpMORESIB_set(first, last);
     OpFIRST(listop) = first;
     OpLAST(listop) = last;
-    if (type == OP_LIST) {
-	OP* const pushop = newOP(OP_PUSHMARK, 0);
+
+    if (pushop) {
 	OpMORESIB_set(pushop, first);
 	OpFIRST(listop) = pushop;
 	listop->op_flags |= OPf_KIDS;
