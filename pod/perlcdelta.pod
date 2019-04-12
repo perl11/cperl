@@ -281,6 +281,11 @@ Setting C<$[> to a non-zero value has been deprecated since Perl 5.12 and
 throws a fatal error as of Perl 5.30.
 See L<perldeprecation/Assigning non-zero to C<< $[ >> is fatal>
 
+=item *
+
+L<B::Debug> is no longer distributed with the core distribution.
+This was announced with v5.28.0. It remains available on CPAN.
+
 =back
 
 =head1 Documentation
