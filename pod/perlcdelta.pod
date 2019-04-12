@@ -232,6 +232,10 @@ XXX
 
 Removed arybase support.
 
+=item L<bytes> 1.07
+
+Typo in pod
+
 =item L<Config> 6.23
 
 Add the FREEBSD_KERNEL_VERSION key for FreeBSD.
@@ -243,6 +247,10 @@ Whitespace only
 =item L<feature> 1.54_01
 
 C<array_base> was removed.
+
+=item L<File::Copy> 2.34
+
+Add note to close or flush filehandles before calling copy or move.
 
 =item L<IO> 1.39_02
 
@@ -276,10 +284,19 @@ Skip failing freebsd localhost resolver tests.
 Allow Off_t smaller than size_t. (Win64 with USE_LARGE_FILES=undef)
 L<[perl #133422]|https://rt.perl.org/Public/Bug/Display.html?id=133422>
 
+=item F<perldb.pl> 1.54_03c
+
+Typos in pod.
+
 =item L<POSIX> 1.85_03
 
 Use quadmath versions of log10, ldexp and signbit
 L<[perl #133510]|https://rt.perl.org/Public/Bug/Display.html?id=133510>
+
+=item L<sigtrap> 1.09
+
+Adapt for layers on STDERR, which failed if PERL_UNICODE was set and the
+current locale was a UTF-8 locale.
 
 =item L<Storable> 3.13_04
 
