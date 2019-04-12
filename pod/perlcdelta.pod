@@ -279,6 +279,10 @@ Test fixes
 The 2 sudo tests on PERL_CORE with a shared perl lib.
 Skip failing freebsd localhost resolver tests.
 
+=item L<Devel::Peek> 1.28_03
+
+adjust Devel::Peek pod to cperl FLAGS
+
 =item L<PerlIO::scalar> 0.30
 
 Allow Off_t smaller than size_t. (Win64 with USE_LARGE_FILES=undef)

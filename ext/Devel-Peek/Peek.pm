@@ -3,7 +3,7 @@
 
 package Devel::Peek;
 
-$VERSION = '1.27_03';
+$VERSION = '1.28_03';
 $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -244,11 +244,12 @@ The output:
 
         SV = PVIV(0xbc288) at 0xbe9a8
           REFCNT = 1
-          FLAGS = (POK,pPOK)
+          FLAGS = 0x10004405 (POK,IsCOW,pPOK)
           IV = 42
           PV = 0xb2048 "hello"\0
           CUR = 5
-          LEN = 8
+          LEN = 7
+          COW_REFCNT = 1
 
 This says C<$a> is an SV, a scalar.  The scalar type is a PVIV, which is
 capable of holding an integer (IV) and/or a string (PV) value. The scalar's
@@ -263,6 +264,9 @@ CUR indicates the number of characters in the PV.  LEN indicates the
 number of bytes allocated for the PV (at least one more than CUR, because
 LEN includes an extra byte for the end-of-string marker, then usually
 rounded up to some efficient allocation unit).
+IsCOW and COW_REFCNT mean that this string is shared and will be
+copied on write ("COW") to a seperate SV. So far there's only variable
+using this string.
 
 =head2 A simple scalar number
 
@@ -276,7 +280,7 @@ The output:
 
         SV = IV(0xbc818) at 0xbe9a8
           REFCNT = 1
-          FLAGS = (IOK,pIOK)
+          FLAGS = 0x1101 (IOK,pIOK)
           IV = 42
 
 This says C<$a> is an SV, a scalar.  The scalar is an IV, a number.  Its
@@ -297,7 +301,7 @@ The output:
 
         SV = IV(0xbe860) at 0xbe9a8
           REFCNT = 2
-          FLAGS = (IOK,pIOK)
+          FLAGS = 0x1101 (IOK,pIOK)
           IV = 42
 
 Notice that this example differs from the previous example only in its
@@ -317,11 +321,11 @@ The output:
 
         SV = IV(0xf041c) at 0xbe9a0
           REFCNT = 1
-          FLAGS = (ROK)
+          FLAGS = 0x801 (ROK)
           RV = 0xbab08
           SV = IV(0xbe860) at 0xbe9a8
             REFCNT = 2
-            FLAGS = (IOK,pIOK)
+            FLAGS = 0x1101 (IOK,pIOK)
             IV = 42
 
 Starting from the top, this says C<$b> is an SV.  The scalar is an IV,
@@ -348,19 +352,18 @@ The output:
 
         SV = IV(0xc85998) at 0xc859a8
           REFCNT = 1
-          FLAGS = (ROK)
+          FLAGS = 0x801 (ROK)
           RV = 0xc70de8
           SV = PVAV(0xc71e10) at 0xc70de8
             REFCNT = 1
-            FLAGS = ()
+            FLAGS = 0x4000000b (REAL)
             ARRAY = 0xc7e820
             FILL = 0
             MAX = 0
-            FLAGS = (REAL)
             Elt No. 0
             SV = IV(0xc70f88) at 0xc70f98
               REFCNT = 1
-              FLAGS = (IOK,pIOK)
+              FLAGS = 0x1101 (IOK,pIOK)
               IV = 42
 
 This says C<$a> is a reference (ROK), which points to
@@ -379,24 +382,23 @@ The output:
 
         SV = IV(0x158c998) at 0x158c9a8
           REFCNT = 1
-          FLAGS = (ROK)
+          FLAGS = 0x801 (ROK)
           RV = 0x1577de8
           SV = PVAV(0x1578e10) at 0x1577de8
             REFCNT = 1
-            FLAGS = ()
+            FLAGS = 0x4000000b (REAL)
             ARRAY = 0x1585820
             FILL = 1
             MAX = 1
-            FLAGS = (REAL)
             Elt No. 0
             SV = IV(0x1577f88) at 0x1577f98
               REFCNT = 1
-              FLAGS = (IOK,pIOK)
+              FLAGS = 0x1101 (IOK,pIOK)
               IV = 42
             Elt No. 1
             SV = IV(0x158be88) at 0x158be98
               REFCNT = 1
-              FLAGS = (IOK,pIOK)
+              FLAGS = 0x1101 (IOK,pIOK)
               IV = 24
 
 Note that C<Dump> will not report I<all> the elements in the array,
@@ -415,26 +417,24 @@ The output:
 
 	SV = IV(0x8177858) at 0x816a618
 	  REFCNT = 1
-	  FLAGS = (ROK)
+	  FLAGS = 0x801 (ROK)
 	  RV = 0x814fc10
 	  SV = PVHV(0x8167768) at 0x814fc10
 	    REFCNT = 1
-	    FLAGS = (SHAREKEYS)
+	    FLAGS = 0x2000000c (SHAREKEYS)
 	    ARRAY = 0x816c5b8  (0:7, 1:1)
 	    hash quality = 100.0%
 	    KEYS = 1
 	    FILL = 1
 	    MAX = 7
-	    RITER = -1
-	    EITER = 0x0
 	    Elt "hello" HASH = 0xc8fd181b
 	    SV = IV(0x816c030) at 0x814fcf4
 	      REFCNT = 1
-	      FLAGS = (IOK,pIOK)
+	      FLAGS = 0x1101 (IOK,pIOK)
 	      IV = 42
 
 This shows C<$a> is a reference pointing to an SV.  That SV is a PVHV, a
-hash. Fields RITER and EITER are used by C<L<perlfunc/each>>.
+hash.
 
 The "quality" of a hash is defined as the total number of comparisons needed
 to access every element once, relative to the expected number needed for a
@@ -459,7 +459,7 @@ second argument to the function.
 Notice that C<Dump()> prints only elements 10 through 13 in the above code.
 The following code will print all of the elements.
 
-        use Devel::Peek 'Dump';
+        use Devel::Peek;
         $a = [10,11,12,13,14];
         Dump $a, 5;
 
@@ -473,10 +473,11 @@ this:
 
         SV = IV(0xf381c) at 0xc859a8
           REFCNT = 1
-          FLAGS = (ROK)
+          FLAGS = 0x801 (ROK)
           RV = 0xb8ad8
           SV = PVMG(0xbb3c8) at 0xc859a0
             REFCNT = 1
+            FLAGS = 0x2001101 (OBJECT,IOK,pIOK)
             FLAGS = (OBJECT,IOK,pIOK)
             IV = 729160
             NV = 0
@@ -494,11 +495,11 @@ doesn't bless the object, might look something like this:
 
         SV = IV(0xf381c) at 0xc859a8
           REFCNT = 1
-          FLAGS = (ROK)
+          FLAGS = 0x801 (ROK)
           RV = 0xb8ad8
           SV = PVMG(0xbb3c8) at 0xc859a0
             REFCNT = 1
-            FLAGS = (IOK,pIOK)
+            FLAGS = 0x1101 (IOK,pIOK)
             IV = 729160
             NV = 0
             PV = 0
@@ -509,11 +510,11 @@ Looks like this:
 
 	SV = IV(0x24d2dd8) at 0x24d2de8
 	  REFCNT = 1
-	  FLAGS = (TEMP,ROK)
+	  FLAGS = 0x80801 (TEMP,ROK)
 	  RV = 0x24e79d8
 	  SV = PVCV(0x24e5798) at 0x24e79d8
 	    REFCNT = 2
-	    FLAGS = ()
+	    FLAGS = 0xd ()
 	    COMP_STASH = 0x22c9c50	"main"
 	    START = 0x22eed60 ===> 0
 	    ROOT = 0x22ee490
