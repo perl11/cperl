@@ -10476,12 +10476,17 @@ Perl_newLOOPOP(pTHX_ I32 flags, I32 debuggable PERL_UNUSED_DECL,
 	   ))
 	    /* Return the block now, so that S_new_logop does not try to
 	       fold it away. */
-	    return block;	/* do {} while 0 does once */
+        {
+            op_free(expr);
+            return block;	/* do {} while 0 does once */
+        }
+
 	if (   IS_TYPE(expr, READLINE)
 	    || IS_TYPE(expr, READDIR)
             || IS_TYPE(expr, GLOB)
             || IS_TYPE(expr, EACH) || IS_TYPE(expr, AEACH)
-	    || OP_TYPE_IS_OR_WAS_NN(expr, OP_GLOB)) {
+	    || OP_TYPE_IS_OR_WAS_NN(expr, OP_GLOB))
+        {
 	    expr = newUNOP(OP_DEFINED, 0,
 		newASSIGNOP(0, newDEFSVOP(), 0, expr) );
 	} else if (OpKIDS(expr)) {
