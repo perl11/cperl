@@ -583,6 +583,18 @@ L<[perl #133441]|https://rt.perl.org/Public/Bug/Display.html?id=133441>
 
 =item *
 
+Detect more L<perldiag/"This use of C<my()> in a false conditional"> cases,
+esp. scalar assignments like C<my $x = 0 if 0;>
+L<[perl #133543]|https://rt.perl.org/Public/Bug/Display.html?id=133543>
+
+This feature was deprecated in 5.10 (and replaced by two better constructs,
+one of it backwards compatible) and is now a fatal error.
+
+Note: cperl does not agree that this feature is a bug, but this ship
+sailed already over a decade ago.
+
+=item *
+
 Regexp script runs were failing to permit ASCII digits in some cases.
 L<[perl #133547]|https://rt.perl.org/Public/Bug/Display.html?id=133547>
 

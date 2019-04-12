@@ -154,7 +154,7 @@ is( $@, '', "eval of my() passes");
 eval 'my($a,$b),$x,my($c,$d)';
 pass("RT #126844");
 
-# RT # 133543
+# RT #133543 (since 5.30)
 my @false_conditionals = (
     'my $x1 if 0;',
     'my @x2 if 0;',
@@ -163,6 +163,8 @@ my @false_conditionals = (
     'my ($x5,@x6, %x7) if 0;',
     '0 && my $z1;',
     '0 && my (%z2);',
+    'my $x8 = 0 if 0;', # cperl only
+    #'my ($x9,$y1) = (0,0) if 0;', # not yet
 );
 for (my $i=0; $i<=$#false_conditionals; $i++) {
     eval $false_conditionals[$i];

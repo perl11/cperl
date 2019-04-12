@@ -151,7 +151,7 @@ is( <<~`END`,                   "ok\n",     '<<~`HEREDOC`' );
     is join(",", "a", readpipe(rpechocxt()), "b"), "a,scalar\n,b",
 	"readpipe argument context in list context";
     foreach my $args ("(\$::p,\$::q)", "((\$::p,\$::q))") {
-	foreach my $lvalue ("my \$r", "my \@r") {
+	foreach my $lvalue ("my \$r; \$r", "my \@r; \@r") {
 	    eval("$lvalue = readpipe$args if 0");
 	    like $@, qr/\AToo many arguments for /;
 	}

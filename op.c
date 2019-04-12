@@ -10074,13 +10074,17 @@ S_new_logop(pTHX_ I32 type, I32 flags, OP** firstp, OP** otherp)
             /* Elide the rhs, since the outcome is entirely determined by
              * the (constant) lhs */
 
-	    /* check for C<my $x if 0>, or C<my($x,$y) if 0> */
+	    /* check for C<my $x if 0>, or C<my($x,$y) if 0>
+               or C<my $x = 0 if 0> */
 	    const OP *o2 = other;
 	    if ( ! (IS_TYPE(o2, LIST)
 		    && ( o2 = OpFIRST(o2) )
 		    && IS_TYPE(o2, PUSHMARK)
 		    && ( o2 = OpSIBLING(o2)) )
-	    )
+              && ! (IS_TYPE(o2, SASSIGN)
+		    && ( o2 = OpLAST(o2) )
+		    && IS_PADxV_OP(o2) )
+               )
 		o2 = other;
 	    if (IS_PADxV_OP(o2)
 		&& o2->op_private & OPpLVAL_INTRO
@@ -10098,7 +10102,7 @@ S_new_logop(pTHX_ I32 type, I32 flags, OP** firstp, OP** otherp)
 	}
     }
     else if (OpKIDS(first) && type != OP_DOR
-	&& ckWARN(WARN_MISC)) /* [#24076] Don't warn for <FH> err FOO. */
+             && ckWARN(WARN_MISC)) /* [#24076] Don't warn for <FH> err FOO. */
     {
 	const OP * const k1 = OpFIRST(first);
 	const OP * const k2 = OpSIBLING(k1);
