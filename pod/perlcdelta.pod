@@ -311,6 +311,10 @@ Typos in pod.
 Use quadmath versions of log10, ldexp and signbit
 L<[perl #133510]|https://rt.perl.org/Public/Bug/Display.html?id=133510>
 
+=item L<Safe> 2.40_03c
+
+Fix a test for CORE::dump
+
 =item L<sigtrap> 1.09
 
 Adapt for layers on STDERR, which failed if PERL_UNICODE was set and the

@@ -3,7 +3,7 @@ package Safe;
 use 5.003_11;
 use Scalar::Util qw(reftype refaddr);
 
-$Safe::VERSION = "2.40_02c";
+$Safe::VERSION = "2.40_03c";
 
 # *** Don't declare any lexicals above this point ***
 #

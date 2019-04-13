@@ -18421,6 +18421,7 @@ our %delta :const = (
             'Net::Ping'             => '2.72',
             'PerlIO::scalar'        => '0.30',
             'POSIX'                 => '1.85_03',
+            'Safe'                  => '2.40_03c',
             'sigtrap'               => '1.09',
             'Storable'              => '3.13_04',
             'Time::HiRes'           => '1.9760_02',

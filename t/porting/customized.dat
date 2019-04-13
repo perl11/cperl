@@ -113,7 +113,7 @@ Net::Domain cpan/libnet/lib/Net/Domain.pm 9fd56bca53cceb0957472b6531edcf5a36a61e
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 8ac11522808238b028b935fa94bf5ff319e68938
 Pod::Perldoc cpan/Pod-Perldoc/lib/Pod/Perldoc.pm 582be34c077c9ff44d99914724a0cc2140bcd48c
 Pod::Usage cpan/Pod-Usage/scripts/pod2usage.PL e78dee490d466191620821446d49794a4ec6254e
-Safe dist/Safe/Safe.pm 4bc5e5c4f38134c342ec786a93d42baaecd13722
+Safe dist/Safe/Safe.pm 22cc4848543d95f3b0d570ad0cbd293df6232833
 Safe dist/Safe/t/safeops.t 9cd164bd5b9038b344e895d73fb061dc5f0fea1f
 Search::Dict dist/Search-Dict/lib/Search/Dict.pm 1a896da1e51d5ab18227b2c28793a37cfd55308b
 Sys::Syslog cpan/Sys-Syslog/t/syslog.t bed4da2de76558f92d354bb83dc01fd7d66cadec
