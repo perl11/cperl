@@ -259,15 +259,15 @@
     Perl_pregfree(aTHX_ (rx_sv))
 
 #define CALLREGFREE_PVT(prog) \
-    if(prog && RX_ENGINE(prog)) RX_ENGINE(prog)->rxfree(aTHX_ (prog))
+    if (RX_ENGINE(prog)) RX_ENGINE(prog)->rxfree(aTHX_ (prog))
 
-#define CALLREG_NUMBUF_FETCH(rx,paren,usesv)                                \
+#define CALLREG_NUMBUF_FETCH(rx,paren,usesv) \
     RX_ENGINE(rx)->numbered_buff_FETCH(aTHX_ (rx),(paren),(usesv))
 
 #define CALLREG_NUMBUF_STORE(rx,paren,value) \
     RX_ENGINE(rx)->numbered_buff_STORE(aTHX_ (rx),(paren),(value))
 
-#define CALLREG_NUMBUF_LENGTH(rx,sv,paren)                              \
+#define CALLREG_NUMBUF_LENGTH(rx,sv,paren) \
     RX_ENGINE(rx)->numbered_buff_LENGTH(aTHX_ (rx),(sv),(paren))
 
 #define CALLREG_NAMED_BUFF_FETCH(rx, key, flags) \
