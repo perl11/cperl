@@ -572,7 +572,7 @@ sub find_utf8_turkic_locales (;$) {
     # to try; if omitted, this tries all locales it can find on the platform
 
     my @retlist;
-    return @retlist if _is_miniperl();
+    return unless locales_enabled('LC_CTYPE');
 
     my $save_locale = setlocale(&POSIX::LC_CTYPE());
     foreach my $locale (find_utf8_ctype_locales(shift)) {
