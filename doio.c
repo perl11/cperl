@@ -351,7 +351,7 @@ S_openn_setup(pTHX_ GV *gv, char *mode, PerlIO **saveifp, PerlIO **saveofp,
     *savefd = -1;
     *savetype = IoTYPE_CLOSED;
 
-    Zero(mode,sizeof(mode),char);
+    ZeroNN(mode,sizeof(mode),char);
     PL_forkprocess = 1;		/* assume true if no fork */
 
     /* If currently open - close before we re-open */

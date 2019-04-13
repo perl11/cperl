@@ -3881,7 +3881,7 @@ Perl_init_tm(pTHX_ struct tm *ptm)	/* see mktime, strftime and asctime */
     (void)time(&now);
     my_tm = localtime(&now);
     if (my_tm)
-        Copy(my_tm, ptm, 1, struct tm);
+        CopyNN(my_tm, ptm, 1, struct tm);
 #else
     PERL_UNUSED_CONTEXT;
     PERL_ARGS_ASSERT_INIT_TM;

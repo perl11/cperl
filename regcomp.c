@@ -1495,7 +1495,7 @@ S_ssc_init(pTHX_ const RExC_state_t *pRExC_state, regnode_ssc *ssc)
 
     PERL_ARGS_ASSERT_SSC_INIT;
 
-    Zero(ssc, 1, regnode_ssc);
+    ZeroNN(ssc, 1, regnode_ssc);
     set_ANYOF_SYNTHETIC(ssc);
     ARG_SET(ssc, ANYOF_ONLY_HAS_BITMAP);
     ssc_anything(ssc);
@@ -20888,8 +20888,8 @@ S_re_croak2(pTHX_ bool utf8, const char* pat1, const char* pat2,...)
 	l1 = 510;
     if (l1 + l2 > 510)
 	l2 = 510 - l1;
-    Copy(pat1, buf, l1 , char);
-    Copy(pat2, buf + l1, l2 , char);
+    CopyNN(pat1, buf, l1 , char);
+    CopyNN(pat2, buf + l1, l2 , char);
     buf[l1 + l2] = '\n';
     buf[l1 + l2 + 1] = '\0';
     va_start(args, pat2);

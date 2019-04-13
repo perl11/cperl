@@ -3029,8 +3029,8 @@ Perl__to_fold_latin1(const U8 c, U8* p, STRLEN *lenp, const unsigned int flags)
          * under those circumstances. */
         if (flags & FOLD_FLAGS_NOMIX_ASCII) {
             *lenp = 2 * sizeof(LATIN_SMALL_LETTER_LONG_S_UTF8) - 2;
-            Copy(LATIN_SMALL_LETTER_LONG_S_UTF8 LATIN_SMALL_LETTER_LONG_S_UTF8,
-                 p, *lenp, U8);
+            CopyNN(LATIN_SMALL_LETTER_LONG_S_UTF8 LATIN_SMALL_LETTER_LONG_S_UTF8,
+                   p, *lenp, U8);
             return LATIN_SMALL_LETTER_LONG_S;
         }
         else {
@@ -3713,7 +3713,7 @@ S__to_utf8_case(pTHX_ const UV uv1, const U8 *p,
     if (p) {
         len = UTF8SKIP(p);
         if (p != ustrp) {   /* Don't copy onto itself */
-            Copy(p, ustrp, len, U8);
+            CopyNN(p, ustrp, len, U8);
         }
         *lenp = len;
     }
@@ -3844,7 +3844,7 @@ S_check_locale_boundary_crossing(pTHX_ const U8* const p, const UV result,
                            OP_DESC(PL_op),
                            original,
                            original);
-    Copy(p, ustrp, *lenp, char);
+    CopyNN(p, ustrp, *lenp, char);
     return original;
 }
 
@@ -4242,7 +4242,7 @@ Perl__to_utf8_fold_flags(pTHX_ const U8 *p,
                     goto return_dotless_i;
                 }
 #endif
-                Copy(p, ustrp, *lenp, char);
+                CopyNN(p, ustrp, *lenp, char);
                 return original;
             }
             s += UTF8SKIP(s);
@@ -4274,7 +4274,7 @@ Perl__to_utf8_fold_flags(pTHX_ const U8 *p,
      * works. */
 
     *lenp = 2 * sizeof(LATIN_SMALL_LETTER_LONG_S_UTF8) - 2;
-    Copy(LATIN_SMALL_LETTER_LONG_S_UTF8 LATIN_SMALL_LETTER_LONG_S_UTF8,
+    CopyNN(LATIN_SMALL_LETTER_LONG_S_UTF8 LATIN_SMALL_LETTER_LONG_S_UTF8,
          ustrp, *lenp, U8);
     return LATIN_SMALL_LETTER_LONG_S;
 
@@ -4283,7 +4283,7 @@ Perl__to_utf8_fold_flags(pTHX_ const U8 *p,
      * have the other one fold to it */
 
     *lenp = sizeof(LATIN_SMALL_LIGATURE_ST_UTF8) - 1;
-    Copy(LATIN_SMALL_LIGATURE_ST_UTF8, ustrp, *lenp, U8);
+    CopyNN(LATIN_SMALL_LIGATURE_ST_UTF8, ustrp, *lenp, U8);
     return LATIN_SMALL_LIGATURE_ST;
 
 #if    UNICODE_MAJOR_VERSION   == 3         \
@@ -4774,7 +4774,7 @@ Perl_swash_fetch(pTHX_ SV *swash, const U8 *ptr, bool do_utf8)
 	PL_last_swash_tmps = (U8 *) tmps;
 	PL_last_swash_slen = slen;
 	if (klen)
-	    Copy(ptr, PL_last_swash_key, klen, U8);
+	    CopyNN(ptr, PL_last_swash_key, klen, U8);
     }
 
     switch ((int)((slen << 3) / needents)) {

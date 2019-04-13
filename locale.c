@@ -145,7 +145,7 @@ S_stdize_locale(pTHX_ char *locs)
 	    const char * const u = strchr(t, '\n');
 	    if (u && (u[1] == 0)) {
 		const STRLEN len = u - s;
-		Move(s + 1, locs, len, char);
+		MoveNN(s + 1, locs, len, char);
 		locs[len] = 0;
 		okay = TRUE;
 	    }

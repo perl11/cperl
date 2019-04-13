@@ -2688,7 +2688,7 @@ S_hv_auxinit_internal(struct xpvhv_aux *iter) {
 #ifdef PERL_HASH_RANDOMIZE_KEYS
     U32 last_rand = iter->xhv_rand;
 #endif
-    Zero(iter, sizeof(struct xpvhv_aux), char);
+    ZeroNN(iter, sizeof(struct xpvhv_aux), char);
     iter->xhv_riter = HV_NO_RITER;
 #ifdef PERL_HASH_RANDOMIZE_KEYS
     iter->xhv_last_rand = iter->xhv_rand = last_rand;
