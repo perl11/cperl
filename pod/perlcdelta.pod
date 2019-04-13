@@ -643,6 +643,12 @@ L<[perl #133558]|https://rt.perl.org/Public/Bug/Display.html?id=133558>
 
 =item *
 
+The first sizing pass has been eliminated from the regular expression
+compiler.  An extra pass may instead be needed in some cases to count
+the number of parenthetical capture groups.
+
+=item *
+
 Added C<my_atof3()> to support parsing strings which are not necessarily
 NUL-terminated to an NV.
 C<grok_atoUV> supports that too now.
