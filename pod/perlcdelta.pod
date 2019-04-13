@@ -284,6 +284,22 @@ no deprecation message was issued; only perl5.008delta.pod and a
 comment in the file mention its deprecation. The warnings was added
 with v5.25.10.
 
+=item L<GDBM_File> 1.18
+
+Add SECURITY AND PORTABILITY warning paragraph to pod.
+
+=item L<NDBM_File> 1.15
+
+Add SECURITY AND PORTABILITY warning paragraph to pod.
+
+=item L<ODBM_File> 1.16
+
+Add SECURITY AND PORTABILITY warning paragraph to pod.
+
+=item L<SDBM_File> 1.15
+
+Add SECURITY AND PORTABILITY warning paragraph to pod.
+
 =item L<IO> 1.39_02
 
 Skip EINVAL on FreeBSD tests when binding a tcp listener on localhost.
