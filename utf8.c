@@ -6378,7 +6378,7 @@ Perl_pv_uni_normalize(pTHX_ char *s1, STRLEN slen, STRLEN *dlenp)
     U8 *s, *d, *send, *dend;
     STRLEN dlen;
 #ifdef DEBUGGING
-    SV *tmp;
+    SV *tmp = NULL;
 #endif
     /* TODO: Once it's clear that the string is valid UTF8, allocate it on the stack
        with reserve for NFD */
@@ -6387,7 +6387,7 @@ Perl_pv_uni_normalize(pTHX_ char *s1, STRLEN slen, STRLEN *dlenp)
     assert(slen < 1024); /* parser.h sizeof PL_tokenbuf */
     DEBUG_T(tmp = newSVpvs_flags("", SVs_TEMP));
     DEBUG_T(PerlIO_printf(Perl_debug_log, "normalize \"%.*s\" [UTF8 \"%s\"] to NFC... ",
-           (int)slen, s1, pv_uni_display(tmp, (U8*)s1, slen, slen*4, UNI_DISPLAY_QQ)));
+              (int)slen, s1, pv_uni_display(tmp, (U8*)s1, slen, slen*4, UNI_DISPLAY_QQ)));
 
     Newx(d, slen+1, U8);
     dend = S_pv_utf8_decompose(aTHX_ (U8*)s1, slen, &d, slen);
