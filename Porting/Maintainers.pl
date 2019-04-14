@@ -699,7 +699,7 @@ use File::Glob qw(:case);
 
     # Note that upstream misses now the 3 xs pods
     'ExtUtils::ParseXS' => {
-        'DISTRIBUTION' => 'RURBAN/ExtUtils-ParseXS-3.39_03.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/ExtUtils-ParseXS-3.40_03.tar.gz',
         'FILES'        => q[dist/ExtUtils-ParseXS],
         #'CUSTOMIZED'   =>
         #  [ 'Changes',

@@ -293,6 +293,12 @@ simplify pp_subcall_profiler op_type check.
 
 Make F<Errno_pm.PL> compatible with F<< /usr/include/<ARCH>/errno.h >>
 
+=item L<ExtUtils::ParseXS>
+
+(perl #133654) don't include OUTLIST parameters in the prototype:
+The generated prototype (with PROTOTYPES: ENABLE) would include
+OUTLIST parameters, but these aren't arguments to the perl function.
+
 =item L<feature> 1.54_01
 
 C<array_base> was removed.
