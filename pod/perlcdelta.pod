@@ -617,6 +617,25 @@ L</Modules and Pragmata> section.
 
 =over 4
 
+=item Mac OS X
+
+Perl's build and testing process on Mac OS X for C<-Duseshrplib>
+builds is now compatible with Mac OS X System Integrity Protection
+(B<SIP>).
+
+SIP prevents binaries in F</bin> (and a few other places) being passed
+the C<DYLD_LIBRARY_PATH> environment variable.  For our purposes this
+prevents C<DYLD_LIBRARY_PATH> from being passed to the shell, which
+prevents that variable being passed to the testing or build process,
+so running C<perl> couldn't find F<libcperl.dylib>.
+
+To workaround that, the initial build of the F<perl> executable
+expects to find F<libcperl.dylib> in the build directory, and the
+library path is then adjusted during installation to point to the
+installed library.
+
+L<[perl #126706]|https://rt.perl.org/Public/Bug/Display.html?id=126706>
+
 =item Win32
 
 =over 4
