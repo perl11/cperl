@@ -18414,6 +18414,7 @@ our %delta :const = (
             'B::Deparse'            => '1.49_05c',
             'bytes'                 => '1.07',
             'Devel::Peek'           => '1.28_03',
+            'Devel::NYTProf'        => '6.06_02',
             'feature'               => '1.54_01',
             'File::Copy'            => '2.34',
             'File::Glob'            => '1.32',

@@ -67,7 +67,7 @@ use Devel::NYTProf::Util qw(
 );
 use Devel::NYTProf::Constants qw(NYTP_SCi_CALLING_SUB);
 
-our $VERSION = '6.06_01';
+our $VERSION = '6.06_02';
 
 if ($VERSION ne $Devel::NYTProf::Core::XS_VERSION) {
     die "$0 version '$VERSION' doesn't match version '$Devel::NYTProf::Core::XS_VERSION' of $INC{'Devel/NYTProf/Core.pm'}\n";

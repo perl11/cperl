@@ -269,6 +269,10 @@ Whitespace only
 
 adjust Devel::Peek pod to cperl FLAGS
 
+=item L<Devel::NYTProf> 6.06_02
+
+simplify pp_subcall_profiler op_type check.
+
 =item L<feature> 1.54_01
 
 C<array_base> was removed.

@@ -16,7 +16,7 @@ require Devel::NYTProf::FileHandle;
 require Devel::NYTProf::Data;
 use List::Util qw(min sum);
 
-our $VERSION = '6.06_01';
+our $VERSION = '6.06_02';
     
 if ($VERSION != $Devel::NYTProf::Core::XS_VERSION) {
     die "$0 version '$VERSION' doesn't match version '$Devel::NYTProf::Core::XS_VERSION' of $INC{'Devel/NYTProf/Core.pm'}\n";
