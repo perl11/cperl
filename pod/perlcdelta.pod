@@ -265,6 +265,10 @@ Add the FREEBSD_KERNEL_VERSION key for FreeBSD.
 
 Whitespace only
 
+=item L<Data::Dumper> 2.173
+
+no changes
+
 =item L<Devel::Peek> 1.28_03
 
 adjust Devel::Peek pod to cperl FLAGS

@@ -18413,6 +18413,7 @@ our %delta :const = (
             'Module::CoreList::Utils'=> '5.20190313c',
             'B::Deparse'            => '1.49_05c',
             'bytes'                 => '1.07',
+            'Data::Dumper'          => '2.173',
             'Devel::Peek'           => '1.28_03',
             'Devel::NYTProf'        => '6.06_02',
             'feature'               => '1.54_01',
