@@ -18429,6 +18429,7 @@ our %delta :const = (
             'SDBM_File'             => '1.15',
             'Safe'                  => '2.40_03c',
             'sigtrap'               => '1.09',
+            'Socket'                => '2.027_05',
             'Storable'              => '3.13_04',
             'Time::HiRes'           => '1.9760_02',
             'Unicode::UCD'          => '0.72_03',

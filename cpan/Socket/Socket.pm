@@ -3,7 +3,7 @@ package Socket;
 use strict;
 { use 5.006001; }
 
-our $VERSION = '2.027_04';
+our $VERSION = '2.027_05';
 our $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -805,12 +805,13 @@ our @EXPORT_OK = qw(
 
 	getaddrinfo getnameinfo
 
-	AI_ADDRCONFIG AI_ALL AI_CANONIDN AI_CANONNAME AI_IDN
-	AI_IDN_ALLOW_UNASSIGNED AI_IDN_USE_STD3_ASCII_RULES AI_NUMERICHOST
+	AI_ADDRCONFIG AI_ALL AI_CANONNAME AI_NUMERICHOST
 	AI_NUMERICSERV AI_PASSIVE AI_V4MAPPED
 
-	NI_DGRAM NI_IDN NI_IDN_ALLOW_UNASSIGNED NI_IDN_USE_STD3_ASCII_RULES
-	NI_NAMEREQD NI_NOFQDN NI_NUMERICHOST NI_NUMERICSERV
+	NI_DGRAM NI_NAMEREQD NI_NOFQDN NI_NUMERICHOST NI_NUMERICSERV
+
+        AI_IDN AI_IDN_ALLOW_UNASSIGNED AI_IDN_USE_STD3_ASCII_RULES AI_CANONIDN
+        NI_IDN NI_IDN_ALLOW_UNASSIGNED NI_IDN_USE_STD3_ASCII_RULES
 
 	NIx_NOHOST NIx_NOSERV
 
@@ -920,11 +921,11 @@ if( defined &getaddrinfo ) {
 	# use them
 	AI_IDN                      => 64,
 	AI_CANONIDN                 => 128,
-	AI_IDN_ALLOW_UNASSIGNED     => 256,
-	AI_IDN_USE_STD3_ASCII_RULES => 512,
+	AI_IDN_ALLOW_UNASSIGNED     => 256, # deprecated upstream
+	AI_IDN_USE_STD3_ASCII_RULES => 512, # deprecated upstream
 	NI_IDN                      => 32,
-	NI_IDN_ALLOW_UNASSIGNED     => 64,
-	NI_IDN_USE_STD3_ASCII_RULES => 128,
+	NI_IDN_ALLOW_UNASSIGNED     => 64,  # deprecated upstream
+	NI_IDN_USE_STD3_ASCII_RULES => 128, # deprecated upstream
 
 	# Error constants we'll never return, so it doesn't matter what value
 	# these have, nor that we don't provide strings for them

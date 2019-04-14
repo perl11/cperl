@@ -354,6 +354,10 @@ Fix a test for CORE::dump
 Adapt for layers on STDERR, which failed if PERL_UNICODE was set and the
 current locale was a UTF-8 locale.
 
+=item L<Socket> 2.027_05
+
+re-order and comment deprecated IDN constants.
+
 =item L<Storable> 3.13_04
 
 fix and clarify handling of recurs_sv.
