@@ -66,6 +66,13 @@ to 65535
 This means if you specify C<qr/a+/> that there can be anywhere from 1
 through 65535 C<"a">'s in a row, instead of 32267 as previously.
 
+The upper limit C<"n"> specifiable in a regular expression
+quantifier of the form C<"{m,n}"> has also been doubled to 65534.
+
+The meaning of an unbounded upper quantifier C<"{m,}"> remains unchanged.
+It matches 2**31 - 1 times on most platforms, and more on ones where a C
+language short variable is more than 4 bytes long.
+
 =head2 C<-Drv> now means something on C<-DDEBUGGING> builds
 
 Now, adding the verbose flag (C<-Dv>) to the C<-Dr> flag turns on all
@@ -741,6 +748,24 @@ L<[perl #132655]|https://rt.perl.org/Public/Bug/Display.html?id=132655>
 
 The new in-place editing code no longer leaks directory handles.
 L<[perl #133314]|https://rt.perl.org/Public/Bug/Display.html?id=133314>
+
+=item *
+
+If an in-place edit is still in progress during global destruction and
+the process exit code (as stored in C<$?>) is zero, perl will now
+treat the in-place edit as successful, replacing the input file with
+any output produced.
+
+This allows code like:
+
+  perl -i -ne 'print "Foo"; last'
+
+to replace the input file, while code like:
+
+  perl -i -ne 'print "Foo"; die'
+
+will not.  Partly resolves
+L<[perl #133659]|https://rt.perl.org/Ticket/Display.html?id=133659>.
 
 =item *
 
