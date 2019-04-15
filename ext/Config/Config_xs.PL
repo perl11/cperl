@@ -260,6 +260,10 @@ if ($gperf_ok) {
 
         );
     }
+    if (!$in_core and $] < 5.029002) { # for older CPAN installs
+      # deleted with v5.29.2c/v5.29.5
+      push @cannedkeys , qw( d_const );
+    }
 
     for my $k (@cannedkeys) {
         if (!exists $h{$k}) {

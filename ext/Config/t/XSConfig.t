@@ -179,6 +179,10 @@ if (exists $XSConfig{canned_gperf}) { #fix up PP Config to look like XS Config
 
       );
   }
+  if (!$in_core and $] < 5.029002) { # for older CPAN installs
+    # deleted with v5.29.2c/v5.29.5
+    push @cannedkeys , qw( d_const );
+  }
 
   for my $k (@cannedkeys) {
     $Config_copy{$k} = '' unless exists $Config{$k};
