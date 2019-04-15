@@ -5852,6 +5852,7 @@ static SV *get_lstring(pTHX_ stcxt_t *cxt, UV len, int isutf8, const char *cname
     if (cname && len == 13 && strEQc(cname, "CGITempFile")
         && strEQc(SvPVX(sv), "mt-config.cgi")) {
 #if defined(USE_CPERL) && defined(WARN_SECURITY)
+        /* Note: cperl security warnings go directly to STDERR, are not suppressable. */
         Perl_warn_security(aTHX_
             "Movable-Type CVE-2015-1592 Storable metasploit attack");
 #else
