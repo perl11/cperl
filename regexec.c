@@ -1786,7 +1786,9 @@ STMT_START {                                                                    
     STMT_START {                                            \
         while (s < strend) {                                \
             CODE                                            \
-            s += ((UTF8) ? UTF8SKIP(s) : 1);                \
+            s += ((UTF8)                                    \
+                  ? UTF8_SAFE_SKIP(s, reginfo->strend)      \
+                  : 1);                                     \
         }                                                   \
     } STMT_END
 
@@ -1800,7 +1802,7 @@ STMT_START {                                                                    
 #define REXEC_FBC_CLASS_SCAN_GUTS(UTF8, COND)                  \
     if (COND) {                                                \
         FBC_CHECK_AND_TRY                                      \
-        s += ((UTF8) ? UTF8SKIP(s) : 1);                       \
+        s += ((UTF8) ? UTF8_SAFE_SKIP(s, reginfo->strend) : 1);\
         previous_occurrence_end = s;                           \
     }                                                          \
     else {                                                     \
@@ -1819,12 +1821,13 @@ STMT_START {                                                                    
  * of the one we're looking for.  Knowing that, we can see right away if the
  * next occurrence is adjacent to the previous.  When 'doevery' is FALSE, we
  * don't accept the 2nd and succeeding adjacent occurrences */
-#define FBC_CHECK_AND_TRY                                      \
-        if (   (   doevery                                     \
-                || s != previous_occurrence_end)               \
-            && (reginfo->intuit || regtry(reginfo, &s)))       \
-        {                                                      \
-            goto got_it;                                       \
+#define FBC_CHECK_AND_TRY                                           \
+        if (   (   doevery                                          \
+                || s != previous_occurrence_end)                    \
+            && (   reginfo->intuit                                  \
+                || (s <= reginfo->strend && regtry(reginfo, &s))))  \
+        {                                                           \
+            goto got_it;                                            \
         }
 
 
@@ -1857,7 +1860,7 @@ STMT_START {                                                                    
                                                             \
         if (COND) {                                         \
             FBC_CHECK_AND_TRY                               \
-            s += UTF8SKIP(s);                               \
+            s += UTF8_SAFE_SKIP(s, reginfo->strend);        \
             previous_occurrence_end = s;                    \
         }                                                   \
         else {                                              \
@@ -1976,7 +1979,7 @@ STMT_START {                                                                    
  * string (which should be zero length without having to look at the string
  * contents) */
 #define REXEC_FBC_TRYIT                                                     \
-    if ((reginfo->intuit || (s <= reginfo->strend && regtry(reginfo, &s)))) \
+    if (reginfo->intuit || (s <= reginfo->strend && regtry(reginfo, &s)))   \
         goto got_it
 
 /* The only difference between the BOUND and NBOUND cases is that
@@ -2392,7 +2395,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
             {
                 goto got_it;
             }
-            s += (utf8_target) ? UTF8SKIP(s) : 1;
+            s += (utf8_target) ? UTF8_SAFE_SKIP(s, reginfo->strend) : 1;
         }
         break;
     }
@@ -2476,7 +2479,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                     }
 
                     /* Didn't match.  Try at the next position (if there is one) */
-                    s += (utf8_target) ? UTF8SKIP(s) : 1;
+                    s += (utf8_target) ? UTF8_SAFE_SKIP(s, reginfo->strend) : 1;
                     if (UNLIKELY(s >= reginfo->strend)) {
                         break;
                     }
@@ -2500,7 +2503,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                             goto got_it;
                         }
                         before = after;
-                        s += UTF8SKIP(s);
+                        s += UTF8_SAFE_SKIP(s, reginfo->strend);
                     }
                 }
                 else {  /* Not utf8.  Everything is a GCB except between CR and
@@ -2518,7 +2521,9 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
 
                 /* And, since this is a bound, it can match after the final
                  * character in the string */
-                if ((reginfo->intuit || regtry(reginfo, &s))) {
+                if (   reginfo->intuit
+                    || (s <= reginfo->strend && regtry(reginfo, &s)))
+                {
                     goto got_it;
                 }
                 break;
@@ -2528,7 +2533,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                     if (reginfo->intuit || regtry(reginfo, &s)) {
                         goto got_it;
                     }
-                    s += (utf8_target) ? UTF8SKIP(s) : 1;
+                    s += (utf8_target) ? UTF8_SAFE_SKIP(s, reginfo->strend) : 1;
                     if (UNLIKELY(s >= reginfo->strend)) {
                         break;
                     }
@@ -2552,7 +2557,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                             goto got_it;
                         }
                         before = after;
-                        s += UTF8SKIP(s);
+                        s += UTF8_SAFE_SKIP(s, reginfo->strend);
                     }
                 }
                 else {  /* Not utf8. */
@@ -2574,7 +2579,9 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                     }
                 }
 
-                if (reginfo->intuit || regtry(reginfo, &s)) {
+                if (   reginfo->intuit
+                    || (s <= reginfo->strend && regtry(reginfo, &s)))
+                {
                     goto got_it;
                 }
 
@@ -2585,7 +2592,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                     if (reginfo->intuit || regtry(reginfo, &s)) {
                         goto got_it;
                     }
-                    s += (utf8_target) ? UTF8SKIP(s) : 1;
+                    s += (utf8_target) ? UTF8_SAFE_SKIP(s, reginfo->strend) : 1;
                     if (UNLIKELY(s >= reginfo->strend)) {
                         break;
                     }
@@ -2610,7 +2617,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                             goto got_it;
                         }
                         before = after;
-                        s += UTF8SKIP(s);
+                        s += UTF8_SAFE_SKIP(s, reginfo->strend);
                     }
                 }
                 else {  /* Not utf8. */
@@ -2635,7 +2642,9 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                 /* Here are at the final position in the target string.  The SB
                  * value is always true here, so matches, depending on other
                  * constraints */
-                if (reginfo->intuit || regtry(reginfo, &s)) {
+                if (   reginfo->intuit
+                    || (s <= reginfo->strend && regtry(reginfo, &s)))
+                {
                     goto got_it;
                 }
 
@@ -2646,7 +2655,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                     if (reginfo->intuit || regtry(reginfo, &s)) {
                         goto got_it;
                     }
-                    s += (utf8_target) ? UTF8SKIP(s) : 1;
+                    s += (utf8_target) ? UTF8_SAFE_SKIP(s, reginfo->strend) : 1;
                     if (UNLIKELY(s >= reginfo->strend)) {
                         break;
                     }
@@ -2680,7 +2689,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                         }
                         previous = before;
                         before = after;
-                        s += UTF8SKIP(s);
+                        s += UTF8_SAFE_SKIP(s, reginfo->strend);
                     }
                 }
                 else {  /* Not utf8. */
@@ -2705,7 +2714,9 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                     }
                 }
 
-                if (reginfo->intuit || regtry(reginfo, &s)) {
+                if (   reginfo->intuit
+                    || (s <= reginfo->strend && regtry(reginfo, &s)))
+                {
                     goto got_it;
                 }
         }
@@ -3022,7 +3033,9 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                         LEAVE;
                         goto got_it;
                     }
-                    s = HOPc(s,1);
+                    if (s < reginfo->strend) {
+                        s = HOPc(s,1);
+                    }
                     DEBUG_TRIE_EXECUTE_r({
                         Perl_re_printf( aTHX_ "Pattern failed. Looking for new start point...\n");
                     });
@@ -3541,7 +3554,7 @@ Perl_regexec_flags(pTHX_ REGEXP * const rx, char *stringarg, char *strend,
 		if (*s == ch) {
 		    DEBUG_EXECUTE_r( did_match = 1 );
 		    if (regtry(reginfo, &s)) goto got_it;
-		    s += UTF8SKIP(s);
+		    s += UTF8_SAFE_SKIP(s, strend);
 		    while (s < strend && *s == ch)
 			s += UTF8SKIP(s);
 		}
