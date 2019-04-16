@@ -590,13 +590,18 @@ made:
 =item *
 
 All modules can now be tested in parallel.
-From the remaining exceptions ext/Pod-Html/t was fixed a while ago,
-and cpan/IO-Zlib/t with this release.
+From the remaining exceptions F<ext/Pod-Html/t> was fixed a while ago,
+and F<cpan/IO-Zlib/t> with this release.
 
-The remaining exception is for files starting with 0.
-We assume that the reason a test file's name begins with a 0 is to
+We also removed the remaining exception for files starting with 0.
+We assumed before that the reason a test file's name begins with a 0 is to
 order its execution among the tests in its directory.  Hence, a
 directory containing such files should be tested in serial order.
+But in reality there's no such F<t/00-setup.t> test and if so, it would still
+be run as very first test. CPAN testing via EUMM and Test::Harness does
+not obey this rule neither.
+The only module to be fixed was F<ext/FileCache/t>.
+cperl-only
 
 =back
 

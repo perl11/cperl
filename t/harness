@@ -203,11 +203,12 @@ if (@ARGV) {
                 my $path = $1;
 
                 $all_dirs{$path} = 1;
-                $serials{$path} = 1 if $2 =~ / \A 0 /x;
+                # Assume even 0 tests can be tested in parallel.
+                # $serials{$path} = 1 if $2 =~ / \A 0 /x;
             }
         }
 
-        # We assume that the reason a test file's name begins with a 0 is to
+        # We assumed before that the reason a test file's name begins with a 0 is to
         # order its execution among the tests in its directory.  Hence, a
         # directory containing such files should be tested in serial order.
         #
