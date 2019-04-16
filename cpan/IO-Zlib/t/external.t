@@ -4,13 +4,18 @@
 # This limits the testing to UNIX-like
 # systems but that should be enough.
 
-my $gzip = "/usr/bin/gzip";
-
-unless( -x $gzip &&
-        ":$ENV{PATH}:" =~ m!:/usr/bin:! &&
-        -d "/usr/bin" && -x "/usr/bin") {
-    print "1..0 # Skip: no $gzip\n";
-    exit 0;
+use strict;
+my @gzip = ("/usr/bin/gzip", "/bin/gzip", "/usr/local/bin/gzip");
+my $gzip;
+for (@gzip) {
+  if (-x $_) {
+    $gzip = $_;
+    last;
+  }
+}
+unless ( -x $gzip ) {
+  print "1..0 # Skip: no gzip\n";
+  exit 0;
 }
 
 sub ok
@@ -86,8 +91,8 @@ ok(14, $@ =~ /^IO::Zlib::gzopen_external: mode 'xyz' is illegal /);
 # The following is a copy of the basic.t, shifted up by 14 tests,
 # the difference being that now we should be using the external gzip.
 
-my $name="test$$.gz";
-
+my $name = "test$$.gz";
+my ($file, $uncomp);
 my $hello = <<EOM ;
 hello world
 this is a test
