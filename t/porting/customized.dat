@@ -110,6 +110,10 @@ NEXT cpan/NEXT/lib/NEXT.pm 2c83d03ee361816e53ccb931137d314ab878d19f
 NEXT cpan/NEXT/t/next.t 66fd60eb0f75b6f3eea95d1dee745f9a7a348146
 Net::Domain cpan/libnet/lib/Net/Cmd.pm f4e0450459e6de99bd5fe65068876a6198bdba46
 Net::Domain cpan/libnet/lib/Net/Domain.pm 9fd56bca53cceb0957472b6531edcf5a36a61e83
+Net::Domain cpan/libnet/t/config.t 029809f814a5c1a730d03f47c4f7545484b854cb
+Net::Domain cpan/libnet/t/datasend.t c95f2ebae410489b4a16b5e4fb4a22a17bd53d2f
+Net::Domain cpan/libnet/t/netrc.t 3d944776dba36056e1b0c10b25bcbc78b88f1527
+Net::Domain cpan/libnet/t/time.t 7060468a384290298168bfe5ebf3c64081fed401
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 8ac11522808238b028b935fa94bf5ff319e68938
 Pod::Perldoc cpan/Pod-Perldoc/lib/Pod/Perldoc.pm 582be34c077c9ff44d99914724a0cc2140bcd48c
 Pod::Usage cpan/Pod-Usage/scripts/pod2usage.PL e78dee490d466191620821446d49794a4ec6254e

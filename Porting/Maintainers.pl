@@ -1092,8 +1092,16 @@ use File::Glob qw(:case);
             qr(^t/external/),
         ],
         # cperl fix for darwin to use hostname,
-        # suse fix for utf8 Net::Cmd
-        'CUSTOMIZED'   => [ qw( lib/Net/Domain.pm lib/Net/Cmd.pm )],
+        # suse fix for utf8 Net::Cmd.
+        # . fixes for @INC
+        'CUSTOMIZED'   => [ qw(
+                lib/Net/Domain.pm
+                lib/Net/Cmd.pm
+                t/config.t
+                t/datasend.t
+                t/netrc.t
+                t/time.t
+        )],
     },
 
     'Net::Ping' => {

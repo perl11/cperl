@@ -601,7 +601,14 @@ But in reality there's no such F<t/00-setup.t> test and if so, it would still
 be run as very first test. CPAN testing via EUMM and Test::Harness does
 not obey this rule neither.
 The only module to be fixed was F<ext/FileCache/t>.
-cperl-only
+cperl-only.
+
+=item *
+
+F<t/TEST> does not need any temp_needs_dot exceptions anymore.
+All core modules are now . in @INC clean.
+The only module to be fixed was F<cpan/libnet/t>.
+cperl-only.
 
 =back
 
