@@ -1,3 +1,25 @@
+2019-04-16 rurban
+    Version 3.14_04
+        * (perl #133326) fix and clarify handling of recurs_sv (Tony Cook)
+        * (perl #133706) remove exploit code from the pod, which triggered
+        virus scanners. Note that the perl5 release did that wrong.
+        * Keep Storable::Limit, in opposition to perl #133708. Not my idea, but
+        removing it is even worse. See 3.12_03 for the fix.
+
+unreleased p5p
+    Version 3.14
+        * (perl #133708) don't build-time probe for stack limits at all.
+        * (perl #133708) Removed soft Storable::Limit, only keep the old hard limits.
+
+unreleased p5p
+    Version 3.12
+        * (perl #133411) don't probe for stack limits with -Dusecrosscompile
+
+2019-03-11 rurban
+    Version 3.12_04
+        * Fix stacksize probe, and remove Win32 spawn.
+          Wrong end condition check on failure.
+
 2019-03-01 rurban
     Version 3.12_03
         * SECURITY: fix p5p-introduced user stacklimits. Must not be higher

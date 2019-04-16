@@ -1278,7 +1278,7 @@ use File::Glob qw(:case);
     },
 
     'Storable' => {
-        'DISTRIBUTION' => 'RURBAN/Storable-3.13_04.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Storable-3.14_04.tar.gz',
         'FILES'        => q[dist/Storable],
         'EXCLUDED'     => [
             qw( ptr_table.h t/leaks_refcnt.t .travis.yml appveyor.yml ),
