@@ -11,7 +11,7 @@ BEGIN {
 
     use Config;
     if ($Config{byteorder} ne "1234") {
-	print "1..0 # Skip: Test only works for 32 bit little-ending machines\n";
+	print "1..0 # Skip: Test only works for 32bit little-endian machines\n";
 	exit 0;
     }
 }
