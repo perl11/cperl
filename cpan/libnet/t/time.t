@@ -18,7 +18,7 @@ BEGIN {
 }
 
 (my $libnet_t = __FILE__) =~ s/time.t/libnet_t.pl/;
-require $libnet_t;
+require "./$libnet_t";
 
 print "1..12\n";
 # cannot use(), otherwise it will use IO::Socket and IO::Select

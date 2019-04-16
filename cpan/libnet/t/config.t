@@ -49,7 +49,7 @@ package main;
 
 
 (my $libnet_t = __FILE__) =~ s/config.t/libnet_t.pl/;
-require $libnet_t;
+require "./$libnet_t";
 
 print "1..10\n";
 
