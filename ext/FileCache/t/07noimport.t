@@ -8,7 +8,7 @@ use Test::More tests => 1;
     package Y;
     use FileCache ();
 
-    my $file = 'foo';
+    my $file = "foo$$";
     END { unlink $file }
     FileCache::cacheout($file);
     print $file "bar";

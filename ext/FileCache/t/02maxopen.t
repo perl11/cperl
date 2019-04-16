@@ -1,8 +1,8 @@
 #!./perl
 
 use FileCache maxopen => 2;
-our @files;
-BEGIN { @files = qw(foo bar baz quux) }
+my @files = map { $_ . $$ } qw(foo bar baz quux);
+my $pid = $$;
 END { 1 while unlink @files }
 
 use Test::More tests => 5;
@@ -15,7 +15,7 @@ use Test::More tests => 5;
   
   my @cat;
   for my $path ( @files ){
-    ok(fileno($path) || $path =~ /^(?:foo|bar)$/);
+    ok(fileno($path) || $path =~ /^(?:foo|bar)$pid$/);
     next unless fileno($path);
     print $path "$path 2\n";
     close($path);
@@ -24,5 +24,5 @@ use Test::More tests => 5;
     push @cat, <$path>;
     close($path);
   }
-  ok( grep(/^(?:baz|quux) 2$/, @cat) == 2 );
+  ok( grep(/^(?:baz|quux)$pid 2$/, @cat) == 2 );
 }
