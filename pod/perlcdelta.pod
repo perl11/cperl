@@ -581,30 +581,22 @@ is only needed for perl-dependent targets much later.
 
 =head1 Testing
 
-XXX Any significant changes to the testing of a freshly built perl should be
-listed here.  Changes which create B<new> files in F<t/> go here as do any
-large changes to the testing harness (e.g. when parallel testing was added).
-Changes to existing files in F<t/> aren't worth summarizing, although the bugs
-that they represent may be covered elsewhere.
-
-XXX If there were no significant test changes, say this:
-
-Tests were added and changed to reflect the other additions and changes
-in this release.
-
-XXX If instead there were significant changes, say this:
-
 Tests were added and changed to reflect the other additions and
 changes in this release.  Furthermore, these significant changes were
 made:
-
-[ List each test improvement as an =item entry ]
 
 =over 4
 
 =item *
 
-XXX
+All modules can now be tested in parallel.
+From the remaining exceptions ext/Pod-Html/t was fixed a while ago,
+and cpan/IO-Zlib/t with this release.
+
+The remaining exception is for files starting with 0.
+We assume that the reason a test file's name begins with a 0 is to
+order its execution among the tests in its directory.  Hence, a
+directory containing such files should be tested in serial order.
 
 =back
 

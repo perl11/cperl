@@ -211,10 +211,9 @@ if (@ARGV) {
         # order its execution among the tests in its directory.  Hence, a
         # directory containing such files should be tested in serial order.
         #
-        # Add exceptions to the above rule
-        for (qw(ext/Pod-Html/t cpan/IO-Zlib)) {
-            $serials{$_} = 1;
-        }
+        # No exceptions to the above rule anymore
+        # $serials{cpan/IO-Zlib/t} = 1;
+        # $serials{ext/Pod-Html/t} = 1;
 
         # Remove the serial testing directories from the list of all
         # directories.  The remaining ones are testable in parallel.  Make the
