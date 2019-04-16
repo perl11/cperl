@@ -11,7 +11,7 @@ sub ok
     print "not ok $no\n" unless $ok ;
 }
 
-$name="test.gz";
+$name="test$$.gz";
 
 print "1..23\n";
 
