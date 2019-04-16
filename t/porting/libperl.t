@@ -267,7 +267,7 @@ sub nm_parse_darwin {
             # depending on the compiler and os release, assumedly
             # also linker flags.
             s/\[no dead strip\] //;
-            if (/^\(__TEXT,__(?:const|cstring|literal\d+)\) (?:non-)?external _?(\w+)(\.\w+)?$/) {
+            if (/^\(__TEXT,__(?:const|(?:asan_)?cstring|literal\d+)\) (?:non-)?external _?(\w+)(\.\w+)?$/) {
                 my ($symbol, $suffix) = ($1, $2);
                 # Ignore function-local constants like
                 # _Perl_av_extend_guts.oom_array_extend
