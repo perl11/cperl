@@ -339,6 +339,13 @@ Skip EINVAL on FreeBSD tests when binding a tcp listener on localhost.
 Allow ETIMEDOUT on FreeBSD INET6 socket with V6Only true.
 L<[cpan #128986]|https://rt.cpan.org/Ticket/Display.html?id=128986>
 
+=item L<IO::Zlib> 1.10_01
+
+Fixed parallel testing
+L<[cpan #105700]|https://rt.cpan.org/Ticket/Display.html?id=1105700>
+
+probe for more external gzips, make t/external.t strict safe.
+
 =item L<Net::Ping> 2.72
 
 Features

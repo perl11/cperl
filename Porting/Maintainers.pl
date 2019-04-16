@@ -874,8 +874,19 @@ use File::Glob qw(:case);
     },
 
     'IO::Zlib' => {
-        'DISTRIBUTION' => 'TOMHUGHES/IO-Zlib-1.10.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/IO-Zlib-1.10_01.tar.gz',
         'FILES'        => q[cpan/IO-Zlib],
+        # parallel testing [cpan #105700]
+        #'CUSTOMIZED'   => [
+        #    qw(
+        #        Zlib.pm
+        #        t/basic.t
+        #        t/external.t
+        #        t/getc.t
+        #        t/getline.t
+        #        t/large.t
+        #        t/tied.t
+        #      )],
     },
 
     'IPC::Cmd' => {
