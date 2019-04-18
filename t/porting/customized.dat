@@ -102,7 +102,7 @@ Math::BigRat cpan/Math-BigRat/t/bigratpm.t 9b1d5b07b50b0cd7a87b2ac4bda5cb22cfe95
 Math::BigRat cpan/Math-BigRat/t/bigroot.t 0e79d4c8d4b5f94e66a6c464972e51857fdd4107
 Memoize cpan/Memoize/t/expmod_t.t d88a0deec36ebe52818b74c594e879d642648554
 Module::Load::Conditional cpan/Module-Load-Conditional/lib/Module/Load/Conditional.pm 096fcf1ba8e3c783b37465c122c674cd02b0e6f4
-Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
+Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 136996431ccfb3f22bb41955ce2ab9fa9dbb9937
 NEXT cpan/NEXT/lib/NEXT.pm 2c83d03ee361816e53ccb931137d314ab878d19f
 NEXT cpan/NEXT/t/next.t 66fd60eb0f75b6f3eea95d1dee745f9a7a348146
 Net::Domain cpan/libnet/lib/Net/Cmd.pm f4e0450459e6de99bd5fe65068876a6198bdba46
