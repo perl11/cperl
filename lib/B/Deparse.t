@@ -3088,3 +3088,7 @@ $l = $s->$#*;
 $s->$#* = 1;
 $l = $#{@$s;};
 $#{$s;} = 1;
+####
+# TODO doesn't preserve backslash
+my @a;
+my $s = "$a[0]\[1]";
