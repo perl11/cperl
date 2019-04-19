@@ -810,7 +810,25 @@ SKIP: {
     for my $t (@subnormals) {
 	# Note that "0x1p+2" is not considered numeric,
 	# since neither is "0x12", hence the eval.
-        my $s = sprintf($t->[1], eval $t->[0]);
+        my $f = eval $t->[0];
+        # XXX under g++ -ansi, pow(2.0, -1074) returns 0 rather
+        # than the smallest denorm number. Which means that very small
+        # string literals on a perl compiled under g++ may be seen as 0.
+        # This is either a bug in the g++ math library or scan_num() in
+        # toke.c; but in either case, its not a bug in sprintf(), so
+        # skip the test.
+        local $::TODO = "denorm literals treated as zero"
+            if $f == 0.0 && $t->[2] ne '0x0p+0';
+
+        # Versions of Visual C++ earlier than 2015 (VC14, cl.exe version 19.x)
+        # fail three tests here - see perl #133982.
+        local $::TODO = "Visual C++ has problems prior to VC14"
+            if $^O eq 'MSWin32' and $Config{cc} eq 'cl' and
+               $Config{ccversion} =~ /^(\d+)/ and $1 < 19 and
+               (($t->[0] eq '3e-322' and ($t->[1] eq '%a' or $t->[1] eq '%.4a')) or
+                 $t->[0] eq '7e-322');
+
+        my $s = sprintf($t->[1], $f);
         if ($s ne $t->[2] and $Config{d_cplusplus}) {
             local $::TODO = 'C++ subnormals';
             is($s, $t->[2], "subnormal @$t got $s");
