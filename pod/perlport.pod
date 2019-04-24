@@ -1669,6 +1669,11 @@ Invokes VMS debugger.
 C<exec LIST> without the use of indirect object syntax (C<exec PROGRAM LIST>)
 may fall back to trying the shell if the first C<spawn()> fails.
 
+Note that the list form of exec() is emulated since the Win32 API
+CreateProcess() accepts a simple string rather than an array of
+command-line arguments.  This may have security implications for your
+code.
+
 (SunOS, Solaris, HP-UX)
 Does not automatically flush output handles on some platforms.
 
@@ -1998,7 +2003,7 @@ Not implemented.
 
 =item open FILEHANDLE
 
-(Win32, S<RISC OS>)
+(S<RISC OS>)
 Open modes C<|-> and C<-|> are unsupported.
 
 (SunOS, Solaris, HP-UX)
@@ -2010,6 +2015,12 @@ platforms.  (SunOS, Solaris, HP-UX)
 Very limited functionality. (MiNT)
 
 =item readlink EXPR
+
+(Win32)
+Both of modes C<|-> and C<-|> are supported, but the list form is
+emulated since the Win32 API CreateProcess() accepts a simple string
+rather than an array of arguments.  This may have security
+implications for your code.
 
 =item readlink
 
@@ -2174,6 +2185,11 @@ Failure to C<spawn()> a subprocess is indicated by setting
 L<C<$?>|perlvar/$?> to C<<< 255 << 8 >>>.  L<C<$?>|perlvar/$?> is set in a
 way compatible with Unix (i.e. the exit status of the subprocess is
 obtained by C<<< $? >> 8 >>>, as described in the documentation).
+
+Note that the list form of system() is emulated since the Win32 API
+CreateProcess() accepts a simple string rather than an array of
+command-line arguments.  This may have security implications for your
+code.
 
 (S<RISC OS>)
 There is no shell to process metacharacters, and the native standard is
