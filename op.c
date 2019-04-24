@@ -20202,7 +20202,8 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
 #ifdef DEBUGGING
                     OP *n = OpNEXT(o);
                     while (n && (  n->op_type == OP_NULL
-                                || n->op_type == OP_LIST))
+                                || n->op_type == OP_LIST
+                                || n->op_type == OP_SCALAR))
                         n = OpNEXT(n);
                     assert(n && n->op_type == OP_LEAVE);
 #endif
