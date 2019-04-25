@@ -6156,10 +6156,7 @@ case "$intsize" in
 	echo "Checking to see how big your integers are..." >&4
 	$cat >try.c <<EOCP
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 int main()
 {
 	printf("intsize=%d;\n", (int)sizeof(int));
@@ -7233,10 +7230,7 @@ case "$doublesize" in
 	echo "Checking to see how big your double precision numbers are..." >&4
 	$cat >try.c <<EOCP
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 int main()
 {
     printf("%d\n", (int)sizeof(double));
@@ -7344,13 +7338,10 @@ $echo "Checking the kind of long doubles you have..." >&4
 case "$d_longdbl" in
 define)
 $cat <<EOP >try.c
-#$i_stdlib I_STDLIB
 #define LONGDBLSIZE $longdblsize
 #define DOUBLESIZE $doublesize
 #include <float.h>
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #include <stdio.h>
 static const long double d = -0.1L;
 int main() {
@@ -8155,10 +8146,7 @@ case "$ptrsize" in
 	echo "Checking to see how big your pointers are..." >&4
 	$cat >try.c <<EOCP
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 int main()
 {
     printf("%d\n", (int)sizeof(void *));
@@ -8271,15 +8259,12 @@ esac
 echo " "
 $cat >malloc.c <<END
 #$i_malloc I_MALLOC
-#$i_stdlib I_STDLIB
 #include <stdio.h>
 #include <sys/types.h>
 #ifdef I_MALLOC
 #include <malloc.h>
 #endif
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #ifdef TRY_MALLOC
 void *malloc();
 #endif
@@ -8921,10 +8906,7 @@ EOM
 	$cat >try.c <<EOM
 /* Test for whether ELF binaries are produced */
 #include <fcntl.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #$i_unistd I_UNISTD
 #ifdef I_UNISTD
 #include <unistd.h>
@@ -10256,10 +10238,7 @@ echo "Checking the size of $zzz..." >&4
 cat > try.c <<EOCP
 #include <sys/types.h>
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 int main() {
     printf("%d\n", (int)sizeof($fpostype));
     exit(0);
@@ -10365,10 +10344,7 @@ EOCP
 		$cat > try.c <<EOCP
 #include <sys/types.h>
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 int main() {
     printf("%d\n", (int)sizeof($fpostype));
     return(0);
@@ -10566,11 +10542,8 @@ eval $inlibc
 : Check what kind of doubles your system has
 $echo "Checking the kind of doubles you have..." >&4
 $cat >try.c <<EOP
-#$i_stdlib I_STDLIB
 #define DOUBLESIZE $doublesize
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #include <stdio.h>
 static const double d = -0.1;
 int main() {
@@ -10910,11 +10883,7 @@ char *myname = "sprintf";
 #endif
 
 #include <stdio.h>
-
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #include <string.h>
 
 int checkit(char *expect, char *got)
@@ -11125,10 +11094,7 @@ case "$d_access" in
 #ifdef I_UNISTD
 #include <unistd.h>
 #endif
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 int main() {
 	exit(R_OK);
 }
@@ -11323,10 +11289,7 @@ if test "X$timeincl" = X; then
 #ifdef I_SYSSELECT
 #include <sys/select.h>
 #endif
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 int main()
 {
 	struct tm foo;
@@ -11523,10 +11486,7 @@ case "$d_printf_format_null" in
 	echo "Checking whether your compiler allows __printf__ format to be null ..." >&4
 $cat >attrib.c <<EOCP
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #$i_inttypes I_INTTYPES
 #ifdef I_INTTYPES
 #include <inttypes.h>
@@ -11804,10 +11764,7 @@ case "$d_getpgrp" in
 #ifdef I_UNISTD
 #  include <unistd.h>
 #endif
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 int main()
 {
 	if (getuid() == 0) {
@@ -11870,10 +11827,7 @@ case "$d_setpgrp" in
 #ifdef I_UNISTD
 #  include <unistd.h>
 #endif
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 int main()
 {
 	if (getuid() == 0) {
@@ -12164,10 +12118,7 @@ else
 fi
 $cat >try.c <<EOCP
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #include <sys/types.h>
 #include <signal.h>
 $signal_t blech(int s) { exit(3); }
@@ -12222,10 +12173,7 @@ echo " "
 echo 'Checking whether your C compiler can cast negative float to unsigned.' >&4
 $cat >try.c <<EOCP
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #include <sys/types.h>
 #include <signal.h>
 $signal_t blech(int s) { exit(7); }
@@ -12903,10 +12851,7 @@ case "$i_dirent" in
 "$define")
     echo "Checking to see if DIR has a dd_fd member variable" >&4
     $cat >try.c <<EOCP
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #include <dirent.h>
 
 int main() {
@@ -12946,10 +12891,7 @@ eval $inhdr
 echo " "
 $cat >dirfd.c <<EOM
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #$i_dirent I_DIRENT		/**/
 #$i_sysdir I_SYS_DIR		/**/
 #$i_sysndir I_SYS_NDIR		/**/
@@ -13044,10 +12986,7 @@ EOM
 $cat >fred.c<<EOM
 
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #$i_dlfcn I_DLFCN
 #ifdef I_DLFCN
 #include <dlfcn.h>      /* the dynamic linker include file for SunOS/Solaris */
@@ -13601,10 +13540,7 @@ $cat >try.c <<EOCP
 #ifdef I_SYS_FILE
 #include <sys/file.h>
 #endif
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 int main() {
 	if(O_RDONLY);
 #ifdef O_TRUNC
@@ -13723,10 +13659,7 @@ case "$o_nonblock" in
 	$cat head.c > try.c
 	$cat >>try.c <<EOCP
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #$i_fcntl I_FCNTL
 #ifdef I_FCNTL
 #include <fcntl.h>
@@ -13774,10 +13707,7 @@ case "$eagain" in
 #include <sys/types.h>
 #include <signal.h>
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #$i_fcntl I_FCNTL
 #ifdef I_FCNTL
 #include <fcntl.h>
@@ -14015,10 +13945,7 @@ fi
 echo "Checking how std your stdio is..." >&4
 $cat >try.c <<EOP
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #define FILE_ptr(fp)	$stdio_ptr
 #define FILE_cnt(fp)	$stdio_cnt
 int main() {
@@ -14096,10 +14023,7 @@ $cat >try.c <<EOP
 /* Can we scream? */
 /* Eat dust sed :-) */
 /* In the buffer space, no one can hear you scream. */
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #define FILE_ptr(fp)	$stdio_ptr
 #define FILE_cnt(fp)	$stdio_cnt
 #include <sys/types.h>
@@ -14181,10 +14105,7 @@ case "$d_stdstdio" in
 $define)
 	$cat >try.c <<EOP
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #define FILE_base(fp)	$stdio_base
 #define FILE_bufsiz(fp)	$stdio_bufsiz
 int main() {
@@ -14265,10 +14186,7 @@ eval $inlibc
 : See if fcntl-based locking works.
 echo " "
 $cat >try.c <<EOCP
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -14334,10 +14252,7 @@ $cat <<EOM
 Checking to see how well your C compiler handles fd_set and friends ...
 EOM
 $cat >try.c <<EOCP
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #$i_systime I_SYS_TIME
 #$i_sysselct I_SYS_SELECT
 #$d_socket HAS_SOCKET
@@ -16298,10 +16213,7 @@ echo " "
 $cat >isascii.c <<EOCP
 #include <stdio.h>
 #include <ctype.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 int main() {
 	int c = 'A';
 	if (isascii(c))
@@ -16652,7 +16564,6 @@ REENTRANT_PROTO*)
 #$i_systypes	I_SYS_TYPES
 #$i_unistd	I_UNISTD
 #$i_time	I_TIME
-#$i_stdlib	I_STDLIB
 #$i_malloc	I_MALLOC
 #ifdef I_SYS_TYPES
 #  include <sys/types.h>
@@ -16663,9 +16574,7 @@ REENTRANT_PROTO*)
 #ifdef I_TIME
 #  include <time.h>
 #endif
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #include <string.h>
 #ifdef I_MALLOC
 #  include <malloc.h>
@@ -17405,10 +17314,7 @@ $rm_try
 $echo "Checking how many bits of your UVs your NVs can preserve..." >&4
 $cat <<EOP >try.c
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #include <sys/types.h>
 #include <signal.h>
 #ifdef SIGFPE
@@ -17546,10 +17452,7 @@ $rm_try
 $echo "Checking whether NV 0.0 is all bits zero in memory..." >&4
 $cat <<EOP >try.c
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #include <string.h>
 #include <sys/types.h>
 #include <signal.h>
@@ -18593,10 +18496,7 @@ $cat <<EOM
 Checking to see if you have setlocale() and its behavior
 EOM
 $cat >try.c <<EOCP
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
-#  include <stdlib.h>
-#endif
+#include <stdlib.h>
 #include <string.h>
 #$i_locale I_LOCALE
 #ifdef I_LOCALE
@@ -18655,7 +18555,7 @@ int main() {
 #if 0
 
     /* Currently unused code to determine if LC_ALL with disparate values uses
-     * category=value pairs or positional, and to determine the separator
+     * category = value pairs or positional, and to determine the separator
      * between the categories.  We could add code so that if the separator were
      * > '9', we subtract 10; similarly for 'Z' and 'z', and then just about
      * every possible ASCII separator would fit in the 5 bits available in the
@@ -18686,7 +18586,7 @@ int main() {
             exit(bad_setlocale);
         }
 
-        pos = strstr(name, "LC_CTYPE=C.UTF-8");
+        pos = strstr(name, "LC_CTYPE" "=C.UTF-8");
         if (pos != NULL) {
             uses_name_value_pair_names = 1;
             if (pos == name) {
@@ -19130,10 +19030,7 @@ if set sigaction val -f d_sigaction; eval $csym; $val; then
 #include <stdio.h>
 #include <sys/types.h>
 #include <signal.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 int main()
 {
     struct sigaction act, oact;
@@ -19209,10 +19106,7 @@ case "$d_sigsetjmp" in
 '')
 	$cat >try.c <<EOP
 #include <setjmp.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 sigjmp_buf env;
 int set = 1;
 int main()
@@ -20056,10 +19950,7 @@ $cat <<EOM
 Checking to see if you have nl_langinfo_l() and that it is thread-safe
 EOM
 $cat >try.c <<EOCP
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
-#  include <stdlib.h>
-#endif
+#include <stdlib.h>
 #include <string.h>
 #$i_langinfo I_LANGINFO
 #ifdef I_LANGINFO
@@ -20326,10 +20217,7 @@ I'm now running the test program...
 EOM
 		$cat >try.c <<EOCP
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #include <sys/types.h>
 typedef $uvtype UV;
 int main()
@@ -20557,10 +20445,7 @@ EOM
 case "$d_u32align" in
 '')   $cat >try.c <<EOCP
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #define U32 $u32type
 #define BYTEORDER 0x$byteorder
 #define U8 $u8type
@@ -20788,10 +20673,7 @@ $define)
 	$cat >try.c <<EOCP
 #include <sys/types.h>
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #include <db.h>
 int main(int argc, char *argv[])
 {
@@ -21333,10 +21215,7 @@ sunos) $echo '#define PERL_FFLUSH_ALL_FOPEN_MAX 32' > try.c ;;
 esac
 $cat >>try.c <<EOCP
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #$i_unistd I_UNISTD
 #ifdef I_UNISTD
 # include <unistd.h>
@@ -21667,10 +21546,7 @@ echo "Checking the size of $zzz..." >&4
 cat > try.c <<EOCP
 #include <sys/types.h>
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 int main() {
     printf("%d\n", (int)sizeof($gidtype));
     exit(0);
@@ -22297,10 +22173,7 @@ echo "Checking how to generate random libraries on your machine..." >&4
 echo 'int bar1() { return bar2(); }' > bar1.c
 echo 'int bar2() { return 2; }' > bar2.c
 $cat > foo.c <<EOP
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 int main() { printf("%d\n", bar1()); exit(0); }
 EOP
 $cc $ccflags -c bar1.c >/dev/null 2>&1
@@ -22678,10 +22551,7 @@ EOM
 #   include <sys/socket.h> /* Might include <sys/bsdtypes.h> */
 #endif
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 $selecttype b;
 #define S sizeof(*(b))
 #define MINBITS	64
@@ -22788,10 +22658,7 @@ xxx="$xxx USR3 USR4 VTALRM WAITING WINCH WIND WINDOW XCPU XFSZ"
 $cat > signal.c <<EOCP
 #include <sys/types.h>
 #include <signal.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #include <stdio.h>
 int main() {
 
@@ -23029,10 +22896,7 @@ echo "Checking the size of $zzz..." >&4
 cat > try.c <<EOCP
 #include <sys/types.h>
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 int main() {
     printf("%d\n", (int)sizeof($sizetype));
     exit(0);
@@ -23135,10 +22999,7 @@ eval $typedef
 dflt="$ssizetype"
 $cat > try.c <<EOM
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 #include <sys/types.h>
 #define Size_t $sizetype
 #define SSize_t $dflt
@@ -23180,10 +23041,7 @@ $echo "Checking the size of st_ino..." >&4
 $cat > try.c <<EOCP
 #include <sys/stat.h>
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 int main() {
     struct stat st;
     printf("%d\n", (int)sizeof(st.st_ino));
@@ -23288,10 +23146,7 @@ echo "Checking the size of $zzz..." >&4
 cat > try.c <<EOCP
 #include <sys/types.h>
 #include <stdio.h>
-#$i_stdlib I_STDLIB
-#ifdef I_STDLIB
 #include <stdlib.h>
-#endif
 int main() {
     printf("%d\n", (int)sizeof($uidtype));
     exit(0);

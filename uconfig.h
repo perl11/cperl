@@ -4502,14 +4502,14 @@
 /*#define HAS_TIMEGM		/ **/
 
 /* HAS_TOWLOWER:
- *	This symbol, if defined, indicates that a native towlower() routine is
- *	available to do string concatenation.
+ *	This symbol, if defined, indicates that the towlower () routine is
+ *	available to do case conversion.
  */
 /*#define HAS_TOWLOWER		/ **/
 
 /* HAS_TOWUPPER:
- *	This symbol, if defined, indicates that a native towupper() routine is
- *	available to do string concatenation.
+ *	This symbol, if defined, indicates that the towupper () routine is
+ *	available to do case conversion.
  */
 /*#define HAS_TOWUPPER		/ **/
 
@@ -5474,6 +5474,6 @@
 #endif
 
 /* Generated from:
- * 5c9d3d01bf6555adaafad3b06bd8bab8def40101a8c1a6eb8f8a8c5c4f7a8b52 config_h.SH
+ * 9c1de3272474a79a1b1c9e341c1a556e3c25f1f9b6849c332b845f6878582e5b config_h.SH
  * a2da32428bd014b7c96efc638b7274a9d3d7221745494c695509e0959186d9e6 uconfig.sh
  * ex: set ro: */
