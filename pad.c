@@ -983,7 +983,7 @@ Perl_pad_findmy_pvn(pTHX_ const char *namepv, STRLEN namelen, U32 flags)
 
     pad_peg("pad_findmy_pvn");
     if (flags)
-        /* With cperl all PADs are UTF8 */
+        /* all pads are UTF8 since v5.21.7 */
 	Perl_croak(aTHX_ "panic: pad_findmy_pvn illegal flag bits 0x%" UVxf,
 		   (UV)flags);
 
