@@ -60,11 +60,8 @@ has happened, (like C<\p{nv=0.5}>).
 The necessary precision is now automatically pre-calculated and the lookup
 normalized.
 
-=head2 The maximum number of times a pattern can match has been doubled
-to 65535
-
-This means if you specify C<qr/a+/> that there can be anywhere from 1
-through 65535 C<"a">'s in a row, instead of 32267 as previously.
+=head2 The upper limit C<"n"> specifiable in a regular expression
+quantifier of the form C<"{m,n}"> has been doubled to 65534
 
 The upper limit C<"n"> specifiable in a regular expression
 quantifier of the form C<"{m,n}"> has also been doubled to 65534.
@@ -85,6 +82,34 @@ vulnerabilities closed should be noted here rather than in the
 L</Selected Bug Fixes> section.
 
 [ List each security issue as a =head2 entry ]
+
+=head1 Performance Enhancements
+
+=over 4
+
+=item *
+
+Optimization of C<IV> to C<UV> conversions.
+L<[perl #133677]|https://rt.perl.org/Ticket/Display.html?id=133677>.
+
+=item *
+
+Speed up of the integer stringification algorithm by processing
+two digits at a time instead of one.
+L<[perl #133691]|https://rt.perl.org/Ticket/Display.html?id=133691>.
+
+=item *
+
+Improvements based on LGTM analysis and recommendation.
+(L<https://lgtm.com/projects/g/Perl/perl5/alerts/?mode=tree>).
+L<[perl #133686]|https://rt.perl.org/Ticket/Display.html?id=133686>.
+L<[perl #133699]|https://rt.perl.org/Ticket/Display.html?id=133699>.
+
+=item *
+
+Code optimizations in F<regcomp.c>, F<regcomp.h>, F<regexec.c>.
+
+=back
 
 =head1 Incompatible Changes
 
@@ -752,6 +777,57 @@ C<grok_atoUV> supports that too now.
 =head1 Selected Bug Fixes
 
 =over 4
+
+=item *
+
+If an in-place edit is still in progress during global destruction and
+the process exit code (as stored in C<$?>) is zero, perl will now
+treat the in-place edit as successful, replacing the input file with
+any output produced.
+
+This allows code like:
+
+  perl -i -ne 'print "Foo"; last'
+
+to replace the input file, while code like:
+
+  perl -i -ne 'print "Foo"; die'
+
+will not.  Partly resolves
+L<[perl #133659]|https://rt.perl.org/Ticket/Display.html?id=133659>.
+
+=item *
+
+A regression in 5.28 caused the following code to fail
+
+ close(STDIN); open(CHILD, "|wc -l")'
+
+because the child's stdin would be closed on exec. This has now been fixed.
+
+=item *
+
+Fixed an issue where compiling a regexp containing both compile-time
+and run-time code blocks could lead to trying to compile something
+which is invalid syntax.
+
+=item *
+
+Fixed build failures with C<< -DNO_LOCALE_NUMERIC >> and
+C<< -DNO_LOCALE_COLLATE >>.
+L<[perl #133696]|https://rt.perl.org/Ticket/Display.html?id=133696>.
+
+=item *
+
+Prevent the tests in F<< ext/B/t/strict.t >> from being skipped.
+L<[perl #133713]|https://rt.perl.org/Ticket/Display.html?id=133713>.
+
+=item *
+
+C<< /di >> nodes ending or beginning in I<s> are now C<< EXACTF >>. We do not
+want two C<< EXACTFU >> to be joined together during optimization,
+and to form a C<< ss >>, C<< sS >>, C<< Ss >> or C<< SS >> sequence;
+they are the only multi-character sequences which may match differently
+under C<< /ui >> and C<< /di >>.
 
 =item *
 
