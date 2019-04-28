@@ -18424,6 +18424,7 @@ our %delta :const = (
             'ExtUtils::ParseXS::Utilities'  => '3.40_03',
             'feature'               => '1.54_01',
             'File::Copy'            => '2.34',
+            'File::Find'            => '1.35',
             'File::Glob'            => '1.32',
             'GDBM_File'             => '1.18',
             'IO'                    => '1.39_02',

@@ -332,6 +332,13 @@ C<array_base> was removed.
 
 Add note to close or flush filehandles before calling copy or move.
 
+=item L<File::Find> 1.35
+
+C<$File::Find::dont_use_nlink> now defaults to 1 on all platforms.
+Fixes L<[perl #133673]|https://rt.perl.org/Public/Bug/Display.html?id=133673>,
+L<[perl #128894]|https://rt.perl.org/Public/Bug/Display.html?id=128894>,
+and L<[perl #126144]|https://rt.perl.org/Public/Bug/Display.html?id=126144>.
+
 =item L<File::Glob> 1.32
 
 Fatalized File::Glob::glob(), which was deprecated since 5.8. However,
