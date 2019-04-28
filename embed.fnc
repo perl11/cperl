@@ -2699,6 +2699,7 @@ pRxo	|GV*	|softref2xv	|NN SV *sv|NN const char *const what \
 pRxo	|GV*	|softref2xv	|NN SV *const sv|NN const char *const what \
 				|const svtype type|NN SV ***spp
 #  endif
+inR	|bool	|lossless_NV_to_IV|const NV nv|NN IV * ivp
 #endif
 
 #if defined(PERL_IN_PP_PACK_C)
