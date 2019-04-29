@@ -400,6 +400,12 @@ Test fixes
 The 2 sudo tests on PERL_CORE with a shared perl lib.
 Skip failing freebsd localhost resolver tests.
 
+=item C<PathTools> 4.77c
+
+Don't translate F<...> to F<..\..> on Win32.
+(an old C<command.com> limitation)
+L<[perl #123724]|https://rt.perl.org/Public/Bug/Display.html?id=123724>
+
 =item L<PerlIO::scalar> 0.30
 
 Allow Off_t smaller than size_t. (Win64 with USE_LARGE_FILES=undef)

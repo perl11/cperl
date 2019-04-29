@@ -3,7 +3,7 @@ package File::Spec::Win32;
 use strict;
 require File::Spec::Unix;
 
-our $VERSION = '4.74c'; # modernized
+our $VERSION = '4.77c'; # modernized
 #$VERSION =~ tr/_//;
 $VERSION =~ s/c$//;
 

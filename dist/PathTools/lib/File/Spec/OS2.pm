@@ -3,7 +3,7 @@ package File::Spec::OS2;
 use strict;
 require File::Spec::Unix;
 
-our $VERSION = '3.74';
+our $VERSION = '3.77';
 $VERSION =~ tr/_//d;
 
 our @ISA = qw(File::Spec::Unix);
