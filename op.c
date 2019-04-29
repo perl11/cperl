@@ -4362,7 +4362,7 @@ Perl_op_relocate_sv(pTHX_ SV** svp, PADOFFSET* targp)
 #endif
 
 /*
-=for apidoc s|OP*|traverse_op_tree|OP* top|OP* o
+=for apidoc s|OP*|	traverse_op_tree	|OP* top|OP* o
 
 Return the next op in a depth-first traversal of the op tree,
 returning NULL when the traversal is complete.
@@ -4375,16 +4375,15 @@ For now it's static, but it may be exposed to the API in the future.
 */
 
 STATIC OP*
-S_traverse_op_tree(OP *top, OP *o) {
-    OP *sib;
-
+S_traverse_op_tree(pTHX_ OP *top, OP *o)
+{
     PERL_ARGS_ASSERT_TRAVERSE_OP_TREE;
 
     if ((o->op_flags & OPf_KIDS) && cUNOPo->op_first) {
         return cUNOPo->op_first;
     }
-    else if ((sib = OpSIBLING(o))) {
-        return sib;
+    else if (OpHAS_SIBLING(o)) {
+        return OpSIBLING(o);
     }
     else {
         OP *parent = o->op_sibparent;
