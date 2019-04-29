@@ -23,7 +23,7 @@ require IO::Socket::INET;
 require IO::Socket::UNIX if ($^O ne 'epoc' && $^O ne 'symbian');
 
 our @ISA = qw(IO::Handle);
-our $VERSION = "1.39_01";
+our $VERSION = "1.40_01";
 our @EXPORT_OK = qw(sockatmark);
 
 sub import {

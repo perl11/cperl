@@ -11,7 +11,7 @@ use Socket;
 use IO::Socket ();
 
 our @ISA = qw(IO::Socket);
-our $VERSION = "1.39_01";
+our $VERSION = "1.40_01";
 $VERSION = eval $VERSION;
 
 BEGIN { sub croak($) { require Carp; Carp::croak(@_) } }

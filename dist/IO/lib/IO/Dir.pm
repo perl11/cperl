@@ -17,7 +17,7 @@ use File::stat;
 use File::Spec;
 
 our @ISA = qw(Tie::Hash Exporter);
-our $VERSION = "1.39";
+our $VERSION = "1.40";
 our @EXPORT_OK = qw(DIR_UNLINK);
 
 BEGIN { sub croak($) { require Carp; Carp::croak(@_) } }

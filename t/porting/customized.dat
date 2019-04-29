@@ -86,9 +86,9 @@ File::Path cpan/File-Path/t/Path_win32.t 46d09109b418a5ee9c3e2d84ee86449103f7a00
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t e0b875a68f75cd912096de834a5e90f88341152e
 HTTP::Tiny cpan/HTTP-Tiny/lib/HTTP/Tiny.pm 4c8ec183788829746881ba6f3768fcb0e088ccfc
 HTTP::Tiny cpan/HTTP-Tiny/t/001_api.t f9481f940ee6951b3c17591432760c4246bfc32f
-IO dist/IO/lib/IO/Socket.pm 6531020cd155391a097d16ce89f5afe11bdcd86b
-IO dist/IO/lib/IO/Socket/INET.pm cd959cc38f5c9d1440f2d998b8adba968cedf340
-IO dist/IO/lib/IO/Socket/UNIX.pm fbf1a9477f310635f4561da1fa287ece982da496
+IO dist/IO/lib/IO/Socket.pm 0b9a1571fe4f3f43e5cd37ac6a7be7f61c9a4ead
+IO dist/IO/lib/IO/Socket/INET.pm 34ecbc1727668300c37afd070ead05e213ae77cf
+IO dist/IO/lib/IO/Socket/UNIX.pm 88787dd12fcc54bfc3fa9aa274f8d47853640284
 IO::Compress::Base cpan/IO-Compress/lib/File/GlobMapper.pm 81f265ee36efb2b9373a8c32e86df1fc56c8e2de
 IO::Compress::Base cpan/IO-Compress/t/compress/encode.pl 776c114af5146d3c328c247c9550e021bb8bac62
 IO::Compress::Base cpan/IO-Compress/t/cz-14gzopen.t dee09dbad5cb1cad6027fd61d14552a192b68060
