@@ -75,6 +75,23 @@ language short variable is more than 4 bytes long.
 Now, adding the verbose flag (C<-Dv>) to the C<-Dr> flag turns on all
 possible regular expression debugging, as with C<use re 'debug';>. See L<re>.
 
+=head2 Eliminated optree recursion
+
+Eliminated recursion from internal C<finalize_op()> and C<optimize_op()>,
+avoiding segfaults with extremely nested ops.
+E.g. with
+
+    perl -e 'my $line = "\$cond ? \$a : \n";
+             my $code = ($line x 100000) . "\$b;\n";
+             eval $code;'
+
+Contrary to what is said in the relevant perldelta,
+your code is now slower.
+Before it crashed with a segfault, now it does much more.
+The regular case is also slower due to stack handling on the heap,
+similar to the regexp changes in 5.10.
+L<[perl #108276]|https://rt.perl.org/Ticket/Display.html?id=108276>.
+
 =head1 Security
 
 XXX Any security-related notices go here.  In particular, any security
