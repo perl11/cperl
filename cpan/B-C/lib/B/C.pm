@@ -4,6 +4,7 @@
 #      Copyright (c) 2008, 2009, 2010, 2011 Reini Urban
 #      Copyright (c) 2010 Nick Koston
 #      Copyright (c) 2011, 2012, 2013, 2014, 2015, 2016, 2017 cPanel Inc
+#      Copyright (c) 2017, 2018, 2019 Reini Urban
 #
 #      You may distribute under the terms of either the GNU General Public
 #      License or the Artistic License, as specified in the README file.
@@ -12,7 +13,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.55_10';
+our $VERSION = '1.55_11';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;

@@ -26,8 +26,13 @@
 #ifndef RX_EXTFLAGS
 # define RX_EXTFLAGS(prog) ((prog)->extflags)
 #endif
+/* added with v5.21.11/v5.22.1c, removed with v5.29.8/v5.29.2c */
 #ifndef _OP_SIBPARENT_FIELDNAME
-# define _OP_SIBPARENT_FIELDNAME op_sibling
+# ifdef PERL_OP_PARENT
+#  define _OP_SIBPARENT_FIELDNAME op_sibparent
+# else
+#  define _OP_SIBPARENT_FIELDNAME op_sibling
+# endif
 #endif
 
 #if PERL_VERSION < 10
