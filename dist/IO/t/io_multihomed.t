@@ -19,6 +19,9 @@ BEGIN {
     elsif (!$can_fork) {
         $reason = 'no fork';
     }
+    elsif ($^O eq 'MSWin32' && $ENV{APPVEYOR} && $Config{ptrsize} == 4) {
+        $reason = 'no appveyor mingw-32';
+    }
     skip_all($reason) if $reason;
 }
 
@@ -94,7 +97,7 @@ print "ok 1\n";
 
 $port = $listen->sockport;
 
-if($pid = fork()) {
+if ($pid = fork()) {
 
     $sock = $listen->accept() or die "$!";
     print "ok 5\n";
@@ -102,13 +105,13 @@ if($pid = fork()) {
     print $sock->getline();
     print $sock "ok 7\n";
 
-    waitpid($pid,0);
+    waitpid($pid, 0);
 
     $sock->close;
 
     print "ok 8\n";
 
-} elsif(defined $pid) {
+} elsif (defined $pid) {
 
     $sock = Multi->new(PeerPort => $port,
 		       Proto => 'tcp',
