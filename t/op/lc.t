@@ -373,7 +373,7 @@ SKIP: {
     }
 
     use locale;
-    setlocale(LC_CTYPE, $utf8_locale);
+    setlocale(&POSIX::LC_CTYPE, $utf8_locale);
 
     for my $i (0 .. 255) {
         is(lc(chr $i), $unicode_lc[$i], "In a UTF-8 locale, lc(chr $i) is the same as official Unicode");
@@ -397,7 +397,7 @@ SKIP: {
   is(fc("\x{115}"), "\x{115}", "fc U+115"); # NFD: "e\x{306}"
   is(fc("\x{df}"), "\x{df}", "fc ß"); # FC_NFKC: "\x{df}" vs "ss"
   {
-    local $TODO = "conversion to final sigma [cperl #332]";
+    local $main::TODO = "conversion to final sigma [cperl #332]";
     is(lc("ODYSSEU\x{3a3} "), "odysseu\x{3c2} ", "lc final sigma ");
   }
   is(fc("ODYSSEU\x{3a3} "), "odysseu\x{3c3} ", "fc final sigma"); # SCF+NFKC_CF: U+3c3
