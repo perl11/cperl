@@ -513,7 +513,7 @@ sub find_utf8_ctype_locales (;$) { # Return the names of the locales that core
     return unless locales_enabled('LC_CTYPE');
 
     my $locales_ref = shift;
-    my @return;
+    my @retlist;
 
     if (! defined $locales_ref) {
 
@@ -522,10 +522,10 @@ sub find_utf8_ctype_locales (;$) { # Return the names of the locales that core
     }
 
     foreach my $locale (@$locales_ref) {
-        push @return, $locale if is_locale_utf8($locale);
+        push @retlist, $locale if is_locale_utf8($locale);
     }
 
-    return @return;
+    return @retlist;
 }
 
 
