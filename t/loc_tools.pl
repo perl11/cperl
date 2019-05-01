@@ -63,6 +63,10 @@ if ($has_locale_h) {
     }
 }
 
+sub _is_miniperl {
+  return !defined &DynaLoader::boot_DynaLoader;
+}
+
 sub _my_diag($) {
     my $message = shift;
     if (defined &main::diag) {
@@ -514,6 +518,7 @@ sub find_utf8_ctype_locales (;$) { # Return the names of the locales that core
 
     my $locales_ref = shift;
     my @retlist;
+    return @retlist if _is_miniperl();
 
     if (! defined $locales_ref) {
 
@@ -559,17 +564,18 @@ sub find_utf8_turkic_locales (;$) {
     # Turkic LC_CTYPE.  Optional parameter is a reference to a list of locales
     # to try; if omitted, this tries all locales it can find on the platform
 
-    my @return;
+    my @retlist;
+    return @retlist if _is_miniperl();
 
     my $save_locale = setlocale(&POSIX::LC_CTYPE());
     foreach my $locale (find_utf8_ctype_locales(shift)) {
         use locale;
         setlocale(&POSIX::LC_CTYPE(), $locale);
-        push @return, $locale if uc('i') eq "\x{130}";
+        push @retlist, $locale if uc('i') eq "\x{130}";
     }
     setlocale(&POSIX::LC_CTYPE(), $save_locale);
 
-    return @return;
+    return @retlist;
 }
 
 sub find_utf8_turkic_locale (;$) {

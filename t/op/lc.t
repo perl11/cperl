@@ -17,7 +17,7 @@ BEGIN {
 
 use feature qw( fc );
 
-plan tests => 139 + 2 * (4 * 256) + 15;
+plan tests => 139 + (8 * 256) + 14 + 15;
 
 is(lc(undef),	   "", "lc(undef) is ''");
 is(lcfirst(undef), "", "lcfirst(undef) is ''");
@@ -358,6 +358,7 @@ foreach my $turkic (0 .. 1) {
 
   SKIP: {
     skip "Can't find a $type UTF-8 locale", 4*256 unless defined $locale;
+    skip "skip POSIX::setlocale with miniperl", 4*256 if is_miniperl();
 
     use feature qw( unicode_strings );
 
@@ -397,6 +398,7 @@ foreach my $turkic (0 .. 1) {
 
 SKIP: {
     skip "Can't find a turkic UTF-8 locale", 15 unless defined $turkic_locale;
+    skip "skip POSIX::setlocale with miniperl", 15 if is_miniperl();
 
     # These are designed to stress the calculation of space needed for the
     # strings.  $filler contains a variety of characters that have special
