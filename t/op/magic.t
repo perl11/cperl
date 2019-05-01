@@ -6,7 +6,7 @@ BEGIN {
     require './test.pl';
     set_up_inc( '../lib' );
     skip_all("no parent yet")
-      if is_miniperl() and !eval 'require "parent"';
+      if is_miniperl() and !eval 'require "parent.pm"';
     plan (tests => 195); # some tests are run in BEGIN block
 }
 
@@ -616,7 +616,7 @@ SKIP: {
 }
 
 SKIP: {
-    skip_if_miniperl("No XS in miniperl", 3);
+    skip_if_miniperl("No XS in miniperl", 2);
 
     for ( [qw( %- Tie::Hash::NamedCapture )],
           [qw( %! Errno )] ) {
