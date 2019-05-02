@@ -18820,6 +18820,7 @@ our %delta :const = (
             'bytes'                 => '1.07',
             'Cwd'                   => '4.77c',
             'Data::Dumper'          => '2.173',
+            'deprecate'             => '0.04_01',
             'Devel::Peek'           => '1.28_03',
             'Devel::NYTProf'        => '6.06_02',
             'Errno'                 => '1.30_01',
