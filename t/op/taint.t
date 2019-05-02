@@ -2259,6 +2259,7 @@ end
 }
 
 {
+    local $main::TODO = "mingw -T ENV problem" if $^O eq 'MSWin32'; # works locally
 
     local $ENV{XX} = '\p{IsB}';   # Making it an environment variable taints it
 
