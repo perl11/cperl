@@ -1,7 +1,7 @@
 package deprecate;
 use strict;
 use warnings;
-our $VERSION = 0.03_01;
+our $VERSION = 0.04_01;
 
 # our %Config can ignore %Config::Config, e.g. for testing
 our %Config;
