@@ -442,9 +442,9 @@ L<[perl #133422]|https://rt.perl.org/Public/Bug/Display.html?id=133422>
 
 Typos in pod.
 
-=item L<POSIX> 1.86_03
+=item L<POSIX> 1.87_03
 
-Use quadmath versions of log10, ldexp and signbit
+Use quadmath versions of log10, ldexp and signbit.
 L<[perl #133510]|https://rt.perl.org/Public/Bug/Display.html?id=133510>
 
 F<stdio.h> on Cygwin doesn't expose C<cuserid> with C<_GNU_SOURCE>
