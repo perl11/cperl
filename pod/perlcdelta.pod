@@ -106,34 +106,6 @@ L</Selected Bug Fixes> section.
 
 [ List each security issue as a =head2 entry ]
 
-=head1 Performance Enhancements
-
-=over 4
-
-=item *
-
-Optimization of C<IV> to C<UV> conversions.
-L<[perl #133677]|https://rt.perl.org/Ticket/Display.html?id=133677>.
-
-=item *
-
-Speed up of the integer stringification algorithm by processing
-two digits at a time instead of one.
-L<[perl #133691]|https://rt.perl.org/Ticket/Display.html?id=133691>.
-
-=item *
-
-Improvements based on LGTM analysis and recommendation.
-(L<https://lgtm.com/projects/g/Perl/perl5/alerts/?mode=tree>).
-L<[perl #133686]|https://rt.perl.org/Ticket/Display.html?id=133686>.
-L<[perl #133699]|https://rt.perl.org/Ticket/Display.html?id=133699>.
-
-=item *
-
-Code optimizations in F<regcomp.c>, F<regcomp.h>, F<regexec.c>.
-
-=back
-
 =head1 Incompatible Changes
 
 =head2 Assigning non-zero to C<$[> is fatal
@@ -234,6 +206,24 @@ require extra code to handle if we were to keep it around.
 
 =item *
 
+Optimization of C<IV> to C<UV> conversions.
+L<[perl #133677]|https://rt.perl.org/Ticket/Display.html?id=133677>.
+
+=item *
+
+Speed up of the integer stringification algorithm by processing
+two digits at a time instead of one.
+L<[perl #133691]|https://rt.perl.org/Ticket/Display.html?id=133691>.
+
+=item *
+
+Minor improvements based on LGTM analysis and recommendation.
+(L<https://lgtm.com/projects/g/Perl/perl5/alerts/?mode=tree>).
+L<[perl #133686]|https://rt.perl.org/Ticket/Display.html?id=133686>.
+L<[perl #133699]|https://rt.perl.org/Ticket/Display.html?id=133699>.
+
+=item *
+
 Improved Unicode numeric property lookups, for C<\p{nv=float}>,
 in size and speed by using more pre-compiled perfect hashes instead
 of slow pure-perl invlist walks at run-time, esp. for all numeric
@@ -250,10 +240,19 @@ improved, again by using a dfa.
 
 =item *
 
+Code optimizations in F<regcomp.c>, F<regcomp.h>, F<regexec.c>.
+
+The second regcomp pass was removed.
+
+=item *
+
 The handling of user-defined C<\p{}> properties (see
-L<perlunicode/User-Defined Character Properties>) has been rewritten to
-be in C (instead of Perl).  This speeds things up, but in the process
-several inconsistencies and bug fixes are made.
+L<perlunicode/User-Defined Character Properties>) has been rewritten
+to be in C (instead of Perl).  This removed all uses of swashes from
+regular expression compilation and execution.
+
+This speeds things up, but in the process several inconsistencies and
+bug fixes are made.
 
 =over
 
