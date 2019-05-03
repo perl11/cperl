@@ -65,7 +65,7 @@ sub b_c_deps {
     my $blib = "-I".File::Spec->catfile(qw(.. .. lib auto))
       ." -I".File::Spec->catfile(qw(.. .. lib));
     my $runperl = $X . ($CORE ? ' '.$blib : "");
-    return "AnyDBM_File AutoLoader B B::AV B::Asmdata B::BINOP B::BM B::C B::C::Config B::C::InitSection B::C::Section B::CC B::COP B::CV B::FAKEOP B::FM B::GV B::HE B::HV B::INVLIST B::IO B::IV B::LEXWARN B::LISTOP B::LOGOP B::LOOP B::MAGIC B::METHOP B::NULL B::NV B::OBJECT B::OP B::PADLIST B::PADNAME B::PADNAMELIST B::PADOP B::PMOP B::PV B::PVIV B::PVLV B::PVMG B::PVNV B::PVOP B::REGEXP B::RHE B::RV B::SPECIAL B::STASHGV B::SV B::SVOP B::Section B::UNOP B::UNOP_AUX B::UV CORE CORE::GLOBAL Carp Config DB DynaLoader EV Encode Errno Exporter Exporter::Heavy ExtUtils ExtUtils::Constant ExtUtils::Constant::ProxySubs Fcntl FileHandle IO IO::File IO::Handle IO::Poll IO::Seekable IO::Socket IO::Socket::SSL Int Internals Net Net::DNS Num O POSIX PerlIO PerlIO::Layer PerlIO::scalar Regexp SelectSaver Str Symbol UInt UNIVERSAL XSConfig XSLoader __ANON__ arybase arybase::mg attributes constant coretypes int main mro num re str strict threads uint utf8 vars version warnings warnings::register Socket" if $CORE and $] > 5.020;
+    return "AnyDBM_File AutoLoader B B::AV B::Asmdata B::BINOP B::BM B::C B::C::Config B::C::InitSection B::C::Section B::CC B::COP B::CV B::FAKEOP B::FM B::GV B::HE B::HV B::INVLIST B::IO B::IV B::LEXWARN B::LISTOP B::LOGOP B::LOOP B::MAGIC B::METHOP B::NULL B::NV B::OBJECT B::OP B::PADLIST B::PADNAME B::PADNAMELIST B::PADOP B::PMOP B::PV B::PVIV B::PVLV B::PVMG B::PVNV B::PVOP B::REGEXP B::RHE B::RV B::SPECIAL B::STASHGV B::SV B::SVOP B::Section B::UNOP B::UNOP_AUX B::UV CORE CORE::GLOBAL Carp Config DB DynaLoader EV Encode Errno Exporter Exporter::Heavy ExtUtils ExtUtils::Constant ExtUtils::Constant::ProxySubs Fcntl FileHandle IO IO::File IO::Handle IO::Poll IO::Seekable IO::Socket IO::Socket::SSL Int Internals Net Net::DNS Num O POSIX PerlIO PerlIO::Layer PerlIO::scalar Regexp SelectSaver Str Symbol UInt UNIVERSAL XSConfig XSLoader __ANON__ arybase arybase::mg attributes constant coretypes int main mro num re str strict threads uint utf8 vars version warnings warnings::register" if $CORE and $] > 5.020;
     return `$runperl -Ilib -mB::C -mO -MB -e"B::C::collect_deps()"`;
 }
 
@@ -97,7 +97,7 @@ sub write_b_c_config {
     print PH "# broken or patched upstream 5.22 ByteLoader. undef for yet undecided\n";
     $have_byteloader = 0 if $Config{usecperl}; # have it, but still broken
     print PH "\$have_byteloader = $have_byteloader;\n";
-    print PH "# cperl 5.22.2:\n";
+    print PH "# since cperl 5.22.2:\n";
     print PH "\$have_op_rettype = $have_op_rettype;\n";
     print PH "\$have_HEK_STATIC = $have_HEK_STATIC;\n";
     print PH "# use extra compiler flags, after ccopts, resp. ldopts\n";
@@ -113,12 +113,15 @@ sub write_b_c_config {
     my %cfg;
     my $conf = "(\n";
     # Ensure to add all used Config keys in B::C here, otherwise they will be silently empty.
-    # easier hash key/value slices only came with 5.22
-    for my $s (qw(archname cc ccflags
+    # easier hash key/value slices only came with 5.22.
+    # Some keys are only needed with cross
+    for my $s (qw(archname archlib sitearch sitelib byteorder cc ccflags
                   d_c99_variadic_macros d_dlopen d_isinf d_isnan d_longdbl dlext
-                  i_dlfcn ivdformat ivsize longsize mad nvgformat ptrsize sizesize
-	          static_ext usecperl usedl useithreads uselongdouble usemultiplicity
-	          usemymalloc uvuformat))
+                  i_dlfcn ivdformat ivsize ld ldflags libs longsize mad nvgformat
+                  osname osvers perlpath privlib ptrsize sizesize static_ext
+                  usecperl usedl useithreads uselongdouble usemultiplicity
+	          usemymalloc uvuformat version))
+      # maybe: use64bitall use64bitint
     {
         if ($CORE) {
             my $v = $Config::Config{$s};
@@ -188,7 +191,7 @@ WriteMakefile(
 		   'ExtUtils::Embed' => '1.25' # mandatory (missing on redhat)
                    #'B'        => '1.0901' # required but in CORE
                   },
-    'AUTHOR'   => 'Reini Urban <perl-compiler@googlegroups.com>, '
+    'AUTHOR'   => 'Reini Urban <rurban@cpan.org>, '
                 . 'Malcolm Beattie (retired)',
     'ABSTRACT' => 'Perl compiler',
     'LICENSE'  => 'perl',
@@ -459,7 +462,9 @@ TAGS : $asmdata
     if ($] > 5.009 and defined($ExtUtils::MM_Unix::VERSION)) {
         my $ver = 0+$ExtUtils::MM_Unix::VERSION;
         # 8.0403 is the cperl 5.24.0 version based on 7.04_03
-        if ($ver == 8.0403 or $ver == 8.0404 or $ver < 7.0509 or $ver == 7.1) {
+        if ($ver == 8.0403 or $ver == 8.0404 or $ver < 7.0509
+            or ($ver >= 7.1 and $ver < 7.34))
+        {
             $result .= "\ntest :: subdirs-test\n\n";
         } else {
             $result .= "\ntest :: subdirs-test_\$(LINKTYPE)\n\n";
@@ -490,7 +495,8 @@ subdirs ::
 sub test {
     shift->SUPER::test(@_) .
 "
-PERL_VER = v5.".substr($],3,2) .
+# PERL_VAR: major only
+PERL_VER = v5.".substr("$]",3,2) .
       q(
 testmod :: pure_all
 	PERL_DL_NONLAZY=1 $(FULLPERLRUN) -Iblib/arch -Iblib/lib t/modules.t
@@ -506,7 +512,7 @@ testbc :: pure_all
 testfast :: pure_all
 	NO_AUTHOR=1 $(FULLPERLRUN) -S prove -b -j10 -f
 testfast-log :: pure_all
-	NO_AUTHOR=1 $(FULLPERLRUN) -S prove -b -j10 -f  | tee log.test-).$].q(-`git describe --tags`
+	NO_AUTHOR=1 $(FULLPERLRUN) -S prove -b -j10 -f  | tee log.test-)."$]".q(-`git describe --tags`
 testcritical :: pure_all
 	t/critical.sh
 teststatus :: pure_all
