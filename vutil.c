@@ -505,7 +505,6 @@ Perl_new_version2(pTHX_ SV *ver)
 Perl_new_version(pTHX_ SV *ver)
 #endif
 {
-    dVAR;
     SV * const rv = newSV(0);
     PERL_ARGS_ASSERT_NEW_VERSION;
     if ( ISA_VERSION_OBJ(ver) ) /* can just copy directly */
@@ -604,11 +603,6 @@ Perl_upg_version2(pTHX_ SV *ver, bool qv)
 Perl_upg_version(pTHX_ SV *ver, bool qv)
 #endif
 {
-
-#ifdef dVAR
-    dVAR;
-#endif
-
     const char *version, *s;
 #ifdef SvVOK
     const MAGIC *mg;
@@ -687,6 +681,7 @@ VER_NV:
 
             const locale_t locale_obj_on_entry = uselocale((locale_t) 0);
             const char * locale_name_on_entry = NULL;
+            dVAR;
             DECLARATION_FOR_LC_NUMERIC_MANIPULATION;
 
             if (locale_obj_on_entry == LC_GLOBAL_LOCALE) {

@@ -91,7 +91,6 @@ typedef char HVNAME;
 
 VXS(universal_version)
 {
-    dVAR;
     dXSARGS;
     HV *pkg;
     GV **gvp;
@@ -191,7 +190,9 @@ VXS(universal_version)
 
 VXS(version_new)
 {
+#ifndef DEBUGGING
     dVAR;
+#endif
     dXSARGS;
     SV *vs;
     SV *rv;
@@ -273,7 +274,6 @@ VXS(version_new)
 
 VXS(version_stringify)
 {
-     dVAR;
      dXSARGS;
      if (items < 1)
 	 croak_xs_usage(cv, "lobj, ...");
@@ -288,7 +288,6 @@ VXS(version_stringify)
 
 VXS(version_numify)
 {
-     dVAR;
      dXSARGS;
      if (items < 1)
 	 croak_xs_usage(cv, "lobj, ...");
@@ -302,7 +301,6 @@ VXS(version_numify)
 
 VXS(version_normal)
 {
-     dVAR;
      dXSARGS;
      if (items != 1)
 	 croak_xs_usage(cv, "ver");
@@ -317,7 +315,6 @@ VXS(version_normal)
 
 VXS(version_vcmp)
 {
-     dVAR;
      dXSARGS;
      if (items < 1)
 	 croak_xs_usage(cv, "lversion, rversion, swap");
@@ -353,7 +350,6 @@ VXS(version_vcmp)
 
 VXS(version_scmp)
 {
-     dVAR;
      dXSARGS;
      if (items < 1)
 	 croak_xs_usage(cv, "lversion, rversion, swap");
@@ -391,7 +387,6 @@ VXS(version_scmp)
 
 VXS(version_boolean)
 {
-    dVAR;
     dXSARGS;
     SV *lobj;
     if (items < 1)
@@ -412,7 +407,6 @@ VXS(version_boolean)
 
 VXS(version_noop)
 {
-    dVAR;
     dXSARGS;
     if (items < 1)
 	croak_xs_usage(cv, "lobj, ...");
@@ -423,11 +417,9 @@ VXS(version_noop)
     XSRETURN_EMPTY;
 }
 
-static
-void
+static void
 S_version_check_key(pTHX_ CV * cv, const char * key, int keylen)
 {
-    dVAR;
     dXSARGS;
     if (items != 1)
 	croak_xs_usage(cv, "lobj");
@@ -452,7 +444,6 @@ VXS(version_is_alpha)
 
 VXS(version_qv)
 {
-    dVAR;
     dXSARGS;
     PERL_UNUSED_ARG(cv);
     SP -= items;
