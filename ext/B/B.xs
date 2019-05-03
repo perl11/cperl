@@ -96,8 +96,8 @@ START_MY_CXT
 #define walkoptree_debug	(MY_CXT.x_walkoptree_debug)
 #define specialsv_list		(MY_CXT.x_specialsv_list)
 
-/* thread abstractions */
-#ifdef USE_ITHREADS
+/* ctx abstractions */
+#if defined(PERL_IMPLICIT_CONTEXT) || defined(PERL_IMPLICIT_SYS)
 #define B_init_my_cxt(cxt) S_B_init_my_cxt(aTHX_ cxt)
 #define make_op_object(o) S_make_op_object(aTHX_ o)
 #define make_ptr_object(ptr,classname) S_make_ptr_object(aTHX_ ptr,classname)
