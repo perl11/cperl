@@ -281,7 +281,6 @@ Public API:
 PERL_STATIC_INLINE
 void plant_SV(pTHX_ SV* p)
 {
-    dVAR;
     const U32 old_flags = SvFLAGS(p);
     MEM_LOG_DEL_SV(p, __FILE__, __LINE__, FUNCTION__);
     DEBUG_SV_SERIAL(p);
@@ -16097,7 +16096,9 @@ Perl_clone_params_new(PerlInterpreter *const from, PerlInterpreter *const to)
 void
 Perl_init_constants(pTHX)
 {
+#ifdef DEBUGGING
     dVAR;
+#endif
 
     SvREFCNT(UNDEF)	= SvREFCNT_IMMORTAL;
     SvFLAGS(UNDEF)	= SVf_READONLY|SVf_PROTECT|SVt_NULL;

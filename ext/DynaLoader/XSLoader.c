@@ -16,8 +16,9 @@
 #endif
 
 /* A DynaLoader::bootstrap variant which takes the packagename name from caller() */
-XS(XS_XSLoader_load) {
-    dVAR; dXSARGS;
+XS(XS_XSLoader_load)
+{
+    dXSARGS;
     HV *stash = CopSTASH(PL_curcop);
     SV *module = NULL, *file = NULL;
     char *modlibname = NULL;
@@ -199,8 +200,9 @@ XS(XS_XSLoader_load) {
     }
 }
 
-XS(XS_XSLoader_load_file) {
-    dVAR; dXSARGS;
+XS(XS_XSLoader_load_file)
+{
+    dXSARGS;
     SV *file, *module;
 
     if (items < 2)
@@ -224,8 +226,9 @@ XS(XS_XSLoader_load_file) {
     }
 }
 
-XS(XS_XSLoader_bootstrap_inherit) {
-    dVAR; dXSARGS;
+XS(XS_XSLoader_bootstrap_inherit)
+{
+    dXSARGS;
 
     DLDEBUG(2,PerlIO_printf(Perl_debug_log, "XSLoader::bootstrap_inherit '%s' %d args\n",
                             SvPVX(ST(0)), (int)items));

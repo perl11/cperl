@@ -712,6 +712,9 @@ void
 Perl_opslab_free(pTHX_ OPSLAB *slab)
 {
     OPSLAB *slab2;
+#ifdef DEBUGGING
+    dVAR;
+#endif
     PERL_ARGS_ASSERT_OPSLAB_FREE;
     PERL_UNUSED_CONTEXT;
     DEBUG_S_warn((aTHX_ "freeing slab %p", (void*)slab));
@@ -1689,7 +1692,6 @@ void
 Perl_op_null(pTHX_ OP *o)
 {
     dVAR;
-
     PERL_ARGS_ASSERT_OP_NULL;
 
     if (IS_NULL_OP(o))
@@ -5592,6 +5594,7 @@ S_dup_attrlist(pTHX_ OP *o)
 #else
                 PADOP *pad;
                 PADOP *gop = (PADOP *)OpFIRST(o);
+                dVAR;
                 /* XXX avoid deallocating the existing PADSV */
                 NewOp(1101, pad, 1, PADOP);
                 OpTYPE_set(pad, OP_GV);
@@ -5834,6 +5837,7 @@ S_apply_attrs_my(pTHX_ HV *stash, OP *target, OP *attrs, OP **imopsp)
     /* our LEX :const, or sub :ATTR from attrs_runtime() */
     } else if ( ( IS_RV2ANY_OP(target) || IS_TYPE(target, RV2CV) )
                && OP_TYPE_IS(OpFIRST(target), OP_GV) ) {
+        dVAR;
         arg = newSVREF(newGVOP(OP_GV, 0, cGVOPx_gv(OpFIRST(target))));
         arg->op_targ = target->op_targ;
         if (ISNT_TYPE(target, RV2SV))
@@ -14871,7 +14875,6 @@ TODO: constant folding with OpSPECIAL
 OP *
 Perl_ck_sassign(pTHX_ OP *o)
 {
-    dVAR;
     OP * const right = OpFIRST(o);
     OP * const left  = OpLAST(o);
 
@@ -17226,6 +17229,7 @@ Perl_ck_entersub_args_proto_or_list(pTHX_ OP *entersubop,
             Perl_croak(aTHX_ "Invalid subroutine call on class method %" SVf,
                        SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN)));
         if (CvEXTERN(cv)) {
+            dVAR;
             DEBUG_k(Perl_deb(aTHX_ "entersub -> ffi %" SVf "\n",
                 SVfARG(cv_name(cv, NULL, CV_NAME_NOMAIN))));
             OpTYPE_set(entersubop, OP_ENTERFFI);
@@ -17245,6 +17249,7 @@ Perl_ck_entersub_args_proto_or_list(pTHX_ OP *entersubop,
             if (UNLIKELY(CvISXSUB(cv) && CvROOT(cv) &&
                          GvXSCV(CvGV(cv)) && !PL_perldb))
             {
+                dVAR;
                 DEBUG_k(Perl_deb(aTHX_ "entersub -> xs %" SVf "\n",
                         SVfARG(cv_name(cv, NULL, CV_NAME_NOMAIN))));
                 OpTYPE_set(entersubop, OP_ENTERXSSUB);
@@ -17590,6 +17595,7 @@ Perl_ck_subr(pTHX_ OP *o)
                     SV *pkg   = cSVOPx_sv(aop);
                     HV *stash = gv_stashsv(pkg, SvUTF8(pkg));
                     GV **gvp;
+                    dVAR;
                     /* skip ""->method */
                     if (LIKELY((SvPOK(pkg) ? SvCUR(pkg) : TRUE) &&
                                stash && SvTYPE(stash) == SVt_PVHV)) {
@@ -22368,6 +22374,7 @@ S_do_method_finalize(pTHX_ const HV *klass, const CV* cv,
 {
     PADNAME *pn;
     PADNAMELIST *pnl = PadlistNAMES(CvPADLIST(cv));
+    dVAR;
     PERL_ARGS_ASSERT_DO_METHOD_FINALIZE;
     if (IS_TYPE(o, PADSV)) { /* $field -> $self->field[i] */
         /* check if it's a field, or a my var. self is the first my var */

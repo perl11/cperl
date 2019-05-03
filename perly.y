@@ -1273,6 +1273,7 @@ sizearydecl :	'@' PRIVATEREF '[' THING ']'
 
 computedsizearydecl :	'@' PRIVATEREF '[' ']' %prec '('
                         {
+                          dVAR;
                           assert($2->op_targ);
 			  if (!FEATURE_SHAPED_ARRAYS_IS_ENABLED)
                               Perl_croak(aTHX_ "Experimental "

@@ -2208,11 +2208,13 @@ void
 Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
                 bool dumpops, STRLEN pvlim)
 {
-    dVAR;
     SV *d;
     const char *s;
     U32 flags;
     U32 type;
+#ifdef DEBUG_LEAKING_SCALARS
+    dVAR;
+#endif
 
     PERL_ARGS_ASSERT_DO_SV_DUMP;
 

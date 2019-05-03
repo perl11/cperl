@@ -3305,6 +3305,7 @@ Perl__is_utf8_perl_idstart_with_len(pTHX_ const U8 *p, const U8 * const e)
 bool
 Perl__is_utf8_perl_idstart(pTHX_ const U8 *p)
 {
+    dVAR;
     PERL_ARGS_ASSERT__IS_UTF8_PERL_IDSTART;
 
     return is_utf8_common(p, PL_utf8_idstart);
@@ -3324,6 +3325,7 @@ Perl__is_utf8_xidstart(pTHX_ const U8 *p)
 bool
 Perl__is_utf8_perl_idcont(pTHX_ const U8 *p)
 {
+    dVAR;
     PERL_ARGS_ASSERT__IS_UTF8_PERL_IDCONT;
 
     return is_utf8_common(p, PL_utf8_idcont);
@@ -3359,7 +3361,9 @@ Perl__is_utf8_xidcont(pTHX_ const U8 *p)
 bool
 Perl__is_utf8_mark(pTHX_ const U8 *p)
 {
+#ifdef SLOW_MARK
     dVAR;
+#endif
     PERL_ARGS_ASSERT__IS_UTF8_MARK;
 
 #ifdef SLOW_MARK

@@ -92,6 +92,9 @@ static void test_power2();
 STATIC HE*
 S_new_he(pTHX)
 {
+#ifdef DEBUGGING
+    dVAR;
+#endif
     HE* he;
     void ** const root = &PL_body_roots[HE_SVSLOT];
 
@@ -108,6 +111,7 @@ S_new_he(pTHX)
 /* push to the front of the freelist */
 #define del_HE(p) \
     STMT_START { \
+        dVAR; \
 	HeNEXT(p) = (HE*)(PL_body_roots[HE_SVSLOT]);	\
         DEBUG_m(PerlIO_printf(Perl_debug_log, "0x%" UVxf ": del_HE (from %s:%u [%s])\n",  \
                               PTR2UV(p), __FILE__, __LINE__, FUNCTION__)); \

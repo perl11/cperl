@@ -323,7 +323,6 @@ Perl_boot_core_xsutils(pTHX)
 /* Needed by B::Deparse and vars. $^H bits */
 XS_EXTERNAL(XS_strict_bits)
 {
-    dVAR;
     dXSARGS;
     UV bits = 0;
     I32 i;
@@ -370,7 +369,6 @@ XS_EXTERNAL(XS_strict_bits)
 */
 XS_EXTERNAL(XS_strict_import)
 {
-    dVAR;
     dXSARGS;
     I32 i;
 
@@ -420,7 +418,6 @@ XS_EXTERNAL(XS_strict_import)
 */
 XS_EXTERNAL(XS_strict_unimport)
 {
-    dVAR;
     dXSARGS;
     I32 i;
 
@@ -1562,6 +1559,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                                            ":symbol is already resolved");
                         else { /* abuse the prototype slot for the symbol name */
                             U32 hash;
+                            dVAR;
                             /* Note: This could also happen with 2x :symbol() attrs */
                             if (UNLIKELY(SvCUR(cv)))
                                 Perl_croak(aTHX_ "An extern sub may not have a prototype");
@@ -1705,7 +1703,6 @@ S_guess_stash(pTHX_ SV* sv)
 
 XS_EXTERNAL(XS_attributes_bootstrap)
 {
-    dVAR;
     dXSARGS;
 
     if( items > 1 )
@@ -1839,13 +1836,12 @@ S_attributes__push_fetch(pTHX_ SV *sv)
  */
 XS_EXTERNAL(XS_attributes_get)
 {
-    dVAR;
     dXSARGS;
     dXSTARG;
     SV *rv, *sv, *cb;
     HV* stash;
 
-    if( items != 1 ) {
+    if (items != 1) {
 usage:
 	croak_xs_usage(cv, "$reference");
     }
@@ -1899,7 +1895,6 @@ usage:
 /* default modify handler for builtin attributes */
 XS_EXTERNAL(XS_attributes__modify_attrs)
 {
-    dVAR;
     dXSARGS;
     SV *rv, *sv;
 
@@ -1921,7 +1916,6 @@ usage:
 /* default fetch handler for builtin attributes */
 XS_EXTERNAL(XS_attributes__fetch_attrs)
 {
-    dVAR;
     dXSARGS;
     SV *rv, *sv;
 
@@ -1942,7 +1936,6 @@ usage:
 /* helper function to return and set the stash of the svref */
 XS_EXTERNAL(XS_attributes__guess_stash)
 {
-    dVAR;
     dXSARGS;
     SV *rv, *sv;
     HV *stash;
@@ -1976,7 +1969,6 @@ usage:
 */
 XS_EXTERNAL(XS_attributes_reftype)
 {
-    dVAR;
     dXSARGS;
     SV *rv, *sv;
     dXSTARG;

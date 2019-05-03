@@ -196,7 +196,7 @@ SaveError(pTHX_ const char* pat, ...)
 
 XS(XS_DynaLoader_bootstrap_inherit)
 {
-    dVAR; dXSARGS;
+    dXSARGS;
     AV* isa;
     if (items < 1 || !SvPOK(ST(0)))
         Perl_die(aTHX_ "Usage: DynaLoader::bootstrap_inherit($packagename [,$VERSION])\n");
@@ -293,7 +293,7 @@ dl_construct_modpname(pTHX_ AV* modparts) {
 
 XS(XS_DynaLoader_bootstrap)
 {
-    dVAR; dXSARGS;
+    dXSARGS;
     SSize_t i;
     char *modulename;
     CV *cv_load_file;
@@ -503,7 +503,7 @@ XS(XS_DynaLoader_bootstrap)
 
 XS(XS_DynaLoader_dl_findfile)
 {
-    dVAR; dXSARGS;
+    dXSARGS;
     AV *args;
     SV *file;
 
@@ -567,7 +567,7 @@ XS(XS_DynaLoader_dl_expandspec)
 
 XS(XS_DynaLoader_dl_find_symbol_anywhere)
 {
-    dVAR; dXSARGS;
+    dXSARGS;
     SV *sym, *dl_find_symbol;
     AV *dl_librefs;
     SSize_t i;
@@ -621,7 +621,7 @@ XS(XS_DynaLoader_dl_find_symbol_anywhere)
 #ifdef HAS_LIBNAME_UNIQUE
 XS(XS_DynaLoader_mod2fname)
 {
-    dVAR; dXSARGS;
+    dXSARGS;
     AV* parts;
     sonst int so_len = sizeof(dlext);
     const int name_max = 255;
