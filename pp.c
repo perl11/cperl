@@ -559,7 +559,7 @@ if the extern sub symbol was not found.
 */
 PP(pp_enterffi)
 {
-    dVAR; dSP; dPOPss;
+    dSP; dPOPss;
     CV *cv;
 #ifndef PERL_IS_MINIPERL
     const bool hasargs = (PL_op->op_flags & OPf_STACKED) != 0;

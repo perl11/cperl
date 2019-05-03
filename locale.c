@@ -2980,10 +2980,8 @@ Perl_init_i18nl10n(pTHX_ int printwarn)
      * setlocale() on the individual categores with NULL to get their existing
      * values for our db, instead of trying to change them.
      * */
-
-    dVAR;
-
-    int ok = 1;
+     dVAR;
+     int ok = 1;
 
 #ifndef USE_LOCALE
 
@@ -4931,7 +4929,6 @@ Perl_my_strerror(pTHX_ const int errnum)
      * to the C locale */
 
     char *errstr;
-    dVAR;
 
 #ifndef USE_LOCALE_MESSAGES
 
@@ -4977,6 +4974,7 @@ Perl_my_strerror(pTHX_ const int errnum)
         errstr = savepv(strerror(errnum));
     }
     else {
+        dVAR;
         errstr = savepv(strerror_l(errnum, PL_C_locale_obj));
     }
 
@@ -4997,6 +4995,7 @@ Perl_my_strerror(pTHX_ const int errnum)
         }
     }
     else {  /* Use C locale if not within 'use locale' scope */
+        dVAR;
         locale_to_use = PL_C_locale_obj;
     }
 
