@@ -18816,6 +18816,7 @@ our %delta :const = (
             'B::Op_private'         => '5.029002',
             'Module::CoreList'      => '5.20190313c',
             'Module::CoreList::Utils'=> '5.20190313c',
+            'B'                     => '1.76_10',
             'B::Deparse'            => '1.49_05c',
             'bytes'                 => '1.07',
             'Cwd'                   => '4.77c',
