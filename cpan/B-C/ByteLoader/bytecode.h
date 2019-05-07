@@ -825,7 +825,7 @@ static int bget_swab = 0;
   } STMT_END
 #else
 #define BSET_newpadnlx(padnl, flags)  STMT_START {      \
-    padnl = (SV*)pad_new(flags);                        \
+    padnl = (AV*)pad_new(flags);                        \
     BSET_OBJ_STOREX(padnl);                             \
   } STMT_END
 #endif

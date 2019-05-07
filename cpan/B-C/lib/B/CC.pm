@@ -292,7 +292,7 @@ Add Flags info to the code.
 
 package B::CC;
 
-our $VERSION = '1.16_02';
+our $VERSION = '1.16_03';
 
 # Start registering the L<types> namespaces.
 use strict;
@@ -316,8 +316,8 @@ use B qw(main_start main_root comppadlist peekop svref_2object
   OPpDEREF OPpFLIP_LINENUM G_VOID G_SCALAR G_ARRAY);
 #CXt_NULL CXt_SUB CXt_EVAL CXt_SUBST CXt_BLOCK
 use B::C qw(save_unused_subs objsym init_sections mark_unused mark_skip
-  output_all output_boilerplate output_main output_main_rest fixup_ppaddr save_sig
-  svop_or_padop_pv inc_cleanup curcv set_curcv);
+  output_all output_boilerplate output_main output_main_rest fixup_ppaddr
+  save_sig svop_or_padop_pv inc_cleanup curcv set_curcv cross_config);
 use B::Bblock qw(find_leaders);
 use B::Stackobj qw(:types :flags);
 use B::C::Config;
@@ -331,11 +331,12 @@ push @B::OP::ISA, 'B::NULLOP' if exists $main::B::{'NULLOP'};
 # Flags for $op->flags
 
 my $module;         # module name (when compiled with -m)
-my %done;          # hash keyed by $$op of leaders of basic blocks
+my $cross;          # cross config.sh path
+my %done;           # hash keyed by $$op of leaders of basic blocks
                     # which have already been done.
 my $leaders;        # ref to hash of basic block leaders. Keys are $$op
                     # addresses, values are the $op objects themselves.
-my @bblock_todo;  # list of leaders of basic blocks that need visiting
+my @bblock_todo;    # list of leaders of basic blocks that need visiting
                     # sometime.
 my @cc_todo;       # list of tuples defining what PP code needs to be
                     # saved (e.g. CV, main or PMOP repl code). Each tuple
@@ -674,9 +675,14 @@ PP(pp_aelem_nolval)
 }
 
 sub runtime {
-  my $line;
-  foreach $line (@_) {
-    push_runtime("\t$line");
+  foreach (@_) {
+    if (/ goto lab_0;/) {
+      my $line = $_; # readonly $_ needs a copy
+      $line =~ s/ goto lab_0;/ PUTBACK; return NULL;/;
+      push_runtime("\t$line");
+    } else {
+      push_runtime("\t$_");
+    }
   }
 }
 
@@ -3238,11 +3244,34 @@ sub cc_main {
     my $inc_gv = svref_2object( \*main::INC );
     $inc_hv    = $inc_gv->HV->save('main::INC');
     $init->add( sprintf( "GvHV(%s) = s\\_%x;",
-			 $inc_gv->save('main::INC'), $inc_gv->HV ) );
+			 $inc_gv->save('main::INC'), $inc_hv ) );
     local ($B::C::const_strings);
     $B::C::const_strings = 1 if $B::C::ro_inc;
-    $inc_hv          = $inc_gv->HV->save('main::INC');
-    $inc_av          = $inc_gv->AV->save('main::INC');
+    if ($cross) {
+      $init->add('/* cross @INC */');
+      my @crossinc = ($Config{archlib});
+      if ($Config{archlib} ne $Config{privlib}) {
+        push @crossinc, $Config{privlib};
+      }
+      if (exists $Config{sitearch} and $Config{sitearch}) {
+        unshift @crossinc, $Config{sitearch};
+        unshift @crossinc, $Config{sitelib}
+          if $Config{sitearch} ne $Config{sitelib};
+      }
+      if (exists $Config{vendorarch} and $Config{vendorarch}) {
+        push @crossinc, $Config{vendorarch};
+        push @crossinc, $Config{vendorlib}
+          if $Config{vendorarch} ne $Config{vendorlib};
+      }
+      if ($] < 5.026 and !$Config{usecperl}) {
+        push @crossinc, '.';
+      }
+      $inc_av    = svref_2object(\@crossinc)->save('main::INC');
+    } else {
+      $inc_av    = $inc_gv->AV->save('main::INC');
+    }
+    $init->add( sprintf( "GvAV(%s) = s\\_%x;",
+			 $inc_gv->save('main::INC'), $inc_av ) );
   }
   {
     # >=5.10 needs to defer nullifying of all vars in END, not only new ones.
@@ -3347,7 +3376,11 @@ sub import {
   $opt_autovivify = 1; # only makes sense with -fno-autovivify
 OPTION:
   while ( $option = shift @options ) {
-    if ( $option =~ /^-(.)(.*)/ ) {
+    if ( $option =~ /^-(cross)=(.*)/ ) {
+      $opt = $1;
+      $arg = $2;
+    }
+    elsif ( $option =~ /^-(.)(.*)/ ) {
       $opt = $1;
       $arg = $2;
     }
@@ -3428,6 +3461,10 @@ OPTION:
     elsif ( $opt eq "m" ) {
       $module = $arg;
       mark_unused( $arg, undef );
+    }
+    elsif ( $opt eq "cross" ) {
+      $cross = $arg;
+      cross_config($cross); # overrides %B::C::Config::Config
     }
     #elsif ( $opt eq "p" ) {
     #  $arg ||= shift @options;

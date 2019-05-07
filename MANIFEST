@@ -167,6 +167,7 @@ cpan/B-C/Makefile.PL
 cpan/B-C/perlcompile.pod
 cpan/B-C/perloptree.pod
 cpan/B-C/script/assemble		assemble to bytecode
+cpan/B-C/script/buildcc.PL		buildcc compiler frontend
 cpan/B-C/script/cc_harness		compile and link generated C files
 cpan/B-C/script/disassemble		disassemble from bytecode
 cpan/B-C/script/perlcc.PL		perlcc compiler frontend
