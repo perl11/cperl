@@ -39,13 +39,15 @@ foreach (qw (pod2man pod2text)) {
     $dist_dir_exe{lc "$_.PL"} = "../cpan/podlators/$_";
 };
 $dist_dir_exe{'pod2html.pl'} = '../ext/Pod-Html';
-foreach (qw (cc_harness perlcc assemble disassemble pl2exe.pl)) {
+foreach (qw (cc_harness perlcc buildcc assemble disassemble pl2exe.pl)) {
     $dist_dir_exe{$_} = "../cpan/B-C/script/$_";
 };
 if ($Config{d_cplusplus}) {
   delete $dist_dir_exe{'perlcc'};
+  delete $dist_dir_exe{'buildcc'};
 } else {
-  $dist_dir_exe{lc 'perlcc.PL'} = "../cpan/B-C/script/perlcc"
+  $dist_dir_exe{lc 'perlcc.PL'} = "../cpan/B-C/script/perlcc";
+  $dist_dir_exe{lc 'buildcc.PL'} = "../cpan/B-C/script/buildcc";
 }
 foreach (qw (flamegraph.pl nytprofcalls nytprofcg nytprofcsv nytprofhtml
              nytprofmerge nytprofpf)) {
@@ -61,7 +63,7 @@ find(
     return if $name =~ /blib/;
     return unless $name =~ m{/(?:bin|scripts?)/\S+\z} && $name !~ m{/t/};
     return if $name =~ /(~|\.bak|\.orig)$/;
-    return if $Config{d_cplusplus} and $name =~ /perlcc/;
+    return if $Config{d_cplusplus} and $name =~ /(?:perl|build)cc/;
 
     push @programs, $name;
   }},
@@ -74,7 +76,7 @@ for my $f ( @programs ) {
   $f =~ s/\.\z// if $^O eq 'VMS';
   next if $f =~ $not_installed;
   my $bn = basename($f);
-  if(grep { /\A(?i:$bn)\z/ } keys %dist_dir_exe) {
+  if (grep { /\A(?i:$bn)\z/ } keys %dist_dir_exe) {
     my $exe_file = "$dist_dir_exe{lc $bn}$ext";
     ok( -f $exe_file, "Verify -f '$exe_file'");
   } else {

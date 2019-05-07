@@ -190,8 +190,10 @@ if ($CORE and $^O eq 'MSWin32') {
 WriteMakefile(
     NAME	 => "B::C",
     VERSION_FROM => "lib/B/C.pm",
-    PL_FILES   => { $perlcc.'.PL'    => $perlcc },
-    EXE_FILES  => [$perlcc, qw(script/cc_harness script/assemble script/disassemble)],
+    PL_FILES   => { $perlcc.'.PL'       => $perlcc,
+	            'script/buildcc.PL' => 'script/buildcc' },
+    EXE_FILES  => [$perlcc, qw(script/buildcc script/cc_harness
+	                       script/assemble script/disassemble)],
     PREREQ_PM  => {'Opcodes'  => '0',    # optional
 		   'IPC::Run' => '0',    # optional
 		   'B::Flags' => '0.15', # optional

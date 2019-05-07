@@ -15,12 +15,12 @@ use Cwd;
 
 # This forces PL files to create target in same directory as PL file.
 # This is so that make depend always knows where to find PL derivatives.
-$origdir = cwd;
+my $origdir = cwd;
 chdir dirname($0);
-$file = basename($0, '.PL');
+my $file = basename($0, '.PL');
 $file .= '.com' if $^O eq 'VMS';
 
-open OUT,">$file" or die "Can't create $file: $!";
+open OUT,">",$file or die "Can't create $file: $!";
 
 print "Extracting $file (with variable substitutions)\n";
 
@@ -53,12 +53,16 @@ use File::Path qw(mkpath);
 # use Cwd;
 use Pod::Usage;
 # Time::HiRes does not work with 5.6
-# use Time::HiRes qw(gettimeofday tv_interval);
+use Time::HiRes qw(gettimeofday tv_interval);
 our $VERSION = 1.00;
 $| = 1;
-eval { require B::C::Flags; };
+eval { require B::C::Config; };
+sub is_win32();
+
+our ($logfh, $Options);
 
 $SIG{INT} = sub { exit(); } if exists $SIG{INT}; # exit gracefully and clean up after ourselves.
+
 
 # usage: vprint [level] msg args
 sub vprint {
