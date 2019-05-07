@@ -154,9 +154,9 @@ sub write_b_c_config {
 
 # XXX Check for 5.16.0 B-1.34 and offer to patch it? rather use `perlall build --patches=Compiler`
 my $unicode_warning =
-         "  Perl handling of new unicode identifiers - package and symbol names - \n".
-	 "  without proper TR39 handling is considered a security risc and is not fully supported.\n".
-	 "  See http://websec.github.io/unicode-security-guide/\n\n";
+  "  Perl handling of new unicode identifiers - package and symbol names - \n".
+  "  without proper TR39 handling is considered a security risc and is not fully supported.\n".
+  "  See http://websec.github.io/unicode-security-guide/\n\n";
 if ($ENV{PERL_CORE}) {
     # supress the TR39 warnings in core
 }
@@ -171,6 +171,14 @@ elsif ($] > 5.015005 and $] < 5.019004) {
 	 "  Check your code for syntax spoofs, confusables, strip \\0 from package names.\n".
          ($Config{usecperl} ? "" :
 	 "  Enable use warnings 'syscalls'.\n");
+}
+my $carp_warning =
+  "  Perl5 broke Carp for the compiler with 5.26 with a dynamic _fetch_sub()\n".
+  "  Either use an earlier Carp (<1.42) or check the cperl patches, replacing it\n".
+  "  with a simple version check.\n";
+if ($] >= 5.025004 and !$Config{usecperl}) {
+    warn "Warning: Unsupported perl version $]\n".
+	 $carp_warning;
 }
 
 my $perlcc = File::Spec->catfile("script", "perlcc");
@@ -395,6 +403,20 @@ sub install_independent_comalloc {
     chdir "..";
 }
 
+# cannot use t/modules.pm
+sub perlversion {
+  my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);
+  my $dVAR = ($Config{ccflags} =~ m/-DPERL_GLOBAL_STRUCT/);
+  return sprintf("%1.6f%s%s%s%s", $],
+                 ($Config{usecperl} ? "c" : ""),
+                 ($DEBUGGING ? 'd' : ''),
+                 ($Config{useithreads} ? ''
+                  : $Config{usemultiplicity} ? '-m'
+                  : '-nt'),
+                 ($dVAR ? '-dVAR' : '')
+                 );
+}
+
 package MY;
 
 # Ignore certain files
@@ -462,8 +484,8 @@ TAGS : $asmdata
     if ($] > 5.009 and defined($ExtUtils::MM_Unix::VERSION)) {
         my $ver = 0+$ExtUtils::MM_Unix::VERSION;
         # 8.0403 is the cperl 5.24.0 version based on 7.04_03
-        if ($ver == 8.0403 or $ver == 8.0404 or $ver < 7.0509
-            or ($ver >= 7.1 and $ver < 7.34))
+        if ($ver == 8.0403 or $ver == 8.0404
+            or $ver < 7.0509 or $ver == 7.1)
         {
             $result .= "\ntest :: subdirs-test\n\n";
         } else {
@@ -493,6 +515,8 @@ subdirs ::
 }
 
 sub test {
+    my $known_errors = "known_errors" . ($^V =~ /c$/ ? "_cperl.txt" : ".txt");
+    my $logsuffix = main::perlversion();
     shift->SUPER::test(@_) .
 "
 # PERL_VAR: major only
@@ -512,7 +536,7 @@ testbc :: pure_all
 testfast :: pure_all
 	NO_AUTHOR=1 $(FULLPERLRUN) -S prove -b -j10 -f
 testfast-log :: pure_all
-	NO_AUTHOR=1 $(FULLPERLRUN) -S prove -b -j10 -f  | tee log.test-)."$]".q(-`git describe --tags`
+	NO_AUTHOR=1 $(FULLPERLRUN) -S prove -b -j10 -f  | tee log.test-).$logsuffix.q(-`git describe --tags`
 testcritical :: pure_all
 	t/critical.sh
 teststatus :: pure_all
@@ -525,9 +549,9 @@ testcore :: pure_all testcore_init
 	$(FULLPERLRUN) -S prove -b -j10 -f t/CORE/$(PERL_VER)/C-COMPILED/*/
 testcore-log :: pure_all testcore_init
 	$(FULLPERLRUN) -S prove -b -j10 -f t/CORE/$(PERL_VER)/C-COMPILED/*/ | \
-	  tee log.test-core-$(PERL_VER)-`git describe --tags`
+	  tee log.test-core-).$logsuffix.q(-`git describe --tags`
 testcore-fail :: pure_all testcore_init
-	$(FULLPERLRUN) -ane'print "t/CORE/$(PERL_VER)/C-COMPILED/$$F[0]\n" unless /^#/' t/CORE/$(PERL_VER)/C-COMPILED/known_errors.txt | xargs $(FULLPERLRUN) -S prove -b -j10 -f
+	$(FULLPERLRUN) -ane'print "t/CORE/$(PERL_VER)/C-COMPILED/$$F[0]\n" unless /^#/' t/CORE/$(PERL_VER)/C-COMPILED/).$known_errors.q( | xargs $(FULLPERLRUN) -S prove -b -j10 -f
 )
 }
 

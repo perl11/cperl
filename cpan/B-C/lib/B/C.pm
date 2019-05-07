@@ -13,12 +13,12 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.55_11';
-our (%debug, $check, %Config);
+our $VERSION = '1.57';
+our (%debug, $check, %Config, %Cross, %OriConfig, $cross);
 BEGIN {
   require B::C::Config;
   *Config = \%B::C::Config::Config;
-  if (!keys %Config or !exists $Config{usecperl}) {
+  if (!keys %Config) { #or !exists $Config{usecperl}
     warn "Empty \%B::C::Config::Config";
     require Config;
     Config->import;
@@ -294,7 +294,7 @@ our @ISA        = qw(Exporter);
 our @EXPORT_OK =
   qw(output_all output_boilerplate output_main output_main_rest mark_unused mark_skip
      init_sections set_callback save_unused_subs objsym save_context fixup_ppaddr
-     save_sig svop_or_padop_pv inc_cleanup ivx nvx curcv set_curcv);
+     save_sig svop_or_padop_pv inc_cleanup ivx nvx curcv set_curcv cross_config);
 
 # for 5.6.[01] better use the native B::C
 # but 5.6.2 works fine
@@ -496,7 +496,8 @@ our %option_map = (
     'warnings'        => \$B::C::warnings, # disable with -fno-warnings
     'use-script-name' => \$use_perl_script_name,
     'save-sig-hash'   => \$B::C::save_sig,
-    'dyn-padlist'     => \$B::C::dyn_padlist, # with -O4, needed for cv cleanup with non-local exits since 5.18
+    'dyn-padlist'     => \$B::C::dyn_padlist, # with -O4, needed for cv cleanup with
+	                                      # non-local exits since 5.18
     'cop'             => \$optimize_cop, # XXX very unsafe!
 					 # Better do it in CC, but get rid of
 					 # NULL cops also there.
@@ -536,6 +537,7 @@ my $MULTI = $Config{usemultiplicity} || $Config{ccflags} =~ /-DPERL_GLOBAL_STRUC
 my $ITHREADS = $Config{useithreads};
 my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);
 my $DEBUG_LEAKING_SCALARS = $Config{ccflags} =~ m/-DDEBUG_LEAKING_SCALARS/;
+my $GLOBAL_STRUCT = $Config{ccflags} =~ /-DPERL_GLOBAL_STRUCT/; # includes _PRIVATE
 my $CPERL56  = ( $Config{usecperl} and $] >= 5.025003 ); #sibparent, VALID
 my $CPERL55  = ( $Config{usecperl} and $] >= 5.025001 ); #HVMAX_T, RITER_T, ...
 my $CPERL52  = ( $Config{usecperl} and $] >= 5.022002 ); #sv_objcount, AvSTATIC, sigs
@@ -563,6 +565,35 @@ BEGIN {
   @threadsv_names = threadsv_names();
   # This the Carp free workaround for DynaLoader::bootstrap
   eval 'sub DynaLoader::croak {die @_}' unless $CPERL51;
+}
+
+sub cross_config { # overrides %B::C::Config::Config
+  my ($file) = @_;
+  -e $file or die("-cross \"$file\" not found");
+  open my $fh, "<", $file or
+    die("Could not open -cross \"$file\": $!");
+  while (<$fh>) {
+    my ($k,$v) = /^(\w+)=(.+)$/; # startperl for $^X, osname for $^O
+    next unless $k;
+    $OriConfig{$k} = $Config{$k} if exists $Config{$k};
+    if (exists $Config{$k}) {
+      if ($v =~ /^'(.*)'$/) {
+        $v = $1;
+      } elsif ($v =~ /^"(.*)"$/) {
+        $v = $1;
+      }
+      $v = '' if $v eq 'undef';
+      if ($Config{$k} ne $v) {
+        if ($k =~ /^(version|usemultiplicity|useithreads)$/) {
+          die "Invalid cross $k $v. Require $Config{$k}";
+        }
+        warn "\$Config{$k}: $Config{$k} => $v\n" if $verbose;
+        $Cross{$k} = $v;
+        $Config{$k} = $v;
+      }
+    }
+  }
+  close $fh;
 }
 
 # needed for init2 remap and Dynamic annotation
@@ -1571,8 +1602,7 @@ sub B::OP::save {
       # XXX we dont have the prevop, it can be any op type.
       if ($verbose or $debug{cops}) {
         my $prevop = getsym(sprintf("&op_list[%d]", $opsect->index));
-        warn sprintf( "Skip Null COP: %d, prev=\\s%x\n",
-                      $op->targ, $prevop);
+        warn sprintf( "Skip Null COP: %d, prev=\\s%x\n", $op->targ, $prevop);
       }
       return savesym( $op, $op->next->save );
     }
@@ -2308,9 +2338,8 @@ sub B::SVOP::save {
     $cv->save if $cv;
   }
   my $is_const_addr = $svsym =~ m/Null|\&/;
-  if ($MULTI and svimmortal($svsym)) { # runtime dVAR access. e.g. t/testm.sh Test::Pod
+  if ($MULTI and svimmortal($svsym)) { # dVAR access. e.g. t/testm.sh Test::Pod
     $is_const_addr = 0;
-    # warn "$svsym needs dVAR";
   }
   $svopsect->comment("$opsect_common, sv");
   $svopsect->add(sprintf( "%s, %s",
@@ -2606,9 +2635,11 @@ sub B::COP::save {
 
   # our root: store all packages from this file
   if (!$mainfile) {
-    $mainfile = $op->file if $op->stashpv eq 'main';
+    $mainfile = $op->file
+      if $op->stashpv eq ($module ? $module : 'main');
   } else {
-    mark_package($op->stashpv) if $mainfile eq $op->file and $op->stashpv ne 'main';
+    mark_package($op->stashpv)
+      if $mainfile eq $op->file and $op->stashpv ne ($module ? $module : 'main');
   }
   savesym( $op, "(OP*)&cop_list[$ix]" );
 }
@@ -3588,7 +3619,7 @@ sub patch_dlsym {
     warn "$pkg $Encode::VERSION with remap support for $name (find 2)\n" if $verbose;
   }
   # now that is a weak heuristic, which misses #305
-  elsif (defined ($Net::DNS::VERSION)
+  elsif (defined $Net::DNS::VERSION
          and $Net::DNS::VERSION =~ /^0\.(6[789]|7[1234])/) {
     if ($fullname eq 'svop const') {
       $name = "ascii_encoding";
@@ -4539,7 +4570,7 @@ sub B::CV::save {
       # in the PadNAMES array. So keep the empty PVCV
       warn "lexsub &".$fullname." saved as empty $sym\n" if $debug{sub};
     } else {
-      warn "Warning: &".$fullname." not found\n" if $debug{sub};
+      warn "Warning: &".$fullname." not found\n" if $fullname and $debug{sub};
       $init->add( "/* CV $fullname not found */" ) if $verbose or $debug{sub};
       # This block broke test 15, disabled
       if ($sv_ix == $svsect->index and !$new_cv_fw) { # can delete, is the last SV
@@ -5329,19 +5360,21 @@ sub B::GV::save {
     if ( $$gvhv && $savefields & Save_HV ) {
       if ($fullname ne 'main::ENV') {
 	warn "GV::save \%$fullname\n" if $debug{gv};
-	if ($fullname eq 'main::!') { # force loading Errno
-	  $init->add("/* \%! force saving of Errno */");
-	  mark_package('Config', 1);  # Errno needs Config to set the EGV
-          walk_syms('Config');
-	  mark_package('Errno', 1);   # B::C needs Errno but does not import $!
-	} elsif ($fullname eq 'main::+' or $fullname eq 'main::-') {
-	  $init->add("/* \%$gvname force saving of Tie::Hash::NamedCapture */");
-          if ($PERL514) {
-            mark_package('Config', 1);  # DynaLoader needs Config to set the EGV
+        if (!$module) {
+          if ($fullname eq 'main::!') { # force loading Errno
+            $init->add("/* \%! force saving of Errno */");
+            mark_package('Config', 1);  # Errno needs Config to set the EGV
             walk_syms('Config');
-            svref_2object(\&{'Tie::Hash::NamedCapture::bootstrap'})->save;
+            mark_package('Errno', 1);   # B::C needs Errno but does not import $!
+          } elsif ($fullname eq 'main::+' or $fullname eq 'main::-') {
+            $init->add("/* \%$gvname force saving of Tie::Hash::NamedCapture */");
+            if ($PERL514) {
+              mark_package('Config', 1);  # DynaLoader needs Config to set the EGV
+              walk_syms('Config');
+              svref_2object(\&{'Tie::Hash::NamedCapture::bootstrap'})->save;
+            }
+            mark_package('Tie::Hash::NamedCapture', 1);
           }
-	  mark_package('Tie::Hash::NamedCapture', 1);
         }
         # skip static %Encode::Encoding since 5.20. GH #200. sv_upgrade cannot upgrade itself.
         # Let it be initialized by boot_Encode/Encode_XSEncodingm with exceptions.
@@ -6560,6 +6593,7 @@ EOT
     }
   }
 
+  output_functions();
   fixup_ppaddr();
   print "static void perl_init0(pTHX) /* fixup_ppaddr */\n{\n\t";
   print "dVAR; register int i;\n" if @{ $init0->[-1]{values} };
@@ -6601,7 +6635,7 @@ EOT
       if (exists $xsub{$pkg}) {
         if ($HAVE_DLFCN_DLOPEN) {
           my $ldopt = 'RTLD_NOW|RTLD_NOLOAD';
-          $ldopt = 'RTLD_NOW' if $^O =~ /bsd/i; # 351 (only on solaris and linux, not any bsd)
+          $ldopt = 'RTLD_NOW' if $Config{osname} =~ /bsd/i; # 351 (only on solaris and linux, not any bsd)
           $init2->add( "", sprintf("  handle = dlopen(%s, %s);", cstring($init2_remap{$pkg}{FILE}), $ldopt));
         }
         else {
@@ -6810,9 +6844,12 @@ EOT0
 }
 
 sub output_boilerplate {
-  my $creator = "created at ".scalar localtime()." with B::C $B::C::VERSION ";
+  my $name = shift;
+  $name = 'main' unless defined $name;
+  my $creator = "created at ".scalar localtime()." with B::C $B::C::VERSION";
   $creator .= $B::C::REVISION if $B::C::REVISION;
-  $creator .= " for $^X";
+  $creator .= " for $Config{perlpath}";
+  $creator .= " for cross target $Config{archname}" if $cross;
   print "/* $creator */\n";
   # Store the sv_list index in sv_debug_file when debugging
   print "#define DEBUG_LEAKING_SCALARS 1\n" if $debug{flags} and $DEBUG_LEAKING_SCALARS;
@@ -6926,6 +6963,22 @@ _EOT
       $init->add_initav("    Perl_die(aTHX_ \"panic: AV alloc failed\");");
     }
   }
+  # XXX boot_DynaLoader is exported only >=5.8.9
+  # does not compile on darwin with EXTERN_C declaration
+  # See branch `boot_DynaLoader`
+  print <<'_EOT4';
+#define XS_DynaLoader_boot_DynaLoader boot_DynaLoader
+EXTERN_C void boot_DynaLoader (pTHX_ CV* cv);
+
+static void xs_init (pTHX);
+static void dl_init (pTHX);
+
+_EOT4
+
+  print <<'_EOT' if $CPERL51;
+EXTERN_C void dl_boot (pTHX);
+_EOT
+
   if ( !$B::C::destruct ) {
     print <<'_EOT4';
 static int fast_perl_destruct( PerlInterpreter *my_perl );
@@ -6941,35 +6994,35 @@ static void my_curse( pTHX_ SV* const sv );
 _EOT4
 
   } else {
-    print <<'_EOT5';
-int my_perl_destruct( PerlInterpreter *my_perl );
-_EOT5
-
+    if (defined $module and !$ITHREADS) {
+      print "EXTERN_C void destruct_$name( );\n";
+    } else {
+      print "EXTERN_C void destruct_$name( PerlInterpreter *my_perl );\n";
+    }
   }
+}
+
+sub output_functions {
+
   if ($] < 5.008009) {
     print <<'_EOT3';
+
 #ifndef savesharedpvn
-char *savesharedpvn(const char *const s, const STRLEN len);
+PERL_STATIC_INLINE char *savesharedpvn(const char *const s, const STRLEN len);
+
+PERL_STATIC_INLINE char *
+savesharedpvn(const char *const s, const STRLEN len) {
+  char *const d = (char*)PerlMemShared_malloc(len + 1);
+  if (!d) { exit(1); }
+  d[len] = '\0';
+  return (char *)memcpy(d, s, len);
+}
 #endif
 _EOT3
 
   }
-}
 
-sub init_op_addr {
-  my ( $op_type, $num ) = @_;
-  my $op_list = $op_type . "_list";
-
-  $init0->add( split /\n/, <<_EOT6 );
-for (i = 0; i < ${num}; ++i) {
-	${op_list}\[i].op_ppaddr = PL_ppaddr[PTR2IV(${op_list}\[i].op_ppaddr)];
-}
-_EOT6
-
-}
-
-sub output_main_rest {
-
+  # Need fresh re-hash of strtab. share_hek does not allow hash = 0
   if ( $PERL510 ) {
     print <<'_EOT7';
 /* The first assignment got already refcount bumped */
@@ -6996,21 +7049,8 @@ my_share_hek_0( pTHX_ const char *str, I32 len) {
 _EOT7
   }
 
-  if ($] < 5.008009) {
-    print <<'_EOT7a';
-#ifndef savesharedpvn
-char *savesharedpvn(const char *const s, const STRLEN len) {
-  char *const d = (char*)PerlMemShared_malloc(len + 1);
-  if (!d) { exit(1); }
-  d[len] = '\0';
-  return (char *)memcpy(d, s, len);
-}
-#endif
-_EOT7a
-
-  }
   # -fno-destruct only >=5.8
-  if ( !$B::C::destruct ) {
+  if ( !$module and !$B::C::destruct ) {
     print <<'_EOT8';
 
 #ifndef SvDESTROYABLE
@@ -7228,8 +7268,12 @@ _EOT8
     }
     if (DEBUG_D_TEST) {
         SV* sva;
-        PerlIO_printf(Perl_debug_log, "\n");
-        for (sva = PL_sv_arenaroot; sva; sva = (SV*)SvANY(sva)) {
+        PerlIO_printf(Perl_debug_log, "sv[0]: 0x%p, sv_arenaroot: 0x%p, sva->any: 0x%p\n",
+                      SvANY(&sv_list[0]), PL_sv_arenaroot, SvANY(PL_sv_arenaroot));
+        for (sva = PL_sv_arenaroot;
+             sva;
+             sva = (sva == (SV*)SvANY(sva)) ? NULL : (SV*)SvANY(sva))
+        {
             PerlIO_printf(Perl_debug_log, "sv_arena: 0x%p - 0x%p (%lu)\n",
               sva, sva+SvREFCNT(sva), (long)SvREFCNT(sva));
         }
@@ -7279,12 +7323,32 @@ _EOT8
 _EOT9
 
   }
+}
+
+sub init_op_addr {
+  my ( $op_type, $num ) = @_;
+  my $op_list = $op_type . "_list";
+
+  $init0->add( split /\n/, <<_EOT6 );
+for (i = 0; i < ${num}; ++i) {
+	${op_list}\[i].op_ppaddr = PL_ppaddr[PTR2IV(${op_list}\[i].op_ppaddr)];
+}
+_EOT6
+
+}
+
+# local destruction code
+sub save_destruct {
+  my $name = shift;
+  $name = 'main' unless defined $name;
   # special COW handling for 5.10 because of S_unshare_hek_or_pvn limitations
   # XXX This fails in S_doeval SAVEFREEOP(PL_eval_root): test 15
   # if ( $PERL510 and (@B::C::static_free or $free->index > -1))
-  else {
+  if ( $B::C::destruct ) {
+    print "
+EXTERN_C void destruct_${name} ( PerlInterpreter *my_perl ) {
+";
     print <<'_EOT7';
-int my_perl_destruct( PerlInterpreter *my_perl ) {
     volatile signed char destruct_level = PL_perl_destruct_level;
     const char * const s = PerlEnv_getenv("PERL_DESTRUCT_LEVEL");
     dVAR;
@@ -7346,73 +7410,12 @@ _EOT7
     }
     $free->output( \*STDOUT, "%s\n" );
 
-    my $riter_type = "I32";
-    if ($CPERL51) {
-      $riter_type = $CPERL55 ? "U32" : "SSize_t";
-    }
-    my $hvmax_type = "STRLEN";
-    if ($CPERL51) {
-      $hvmax_type = $CPERL55 ? "U32" : "SSize_t";
-    }
-    print "#define RITER_T $riter_type\n";
-    print "#define HVMAX_T $hvmax_type\n";
-
-    print <<'_EOT7a';
-
-    /* Avoid Unbalanced string table refcount warning with PERL_DESTRUCT_LEVEL=2 */
-    if (s) {
-        const int i = atoi(s);
-        if (destruct_level < i) destruct_level = i;
-    }
-    if (destruct_level >= 1) {
-        const HVMAX_T max = HvMAX(PL_strtab);
-	HE * const * const array = HvARRAY(PL_strtab);
-	RITER_T riter = 0;
-	HE *hent = array[0];
-	for (;;) {
-	    if (hent) {
-		HE * const next = HeNEXT(hent);
-                if (!HEK_STATIC(&((struct shared_he*)hent)->shared_he_hek))
-                    Safefree(hent);
-		hent = next;
-	    }
-	    if (!hent) {
-		if (++riter > max)
-		    break;
-		hent = array[riter];
-	    }
-        }
-        /* Silence strtab refcnt warnings during global destruction */
-        Zero(HvARRAY(PL_strtab), max, HE*);
-        /* NULL the HEK "dfs" */
-#if PERL_VERSION > 10
-        PL_registered_mros = (HV*)&PL_sv_undef;
-        CopHINTHASH_set(&PL_compiling, NULL);
-#endif
-    }
-
-    /* B::C specific: prepend static svs to arena for sv_clean_objs */
-    SvANY(&sv_list[0]) = (void *)PL_sv_arenaroot;
-    PL_sv_arenaroot = &sv_list[0];
-#if PERL_VERSION > 7
-    if (DEBUG_D_TEST) {
-        SV* sva;
-        PerlIO_printf(Perl_debug_log, "\n");
-        for (sva = PL_sv_arenaroot; sva; sva = (SV*)SvANY(sva)) {
-            PerlIO_printf(Perl_debug_log, "sv_arena: 0x%p - 0x%p (%lu)\n",
-              sva, sva+SvREFCNT(sva), (long)SvREFCNT(sva));
-        }
-    }
-
-    return perl_destruct( my_perl );
-#else
-    perl_destruct( my_perl );
-    return 0;
-#endif
-}
-_EOT7a
+    print "}\n";
   }
+}
 
+sub output_main_rest {
+  save_destruct("main");
   print <<'_EOT8';
 
 /* yanked from perl.c */
@@ -7655,7 +7658,10 @@ _EOT9
 	  if ($] >= 5.015003) {
 	    no strict 'refs';
 	    unless (grep /^DynaLoader$/, get_isa($stashname)) {
+              my $ro = Internals::SvREADONLY(@{$stashname."::ISA"});
+              Internals::SvREADONLY(@{$stashname."::ISA"}, 0) if $ro;
 	      push @{$stashname."::ISA"}, 'DynaLoader';
+              Internals::SvREADONLY(@{$stashname."::ISA"}, 1) if $ro;
 	      svref_2object( \@{$stashname."::ISA"} ) ->save;
 	    }
 	    warn '@',$stashname,"::ISA=(",join(",",@{$stashname."::ISA"}),")\n" if $debug{gv};
@@ -7731,8 +7737,8 @@ _EOT9
 }
 
 sub output_main {
-  if (!defined($module)) {
-    print <<'_EOT10';
+  return if defined $module;
+  print <<'_EOT10';
 
 /* if USE_IMPLICIT_SYS, we need a 'real' exit */
 #if defined(exit)
@@ -7900,8 +7906,9 @@ _EOT15
            ];
     }
 
-    print sprintf(qq{    sv_setpv_mg(get_svs("\030", GV_ADD|GV_NOTQUAL), %s); /* \$^X */\n}, cstring($^X));
-    print <<"EOT";
+    print sprintf(qq{    sv_setpv_mg(get_svs("\030", GV_ADD|GV_NOTQUAL), %s); /* \$^X */\n},
+                  cstring($Config{perlpath}));
+    print <<'EOT';
     TAINT_NOT;
 
     #if PERL_VERSION < 10 || ((PERL_VERSION == 10) && (PERL_SUBVERSION < 1))
@@ -7911,33 +7918,19 @@ _EOT15
       CvUNIQUE_on(PL_compcv);
       CvPADLIST(PL_compcv) = pad_new(0);
     #endif
-
-    /* our special compiled init */
-    perl_init(aTHX);
 EOT
-    print "    perl_init1(aTHX);\n" if $init1->index >= 0;
-    print "    dl_init(aTHX);\n" unless defined $module;
-    print "    perl_init2(aTHX);\n" if $init2->index >= 0;
-    print "\n    exitstatus = perl_run( my_perl );\n";
-    foreach my $s ( @{ $init->[-1]{pre_destruct} } ) {
-      print "    ".$s."\n";
-    }
 
-    if ( !$B::C::destruct ) {
-      warn "fast_perl_destruct (-fno-destruct)\n" if $verbose;
-      print "    fast_perl_destruct( my_perl );\n";
-    #} elsif ( $PERL510 and (@B::C::static_free or $free->index > -1) ) {
-    #  warn "my_perl_destruct static strings\n" if $verbose;
-    #  print "    my_perl_destruct( my_perl );\n";
-    #} elsif ( $] >= 5.007003 ) {
-    #  print "    perl_destruct( my_perl );\n";
-    }
-    else {
-      print "    my_perl_destruct( my_perl );\n";
-    }
-    # XXX endav is called via call_list and so it is freed right after usage. Setting dirty here is useless
-    #print "    PL_dirty = 1;\n" unless $B::C::pv_copy_on_grow; # protect against pad undef in END block
-    print <<'EOT1';
+  output_init();
+  print "    exitstatus = perl_run( my_perl );\n";
+  output_local_destruct("main");
+  output_global_destruct();
+
+  # XXX endav is called via call_list and so it is freed right after usage.
+  # Setting dirty here is useless.
+  # Protect against pad undef in END block
+  #print "    PL_dirty = 1;\n" unless $B::C::pv_copy_on_grow;
+
+  print <<'EOT1';
     perl_free( my_perl );
 
     PERL_SYS_TERM();
@@ -7946,7 +7939,115 @@ EOT
 }
 EOT1
 
-  } # module
+}
+
+sub output_init {
+  print <<'EOT';
+  /* our special compiled init */
+    perl_init(aTHX);
+EOT
+
+  print "    perl_init1(aTHX);\n" if $init1->index >= 0;
+  # XXX maybe we need dl_init for a module, esp. when it's XS loading.
+  print "    dl_init(aTHX);\n";
+  print "    perl_init2(aTHX);\n" if $init2->index >= 0;
+}
+
+sub output_local_destruct {
+  my $name = shift;
+  $name = 'main' unless defined $name;
+  foreach my $s ( @{ $init->[-1]{pre_destruct} } ) {
+    print "    ".$s."\n";
+  }
+  if ( $B::C::destruct ) {
+    if (defined $module and !$ITHREADS) {
+      print "    destruct_$name( NULL );\n";
+    } else {
+      print "    destruct_$name( my_perl );\n";
+    }
+  }
+}
+
+sub output_global_destruct {
+  if ( !$B::C::destruct ) {
+    warn "fast_perl_destruct (-fno-destruct)\n" if $verbose;
+    print "    fast_perl_destruct( my_perl );\n";
+  }
+  else {
+
+    print <<'_EOT7';
+  {
+    volatile signed char destruct_level = PL_perl_destruct_level;
+    const char * const s = PerlEnv_getenv("PERL_DESTRUCT_LEVEL");
+_EOT7
+
+    my $riter_type = "I32";
+    if ($CPERL51) {
+      $riter_type = $CPERL55 ? "U32" : "SSize_t";
+    }
+    my $hvmax_type = "STRLEN";
+    if ($CPERL51) {
+      $hvmax_type = $CPERL55 ? "U32" : "SSize_t";
+    }
+    print "#define RITER_T $riter_type\n";
+    print "#define HVMAX_T $hvmax_type\n";
+
+    print <<'_EOT7a';
+    /* Avoid Unbalanced string table refcount warning with PERL_DESTRUCT_LEVEL=2 */
+    if (s) {
+        const int i = atoi(s);
+        if (destruct_level < i) destruct_level = i;
+    }
+    if (destruct_level >= 1) {
+        const HVMAX_T max = HvMAX(PL_strtab);
+	HE * const * const array = HvARRAY(PL_strtab);
+	RITER_T riter = 0;
+	HE *hent = array[0];
+	for (;;) {
+	    if (hent) {
+		HE * const next = HeNEXT(hent);
+                if (!HEK_STATIC(&((struct shared_he*)hent)->shared_he_hek))
+                    Safefree(hent);
+		hent = next;
+	    }
+	    if (!hent) {
+		if (++riter > max)
+		    break;
+		hent = array[riter];
+	    }
+        }
+        /* Silence strtab refcnt warnings during global destruction */
+        Zero(HvARRAY(PL_strtab), max, HE*);
+        /* NULL the HEK "dfs" */
+#if PERL_VERSION > 10
+        PL_registered_mros = (HV*)&PL_sv_undef;
+        CopHINTHASH_set(&PL_compiling, NULL);
+#endif
+    }
+
+#if PERL_VERSION > 7
+    if (DEBUG_D_TEST) {
+        SV* sva;
+        PerlIO_printf(Perl_debug_log, "sv[0]: 0x%p, sv_arenaroot: 0x%p, sva->any: 0x%p\n",
+                      SvANY(&sv_list[0]), PL_sv_arenaroot, SvANY(PL_sv_arenaroot));
+        for (sva = PL_sv_arenaroot;
+             sva;
+	     /* avoid cycles */
+             sva = (sva == (SV*)SvANY(sva)) ? NULL : (SV*)SvANY(sva))
+        {
+            PerlIO_printf(Perl_debug_log, "sv_arena: 0x%p - 0x%p (%lu)\n",
+              sva, sva+SvREFCNT(sva), (long)SvREFCNT(sva));
+        }
+    }
+#endif
+  }
+_EOT7a
+    if (defined $module and !$ITHREADS) {
+      print "    perl_destruct( NULL );\n";
+    } else {
+      print "    perl_destruct( my_perl );\n";
+    }
+  }
 }
 
 sub dump_symtable {
@@ -8107,7 +8208,7 @@ sub mark_package {
   my $package = shift;
   my $force = shift;
   $force = 0 if $] < 5.010;
-  return if skip_pkg($package); # or $package =~ /^B::C(C?)::/;
+  return if $module or skip_pkg($package); # or $package =~ /^B::C(C?)::/;
   if ( !$include_package{$package} or $force ) {
     no strict 'refs';
     warn "mark_package($package, $force)\n" if $verbose and $debug{pkg};
@@ -8302,6 +8403,11 @@ sub should_save {
 	}
       }
     }
+  }
+  if ($module and $package ne $module) {
+    $include_package{$package} = 0;
+    warn "Skip $package not in $mainfile\n" if $debug{pkg};
+    return 0;
   }
   # add overloaded but otherwise empty packages (#172)
   if ($savINC{'overload.pm'} and exists ${$package.'::'}{OVERLOAD} and exists ${$package.'::'}{'()'}) {
@@ -8596,6 +8702,7 @@ sub dump_rest {
         and $p !~ /^(threads|main|__ANON__|PerlIO)$/
        )
     {
+      next if $module and $p ne $module;
       if ($p eq 'warnings::register' and !$B::C::warnings) {
         delete_unsaved_hashINC('warnings::register');
         next;
@@ -8679,7 +8786,7 @@ sub save_context {
     no strict 'refs';
     if ( defined(objsym(svref_2object(\*{'main::!'}))) ) {
       use strict 'refs';
-      if (!$include_package{'Errno'}) {
+      if (!$module and !$include_package{'Errno'}) {
 	$init->add("/* force saving of Errno */");
 	mark_package('Config', 1);
         walk_syms('Config');
@@ -8711,8 +8818,30 @@ sub save_context {
     inc_cleanup(0);
     my $inc_gv = svref_2object( \*main::INC );
     $inc_hv    = $inc_gv->HV->save('main::INC');
-    $init->add('/* @INC */');
-    $inc_av    = $inc_gv->AV->save('main::INC');
+    if ($cross) {
+      $init->add('/* cross @INC */');
+      my @crossinc = ($Config{archlib});
+      if ($Config{archlib} ne $Config{privlib}) {
+        push @crossinc, $Config{privlib};
+      }
+      if (exists $Config{sitearch} and $Config{sitearch}) {
+        unshift @crossinc, $Config{sitearch};
+        unshift @crossinc, $Config{sitelib}
+          if $Config{sitearch} ne $Config{sitelib};
+      }
+      if (exists $Config{vendorarch} and $Config{vendorarch}) {
+        push @crossinc, $Config{vendorarch};
+        push @crossinc, $Config{vendorlib}
+          if $Config{vendorarch} ne $Config{vendorlib};
+      }
+      if ($] < 5.026 and !$Config{usecperl}) {
+        push @crossinc, '.';
+      }
+      $inc_av    = svref_2object(\@crossinc)->save('main::INC');
+    } else {
+      $init->add('/* @INC */');
+      $inc_av    = $inc_gv->AV->save('main::INC');
+    }
   }
   # ensure all included @ISA's are stored (#308), and also assign c3 (#325)
   my @saved_isa;
@@ -8920,20 +9049,27 @@ sub save_main_rest {
       sprintf( "PL_main_start = s\\_%x;", ${ main_start() } ),
     );
     $init->add(index($init_av,'(AV*)')>=0
-             ? "PL_initav = $init_av;"
-             : "PL_initav = (AV*)$init_av;");
+               ? "PL_initav = $init_av;"
+               : "PL_initav = (AV*)$init_av;");
     $init->add(index($end_av,'(AV*)')>=0
-             ? "PL_endav = $end_av;"
-             : "PL_endav = (AV*)$end_av;");
+               ? "PL_endav = $end_av;"
+               : "PL_endav = (AV*)$end_av;");
+
+    save_context();
+    # warn "use_xsloader=$use_xsloader\n" if $verbose;
+    # If XSLoader was forced later, e.g. in curpad, INIT or END block
+    force_saving_xsloader() if $use_xsloader;
   }
-  save_context() unless defined($module);
-  # warn "use_xsloader=$use_xsloader\n" if $verbose;
-  # If XSLoader was forced later, e.g. in curpad, INIT or END block
-  force_saving_xsloader() if $use_xsloader;
+  $init->add('/* B::C specific: prepend static svs to arena for sv_clean_objs */',
+             'if (&sv_list != (void *)PL_sv_arenaroot)',
+             '    SvANY(&sv_list[0]) = (void *)PL_sv_arenaroot;',
+             'PL_sv_arenaroot = &sv_list[0];');
 
   return if $check;
   warn "Writing output\n" if $verbose;
-  output_boilerplate();
+  my $cmodule = defined $module ? $module : "main";
+  $cmodule =~ s/::/__/g;
+  output_boilerplate($cmodule);
 
   # add static modules like " Win32CORE"
   foreach my $stashname ( split /\s+/, $Config{static_ext} ) {
@@ -8941,47 +9077,72 @@ sub save_main_rest {
     $static_ext{$stashname}++;
     my $stashxsub = $stashname;
     $stashxsub =~ s/::/__/g;
-    print "EXTERN_C void boot_$stashxsub (pTHX_ CV* cv);\n";
+    print "EXTERN_C void boot_$stashxsub (pTHX_ CV* cv);\n" unless defined $module;
   }
   print "\n";
   output_all($init_name || "perl_init");
   print "\n";
-  output_main_rest();
 
   if ( defined($module) ) {
-    my $cmodule = $module ? $module : "main";
-    $cmodule =~ s/::/__/g;
+    save_destruct($cmodule);
 
-    my $start = "op_list[0]";
+    my $start = "&op_list[0]";
     warn "curpad syms:\n" if $verbose;
     $init->add("/* curpad syms */");
     my $curpad_sym = ( comppadlist->ARRAY )[1]->save;
 
     print <<"EOT";
 
-#include "XSUB.h"
 XS(boot_$cmodule)
 {
-    dVAR;
+    int exitstatus;
     dXSARGS;
-    perl_init();
+    dVAR;
+EOT
+    print <<'EOT' if $PERL510 and ($ITHREADS or $MULTI);
+  {
+    MY_CXT_INIT;
+    dMY_CXT;
+EOT
+    print <<'EOT';
+
     ENTER;
     SAVETMPS;
     SAVEVPTR(PL_curpad);
     SAVEVPTR(PL_op);
-    dl_init(aTHX);
+
+EOT
+
+    output_init();
+
+    print <<"EOT";
+
     PL_curpad = AvARRAY($curpad_sym);
     PL_comppad = $curpad_sym;
     PL_op = $start;
-    perl_run( aTHX ); /* Perl_runops_standard(aTHX); */
+EOT
+
+    print $DEBUGGING
+      ? "    Perl_runops_debug(aTHX);\n"
+      : "    Perl_runops_standard(aTHX);\n";
+    output_local_destruct($cmodule);
+
+    print <<'EOT';
+
     FREETMPS;
     LEAVE;
     ST(0) = &PL_sv_yes;
     XSRETURN(1);
+EOT
+    print <<"EOT" if $PERL510 and ($ITHREADS or $MULTI);
+  }
+EOT
+    print <<'EOT';
 }
 EOT
 
   } else {
+    output_main_rest();
     output_main();
   }
 }
@@ -9079,7 +9240,11 @@ sub compile {
 
 OPTION:
   while ( $option = shift @options ) {
-    if ( $option =~ /^-(.)(.*)/ ) {
+    if ( $option =~ /^-(cross)=(.*)/ ) {
+      $opt = $1;
+      $arg = $2;
+    }
+    elsif ( $option =~ /^-(.)(.*)/ ) {
       $opt = $1;
       $arg = $2;
     }
@@ -9199,6 +9364,10 @@ OPTION:
     }
     elsif ( $opt eq "l" ) {
       $max_string_len = $arg;
+    }
+    elsif ( $opt eq "cross" ) {
+      $cross = $arg;
+      cross_config($cross); # overrides %B::C::Config::Config
     }
   }
   if (!$B::C::Config::have_independent_comalloc) {
@@ -9630,6 +9799,13 @@ exceeding that limit.
 =item B<-e ARG>
 
 Evaluate ARG at startup
+
+=item B<-cross=pathto/config.sh>
+
+Use a different C<%Config> from another F<config.sh> for
+cross-compilation.
+C<%INC> will still have the host paths, but C<@INC> and C<$^X>
+the target paths. See L<B::C::Config>.
 
 =back
 

@@ -38,6 +38,7 @@ use strict;
 use Test::More;
 use File::Temp;
 use Config;
+require Carp;
 
 my $ccopts;
 BEGIN {
@@ -47,6 +48,8 @@ BEGIN {
     if is_CI() and $ENV{PERL_CORE};
   plan skip_all => "SKIP_SLOW_TESTS, timeout on CI"
     if $ENV{SKIP_SLOW_TESTS};
+  #plan skip_all => "Unsupported Carp version $Carp::VERSION >= 1.42"
+  #  if $] >= 5.025004 and !$Config{usecperl} and $Carp::VERSION ge '1.42';
 
   if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
     # MSVC takes an hour to compile each binary unless -Od
@@ -111,6 +114,9 @@ plan tests => $test_count;
 
 use B::C;
 use POSIX qw(strftime);
+
+warn "# Unsupported Carp version $Carp::VERSION >= 1.42\n"
+  if $] >= 5.025004 and !$Config{usecperl} and $Carp::VERSION ge '1.42';
 
 eval { require IPC::Run; };
 my $have_IPC_Run = defined $IPC::Run::VERSION;
@@ -227,7 +233,12 @@ for my $module (@modules) {
         my $cmd = join(" ", @cmd);
         #warn $cmd."\n" if $ENV{TEST_VERBOSE};
 	# Esp. darwin-2level has insane link times
-        ($result, $stdout, $err) = run_cmd(\@cmd, 720); # in secs.
+        my $timeout = 60; # in secs.
+        if ($Config{ccflags} =~ /-flto/ or
+           ($^O eq 'MSWin32' and $Config{cc} eq 'cl')) {
+          $timeout = 720;
+        }
+        ($result, $stdout, $err) = run_cmd(\@cmd, $timeout);
         ok(-s $out,
            "$module_count: use $module  generates non-zero binary")
           or $module_passed = 0;
@@ -300,6 +311,9 @@ exit;
 
 # t/todomod.pl
 # for t in $(cat t/top100); do perl -ne"\$ARGV=~s/log.modules-//;print \$ARGV,': ',\$_ if / $t\s/" t/modules.t `ls log.modules-5.0*|grep -v .err`; read; done
+
+# Moose was compilable with pre-ETHER releases, but then they forgot how phases
+# should work in modules.
 sub is_todo {
   my $module = shift or die;
   my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);
@@ -348,13 +362,56 @@ sub is_todo {
   #)) { return '>= 5.18 #137 Eval-group not allowed at runtime' if $_ eq $module; }}
   # DateTime fixed with 1.52_13
   # stringify fixed with 1.52_18
-  #if ($] >= 5.018) { foreach(qw(
-  #    Path::Class
-  #)) { return '>= 5.18 #219 overload stringify regression' if $_ eq $module; }}
-  if ($] >= 5.023005) { foreach(qw(
-      Attribute::Handlers
-      MooseX::Types
-  )) { return '>= 5.23.5 SEGV' if $_ eq $module; }}
+  if ($] >= 5.018) { foreach(qw(
+      Path::Class
+  )) { return '>= 5.18 #219 overload stringify regression' if $_ eq $module; }}
+  # invalid free
+  if ($] >= 5.022 and $] < 5.026 and !$Config{usecperl}) { foreach(qw(
+      Test::Simple
+      Test::Deep
+      Test::Tester
+      Test::NoWarnings
+      Test::Pod
+  )) { return '5.22-5.26 !cperl invalid free' if $_ eq $module; }}
+  if ($] >= 5.022 and $] < 5.028 and !$Config{usecperl}) { foreach(qw(
+      Test::Simple
+      Test::Exception
+      Test::Deep
+      Test::Tester
+      Test::NoWarnings
+      Test::Pod
+  )) { return '5.22-5.28 !cperl invalid free' if $_ eq $module; }}
+  # old C-1.52_15
+  #if ($] >= 5.022 and $] < 5.024 and $Config{usecperl}) { foreach(qw(
+  #    Class::Inspector
+  #    Data::OptList
+  #    File::Spec
+  #    File::Temp
+  #    ExtUtils::CBuilder
+  #    Params::Util
+  #    Tree::DAG_Node
+  #)) { return '5.22 cperl' if $_ eq $module; }}
+  # 1.53_08, 1.52_15
+  if ($] >= 5.022 and $] < 5.024) { foreach(qw(
+      ExtUtils::CBuilder
+  )) { return '5.22' if $_ eq $module; }}
+  # fixed with 1.56
+  #if ($] >= 5.023005) { foreach(qw(
+  #    Attribute::Handlers
+  #    MooseX::Types
+  #)) { return '>= 5.23.5 SEGV' if $_ eq $module; }}
+  # Carp-like recursion on dynaload error
+  if ($] >= 5.024 and $] < 5.026 and !$Config{usecperl}) { foreach(qw(
+      List::MoreUtils
+      DateTime::Locale
+  )) { return '5.24 !cperl' if $_ eq $module; }}
+  if ($] >= 5.024 and $Config{usecperl}) { foreach(qw(
+      DateTime
+      DateTime::Locale
+      DateTime::TimeZone
+      Moose
+      Path::Class
+  )) { return '>= 5.24 cperl (stringify overload #219?)' if $_ eq $module; }}
 
   # ---------------------------------------
   if ($Config{useithreads}) {
@@ -385,10 +442,13 @@ sub is_todo {
     #if ($] > 5.008008 and $] <= 5.009) { foreach(qw(
     #  ExtUtils::CBuilder
     #)) { return '5.8.9 without threads' if $_ eq $module; }}
-    # invalid free
-    if ($] >= 5.016 and $] < 5.018) { foreach(qw(
-        Module::Build
-    )) { return '5.16 without threads (invalid free)' if $_ eq $module; }}
+    # invalid free, fixed with 1.56
+    #if ($] >= 5.016 and $] < 5.018) { foreach(qw(
+    #    Module::Build
+    #)) { return '5.16 without threads (invalid free)' if $_ eq $module; }}
+    if ($] >= 5.022 and $] < 5.026) { foreach(qw(
+        Test::Pod
+    )) { return '5.22 invalid free' if $_ eq $module; }}
     # This is a flapping test
     if ($] >= 5.017 and $] < 5.020) { foreach(qw(
         Moose
@@ -419,4 +479,70 @@ sub is_skip {
   #    and ($Config{cc} =~ / -m32/ or $Config{ccflags} =~ / -m32/)) {
   #  return 'hangs in CORE with -m32' if $module =~ /^Pod::/;
   #}
+  # recursion stack SEGV on die (Carp <= DynaLoader)
+  if ($] >= 5.026 and !$Config{usecperl} and $Carp::VERSION ge '1.42') { foreach(qw(
+      Attribute::Handlers
+      B::Hooks::EndOfScope
+      Class::Accessor
+      Class::C3
+      Class::Inspector
+      Class::MOP
+      Clone
+      Compress::Raw::Bzip2
+      Compress::Raw::Zlib
+      DBI
+      Data::Dumper
+      Data::OptList
+      DateTime
+      DateTime::Locale
+      DateTime::TimeZone
+      Digest::MD5
+      Digest::SHA1
+      Encode
+      ExtUtils::CBuilder
+      ExtUtils::Install
+      ExtUtils::MakeMaker
+      ExtUtils::Manifest
+      ExtUtils::ParseXS
+      FCGI
+      File::Path
+      File::Spec
+      File::Temp
+      Filter::Util::Call
+      HTML::Parser
+      if
+      IO
+      IO::Compress::Base
+      IO::Scalar
+      IO::String
+      LWP
+      MIME::Base64
+      MRO::Compat
+      Module::Build
+      Module::Pluggable
+      Moose
+      MooseX::Types
+      namespace::clean
+      Params::Validate
+      Pod::Text
+      Scalar::Util
+      Storable
+      Sub::Exporter
+      Sub::Identify
+      Sub::Install
+      Sub::Name
+      Template::Stash
+      Test::Deep
+      Test::Harness
+      Test::NoWarnings
+      Test::Simple
+      Text::Wrap
+      Time::HiRes
+      Tree::DAG_Node
+      Try::Tiny
+      Variable::Magic
+      version
+      XML::SAX
+      YAML
+  )) { return '>= 5.26 !cperl (Carp)' if $_ eq $module; }}
 }

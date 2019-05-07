@@ -20,12 +20,15 @@ our $keep = '';
 
 sub perlversion {
   my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);
-  return sprintf("%1.6f%s%s%s", $],
+  my $dVAR = ($Config{ccflags} =~ m/-DPERL_GLOBAL_STRUCT/);
+  return sprintf("%1.6f%s%s%s%s", $],
                  ($Config{usecperl} ? "c" : ""),
                  ($DEBUGGING ? 'd' : ''),
                  ($Config{useithreads} ? ''
                   : $Config{usemultiplicity} ? '-m'
-                  : '-nt'));
+                  : '-nt'),
+                 ($dVAR ? '-dVAR' : '')
+                 );
 }
 
 sub percent {
