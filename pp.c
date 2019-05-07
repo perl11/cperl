@@ -4415,7 +4415,8 @@ PP(pp_ucfirst)
                  * 'I'.  If so, we can remove it simply by indicating to the
                  * code below to start copying the source just beyond the DOT.
                  * We know its length is 2 */
-                if (LIKELY(memBEGINs(s + 1, s + slen, COMBINING_DOT_ABOVE_UTF8))) {
+                if (LIKELY(slen >= sizeof(COMBINING_DOT_ABOVE_UTF8)-1 &&
+                           memEQc(s + 1, COMBINING_DOT_ABOVE_UTF8))) {
                     ulen += 2;
                 }
                 else {  /* But if it doesn't follow immediately, set a flag for
@@ -4593,7 +4594,7 @@ PP(pp_ucfirst)
                             sv_catpvn(dest, (char*)(s + ulen), this_len);
 
                             ulen += this_len;
-                            if (memBEGINs(s + ulen, s + slen, COMBINING_DOT_ABOVE_UTF8)) {
+                            if (memEQc(s + ulen, COMBINING_DOT_ABOVE_UTF8)) {
                                 ulen += 2;
                                 break;
                             }
@@ -5115,7 +5116,7 @@ PP(pp_lc)
                 && IN_LC_RUNTIME(LC_CTYPE))
             {
                 if (   UNLIKELY(remove_dot_above)
-                    && memBEGINs(tmpbuf, sizeof(tmpbuf), COMBINING_DOT_ABOVE_UTF8))
+                    && memEQc(tmpbuf, COMBINING_DOT_ABOVE_UTF8))
                 {
                     s += u;
                     remove_dot_above = FALSE;
