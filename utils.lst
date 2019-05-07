@@ -1,4 +1,5 @@
 cpan/B-C/blib/script/assemble
+cpan/B-C/blib/script/buildcc
 cpan/B-C/blib/script/cc_harness
 cpan/B-C/blib/script/disassemble
 cpan/B-C/blib/script/perlcc
