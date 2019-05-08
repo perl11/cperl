@@ -116,8 +116,8 @@ SKIP: {
   cleanup;
 
  TODO: {
-    local $TODO = '--staticxs -S is experimental on darwin and <5.10'
-      if $] < 5.010 or $^O eq 'darwin';
+    local $TODO = '--staticxs -S is experimental on darwin/win and <5.10'
+      if $] < 5.010 or $^O eq 'darwin' or (is_CI() and $^O eq 'MSWin32');
     is(`$perlcc --staticxs -S -o pcc -r -e $e  $devnull`, "ok",
        "-S -o -r --staticxs xs"); #17
     ok(-e $a, "keep executable"); #18
