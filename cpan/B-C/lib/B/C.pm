@@ -13,7 +13,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.57';
+our $VERSION = '1.57_01';
 our (%debug, $check, %Config, %Cross, %OriConfig, $cross);
 BEGIN {
   require B::C::Config;
@@ -2443,7 +2443,13 @@ sub B::COP::save {
 
   my $dynamic_copwarn = ($PERL510 and !$is_special) ? 1 : !$B::C::optimize_warn_sv;
   # branch feature/gh70-static-lexwarn with PERL_SUPPORT_STATIC_COP
-  $dynamic_copwarn = 0 if $Config{usecperl} and $] >= 5.022002;
+  $dynamic_copwarn = 0 if $^V =~ /c$/ and $] >= 5.022002;
+  # v5.29.7 added non-static PL_WARN_ALL|NONE symbols
+  $dynamic_copwarn = 1
+    if $is_special and $warn_sv =~ /_(?:ALL|NONE)/
+        and ($^V !~ /c$/ and $] >= 5.029007);
+        # reverted that in cperl
+        # or ($^V =~ /c$/ and $] >= 5.029002));
 
   # Trim the .pl extension, to print the executable name only.
   my $file = $op->file;
@@ -2598,16 +2604,16 @@ sub B::COP::save {
       # lexwarn<n> might be also be STRLEN* 0
       $init->no_split;
       $init->add("#ifdef PERL_SUPPORT_STATIC_COP  /* so far cperl only */",
-                 "$dest = $warn_sv;",
+                 "  $dest = $warn_sv;",
                  "#else",
-                 sprintf("%s = (STRLEN*)savesharedpvn((const char*)%s, sizeof(%s));",
+                 sprintf("  %s = (STRLEN*)savesharedpvn((const char*)%s, sizeof(%s));",
                          $dest, $copw, $copw),
                  "#endif");
       $init->split;
     }
   } else {
     $init->add( sprintf( "cop_list[%d].cop_warnings = %s;", $ix, $warn_sv ) )
-      unless $B::C::optimize_warn_sv;
+      if !$B::C::optimize_warn_sv or $dynamic_copwarn;
   }
   #push @B::C::static_free, "cop_list[$ix]" if $ITHREADS;
   if (!$B::C::optimize_cop) {
