@@ -48,8 +48,8 @@ BEGIN {
     if is_CI() and $ENV{PERL_CORE};
   plan skip_all => "SKIP_SLOW_TESTS, timeout on CI"
     if $ENV{SKIP_SLOW_TESTS};
-  #plan skip_all => "Unsupported Carp version $Carp::VERSION >= 1.42"
-  #  if $] >= 5.025004 and !$Config{usecperl} and $Carp::VERSION ge '1.42';
+  plan skip_all => "Unsupported Carp version $Carp::VERSION >= 1.42"
+    if $] >= 5.025004 and !$Config{usecperl} and $Carp::VERSION ge '1.42' and is_CI();
 
   if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
     # MSVC takes an hour to compile each binary unless -Od
@@ -115,12 +115,15 @@ plan tests => $test_count;
 use B::C;
 use POSIX qw(strftime);
 
-warn "# Unsupported Carp version $Carp::VERSION >= 1.42\n"
-  if $] >= 5.025004 and !$Config{usecperl} and $Carp::VERSION ge '1.42';
+if ($] >= 5.025004 and !$Config{usecperl} and $Carp::VERSION ge '1.42') {
+  warn "# Unsupported Carp version $Carp::VERSION >= 1.42\n";
+}
+
 
 eval { require IPC::Run; };
 my $have_IPC_Run = defined $IPC::Run::VERSION;
-log_diag("Warning: IPC::Run is not available. Error trapping will be limited, no timeouts.")
+log_diag("Warning: IPC::Run is not available. Error trapping will be ".
+         "limited, no timeouts.")
   if !$have_IPC_Run and !$ENV{PERL_CORE};
 
 my @opts = ("-O3");				  # only B::C
@@ -238,6 +241,8 @@ for my $module (@modules) {
            ($^O eq 'MSWin32' and $Config{cc} eq 'cl')) {
           $timeout = 720;
         }
+        # to bypass CI timeouts (no output has been received in the last 10m0s)
+        warn "# $module\n" if is_CI();
         ($result, $stdout, $err) = run_cmd(\@cmd, $timeout);
         ok(-s $out,
            "$module_count: use $module  generates non-zero binary")
