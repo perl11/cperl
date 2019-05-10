@@ -369,6 +369,17 @@ adjust Devel::Peek pod to cperl FLAGS
 
 simplify pp_subcall_profiler op_type check.
 
+=item L<Encode>  3.01
+
+Add C<Encode::ONLY_PRAGMA_WARNINGS> by default to C<:encoding> layer
+variable C<$PerlIO::encoding::fallback>.
+
+ONLY_PRAGMA_WARNINGS reports only those warnings which are
+currently enabled by pragma warnings. When ONLY_PRAGMA_WARNINGS
+is not set then Encode would report all warnings.
+ONLY_PRAGMA_WARNINGS would have no effect when flag
+ENCODE_WARN_ON_ERR is not set.
+
 =item L<Errno> 1.30_01
 
 Make F<Errno_pm.PL> compatible with F<< /usr/include/<ARCH>/errno.h >>

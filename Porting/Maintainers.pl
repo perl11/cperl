@@ -568,14 +568,11 @@ use File::Glob qw(:case);
     },
 
     'Encode' => {
-        'DISTRIBUTION' => 'DANKOGAI/Encode-2.98.tar.gz',
+        'DISTRIBUTION' => 'DANKOGAI/Encode-3.01.tar.gz',
         'FILES'        => q[cpan/Encode],
         # undeprecate encoding
         # t/truncated_utf8.t: TODO test passes on blead
-        'CUSTOMIZED'   => [ qw(
-                            encoding.pm
-                            t/Aliases.t
-                            )],
+        'CUSTOMIZED'   => [ qw( t/Aliases.t )],
     },
 
     'encoding::warnings' => {
