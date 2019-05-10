@@ -2246,9 +2246,8 @@ C<type> is the type.  May fail on overlapping copies.  See also C<L</Move>>.
 
 =for apidoc Am|void *|CopyD|void* src|void* dest|int nitems|type
 
-Like C<Copy> but returns C<dest>.  Useful
-for encouraging compilers to tail-call
-optimise.
+Like C<Copy> but returns C<dest>.  Useful for encouraging compilers to
+tail-call optimise.
 
 =for apidoc Am|void|Zero|void* dest|int nitems|type
 
