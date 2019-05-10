@@ -572,7 +572,7 @@ use File::Glob qw(:case);
         'FILES'        => q[cpan/Encode],
         # undeprecate encoding
         # t/truncated_utf8.t: TODO test passes on blead
-        'CUSTOMIZED'   => [ qw( t/Aliases.t )],
+        'CUSTOMIZED'   => [ qw( t/Aliases.t t/enc_utf8.t )],
     },
 
     'encoding::warnings' => {

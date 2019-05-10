@@ -61,6 +61,7 @@ Digest::MD5 cpan/Digest-MD5/MD5.pm 866a0ca11d63c257f3c90974704b88c9361e705c
 Digest::MD5 cpan/Digest-MD5/MD5.xs 304837872d60ba16300f85771abaa7c40fabadf3
 Digest::MD5 cpan/Digest-MD5/t/files.t 39ff314a4eee7a7e2d66254ffecf8d05f2761213
 Encode cpan/Encode/t/Aliases.t 9c3a3607f599a08236cb8ea4536a160c57e9f2ed
+Encode cpan/Encode/t/enc_utf8.t a133dd2fac1ea1e78300b285d548dbc7d7d46587
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t 30dbb8884acdb910e79649be5c72e350be27eb36
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t 71a03fe898634486a5181ac32b6a98f03bb9a914
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/Liblist/Kid.pm a7ce3c6953c3f783dc99c967fb9a7dc32ac1edf7
