@@ -43,6 +43,9 @@ matrix:
     - MINGW: 1
       CFG: Debug
       PLATFORM: x86
+    # timeouts, and 32bit should be outclassed anyway
+    - CYGWIN: 1
+      PLATFORM: x86
     - MSVC_VERSION: 10
       PLATFORM: x64
     - MSVC_VERSION: 10
