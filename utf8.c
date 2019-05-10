@@ -6152,6 +6152,7 @@ S_uvuni_get_script(pTHX_ const UV uv) {
         SAVEFREESV(errsv_save);
     GvSV(PL_errgv) = NULL;
     /* TODO: Convert this to C. UCD access is still primitive and huge. */
+    /* Thanksfully it is only called with invalid scripts */
     if (call_sv(newSVpvs_flags("Unicode::UCD::charscript", SVs_TEMP), G_SCALAR)) {
         retval = *PL_stack_sp--;
         SvREFCNT_inc(retval);
@@ -6167,6 +6168,13 @@ S_uvuni_get_script(pTHX_ const UV uv) {
     return retval ? SvPVX(retval) : (char*)"";
 }
 
+/*
+=for apidoc utf8_add_script
+
+Adds the given ASCIIZ script to %utf8::SCRIPTS, and initializes it lazily.
+
+=cut
+*/
 PERL_STATIC_INLINE void
 S_utf8_add_script(pTHX_ const char* script) {
     const GV* gv = gv_fetchpvs("utf8::SCRIPTS", GV_NOADD_NOINIT, SVt_PVHV);
@@ -6180,24 +6188,33 @@ S_utf8_add_script(pTHX_ const char* script) {
         (void)hv_store(allowed, "Inherited", 9, newSViv(1), 0);
     } else
         allowed = GvHV(gv);
+    /* TODO: check against %utf8::VALID_SCRIPTS ? */
 
     /* Add as yes, not 1 to seperate it from explicitly declared Scripts */
     (void)hv_store(allowed, script, strlen(script), SvREFCNT_inc_simple_NN(SV_YES), 0);
 }
 
+#define generic_pv_escape(sv,s,len,utf8) pv_escape( (sv), (s), (len), \
+                              (len) * (4+UTF8_MAXBYTES) + 1, NULL, \
+                              PERL_PV_ESCAPE_NONASCII | PERL_PV_ESCAPE_DWIM \
+                              | ((utf8) ? PERL_PV_ESCAPE_UNI : 0) )
 
 /*
 =for apidoc utf8_error_script
 
 If this character is the first non-Latin or non-Common character, and
-no other scripts were declared, and the script is not member of %utf8::EXCLUDED_SCRIPTS,
+no other scripts were declared, and the script is either member of
+%VALID_SCRIPTS, or is not member of %utf8::EXCLUDED_SCRIPTS,
 then add the script to the list of allowed scripts, otherwise error.
 
 %utf8::EXCLUDED_SCRIPTS map the Moderately Restrictive Level for identifiers.
-i.e. Allow Recommended or Aspirational scripts except Cyrillic and Greek.
+i.e. Allow Recommended scripts except Cyrillic and Greek.
 
 Also allow Latin + :Japanese, Latin + :Hanb and Latin + :Korean, but
 always only the first encounter of such a combination.
+
+Use an extra error message for %utf8::LIMITED_SCRIPTS errors, as this is
+a new restriction since v5.29.2c.
 
 Note that the argument is guaranteed to be not of the Common or Latin
 script property.
@@ -6209,22 +6226,44 @@ STATIC void
 S_utf8_error_script(pTHX_ const U8 *s, const char* script, UV uv) {
     static int count = 0;
     STRLEN len = strlen((char*)s);
-    const GV* gv = gv_fetchpvs("utf8::SCRIPTS", GV_NOADD_NOINIT, SVt_PVHV);
-    HV* allowed = gv ? GvHV(gv) : NULL;
+    const GV* gvv = gv_fetchpvs("utf8::VALID_SCRIPTS", GV_NOADD_NOINIT, SVt_PVHV);
+    HV* valid   = gvv ? GvHV(gvv) : NULL;
+    GV* gva;
+    HV* allowed;
+    SV* tmp;
+    GV* lim = NULL;
+    HV* limited = NULL;
+    int islimited = 0;
     PERL_ARGS_ASSERT_UTF8_ERROR_SCRIPT;
 
     if (!script) {
         uv = utf8n_to_uvchr(s, len, &len, UTF8_ALLOW_ANYUV);
         script = uvuni_get_script(uv);
     }
+    if (hv_exists(valid, script, strlen(script))) {
+        DEBUG_T(PerlIO_printf(Perl_debug_log, "added valid Script %s for U+%04" UVXf "\n",
+                              script, uv));
+        utf8_add_script(script);
+        return;
+    }
     ++count;
+    gva = gv_fetchpvs("utf8::SCRIPTS", GV_NOADD_NOINIT, SVt_PVHV);
+    allowed = gva ? GvHV(gva) : NULL;
     /* The first error is suppressed and assumed as new default script,
        when no scripts were declared. */
     if (count == 1 && (!allowed || HvKEYS(allowed) == 3)) {
         const GV* exc = gv_fetchpvs("utf8::EXCLUDED_SCRIPTS", GV_NOADD_NOINIT, SVt_PVHV);
         HV* excluded = exc ? GvHV(exc) : NULL;
-        /* Special alias rules for Japanese, Korean and Hanb */
-        if (hv_exists(excluded, script, len)) {
+        lim = gv_fetchpvs("utf8::LIMITED_SCRIPTS", GV_NOADD_NOINIT, SVt_PVHV);
+        limited = lim ? GvHV(lim) : NULL;
+        if (hv_exists(limited, script, strlen(script))) {
+            DEBUG_T(PerlIO_printf(Perl_debug_log, "Script %s for U+%04" UVXf
+                                  " is Limited_Use and thus forbidden.\n",
+                                  script, uv));
+            islimited++;
+            goto script_error;
+        }
+        else if (hv_exists(excluded, script, strlen(script))) {
             DEBUG_T(PerlIO_printf(Perl_debug_log, "Script %s for U+%04" UVXf
                                   " is excluded, not added automatically.\n",
                                   script, uv));
@@ -6233,6 +6272,7 @@ S_utf8_error_script(pTHX_ const U8 *s, const char* script, UV uv) {
             DEBUG_T(PerlIO_printf(Perl_debug_log, "added Script %s for U+%04" UVXf "\n",
                                   script, uv));
             utf8_add_script(script);
+            /* Special alias rules for :Japanese, :Korean and :Hanb, added dynamically */
             if (strEQc(script, "Hiragana")) {
                 DEBUG_T(PerlIO_printf(Perl_debug_log, "added Script %s for U+%04" UVXf "\n",
                                   ":Japanese", uv));
@@ -6259,14 +6299,21 @@ S_utf8_error_script(pTHX_ const U8 *s, const char* script, UV uv) {
     }
     else {
     script_error:
+        tmp = newSVpvs_flags("", SVs_TEMP);
+        lim = lim ? lim : gv_fetchpvs("utf8::LIMITED_SCRIPTS", GV_NOADD_NOINIT, SVt_PVHV);
+        limited = lim ? GvHV(lim) : NULL;
+        if (islimited || hv_exists(limited, script, strlen(script)))
+            goto _islimited;
+
         if (allowed && HvKEYS(allowed) > 3) {
             HE *entry;
-            SV* tmp = newSVpvs("");
+            SV* tmp1 = newSVpvs_flags("", SVs_TEMP);
             I32 l;
             int i = 0;
             Perl_sv_catpvf(aTHX_ tmp,
-                "Invalid script %s in identifier %.*s for U+%04" UVXf
-                ". Have", script, (int)len, s, uv);
+                "Invalid script %s in identifier %s for U+%04" UVXf
+                ". Have", script,
+                pv_uni_display(tmp1, s, len, 36, UNI_DISPLAY_QQ), uv);
             hv_iterinit(allowed);
             while ((entry = hv_iternext(allowed))) {
 		const char * const key = hv_iterkey(entry, &l);
@@ -6276,10 +6323,22 @@ S_utf8_error_script(pTHX_ const U8 *s, const char* script, UV uv) {
                 }
             }
             Perl_croak(aTHX_ "%s", SvPVX(tmp));
-            SvREFCNT_dec(tmp);
         } else {
-            Perl_croak(aTHX_ "Invalid script %s in identifier %.*s for U+%04" UVXf,
-                       script, (int)len, s, uv);
+            if (!islimited && limited && hv_exists(limited, script, strlen(script))) {
+                DEBUG_T(PerlIO_printf(Perl_debug_log, "Script %s for U+%04" UVXf
+                                      " is Limited_Use and thus forbidden.\n",
+                                      script, uv));
+                islimited++;
+            }
+            if (islimited) {
+            _islimited:
+                Perl_croak(aTHX_ "Invalid script %s in identifier %s for U+%04" UVXf ", "
+                           "Limited Use scripts are forbidden",
+                           script, pv_uni_display(tmp, s, len, 36, UNI_DISPLAY_QQ), uv);
+            }
+            else
+                Perl_croak(aTHX_ "Invalid script %s in identifier %s for U+%04" UVXf,
+                           script, pv_uni_display(tmp, s, len, 36, UNI_DISPLAY_QQ), uv);
         }
     }
 }
@@ -6315,6 +6374,9 @@ Perl_utf8_check_script(pTHX_ const U8 *s)
 
         DEBUG_T(PerlIO_printf(Perl_debug_log, "check Script %s for U+%04" UVXf "\n",
                               script, uv));
+        /* Does not necessarily error. It usually happens when the script was
+           not yet declared as valid in %SCRIPTS, is thus checked in %VALID_SCRIPTS,
+           %EXCLUDED_SCRIPTS and %LIMITED_SCRIPTS */
         if (!hv_exists(allowed, script, strlen(script)))
             utf8_error_script(s, script, uv);
     }

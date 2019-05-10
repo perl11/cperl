@@ -9,7 +9,7 @@ BEGIN {
     skip_all_if_miniperl("miniperl can't load attributes");
 }
 
-use utf8 qw( Canadian_Aboriginal Hangul Bopomofo Katakana Runic Ethiopic );
+use utf8 qw( Mongolian Hangul Bopomofo Katakana Runic Ethiopic );
 use open qw( :utf8 :std );
 use warnings;
 use feature 'unicode_strings';
@@ -42,11 +42,11 @@ like $@, qr/^Invalid SCALAR attribute: ["']?plǖgh\(\}\)["']? at/;
 # More syntax tests from the attributes manpage
 eval 'my $x : Şʨᚻ(10,ᕘ(7,3))  :  에ㄒ펜ሲ;';
 like $@, qr/^Invalid SCALAR attributes: ["']?Şʨᚻ\(10,ᕘ\(7,3\)\) : 에ㄒ펜ሲ["']? at/;
-eval q/my $x : Ugļᑈ('\(") :받;/;
-like $@, qr/^Invalid SCALAR attributes: ["']?Ugļᑈ\('\\\("\) : 받["']? at/;
+eval q/my $x : Ugļ('\(") :받;/;
+like $@, qr/^Invalid SCALAR attributes: ["']?Ugļ\('\\\("\) : 받["']? at/;
 eval 'my $x : Şʨᚻ(10,ᕘ();';
 like $@, qr/^Unterminated attribute parameter in attribute list at/;
-eval q/my $x : Ugļᑈ('(');/;
+eval q/my $x : Ugļ('(');/;
 like $@, qr/^Unterminated attribute parameter in attribute list at/;
 
 sub A::MODIFY_SCALAR_ATTRIBUTES { return }
@@ -67,10 +67,10 @@ eval 'my Càt %nap;';
 is $@, '';
 
 sub X::MODIFY_CODE_ATTRIBUTES { die "$_[0]" }
-sub X::ᕘ { 1 }
-*Y::bar = \&X::ᕘ;
-*Y::bar = \&X::ᕘ;	# second time for -w
-eval 'package Z; sub Y::bar : ᕘ';
+sub X::ᠠ { 1 } # ᕘ => ᠠ
+*Y::bar = \&X::ᠠ;
+*Y::bar = \&X::ᠠ;	# second time for -w
+eval 'package Z; sub Y::bar : ᠠ';
 like $@, qr/^X at /;
 
 # Begin testing attributes that tie
@@ -97,15 +97,15 @@ eval_ok '
 ';
 
 # bug #15898
-eval 'our ${""} : ᕘ = 1';
+eval 'our ${""} : ᠠ = 1';
 like $@, qr/Can't declare scalar dereference in "our"/;
-eval 'my $$ᕘ : bar = 1';
+eval 'my $$ᠠ : bar = 1';
 like $@, qr/Can't declare scalar dereference in "my"/;
 
 
 # this will segfault if it fails
-sub PVBM () { 'ᕘ' }
-{ my $dummy = index 'ᕘ', PVBM }
+sub PVBM () { 'ᠠ' }
+{ my $dummy = index 'ᠠ', PVBM }
 
 ok !defined(eval 'attributes::get(\PVBM)'), 
     'PVBMs don\'t segfault attributes::get';
@@ -128,27 +128,27 @@ ok !defined(eval 'attributes::get(\PVBM)'),
 	package bug66970;
 	our $c;
 	sub MODIFY_CODE_ATTRIBUTES { $c = $_[1]; () }
-	$c=undef; eval 'sub t0 :ᕘ';
+	$c=undef; eval 'sub t0 :ᠠ';
 	main::ok $c == \&{"t0"};
-	$c=undef; eval 'sub t1 :ᕘ { }';
+	$c=undef; eval 'sub t1 :ᠠ { }';
 	main::ok $c == \&{"t1"};
 	$c=undef; eval 'sub t2';
 	our $t2a = \&{"t2"};
-	$c=undef; eval 'sub t2 :ᕘ';
+	$c=undef; eval 'sub t2 :ᠠ';
 	main::ok $c == \&{"t2"} && $c == $t2a;
 	$c=undef; eval 'sub t3';
 	our $t3a = \&{"t3"};
-	$c=undef; eval 'sub t3 :ᕘ { }';
+	$c=undef; eval 'sub t3 :ᠠ { }';
 	main::ok $c == \&{"t3"} && $c == $t3a;
-	$c=undef; eval 'sub t4 :ᕘ';
+	$c=undef; eval 'sub t4 :ᠠ';
 	our $t4a = \&{"t4"};
 	our $t4b = $c;
-	$c=undef; eval 'sub t4 :ᕘ';
+	$c=undef; eval 'sub t4 :ᠠ';
 	main::ok $c == \&{"t4"} && $c == $t4b && $c == $t4a;
-	$c=undef; eval 'sub t5 :ᕘ';
+	$c=undef; eval 'sub t5 :ᠠ';
 	our $t5a = \&{"t5"};
 	our $t5b = $c;
-	$c=undef; eval 'sub t5 :ᕘ { }';
+	$c=undef; eval 'sub t5 :ᠠ { }';
 	main::ok $c == \&{"t5"} && $c == $t5b && $c == $t5a;
 }
 
@@ -176,8 +176,8 @@ ok !defined(eval 'attributes::get(\PVBM)'),
   sub MODIFY_SCALAR_ATTRIBUTES { () }
   my $i = 0;
   my $x_values = '';
-  eval 'sub ᕘ { use 5.01; state $x :A0 = $i++; $x_values .= $x }';
-  ᕘ(); ᕘ();
+  eval 'sub ᠠ { use 5.01; state $x :A0 = $i++; $x_values .= $x }';
+  ᠠ(); ᠠ();
   package main;
   is $x_values, '00', 'state with attributes';
 }

@@ -33,13 +33,16 @@ my @nfc;
 for my $c (1 .. 0x10FFFF) {
     my $s = chr($c);
     my $nfd = NFD($s);
+    my $sc = utf8::charscript($c);
     # all valid identifiers, which have a different NFD: marks, diacrits, ...
-    if ($s =~ /\p{IDStart}/ && NFC($s) ne $nfd) {
+    if (utf8::valid_script($sc)) {
+      if ($s =~ /\p{IDStart}/ && NFC($s) ne $nfd) {
         push @nfc, $nfd => NFC($s);
-    } elsif ($s =~ /\p{IDContinue}/ && NFC($s) ne $nfd) {
+      } elsif ($s =~ /\p{IDContinue}/ && NFC($s) ne $nfd) {
         push @nfc, "A".$nfd => "A".NFC($s);
+      }
     }
-    # => 12076 confusables
+    # => 12076 confusables before Limited_Use restrictions
 }
 
 plan (tests => 24 + (scalar(@nfc)/2));

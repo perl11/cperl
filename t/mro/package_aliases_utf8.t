@@ -12,8 +12,8 @@ BEGIN {
 use strict;
 use warnings;
 use utf8 qw( Devanagari Bopomofo Ethiopic Hangul Cyrillic Katakana
-             Canadian_Aboriginal Kannada Thai Runic Ogham Lao Syriac Gujarati
-             Oriya Georgian Malayalam Gurmukhi Cham Hiragana Gurmukhi );
+             Mongolian Kannada Thai Runic Ogham Lao Gujarati
+             Oriya Georgian Malayalam Gurmukhi Mongolian Hiragana );
 use open qw( :utf8 :std );
 
 plan(tests => 46);
@@ -63,17 +63,17 @@ my $prog =    q~
              @INC = '../lib';
          }
      }
-     use utf8 qw( Hangul Gurmukhi Cham Cyrillic Canadian_Aboriginal Kannada
+     use utf8 qw( Hangul Gurmukhi Mongolian Cyrillic Mongolian Kannada
                   Runic Ethiopic );
      use open qw( :utf8 :std );
 
-     @숩cਲꩋ::ISA = "ｌㅔf";
+     @숩cਲᠠ::ISA = "ｌㅔf";
      @ｌㅔf::ISA = "톺ĺФț";
 
-     sub 톺ĺФț::Ｓᑊeಅḱ { "Woof!" }
-     sub ᴖ릭ᚽʇ::Ｓᑊeಅḱ { "Bow-wow!" }
+     sub 톺ĺФț::Ｓᠠeಅḱ { "Woof!" }
+     sub ᴖ릭ᚽʇ::Ｓᠠeಅḱ { "Bow-wow!" }
 
-     my $thing = bless [], "숩cਲꩋ";
+     my $thing = bless [], "숩cਲᠠ";
 
      # mro_package_moved needs to know to skip non-globs
      $릭Ⱶᵀ::{"ᚷꝆエcƙ::"} = 3;
@@ -82,10 +82,10 @@ my $prog =    q~
      my $life_raft;
     __code__;
 
-     print $thing->Ｓᑊeಅḱ, "\n";
+     print $thing->Ｓᠠeಅḱ, "\n";
 
      undef $life_raft;
-     print $thing->Ｓᑊeಅḱ, "\n";
+     print $thing->Ｓᠠeಅḱ, "\n";
    ~ =~ s\__code__\$$_{code}\r; #\
 utf8::encode($prog);
  fresh_perl_is
@@ -101,7 +101,7 @@ utf8::encode($prog);
 #      |                 |
 #  ｌㅔf::Side   <-   릭Ⱶᵀ::Side
 #      |
-#   숩cਲꩋ
+#   숩cਲᠠ
 #
 # This test assigns 릭Ⱶᵀ:: to ｌㅔf::, indirectly making ｌㅔf::Side an
 # alias to 릭Ⱶᵀ::Side (following the arrow in the diagram).
@@ -126,25 +126,25 @@ for(
              @INC = '../lib';
          }
      }
-     use utf8 qw( Hangul Gurmukhi Cham Cyrillic Canadian_Aboriginal Kannada
+     use utf8 qw( Hangul Gurmukhi Mongolian Cyrillic Mongolian Kannada
                   Runic Ethiopic );
      use open qw( :utf8 :std );
-     @숩cਲꩋ::ISA = "ｌㅔf::Side";
+     @숩cਲᠠ::ISA = "ｌㅔf::Side";
      @ｌㅔf::Side::ISA = "톺ĺФț";
 
-     sub 톺ĺФț::Ｓᑊeಅḱ { "Woof!" }
-     sub ᴖ릭ᚽʇ::Ｓᑊeಅḱ { "Bow-wow!" }
+     sub 톺ĺФț::Ｓᠠeಅḱ { "Woof!" }
+     sub ᴖ릭ᚽʇ::Ｓᠠeಅḱ { "Bow-wow!" }
 
-     my $thing = bless [], "숩cਲꩋ";
+     my $thing = bless [], "숩cਲᠠ";
 
      @릭Ⱶᵀ::Side::ISA = 'ᴖ릭ᚽʇ';
      my $life_raft;
     __code__;
 
-     print $thing->Ｓᑊeಅḱ, "\n";
+     print $thing->Ｓᠠeಅḱ, "\n";
 
      undef $life_raft;
-     print $thing->Ｓᑊeಅḱ, "\n";
+     print $thing->Ｓᠠeಅḱ, "\n";
    ~ =~ s\__code__\$$_{code}\r;
  utf8::encode($prog);
 
@@ -270,37 +270,37 @@ no warnings; # temporary; there seems to be a scoping bug, as this does not
  @ቹऋ::ISA = ("Cuȓ", "ฮﾝᛞ");
  @Cuȓ::ISA = "Hyḹ앛Ҭテ";
 
- sub Hyḹ앛Ҭテ::Ｓᑊeಅḱ { "Arff!" }
- sub ฮﾝᛞ::Ｓᑊeಅḱ { "Woof!" }
+ sub Hyḹ앛Ҭテ::Ｓᠠeಅḱ { "Arff!" }
+ sub ฮﾝᛞ::Ｓᠠeಅḱ { "Woof!" }
 
  my $pet = bless [], "ቹऋ";
 
  my $life_raft = delete $::{'Cuȓ::'};
 
- is $pet->Ｓᑊeಅḱ, 'Woof!',
+ is $pet->Ｓᠠeಅḱ, 'Woof!',
   'deleting a stash from its parent stash invalidates the isa caches';
 
  undef $life_raft;
- is $pet->Ｓᑊeಅḱ, 'Woof!',
+ is $pet->Ｓᠠeಅḱ, 'Woof!',
   'the deleted stash is gone completely when freed';
 }
 # Same thing, but with nested packages
 {
- @펱ᑦ::ISA = ("Cuȓȓ::Cuȓȓ::Cuȓȓ", "ɥwn");
+ @펱ᠠ::ISA = ("Cuȓȓ::Cuȓȓ::Cuȓȓ", "ɥwn");
  @Cuȓȓ::Cuȓȓ::Cuȓȓ::ISA = "lȺt랕ᚖ";
 
- sub lȺt랕ᚖ::Ｓᑊeಅḱ { "Arff!" }
- sub ɥwn::Ｓᑊeಅḱ { "Woof!" }
+ sub lȺt랕ᚖ::Ｓᠠeಅḱ { "Arff!" }
+ sub ɥwn::Ｓᠠeಅḱ { "Woof!" }
 
- my $pet = bless [], "펱ᑦ";
+ my $pet = bless [], "펱ᠠ";
 
  my $life_raft = delete $::{'Cuȓȓ::'};
 
- is $pet->Ｓᑊeಅḱ, 'Woof!',
+ is $pet->Ｓᠠeಅḱ, 'Woof!',
   'deleting a stash from its parent stash resets caches of substashes';
 
  undef $life_raft;
- is $pet->Ｓᑊeಅḱ, 'Woof!',
+ is $pet->Ｓᠠeಅḱ, 'Woof!',
   'the deleted substash is gone completely when freed';
 }
 
@@ -312,24 +312,24 @@ my $prog =    q~#!perl -w
              @INC = '../lib';
          }
      }
-     use utf8 qw( Hangul Canadian_Aboriginal Ethiopic Runic Katakana Kannada Ogham
+     use utf8 qw( Hangul Mongolian Ethiopic Runic Katakana Kannada Ogham
                   Lao );
      use open qw( :utf8 :std );
-     @펱ᑦ::ISA = "T잌ዕ";
+     @펱ᠠ::ISA = "T잌ዕ";
      @T잌ዕ::ISA = "Bᛆヶṝ";
      
-     sub Bᛆヶṝ::Ｓᑊeಅḱ { print "Woof!\n" }
-     sub lȺt랕ᚖ::Ｓᑊeಅḱ { print "Bow-wow!\n" }
+     sub Bᛆヶṝ::Ｓᠠeಅḱ { print "Woof!\n" }
+     sub lȺt랕ᚖ::Ｓᠠeಅḱ { print "Bow-wow!\n" }
      
-     my $pet = bless [], "펱ᑦ";
+     my $pet = bless [], "펱ᠠ";
      
-     $pet->Ｓᑊeಅḱ;
+     $pet->Ｓᠠeಅḱ;
      
-     sub ດƓ::Ｓᑊeಅḱ { print "Hello.\n" } # strange ດƓ!
+     sub ດƓ::Ｓᠠeಅḱ { print "Hello.\n" } # strange ດƓ!
      @ດƓ::ISA = 'lȺt랕ᚖ';
      *T잌ዕ:: = delete $::{'ດƓ::'};
      
-     $pet->Ｓᑊeಅḱ;
+     $pet->Ｓᠠeಅḱ;
    ~;
 utf8::encode($prog);
 fresh_perl_is
@@ -343,24 +343,24 @@ fresh_perl_is
 no warnings; {
     no strict 'refs';
 
-    sub ʉ::bᓗnǩ::bᓗnǩ::ພo { "bbb" }
+    sub ʉ::bᠠnǩ::bᠠnǩ::ພo { "bbb" }
     sub ᵛeↄl움::ພo { "lasrevinu" }
-    @ݏ엗Ƚeᵬૐᵖ::ISA = qw 'ພo::bᓗnǩ::bᓗnǩ ᵛeↄl움';
-    *ພo::ବㄗ:: = *ʉ::bᓗnǩ::;   # now ʉ::bᓗnǩ:: is on both sides
-    *ພo:: = *ʉ::;         # here ʉ::bᓗnǩ:: is both deleted and added
-    *ʉ:: = *ቦᵕ::;          # now it is only known as ພo::bᓗnǩ::
+    @ᠠ엗Ƚeᵬૐᵖ::ISA = qw 'ພo::bᠠnǩ::bᠠnǩ ᵛeↄl움';
+    *ພo::ବㄗ:: = *ʉ::bᠠnǩ::;   # now ʉ::bᠠnǩ:: is on both sides
+    *ພo:: = *ʉ::;         # here ʉ::bᠠnǩ:: is both deleted and added
+    *ʉ:: = *ቦᵕ::;          # now it is only known as ພo::bᠠnǩ::
 
-    # At this point, before the bug was fixed, %ພo::bᓗnǩ::bᓗnǩ:: ended
+    # At this point, before the bug was fixed, %ພo::bᠠnǩ::bᠠnǩ:: ended
     # up with no effective name, allowing it to be deleted without updating
     # its subclassesâ caches.
 
     my $accum = '';
 
-    $accum .= 'ݏ엗Ƚeᵬૐᵖ'->ພo;          # bbb
-    delete ${"ພo::bᓗnǩ::"}{"bᓗnǩ::"};
-    $accum .= 'ݏ엗Ƚeᵬૐᵖ'->ພo;          # bbb (Oops!)
-    @ݏ엗Ƚeᵬૐᵖ::ISA = @ݏ엗Ƚeᵬૐᵖ::ISA;
-    $accum .= 'ݏ엗Ƚeᵬૐᵖ'->ພo;          # lasrevinu
+    $accum .= 'ᠠ엗Ƚeᵬૐᵖ'->ພo;          # bbb
+    delete ${"ພo::bᠠnǩ::"}{"bᠠnǩ::"};
+    $accum .= 'ᠠ엗Ƚeᵬૐᵖ'->ພo;          # bbb (Oops!)
+    @ᠠ엗Ƚeᵬૐᵖ::ISA = @ᠠ엗Ƚeᵬૐᵖ::ISA;
+    $accum .= 'ᠠ엗Ƚeᵬૐᵖ'->ພo;          # lasrevinu
 
     is $accum, 'bbblasrevinulasrevinu',
       'nested classes deleted & added simultaneously';
@@ -370,7 +370,7 @@ use warnings;
 # mro_package_moved needs to check for self-referential packages.
 # This broke Text::Template [perl #78362].
 watchdog 3;
-*ᕘ:: = \%::;
+*ᠠ:: = \%::;
 *Aᶜme::M::Aᶜme:: = \*Aᶜme::; # indirect self-reference
 pass("mro_package_moved and self-referential packages");
 
@@ -380,34 +380,34 @@ pass("mro_package_moved and self-referential packages");
     no strict refs=>;
     no warnings;
     @ოƐ::mഒrェ::ISA = "foᚒ";
-    sub foᚒ::ວmᑊ { "aoeaa" }
+    sub foᚒ::ວmᠠ { "aoeaa" }
     *ťວ:: = *ოƐ::;
     delete $::{"ოƐ::"};
-    @C힐dᒡl았::ISA = 'ťວ::mഒrェ';
-    my $accum = 'C힐dᒡl았'->ວmᑊ . '-';
+    @C힐dᠠl았::ISA = 'ťວ::mഒrェ';
+    my $accum = 'C힐dᠠl았'->ວmᠠ . '-';
     my $life_raft = delete ${"ťວ::"}{"mഒrェ::"};
-    $accum .= eval { 'C힐dᒡl았'->ວmᑊ } // '<undef>';
+    $accum .= eval { 'C힐dᠠl았'->ວmᠠ } // '<undef>';
     is $accum, 'aoeaa-<undef>',
      'Deleting globs whose loc in the symtab differs from gv_fullname'
 }
 
 # Pathological test for undeffing a stash that has an alias.
 *ᵍh엞:: = *ኔƞ::;
-@숩cਲꩋ::ISA = 'ᵍh엞';
+@숩cਲᠠ::ISA = 'ᵍh엞';
 undef %ᵍh엞::;
-sub F렐ᛔ::ວmᑊ { "clumpren" }
+sub F렐ᛔ::ວmᠠ { "clumpren" }
 eval '
   $ኔƞ::whatever++;
   @ኔƞ::ISA = "F렐ᛔ";
 ';
-is eval { '숩cਲꩋ'->ວmᑊ }, 'clumpren',
+is eval { '숩cਲᠠ'->ວmᠠ }, 'clumpren',
  'Changes to @ISA after undef via original name';
 undef %ᵍh엞::;
 eval '
   $ᵍh엞::whatever++;
   @ᵍh엞::ISA = "F렐ᛔ";
 ';
-is eval { '숩cਲꩋ'->ວmᑊ }, 'clumpren',
+is eval { '숩cਲᠠ'->ວmᠠ }, 'clumpren',
  'Changes to @ISA after undef via alias';
 
 
@@ -426,9 +426,9 @@ is eval { '숩cਲꩋ'->ວmᑊ }, 'clumpren',
  *{"pḢ린ᚷ::በɀ::fฤmᛈ"} = sub { "hello" };
  sub Ｆルmፕṟ::fฤmᛈ { "good bye" };
 
- @ᵇるᣘ킨::ISA = qw "본 Ｆルmፕṟ"; # now wrongly inherits from pḢ린ᚷ::በɀ
+ @ᵇるᠠ킨::ISA = qw "본 Ｆルmፕṟ"; # now wrongly inherits from pḢ린ᚷ::በɀ
 
- is fฤmᛈ ᵇるᣘ킨, "good bye",
+ is fฤmᛈ ᵇるᠠ킨, "good bye",
   'detached stashes lose all names corresponding to the containing stash';
 }
 

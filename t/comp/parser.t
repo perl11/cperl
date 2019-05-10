@@ -662,7 +662,7 @@ if (is_miniperl and (!-f "../lib/unicore/Name.pm" or !-f "../lib/re.pm")) {
   is 1, 1, "SKIP miniperl";
 } else {
   eval 'use utf8; my $Γ=1; if ($Г) { print "no" }';
-  like($@, qr/^Invalid script/, "Invalid mixed-scripts");
+  like($@, qr/Invalid script/, "Invalid mixed-scripts");
   eval 'use utf8 qw(Greek Cyrillic); my $Γ=1; if ($Г) { print "no" }';
   is($@, '', "declared mixed scripts #229");
 }

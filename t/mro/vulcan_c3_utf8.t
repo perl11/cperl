@@ -15,61 +15,61 @@ example taken from: L<http://www.opendylan.org/books/drm/Method_Dispatch>
          옵젳Ṯ
            ^
            |
-        ᓕᵮꡠＦᚖᶭ 
+        ᠠᵮꡠＦᚖᶭ 
          ^    ^
         /      \
-   SㄣチenŦ    빞엗ᱞ
+   SㄣチenŦ    빞엗ᠠ
       ^          ^
       |          |
- ᕟ텔li겐ț  Hʉ만ӫ읻
+ ᠠ텔li겐ț  Hʉ만ӫ읻
        ^        ^
         \      /
-         ቩᓪ찬
+         ቩᠠ찬
 
- define class <SㄣチenŦ> (<ᓕᵮꡠＦᚖᶭ>) end class;
- define class <빞엗ᱞ> (<ᓕᵮꡠＦᚖᶭ>) end class;
- define class <ᕟ텔li겐ț> (<SㄣチenŦ>) end class;
- define class <Hʉ만ӫ읻> (<빞엗ᱞ>) end class;
- define class <ቩᓪ찬> (<ᕟ텔li겐ț>, <Hʉ만ӫ읻>) end class;
+ define class <SㄣチenŦ> (<ᠠᵮꡠＦᚖᶭ>) end class;
+ define class <빞엗ᠠ> (<ᠠᵮꡠＦᚖᶭ>) end class;
+ define class <ᠠ텔li겐ț> (<SㄣチenŦ>) end class;
+ define class <Hʉ만ӫ읻> (<빞엗ᠠ>) end class;
+ define class <ቩᠠ찬> (<ᠠ텔li겐ț>, <Hʉ만ӫ읻>) end class;
 
 =cut
 
 {
-    use utf8 qw(Canadian_Aboriginal Hangul);
+    use utf8 qw(Mongolian Hangul);
     package 옵젳Ṯ;    
     use mro 'c3';
     
     use utf8 qw(Phags_Pa Ogham);
-    package ᓕᵮꡠＦᚖᶭ;
+    package ᠠᵮꡠＦᚖᶭ;
     use mro 'c3';
     use base '옵젳Ṯ';
     
     use utf8 qw(Bopomofo Katakana);
     package SㄣチenŦ;
     use mro 'c3';
-    use base 'ᓕᵮꡠＦᚖᶭ';
+    use base 'ᠠᵮꡠＦᚖᶭ';
     
-    use utf8 qw(Ol_Chiki);
-    package 빞엗ᱞ;
+    use utf8 qw(Mongolian);
+    package 빞엗ᠠ;
     use mro 'c3';    
-    use base 'ᓕᵮꡠＦᚖᶭ';
+    use base 'ᠠᵮꡠＦᚖᶭ';
     
-    package ᕟ텔li겐ț;
+    package ᠠ텔li겐ț;
     use mro 'c3';    
     use base 'SㄣチenŦ';
     
     use utf8 qw(Cyrillic);
     package Hʉ만ӫ읻;
     use mro 'c3';    
-    use base '빞엗ᱞ';
+    use base '빞엗ᠠ';
     
     use utf8 qw(Ethiopic);
-    package ቩᓪ찬;
+    package ቩᠠ찬;
     use mro 'c3';    
-    use base ('ᕟ텔li겐ț', 'Hʉ만ӫ읻');
+    use base ('ᠠ텔li겐ț', 'Hʉ만ӫ읻');
 }
 
 ok(eq_array(
-    mro::get_linear_isa('ቩᓪ찬'),
-    [ qw(ቩᓪ찬 ᕟ텔li겐ț SㄣチenŦ Hʉ만ӫ읻 빞엗ᱞ ᓕᵮꡠＦᚖᶭ 옵젳Ṯ) ]
-), '... got the right MRO for the ቩᓪ찬 Dylan Example');  
+    mro::get_linear_isa('ቩᠠ찬'),
+    [ qw(ቩᠠ찬 ᠠ텔li겐ț SㄣチenŦ Hʉ만ӫ읻 빞엗ᠠ ᠠᵮꡠＦᚖᶭ 옵젳Ṯ) ]
+), '... got the right MRO for the ቩᠠ찬 Dylan Example');  

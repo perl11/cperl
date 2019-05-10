@@ -3325,6 +3325,13 @@ declared by C<use utf8 'Script', 'Script2';>. Declaration of mixed
 scripts are mandatory in cperl for security reasons.  See
 L<http://www.unicode.org/reports/tr39/#Mixed_Script_Confusables>.
 
+=item Invalid script %s in identifier %s for U+%X, Limited Use scripts are forbidden
+
+(F) An invalid unicode character was found in an identifier, with a
+Script property of B<Limited_Use>. Such scripts are forbidden in cperl
+for security reasons.  See
+L<http://www.unicode.org/reports/tr31/#Table_Limited_Use_Scripts>.
+
 =item Invalid strict version format (%s)
 
 (F) A version number did not meet the "strict" criteria for versions.
