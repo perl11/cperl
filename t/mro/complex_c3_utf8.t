@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use utf8 qw( Hangul Canadian_Aboriginal Cyrillic );
+use utf8 qw( Hangul Cyrillic Mongolian );
 use open qw( :utf8 :std );
 
 require q(./test.pl); plan(tests => 12);
@@ -52,14 +52,14 @@ KJIHGFEDABC
 =cut
 
 {
-    package 텟Ṱ::ᐊ; use mro 'c3';
+    package 텟Ṱ::ᠠ; use mro 'c3'; # ᐊ
 
     package 텟Ṱ::ḅ; use mro 'c3';
 
     package 텟Ṱ::ȼ; use mro 'c3';
 
     package 텟Ṱ::Ḏ; use mro 'c3';
-    use base qw/텟Ṱ::ᐊ 텟Ṱ::ḅ 텟Ṱ::ȼ/;
+    use base qw/텟Ṱ::ᠠ 텟Ṱ::ḅ 텟Ṱ::ȼ/;
 
     package 텟Ṱ::Ӭ; use mro 'c3';
     use base qw/텟Ṱ::Ḏ/;
@@ -87,9 +87,9 @@ KJIHGFEDABC
 }
 
 ok(eq_array(
-    mro::get_linear_isa('텟Ṱ::ᐊ'),
-    [ qw(텟Ṱ::ᐊ) ]
-), '... got the right C3 merge order for 텟Ṱ::ᐊ');
+    mro::get_linear_isa('텟Ṱ::ᠠ'),
+    [ qw(텟Ṱ::ᠠ) ]
+), '... got the right C3 merge order for 텟Ṱ::ᠠ');
 
 ok(eq_array(
     mro::get_linear_isa('텟Ṱ::ḅ'),
@@ -103,42 +103,42 @@ ok(eq_array(
 
 ok(eq_array(
     mro::get_linear_isa('텟Ṱ::Ḏ'),
-    [ qw(텟Ṱ::Ḏ 텟Ṱ::ᐊ 텟Ṱ::ḅ 텟Ṱ::ȼ) ]
+    [ qw(텟Ṱ::Ḏ 텟Ṱ::ᠠ 텟Ṱ::ḅ 텟Ṱ::ȼ) ]
 ), '... got the right C3 merge order for 텟Ṱ::Ḏ');
 
 ok(eq_array(
     mro::get_linear_isa('텟Ṱ::Ӭ'),
-    [ qw(텟Ṱ::Ӭ 텟Ṱ::Ḏ 텟Ṱ::ᐊ 텟Ṱ::ḅ 텟Ṱ::ȼ) ]
+    [ qw(텟Ṱ::Ӭ 텟Ṱ::Ḏ 텟Ṱ::ᠠ 텟Ṱ::ḅ 텟Ṱ::ȼ) ]
 ), '... got the right C3 merge order for 텟Ṱ::Ӭ');
 
 ok(eq_array(
     mro::get_linear_isa('텟Ṱ::Ḟ'),
-    [ qw(텟Ṱ::Ḟ 텟Ṱ::Ӭ 텟Ṱ::Ḏ 텟Ṱ::ᐊ 텟Ṱ::ḅ 텟Ṱ::ȼ) ]
+    [ qw(텟Ṱ::Ḟ 텟Ṱ::Ӭ 텟Ṱ::Ḏ 텟Ṱ::ᠠ 텟Ṱ::ḅ 텟Ṱ::ȼ) ]
 ), '... got the right C3 merge order for 텟Ṱ::Ḟ');
 
 ok(eq_array(
     mro::get_linear_isa('텟Ṱ::ḡ'),
-    [ qw(텟Ṱ::ḡ 텟Ṱ::Ḏ 텟Ṱ::ᐊ 텟Ṱ::ḅ 텟Ṱ::ȼ) ]
+    [ qw(텟Ṱ::ḡ 텟Ṱ::Ḏ 텟Ṱ::ᠠ 텟Ṱ::ḅ 텟Ṱ::ȼ) ]
 ), '... got the right C3 merge order for 텟Ṱ::ḡ');
 
 ok(eq_array(
     mro::get_linear_isa('텟Ṱ::Ḣ'),
-    [ qw(텟Ṱ::Ḣ 텟Ṱ::ḡ 텟Ṱ::Ḏ 텟Ṱ::ᐊ 텟Ṱ::ḅ 텟Ṱ::ȼ) ]
+    [ qw(텟Ṱ::Ḣ 텟Ṱ::ḡ 텟Ṱ::Ḏ 텟Ṱ::ᠠ 텟Ṱ::ḅ 텟Ṱ::ȼ) ]
 ), '... got the right C3 merge order for 텟Ṱ::Ḣ');
 
 ok(eq_array(
     mro::get_linear_isa('텟Ṱ::ᶦ'),
-    [ qw(텟Ṱ::ᶦ 텟Ṱ::Ḣ 텟Ṱ::ḡ 텟Ṱ::Ḟ 텟Ṱ::Ӭ 텟Ṱ::Ḏ 텟Ṱ::ᐊ 텟Ṱ::ḅ 텟Ṱ::ȼ) ]
+    [ qw(텟Ṱ::ᶦ 텟Ṱ::Ḣ 텟Ṱ::ḡ 텟Ṱ::Ḟ 텟Ṱ::Ӭ 텟Ṱ::Ḏ 텟Ṱ::ᠠ 텟Ṱ::ḅ 텟Ṱ::ȼ) ]
 ), '... got the right C3 merge order for 텟Ṱ::ᶦ');
 
 ok(eq_array(
     mro::get_linear_isa('텟Ṱ::Ｊ'),
-    [ qw(텟Ṱ::Ｊ 텟Ṱ::Ḟ 텟Ṱ::Ӭ 텟Ṱ::Ḏ 텟Ṱ::ᐊ 텟Ṱ::ḅ 텟Ṱ::ȼ) ]
+    [ qw(텟Ṱ::Ｊ 텟Ṱ::Ḟ 텟Ṱ::Ӭ 텟Ṱ::Ḏ 텟Ṱ::ᠠ 텟Ṱ::ḅ 텟Ṱ::ȼ) ]
 ), '... got the right C3 merge order for 텟Ṱ::Ｊ');
 
 ok(eq_array(
     mro::get_linear_isa('텟Ṱ::Ḵ'),
-    [ qw(텟Ṱ::Ḵ 텟Ṱ::Ｊ 텟Ṱ::ᶦ 텟Ṱ::Ḣ 텟Ṱ::ḡ 텟Ṱ::Ḟ 텟Ṱ::Ӭ 텟Ṱ::Ḏ 텟Ṱ::ᐊ 텟Ṱ::ḅ 텟Ṱ::ȼ) ]
+    [ qw(텟Ṱ::Ḵ 텟Ṱ::Ｊ 텟Ṱ::ᶦ 텟Ṱ::Ḣ 텟Ṱ::ḡ 텟Ṱ::Ḟ 텟Ṱ::Ӭ 텟Ṱ::Ḏ 텟Ṱ::ᠠ 텟Ṱ::ḅ 텟Ṱ::ȼ) ]
 ), '... got the right C3 merge order for 텟Ṱ::Ḵ');
 
 is(텟Ṱ::Ḵ->testmèth(), "right", 'next::method working ok');

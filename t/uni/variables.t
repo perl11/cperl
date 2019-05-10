@@ -286,21 +286,27 @@ for my $chr (
        );
 }
 
-# allow all scripts to avoid warnings
-utf8->import(keys %utf8::VALID_SCRIPTS);
+# Declare all excluded scripts to avoid warnings
+utf8->import(keys %utf8::EXCLUDED_SCRIPTS);
 for my $i (0x100..0xffff) {
    my $chr = chr($i);
    my $esc = sprintf("%x", $i);
-   local $@;
+
+   local $@ = "";
    eval "my \$$chr = q<test>; \$$chr;";
+
    if ( $chr =~ /^\p{_Perl_IDStart}$/ ) {
-      is($@, '', sprintf("\\x{%04x} is XIDS, works as a length-1 variable", $i));
+     my $script = utf8::charscript($i);
+     if (exists $utf8::LIMITED_SCRIPTS{$script}) {
+       like($@, qr/\QInvalid script $script in identifier/,
+            "\\x{$esc} is XIDS, but a Limited Use invalid $script");
+     } else {
+       is($@, '', "\\x{$esc} is XIDS, works as a length-1 variable");
+     }
    }
    else {
-      like($@,
-           qr/\QUnrecognized character \x{$esc};/,
-           "\\x{$esc} isn't XIDS, illegal as a length-1 variable",
-          )
+      like($@, qr/\QUnrecognized character \x{$esc};/,
+           "\\x{$esc} isn't XIDS, illegal as a length-1 variable");
    }
 }
 utf8::reset_scripts();

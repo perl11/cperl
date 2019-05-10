@@ -7,7 +7,7 @@ BEGIN {
 }
 
 use strict;
-use utf8 qw( Hangul Cyrillic Ethiopic Canadian_Aboriginal Malayalam Hiragana );
+use utf8 qw( Hangul Cyrillic Ethiopic Mongolian Malayalam Hiragana );
 use open qw( :utf8 :std );
 
 plan 'no_plan';
@@ -37,10 +37,10 @@ use mro 'c3';
 # No parents, has @ISA
 @ṭ화ckэ::ISA = ();
 
-package Źzzzዟᑉ;
+package Źzzzዟᠠ;
 use mro 'c3';
 
-@Źzzzዟᑉ::ISA = ('ṭ화ckэ', '캎oẃ');
+@Źzzzዟᠠ::ISA = ('ṭ화ckэ', '캎oẃ');
 
 package Ẁ함Ｍ;
 use mro 'c3';
@@ -56,11 +56,11 @@ my %expect =
      캎oẃ => [qw(캎oẃ)],
      к => [qw(к)],
      ṭ화ckэ => [qw(ṭ화ckэ)],
-     Źzzzዟᑉ => [qw(Źzzzዟᑉ ṭ화ckэ 캎oẃ)],
+     Źzzzዟᠠ => [qw(Źzzzዟᠠ ṭ화ckэ 캎oẃ)],
      Ẁ함Ｍ => [qw(Ẁ함Ｍ 캎oẃ ṭ화ckэ)],
     );
 
-foreach my $package (qw(kഌoんḰ urḲḵｋ 캎oẃ к ṭ화ckэ Źzzzዟᑉ Ẁ함Ｍ)) {
+foreach my $package (qw(kഌoんḰ urḲḵｋ 캎oẃ к ṭ화ckэ Źzzzዟᠠ Ẁ함Ｍ)) {
     my $ref = bless [], $package;
     my $isa = $expect{$package};
     is("@{mro::get_linear_isa($package)}", "@$isa", "\@ISA for $package");

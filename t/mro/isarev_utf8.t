@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use utf8 qw(Hangul Cyrillic Bengali Georgian Hiragana Thai Tamil Bopomofo
             Gujarati Lao Katakana Runic Phags_Pa Armenian Malayalam
-            Canadian_Aboriginal Ethiopic Oriya Ogham Buhid Devanagari Greek);
+            Mongolian Ethiopic Oriya Ogham Buhid Devanagari );
 use open qw( :utf8 :std );
 
 plan(tests => 24);
@@ -54,29 +54,29 @@ i B옫yპt => qw [ ], 'recursive deletion from isarev';
 @Frȇe::팀ẽ::ISA = "TﾚӔṪ";
 @Ｍy촐ꡙʳ::ISA = "독::ցളŔ::Leaʇhㄦ";
 @독::ցളŔ::Leaʇhㄦ::ISA = "ցളŔ";
-@AŇℴtḫeᕃ::ցളŔ::ISA = "ցളŔ";
+@AŇℴtḫeᠠ::ցളŔ::ISA = "ցളŔ";
 *팈ዕ:: = *독::;
 delete $::{"독::"};
 i ㄘა읻=>qw[ ວlƑ 팈ዕ ],
  "deleting a stash elem updates isarev entries";
 i TﾚӔṪ=>qw[ Frȇe::팀ẽ 팈ዕ::ㄅ ],
  "deleting a nested stash elem updates isarev entries";
-i ցളŔ=>qw[ AŇℴtḫeᕃ::ցളŔ 팈ዕ::ցളŔ::Leaʇhㄦ ],
+i ցളŔ=>qw[ AŇℴtḫeᠠ::ցളŔ 팈ዕ::ցളŔ::Leaʇhㄦ ],
  "deleting a doubly nested stash elem updates isarev entries";
 
 @ごଅｔ::ISA = "ぅงலҬ";
 @ごଅｔ::DଐɾẎ::ISA = "ごଅｔ";
-@ごଅｔ::DଐɾẎ::Ⱦ옥ゲᕟƃᚒḠ::ISA = "ごଅｔ::DଐɾẎ";
+@ごଅｔ::DଐɾẎ::Ⱦ옥ゲᠠƃᚒḠ::ISA = "ごଅｔ::DଐɾẎ";
 @웨ɪrƌ::ጢᶯᵷ::ISA = "ｇ";
 *ｇ:: = *ごଅｔ::;
-i ごଅｔ => qw[ ごଅｔ::DଐɾẎ ごଅｔ::DଐɾẎ::Ⱦ옥ゲᕟƃᚒḠ 웨ɪrƌ::ጢᶯᵷ ],
+i ごଅｔ => qw[ ごଅｔ::DଐɾẎ ごଅｔ::DଐɾẎ::Ⱦ옥ゲᠠƃᚒḠ 웨ɪrƌ::ጢᶯᵷ ],
  "isarev includes subclasses of aliases";
 delete $::{"ｇ::"};
-i ぅงலҬ => qw[ ごଅｔ ごଅｔ::DଐɾẎ ごଅｔ::DଐɾẎ::Ⱦ옥ゲᕟƃᚒḠ ],
+i ぅงலҬ => qw[ ごଅｔ ごଅｔ::DଐɾẎ ごଅｔ::DଐɾẎ::Ⱦ옥ゲᠠƃᚒḠ ],
  "deleting an alias to a package updates isarev entries";
-i"ごଅｔ" => qw[ ごଅｔ::DଐɾẎ ごଅｔ::DଐɾẎ::Ⱦ옥ゲᕟƃᚒḠ ],
+i"ごଅｔ" => qw[ ごଅｔ::DଐɾẎ ごଅｔ::DଐɾẎ::Ⱦ옥ゲᠠƃᚒḠ ],
  "deleting an alias to a package updates isarev entries of nested stashes";
-i"ごଅｔ::DଐɾẎ" => qw[ ごଅｔ::DଐɾẎ::Ⱦ옥ゲᕟƃᚒḠ ],
+i"ごଅｔ::DଐɾẎ" => qw[ ごଅｔ::DଐɾẎ::Ⱦ옥ゲᠠƃᚒḠ ],
  "deleting an stash alias updates isarev entries of doubly nested stashes";
 i ｇ => qw [ 웨ɪrƌ::ጢᶯᵷ ],
  "subclasses of the deleted alias become part of its isarev";
@@ -92,50 +92,50 @@ i"Hഓf엗::맘말" => qw[ 챂릳 ],
 i ㄔɘvレ => qw[ 챂릳::DଐɾẎ ẂhaƮᵋቭȓ ],
  "replacing nested stashes updates isarev entries";
 
-@ᛑiስアsઍ::ｪᔦ::ISA = "ᛑiስアsઍ";
-@ᛑiስアsઍ::ｪᔦ::Iṇᚠctĭo웃::ISA = "ᛑiስアsઍ::ｪᔦ";
-@Kㄦat옻oǌ운ctᝁヸቲᔈ::ISA = "ᛑiስアsઍ::Opɥt할및::Iṇᚠctĭo웃";
-*ᛑiስアsઍ::Opɥt할및:: = *ᛑiስアsઍ::ｪᔦ::;
+@ᛑiስアsઍ::ｪᠠ::ISA = "ᛑiስアsઍ";
+@ᛑiስアsઍ::ｪᠠ::Iṇᚠctĭo웃::ISA = "ᛑiስアsઍ::ｪᠠ";
+@Kㄦat옻oǌ운ctᝁヸቲᠠ::ISA = "ᛑiስアsઍ::Opɥt할및::Iṇᚠctĭo웃";
+*ᛑiስアsઍ::Opɥt할및:: = *ᛑiስアsઍ::ｪᠠ::;
 {package 솜e_란돔_new_symbol::Iṇᚠctĭo웃} # autovivify
 *ᛑiስアsઍ::Opɥt할및:: = *솜e_란돔_new_symbol::;
-i ᛑiስアsઍ => qw[ ᛑiስアsઍ::ｪᔦ ᛑiስアsઍ::ｪᔦ::Iṇᚠctĭo웃 ],
+i ᛑiስアsઍ => qw[ ᛑiስアsઍ::ｪᠠ ᛑiስアsઍ::ｪᠠ::Iṇᚠctĭo웃 ],
  "replacing an alias of a stash updates isarev entries";
-i"ᛑiስアsઍ::ｪᔦ" => qw[ ᛑiስアsઍ::ｪᔦ::Iṇᚠctĭo웃 ],
+i"ᛑiስアsઍ::ｪᠠ" => qw[ ᛑiስアsઍ::ｪᠠ::Iṇᚠctĭo웃 ],
  "replacing an alias of a stash containing another updates isarev entries";
-i"솜e_란돔_new_symbol::Iṇᚠctĭo웃" => qw[ Kㄦat옻oǌ운ctᝁヸቲᔈ ],
+i"솜e_란돔_new_symbol::Iṇᚠctĭo웃" => qw[ Kㄦat옻oǌ운ctᝁヸቲᠠ ],
  "replacing an alias updates isarev of stashes nested in the replacement";
 
 # Globs ending with :: have autovivified stashes in them by default. We
 # want one without a stash.
-undef *Eṁpｔᔾ::;
-@눌Ļ::ISA = "Eṁpｔᔾ";
-@눌Ļ::눌Ļ::ISA = "Eṁpｔᔾ::Eṁpｔᔾ";
-{package ዚlcᕻ::Eṁpｔᔾ} # autovivify it
-*Eṁpｔᔾ:: = *ዚlcᕻ::;
-i ዚlcᕻ => qw[ 눌Ļ ], "assigning to an empty spot updates isarev";
-i"ዚlcᕻ::Eṁpｔᔾ" => qw[ 눌Ļ::눌Ļ ],
+undef *Eṁpｔᠠ::;
+@눌Ļ::ISA = "Eṁpｔᠠ";
+@눌Ļ::눌Ļ::ISA = "Eṁpｔᠠ::Eṁpｔᠠ";
+{package ዚlcᠠ::Eṁpｔᠠ} # autovivify it
+*Eṁpｔᠠ:: = *ዚlcᠠ::;
+i ዚlcᠠ => qw[ 눌Ļ ], "assigning to an empty spot updates isarev";
+i"ዚlcᠠ::Eṁpｔᠠ" => qw[ 눌Ļ::눌Ļ ],
  "assigning to an empty spot updates isarev of nested packages";
 
 # Classes inheriting from multiple classes that get moved in a single
 # assignment.
-@ᕘ::ISA = ("ᵇ", "ᵇ::ᵇ");
+@ᠠ::ISA = ("ᵇ", "ᵇ::ᵇ");
 {package अ::ᵇ}
 my $अ = \%अ::;     # keep a ref
 *अ:: = 'whatever'; # clobber it
-*ᵇ:: = $अ;         # assign to two superclasses of ᕘ at the same time
+*ᵇ:: = $अ;         # assign to two superclasses of ᠠ at the same time
 # There should be no अ::ᵇ isarev entry.
 i"अ::ᵇ" => qw [], 'assigning to two superclasses at the same time';
-ok !ᕘ->isa("अ::ᵇ"),
+ok !ᠠ->isa("अ::ᵇ"),
  "A class must not inherit from its superclass’s former name";
 
 # undeffing globs
-@α::ISA = 'β';
-$_ = \*α::ISA;    # hang on to the glob
-undef *α::ISA;
-i β => qw [], "undeffing an ISA glob deletes isarev entries";
-@aᙇ::ISA = '붘ㆉ';
-$_ = \*aᙇ::ISA;
-undef *aᙇ::;
+@а::ISA = 'xᠠ';
+$_ = \*а::ISA;    # hang on to the glob
+undef *а::ISA;
+i xᠠ => qw [], "undeffing an ISA glob deletes isarev entries";
+@aᠠ::ISA = '붘ㆉ';
+$_ = \*aᠠ::ISA;
+undef *aᠠ::;
 i 붘ㆉ => qw [], "undeffing a package glob deletes isarev entries";
 
 # Package aliasing/clobbering when the clobbered package has grandchildren
@@ -147,6 +147,6 @@ i 붘ㆉ => qw [], "undeffing a package glob deletes isarev entries";
 i ภɵ => qw [],
  'clobbering a class w/multiple layers of subclasses updates its parent';
 
-@ᖭ랕::ISA = 'S민';
-%ᖭ랕:: = ();
+@ᠠ랕::ISA = 'S민';
+%ᠠ랕:: = ();
 i S민 => qw [], '%Package:: list assignment';

@@ -47,7 +47,8 @@ Because of a change in Unicode release cycles, Perl jumps from Unicode
 10.0 in Perl 5.28 to Unicode 12.0 in Perl 5.30.
 
 There are few new scripts: Elymaic, Nandinagari,
-Nyiakeng_Puachue_Hmong (Hmnp), Wancho.
+Nyiakeng_Puachue_Hmong (Hmnp), Wancho, all of them not available
+for identifiers.
 
 =head2 Handle qr!\p{nv=6/8}!
 
@@ -114,6 +115,19 @@ vulnerabilities closed should be noted here rather than in the
 L</Selected Bug Fixes> section.
 
 [ List each security issue as a =head2 entry ]
+
+=head2 Disallowed Limited Use Scripts
+
+The list of valid scripts for identifiers was purged from all
+B<Limited Use> scripts from
+L<http://www.unicode.org/reports/tr31/#Table_Limited_Use_Scripts>.
+They fail now.
+
+Unicode 10.0 started disallowing all Aspirational Use Scripts, but
+we didn't handle them at all.
+I<Table 4. Candidate Characters for Exclusion from Identifiers> scripts
+are still allowed, and still need to be explicitly enabled as a C<use utf8>
+argument.
 
 =head1 Incompatible Changes
 
@@ -667,13 +681,7 @@ The following additions or changes have been made to diagnostic output,
 including warnings and fatal error messages.  For the complete list of
 diagnostic messages, see L<perldiag>.
 
-XXX New or changed warnings emitted by the core's C<C> code go here.  Also
-include any changes in L<perldiag> that reconcile it to the C<C> code.
-
 =head2 New Diagnostics
-
-XXX Newly added diagnostic messages go under here, separated into New Errors
-and New Warnings
 
 =head3 New Errors
 
@@ -681,7 +689,8 @@ and New Warnings
 
 =item *
 
-XXX L<message|perldiag/"message">
+L<Invalid script %s in identifier %s for U+%X, Limited Use scripts are forbidden|perldiag/"Invalid script %s in identifier %s for U+%X, Limited Use scripts are forbidden">
+See L</"Disallowed Limited Use Scripts">.
 
 =back
 
@@ -710,6 +719,14 @@ uses now 3 lines:
 "Use of unassigned code point or non-standalone grapheme for a delimiter is not allowed at -, near"
 "Use of unassigned code point or non-standalone grapheme for a delimiter is not allowed at -, near"
 "Execution of - aborted due to compilation errors."
+
+=item *
+
+cperl fatalized Limited_Use scripts in identifiers with v5.29.2c, they
+were valid before and acted like %utf8::EXCLUDED_SCRIPTS, i.e. they
+needed to be declared. Now they throw the
+L<Invalid script %s in identifier %s for U+%X, Limited Use scripts are forbidden|perldiag/"Invalid script %s in identifier %s for U+%X, Limited Use scripts are forbidden"> error.
+See L</"Disallowed Limited Use Scripts">.
 
 =back
 

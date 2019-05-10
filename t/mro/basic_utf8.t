@@ -1,8 +1,8 @@
 #!./perl
 
-use utf8 qw( Tamil Runic Cyrillic Devanagari Vai Hangul Rejang Canadian_Aboriginal
-             Greek Georgian Oriya Katakana Gujarati Lao Arabic Bopomofo Hiragana
-             Ethiopic
+use utf8 qw( Tamil Runic Cyrillic Devanagari Hangul Rejang 
+             Greek Georgian Oriya Katakana Gujarati Lao Arabic 
+             Bopomofo Hiragana Ethiopic Mongolian
            );
 use open qw( :utf8 :std );
 use strict;
@@ -74,14 +74,14 @@ ok(eq_array(
 
 # Assigning @ISA via globref
 {
-    package MRO_ҭṣṱबꗻ;
+    package MRO_ҭṣṱबᠠ;
     sub 텟tf운ꜿ { return 123 }
     package MRO_Teﬆ옽ḦРꤷsӭ;
-    sub 텟ₜꖢᶯcƧ { return 321 }
-    package MRO_Ɯ; our @ISA = qw/MRO_ҭṣṱबꗻ/;
+    sub 텟ₜᠠᶯcƧ { return 321 }
+    package MRO_Ɯ; our @ISA = qw/MRO_ҭṣṱबᠠ/;
 }
-*MRO_ᕡ::ISA = *MRO_Ɯ::ISA;
-is(eval { MRO_ᕡ->텟tf운ꜿ() }, 123);
+*MRO_ᠠ::ISA = *MRO_Ɯ::ISA;
+is(eval { MRO_ᠠ->텟tf운ꜿ() }, 123);
 
 # XXX TODO (when there's a way to backtrack through a glob's aliases)
 # push(@MRO_M::ISA, 'MRO_TestOtherBase');
@@ -93,19 +93,19 @@ is(eval { MRO_ᕡ->텟tf운ꜿ() }, 123);
     my $obj;
 
     {
-        package DESTROY_MRO_Bӓeᓕne;
+        package DESTROY_MRO_Bӓeᠠne;
         sub new { bless {} => shift }
         sub DESTROY { $x++ }
 
-        package DESTROY_MRO_Bӓeᓕne_χḻɖ;
-        our @ISA = qw/DESTROY_MRO_Bӓeᓕne/;
+        package DESTROY_MRO_Bӓeᠠne_χḻɖ;
+        our @ISA = qw/DESTROY_MRO_Bӓeᠠne/;
     }
 
-    $obj = DESTROY_MRO_Bӓeᓕne->new();
+    $obj = DESTROY_MRO_Bӓeᠠne->new();
     undef $obj;
     is($x, 1);
 
-    $obj = DESTROY_MRO_Bӓeᓕne_χḻɖ->new();
+    $obj = DESTROY_MRO_Bӓeᠠne_χḻɖ->new();
     undef $obj;
     is($x, 2);
 }
@@ -328,8 +328,8 @@ is(eval { MRO_ᕡ->텟tf운ꜿ() }, 123);
 
 {
     # Undefining stashes
-    @ᖫᕃㄒṭ::ISA = "ᖮw잍";
-    @ᖮw잍::ISA = "ሲঌએ";
-    undef %ᖮw잍::;
-    ok !ᖫᕃㄒṭ->isa('ሲঌએ'), 'undef %package:: updates subclasses';
+    @ᠠᠠㄒṭ::ISA = "ᠠw잍";
+    @ᠠw잍::ISA = "ሲঌએ";
+    undef %ᠠw잍::;
+    ok !ᠠᠠㄒṭ->isa('ሲঌએ'), 'undef %package:: updates subclasses';
 }

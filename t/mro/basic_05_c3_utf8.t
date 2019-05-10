@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use utf8 qw( Runic Myanmar Canadian_Aboriginal );
+use utf8 qw( Mongolian Runic Myanmar );
 use open qw( :utf8 :std );
 
 require q(./test.pl); plan(tests => 2);
@@ -24,14 +24,14 @@ while building DBIx::Class. Thanks Matt!!!!
     package Ｄiᚪၚd_A;
     use mro 'c3';
 
-    sub ᕘ { 'Ｄiᚪၚd_A::ᕘ' }
+    sub ᠠ { 'Ｄiᚪၚd_A::ᠠ' } # ᕘ
 }
 {
     package Ｄiᚪၚd_B;
     use base 'Ｄiᚪၚd_A';
     use mro 'c3';
 
-    sub ᕘ { 'Ｄiᚪၚd_B::ᕘ => ' . (shift)->SUPER::ᕘ }
+    sub ᠠ { 'Ｄiᚪၚd_B::ᠠ => ' . (shift)->SUPER::ᠠ }
 }
 {
     package Ｄiᚪၚd_C;
@@ -44,7 +44,7 @@ while building DBIx::Class. Thanks Matt!!!!
     use base ('Ｄiᚪၚd_C', 'Ｄiᚪၚd_B');
     use mro 'c3';
 
-    sub ᕘ { 'Ｄiᚪၚd_D::ᕘ => ' . (shift)->SUPER::ᕘ }
+    sub ᠠ { 'Ｄiᚪၚd_D::ᠠ => ' . (shift)->SUPER::ᠠ }
 }
 
 ok(eq_array(
@@ -52,6 +52,6 @@ ok(eq_array(
     [ qw(Ｄiᚪၚd_D Ｄiᚪၚd_C Ｄiᚪၚd_B Ｄiᚪၚd_A) ]
 ), '... got the right MRO for Ｄiᚪၚd_D');
 
-is(Ｄiᚪၚd_D->ᕘ,
-   'Ｄiᚪၚd_D::ᕘ => Ｄiᚪၚd_B::ᕘ => Ｄiᚪၚd_A::ᕘ',
+is(Ｄiᚪၚd_D->ᠠ,
+   'Ｄiᚪၚd_D::ᠠ => Ｄiᚪၚd_B::ᠠ => Ｄiᚪၚd_A::ᠠ',
    '... got the right next::method dispatch path');

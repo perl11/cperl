@@ -6,7 +6,7 @@ BEGIN {
     set_up_inc('../lib');
 }
 
-use utf8 qw(Thai Hangul Lao Bopomofo Canadian_Aboriginal Ethiopic);
+use utf8 qw(Thai Hangul Lao Bopomofo Mongolian Ethiopic);
 use open qw( :utf8 :std );
 
 plan 12;
@@ -36,15 +36,15 @@ ok !ฟ옥ʮ->isa("ᶶ"),
 ok !ຜ옥ㄏ->isa("ᶶ"),
  '!isa after glob-to-ref assignment on another stash when *ISA is shared';
 
-@ᕘ::ISA = "ᶶ";
-*ጶ::ISA = \@ᕘ::ISA;
-@ᕘ::ISA = "Ｂᐊㄗ";
+@ᠠ::ISA = "ᶶ";
+*ጶ::ISA = \@ᠠ::ISA;
+@ᠠ::ISA = "Ｂᐊㄗ";
 
-ok 'ᕘ'->isa("Ｂᐊㄗ"),
+ok 'ᠠ'->isa("Ｂᐊㄗ"),
  'isa after another stash has claimed the @ISA via ref-to-glob assignment';
 ok 'ጶ'->isa("Ｂᐊㄗ"),
  'isa on the stash that claimed the @ISA via ref-to-glob assignment';
-ok !ᕘ->isa("ᶶ"),
+ok !ᠠ->isa("ᶶ"),
  '!isa when another stash has claimed the @ISA via ref-to-glob assignment';
 ok !ጶ->isa("ᶶ"),
  '!isa on the stash that claimed the @ISA via ref-to-glob assignment';

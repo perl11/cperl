@@ -11,7 +11,8 @@ BEGIN {
     skip_all_without_unicode_tables();
 }
 
-use utf8 qw( Canadian_Aboriginal Runic Telugu Katakana Ethiopic
+# Note: Canadian_Aboriginal is Limited_Use and illegal since v5.29.2c
+use utf8 qw( Runic Telugu Katakana Ethiopic
              Gujarati Thai Hangul Cyrillic Bopomofo Georgian );
 use open qw( :utf8 :std );
 use warnings;
@@ -19,27 +20,27 @@ use warnings;
 plan( tests => 206 );
 
 # type coersion on assignment
-$ᕘ = 'ᕘ';
-$ᴮᛅ = *main::ᕘ;
-$ᴮᛅ = $ᕘ;
+$ᛅ = 'ᛅ';
+$ᴮᛅ = *main::ᛅ;
+$ᴮᛅ = $ᛅ;
 is(ref(\$ᴮᛅ), 'SCALAR');
-$ᕘ = *main::ᴮᛅ;
+$ᛅ = *main::ᴮᛅ;
 
 # type coersion (not) on misc ops
 
-ok($ᕘ);
-is(ref(\$ᕘ), 'GLOB');
+ok($ᛅ);
+is(ref(\$ᛅ), 'GLOB');
 
-unlike ($ᕘ, qr/abcd/);
-is(ref(\$ᕘ), 'GLOB');
+unlike ($ᛅ, qr/abcd/);
+is(ref(\$ᛅ), 'GLOB');
 
-is($ᕘ, '*main::ᴮᛅ');
-is(ref(\$ᕘ), 'GLOB');
+is($ᛅ, '*main::ᴮᛅ');
+is(ref(\$ᛅ), 'GLOB');
 
 {
  no warnings;
- ${\*$ᕘ} = undef;
- is(ref(\$ᕘ), 'GLOB', 'no type coersion when assigning to *{} retval');
+ ${\*$ᛅ} = undef;
+ is(ref(\$ᛅ), 'GLOB', 'no type coersion when assigning to *{} retval');
  $::{ఫｹ} = *ᴮᛅ;
  is(
    \$::{ఫｹ}, \*{"ఫｹ"},
@@ -65,27 +66,27 @@ is(ref(\$ᕘ), 'GLOB');
 }
 
 # type coersion on substitutions that match
-$a = *main::ᕘ;
+$a = *main::ᛅ;
 $b = $a;
 $a =~ s/^X//;
 is(ref(\$a), 'GLOB');
 $a =~ s/^\*//;
-is($a, 'main::ᕘ');
+is($a, 'main::ᛅ');
 is(ref(\$b), 'GLOB');
 
 # typeglobs as lvalues
-substr($ᕘ, 0, 1) = "XXX";
-is(ref(\$ᕘ), 'SCALAR');
-is($ᕘ, 'XXXmain::ᴮᛅ');
+substr($ᛅ, 0, 1) = "XXX";
+is(ref(\$ᛅ), 'SCALAR');
+is($ᛅ, 'XXXmain::ᴮᛅ');
 
 # returning glob values
-sub ᕘ {
-  local($ᴮᛅ) = *main::ᕘ;
-  $ᕘ = *main::ᴮᛅ;
-  return ($ᕘ, $ᴮᛅ);
+sub ᛅ {
+  local($ᴮᛅ) = *main::ᛅ;
+  $ᛅ = *main::ᴮᛅ;
+  return ($ᛅ, $ᴮᛅ);
 }
 
-($ፉṶ, $ባ) = ᕘ();
+($ፉṶ, $ባ) = ᛅ();
 ok(defined $ፉṶ);
 is(ref(\$ፉṶ), 'GLOB');
 
@@ -104,22 +105,22 @@ is($ฝ오::{'ʉ::'}, '*ฝ오::ʉ::');
 
 
 # test undef operator clearing out entire glob
-$ᕘ = 'stuff';
-@ᕘ = qw(more stuff);
-%ᕘ = qw(even more random stuff);
-undef *ᕘ;
-is ($ᕘ, undef);
-is (scalar @ᕘ, 0);
-is (scalar %ᕘ, 0);
+$ᛅ = 'stuff';
+@ᛅ = qw(more stuff);
+%ᛅ = qw(even more random stuff);
+undef *ᛅ;
+is ($ᛅ, undef);
+is (scalar @ᛅ, 0);
+is (scalar %ᛅ, 0);
 
 {
     # test warnings from assignment of undef to glob
     my $msg = '';
     local $SIG{__WARN__} = sub { $msg = $_[0] };
     use warnings;
-    *ᕘ = 'ᴮᛅ';
+    *ᛅ = 'ᴮᛅ';
     is($msg, '');
-    *ᕘ = undef;
+    *ᛅ = undef;
     like($msg, qr/Undefined value assigned to typeglob/);
 
     my $O_grave = utf8::unicode_to_native(0xd2);
@@ -230,7 +231,7 @@ is($Ｊ[0], 1);
 
 {
     # does pp_readline() handle glob-ness correctly?
-    my $g = *ᕘ;
+    my $g = *ᛅ;
     $g = <DATA>;
     is ($g, "Perl\n");
 }
@@ -378,21 +379,20 @@ is (ref $::{оઓnḲ}, 'SCALAR', "Export doesn't affect original");
 is (eval 'ga_ㄕƚo잎', "Value", "Constant has correct value");
 is (ref \$::{ga_ㄕƚo잎}, 'GLOB', "Symbol table has full typeglob");
 
-
-@::zᐓｔ = ('Zᐓｔ!');
+@::zｔ = ('Zｔ!');
 
 # Check that assignment to an existing typeglob works
 {
   my $w = '';
   local $SIG{__WARN__} = sub { $w = $_[0] };
-  *{"zᐓｔ"} = \&{"оઓnḲ"};
+  *{"zｔ"} = \&{"оઓnḲ"};
   is($w, '', "Should be no warning");
 }
 
 is (ref $::{оઓnḲ}, 'SCALAR', "Export doesn't affect original");
-is (eval 'zᐓｔ', "Value", "Constant has correct value");
-is (ref \$::{zᐓｔ}, 'GLOB', "Symbol table has full typeglob");
-is (join ('!', @::zᐓｔ), 'Zᐓｔ!', "Existing array still in typeglob");
+is (eval 'zｔ', "Value", "Constant has correct value");
+is (ref \$::{zｔ}, 'GLOB', "Symbol table has full typeglob");
+is (join ('!', @::zｔ), 'Zｔ!', "Existing array still in typeglob");
 
 sub Ṩp맅싵Ş () {
     "Traditional";
@@ -415,16 +415,16 @@ is (ref \$::{Ṩp맅싵Ş}, 'GLOB', "Symbol table has full typeglob");
 {
   my $w = '';
   local $SIG{__WARN__} = sub { $w = $_[0] };
-  *{"plუᒃ"} = [];
-  *{"plუᒃ"} = \&{"оઓnḲ"};
+  *{"plუ"} = [];
+  *{"plუ"} = \&{"оઓnḲ"};
   is($w, '', "Should be no warning");
 }
 
 is (ref $::{оઓnḲ}, 'SCALAR', "Export doesn't affect original");
-is (eval 'plუᒃ', "Value", "Constant has correct value");
-is (ref \$::{plუᒃ}, 'GLOB', "Symbol table has full typeglob");
+is (eval 'plუ', "Value", "Constant has correct value");
+is (ref \$::{plუ}, 'GLOB', "Symbol table has full typeglob");
 
-my $gr = eval '\*plუᒃ' or die;
+my $gr = eval '\*plუ' or die;
 
 {
   my $w = '';
@@ -434,8 +434,8 @@ my $gr = eval '\*plუᒃ' or die;
 }
 
 is (ref $::{оઓnḲ}, 'SCALAR', "Export doesn't affect original");
-is (eval 'plუᒃ', "Value", "Constant has correct value");
-is (ref \$::{plუᒃ}, 'GLOB', "Symbol table has full typeglob");
+is (eval 'plუ', "Value", "Constant has correct value");
+is (ref \$::{plუ}, 'GLOB', "Symbol table has full typeglob");
 
 # Non-void context should defeat the optimisation, and will cause the original
 # to be promoted (what change 26482 intended)
@@ -451,8 +451,8 @@ is (ref \$result, 'GLOB',
     "Non void assignment should still return a typeglob");
 
 is (ref \$::{оઓnḲ}, 'GLOB', "This export does affect original");
-is (eval 'plუᒃ', "Value", "Constant has correct value");
-is (ref \$::{plუᒃ}, 'GLOB', "Symbol table has full typeglob");
+is (eval 'plუ', "Value", "Constant has correct value");
+is (ref \$::{plუ}, 'GLOB', "Symbol table has full typeglob");
 
 delete $::{оઓnḲ};
 $::{оઓnḲ} = \"Value";
@@ -480,22 +480,22 @@ is (eval 'ビfᶠ', "Value", "Constant has correct value");
 is (ref \$::{ビfᶠ}, 'GLOB', "Symbol table has full typeglob");
 
 {
-    use vars qw($gᓙʞ $sምḲ $ᕘf);
+    use vars qw($gʞ $sምḲ $ᛅf);
     # Check reference assignment isn't affected by the SV type (bug #38439)
-    $gᓙʞ = 3;
+    $gʞ = 3; # ᓙ
     $sምḲ = 4;
-    $ᕘf = "halt and cool down";
+    $ᛅf = "halt and cool down";
 
     my $rv = \*sምḲ;
-    is($gᓙʞ, 3);
-    *gᓙʞ = $rv;
-    is($gᓙʞ, 4);
+    is($gʞ, 3);
+    *gʞ = $rv;
+    is($gʞ, 4);
 
     my $pv = "";
     $pv = \*sምḲ;
-    is($ᕘf, "halt and cool down");
-    *ᕘf = $pv;
-    is($ᕘf, 4);
+    is($ᛅf, "halt and cool down");
+    *ᛅf = $pv;
+    is($ᛅf, 4);
 }
 
 {
@@ -519,7 +519,7 @@ format =
 
 {
     no warnings qw(once uninitialized);
-    my $g = \*ȼલᑧɹ;
+    my $g = \*ȼલɹ; # ᑧ
     my $r = eval {no strict; ${*{$g}{SCALAR}}};
     is ($@, '', "PERL_DONT_CREATE_GVSV shouldn't affect thingy syntax");
 
@@ -531,23 +531,23 @@ format =
 
 {
     # Bug reported by broquaint on IRC
-    *ᔅᓗsḨ::{HASH}->{ISA}=[];
-    ᔅᓗsḨ->import;
+    *sḨ::{HASH}->{ISA}=[]; # ᔅ ᓗ
+    sḨ->import;
     pass("gv_fetchmeth coped with the unexpected");
 
     # An audit found these:
     {
-	package ᔅᓗsḨ;
+	package sḨ;
 	sub 맆 {
 	    my $s = shift;
 	    $s->SUPER::맆;
 	}
     }
     {
-        eval {ᔅᓗsḨ->맆;};
+        eval {sḨ->맆;};
         like ($@, qr/^Can't locate object method "맆"/, "Even with SUPER");
     }
-    is(ᔅᓗsḨ->isa('swoosh'), '');
+    is(sḨ->isa('swoosh'), '');
 }
 
 {
@@ -790,15 +790,15 @@ ok eval {
 # These two crashed in 5.13.6. They were likewise fixed in 5.13.7.
 ok eval {
   sub grèck;
-  my $glob = do { no warnings "once"; \*phìng::ᕘ};
+  my $glob = do { no warnings "once"; \*phìng::ᛅ};
   delete $::{"phìng::"};
   *$glob = *grèck; 
 }, "Assigning a glob-with-sub to a glob that has lost its stash warks";
 ok eval {
-  sub pòn::ᕘ;
-  my $glob = \*pòn::ᕘ;
+  sub pòn::ᛅ;
+  my $glob = \*pòn::ᛅ;
   delete $::{"pòn::"};
-  *$glob = *ᕘ; 
+  *$glob = *ᛅ; 
 }, "Assigning a glob to a glob-with-sub that has lost its stash warks";
 
 {

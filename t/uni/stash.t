@@ -11,29 +11,29 @@ BEGIN {
     skip_all_without_unicode_tables();
 }
 
-use utf8 qw( Katakana Vai Saurashtra Canadian_Aboriginal Runic Coptic
-             Yi Hangul Oriya Ogham Tai_Viet Cyrillic Bopomofo Kannada
-             Tamil Hiragana Glagolitic );
+use utf8 qw( Mongolian Katakana Runic Coptic Hangul Oriya Ogham Cyrillic
+             Bopomofo Kannada Tamil Hiragana Glagolitic );
 use open qw( :utf8 :std );
 use Config;
 
 plan( tests => 47 );
 
 # These come from op/my_stash.t
+# ꕽ => ᠠ, ꔬ => Ł, ꢨ => Ḋ
 {
-    use constant Myクラス => 'ꕽ::Ʉ::ꔬz::ꢨᙇ';
+    use constant Myクラス => 'ᠠ::Ʉ::Łz::Ḋᠠ';
     
     {
-        package ꕽ::Ʉ::ꔬz::ꢨᙇ;
+        package ᠠ::Ʉ::Łz::Ḋᠠ;
         1;
     }
     
-    for (qw(ꕽ ꕽ:: Myクラス __PACKAGE__)) {
+    for (qw(ᠠ ᠠ:: Myクラス __PACKAGE__)) {
         eval "sub { my $_ \$obj = shift; }";
         ok ! $@, "op/my_stash.t test, $_";
     }
     
-    use constant NòClàss => '노pӬ::ꕽ::Ꜻ::BӢz::ʙࡆ';
+    use constant NòClàss => '노pӬ::ᠠ::Ꜻ::BӢz::ʙࡆ';
     
     for (qw(노pӬ 노pӬ:: NòClàss)) {
         eval "sub { my $_ \$obj = shift; }";
@@ -43,7 +43,7 @@ plan( tests => 47 );
 
 # op/stash.t
 {
-    package ᛐⲞɲe::Šꇇᚽṙᆂṗ;
+    package ᛐⲞɲe::Šᠠᚽṙᆂṗ;
     $본go::ଶfʦbᚒƴ::scalar = 1;
     
     package main;
@@ -61,38 +61,38 @@ plan( tests => 47 );
         *b = \&B::svref_2object;
         my $CVf_ANON = B::CVf_ANON();
     
-        my $sub = do {
-            package 온ꪵ;
-            \&{"온ꪵ"};
+        my $sub = do { # ᠠ
+            package 온ᠠ;
+            \&{"온ᠠ"};
         };
-        delete $온ꪵ::{온ꪵ};
+        delete $온ᠠ::{온ᠠ};
         my $gv = b($sub)->GV;
     
         object_ok( $gv, "B::GV", "deleted stash entry leaves CV with valid GV");
         is( b($sub)->CvFLAGS & $CVf_ANON, $CVf_ANON, "...and CVf_ANON set");
         if ($Config{usenamedanoncv}) {
-          is( eval { $gv->NAME }, "온ꪵ@", "...and the 온ꪵ@ name");
+          is( eval { $gv->NAME }, "온ᠠ@", "...and the 온ᠠ@ name");
         } else {
           is( eval { $gv->NAME }, "__ANON__", "...and an __ANON__ name");
         }
-        is( eval { $gv->STASH->NAME }, "온ꪵ", "...but leaves stash intact");
+        is( eval { $gv->STASH->NAME }, "온ᠠ", "...but leaves stash intact");
     
         $sub = do {
-            package tꖿ;
-            \&{"tꖿ"};
+            package tᠠ;
+            \&{"tᠠ"};
         };
-        %tꖿ:: = ();
+        %tᠠ:: = ();
         $gv = b($sub)->GV;
     
         object_ok( $gv, "B::GV", "cleared stash leaves CV with valid GV");
         is( b($sub)->CvFLAGS & $CVf_ANON, $CVf_ANON, "...and CVf_ANON set");
-        is( eval { $gv->STASH->NAME }, "tꖿ", "...but leaves stash intact");
+        is( eval { $gv->STASH->NAME }, "tᠠ", "...but leaves stash intact");
     
         $sub = do {
-            package ᖟ레ￇ;
-            \&{"ᖟ레ￇ"};
+            package ᠠ레ￇ;
+            \&{"ᠠ레ￇ"};
         };
-        undef %ᖟ레ￇ::;
+        undef %ᠠ레ￇ::;
         $gv = b($sub)->GV;
     
         object_ok( $gv, "B::GV", "undefed stash leaves CV with valid GV");
@@ -100,22 +100,22 @@ plan( tests => 47 );
         is( eval { $gv->STASH->NAME }, "__ANON__", "...and an __ANON__ stash");
     
         my $sub = do {
-            package ꃖᚢ;
+            package 독ᚢ;
             sub { 1 };
         };
-        %ꃖᚢ:: = ();
+        %독ᚢ:: = ();
     
         my $gv = B::svref_2object($sub)->GV;
         ok($gv->isa(q/B::GV/), "cleared stash leaves anon CV with valid GV");
     
         my $st = eval { $gv->STASH->NAME };
-        is($st, q/ꃖᚢ/, "...but leaves the stash intact");
+        is($st, q/독ᚢ/, "...but leaves the stash intact");
     
         $sub = do {
-            package fꢄᶹᵌ;
+            package fƑᶹᵌ;
             sub { 1 };
         };
-        undef %fꢄᶹᵌ::;
+        undef %fƑᶹᵌ::;
     
         $gv = B::svref_2object($sub)->GV;
         ok($gv->isa(q/B::GV/), "undefed stash leaves anon CV with valid GV");
@@ -206,7 +206,7 @@ plan( tests => 47 );
         {
             my $r;
             {
-                package bᓙṗ;
+                package bᠠṗ;
     
                 BEGIN {
                     $r = \&main::Ẃⱒcᴷ;
@@ -214,7 +214,7 @@ plan( tests => 47 );
             }
     
             my $br = B::svref_2object($r);
-            is ($br->STASH->NAME, 'bᓙṗ',
+            is ($br->STASH->NAME, 'bᠠṗ',
                 'stub records the package it was compiled in');
     
             # We need to take this reference "late", after the subroutine is

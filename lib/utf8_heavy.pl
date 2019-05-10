@@ -612,73 +612,96 @@ sub _loose_name ($) {
     }
 }
 
-# not using the pre-processed Perl_SCX_ invmap tables yet.
-# TODO: add to charclass_invlist.h as mph hashes
+# All valid scripts for identifiers.
 # The short forms are not permitted. (i.e. Tglg for Tagalog)
+# Must not include the Table 7. Limited Use Scripts. http://www.unicode.org/reports/tr31/
+# TODO: Not using the pre-processed Perl_SCX_ invmap tables yet.
+# TODO: add to charclass_invlist.h as mph hash
 our %VALID_SCRIPTS = map {$_ => !!1} qw(
-  Adlam Ahom Anatolian_Hieroglyphs Arabic Armenian Avestan Balinese
-  Bamum Bassa_Vah Batak Bengali Bhaiksuki Bopomofo Brahmi Braille
-  Buginese Buhid Canadian_Aboriginal Carian Caucasian_Albanian Chakma
-  Cham Cherokee Common Coptic Cuneiform Cypriot Cyrillic Deseret
-  Devanagari Duployan Egyptian_Hieroglyphs Elbasan Ethiopic Georgian
-  Glagolitic Gothic Grantha Greek Gujarati Gurmukhi Han Hangul Hanunoo
-  Hatran Hebrew Hiragana Imperial_Aramaic Inherited
-  Inscriptional_Pahlavi Inscriptional_Parthian Javanese Kaithi Kannada
-  Katakana Kayah_Li Kharoshthi Khmer Khojki Khudawadi Lao Latin Lepcha
-  Limbu Linear_A Linear_B Lisu Lycian Lydian Mahajani Malayalam
-  Mandaic Manichaean Marchen Masaram_Gondi Meetei_Mayek Mende_Kikakui
-  Meroitic_Cursive Meroitic_Hieroglyphs Miao Modi Mongolian Mro
-  Multani Myanmar Nabataean New_Tai_Lue Newa Nko Nushu Ogham Ol_Chiki
-  Old_Hungarian Old_Italic Old_North_Arabian Old_Permic Old_Persian
-  Old_South_Arabian Old_Turkic Oriya Osage Osmanya Pahawh_Hmong
-  Palmyrene Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Qaai Rejang
-  Runic Samaritan Saurashtra Sharada Shavian Siddham SignWriting
-  Sinhala Sora_Sompeng Soyombo Sundanese Syloti_Nagri Syriac Tagalog Tagbanwa
-  Tai_Le Tai_Tham Tai_Viet Takri Tamil Tangut Telugu Thaana Thai
-  Tibetan Tifinagh Tirhuta Ugaritic Vai Warang_Citi Yi Zanabazar_Square);
 
-# These script need to be declared, are not automatically added on
-# the first encounter.
-# http://www.unicode.org/reports/tr31/
-#   #Table_Candidate_Characters_for_Exclusion_from_Identifiers
-# plus Cyrillic and Greek to reach the Moderately Restrictive Level
-# minus the Aspirational scripts: Canadian_Aboriginal, Miao
-# Mongolian, Tifinagh, Yi
-# TODO: add to charclass_invlist.h as mph hashes
+  Ahom Anatolian_Hieroglyphs Arabic Armenian Avestan Bassa_Vah Bengali
+  Bhaiksuki Bopomofo Brahmi Braille Buginese Buhid Carian
+  Caucasian_Albanian Common Coptic Cuneiform Cypriot Cyrillic Deseret
+  Devanagari Dogra Duployan Egyptian_Hieroglyphs Elbasan Elymaic Ethiopic
+  Georgian Glagolitic Gothic Grantha Greek Gujarati Gunjala_Gondi Gurmukhi Han
+  Hangul Hanunoo Hatran Hebrew Hiragana Imperial_Aramaic Inherited
+  Inscriptional_Pahlavi Inscriptional_Parthian Kaithi Kannada Katakana
+  Kharoshthi Khmer Khojki Khudawadi Lao Latin Linear_A Linear_B Lycian
+  Lydian Mahajani Makasar Malayalam Manichaean Marchen Masaram_Gondi Medefaidrin
+  Mende_Kikakui Meroitic_Cursive Meroitic_Hieroglyphs Modi Mongolian
+  Mro Multani Myanmar Nabataean Nandinagari Nushu Ogham Old_Hungarian
+  Old_Italic Old_North_Arabian Old_Permic Old_Persian Old_Sogdian
+  Old_South_Arabian Old_Turkic Oriya Osmanya Pahawh_Hmong Palmyrene
+  Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Qaai Rejang Runic
+  Samaritan Sharada Shavian Siddham SignWriting Sinhala Sogdian Sora_Sompeng
+  Soyombo Tagalog Tagbanwa Takri Tamil Tangut Telugu Thaana Thai
+  Tibetan Tirhuta Ugaritic Warang_Citi Zanabazar_Square
+
+);
+
+# These scripts need to be declared via use utf8 'Script',
+# they are not automatically added on the first encounter.
+# http://www.unicode.org/reports/tr31/#Table_Candidate_Characters_for_Exclusion_from_Identifiers
+# plus Cyrillic and Greek to reach the Moderately Restrictive Level.
+# TODO: add to charclass_invlist.h as mph hash
 our %EXCLUDED_SCRIPTS = map {$_ => !!1} qw(
+
   Cyrillic Greek
-  Ahom Anatolian_Hieroglyphs Avestan Balinese Bamum Bassa_Vah Batak
-  Brahmi Braille Buginese Buhid Carian
-  Caucasian_Albanian Chakma Cham Cherokee Common Coptic Cuneiform
-  Cypriot Deseret Duployan Egyptian_Hieroglyphs Elbasan Glagolitic
-  Gothic Grantha Hanunoo Hatran Imperial_Aramaic Inherited
-  Inscriptional_Pahlavi Inscriptional_Parthian Javanese Kaithi
-  Kayah_Li Kharoshthi Khojki Khudawadi Lepcha Limbu Linear_A Linear_B
-  Lisu Lycian Lydian Mahajani Mandaic Manichaean Masaram_Gondi Meetei_Mayek
-  Mende_Kikakui Meroitic_Cursive Meroitic_Hieroglyphs Modi
-  Mro Multani Nabataean New_Tai_Lue Nko Nushu Ogham Ol_Chiki
-  Old_Hungarian Old_Italic Old_North_Arabian Old_Permic Old_Persian
+
+  Ahom Anatolian_Hieroglyphs Avestan Bassa_Vah Bhaiksuki Brahmi
+  Buginese Buhid Carian Caucasian_Albanian Coptic Cuneiform Cypriot
+  Deseret Dogra Duployan Egyptian_Hieroglyphs Elbasan Elymaic
+  Glagolitic Gothic Grantha Gunjala_Gondi Hanunoo Hatran
+  Imperial_Aramaic Inscriptional_Pahlavi Inscriptional_Parthian Kaithi
+  Kharoshthi Khojki Khudawadi Linear_A Linear_B Lycian Lydian Mahajani
+  Makasar Manichaean Marchen Masaram_Gondi Medefaidrin Mende_Kikakui
+  Meroitic_Cursive Meroitic_Hieroglyphs Modi Mongolian Mro Multani
+  Nabataean Nandinagari Nushu Ogham Old_Hungarian Old_Italic
+  Old_North_Arabian Old_Permic Old_Persian Old_Sogdian
   Old_South_Arabian Old_Turkic Osmanya Pahawh_Hmong Palmyrene
-  Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Pau_Cin_Hau Phags_Pa
-  Phoenician Psalter_Pahlavi Qaai Rejang Runic Samaritan Saurashtra Sharada
-  Shavian Siddham SignWriting Sora_Sompeng Soyombo Sundanese Syloti_Nagri
-  Syriac Tagalog Tagbanwa Tai_Le Tai_Tham Tai_Viet Takri
-  Tirhuta Ugaritic Vai Warang_Citi Zanabazar_Square);
+  Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Rejang Runic
+  Samaritan Sharada Shavian Siddham SignWriting Sogdian Sora_Sompeng
+  Soyombo Tagalog Tagbanwa Takri Tangut Tirhuta Ugaritic Warang_Citi
+  Zanabazar_Square
+
+);
+
+# These scripts are of limited use for Identifiers, and thereby forbidden.
+# http://www.unicode.org/reports/tr31/#Table_Limited_Use_Scripts
+# There are no Aspirational Use Scripts anymore since Unicode 10.
+# Katakana_Or_Hiragana \p{script=Hrkt} is empty (used historically in Unicode,
+# but no longer.)
+# The Unknown script \p{script=Zzzz} is used for Unassigned characters.
+# TODO: add to charclass_invlist.h as mph hash
+our %LIMITED_SCRIPTS = map {$_ => !!1} qw(
+
+  Adlam Balinese Bamum Batak Chakma Canadian_Aboriginal Cham Cherokee
+  Hanifi_Rohingya Javanese Kayah_Li Lepcha Limbu Lisu Mandaic
+  Meetei_Mayek Newa Nko Nyiakeng_Puachue_Hmong Ol_Chiki Osage Miao
+  Saurashtra Sundanese Syloti_Nagri Syriac Tai_Le New_Tai_Lue Tai_Tham
+  Tai_Viet Tifinagh Vai Wancho Yi
+
+  Katakana_Or_Hiragana Unknown
+);
 
 Internals::SvREADONLY(%VALID_SCRIPTS);
 Internals::SvREADONLY(%EXCLUDED_SCRIPTS);
+Internals::SvREADONLY(%LIMITED_SCRIPTS);
 
 # The UCD variant with new-style casing of the Script names.
-sub charscript {
+sub charscript (int $cp) {
     require Unicode::UCD;
-    $_ = Unicode::UCD::charscript($_[0]);
+    $_ = Unicode::UCD::charscript($cp);
     s/_(\w)/_\U$1/g;  # Switch to new-style casing as in the UCD
     $_
 }
 
 # TODO: use Perl_SCX_invlist
-sub valid_script {
-    return exists $VALID_SCRIPTS{$_[0]};
+sub valid_script (str $sc) {
+    return exists $VALID_SCRIPTS{$sc};
+}
+sub excluded_script (str $sc) {
+    return exists $EXCLUDED_SCRIPTS{$_[0]};
 }
 
 sub reset_scripts {

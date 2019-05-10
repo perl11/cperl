@@ -16,61 +16,60 @@ example taken from: L<http://www.opendylan.org/books/drm/Method_Dispatch>
          옵젳Ṯ
            ^
            |
-        ᓕᵮꡠＦᚖᶭ 
+        ᠠᵮꡠＦᚖᶭ 
          ^    ^
         /      \
-   SㄣチenŦ    빞엗ᱞ
+   SㄣチenŦ    빞엗ᠠ
       ^          ^
       |          |
- ᕟ텔li겐ț  Hʉ만ӫ읻
+ ᠠ텔li겐ț  Hʉ만ӫ읻
        ^        ^
         \      /
-         ቩᓪ찬
+         ቩᠠ찬
 
  define class <SㄣチenŦ> (<life-form>) end class;
- define class <빞엗ᱞ> (<life-form>) end class;
- define class <ᕟ텔li겐ț> (<SㄣチenŦ>) end class;
- define class <Hʉ만ӫ읻> (<빞엗ᱞ>) end class;
- define class <ቩᓪ찬> (<ᕟ텔li겐ț>, <Hʉ만ӫ읻>) end class;
+ define class <빞엗ᠠ> (<life-form>) end class;
+ define class <ᠠ텔li겐ț> (<SㄣチenŦ>) end class;
+ define class <Hʉ만ӫ읻> (<빞엗ᠠ>) end class;
+ define class <ቩᠠ찬> (<ᠠ텔li겐ț>, <Hʉ만ӫ읻>) end class;
 
 =cut
 
 {
-    use utf8 qw(Canadian_Aboriginal Hangul);
+    use utf8 qw(Mongolian Hangul);
     package 옵젳Ṯ;
     use mro 'dfs';
 
     use utf8 qw(Phags_Pa Ogham);
-    package ᓕᵮꡠＦᚖᶭ;
+    package ᠠᵮꡠＦᚖᶭ; # ᠠ
     use mro 'dfs';
     use base '옵젳Ṯ';
 
     use utf8 qw(Bopomofo Katakana);
     package SㄣチenŦ;
     use mro 'dfs';
-    use base 'ᓕᵮꡠＦᚖᶭ';
+    use base 'ᠠᵮꡠＦᚖᶭ';
 
-    use utf8 qw(Ol_Chiki);
-    package 빞엗ᱞ;
+    package 빞엗ᠠ;
     use mro 'dfs';    
-    use base 'ᓕᵮꡠＦᚖᶭ';
+    use base 'ᠠᵮꡠＦᚖᶭ';
 
-    package ᕟ텔li겐ț;
+    package ᠠ텔li겐ț; # ᠠ
     use mro 'dfs';    
     use base 'SㄣチenŦ';
 
     use utf8 qw(Cyrillic);
     package Hʉ만ӫ읻;
     use mro 'dfs';    
-    use base '빞엗ᱞ';
+    use base '빞엗ᠠ';
 
     use utf8 qw(Ethiopic);
-    package ቩᓪ찬;
+    package ቩᠠ찬; # ᠠ
     use mro 'dfs';    
-    use base ('ᕟ텔li겐ț', 'Hʉ만ӫ읻');
+    use base ('ᠠ텔li겐ț', 'Hʉ만ӫ읻');
 }
 
 ok(eq_array(
-    mro::get_linear_isa('ቩᓪ찬'),
-    [ qw(ቩᓪ찬 ᕟ텔li겐ț SㄣチenŦ ᓕᵮꡠＦᚖᶭ 옵젳Ṯ Hʉ만ӫ읻 빞엗ᱞ) ]
-), '... got the right MRO for the ቩᓪ찬 Dylan Example');  
+    mro::get_linear_isa('ቩᠠ찬'),
+    [ qw(ቩᠠ찬 ᠠ텔li겐ț SㄣチenŦ ᠠᵮꡠＦᚖᶭ 옵젳Ṯ Hʉ만ӫ읻 빞엗ᠠ) ]
+), '... got the right MRO for the ቩᠠ찬 Dylan Example');  

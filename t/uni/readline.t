@@ -9,7 +9,7 @@ BEGIN {
 
 plan tests => 7;
 
-use utf8 qw(Canadian_Aboriginal Georgian);
+use utf8 qw( Mongolian Georgian );
 use open qw( :utf8 :std );
 
 # [perl #19566]: sv_gets writes directly to its argument via
@@ -29,31 +29,31 @@ like($@, qr/Modification of a read-only value attempted/, '[perl #19566]');
 
 use strict;
 my $err;
-{
-  open ᕝ, '.' and binmode ᕝ and sysread ᕝ, $_, 1;
+{ # ᕝ => ᠠ
+  open ᠠ, '.' and binmode ᠠ and sysread ᠠ, $_, 1;
   $err = $! + 0;
-  close ᕝ;
+  close ᠠ;
 }
 
 SKIP: {
   skip "you can read directories as plain files", 2 unless( $err );
 
   $!=0;
-  open ᕝ, '.' and $_=<ᕝ>;
+  open ᠠ, '.' and $_=<ᠠ>;
   ok( $!==$err && !defined($_) => 'readline( DIRECTORY )' );
-  close ᕝ;
+  close ᠠ;
 
   $!=0;
   { local $/;
-    open ᕝ, '.' and $_=<ᕝ>;
+    open ᠠ, '.' and $_=<ᠠ>;
     ok( $!==$err && !defined($_) => 'readline( DIRECTORY ) slurp mode' );
-    close ᕝ;
+    close ᠠ;
   }
 }
 
-my $obj = bless [], "Ȼლᔆ";
+my $obj = bless [], "Ȼლ"; # ᔆ
 $obj .= <DATA>;
-like($obj, qr/Ȼლᔆ=ARRAY.*world/u, 'rcatline and refs');
+like($obj, qr/Ȼლ=ARRAY.*world/u, 'rcatline and refs');
 
 {
     my $file = tempfile();
