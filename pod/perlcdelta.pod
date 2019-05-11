@@ -14,9 +14,9 @@ L<perl5291cdelta>, which describes differences between v5.29.0c and v5.29.1c.
 
 =head1 Core Enhancements
 
-=head2 Unicode 12.0 is supported
+=head2 Unicode 12.1 is supported
 
-For details, see L<https://www.unicode.org/versions/Unicode12.0.0/>.
+For details, see L<https://www.unicode.org/versions/Unicode12.1.0/>.
 
 The Word_Break property, as in past Perl releases, remains tailored to
 behave more in line with expectations of Perl users.  This means that

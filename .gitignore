@@ -140,6 +140,7 @@ lib/unicore/Decomposition.pl
 lib/unicore/Heavy.pl
 lib/unicore/Name.pl
 lib/unicore/Name.pm
+lib/unicore/NormTest.txt
 lib/unicore/TestProp.pl
 lib/unicore/To/
 lib/unicore/UCD.pl

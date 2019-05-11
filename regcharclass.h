@@ -667,11 +667,13 @@
 ( ( 0x9E == ((const U8*)s)[1] ) ?                                           \
 	( ( 0xB1 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ((const U8*)s)[3] >= 0xB1 ) ? 4 : 0 )                       \
-	: ( ( 0xB2 == ((const U8*)s)[2] ) && ( ((const U8*)s)[3] <= 0xB4 ) ) ? 4 : 0 )\
+	: ( 0xB2 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ((const U8*)s)[3] <= 0xB4 ) ? 4 : 0 )                       \
+	: ( ( 0xB4 == ((const U8*)s)[2] ) && ( 0x81 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xBD ) ) ? 4 : 0 )\
     : ( 0x9F == ((const U8*)s)[1] ) ?                                       \
-	( ( 0x80 == ((const U8*)s)[2] || 0x85 == ((const U8*)s)[2] ) ?      \
+	( ( 0x80 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( ((const U8*)s)[3] <= 0xAB ) || ( ((const U8*)s)[3] >= 0xB0 ) ) ? 4 : 0 )\
-	: ( 0x81 == ((const U8*)s)[2] || ( 0x8C <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x9A ) || 0x9C == ((const U8*)s)[2] || 0x9E == ((const U8*)s)[2] ) ?\
+	: ( 0x81 == ((const U8*)s)[2] || ( 0x8C <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x9A ) || 0x9C == ((const U8*)s)[2] || 0x9E == ((const U8*)s)[2] || 0xA8 == ((const U8*)s)[2] ) ?\
 	    4                                                               \
 	: ( 0x82 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( ((const U8*)s)[3] <= 0x93 ) || ( 0xA0 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xAE ) || ( ((const U8*)s)[3] >= 0xB1 ) ) ? 4 : 0 )\
@@ -679,6 +681,8 @@
 	    ( ( ( 0x81 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x8F ) || ( 0x91 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xB5 ) ) ? 4 : 0 )\
 	: ( 0x84 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( ((const U8*)s)[3] <= 0x8C ) || ( ((const U8*)s)[3] >= 0x90 ) ) ? 4 : 0 )\
+	: ( 0x85 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( ((const U8*)s)[3] <= 0xAC ) || ( ((const U8*)s)[3] >= 0xB0 ) ) ? 4 : 0 )\
 	: ( 0x86 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ((const U8*)s)[3] <= 0xAC ) ? 4 : 0 )                       \
 	: ( 0x87 == ((const U8*)s)[2] ) ?                                   \
@@ -688,11 +692,11 @@
 	: ( 0x89 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( ((const U8*)s)[3] <= 0x88 ) || ( ((const U8*)s)[3] & 0xFE ) == 0x90 || ( 0xA0 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xA5 ) ) ? 4 : 0 )\
 	: ( 0x9B == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( ((const U8*)s)[3] <= 0x94 ) || ( 0xA0 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xAC ) || ( 0xB0 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xB9 ) ) ? 4 : 0 )\
+	    ( ( ( ((const U8*)s)[3] <= 0x95 ) || ( 0xA0 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xAC ) || ( 0xB0 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xBA ) ) ? 4 : 0 )\
 	: ( 0x9D == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ((const U8*)s)[3] <= 0xB3 ) ? 4 : 0 )                       \
 	: ( 0x9F == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ((const U8*)s)[3] <= 0x98 ) ? 4 : 0 )                       \
+	    ( ( ( ((const U8*)s)[3] <= 0x98 ) || ( 0xA0 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xAB ) ) ? 4 : 0 )\
 	: ( 0xA0 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( ((const U8*)s)[3] <= 0x8B ) || ( ((const U8*)s)[3] >= 0x90 ) ) ? 4 : 0 )\
 	: ( 0xA1 == ((const U8*)s)[2] ) ?                                   \
@@ -700,14 +704,16 @@
 	: ( 0xA2 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( ((const U8*)s)[3] <= 0x87 ) || ( 0x90 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xAD ) ) ? 4 : 0 )\
 	: ( 0xA4 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( ((const U8*)s)[3] <= 0x8B ) || ( 0x90 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xBE ) ) ? 4 : 0 )\
+	    ( ( ( ((const U8*)s)[3] <= 0x8B ) || ( ((const U8*)s)[3] >= 0x8D ) ) ? 4 : 0 )\
 	: ( 0xA5 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( ((const U8*)s)[3] <= 0xB0 ) || ( 0xB3 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xB6 ) || 0xBA == ((const U8*)s)[3] || ( ((const U8*)s)[3] >= 0xBC ) ) ? 4 : 0 )\
+	    ( ( ( ((const U8*)s)[3] <= 0xB1 ) || ( 0xB3 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xB6 ) || ( ((const U8*)s)[3] >= 0xBA ) ) ? 4 : 0 )\
 	: ( 0xA6 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( ((const U8*)s)[3] <= 0xA2 ) || ( 0xB0 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xB9 ) ) ? 4 : 0 )\
+	    ( ( ( ((const U8*)s)[3] <= 0xA2 ) || ( 0xA5 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xAA ) || ( ((const U8*)s)[3] >= 0xAE ) ) ? 4 : 0 )\
 	: ( 0xA7 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( ((const U8*)s)[3] <= 0x82 ) || ( ((const U8*)s)[3] >= 0x90 ) ) ? 4 : 0 )\
-	: ( ( 0xA9 == ((const U8*)s)[2] ) && ( 0xA0 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xAD ) ) ? 4 : 0 )\
+	    ( ( ( ((const U8*)s)[3] <= 0x8A ) || ( ((const U8*)s)[3] >= 0x8D ) ) ? 4 : 0 )\
+	: ( 0xA9 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( ((const U8*)s)[3] <= 0x93 ) || ( 0xA0 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xAD ) || ( ((const U8*)s)[3] & 0xFC ) == 0xB0 || ( 0xB8 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xBA ) ) ? 4 : 0 )\
+	: ( ( 0xAA == ((const U8*)s)[2] ) && ( ( ((const U8*)s)[3] <= 0x82 ) || ( 0x90 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x95 ) ) ) ? 4 : 0 )\
     : 0 )
 
 
@@ -721,7 +727,7 @@
 	( ( ( ((const U8*)s)[2] <= 0x8E ) || ( 0x90 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x9C ) || ( ((const U8*)s)[2] >= 0xA0 ) ) ? 3 : 0 )\
     : ( 0x84 == ((const U8*)s)[1] ) ?                                       \
 	( ( ( ((const U8*)s)[2] <= 0xA5 ) || ( ((const U8*)s)[2] >= 0xA7 ) ) ? 3 : 0 )\
-    : ( 0x85 == ((const U8*)s)[1] || ( 0x87 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x8F ) || ( 0x92 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x9F ) || ( 0xA4 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0xAC ) || 0xB8 == ((const U8*)s)[1] ) ?\
+    : ( 0x85 == ((const U8*)s)[1] || ( 0x87 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x8F ) || ( 0x92 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x9F ) || ( 0xA4 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0xAC ) || 0xAF == ((const U8*)s)[1] || 0xB8 == ((const U8*)s)[1] ) ?\
 	3                                                                   \
     : ( 0x86 == ((const U8*)s)[1] ) ?                                       \
 	( ( ( ((const U8*)s)[2] <= 0x8B ) || ( ((const U8*)s)[2] >= 0x90 ) ) ? 3 : 0 )\
@@ -733,12 +739,10 @@
 	( ( ( ((const U8*)s)[2] <= 0xB3 ) || ( ((const U8*)s)[2] >= 0xB6 ) ) ? 3 : 0 )\
     : ( 0xAE == ((const U8*)s)[1] ) ?                                       \
 	( ( ( ((const U8*)s)[2] <= 0x95 ) || ( ((const U8*)s)[2] >= 0x98 ) ) ? 3 : 0 )\
-    : ( 0xAF == ((const U8*)s)[1] ) ?                                       \
-	( ( ( ((const U8*)s)[2] <= 0x88 ) || ( 0x8A <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0xBE ) ) ? 3 : 0 )\
     : ( 0xB1 == ((const U8*)s)[1] ) ?                                       \
 	( ( ((const U8*)s)[2] >= 0xA0 ) ? 3 : 0 )                           \
     : ( 0xB9 == ((const U8*)s)[1] ) ?                                       \
-	( ( ((const U8*)s)[2] <= 0x8E ) ? 3 : 0 )                           \
+	( ( ((const U8*)s)[2] <= 0x8F ) ? 3 : 0 )                           \
     : ( ( 0xBF == ((const U8*)s)[1] ) && ( 0xB0 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0xBB ) ) ? 3 : 0 )
 
 
@@ -762,19 +766,17 @@
     : ( 0x8A == ((const U8*)s)[1] || ( ((const U8*)s)[1] & 0xFE ) == 0x8E ) ?\
 	3                                                                   \
     : ( 0x8B == ((const U8*)s)[1] ) ?                                       \
-	( ( ((const U8*)s)[2] <= 0x8F ) ? 3 : 0 )                           \
+	( ( ( ((const U8*)s)[2] <= 0x8F ) || 0xBF == ((const U8*)s)[2] ) ? 3 : 0 )\
     : ( ( 0x8D == ((const U8*)s)[1] ) && ( ((const U8*)s)[2] >= 0x98 ) ) ? 3 : 0 )\
 : ( 0xE4 == ((const U8*)s)[0] ) ?                                           \
     ( ( 0xB7 == ((const U8*)s)[1] ) ?                                       \
 	3                                                                   \
     : 0 )                                                                   \
 : ( 0xEA == ((const U8*)s)[0] ) ?                                           \
-    ( ( ( ((const U8*)s)[1] & 0xFE ) == 0x9C ) ?                            \
+    ( ( 0x9C <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x9E ) ?          \
 	3                                                                   \
-    : ( 0x9E == ((const U8*)s)[1] ) ?                                       \
-	( ( ((const U8*)s)[2] <= 0xB9 ) ? 3 : 0 )                           \
     : ( 0x9F == ((const U8*)s)[1] ) ?                                       \
-	( ( ((const U8*)s)[2] >= 0xB7 ) ? 3 : 0 )                           \
+	( ( ( 0x82 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x86 ) || ( ((const U8*)s)[2] >= 0xB7 ) ) ? 3 : 0 )\
     : ( 0xA0 == ((const U8*)s)[1] ) ?                                       \
 	( ( 0xB0 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0xB9 ) ? 3 : 0 )\
     : ( 0xA4 == ((const U8*)s)[1] ) ?                                       \
@@ -783,7 +785,7 @@
 	( ( 0x8F == ((const U8*)s)[2] ) ? 3 : 0 )                           \
     : ( 0xAC == ((const U8*)s)[1] ) ?                                       \
 	( ( ((const U8*)s)[2] >= 0xB0 ) ? 3 : 0 )                           \
-    : ( ( 0xAD == ((const U8*)s)[1] ) && ( ((const U8*)s)[2] <= 0xA4 ) ) ? 3 : 0 )\
+    : ( ( 0xAD == ((const U8*)s)[1] ) && ( ( ((const U8*)s)[2] <= 0xA4 ) || ( ((const U8*)s)[2] & 0xFE ) == 0xA6 ) ) ? 3 : 0 )\
 : ( 0xEF == ((const U8*)s)[0] ) ?                                           \
     ( ( 0xAC == ((const U8*)s)[1] ) ?                                       \
 	( ( ((const U8*)s)[2] <= 0x86 ) ? 3 : 0 )                           \
@@ -811,6 +813,8 @@
 	: ( 0x87 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( 0x90 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xBC ) ? 4 : 0 )\
 	: ( ( 0x8B == ((const U8*)s)[2] ) && ( 0xA1 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0xBB ) ) ? 4 : 0 )\
+    : ( 0x96 == ((const U8*)s)[1] ) ?                                       \
+	( ( ( 0xBF == ((const U8*)s)[2] ) && ( ( ((const U8*)s)[3] & 0xFE ) == 0xA2 ) ) ? 4 : 0 )\
     : ( 0x9B == ((const U8*)s)[1] ) ?                                       \
 	( ( ( 0xB2 == ((const U8*)s)[2] ) && ( ( ((const U8*)s)[3] & 0xFC ) == 0xA0 ) ) ? 4 : 0 )\
     : ( 0x9D == ((const U8*)s)[1] ) ? is_LATIN_OR_COMMON_SCRIPT_utf8_part0(s) : is_LATIN_OR_COMMON_SCRIPT_utf8_part1(s) )\
@@ -858,7 +862,7 @@
     : ( 0xA0 == ((const U8*)s)[1] ) ?                                       \
 	( ( ( ((const U8*)s)[2] & 0xFE ) == 0x82 || 0x85 == ((const U8*)s)[2] ) ? 3 : 0 )\
     : ( 0xB3 == ((const U8*)s)[1] ) ?                                       \
-	( ( ((const U8*)s)[2] == 0x93 || ( ( ((const U8*)s)[2] & 0xF7 ) == 0xA1 ) || ( ( ((const U8*)s)[2] & 0xFA ) == 0xAA ) || ((const U8*)s)[2] == 0xAC || ( ( ((const U8*)s)[2] & 0xFC ) == 0xB0 ) || ((const U8*)s)[2] == 0xB5 || ( ( ((const U8*)s)[2] & 0xFE ) == 0xB6 ) ) ? 3 : 0 )\
+	( ( ((const U8*)s)[2] == 0x93 || ( ( ((const U8*)s)[2] & 0xF7 ) == 0xA1 ) || ( ( ((const U8*)s)[2] & 0xFA ) == 0xAA ) || ((const U8*)s)[2] == 0xAC || ( ( ((const U8*)s)[2] & 0xFC ) == 0xB0 ) || ((const U8*)s)[2] == 0xB5 || ( ( ((const U8*)s)[2] & 0xFE ) == 0xB6 ) || ((const U8*)s)[2] == 0xBA ) ? 3 : 0 )\
     : ( 0xB4 == ((const U8*)s)[1] ) ?                                       \
 	( ( ( ((const U8*)s)[2] <= 0xA5 ) || ( ((const U8*)s)[2] >= 0xAC ) ) ? 3 : 0 )\
     : ( 0xB5 == ((const U8*)s)[1] ) ?                                       \
@@ -3133,7 +3137,7 @@
 #define is_LATIN_OR_COMMON_SCRIPT_utf8_part0(s)                             \
 ( ( ( ( ((const U8*)s)[2] & 0xED ) == 0x41 ) || ((const U8*)s)[2] == 0x44 || ( ( ((const U8*)s)[2] & 0xDF ) == 0x4A ) || ((const U8*)s)[2] == 0x67 || ( ( ((const U8*)s)[2] & 0xFE ) == 0x68 ) || ( ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ) ?\
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ? 4 : 0 )\
-	: ( ( ((const U8*)s)[2] & 0xEF ) == 0x42 ) ?                        \
+	: ( 0x42 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 == ((const U8*)s)[3] || 0x52 == ((const U8*)s)[3] ) || ( 0x57 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ? 4 : 0 )\
 	: ( 0x45 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x62 == ((const U8*)s)[3] ) ? 4 : 0 )\
@@ -3143,7 +3147,7 @@
 	    ( ( ( 0x42 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x56 ) || ( ((const U8*)s)[3] & 0xFE ) == 0x58 || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ? 4 : 0 )\
 	: ( 0x48 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x64 ) ) ? 4 : 0 )\
-	: ( 0x49 == ((const U8*)s)[2] ) ?                                   \
+	: ( 0x49 == ((const U8*)s)[2] || 0x52 == ((const U8*)s)[2] ) ?      \
 	    ( ( ( ( ((const U8*)s)[3] & 0xEF ) == 0x41 ) || ( ( ((const U8*)s)[3] & 0xCE ) == 0x42 ) || ( ( ((const U8*)s)[3] & 0xDC ) == 0x44 ) || ( ( ((const U8*)s)[3] & 0xEE ) == 0x48 ) || ( ( ((const U8*)s)[3] & 0xDF ) == 0x4A ) || ((const U8*)s)[3] == 0x57 || ( ( ((const U8*)s)[3] & 0xFE ) == 0x68 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x70 ) ) ? 4 : 0 )\
 	: ( 0x54 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x53 ) ) ? 4 : 0 )\
@@ -3164,30 +3168,38 @@
 	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x64 ) || ( 0x67 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x69 ) || ( ((const U8*)s)[2] & 0xFE ) == 0x70 ) ?\
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ? 4 : 0 )\
 	: ( 0x65 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( ((const U8*)s)[3] & 0xFE ) == 0x62 ) ? 4 : 0 )\
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x64 ) ) ? 4 : 0 )\
 	: ( 0x66 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x53 ) || ( 0x57 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x68 ) ) ? 4 : 0 )\
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x53 ) || ( 0x57 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x69 ) ) ? 4 : 0 )\
 	: ( 0x6A == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x62 == ((const U8*)s)[3] ) ? 4 : 0 )\
-	: ( ( 0x72 == ((const U8*)s)[2] ) && ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x67 ) ) ) ? 4 : 0 )\
+	: ( 0x72 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x67 ) ) ? 4 : 0 )\
+	: ( ( 0x73 == ((const U8*)s)[2] ) && ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 == ((const U8*)s)[3] || 0x52 == ((const U8*)s)[3] ) ) ) ? 4 : 0 )\
     : ( 0x72 == ((const U8*)s)[1] ) ?                                       \
-	( ( ( ((const U8*)s)[2] & 0xF7 ) == 0x41 ) ?                        \
+	( ( 0x41 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 == ((const U8*)s)[3] || 0x52 == ((const U8*)s)[3] ) || ( 0x57 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ? 4 : 0 )\
-	: ( ((const U8*)s)[2] == 0x42 || ((const U8*)s)[2] == 0x44 || ( ( ((const U8*)s)[2] & 0xFD ) == 0x51 ) || ((const U8*)s)[2] == 0x56 ) ?\
+	: ( ( ( ((const U8*)s)[2] & 0xF7 ) == 0x42 ) || ((const U8*)s)[2] == 0x44 || ( ( ((const U8*)s)[2] & 0xFD ) == 0x51 ) || ( ( ((const U8*)s)[2] & 0xFE ) == 0x56 ) || ((const U8*)s)[2] == 0x58 ) ?\
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ? 4 : 0 )\
 	: ( 0x43 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x48 ) || ( 0x57 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x68 ) ) ? 4 : 0 )\
 	: ( 0x45 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x48 ) || ( 0x57 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ? 4 : 0 )\
-	: ( 0x46 == ((const U8*)s)[2] || 0x62 == ((const U8*)s)[2] ) ?      \
+	: ( 0x46 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x54 ) ) ? 4 : 0 )\
-	: ( 0x4A == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
+	: ( 0x49 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 == ((const U8*)s)[3] || 0x52 == ((const U8*)s)[3] ) || ( 0x54 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ? 4 : 0 )\
 	: ( 0x52 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x57 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x65 ) || 0x69 == ((const U8*)s)[3] || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ? 4 : 0 )\
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x58 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x65 ) || ( 0x69 == ((const U8*)s)[3] || 0x6A == ((const U8*)s)[3] ) || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ? 4 : 0 )\
 	: ( 0x54 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x43 ) || ( 0x57 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x68 ) ) ? 4 : 0 )\
-	: ( ( 0x55 == ((const U8*)s)[2] ) && ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x43 ) || ( 0x57 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ) ? 4 : 0 )\
+	    ( ( ((const U8*)s)[3] == 0x41 || ( ( ((const U8*)s)[3] & 0xDA ) == 0x42 ) || ( ( ((const U8*)s)[3] & 0xEE ) == 0x48 ) || ( ( ((const U8*)s)[3] & 0xDF ) == 0x4A ) || ( ( ((const U8*)s)[3] & 0xFB ) == 0x51 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x56 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x64 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x68 ) || ( ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ) ? 4 : 0 )\
+	: ( 0x55 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || 0x51 == ((const U8*)s)[3] || ( 0x54 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ? 4 : 0 )\
+	: ( 0x59 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x62 == ((const U8*)s)[3] ) ? 4 : 0 )\
+	: ( 0x62 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x54 ) || ( 0x57 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x62 == ((const U8*)s)[3] || ( 0x67 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x69 ) ) ? 4 : 0 )\
+	: ( ( 0x63 == ((const U8*)s)[2] ) && ( ((const U8*)s)[3] == 0x41 || ( ( ((const U8*)s)[3] & 0xDE ) == 0x42 ) || ((const U8*)s)[3] == 0x57 || ( ( ((const U8*)s)[3] & 0xFE ) == 0x58 ) || ((const U8*)s)[3] == 0x64 ) ) ? 4 : 0 )\
     : 0 )
 
 
@@ -3241,17 +3253,21 @@
 	    ( ( ( ((const U8*)s)[3] & 0xFE ) == 0x58 || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ? 4 : 0 )\
 	: ( 0x45 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ? 4 : 0 )\
-	: ( ( 0x46 == ((const U8*)s)[2] ) && ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( ((const U8*)s)[3] & 0xFE ) == 0x62 ) ) ? 4 : 0 )\
+	: ( 0x46 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( ((const U8*)s)[3] & 0xFE ) == 0x62 ) ? 4 : 0 )\
+	: ( 0x49 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x42 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ? 4 : 0 )\
+	: ( ( 0x4A == ((const U8*)s)[2] ) && ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFE ) == 0x70 ) ) ? 4 : 0 )\
     : ( 0x70 == ((const U8*)s)[1] ) ? is_LATIN_OR_COMMON_SCRIPT_utf8_part0(s) : is_LATIN_OR_COMMON_SCRIPT_utf8_part1(s) )
 
 
 /*** GENERATED CODE ***/
 #define is_LATIN_OR_COMMON_SCRIPT_utf8_part4(s)                             \
 ( ( 0x4A == ((const U8*)s)[1] ) ?                                           \
-	( ( ( 0x67 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || 0x70 == ((const U8*)s)[2] ) ?\
+	( ( ( 0x67 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFE ) == 0x70 ) ?\
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ? 4 : 0 )\
-	: ( 0x71 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x68 ) ) ? 4 : 0 )\
+	: ( 0x72 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( 0x43 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x47 ) ? 4 : 0 )\
 	: ( ( 0x73 == ((const U8*)s)[2] ) && ( ( 0x66 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ) ? 4 : 0 )\
     : ( 0x51 == ((const U8*)s)[1] ) ?                                       \
 	( ( 0x42 == ((const U8*)s)[2] ) ?                                   \
@@ -3264,7 +3280,7 @@
 	    ( ( ( 0x57 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ? 4 : 0 )\
 	: ( 0x69 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFC ) == 0x70 ) ? 4 : 0 )\
-	: ( ( 0x6A == ((const U8*)s)[2] ) && ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x45 ) ) ? 4 : 0 )\
+	: ( ( 0x6A == ((const U8*)s)[2] ) && ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x45 ) || ( 0x47 == ((const U8*)s)[3] || 0x48 == ((const U8*)s)[3] ) ) ) ? 4 : 0 )\
     : ( 0x72 == ((const U8*)s)[1] ) ?                                       \
 	( ( ( 0x67 == ((const U8*)s)[2] ) && ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x47 ) ) ? 4 : 0 )\
     : ( 0x73 == ((const U8*)s)[1] ) ?                                       \
@@ -3305,7 +3321,7 @@
 	: ( 0x56 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || 0x70 == ((const U8*)s)[3] ) ? 4 : 0 )\
 	: ( ( 0x66 == ((const U8*)s)[2] ) && ( ( 0x42 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) ) ) ? 4 : 0 )\
-    : 0 )                                                                   \
+    : ( ( ( 0x6A == ((const U8*)s)[1] ) && ( 0x73 == ((const U8*)s)[2] ) ) && ( 0x43 == ((const U8*)s)[3] || 0x44 == ((const U8*)s)[3] ) ) ? 4 : 0 )\
 : ( 0xDF == ((const U8*)s)[0] ) ?                                           \
     ( ( 0x56 == ((const U8*)s)[1] ) ?                                       \
 	( ( ( 0x46 == ((const U8*)s)[2] ) && ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x44 ) ) ? 4 : 0 )\
@@ -3317,30 +3333,38 @@
 
 /*** GENERATED CODE ***/
 #define is_LATIN_OR_COMMON_SCRIPT_utf8_part6(s)                             \
-( ( 0x41 == ((const U8*)s)[1] || ( 0x44 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x6A ) || ( ((const U8*)s)[1] & 0xFC ) == 0x70 ) ?\
+( ( 0x41 == ((const U8*)s)[1] ) ?                                           \
+	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 == ((const U8*)s)[2] || 0x52 == ((const U8*)s)[2] ) || ( 0x55 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ? 3 : 0 )\
+    : ( ( ((const U8*)s)[1] & 0xFE ) == 0x42 || 0x46 == ((const U8*)s)[1] || 0x49 == ((const U8*)s)[1] || ( 0x51 == ((const U8*)s)[1] || 0x52 == ((const U8*)s)[1] ) || ( 0x54 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x6A ) || ( ((const U8*)s)[1] & 0xFC ) == 0x70 ) ?\
 	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ? 3 : 0 )\
-    : ( 0x42 == ((const U8*)s)[1] ) ?                                       \
-	( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x47 ) ? 3 : 0 )\
-    : ( ( 0x43 == ((const U8*)s)[1] ) && ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || 0x51 == ((const U8*)s)[2] ) ) ? 3 : 0 )
+    : ( 0x44 == ((const U8*)s)[1] ) ?                                       \
+	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x45 ) || ( 0x47 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x58 ) || ( 0x63 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ? 3 : 0 )\
+    : ( 0x45 == ((const U8*)s)[1] ) ?                                       \
+	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x55 ) || ( 0x57 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || 0x70 == ((const U8*)s)[2] ) ? 3 : 0 )\
+    : ( 0x4A == ((const U8*)s)[1] ) ?                                       \
+	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x46 ) || ( 0x48 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ? 3 : 0 )\
+    : ( ( 0x53 == ((const U8*)s)[1] ) && ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 == ((const U8*)s)[2] || 0x52 == ((const U8*)s)[2] ) || ( 0x57 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ) ? 3 : 0 )
 
 
 /*** GENERATED CODE ***/
 #define is_LATIN_OR_COMMON_SCRIPT_utf8_part7(s)                             \
-( ( 0xCC == ((const U8*)s)[0] ) ?                                           \
-    ( ( ( 0x49 == ((const U8*)s)[1] || 0x4A == ((const U8*)s)[1] ) || ( 0x51 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x69 ) || 0x71 == ((const U8*)s)[1] ) ?\
+( ( 0xCB == ((const U8*)s)[0] ) ?                                           \
+    ( ( 0x41 == ((const U8*)s)[1] || ( 0x44 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x6A ) || ( ((const U8*)s)[1] & 0xFC ) == 0x70 ) ?\
+	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ? 3 : 0 )\
+    : ( 0x42 == ((const U8*)s)[1] ) ?                                       \
+	( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x47 ) ? 3 : 0 )\
+    : ( ( 0x43 == ((const U8*)s)[1] ) && ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || 0x51 == ((const U8*)s)[2] ) ) ? 3 : 0 )\
+: ( 0xCC == ((const U8*)s)[0] ) ?                                           \
+    ( ( ( 0x49 == ((const U8*)s)[1] || 0x4A == ((const U8*)s)[1] ) || ( 0x51 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x69 ) || ( 0x71 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x73 ) ) ?\
 	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ? 3 : 0 )\
     : ( 0x6A == ((const U8*)s)[1] ) ?                                       \
 	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || 0x62 == ((const U8*)s)[2] || ( 0x65 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ? 3 : 0 )\
-    : ( 0x70 == ((const U8*)s)[1] ) ?                                       \
-	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x64 ) || ( 0x67 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ? 3 : 0 )\
-    : ( 0x72 == ((const U8*)s)[1] ) ?                                       \
-	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x49 ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ? 3 : 0 )\
-    : ( ( 0x73 == ((const U8*)s)[1] ) && ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x72 ) ) ) ? 3 : 0 )\
+    : ( ( 0x70 == ((const U8*)s)[1] ) && ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x64 ) || ( 0x67 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ) ? 3 : 0 )\
 : ( 0xCD == ((const U8*)s)[0] ) ?                                           \
     ( ( 0x44 == ((const U8*)s)[1] || ( 0x57 == ((const U8*)s)[1] || 0x58 == ((const U8*)s)[1] ) ) ?\
 	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ? 3 : 0 )\
     : ( 0x59 == ((const U8*)s)[1] ) ?                                       \
-	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x55 ) ) ? 3 : 0 )\
+	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x56 ) ) ? 3 : 0 )\
     : ( ( 0x73 == ((const U8*)s)[1] ) && ( ( 0x57 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) ) ) ? 3 : 0 )\
 : ( 0xCE == ((const U8*)s)[0] ) ?                                           \
     ( ( 0x41 == ((const U8*)s)[1] ) ?                                       \
@@ -3357,7 +3381,7 @@
 	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ? 3 : 0 )\
     : ( 0x56 == ((const U8*)s)[1] ) ?                                       \
 	( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x44 ) ? 3 : 0 )\
-    : ( 0x62 == ((const U8*)s)[1] ) ?                                       \
+    : ( ( ((const U8*)s)[1] & 0xFB ) == 0x62 ) ?                            \
 	( ( 0x73 == ((const U8*)s)[2] ) ? 3 : 0 )                           \
     : ( 0x65 == ((const U8*)s)[1] ) ?                                       \
 	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x56 ) ) ? 3 : 0 )\
@@ -3368,19 +3392,25 @@
 
 
 /*** GENERATED CODE ***/
-#define is_LATIN_OR_COMMON_SCRIPT_utf8_part8(s)                             \
-( ( 0x53 == ((const U8*)s)[1] ) ?                                           \
+#define is_LATIN_OR_COMMON_SCRIPT_utf8(s)                                   \
+( ( ((const U8*)s)[0] == 0x01 || ( ( ((const U8*)s)[0] & 0xFE ) == 0x02 ) || ( ( ((const U8*)s)[0] & 0xFC ) == 0x04 ) || ( ( ((const U8*)s)[0] & 0xF8 ) == 0x08 ) || ( ( ((const U8*)s)[0] & 0xF0 ) == 0x10 ) || ( ( ((const U8*)s)[0] & 0xE0 ) == 0x20 ) || ( ( ((const U8*)s)[0] & 0xEF ) == 0x40 ) || ( ( ((const U8*)s)[0] & 0xDF ) == 0x4B ) || ( ( ((const U8*)s)[0] & 0xCC ) == 0x4C ) || ( ( ((const U8*)s)[0] & 0xDE ) == 0x5A ) || ( ( ((const U8*)s)[0] & 0xFE ) == 0x60 ) || ((const U8*)s)[0] == 0x79 || ( ( ((const U8*)s)[0] & 0xEF ) == 0x81 ) || ( ( ((const U8*)s)[0] & 0xEE ) == 0x82 ) || ( ( ((const U8*)s)[0] & 0xEC ) == 0x84 ) || ( ( ((const U8*)s)[0] & 0xEE ) == 0x88 ) || ((const U8*)s)[0] == 0xA1 || ( ( ((const U8*)s)[0] & 0xBE ) == 0xA2 ) || ( ( ((const U8*)s)[0] & 0xBC ) == 0xA4 ) || ( ( ((const U8*)s)[0] & 0xFE ) == 0xA8 ) || ( ( ((const U8*)s)[0] & 0xEF ) == 0xAD ) || ( ( ((const U8*)s)[0] & 0xE8 ) == 0xC0 ) || ( ( ((const U8*)s)[0] & 0xCE ) == 0xC8 ) || ((const U8*)s)[0] == 0xE0 || ( ( ((const U8*)s)[0] & 0xF8 ) == 0xF0 ) || ((const U8*)s)[0] == 0xFF ) ? 1\
+: ( ( ( ((const U8*)s)[0] & 0xEF ) == 0x80 ) || ( ( ((const U8*)s)[0] & 0xEE ) == 0x8A ) || ( ( ((const U8*)s)[0] & 0xEC ) == 0x8C ) || ((const U8*)s)[0] == 0xA0 || ( ( ((const U8*)s)[0] & 0xFE ) == 0xAA ) || ((const U8*)s)[0] == 0xAC ) ?\
+    ( ( ( 0x41 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x6A ) || ( ((const U8*)s)[1] & 0xFC ) == 0x70 ) ? 2 : 0 )\
+: ( 0xAE == ((const U8*)s)[0] ) ?                                           \
+    ( ( ( 0x41 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x4A ) || ( 0x53 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x6A ) || ( ((const U8*)s)[1] & 0xFC ) == 0x70 ) ? 2 : 0 )\
+: ( 0xB2 == ((const U8*)s)[0] ) ?                                           \
+    ( ( 0x63 == ((const U8*)s)[1] || 0x72 == ((const U8*)s)[1] ) ? 2 : 0 )  \
+: ( 0xB3 == ((const U8*)s)[0] ) ?                                           \
+    ( ( 0x46 == ((const U8*)s)[1] || 0x48 == ((const U8*)s)[1] ) ? 2 : 0 )  \
+: ( 0xB8 == ((const U8*)s)[0] ) ?                                           \
+    ( ( 0x53 == ((const U8*)s)[1] ) ?                                       \
 	( ( 0x4A == ((const U8*)s)[2] ) ? 3 : 0 )                           \
     : ( 0x57 == ((const U8*)s)[1] ) ?                                       \
 	( ( ((const U8*)s)[2] == 0x46 || ( ( ((const U8*)s)[2] & 0xDF ) == 0x53 ) || ((const U8*)s)[2] == 0x6A ) ? 3 : 0 )\
     : ( 0x59 == ((const U8*)s)[1] ) ?                                       \
 	( ( 0x41 == ((const U8*)s)[2] ) ? 3 : 0 )                           \
-    : ( ( 0x65 == ((const U8*)s)[1] ) && ( 0x71 == ((const U8*)s)[2] ) ) ? 3 : 0 )
-
-
-/*** GENERATED CODE ***/
-#define is_LATIN_OR_COMMON_SCRIPT_utf8_part9(s)                             \
-( ( 0xB9 == ((const U8*)s)[0] ) ?                                           \
+    : ( ( 0x65 == ((const U8*)s)[1] ) && ( 0x71 == ((const U8*)s)[2] ) ) ? 3 : 0 )\
+: ( 0xB9 == ((const U8*)s)[0] ) ?                                           \
     ( ( 0x48 == ((const U8*)s)[1] ) ?                                       \
 	( ( 0x43 == ((const U8*)s)[2] ) ? 3 : 0 )                           \
     : ( ( 0x52 == ((const U8*)s)[1] ) && ( 0x45 == ((const U8*)s)[2] || 0x46 == ((const U8*)s)[2] ) ) ? 3 : 0 )\
@@ -3400,7 +3430,7 @@
     ( ( 0x47 == ((const U8*)s)[1] ) ?                                       \
 	( ( 0x62 == ((const U8*)s)[2] ) ? 3 : 0 )                           \
     : ( 0x48 == ((const U8*)s)[1] ) ?                                       \
-	( ( ( ( ((const U8*)s)[2] & 0xF7 ) == 0x42 ) || ( ( ((const U8*)s)[2] & 0xFB ) == 0x51 ) || ( ( ((const U8*)s)[2] & 0xFA ) == 0x52 ) || ( ( ((const U8*)s)[2] & 0xFE ) == 0x58 ) || ( ( ((const U8*)s)[2] & 0xFB ) == 0x62 ) || ( ( ((const U8*)s)[2] & 0xFE ) == 0x64 ) ) ? 3 : 0 )\
+	( ( ( ( ((const U8*)s)[2] & 0xF7 ) == 0x42 ) || ( ( ((const U8*)s)[2] & 0xFB ) == 0x51 ) || ( ( ((const U8*)s)[2] & 0xFA ) == 0x52 ) || ( ( ((const U8*)s)[2] & 0xFE ) == 0x58 ) || ( ( ((const U8*)s)[2] & 0xFB ) == 0x62 ) || ( ( ((const U8*)s)[2] & 0xFE ) == 0x64 ) || ((const U8*)s)[2] == 0x69 ) ? 3 : 0 )\
     : ( 0x49 == ((const U8*)s)[1] || 0x53 == ((const U8*)s)[1] || ( 0x57 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x66 ) ) ?\
 	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ? 3 : 0 )\
     : ( 0x4A == ((const U8*)s)[1] ) ?                                       \
@@ -3410,33 +3440,7 @@
     : ( 0x52 == ((const U8*)s)[1] ) ?                                       \
 	( ( ( 0x43 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x46 ) || ( 0x52 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x66 ) || ( 0x68 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ? 3 : 0 )\
     : ( ( 0x54 == ((const U8*)s)[1] ) && ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x72 ) ) ) ? 3 : 0 )\
-: ( 0xCA == ((const U8*)s)[0] ) ?                                           \
-    ( ( 0x41 == ((const U8*)s)[1] ) ?                                       \
-	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 == ((const U8*)s)[2] || 0x52 == ((const U8*)s)[2] ) || ( 0x55 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ? 3 : 0 )\
-    : ( ( ((const U8*)s)[1] & 0xFE ) == 0x42 || 0x46 == ((const U8*)s)[1] || 0x49 == ((const U8*)s)[1] || ( 0x51 == ((const U8*)s)[1] || 0x52 == ((const U8*)s)[1] ) || ( 0x54 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x6A ) || ( ((const U8*)s)[1] & 0xFC ) == 0x70 ) ?\
-	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ? 3 : 0 )\
-    : ( 0x44 == ((const U8*)s)[1] ) ?                                       \
-	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x45 ) || ( 0x47 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x58 ) || ( 0x63 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ? 3 : 0 )\
-    : ( 0x45 == ((const U8*)s)[1] ) ?                                       \
-	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x55 ) || ( 0x57 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || 0x70 == ((const U8*)s)[2] ) ? 3 : 0 )\
-    : ( 0x4A == ((const U8*)s)[1] ) ?                                       \
-	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x46 ) || ( 0x48 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ? 3 : 0 )\
-    : ( ( 0x53 == ((const U8*)s)[1] ) && ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 == ((const U8*)s)[2] || 0x52 == ((const U8*)s)[2] ) || ( 0x57 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFC ) == 0x70 ) ) ? 3 : 0 )\
-: ( 0xCB == ((const U8*)s)[0] ) ? is_LATIN_OR_COMMON_SCRIPT_utf8_part6(s) : is_LATIN_OR_COMMON_SCRIPT_utf8_part7(s) )
-
-
-/*** GENERATED CODE ***/
-#define is_LATIN_OR_COMMON_SCRIPT_utf8(s)                                   \
-( ( ((const U8*)s)[0] == 0x01 || ( ( ((const U8*)s)[0] & 0xFE ) == 0x02 ) || ( ( ((const U8*)s)[0] & 0xFC ) == 0x04 ) || ( ( ((const U8*)s)[0] & 0xF8 ) == 0x08 ) || ( ( ((const U8*)s)[0] & 0xF0 ) == 0x10 ) || ( ( ((const U8*)s)[0] & 0xE0 ) == 0x20 ) || ( ( ((const U8*)s)[0] & 0xEF ) == 0x40 ) || ( ( ((const U8*)s)[0] & 0xDF ) == 0x4B ) || ( ( ((const U8*)s)[0] & 0xCC ) == 0x4C ) || ( ( ((const U8*)s)[0] & 0xDE ) == 0x5A ) || ( ( ((const U8*)s)[0] & 0xFE ) == 0x60 ) || ((const U8*)s)[0] == 0x79 || ( ( ((const U8*)s)[0] & 0xEF ) == 0x81 ) || ( ( ((const U8*)s)[0] & 0xEE ) == 0x82 ) || ( ( ((const U8*)s)[0] & 0xEC ) == 0x84 ) || ( ( ((const U8*)s)[0] & 0xEE ) == 0x88 ) || ((const U8*)s)[0] == 0xA1 || ( ( ((const U8*)s)[0] & 0xBE ) == 0xA2 ) || ( ( ((const U8*)s)[0] & 0xBC ) == 0xA4 ) || ( ( ((const U8*)s)[0] & 0xFE ) == 0xA8 ) || ( ( ((const U8*)s)[0] & 0xEF ) == 0xAD ) || ( ( ((const U8*)s)[0] & 0xE8 ) == 0xC0 ) || ( ( ((const U8*)s)[0] & 0xCE ) == 0xC8 ) || ((const U8*)s)[0] == 0xE0 || ( ( ((const U8*)s)[0] & 0xF8 ) == 0xF0 ) || ((const U8*)s)[0] == 0xFF ) ? 1\
-: ( ( ( ((const U8*)s)[0] & 0xEF ) == 0x80 ) || ( ( ((const U8*)s)[0] & 0xEE ) == 0x8A ) || ( ( ((const U8*)s)[0] & 0xEC ) == 0x8C ) || ((const U8*)s)[0] == 0xA0 || ( ( ((const U8*)s)[0] & 0xFE ) == 0xAA ) || ((const U8*)s)[0] == 0xAC ) ?\
-    ( ( ( 0x41 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x6A ) || ( ((const U8*)s)[1] & 0xFC ) == 0x70 ) ? 2 : 0 )\
-: ( 0xAE == ((const U8*)s)[0] ) ?                                           \
-    ( ( ( 0x41 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x4A ) || ( 0x53 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x59 ) || ( 0x62 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x6A ) || ( ((const U8*)s)[1] & 0xFC ) == 0x70 ) ? 2 : 0 )\
-: ( 0xB2 == ((const U8*)s)[0] ) ?                                           \
-    ( ( 0x63 == ((const U8*)s)[1] || 0x72 == ((const U8*)s)[1] ) ? 2 : 0 )  \
-: ( 0xB3 == ((const U8*)s)[0] ) ?                                           \
-    ( ( 0x46 == ((const U8*)s)[1] || 0x48 == ((const U8*)s)[1] ) ? 2 : 0 )  \
-: ( 0xB8 == ((const U8*)s)[0] ) ? is_LATIN_OR_COMMON_SCRIPT_utf8_part8(s) : is_LATIN_OR_COMMON_SCRIPT_utf8_part9(s) )
+: ( 0xCA == ((const U8*)s)[0] ) ? is_LATIN_OR_COMMON_SCRIPT_utf8_part6(s) : is_LATIN_OR_COMMON_SCRIPT_utf8_part7(s) )
 
 /*
 	INHERITED_SCRIPT: Inherited Script
@@ -6129,9 +6133,67 @@
 */
 /*** GENERATED CODE ***/
 #define is_LATIN_OR_COMMON_SCRIPT_utf8_part0(s)                             \
-( ( ( ( ((const U8*)s)[2] & 0xED ) == 0x41 ) || ((const U8*)s)[2] == 0x44 || ( ( ((const U8*)s)[2] & 0xDF ) == 0x4A ) || ( ( ((const U8*)s)[2] & 0xFE ) == 0x66 ) || ( ( ((const U8*)s)[2] & 0xFE ) == 0x68 ) || ( ( ((const U8*)s)[2] & 0xFE ) == 0x70 ) || ((const U8*)s)[2] == 0x72 ) ?\
+( ( ( ( ((const U8*)s)[2] & 0xEF ) == 0x41 ) || ( ( ((const U8*)s)[2] & 0xEE ) == 0x42 ) || ( ( ((const U8*)s)[2] & 0xEC ) == 0x44 ) || ( ( ((const U8*)s)[2] & 0xEE ) == 0x48 ) || ((const U8*)s)[2] == 0x4A || ((const U8*)s)[2] == 0x5F || ( ( ((const U8*)s)[2] & 0xFA ) == 0x62 ) || ( ( ((const U8*)s)[2] & 0xFD ) == 0x68 ) || ((const U8*)s)[2] == 0x70 ) ?\
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
-	: ( ( ((const U8*)s)[2] & 0xEF ) == 0x42 ) ?                        \
+	: ( 0x64 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( ((const U8*)s)[3] & 0xFE ) == 0x62 ) ? 4 : 0 )\
+	: ( 0x65 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( ( ((const U8*)s)[3] & 0xEF ) == 0x41 ) || ( ( ((const U8*)s)[3] & 0xEE ) == 0x42 ) || ( ( ((const U8*)s)[3] & 0xDC ) == 0x44 ) || ( ( ((const U8*)s)[3] & 0xEE ) == 0x48 ) || ((const U8*)s)[3] == 0x4A || ( ( ((const U8*)s)[3] & 0xF7 ) == 0x57 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x62 ) || ((const U8*)s)[3] == 0x68 ) ? 4 : 0 )\
+	: ( 0x69 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] ) ? 4 : 0 )\
+	: ( 0x71 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x66 ) ) ? 4 : 0 )\
+	: ( ( 0x72 == ((const U8*)s)[2] ) && ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 == ((const U8*)s)[3] || 0x52 == ((const U8*)s)[3] ) ) ) ? 4 : 0 )
+
+
+/*** GENERATED CODE ***/
+#define is_LATIN_OR_COMMON_SCRIPT_utf8_part1(s)                             \
+( ( 0x71 == ((const U8*)s)[1] ) ?                                           \
+	( ( 0x41 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( ( ((const U8*)s)[3] & 0xEF ) == 0x41 ) || ( ( ((const U8*)s)[3] & 0xDE ) == 0x42 ) || ( ( ((const U8*)s)[3] & 0xDC ) == 0x44 ) || ( ( ((const U8*)s)[3] & 0xEE ) == 0x48 ) || ( ( ((const U8*)s)[3] & 0xDF ) == 0x4A ) || ( ( ((const U8*)s)[3] & 0xDF ) == 0x52 ) || ( ( ((const U8*)s)[3] & 0xF7 ) == 0x57 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x68 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x70 ) ) ? 4 : 0 )\
+	: ( ( ( ((const U8*)s)[2] & 0xF7 ) == 0x42 ) || ((const U8*)s)[2] == 0x44 || ( ( ((const U8*)s)[2] & 0xFD ) == 0x51 ) || ( ( ((const U8*)s)[2] & 0xFE ) == 0x56 ) || ((const U8*)s)[2] == 0x58 ) ?\
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
+	: ( 0x43 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ((const U8*)s)[3] == 0x41 || ( ( ((const U8*)s)[3] & 0xDE ) == 0x42 ) || ( ( ((const U8*)s)[3] & 0xDC ) == 0x44 ) || ((const U8*)s)[3] == 0x48 || ( ( ((const U8*)s)[3] & 0xF7 ) == 0x57 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x58 ) ) ? 4 : 0 )\
+	: ( 0x45 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x48 ) || ( 0x57 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
+	: ( 0x46 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x54 ) ) ? 4 : 0 )\
+	: ( 0x49 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( ( ((const U8*)s)[3] & 0xEF ) == 0x41 ) || ( ( ((const U8*)s)[3] & 0xDE ) == 0x42 ) || ( ( ((const U8*)s)[3] & 0xEC ) == 0x44 ) || ( ( ((const U8*)s)[3] & 0xEE ) == 0x48 ) || ( ( ((const U8*)s)[3] & 0xDF ) == 0x4A ) || ( ( ((const U8*)s)[3] & 0xDF ) == 0x52 ) || ((const U8*)s)[3] == 0x5F || ( ( ((const U8*)s)[3] & 0xFC ) == 0x64 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x68 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x70 ) ) ? 4 : 0 )\
+	: ( 0x52 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x58 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x64 ) || ( 0x68 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
+	: ( 0x54 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ((const U8*)s)[3] == 0x41 || ( ( ((const U8*)s)[3] & 0xDA ) == 0x42 ) || ( ( ((const U8*)s)[3] & 0xEE ) == 0x48 ) || ( ( ((const U8*)s)[3] & 0xDF ) == 0x4A ) || ( ( ((const U8*)s)[3] & 0xFB ) == 0x51 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x56 ) || ((const U8*)s)[3] == 0x5F || ( ( ((const U8*)s)[3] & 0xFE ) == 0x64 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x68 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x70 ) || ((const U8*)s)[3] == 0x72 ) ? 4 : 0 )\
+	: ( 0x55 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || 0x51 == ((const U8*)s)[3] || ( 0x54 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
+	: ( 0x59 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] ) ? 4 : 0 )\
+	: ( 0x5F == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x54 ) || ( 0x57 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x66 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x68 ) ) ? 4 : 0 )\
+	: ( ( 0x62 == ((const U8*)s)[2] ) && ( ((const U8*)s)[3] == 0x41 || ( ( ((const U8*)s)[3] & 0xDE ) == 0x42 ) || ( ( ((const U8*)s)[3] & 0xF7 ) == 0x57 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x58 ) ) ) ? 4 : 0 )\
+    : 0 )
+
+
+/*** GENERATED CODE ***/
+#define is_LATIN_OR_COMMON_SCRIPT_utf8_part2(s)                             \
+( ( 0x44 == ((const U8*)s)[2] ) ?                                           \
+	    ( ( ( ((const U8*)s)[3] & 0xFE ) == 0x58 || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
+	: ( 0x45 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
+	: ( 0x46 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || 0x62 == ((const U8*)s)[3] ) ? 4 : 0 )\
+	: ( 0x49 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( ( 0x42 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
+	: ( ( 0x4A == ((const U8*)s)[2] ) && ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || 0x70 == ((const U8*)s)[3] ) ) ? 4 : 0 )
+
+
+/*** GENERATED CODE ***/
+#define is_LATIN_OR_COMMON_SCRIPT_utf8_part3(s)                             \
+( ( 0x6A == ((const U8*)s)[1] ) ?                                           \
+	( ( ( ( ((const U8*)s)[2] & 0xED ) == 0x41 ) || ((const U8*)s)[2] == 0x44 || ( ( ((const U8*)s)[2] & 0xDF ) == 0x4A ) || ( ( ((const U8*)s)[2] & 0xFE ) == 0x66 ) || ( ( ((const U8*)s)[2] & 0xFE ) == 0x68 ) || ( ( ((const U8*)s)[2] & 0xFE ) == 0x70 ) || ((const U8*)s)[2] == 0x72 ) ?\
+	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
+	: ( 0x42 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( ( ((const U8*)s)[3] & 0xEF ) == 0x41 ) || ( ( ((const U8*)s)[3] & 0xDE ) == 0x42 ) || ( ( ((const U8*)s)[3] & 0xDC ) == 0x44 ) || ( ( ((const U8*)s)[3] & 0xEE ) == 0x48 ) || ( ( ((const U8*)s)[3] & 0xDF ) == 0x4A ) || ( ( ((const U8*)s)[3] & 0xDF ) == 0x52 ) || ( ( ((const U8*)s)[3] & 0xF7 ) == 0x57 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x68 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x70 ) ) ? 4 : 0 )\
 	: ( 0x45 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] ) ? 4 : 0 )\
@@ -6141,7 +6203,7 @@
 	    ( ( ( 0x42 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x56 ) || ( ((const U8*)s)[3] & 0xFE ) == 0x58 || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
 	: ( 0x48 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( ((const U8*)s)[3] & 0xFE ) == 0x62 ) ? 4 : 0 )\
-	: ( 0x49 == ((const U8*)s)[2] ) ?                                   \
+	: ( 0x49 == ((const U8*)s)[2] || 0x52 == ((const U8*)s)[2] ) ?      \
 	    ( ( ( ( ((const U8*)s)[3] & 0xEF ) == 0x41 ) || ( ( ((const U8*)s)[3] & 0xEE ) == 0x42 ) || ( ( ((const U8*)s)[3] & 0xDC ) == 0x44 ) || ( ( ((const U8*)s)[3] & 0xEE ) == 0x48 ) || ( ( ((const U8*)s)[3] & 0xDF ) == 0x4A ) || ( ( ((const U8*)s)[3] & 0xF7 ) == 0x57 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x62 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x68 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x70 ) || ((const U8*)s)[3] == 0x72 ) ? 4 : 0 )\
 	: ( 0x54 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x53 ) ) ? 4 : 0 )\
@@ -6153,44 +6215,12 @@
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x69 ) ) ? 4 : 0 )\
 	: ( 0x59 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x49 ) || ( 0x57 == ((const U8*)s)[3] || 0x58 == ((const U8*)s)[3] ) ) ? 4 : 0 )\
-	: ( ( 0x5F == ((const U8*)s)[2] ) && ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x46 ) ) ? 4 : 0 )
+	: ( ( 0x5F == ((const U8*)s)[2] ) && ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x46 ) ) ? 4 : 0 )\
+    : ( 0x70 == ((const U8*)s)[1] ) ? is_LATIN_OR_COMMON_SCRIPT_utf8_part0(s) : is_LATIN_OR_COMMON_SCRIPT_utf8_part1(s) )
 
 
 /*** GENERATED CODE ***/
-#define is_LATIN_OR_COMMON_SCRIPT_utf8_part1(s)                             \
-( ( 0x70 == ((const U8*)s)[1] ) ?                                           \
-	( ( ( ( ((const U8*)s)[2] & 0xEF ) == 0x41 ) || ( ( ((const U8*)s)[2] & 0xEE ) == 0x42 ) || ( ( ((const U8*)s)[2] & 0xEC ) == 0x44 ) || ( ( ((const U8*)s)[2] & 0xEE ) == 0x48 ) || ((const U8*)s)[2] == 0x4A || ((const U8*)s)[2] == 0x5F || ( ( ((const U8*)s)[2] & 0xFA ) == 0x62 ) || ( ( ((const U8*)s)[2] & 0xFD ) == 0x68 ) || ((const U8*)s)[2] == 0x70 ) ?\
-	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
-	: ( 0x64 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || 0x62 == ((const U8*)s)[3] ) ? 4 : 0 )\
-	: ( 0x65 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( ( ((const U8*)s)[3] & 0xEF ) == 0x41 ) || ( ( ((const U8*)s)[3] & 0xEE ) == 0x42 ) || ( ( ((const U8*)s)[3] & 0xDC ) == 0x44 ) || ( ( ((const U8*)s)[3] & 0xEE ) == 0x48 ) || ((const U8*)s)[3] == 0x4A || ( ( ((const U8*)s)[3] & 0xF7 ) == 0x57 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x62 ) ) ? 4 : 0 )\
-	: ( 0x69 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] ) ? 4 : 0 )\
-	: ( ( 0x71 == ((const U8*)s)[2] ) && ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x66 ) ) ) ? 4 : 0 )\
-    : ( 0x71 == ((const U8*)s)[1] ) ?                                       \
-	( ( ( ((const U8*)s)[2] & 0xF7 ) == 0x41 ) ?                        \
-	    ( ( ( ( ((const U8*)s)[3] & 0xEF ) == 0x41 ) || ( ( ((const U8*)s)[3] & 0xDE ) == 0x42 ) || ( ( ((const U8*)s)[3] & 0xDC ) == 0x44 ) || ( ( ((const U8*)s)[3] & 0xEE ) == 0x48 ) || ( ( ((const U8*)s)[3] & 0xDF ) == 0x4A ) || ( ( ((const U8*)s)[3] & 0xDF ) == 0x52 ) || ( ( ((const U8*)s)[3] & 0xF7 ) == 0x57 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x68 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x70 ) ) ? 4 : 0 )\
-	: ( ((const U8*)s)[2] == 0x42 || ((const U8*)s)[2] == 0x44 || ( ( ((const U8*)s)[2] & 0xFD ) == 0x51 ) || ((const U8*)s)[2] == 0x56 ) ?\
-	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
-	: ( 0x43 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ((const U8*)s)[3] == 0x41 || ( ( ((const U8*)s)[3] & 0xDE ) == 0x42 ) || ( ( ((const U8*)s)[3] & 0xDC ) == 0x44 ) || ((const U8*)s)[3] == 0x48 || ( ( ((const U8*)s)[3] & 0xF7 ) == 0x57 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x58 ) ) ? 4 : 0 )\
-	: ( 0x45 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x48 ) || ( 0x57 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
-	: ( 0x46 == ((const U8*)s)[2] || 0x5F == ((const U8*)s)[2] ) ?      \
-	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x54 ) ) ? 4 : 0 )\
-	: ( 0x4A == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( ((const U8*)s)[3] & 0xFE ) == 0x70 ) ? 4 : 0 )\
-	: ( 0x52 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( ( ((const U8*)s)[3] & 0xF7 ) == 0x41 ) || ( ( ((const U8*)s)[3] & 0xEE ) == 0x42 ) || ( ( ((const U8*)s)[3] & 0xEC ) == 0x44 ) || ( ( ((const U8*)s)[3] & 0xDD ) == 0x48 ) || ((const U8*)s)[3] == 0x51 || ((const U8*)s)[3] == 0x5F || ( ( ((const U8*)s)[3] & 0xFE ) == 0x62 ) || ((const U8*)s)[3] == 0x64 || ( ( ((const U8*)s)[3] & 0xFE ) == 0x70 ) || ((const U8*)s)[3] == 0x72 ) ? 4 : 0 )\
-	: ( 0x54 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ((const U8*)s)[3] == 0x41 || ( ( ((const U8*)s)[3] & 0xDE ) == 0x42 ) || ( ( ((const U8*)s)[3] & 0xF7 ) == 0x57 ) || ( ( ((const U8*)s)[3] & 0xFE ) == 0x58 ) || ( ( ((const U8*)s)[3] & 0xFC ) == 0x64 ) ) ? 4 : 0 )\
-	: ( ( 0x55 == ((const U8*)s)[2] ) && ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x43 ) || ( 0x57 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ) ? 4 : 0 )\
-    : 0 )
-
-
-/*** GENERATED CODE ***/
-#define is_LATIN_OR_COMMON_SCRIPT_utf8_part2(s)                             \
+#define is_LATIN_OR_COMMON_SCRIPT_utf8_part4(s)                             \
 ( ( ( ( ((const U8*)s)[2] & 0xF7 ) == 0x41 ) || ( ( ((const U8*)s)[2] & 0xFE ) == 0x42 ) || ( ( ((const U8*)s)[2] & 0xFC ) == 0x44 ) || ( ( ((const U8*)s)[2] & 0xFB ) == 0x51 ) || ( ( ((const U8*)s)[2] & 0xFE ) == 0x66 ) ) ?\
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
 	: ( 0x48 == ((const U8*)s)[2] ) ?                                   \
@@ -6213,7 +6243,7 @@
 
 
 /*** GENERATED CODE ***/
-#define is_LATIN_OR_COMMON_SCRIPT_utf8_part3(s)                             \
+#define is_LATIN_OR_COMMON_SCRIPT_utf8_part5(s)                             \
 ( ( 0x63 == ((const U8*)s)[1] ) ?                                           \
 	( ( ( 0x41 == ((const U8*)s)[2] || 0x42 == ((const U8*)s)[2] ) || 0x44 == ((const U8*)s)[2] || 0x48 == ((const U8*)s)[2] || ( 0x52 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || 0x5F == ((const U8*)s)[2] || 0x62 == ((const U8*)s)[2] || ( 0x64 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || 0x70 == ((const U8*)s)[2] || 0x72 == ((const U8*)s)[2] ) ?\
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
@@ -6234,22 +6264,16 @@
 	: ( 0x63 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x46 ) || ( 0x49 == ((const U8*)s)[3] || 0x4A == ((const U8*)s)[3] ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
 	: ( ( 0x71 == ((const U8*)s)[2] ) && ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 == ((const U8*)s)[3] || 0x52 == ((const U8*)s)[3] ) || ( 0x55 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ) ? 4 : 0 )\
-    : ( 0x69 == ((const U8*)s)[1] ) ?                                       \
-	( ( 0x44 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( ((const U8*)s)[3] & 0xFE ) == 0x58 || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
-	: ( 0x45 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
-	: ( ( 0x46 == ((const U8*)s)[2] ) && ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || 0x62 == ((const U8*)s)[3] ) ) ? 4 : 0 )\
-    : ( 0x6A == ((const U8*)s)[1] ) ? is_LATIN_OR_COMMON_SCRIPT_utf8_part0(s) : is_LATIN_OR_COMMON_SCRIPT_utf8_part1(s) )
+    : ( 0x69 == ((const U8*)s)[1] ) ? is_LATIN_OR_COMMON_SCRIPT_utf8_part2(s) : is_LATIN_OR_COMMON_SCRIPT_utf8_part3(s) )
 
 
 /*** GENERATED CODE ***/
-#define is_LATIN_OR_COMMON_SCRIPT_utf8_part4(s)                             \
+#define is_LATIN_OR_COMMON_SCRIPT_utf8_part6(s)                             \
 ( ( 0x4A == ((const U8*)s)[1] ) ?                                           \
-	( ( 0x66 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) ?      \
+	( ( ( 0x66 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || 0x70 == ((const U8*)s)[2] ) ?\
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
-	: ( 0x70 == ((const U8*)s)[2] ) ?                                   \
-	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x67 ) ) ? 4 : 0 )\
+	: ( 0x71 == ((const U8*)s)[2] ) ?                                   \
+	    ( ( 0x43 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x47 ) ? 4 : 0 )\
 	: ( ( 0x72 == ((const U8*)s)[2] ) && ( ( 0x65 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ) ? 4 : 0 )\
     : ( 0x51 == ((const U8*)s)[1] ) ?                                       \
 	( ( 0x42 == ((const U8*)s)[2] ) ?                                   \
@@ -6262,7 +6286,7 @@
 	    ( ( ( 0x57 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
 	: ( 0x68 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ? 4 : 0 )\
-	: ( ( 0x69 == ((const U8*)s)[2] ) && ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x45 ) ) ? 4 : 0 )\
+	: ( ( 0x69 == ((const U8*)s)[2] ) && ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x45 ) || ( 0x47 == ((const U8*)s)[3] || 0x48 == ((const U8*)s)[3] ) ) ) ? 4 : 0 )\
     : ( 0x71 == ((const U8*)s)[1] ) ?                                       \
 	( ( ( 0x66 == ((const U8*)s)[2] ) && ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x47 ) ) ? 4 : 0 )\
     : ( 0x72 == ((const U8*)s)[1] ) ?                                       \
@@ -6289,7 +6313,7 @@
 
 
 /*** GENERATED CODE ***/
-#define is_LATIN_OR_COMMON_SCRIPT_utf8_part5(s)                             \
+#define is_LATIN_OR_COMMON_SCRIPT_utf8_part7(s)                             \
 ( ( 0xDE == ((const U8*)s)[0] ) ?                                           \
     ( ( 0x41 == ((const U8*)s)[1] ) ?                                       \
 	( ( 0x49 == ((const U8*)s)[2] ) ?                                   \
@@ -6303,18 +6327,18 @@
 	: ( 0x56 == ((const U8*)s)[2] ) ?                                   \
 	    ( ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) ) ? 4 : 0 )\
 	: ( ( 0x65 == ((const U8*)s)[2] ) && ( ( 0x42 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x69 ) ) ) ? 4 : 0 )\
-    : 0 )                                                                   \
+    : ( ( ( 0x69 == ((const U8*)s)[1] ) && ( 0x72 == ((const U8*)s)[2] ) ) && ( 0x43 == ((const U8*)s)[3] || 0x44 == ((const U8*)s)[3] ) ) ? 4 : 0 )\
 : ( 0xDF == ((const U8*)s)[0] ) ?                                           \
     ( ( 0x56 == ((const U8*)s)[1] ) ?                                       \
 	( ( ( 0x46 == ((const U8*)s)[2] ) && ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x44 ) ) ? 4 : 0 )\
-    : ( 0x62 == ((const U8*)s)[1] ) ? is_LATIN_OR_COMMON_SCRIPT_utf8_part2(s) : is_LATIN_OR_COMMON_SCRIPT_utf8_part3(s) )\
+    : ( 0x62 == ((const U8*)s)[1] ) ? is_LATIN_OR_COMMON_SCRIPT_utf8_part4(s) : is_LATIN_OR_COMMON_SCRIPT_utf8_part5(s) )\
 : ( ( ( 0xED == ((const U8*)s)[0] ) && ( 0x6A == ((const U8*)s)[1] ) ) && ( 0x41 == ((const U8*)s)[2] ) ) ? ( ( 0x41 == ((const U8*)s)[3] ) ?\
 		( ( 0x42 == ((const U8*)s)[4] ) ? 5 : 0 )                   \
 	    : ( ( 0x42 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x44 ) && ( ( 0x41 <= ((const U8*)s)[4] && ((const U8*)s)[4] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[4] && ((const U8*)s)[4] <= 0x59 ) || 0x5F == ((const U8*)s)[4] || ( 0x62 <= ((const U8*)s)[4] && ((const U8*)s)[4] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[4] && ((const U8*)s)[4] <= 0x72 ) ) ) ? 5 : 0 ) : 0 )
 
 
 /*** GENERATED CODE ***/
-#define is_LATIN_OR_COMMON_SCRIPT_utf8_part6(s)                             \
+#define is_LATIN_OR_COMMON_SCRIPT_utf8_part8(s)                             \
 ( ( 0x41 == ((const U8*)s)[1] || ( 0x44 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x59 ) || 0x5F == ((const U8*)s)[1] || ( 0x62 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x72 ) ) ?\
 	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || 0x5F == ((const U8*)s)[2] || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x72 ) ) ? 3 : 0 )\
     : ( 0x42 == ((const U8*)s)[1] ) ?                                       \
@@ -6323,22 +6347,18 @@
 
 
 /*** GENERATED CODE ***/
-#define is_LATIN_OR_COMMON_SCRIPT_utf8_part7(s)                             \
+#define is_LATIN_OR_COMMON_SCRIPT_utf8_part9(s)                             \
 ( ( 0xCC == ((const U8*)s)[0] ) ?                                           \
-    ( ( ( 0x49 == ((const U8*)s)[1] || 0x4A == ((const U8*)s)[1] ) || ( 0x51 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x59 ) || 0x5F == ((const U8*)s)[1] || ( 0x62 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x68 ) || 0x70 == ((const U8*)s)[1] ) ?\
+    ( ( ( 0x49 == ((const U8*)s)[1] || 0x4A == ((const U8*)s)[1] ) || ( 0x51 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x59 ) || 0x5F == ((const U8*)s)[1] || ( 0x62 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x68 ) || ( 0x70 <= ((const U8*)s)[1] && ((const U8*)s)[1] <= 0x72 ) ) ?\
 	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || 0x5F == ((const U8*)s)[2] || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x72 ) ) ? 3 : 0 )\
     : ( 0x69 == ((const U8*)s)[1] ) ?                                       \
 	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || 0x5F == ((const U8*)s)[2] || ( 0x64 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x72 ) ) ? 3 : 0 )\
-    : ( 0x6A == ((const U8*)s)[1] ) ?                                       \
-	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || 0x5F == ((const U8*)s)[2] || ( ((const U8*)s)[2] & 0xFE ) == 0x62 || ( 0x66 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x72 ) ) ? 3 : 0 )\
-    : ( 0x71 == ((const U8*)s)[1] ) ?                                       \
-	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x49 ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || 0x5F == ((const U8*)s)[2] || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x72 ) ) ? 3 : 0 )\
-    : ( ( 0x72 == ((const U8*)s)[1] ) && ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || 0x5F == ((const U8*)s)[2] || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( ((const U8*)s)[2] & 0xFE ) == 0x70 ) ) ? 3 : 0 )\
+    : ( ( 0x6A == ((const U8*)s)[1] ) && ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || 0x5F == ((const U8*)s)[2] || ( ((const U8*)s)[2] & 0xFE ) == 0x62 || ( 0x66 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x72 ) ) ) ? 3 : 0 )\
 : ( 0xCD == ((const U8*)s)[0] ) ?                                           \
     ( ( 0x44 == ((const U8*)s)[1] || ( 0x57 == ((const U8*)s)[1] || 0x58 == ((const U8*)s)[1] ) ) ?\
 	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || 0x5F == ((const U8*)s)[2] || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x72 ) ) ? 3 : 0 )\
     : ( 0x59 == ((const U8*)s)[1] ) ?                                       \
-	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x55 ) ) ? 3 : 0 )\
+	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x56 ) ) ? 3 : 0 )\
     : ( ( 0x72 == ((const U8*)s)[1] ) && ( ( 0x57 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || 0x5F == ((const U8*)s)[2] || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x69 ) ) ) ? 3 : 0 )\
 : ( 0xCE == ((const U8*)s)[0] ) ?                                           \
     ( ( 0x41 == ((const U8*)s)[1] ) ?                                       \
@@ -6355,30 +6375,26 @@
 	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || 0x5F == ((const U8*)s)[2] || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x72 ) ) ? 3 : 0 )\
     : ( 0x56 == ((const U8*)s)[1] ) ?                                       \
 	( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x44 ) ? 3 : 0 )\
-    : ( 0x5F == ((const U8*)s)[1] ) ?                                       \
+    : ( 0x5F == ((const U8*)s)[1] || 0x65 == ((const U8*)s)[1] ) ?          \
 	( ( 0x72 == ((const U8*)s)[2] ) ? 3 : 0 )                           \
     : ( 0x64 == ((const U8*)s)[1] ) ?                                       \
 	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x56 ) ) ? 3 : 0 )\
     : ( ( 0x68 == ((const U8*)s)[1] ) && ( ( 0x66 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x72 ) ) ) ? 3 : 0 )\
 : ( 0xDC == ((const U8*)s)[0] ) ?                                           \
     ( ( ( ( 0x5F == ((const U8*)s)[1] ) && ( 0x55 == ((const U8*)s)[2] || 0x56 == ((const U8*)s)[2] ) ) && ( ( 0x41 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x59 ) || 0x5F == ((const U8*)s)[3] || ( 0x62 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[3] && ((const U8*)s)[3] <= 0x72 ) ) ) ? 4 : 0 )\
-: ( 0xDD == ((const U8*)s)[0] ) ? is_LATIN_OR_COMMON_SCRIPT_utf8_part4(s) : is_LATIN_OR_COMMON_SCRIPT_utf8_part5(s) )
+: ( 0xDD == ((const U8*)s)[0] ) ? is_LATIN_OR_COMMON_SCRIPT_utf8_part6(s) : is_LATIN_OR_COMMON_SCRIPT_utf8_part7(s) )
 
 
 /*** GENERATED CODE ***/
-#define is_LATIN_OR_COMMON_SCRIPT_utf8_part8(s)                             \
-( ( 0x48 == ((const U8*)s)[1] ) ?                                           \
-	( ( 0x43 == ((const U8*)s)[2] ) ? 3 : 0 )                           \
-    : ( ( 0x52 == ((const U8*)s)[1] ) && ( 0x45 == ((const U8*)s)[2] || 0x46 == ((const U8*)s)[2] ) ) ? 3 : 0 )
-
-
-/*** GENERATED CODE ***/
-#define is_LATIN_OR_COMMON_SCRIPT_utf8_part9(s)                             \
-( ( 0xB9 == ((const U8*)s)[0] ) ?                                           \
-    ( ( 0x58 == ((const U8*)s)[1] ) ?                                       \
+#define is_LATIN_OR_COMMON_SCRIPT_utf8_part10(s)                            \
+( ( 0x58 == ((const U8*)s)[1] ) ?                                           \
 	( ( 0x72 == ((const U8*)s)[2] ) ? 3 : 0 )                           \
-    : ( ( 0x71 == ((const U8*)s)[1] ) && ( 0x63 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x66 ) ) ? 3 : 0 )\
-: ( 0xBC == ((const U8*)s)[0] ) ?                                           \
+    : ( ( 0x71 == ((const U8*)s)[1] ) && ( 0x63 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x66 ) ) ? 3 : 0 )
+
+
+/*** GENERATED CODE ***/
+#define is_LATIN_OR_COMMON_SCRIPT_utf8_part11(s)                            \
+( ( 0xBC == ((const U8*)s)[0] ) ?                                           \
     ( ( ( 0x48 == ((const U8*)s)[1] ) && ( 0x69 == ((const U8*)s)[2] ) ) ? 3 : 0 )\
 : ( 0xBD == ((const U8*)s)[0] ) ?                                           \
     ( ( 0x65 == ((const U8*)s)[1] ) ?                                       \
@@ -6390,7 +6406,7 @@
     ( ( 0x47 == ((const U8*)s)[1] ) ?                                       \
 	( ( 0x5F == ((const U8*)s)[2] ) ? 3 : 0 )                           \
     : ( 0x48 == ((const U8*)s)[1] ) ?                                       \
-	( ( ( ( ((const U8*)s)[2] & 0xF7 ) == 0x42 ) || ( ( ((const U8*)s)[2] & 0xFB ) == 0x51 ) || ( ( ((const U8*)s)[2] & 0xFA ) == 0x52 ) || ( ( ((const U8*)s)[2] & 0xFE ) == 0x58 ) || ((const U8*)s)[2] == 0x5F || ((const U8*)s)[2] == 0x63 || ( ( ((const U8*)s)[2] & 0xFE ) == 0x64 ) ) ? 3 : 0 )\
+	( ( ( ( ((const U8*)s)[2] & 0xF7 ) == 0x42 ) || ( ( ((const U8*)s)[2] & 0xFB ) == 0x51 ) || ( ( ((const U8*)s)[2] & 0xFA ) == 0x52 ) || ( ( ((const U8*)s)[2] & 0xFE ) == 0x58 ) || ((const U8*)s)[2] == 0x5F || ((const U8*)s)[2] == 0x63 || ( ( ((const U8*)s)[2] & 0xFE ) == 0x64 ) || ((const U8*)s)[2] == 0x68 ) ? 3 : 0 )\
     : ( ((const U8*)s)[1] == 0x49 || ( ( ((const U8*)s)[1] & 0xFB ) == 0x53 ) || ( ( ((const U8*)s)[1] & 0xFE ) == 0x58 ) || ((const U8*)s)[1] == 0x5F || ( ( ((const U8*)s)[1] & 0xFE ) == 0x62 ) || ( ( ((const U8*)s)[1] & 0xFE ) == 0x64 ) ) ?\
 	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || 0x5F == ((const U8*)s)[2] || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x72 ) ) ? 3 : 0 )\
     : ( 0x4A == ((const U8*)s)[1] ) ?                                       \
@@ -6412,7 +6428,7 @@
     : ( 0x4A == ((const U8*)s)[1] ) ?                                       \
 	( ( ( 0x41 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x46 ) || ( 0x48 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x59 ) || 0x5F == ((const U8*)s)[2] || ( 0x62 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x6A ) || ( 0x70 <= ((const U8*)s)[2] && ((const U8*)s)[2] <= 0x72 ) ) ? 3 : 0 )\
     : ( ( 0x53 == ((const U8*)s)[1] ) && ( ( ( ((const U8*)s)[2] & 0xEF ) == 0x41 ) || ( ( ((const U8*)s)[2] & 0xDE ) == 0x42 ) || ( ( ((const U8*)s)[2] & 0xDC ) == 0x44 ) || ( ( ((const U8*)s)[2] & 0xEE ) == 0x48 ) || ( ( ((const U8*)s)[2] & 0xDF ) == 0x4A ) || ( ( ((const U8*)s)[2] & 0xDF ) == 0x52 ) || ( ( ((const U8*)s)[2] & 0xF7 ) == 0x57 ) || ( ( ((const U8*)s)[2] & 0xFE ) == 0x68 ) || ( ( ((const U8*)s)[2] & 0xFE ) == 0x70 ) ) ) ? 3 : 0 )\
-: ( 0xCB == ((const U8*)s)[0] ) ? is_LATIN_OR_COMMON_SCRIPT_utf8_part6(s) : is_LATIN_OR_COMMON_SCRIPT_utf8_part7(s) )
+: ( 0xCB == ((const U8*)s)[0] ) ? is_LATIN_OR_COMMON_SCRIPT_utf8_part8(s) : is_LATIN_OR_COMMON_SCRIPT_utf8_part9(s) )
 
 
 /*** GENERATED CODE ***/
@@ -6434,7 +6450,11 @@
     : ( 0x59 == ((const U8*)s)[1] ) ?                                       \
 	( ( 0x41 == ((const U8*)s)[2] ) ? 3 : 0 )                           \
     : ( ( 0x64 == ((const U8*)s)[1] ) && ( 0x70 == ((const U8*)s)[2] ) ) ? 3 : 0 )\
-: ( 0xB8 == ((const U8*)s)[0] ) ? is_LATIN_OR_COMMON_SCRIPT_utf8_part8(s) : is_LATIN_OR_COMMON_SCRIPT_utf8_part9(s) )
+: ( 0xB8 == ((const U8*)s)[0] ) ?                                           \
+    ( ( 0x48 == ((const U8*)s)[1] ) ?                                       \
+	( ( 0x43 == ((const U8*)s)[2] ) ? 3 : 0 )                           \
+    : ( ( 0x52 == ((const U8*)s)[1] ) && ( 0x45 == ((const U8*)s)[2] || 0x46 == ((const U8*)s)[2] ) ) ? 3 : 0 )\
+: ( 0xB9 == ((const U8*)s)[0] ) ? is_LATIN_OR_COMMON_SCRIPT_utf8_part10(s) : is_LATIN_OR_COMMON_SCRIPT_utf8_part11(s) )
 
 /*
 	INHERITED_SCRIPT: Inherited Script
@@ -8508,53 +8528,53 @@
 
 /* Generated from:
  * a816534cdc865dbbae2428a35441c7582b137bcba96192a334d75eb7d762adba lib/Unicode/UCD.pm
- * fdc543859433c4578ec7991d8c3238a3638d59962eb0db446d0228cccb7a48da lib/unicore/ArabicShaping.txt
- * 530831b8bdbb2a8a6bc1f2eef88224991513c7371c16537d0a7e09386a2cd326 lib/unicore/BidiBrackets.txt
- * f07f44839398bc33792d988f14fcbcaf382abc3b79119e7e0bb083104260b890 lib/unicore/BidiMirroring.txt
- * a1a3ca4381eb91f7b65afe7cb7df615cdcf67993fef4b486585f66b349993a10 lib/unicore/Blocks.txt
- * d6caa458afc9a76d86bc2ef26a5423f4e663981904de450c97dd53ee0ab5c125 lib/unicore/CaseFolding.txt
- * 08a52bd7f893f5c9a34a6d4cc3a0b2d7a44293ee45fb15d581e729b9f8584dfa lib/unicore/CompositionExclusions.txt
- * 269ff9d35cbe3cb05dfadb262a6d9d89d7ad43ac6ecd7ec71f47ec036e174912 lib/unicore/DAge.txt
- * b559c5ac28549ec48b9f6f14d189b503d35e33158db6b5f63e6103f51aded2cd lib/unicore/DCoreProperties.txt
- * 8b4210273920c013e736332434222b73786e6c468a360710f6799eeace9b3d38 lib/unicore/DNormalizationProps.txt
- * f7e61d7cd168d4496c6019148579af3adfd6e0dac8fa7cd98d8617bcd8732b28 lib/unicore/EastAsianWidth.txt
- * cb048696ab01434bac59c30e5cb1f682d95022c972d8d1ebd5ea79b3841ba66c lib/unicore/EmojiData.txt
- * af2928fa86e77dc2d91ed268270ca13895ede2bf29e9f0f7533f1873c0aeb4b5 lib/unicore/EquivalentUnifiedIdeograph.txt
- * 2791813c07488ad72b3943bbcb2eb85bb03222271829c13bf25f79edfb214330 lib/unicore/HangulSyllableType.txt
- * 1df3666ef987e492b4323a9cd907738e41656e6428752f4b1f6fd95f9bfc8adb lib/unicore/IndicPositionalCategory.txt
- * b3932cf25d7ea43e1bf6be6d45094d4552f753f6b651a7a869464028f1aa88a1 lib/unicore/IndicSyllabicCategory.txt
- * 035d78d5e1fb60c3b44fb7049a96c660a6d045be27ac8f4425abfbc3733724de lib/unicore/Jamo.txt
- * 5afea13d57e5b11c761a9b2553806b12a5fe4e96b729398d9bf0dd94b7e6d7eb lib/unicore/LineBreak.txt
- * 46cce9be0639999e6a903bfa9f1313def3c361c7ae68f411cef244132ee8097b lib/unicore/NameAliases.txt
- * 0911bfd49367059219a74c69fb2c1440d256869e713619a2a231afd24357ec6e lib/unicore/NamedSequences.txt
- * adf1323156ef56014549698eab7b482a3682c8e02c251a7c19f68e427b391189 lib/unicore/PropList.txt
- * 648e1cb9942f02b9358edc52d523803efa491ff576aa7063d4b9aebdef7d7217 lib/unicore/PropValueAliases.txt
- * 402e075e4b9d56bf46d32c950d693e5bb52c1a324a652f732401dbf5a9a4d269 lib/unicore/PropertyAliases.txt
- * b77739d4b7c35069c10f8e156b71c88c5955800240c22e3a32b2ed3ea9620e5f lib/unicore/ScriptExtensions.txt
- * bd327cbb8bffd2e4b40b1e9842c9a7d641d1c4e91c34a41020cf174f3a1c86a1 lib/unicore/Scripts.txt
- * 22b1bff498f08633f72468d46eebb65e30dc325fbb6822dde319cb605af014c2 lib/unicore/SpecialCasing.txt
- * 57913fdb1c1271fa9fd51dea08d49370f33d5bfda6bbaba348f44d90029ea11d lib/unicore/UnicodeData.txt
- * 36900e28ff01fa810d8a7e0848e1075289975188525f2c1d14487d561bbf595a lib/unicore/VerticalOrientation.txt
- * 238635e1dfcc190345ffbcab734f7017dea05d2a66f2291745c11067893689a7 lib/unicore/auxiliary/GCBTest.txt
- * b49f36b98cdd4c996fc7971b8b4d25e3c13b45f0a71f4ad0c5e70a9cebe0b956 lib/unicore/auxiliary/GraphemeBreakProperty.txt
- * d7ae54c2704f27b3a8f40ae934c2f6f3ee87bec20a865e0f9689bc1cd3f92335 lib/unicore/auxiliary/LBTest.txt
- * a9fafe0badc760379957a282bbe3d82d5a6ba113911b89501781fd6b6ad66377 lib/unicore/auxiliary/SBTest.txt
- * 5bf7faf5898403b6adad2d94f1a9ddf26de650cc7a8f2ee00590f05bbea9bd03 lib/unicore/auxiliary/SentenceBreakProperty.txt
- * 12e02e6158929ae29c9b47f76ab95d68194b1d0c295d7b4f6df31487590222a5 lib/unicore/auxiliary/WBTest.txt
- * 9be679d9772dc4842697a3a5b6e1845022f876c1f230ecea38f1be5d6d5673d8 lib/unicore/auxiliary/WordBreakProperty.txt
- * 9e6955b173a13a8a91e3c1b468c9d7e122c588aa288f707bfcef35790a828f8a lib/unicore/extracted/DBidiClass.txt
- * 80e94d5bb24639c9f322bd3b4b8159a8e9a7c33ac45076eff9cd3ecb0b9b812e lib/unicore/extracted/DBinaryProperties.txt
- * 6dc031734cd287af8b33c99435d41f6c836e8e08a7a6cb6cb07e8453cbebdb3b lib/unicore/extracted/DCombiningClass.txt
- * b143bb87f041dcb69335806cb0a1a6b2328eb25cdfa04fe6fcd4c77c6a06fe82 lib/unicore/extracted/DDecompositionType.txt
- * f63f08d36d01eb45f34ff8d2b36681252211f92db690fa1258a399a9a86df3bb lib/unicore/extracted/DEastAsianWidth.txt
- * 6fa015f11f19a9407d590827276f9884c1ee4c71fbc826a09008f7d9d7c1b255 lib/unicore/extracted/DGeneralCategory.txt
- * 1b24a2d586a8b91c0768d4da8919634463bdf126b7479a8e76b85d007cbef8a0 lib/unicore/extracted/DJoinGroup.txt
- * 8095565a527d3d0918a17e30a7bcc0c7864ac3ad748defc21027b3e1ad436368 lib/unicore/extracted/DJoinType.txt
- * 5f98a68d5aa76b06052fe16312d2fdf17547fd69c4e648532845e11beaf2002b lib/unicore/extracted/DLineBreak.txt
- * 8011b1733f6d2cc17576b2a1e20067eca51205e8e0b740d00ebd52afbec2ea39 lib/unicore/extracted/DNumType.txt
- * 8b677a4cf17a4c6949632146fa8a99aaa65689a41b9dd231f81783e81600ff36 lib/unicore/extracted/DNumValues.txt
- * 4ecc09c0eac028f4840709f1f3ccdfcfb7b2c3bca6c1bb0a943358a9d6e5868e lib/unicore/mktables
- * 93cc868487ef3345596041bcb90c302b1b056733bb95233101bc10dc2dbe36b4 lib/unicore/version
+ * 5e91b649379ec79af7cfb6b09410a24557cba4c6d733cd0a2b8a78a1448736d2 lib/unicore/ArabicShaping.txt
+ * f5feb19cd084b2b1568fbc0f94f4b4b54941406e7fb36c7570f8352fd5022dbe lib/unicore/BidiBrackets.txt
+ * e6cbd8ffe94f2e0fbfa6695d6c06c1e72eef7d3aa93cb6329d111285198b5e62 lib/unicore/BidiMirroring.txt
+ * a28b205afe8625fffdb6544a5fe14cf02b91493d9900f07820fa2102a17548f7 lib/unicore/Blocks.txt
+ * 9c772627c6ee77eea6a17b42927b8ee28ca05dc65d6a511062104baaf3d12294 lib/unicore/CaseFolding.txt
+ * abc8394c5bde62453118b00c1c5842160a04d7fffb2e829ee5426b846596d081 lib/unicore/CompositionExclusions.txt
+ * 2fc081011d8fabaf7cf4937732dd5a6d6a57e492c43f3adfeded513387ee0ec3 lib/unicore/DAge.txt
+ * a6eb7a8671fb532fbd88c37fd7b20b5b2e7dbfc8b121f74c14abe2947db0da68 lib/unicore/DCoreProperties.txt
+ * 92dcdda84142194a1596f22180fcdf8c0e7f86897f09cc9203c7dc636c549f5f lib/unicore/DNormalizationProps.txt
+ * 904500178b2e752635bef27aaed3a2a3718a100bce35ff96b3890be7a8315d8f lib/unicore/EastAsianWidth.txt
+ * 1989b03d93023d8f5cc33eebf0d2ea80c8bd8f8c97843059ea039acb582c2078 lib/unicore/EmojiData.txt
+ * d7930c2a7318e66b4ba756d5e5b41fbc586c2ad43d450ae9d320a758510bae2e lib/unicore/EquivalentUnifiedIdeograph.txt
+ * 8606af08712a8c18fe268d418e2e5a87eddee6e190cce4c2d5a76b4fadf035e8 lib/unicore/HangulSyllableType.txt
+ * 49a1bf18b048454154881f6a8a605b5e2fc73e85fcc4df1cb26d52e8c2aeb9bf lib/unicore/IndicPositionalCategory.txt
+ * 1b6f3ef6e00e5b2e2a93d2d3c954ca1cce368599c5f11874cd0f0ce222d4637b lib/unicore/IndicSyllabicCategory.txt
+ * 285c5c1ae458bc3ccd6a1398a94d2d67ce6bc1d7fc0f098762836050345e9434 lib/unicore/Jamo.txt
+ * 961f842fc70b5afd1d82c6645e68c10d1f701382aed38ae38cb2ff27f671903c lib/unicore/LineBreak.txt
+ * ff61a0687d2f32c0dd1094254b8bde967883b43c2d4d50fd17531d498e41ab2c lib/unicore/NameAliases.txt
+ * d3eb9a288ebeaf9de1237989f490705e287b6f610b59d2459fb1b7c2d8e39c39 lib/unicore/NamedSequences.txt
+ * d30d3ee430cf3527449d024954f053e419fa4aa2246eb59e5cd8d621af0c4b3f lib/unicore/PropList.txt
+ * efce54f7c715a332c19b3d14c6a0eea30c6cde91caf6ff0d21c755be933736f4 lib/unicore/PropValueAliases.txt
+ * d3cc3f9f0b6a8f0b7ef1d6ef202675426c28f4a75de01fc69ed977a93a00982b lib/unicore/PropertyAliases.txt
+ * 3746848c181b5dbc1e614dfac9b8a5e3568e6525c693ac14e692ac55dec57e91 lib/unicore/ScriptExtensions.txt
+ * e6313a8edfd24f36c7a006fbcf1d1b7245b5dd009c6dde80441f0da08b822c43 lib/unicore/Scripts.txt
+ * 817ce2e9edca8e075a153f54b8f3b020345e37652cd2bda9b1495c366af17e7e lib/unicore/SpecialCasing.txt
+ * 93ab1acd8fd9d450463b50ae77eab151a7cda48f98b25b56baed8070f80fc936 lib/unicore/UnicodeData.txt
+ * ec5ba64af58297a46de17848eb984d2b231adb304de92e9d0d3befdbf9dc2551 lib/unicore/VerticalOrientation.txt
+ * 95bd55cf803b93eb0b4990cf0e1d70ede263b36412d9c6921fd6f15cef058961 lib/unicore/auxiliary/GCBTest.txt
+ * 39d73448fd257e6082f83ddf4c8bf6feb191e85dc8fc56b1a8512482de5e3dea lib/unicore/auxiliary/GraphemeBreakProperty.txt
+ * f385e70f79f5959ae66d64b00f4bda39db6cef78e5363a0cdd88db46eafc6c8f lib/unicore/auxiliary/LBTest.txt
+ * 7d6c909af97d0ab545a132d412f6e4e65c7eb5158514a7feb9bf00bcd05875f9 lib/unicore/auxiliary/SBTest.txt
+ * c47d674ef4170c46185bf56f7a4c6627f65f012295e0994f7dc4aea51f8fd8cf lib/unicore/auxiliary/SentenceBreakProperty.txt
+ * 3e3320bbbe775de7f1a0b9a30021eb949116a9b05cb461c90596c5ecf1743831 lib/unicore/auxiliary/WBTest.txt
+ * f221f89fe3bb3becc00de726d5694c4b7f464c316baff6d339b2ff3900bcb96c lib/unicore/auxiliary/WordBreakProperty.txt
+ * db2c41c618bab54b00e58223ad11cec550f9b9fd1a471de236e660da92fe4870 lib/unicore/extracted/DBidiClass.txt
+ * fecd8a1c49935d794c4c1012f4158aa536a13049a4c10d01aaf7b5f90f3b2cbc lib/unicore/extracted/DBinaryProperties.txt
+ * db6f38fb4aa8b9181b5e6a9f320de9d5c2c9b5687116a619b3cb90138b025e0b lib/unicore/extracted/DCombiningClass.txt
+ * 2524f69c175831fd84bfbaf13ea37992f41db167d728c51b1d0002c1d0b130b0 lib/unicore/extracted/DDecompositionType.txt
+ * 16852301d54ae59b5cfe0daa6b8e17fb688ed055d59b2a5a11eaafc650cc9d30 lib/unicore/extracted/DEastAsianWidth.txt
+ * 78f898b988049a5bea5039cea6ffe87a92596859ac660a6c438519b512fe2ee6 lib/unicore/extracted/DGeneralCategory.txt
+ * 33441692403901287c834f96bd33b671133a6f74e2732c61a497608b9e434932 lib/unicore/extracted/DJoinGroup.txt
+ * a792ac5ef602e3bace679cc96d7491701dcdb73d81c782253de88fdcc5e70e50 lib/unicore/extracted/DJoinType.txt
+ * 78e2600e24fa7d5ab62117de50b382f8b31b08401c37a0782c38dacb340b64e7 lib/unicore/extracted/DLineBreak.txt
+ * 1bde4ad73e271c6349fbd1972e54f38bba5cc1900c28f678e79b9e8909b31793 lib/unicore/extracted/DNumType.txt
+ * 6278722699123f3890e4b1cc42011e96d8960e4958a3b93484361530983d2611 lib/unicore/extracted/DNumValues.txt
+ * 62d268400d7136c4ea8b7f44f92835bbd7ad5f8a3b6624497b5f8612994d6ad8 lib/unicore/mktables
+ * a712c758275b460d18fa77a26ed3589689bb3f69dcc1ea99b913e32db92a5cd2 lib/unicore/version
  * 4bb677187a1a64e39d48f2e341b5ecb6c99857e49d7a79cf503bd8a3c709999b regen/charset_translations.pl
  * b921ce91d1f2031276d93e0ebe4fa53206023c6a355ba3ed960f68b8b86dcde0 regen/regcharclass.pl
  * 238f19c31ed356f1f849c63d3da8ad9bf41413ebcfddec2592c446c4555c8fb6 regen/regcharclass_multi_char_folds.pl
