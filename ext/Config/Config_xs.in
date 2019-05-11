@@ -2,7 +2,7 @@
 
 Copyright (C) 2015-2017 cPanel Inc
 Copyright (C) 2015-2018 Daniel Dragan
-Copyright (C) 2017-2018 Reini Urban
+Copyright (C) 2017-2019 Reini Urban
 
 =head1 NAME
 
@@ -604,6 +604,7 @@ d_gmtime64,		T_INV,0,ALN64I"@@d_gmtime64@@"
 d_gmtime_r,		T_INV,0,ALN64I"@@d_gmtime_r@@"
 d_gnulibc,		T_INV,0,ALN64I"@@d_gnulibc@@"
 d_grpasswd,		T_INV,0,ALN64I"@@d_grpasswd@@"
+d_has_C_UTF8,		T_INV,0,ALN64I"@@d_has_C_UTF8@@"
 d_hasmntopt,		T_INV,0,ALN64I"@@d_hasmntopt@@"
 d_htonl,		T_INV,0,ALN64I"@@d_htonl@@"
 d_hypot,		T_INV,0,ALN64I"@@d_hypot@@"
@@ -796,6 +797,7 @@ d_sethostent_r,		T_INV,0,ALN64I"@@d_sethostent_r@@"
 d_setitimer,		T_INV,0,ALN64I"@@d_setitimer@@"
 d_setlinebuf,		T_INV,0,ALN64I"@@d_setlinebuf@@"
 d_setlocale,		T_INV,0,ALN64I"@@d_setlocale@@"
+d_setlocale_accepts_any_locale_name,	T_INV,0,ALN64I"@@d_setlocale_accepts_any_locale_name@@"
 d_setlocale_r,		T_INV,0,ALN64I"@@d_setlocale_r@@"
 d_setnent,		T_INV,0,ALN64I"@@d_setnent@@"
 d_setnetent_r,		T_INV,0,ALN64I"@@d_setnetent_r@@"
@@ -903,6 +905,8 @@ d_times,		T_INV,0,ALN64I"@@d_times@@"
 d_tm_tm_gmtoff,		T_INV,0,ALN64I"@@d_tm_tm_gmtoff@@"
 d_tm_tm_zone,		T_INV,0,ALN64I"@@d_tm_tm_zone@@"
 d_tmpnam_r,		T_INV,0,ALN64I"@@d_tmpnam_r@@"
+d_towlower,		T_INV,0,ALN64I"@@d_towlower@@"
+d_towupper,		T_INV,0,ALN64I"@@d_towupper@@"
 d_trunc,		T_INV,0,ALN64I"@@d_trunc@@"
 d_truncate,		T_INV,0,ALN64I"@@d_truncate@@"
 d_truncl,		T_INV,0,ALN64I"@@d_truncl@@"
@@ -1146,6 +1150,7 @@ i_ustat,		T_INV,0,ALN64I"@@i_ustat@@"
 i_utime,		T_INV,0,ALN64I"@@i_utime@@"
 i_vfork,		T_INV,0,ALN64I"@@i_vfork@@"
 i_wchar,		T_INV,0,ALN64I"@@i_wchar@@"
+i_wctype,		T_INV,0,ALN64I"@@i_wctype@@"
 i_xlocale,		T_INV,0,ALN64I"@@i_xlocale@@"
 ieeefp_h,		T_INV,0,ALN64I"@@ieeefp_h@@"
 ignore_versioned_solibs,	T_INV,0,ALN64I"@@ignore_versioned_solibs@@"
