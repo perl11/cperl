@@ -182,6 +182,7 @@ if ($] >= 5.025004 and !$Config{usecperl}) {
 }
 
 my $perlcc = File::Spec->catfile("script", "perlcc");
+my $buildcc = File::Spec->catfile("script", "buildcc");
 if ($CORE and $^O eq 'MSWin32') {
     my $perldll = $Config{usecperl} ? "cperl*.dll" : "perl*.dll";
     system("copy ..\..\$perldll *.*");
@@ -191,7 +192,7 @@ WriteMakefile(
     NAME	 => "B::C",
     VERSION_FROM => "lib/B/C.pm",
     PL_FILES   => { $perlcc.'.PL'       => $perlcc,
-	            'script/buildcc.PL' => 'script/buildcc' },
+	            $buildcc.'.PL'      => $buildcc },
     EXE_FILES  => [$perlcc, qw(script/buildcc script/cc_harness
 	                       script/assemble script/disassemble)],
     PREREQ_PM  => {'Opcodes'  => '0',    # optional
