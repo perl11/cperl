@@ -312,8 +312,8 @@ EXTRALIBDIRS	:=
 PERL_MALLOC	?= undef
 DEBUG_MSTATS	?= undef
 
-USE_CPERL	?= undef
-USE_FFI	        ?= undef
+USE_CPERL	?= define
+USE_FFI	        ?= define
 USE_SITECUST	?= undef
 USE_MULTI	?= undef
 USE_ITHREADS	?= undef
