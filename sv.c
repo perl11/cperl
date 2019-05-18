@@ -12038,8 +12038,8 @@ Usually used via one of its frontends C<sv_vcatpvf> and C<sv_vcatpvf_mg>.
 
 void
 Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN patlen,
-                       va_list *const args, SV **const svargs, const int sv_count, bool *const maybe_tainted,
-                       const U32 flags)
+                       va_list *const args, SV **const svargs, const int sv_count,
+                       bool *const maybe_tainted, const U32 flags)
 {
     const char *fmtstart; /* character following the current '%' */
     const char *q;        /* current position within format */

@@ -22848,7 +22848,7 @@ Perl_parse_uniprop_string(pTHX_
             /* Create a temporary placeholder in the hash to detect recursion
              * */
             SWITCH_TO_GLOBAL_CONTEXT;
-            placeholder= newSVuv(PTR2IV(ORIGINAL_CONTEXT));
+            placeholder = newSVuv(PTR2IV(ORIGINAL_CONTEXT));
             (void) hv_store_ent(PL_user_def_props, fq_name, placeholder, 0);
             RESTORE_CONTEXT;
 
@@ -22955,6 +22955,9 @@ Perl_parse_uniprop_string(pTHX_
 
     /* Get the index into our pointer table of the inversion list corresponding
      * to the property */
+#ifdef DEBUGGING
+    DEBUG_r(Perl_re_printf( aTHX_ " match_uniprop \"%.*s\"\n", lookup_len, lookup_name));
+#endif
     table_index = match_uniprop((U8 *) lookup_name, lookup_len);
 
     /* If it didn't find the property ... */
@@ -22967,6 +22970,10 @@ Perl_parse_uniprop_string(pTHX_
             equals_pos -= 2;
             slash_pos -= 2;
 
+#ifdef DEBUGGING
+            DEBUG_r(Perl_re_printf( aTHX_ " match_uniprop \"%.*s\" (no in|is)\n",
+                                    lookup_len, lookup_name));
+#endif
             table_index = match_uniprop((U8 *) lookup_name, lookup_len);
         }
 
@@ -23022,6 +23029,7 @@ Perl_parse_uniprop_string(pTHX_
                 else {  /* Otherwise, it is %e with a known precision */
                     char * exp_ptr;
 
+                    /* TODO: mingw rounds .03125 up to 3.13e-02, all other down to 3.12e-02 */
                     canonical = Perl_form(aTHX_ "%.*s%.*" NVef,
                                           equals_pos, lookup_name,
                                           PL_E_FORMAT_PRECISION, value);
@@ -23042,6 +23050,10 @@ Perl_parse_uniprop_string(pTHX_
                             SSize_t excess_leading_zeros
                                     = MIN(leading_zeros, excess_exponent_len);
                             if (excess_leading_zeros > 0) {
+#ifdef DEBUGGING
+                                DEBUG_r(Perl_re_printf( aTHX_ " excess_leading_zeros \"%s\"\n",
+                                                        canonical));
+#endif
                                 Move(cur_ptr + excess_leading_zeros,
                                      cur_ptr,
                                      strlen(cur_ptr) - excess_leading_zeros
@@ -23131,6 +23143,10 @@ Perl_parse_uniprop_string(pTHX_
             }
 
             /* Here, we have the number in canonical form.  Try that */
+#ifdef DEBUGGING
+            DEBUG_r(Perl_re_printf( aTHX_ " match_uniprop \"%s\" (canonical)\n",
+                                    canonical));
+#endif
             table_index = match_uniprop((U8 *) canonical, strlen(canonical));
             if (table_index == 0) {
                 goto failed;
