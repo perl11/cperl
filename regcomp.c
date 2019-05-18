@@ -22371,7 +22371,7 @@ Perl_parse_uniprop_string(pTHX_
     PERL_ARGS_ASSERT_PARSE_UNIPROP_STRING;
 
     /* The input will be normalized into 'lookup_name' */
-    Newx(lookup_name, name_len, char);
+    Newx(lookup_name, name_len+1, char);
     SAVEFREEPV(lookup_name);
 
     /* Parse the input. */
@@ -22658,6 +22658,7 @@ Perl_parse_uniprop_string(pTHX_
     {
         lookup_name[j++] = '&';
     }
+    lookup_name[j] = '\0';
 
     /* If the original input began with 'In' or 'Is', it could be a subroutine
      * call to a user-defined property instead of a Unicode property name. */
@@ -23022,12 +23023,12 @@ Perl_parse_uniprop_string(pTHX_
                     char * exp_ptr;
 
                     canonical = Perl_form(aTHX_ "%.*s%.*" NVef,
-                                                equals_pos, lookup_name,
-                                                PL_E_FORMAT_PRECISION, value);
+                                          equals_pos, lookup_name,
+                                          PL_E_FORMAT_PRECISION, value);
 
                     /* The exponent generated is expecting two digits, whereas
-                     * %e on some systems will generate three.  Remove leading
-                     * zeros in excess of 2 from the exponent.  We start
+                     * %e on some systems (Windows) will generate three.  Remove
+                     * leading zeros in excess of 2 from the exponent.  We start
                      * looking for them after the '=' */
                     exp_ptr = strchr(canonical + equals_pos, 'e');
                     if (exp_ptr) {
