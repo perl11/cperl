@@ -8573,7 +8573,7 @@
  * 78e2600e24fa7d5ab62117de50b382f8b31b08401c37a0782c38dacb340b64e7 lib/unicore/extracted/DLineBreak.txt
  * 1bde4ad73e271c6349fbd1972e54f38bba5cc1900c28f678e79b9e8909b31793 lib/unicore/extracted/DNumType.txt
  * 6278722699123f3890e4b1cc42011e96d8960e4958a3b93484361530983d2611 lib/unicore/extracted/DNumValues.txt
- * 62d268400d7136c4ea8b7f44f92835bbd7ad5f8a3b6624497b5f8612994d6ad8 lib/unicore/mktables
+ * ca5f9fabd2bcb43bcbf180d18e53aa3f38cdb74a56ba8cf6ec9ccaa23811d8fd lib/unicore/mktables
  * a712c758275b460d18fa77a26ed3589689bb3f69dcc1ea99b913e32db92a5cd2 lib/unicore/version
  * 4bb677187a1a64e39d48f2e341b5ecb6c99857e49d7a79cf503bd8a3c709999b regen/charset_translations.pl
  * b921ce91d1f2031276d93e0ebe4fa53206023c6a355ba3ed960f68b8b86dcde0 regen/regcharclass.pl
