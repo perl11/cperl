@@ -713,7 +713,7 @@ cperl-only.
 =item *
 
 F<t/TEST> does not need any temp_needs_dot exceptions anymore.
-All core modules are now . in @INC clean.
+All core modules are now F<.> in C<@INC> clean.
 The only module to be fixed was F<cpan/libnet/t>.
 cperl-only.
 
@@ -722,6 +722,12 @@ cperl-only.
 Thoroughly test paragraph mode, using a new test file,
 F<t/io/paragraph_mode.t>.
 L<[perl #133722]|https://rt.perl.org/Ticket/Display.html?id=133722>.
+
+=item *
+
+F<lib/utf8_heavy.t> was split away from F<lib/utf8.t> to test
+utf8_heavy only functions, mostly SCRIPTS.
+cperl-only.
 
 =back
 
