@@ -558,6 +558,10 @@ Keep Storable::Limit, in opposition to L<[perl #133708]|https://rt.perl.org/Publ
 Not my idea, but removing it is even worse. The ticket goal is fine,
 but the implementation not.
 
+=item L<threads::shared>  1.60
+
+add extra lock tracing via -DSHARED_TRACE_LOCKS
+
 =item L<Time::HiRes> 1.9760_02
 
 make utime() available only if we have both fd and name setting

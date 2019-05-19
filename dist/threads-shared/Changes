@@ -1,5 +1,11 @@
 Revision history for Perl extension threads::shared.
 
+1.60 2019-03-08 00:36:13
+	- add extra lock tracing via -DSHARED_TRACE_LOCKS
+
+1.59 Wed Nov 28 03:53:14 2018
+	- Prevent XSLoader call on non-threaded Perl
+
 1.58 Mon Jan 22 20:09:07 EST 2018
 	- Fix CLANG macros.
 	- Sync with blead.

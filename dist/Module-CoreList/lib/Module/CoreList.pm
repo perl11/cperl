@@ -18876,6 +18876,7 @@ our %delta :const = (
             'sigtrap'               => '1.09',
             'Socket'                => '2.027_05',
             'Storable'              => '3.14_04',
+            'threads::shared'       => '1.60',
             'Time::HiRes'           => '1.9760_02',
             'Unicode::UCD'          => '0.72_03',
             'vars'                  => '1.05_01c',
