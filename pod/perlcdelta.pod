@@ -413,6 +413,10 @@ ENCODE_WARN_ON_ERR is not set.
 
 Make F<Errno_pm.PL> compatible with F<< /usr/include/<ARCH>/errno.h >>
 
+=item L<ExtUtils::Manifest>  1.72
+
+Minor internal changes only
+
 =item L<ExtUtils::ParseXS>
 
 (perl #133654) don't include OUTLIST parameters in the prototype:
