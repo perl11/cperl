@@ -18424,6 +18424,7 @@ our %delta :const = (
             'Encode'                => '3.01',
             'Encode::Unicode'       => '2.18',
             'Errno'                 => '1.30_01',
+            'ExtUtils::Manifest'    => '1.72',
             'ExtUtils::ParseXS'             => '3.40_03',
             'ExtUtils::ParseXS::Constants'  => '3.40_03',
             'ExtUtils::ParseXS::CountLines' => '3.40_03',
