@@ -2840,8 +2840,10 @@ Perl_get_and_check_backslash_N_name(pTHX_ const char* s,
 
     PERL_ARGS_ASSERT_GET_AND_CHECK_BACKSLASH_N_NAME;
 
-    if (UNLIKELY(!*s))
-        goto bad_charname;
+    if (UNLIKELY(!*s)) {
+        *error_msg = Perl_form(aTHX_ "Unknown charname ''");
+        return NULL;
+    }
     assert(e >= s);
     assert(s > (char *) 3);
 
@@ -2858,6 +2860,7 @@ Perl_get_and_check_backslash_N_name(pTHX_ const char* s,
                         /* include the <}> */
                         e - backslash_ptr + 1, error_msg);
     if (! SvPOK(res)) {
+        /* *error_msg = Perl_form(aTHX_ "Unknown charname '%.*s'", e-s, s); */
         SvREFCNT_dec_NN(res);
         return NULL;
     }
