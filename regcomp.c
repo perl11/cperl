@@ -737,6 +737,10 @@ static const scan_data_t zero_scan_data = {
     Perl_croak(aTHX_ msg " in regex m/%" UTF8f "%s/",	    \
 	    arg, UTF8fARG(UTF, len, RExC_precomp), ellipses))
 
+#define	FAIL3(msg,arg1,arg2) _FAIL(                             \
+    Perl_croak(aTHX_ msg " in regex m/%" UTF8f "%s/",	    \
+            arg1, arg2, UTF8fARG(UTF, len, RExC_precomp), ellipses))
+
 /*
  * Simple_vFAIL -- like FAIL, but marks the current location in the scan
  */
@@ -12801,6 +12805,11 @@ S_grok_bslash_N(pTHX_ RExC_state_t *pRExC_state,
                                                       name_len, 0)))
         {
             value_sv = *value_svp;
+            if (!value_sv) {
+                FAIL3("Unknown charname '%.*s'", (int)name_len, RExC_parse);
+                RExC_parse = p;
+                return FALSE;
+            }
         }
         else { /* Otherwise we have to go out and get the name */
             const char * error_msg = NULL;
@@ -12810,6 +12819,12 @@ S_grok_bslash_N(pTHX_ RExC_state_t *pRExC_state,
             if (error_msg) {
                 RExC_parse = endbrace;
                 vFAIL(error_msg);
+                return FALSE;
+            }
+            if (!value_sv) {
+                FAIL3("Unknown charname '%.*s'", (int)name_len, RExC_parse);
+                RExC_parse = endbrace;
+                return FALSE;
             }
 
             /* If no error message, should have gotten a valid return */

@@ -7087,6 +7087,8 @@ off this warning by C<no warnings 'surrogate';>.
 
 =item Unknown charname '%s'
 
+=item Unknown charname '%s' in regex m/%s/
+
 (F) The name you used inside C<\N{}> is unknown to Perl.  Check the
 spelling.  You can say C<use charnames ":loose"> to not have to be
 so precise about spaces, hyphens, and capitalization on standard Unicode

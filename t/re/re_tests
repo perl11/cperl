@@ -1481,7 +1481,7 @@ abc\N	abc\n	n
 [\N{U+}]	-	c	-	Invalid hexadecimal number
 \N{U+4AG3}	-	c	-	Invalid hexadecimal number
 [\N{U+4AG3}]	-	c	-	Invalid hexadecimal number
-abc\N{def}	-	c	-	Unknown charname 'def' in regex
+abc\N{def}	-	c	-	Unknown charname 'def'
 abc\N{U+4AG3	-	c	-	Missing right brace on \\N{}
 abc\N{def	-	c	-	Missing right brace on \\N{}
 abc\N{	-	c	-	Missing right brace on \\N{}
