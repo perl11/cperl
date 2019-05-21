@@ -1031,6 +1031,10 @@ C<sib> is non-null. For a higher-level interface, see C<L</op_sibling_splice>>.
 #define OpMORESIB_set(o, sib) ((o)->op_moresib = 1, (o)->op_sibparent = (sib))
 #define OpLASTSIB_set(o, parent) \
        ((o)->op_moresib = 0, (o)->op_sibparent = (parent))
+
+/* should match anything that uses ck_ftst in regen/opcodes */
+#define OP_IS_STAT(op) (OP_IS_FILETEST(op) || (op) == OP_LSTAT || (op) == OP_STAT)
+
 #define OpMAYBESIB_set(o, sib, parent) \
        ((o)->op_sibparent = ((o)->op_moresib = cBOOL(sib)) ? (OP*)(sib) : (parent))
 
