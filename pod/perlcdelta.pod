@@ -241,6 +241,29 @@ throws an exception which advises use of C<File::Glob::bsd_glob()> instead.
 
 L<[perl #133586]|https://rt.perl.org/Public/Bug/Display.html?id=133586>
 
+=head2 C<pack()> no longer can return malformed UTF-8
+
+It croaks if it would otherwise return a UTF-8 string that contains
+malformed UTF-8.  This protects agains potential security threats.  This
+is considered a bug fix as well.
+
+L<[perl #131642]|https://rt.perl.org/Public/Bug/Display.html?id=131642>
+
+=head2 Any set of digits in the Common script are legal in a script run
+of another script
+
+There are several sets of digits in the Common script.  C<[0-9]> is the
+most familiar.  But there are also C<[\x{FF10}-\x{FF19}]> (FULLWIDTH
+DIGIT ZERO - FULLWIDTH DIGIT NINE), and several sets for use in
+mathematical notation, such as the MATHEMATICAL DOUBLE-STRUCK DIGITs.
+Any of these sets should be able to appear in script runs of, say,
+Greek.  But the design of 5.30 overlooked all but the ASCII digits
+C<[0-9]>, so the design was flawed.  This has been fixed, so is both a
+bug fix and an incompatibility. [perl #133547]
+L<[perl #133547]|https://rt.perl.org/Public/Bug/Display.html?id=133547>
+
+All digits in a run still have to come from the same set of ten digits.
+
 =head1 Deprecations
 
 XXX Any deprecated features, syntax, modules etc. should be listed here.
@@ -1185,6 +1208,19 @@ was being interpreted as:
     local \(@a[3,5,7]) = \(....);
 
 L<[perl #133538]|https://rt.perl.org/Public/Bug/Display.html?id=133538>
+
+=item *
+
+C<pack()> no longer can return malformed UTF-8.  It croaks if it would
+otherwise return a UTF-8 string that contains malformed UTF-8.  This
+protects agains potential security threats.
+L<[perl #131642]|https://rt.perl.org/Public/Bug/Display.html?id=131642>
+
+
+=item *
+
+See L</Any set of digits in the Common script are legal in a script run
+of another script>.
 
 =back
 
