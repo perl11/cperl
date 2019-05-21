@@ -557,6 +557,10 @@ with v5.25.10.
 
 Add SECURITY AND PORTABILITY warning paragraph to pod.
 
+=item L<JSON::PP>  4.02_01
+
+Upstream + Keep some of our cperl-specific docs
+
 =item L<NDBM_File> 1.15
 
 Add SECURITY AND PORTABILITY warning paragraph to pod.

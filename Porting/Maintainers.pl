@@ -906,10 +906,10 @@ use File::Glob qw(:case);
     },
 
     'JSON::PP' => {
-        'DISTRIBUTION' => 'MAKAMAKA/JSON-PP-2.97001.tar.gz',
+        'DISTRIBUTION' => 'MAKAMAKA/JSON-PP-4.02.tar.gz',
         'FILES'        => q[cpan/JSON-PP],
         # fallback to Cpanel::JSON::XS, fixed Boolean
-        'CUSTOMIZED'   => [ qw( lib/JSON/PP.pm lib/JSON/PP/Boolean.pm )],
+        #'CUSTOMIZED'   => [ qw( lib/JSON/PP.pm lib/JSON/PP/Boolean.pm )],
     },
 
     'lib' => {
