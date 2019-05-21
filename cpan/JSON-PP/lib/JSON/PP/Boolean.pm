@@ -1,28 +1,16 @@
 package JSON::PP::Boolean;
 
 use strict;
-use overload ();
-
-BEGIN {
-  local $^W; # silence redefine warnings. no warnings 'redefine' does not help
-  &overload::import( 'overload', # workaround 5.6 reserved keyword warning
+require overload;
+local $^W;
+overload::import('overload',
     "0+"     => sub { ${$_[0]} },
     "++"     => sub { $_[0] = ${$_[0]} + 1 },
     "--"     => sub { $_[0] = ${$_[0]} - 1 },
-    '""'     => sub { ${$_[0]} == 1 ? '1' : '0' }, # GH 29
-    'eq'     => sub {
-      my ($obj, $op) = ref ($_[0]) ? ($_[0], $_[1]) : ($_[1], $_[0]);
-      if ($op eq 'true' or $op eq 'false') {
-        return "$obj" eq '1' ? 'true' eq $op : 'false' eq $op;
-      }
-      else {
-        return $obj ? 1 == $op : 0 == $op;
-      }
-    },
-    fallback => 1);
-}
+    fallback => 1,
+);
 
-$JSON::PP::Boolean::VERSION = '2.97001_04';
+$JSON::PP::Boolean::VERSION = '4.02_01';
 
 1;
 
@@ -44,7 +32,11 @@ L<JSON::PP> for more info about this class.
 =head1 AUTHOR
 
 This idea is from L<JSON::XS::Boolean> written by Marc Lehmann <schmorp[at]schmorp.de>
-The implementation is from L<Cpanel::JSON::XS::Boolean> from cperl.
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =cut
 

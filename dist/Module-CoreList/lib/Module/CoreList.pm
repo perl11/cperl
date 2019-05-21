@@ -18863,6 +18863,7 @@ our %delta :const = (
             'IO::Socket::UNIX'      => '1.40_01',
             'IO::Socket::IP'        => '0.39_03',
             'IO::Zlib'              => '1.10_01',
+            'JSON::PP'              => '4.02_01',
             'lib'                   => '0.65',
             'NDBM_File'             => '1.15',
             'Net::Ping'             => '2.72',
