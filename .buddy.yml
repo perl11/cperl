@@ -1,0 +1,6 @@
+- pipeline: "deploy"
+  trigger_mode: "ON_EVERY_PUSH"
+  ref_name: "cperl-5.*"
+  ref_type: "TAG"
+  trigger_condition: "ALWAYS"
+  
