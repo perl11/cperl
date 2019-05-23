@@ -97,7 +97,7 @@ The synonym Strtod() may be used instead.
 */
 
 NV
-my_strtod(const char * const s, char **e)
+Perl_my_strtod(const char * const s, char **e)
 {
     dTHX;
 
