@@ -7,6 +7,8 @@
  * Any changes here will be lost!
  */
 /* Composite exclusions */
+bool isExclusion (UV uv);
+
 bool isExclusion (UV uv)
 {
   return
@@ -47,6 +49,8 @@ bool isExclusion (UV uv)
 }
 
 /* Singletons */
+bool isSingleton (UV uv);
+
 bool isSingleton (UV uv)
 {
   return
@@ -92,6 +96,8 @@ bool isSingleton (UV uv)
 }
 
 /* non-starter decompositions */
+bool isNonStDecomp (UV uv);
+
 bool isNonStDecomp (UV uv)
 {
   return
@@ -103,6 +109,8 @@ bool isNonStDecomp (UV uv)
 }
 
 /* may be composed with a prev char */
+bool isComp2nd (UV uv);
+
 bool isComp2nd (UV uv)
 {
   return
