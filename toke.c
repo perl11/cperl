@@ -10489,7 +10489,7 @@ S_scan_ident(pTHX_ char *s, const char *end, char *dest, STRLEN destlen,
                 PL_lex_state = LEX_INTERPEND;
                 PL_expect = XREF;
             }
-            if (PL_lex_state == LEX_NORMAL) {
+	    if (PL_lex_state == LEX_NORMAL || PL_lex_brackets) {
                 if (ckWARN(WARN_AMBIGUOUS)
                     && strNEc(dest, "class")
                     && (keyword(dest, d - dest, 0)
