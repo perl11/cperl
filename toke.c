@@ -6347,7 +6347,7 @@ Perl_yylex(pTHX)
                 break;
             case XOPERATOR:
                 /* attrs allowed in my or sub decls. not global, local */
-                if (!(PL_in_my || PL_in_sub) || PL_lex_state != LEX_NORMAL)
+                if (!(PL_in_my || PL_in_sub) || (PL_lex_state != LEX_NORMAL && !PL_lex_brackets))
                     break;
                 PL_bufptr = s;  /* update in case we back off */
                 if (*s == '=') {
