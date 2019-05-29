@@ -92,8 +92,6 @@
 #define ck_warner_d		Perl_ck_warner_d
 #endif
 #define clear_defarray(a,b)	Perl_clear_defarray(aTHX_ a,b)
-#define cop_fetch_label(a,b,c)	Perl_cop_fetch_label(aTHX_ a,b,c)
-#define cop_store_label(a,b,c,d)	Perl_cop_store_label(aTHX_ a,b,c,d)
 #ifndef PERL_IMPLICIT_CONTEXT
 #define croak			Perl_croak
 #endif
@@ -948,9 +946,6 @@
 #define whichsig_sv(a)		Perl_whichsig_sv(aTHX_ a)
 #define wrap_keyword_plugin(a,b)	Perl_wrap_keyword_plugin(aTHX_ a,b)
 #define wrap_op_checker(a,b,c)	Perl_wrap_op_checker(aTHX_ a,b,c)
-#if !(defined(HAS_MEMMEM))
-#define ninstr			Perl_ninstr
-#endif
 #if !(defined(HAS_SIGACTION) && defined(SA_SIGINFO))
 #define csighandler		Perl_csighandler
 #endif
@@ -1050,6 +1045,8 @@
 #define ckwarn_only(a)		Perl_ckwarn_only(aTHX_ a)
 #define class_role(a)		Perl_class_role(aTHX_ a)
 #define class_role_finalize(a)	Perl_class_role_finalize(aTHX_ a)
+#define cop_fetch_label(a,b,c)	Perl_cop_fetch_label(aTHX_ a,b,c)
+#define cop_store_label(a,b,c,d)	Perl_cop_store_label(aTHX_ a,b,c,d)
 #define croak_no_modify_sv(a,b,c)	Perl_croak_no_modify_sv(aTHX_ a,b,c)
 #define cv_study(a)		Perl_cv_study(aTHX_ a)
 #define do_openn(a,b,c,d,e,f,g,h,i)	Perl_do_openn(aTHX_ a,b,c,d,e,f,g,h,i)

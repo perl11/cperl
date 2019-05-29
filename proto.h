@@ -937,19 +937,6 @@ PERL_CALLCONV const COP*	Perl_closest_cop(pTHX_ const COP *cop, const OP *o, con
 #define PERL_ARGS_ASSERT_CLOSEST_COP	\
 	assert(cop)
 
-PERL_CALLCONV const char *	Perl_cop_fetch_label(pTHX_ COP *const cop, STRLEN *len, U32 *flags)
-			__attribute__global__
-			__attribute__nonnull__(pTHX_1);
-#define PERL_ARGS_ASSERT_COP_FETCH_LABEL	\
-	assert(cop)
-
-PERL_CALLCONV void	Perl_cop_store_label(pTHX_ COP *const cop, const char *label, STRLEN len, U32 flags)
-			__attribute__global__
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2);
-#define PERL_ARGS_ASSERT_COP_STORE_LABEL	\
-	assert(cop); assert(label)
-
 PERL_CALLCONV SV *	Perl_core_prototype(pTHX_ SV *sv, const char *name, const int code, int * const opnum)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_CORE_PROTOTYPE	\
@@ -4140,6 +4127,17 @@ PERL_CALLCONV PerlIO*	Perl_nextargv(pTHX_ GV* gv, bool nomagicopen)
 #define PERL_ARGS_ASSERT_NEXTARGV	\
 	assert(gv)
 
+PERL_CALLCONV char*	Perl_ninstr(const char* big, const char* bigend, const char* little, const char* lend)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__pure__
+			__attribute__nonnull__(1)
+			__attribute__nonnull__(2)
+			__attribute__nonnull__(3)
+			__attribute__nonnull__(4);
+#define PERL_ARGS_ASSERT_NINSTR	\
+	assert(big); assert(bigend); assert(little); assert(lend)
+
 PERL_CALLCONV_NO_RET void	Perl_noperl_die(const char* pat, ...)
 			__attribute__noreturn__
 			__attribute__format__(__printf__,1,2)
@@ -6877,19 +6875,6 @@ STATIC int	S_sv_2iuv_non_preserve(pTHX_ SV *const sv)
 #    endif
 #  endif
 #endif
-#if !(defined(HAS_MEMMEM))
-PERL_CALLCONV char*	Perl_ninstr(const char* big, const char* bigend, const char* little, const char* lend)
-			__attribute__global__
-			__attribute__warn_unused_result__
-			__attribute__pure__
-			__attribute__nonnull__(1)
-			__attribute__nonnull__(2)
-			__attribute__nonnull__(3)
-			__attribute__nonnull__(4);
-#define PERL_ARGS_ASSERT_NINSTR	\
-	assert(big); assert(bigend); assert(little); assert(lend)
-
-#endif
 #if !(defined(HAS_NL_LANGINFO) && defined(PERL_LANGINFO_H))
 PERL_CALLCONV const char*	Perl_langinfo(const int item)
 			__attribute__global__;
@@ -7605,19 +7590,6 @@ PERL_CALLCONV void	Perl_dump_sv_child(pTHX_ SV *sv)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DUMP_SV_CHILD	\
 	assert(sv)
-
-#endif
-#if defined(HAS_MEMMEM)
-PERL_CALLCONV char*	Perl_ninstr(const char* big, const char* bigend, const char* little, const char* lend)
-			__attribute__global__
-			__attribute__warn_unused_result__
-			__attribute__pure__
-			__attribute__nonnull__(1)
-			__attribute__nonnull__(2)
-			__attribute__nonnull__(3)
-			__attribute__nonnull__(4);
-#define PERL_ARGS_ASSERT_NINSTR	\
-	assert(big); assert(bigend); assert(little); assert(lend)
 
 #endif
 #if defined(HAS_MSG) || defined(HAS_SEM) || defined(HAS_SHM)
@@ -11049,6 +11021,19 @@ PERL_CALLCONV void	Perl_class_role_finalize(pTHX_ OP* o)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_CLASS_ROLE_FINALIZE	\
 	assert(o)
+
+PERL_CALLCONV const char *	Perl_cop_fetch_label(pTHX_ COP *const cop, STRLEN *len, U32 *flags)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_COP_FETCH_LABEL	\
+	assert(cop)
+
+PERL_CALLCONV void	Perl_cop_store_label(pTHX_ COP *const cop, const char *label, STRLEN len, U32 flags)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_COP_STORE_LABEL	\
+	assert(cop); assert(label)
 
 PERL_CALLCONV_NO_RET void	Perl_croak_no_modify_sv(pTHX_ SV* sv, const char* file, int line)
 			__attribute__global__
