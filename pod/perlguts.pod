@@ -2650,23 +2650,20 @@ The argument list should end with C<...>, like this:
 
     Afprd   |void   |croak          |const char* pat|...
 
-=item M
-
-This function is part of the experimental development API, and may change
-or disappear without notice.
-
 =item o
 
 This function should not have a compatibility macro to define, say,
 C<Perl_parse> to C<parse>.  It must be called as C<Perl_parse>.
 
-=item x
-
-This function isn't exported out of the Perl core.
-
 =item m
 
 This is implemented as a macro.
+
+=item x
+
+This function is part of the experimental development API, and may change
+or disappear without notice. Also used to suppress making a doc entry if
+it would just be a placeholder.
 
 =item X
 
