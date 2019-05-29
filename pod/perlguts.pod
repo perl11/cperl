@@ -2628,7 +2628,7 @@ Other available flags are:
 
 =over 3
 
-=item s
+=item S
 
 This is a static function and is defined as C<STATIC S_whatever>, and
 usually called within the sources as C<whatever(...)>.
