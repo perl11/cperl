@@ -2633,7 +2633,7 @@ Other available flags are:
 This is a static function and is defined as C<STATIC S_whatever>, and
 usually called within the sources as C<whatever(...)>.
 
-=item n
+=item T
 
 This does not need an interpreter context, so the definition has no
 C<pTHX>, and it follows that callers don't use C<aTHX>.  (See
