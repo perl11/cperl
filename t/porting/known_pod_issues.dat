@@ -392,6 +392,7 @@ dist/pod-simple/lib/pod/simple/htmlbatch.pm	Verbatim line length including inden
 dist/pod-simple/lib/pod/simple/pullparser.pm	Apparent broken link	1
 dist/pod-simple/lib/pod/simple/rtf.pm	Apparent broken link	4
 dist/pod-simple/lib/pod/simple/search.pm	? Should you be using F<...> or maybe L<...> instead of	2
+dist/pod-simple/lib/pod/simple/search.pm	Apparent broken link	1
 dist/pod-simple/lib/pod/simple/search.pm	Verbatim line length including indents exceeds 79 by	1
 dist/pod-simple/lib/pod/simple/search.pm	empty section in previous paragraph	1
 dist/pod-simple/lib/pod/simple/simpletree.pm	Apparent broken link	1
