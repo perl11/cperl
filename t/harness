@@ -212,9 +212,10 @@ if (@ARGV) {
         # order its execution among the tests in its directory.  Hence, a
         # directory containing such files should be tested in serial order.
         #
-        # No exceptions to the above rule anymore
+        # One exception to the above rule
         # $serials{cpan/IO-Zlib/t} = 1;
         # $serials{ext/Pod-Html/t} = 1;
+        $serials{'dist/ExtUtils-MakeMaker/t'} = 1;
 
         my @nonexistent_serials = grep { not exists $all_dirs{$_} } keys %serials;
         if (@nonexistent_serials) {
