@@ -749,6 +749,11 @@ See L</"Disallowed Limited Use Scripts">.
 
 =item *
 
+C<ccflags> or C<cc> containing C<-ULTO> does not probe and add
+C<-flto> flags. (This is useful for faster B::C testing)
+
+=item *
+
 Avoid bumping F<config.sh>/F<config.h> mtimes when adding valid libffi
 targets in F<configpm>.  This caused massive miniperl rebuilds, but
 is only needed for perl-dependent targets much later.

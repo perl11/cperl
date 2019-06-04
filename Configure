@@ -5759,11 +5759,14 @@ case "$osname" in
 cygwin) ;;
 *)
   case "$cc $ccflags $dflt" in
+    *-ULTO*)
+        echo "Undefined LTO"
+        ;;
     *-DDEBUGGING*)
-        echo "Ignoring -flto with DEBUGGING."
+        echo "Ignoring -flto with DEBUGGING"
         ;;
     *-m32*)
-        echo "Ignoring -flto with -m32."
+        echo "Ignoring -flto with -m32"
         ;;
     *-flto*)
         echo "-flto already in ccflags"
