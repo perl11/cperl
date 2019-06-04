@@ -452,7 +452,9 @@ no_dummy_parser_vars(check)
 int
 dummy_parser_warning()
 
-=tests plan => 52
+=tests plan => no_plan
+
+# plan => $^V =~ /c$/ && $] > 5.027 ? 55 : 52;
 
 ok(Devel::PPPort::compare_PL_signals());
 
@@ -510,3 +512,5 @@ else {
     ok(1);
   }
 }
+
+print "1..",$Test::ntest-1,"\n";

@@ -30,9 +30,9 @@ BEGIN {
     require 'testutil.pl' if $@;
   }
 
-  if (52) {
+  if (no_plan) {
     load();
-    plan(tests => $^V =~ /c$/ && $] > 5.027 ? 55 : 52);
+    plan(tests => no_plan);
   }
 }
 
@@ -47,6 +47,8 @@ require DynaLoader;
 bootstrap Devel::PPPort;
 
 package main;
+
+# plan => $^V =~ /c$/ && $] > 5.027 ? 55 : 52;
 
 ok(Devel::PPPort::compare_PL_signals());
 
@@ -105,3 +107,4 @@ else {
   }
 }
 
+print "1..",$Test::ntest-1,"\n";
