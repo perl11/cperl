@@ -11937,53 +11937,54 @@ Perl_scan_num(pTHX_ const char *start, YYSTYPE* lvalp)
     /* if it starts with a 0, it could be an octal number, a decimal in
        0.13 disguise, or a hexadecimal number, or a binary number. */
     case '0':
-        {
-          /* variables:
-             u          holds the "number so far"
-             shift      the power of 2 of the base
-                        (hex == 4, octal == 3, binary == 1)
-             overflowed was the number more than we can hold?
+	{
+	  /* variables:
+	     u		holds the "number so far"
+	     shift	the power of 2 of the base
+			(hex == 4, octal == 3, binary == 1)
+	     overflowed	was the number more than we can hold?
 
-             Shift is used when we add a digit.  It also serves as an "are
-             we in octal/hex/binary?" indicator to disallow hex characters
-             when in octal mode.
-           */
-            NV n = 0.0;
-            UV u = 0;
-            I32 shift;
-            bool overflowed = FALSE;
-            bool just_zero  = TRUE;     /* just plain 0 or binary number? */
-            static const NV nvshift[5] = { 1.0, 2.0, 4.0, 8.0, 16.0 };
-            static const char* const bases[5] =
-              { "", "binary", "", "octal", "hexadecimal" };
-            static const char* const Bases[5] =
-              { "", "Binary", "", "Octal", "Hexadecimal" };
-            static const char* const maxima[5] =
-              { "",
-                "0b11111111111111111111111111111111",
-                "",
-                "037777777777",
-                "0xffffffff" };
-            const char *base, *Base, *max;
+	     Shift is used when we add a digit.  It also serves as an "are
+	     we in octal/hex/binary?" indicator to disallow hex characters
+	     when in octal mode.
+	   */
+	    NV n = 0.0;
+	    UV u = 0;
+	    I32 shift;
+	    bool overflowed = FALSE;
+	    bool just_zero  = TRUE;	/* just plain 0 or binary number? */
+            bool has_digs = FALSE;
+	    static const NV nvshift[5] = { 1.0, 2.0, 4.0, 8.0, 16.0 };
+	    static const char* const bases[5] =
+	      { "", "binary", "", "octal", "hexadecimal" };
+	    static const char* const Bases[5] =
+	      { "", "Binary", "", "Octal", "Hexadecimal" };
+	    static const char* const maxima[5] =
+	      { "",
+		"0b11111111111111111111111111111111",
+		"",
+		"037777777777",
+		"0xffffffff" };
+	    const char *base, *Base, *max;
 
-            /* check for hex */
-            if (isALPHA_FOLD_EQ(s[1], 'x')) {
-                shift = 4;
-                s += 2;
-                just_zero = FALSE;
-            } else if (isALPHA_FOLD_EQ(s[1], 'b')) {
-                shift = 1;
-                s += 2;
-                just_zero = FALSE;
-            }
-            /* check for a decimal in disguise */
-            else if (s[1] == '.' || isALPHA_FOLD_EQ(s[1], 'e'))
-                goto decimal;
-            /* so it must be octal */
-            else {
-                shift = 3;
-                s++;
-            }
+	    /* check for hex */
+	    if (isALPHA_FOLD_EQ(s[1], 'x')) {
+		shift = 4;
+		s += 2;
+		just_zero = FALSE;
+	    } else if (isALPHA_FOLD_EQ(s[1], 'b')) {
+		shift = 1;
+		s += 2;
+		just_zero = FALSE;
+	    }
+	    /* check for a decimal in disguise */
+	    else if (s[1] == '.' || isALPHA_FOLD_EQ(s[1], 'e'))
+		goto decimal;
+	    /* so it must be octal */
+	    else {
+		shift = 3;
+		s++;
+	    }
 
             if (*s == '_') {
                 WARN_ABOUT_UNDERSCORE();
@@ -12013,38 +12014,39 @@ Perl_scan_num(pTHX_ const char *start, YYSTYPE* lvalp)
                     lastub = s++;
                     break;
 
-                /* 8 and 9 are not octal */
-                case '8': case '9':
-                    if (shift == 3)
-                        yyerror(Perl_form(aTHX_ "Illegal octal digit '%c'", *s));
-                    /* FALLTHROUGH */
+		/* 8 and 9 are not octal */
+		case '8': case '9':
+		    if (shift == 3)
+			yyerror(Perl_form(aTHX_ "Illegal octal digit '%c'", *s));
+		    /* FALLTHROUGH */
 
-                /* octal digits */
-                case '2': case '3': case '4':
-                case '5': case '6': case '7':
-                    if (shift == 1)
-                        yyerror(Perl_form(aTHX_ "Illegal binary digit '%c'", *s));
-                    /* FALLTHROUGH */
+	        /* octal digits */
+		case '2': case '3': case '4':
+		case '5': case '6': case '7':
+		    if (shift == 1)
+			yyerror(Perl_form(aTHX_ "Illegal binary digit '%c'", *s));
+		    /* FALLTHROUGH */
 
-                case '0': case '1':
-                    b = *s++ & 15;              /* ASCII digit -> value of digit */
-                    goto digit;
+		case '0': case '1':
+		    b = *s++ & 15;		/* ASCII digit -> value of digit */
+		    goto digit;
 
-                /* hex digits */
-                case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
-                case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
-                    /* make sure they said 0x */
-                    if (shift != 4)
-                        goto out;
-                    b = (*s++ & 7) + 9;
+	        /* hex digits */
+		case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+		case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+		    /* make sure they said 0x */
+		    if (shift != 4)
+			goto out;
+		    b = (*s++ & 7) + 9;
 
-                    /* Prepare to put the digit we have onto the end
-                       of the number so far.  We check for overflows.
-                    */
+		    /* Prepare to put the digit we have onto the end
+		       of the number so far.  We check for overflows.
+		    */
 
-                  digit:
-                    just_zero = FALSE;
-                    if (!overflowed) {
+		  digit:
+		    just_zero = FALSE;
+                    has_digs = TRUE;
+		    if (!overflowed) {
 			assert(shift >= 0);
                         x = u << shift; /* make room for the digit */
 
@@ -12259,14 +12261,21 @@ Perl_scan_num(pTHX_ const char *start, YYSTYPE* lvalp)
                 }
             }
 
-            if (overflowed) {
-                if (n > 4294967295.0)
-                    Perl_ck_warner(aTHX_ packWARN(WARN_PORTABLE),
-                                   "%s number > %s non-portable",
-                                   Base, max);
-                sv = newSVnv(n);
+            if (shift != 3 && !has_digs) {
+                /* 0x or 0b with no digits, treat it as if the x or b is part of the
+                   next token
+                */
+                s = start + 1;
             }
-            else {
+
+	    if (overflowed) {
+		if (n > 4294967295.0)
+		    Perl_ck_warner(aTHX_ packWARN(WARN_PORTABLE),
+				   "%s number > %s non-portable",
+				   Base, max);
+		sv = newSVnv(n);
+	    }
+	    else {
 #if UVSIZE > 4
                 if (u > 0xffffffff)
                     Perl_ck_warner(aTHX_ packWARN(WARN_PORTABLE),
