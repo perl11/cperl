@@ -3046,8 +3046,10 @@ Perl_init_i18nl10n(pTHX_ int printwarn)
      * setlocale() on the individual categores with NULL to get their existing
      * values for our db, instead of trying to change them.
      * */
-     dVAR;
-     int ok = 1;
+#ifdef USE_POSIX_2008_LOCALE
+    dVAR; /* for PL_C_locale_obj */
+#endif
+    int ok = 1;
 
 #ifndef USE_LOCALE
 
