@@ -16,7 +16,7 @@ run_test_group( {
         my ($profile, $env) = @_;
 
         my $src_code = q{
-            use strict 0.01; 
+            use vars 0.01;
         };
         $profile = profile_this(
             src_code => $src_code,

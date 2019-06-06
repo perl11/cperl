@@ -37,11 +37,11 @@ Devel::NYTProf cpan/Devel-NYTProf/FileHandle.xs 8b8ccd2e6f8f0ddfb13c7360dffccaf2
 Devel::NYTProf cpan/Devel-NYTProf/lib/Devel/NYTProf/FileInfo.pm 913665651ffa5415b71adb39c269559e74c35b0e
 Devel::NYTProf cpan/Devel-NYTProf/Makefile.PL b6bc167c480874deeca0d5d2f119c16b53eb9af7
 Devel::NYTProf cpan/Devel-NYTProf/MemoryProfiling.pod c7301ff4ec5c0066db64103e9f68fd5fe0397cc6
-Devel::NYTProf cpan/Devel-NYTProf/NYTProf.xs cda3cc2980bfb7b3d8787129cdfbadda66532bf3
+Devel::NYTProf cpan/Devel-NYTProf/NYTProf.xs a92930da2717dd1fe71ab58ae1774ce61295d54d
 Devel::NYTProf cpan/Devel-NYTProf/t/00-load.t 2eeff9e8529b50ba11e0b2264a52a328b2bd0d8c
 Devel::NYTProf cpan/Devel-NYTProf/t/22-readstream.t 7bfb169ad304370c5024eef40d145c0e055141f8
-Devel::NYTProf cpan/Devel-NYTProf/t/80-version.t 0ff43f0fc4af1564dd764ac2052baa243273397b
-Devel::NYTProf cpan/Devel-NYTProf/t/lib/NYTProfTest.pm bc6efbd91bce9b1eae3c341c482dde0ac4c990c5
+Devel::NYTProf cpan/Devel-NYTProf/t/80-version.t 147085f961c569e6f192a0a3946f355aa03369fe
+Devel::NYTProf cpan/Devel-NYTProf/t/lib/NYTProfTest.pm 50aec5a992f7c373d1649257da03eb5429004b8a
 Devel::PPPort dist/Devel-PPPort/Makefile.PL d920131b7ad66e5e7a556819b1340cd1db429c36
 Devel::PPPort dist/Devel-PPPort/parts/apidoc.fnc 5f2259de48957df7f7f9cc80d86f202f582ecc6a
 Devel::PPPort dist/Devel-PPPort/parts/embed.fnc 4f0089448f0054db52df4684b4b2466a3b629bb8

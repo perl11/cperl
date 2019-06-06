@@ -1,9 +1,9 @@
 /* tables */
-table.tablesorter thead tr .header {
+table.tablesorter thead .tablesorter-header {
     /* background-image: url(bg.png); */
     background-repeat: no-repeat;
     background-position: 0% 80%;
     cursor: pointer;
 }
-table.tablesorter thead tr .headerSortUp   { background-image: url(asc.png); }
-table.tablesorter thead tr .headerSortDown { background-image: url(desc.png); }
+table.tablesorter thead th.tablesorter-headerAsc  { background-image: url(asc.png); }
+table.tablesorter thead th.tablesorter-headerDesc { background-image: url(desc.png); }

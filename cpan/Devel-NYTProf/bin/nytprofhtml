@@ -1680,7 +1680,7 @@ EOD
     <script type="text/javascript" src="js/jquery-min.js"></script>
 
     <script type="text/javascript" src="js/jquery.floatThead.min.js"></script>
-    <script type="text/javascript" src="js/jquery-tablesorter-min.js"></script>
+    <script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>
     <link rel="stylesheet" type="text/css" href="js/style-tablesorter.css" />
     <script type="text/javascript">
     // when a column is first clicked on to sort it, use descending order

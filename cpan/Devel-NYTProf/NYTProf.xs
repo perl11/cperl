@@ -2704,16 +2704,18 @@ pp_subcall_profiler(pTHX_ int is_slowop)
     OP *op;
     COP *prev_cop = PL_curcop;                    /* not PL_curcop_nytprof here */
     OP *next_op = PL_op->op_next;                 /* op to execute after sub returns */
-    OPCODE op_type = PL_op->op_type;
+    /* pp_entersub can be called with PL_op->op_type==0 */
+    OPCODE op_type = (is_slowop || (opcode) PL_op->op_type == OP_GOTO)
+      ? (opcode) PL_op->op_type
+      : PL_op->op_type
+        ? PL_op->op_type : OP_ENTERSUB;
+
     CV *called_cv;
     dSP;
     SV *sub_sv = *SP;
     I32 this_subr_entry_ix; /* local copy (needed for goto) */
-    subr_entry_t *subr_entry;
 
-    /* pp_entersub can be called with PL_op->op_type == 0 */
-    if (! op_type )
-      op_type = OP_ENTERSUB;
+    subr_entry_t *subr_entry;
 
     /* pre-conditions */
     if (!profile_subs   /* not profiling subs */
@@ -3105,8 +3107,8 @@ disable_profile(pTHX)
         is_profiling = 0;
     }
     if (trace_level)
-        logwarn("~ disable_profile (previously %s, pid %d, trace %ld)\n",
-                prev_is_profiling ? "enabled" : "disabled", getpid(), trace_level);
+        logwarn("~ disable_profile (previously %s, pid %d, trace %" IVdf ")\n",
+            prev_is_profiling ? "enabled" : "disabled", getpid(), trace_level);
     return prev_is_profiling;
 }
 
