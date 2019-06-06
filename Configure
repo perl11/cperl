@@ -2858,7 +2858,7 @@ EOM
         $cat >&4 <<EOM
 You need to find a working C compiler.
 Either (purchase and) install the C compiler supplied by your OS vendor,
-or for a free C compiler try http://gcc.gnu.org/
+or for a free C compiler try http://gcc.gnu.org/ or clang.
 I cannot continue any further, aborting.
 EOM
         exit 1

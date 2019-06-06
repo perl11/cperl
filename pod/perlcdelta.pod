@@ -815,6 +815,10 @@ cperl-only.
 
 =item Mac OS X
 
+=over 4
+
+=item *
+
 Perl's build and testing process on Mac OS X for C<-Duseshrplib>
 builds is now compatible with Mac OS X System Integrity Protection
 (B<SIP>).
@@ -831,6 +835,14 @@ library path is then adjusted during installation to point to the
 installed library.
 
 L<[perl #126706]|https://rt.perl.org/Public/Bug/Display.html?id=126706>
+
+=item *
+
+Macports B<gcc-mp-9 -O> is broken with F<ext/Config>.
+You need to use a different compiler.
+L<[p5-Config #13]|https://github.com/perl11/p5-Config/issues/13>
+
+=back
 
 =item Win32
 

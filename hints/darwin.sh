@@ -143,6 +143,19 @@ case "$optimize" in
     ;;
 esac
 
+case "$cc" in
+    *gcc-mp-9)
+        case "$optimize" in
+            *-O*)
+	        # Broken is keys %Config. Without any -O it works
+                echo "Error: Macports gcc-mp-9 -O is broken, use an older gcc instead" >&4
+                cc="gcc-mp-8"
+                exit
+                ;;
+        esac
+        ;;
+esac
+
 # -fno-common because common symbols are not allowed in MH_DYLIB
 # -DPERL_DARWIN: apparently the __APPLE__ is not sanctioned by Apple
 # as the way to differentiate Mac OS X.  (The official line is that
