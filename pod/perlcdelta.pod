@@ -560,11 +560,13 @@ Test fixes
 The 2 sudo tests on PERL_CORE with a shared perl lib.
 Skip failing freebsd localhost resolver tests.
 
-=item C<PathTools> 4.77c
+=item C<PathTools> 4.78c
 
 Don't translate F<...> to F<..\..> on Win32.
 (an old C<command.com> limitation)
 L<[perl #123724]|https://rt.perl.org/Public/Bug/Display.html?id=123724>
+
+Add and use Internals::getcwd().
 
 =item L<PerlIO::encoding> 0.27_01
 
@@ -1101,11 +1103,20 @@ otherwise return a UTF-8 string that contains malformed UTF-8.  This
 protects agains potential security threats.
 L<[perl #131642]|https://rt.perl.org/Public/Bug/Display.html?id=131642>
 
-
 =item *
 
 See L</Any set of digits in the Common script are legal in a script run
 of another script>.
+
+=item *
+
+Perl now exposes POSIX C<getcwd> (and on cperl the safer
+C<get_current_dir_name>) as C<Internals::getcwd()> if available.  This
+is intended for use by C<Cwd.pm> during bootstrapping and may be
+removed or changed without notice.  This fixes some bootstrapping
+issues while building perl in a directory where some ancestor
+directory isn't readable.
+L<[perl #133951]|https://rt.perl.org/Public/Bug/Display.html?id=133951>
 
 =back
 
