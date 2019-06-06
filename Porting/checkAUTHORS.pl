@@ -115,6 +115,8 @@ sub parse_commits_from_stdin {
             unless ($author) { die $_ }
             chomp($committer);
             unless ($committer) { die $_ }
+            next if $author eq 'whitesource-bolt-for-github[bot]'
+              .' <whitesource-bolt-for-github[bot]@users.noreply.github.com>';
             process( $committer, $patch, $author );
         } else {
             die "XXX $_ did not match";
@@ -130,6 +132,8 @@ sub parse_commits_from_stdin_authors {
     while (<>) {
         next unless /^Author:\s*(.*)$/;
 	$author = $1;
+        next if $author eq 'whitesource-bolt-for-github[bot]'
+              .' <whitesource-bolt-for-github[bot]@users.noreply.github.com>';
 	$author = _raw_address($author);
 	$patchers{$author}++;
     }
