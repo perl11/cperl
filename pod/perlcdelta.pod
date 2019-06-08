@@ -451,6 +451,10 @@ expanded the documentation
 
 adjust Devel::Peek pod to cperl FLAGS
 
+=item L<Devel::PPPort> 3.43_04
+
+Its F<embed.fnc> is the same as the core F<embed.fnc>.
+
 =item L<Devel::NYTProf> 6.06_02
 
 simplify pp_subcall_profiler op_type check.
@@ -759,6 +763,17 @@ C<-flto> flags. (This is useful for faster B::C testing)
 Avoid bumping F<config.sh>/F<config.h> mtimes when adding valid libffi
 targets in F<configpm>.  This caused massive miniperl rebuilds, but
 is only needed for perl-dependent targets much later.
+
+=item *
+
+Added C<#ifdef USE_CPERL> and C<#if PERL_VERSION <28> to the API
+declaration in F<embed.fnc>, making clear the perl5 and cperl API
+differences in args, argtypes and API declarations.
+
+F<regen/embed_lib.pl> was extended to handle regen-time branches, and
+ignore perl5 and older verion branches.
+
+Devel-PPPort F<embed.fnc> can now be the same as the core F<embed.fnc>.
 
 =back
 

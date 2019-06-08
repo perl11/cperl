@@ -44,7 +44,7 @@ Devel::NYTProf cpan/Devel-NYTProf/t/80-version.t 147085f961c569e6f192a0a3946f355
 Devel::NYTProf cpan/Devel-NYTProf/t/lib/NYTProfTest.pm 50aec5a992f7c373d1649257da03eb5429004b8a
 Devel::PPPort dist/Devel-PPPort/Makefile.PL d920131b7ad66e5e7a556819b1340cd1db429c36
 Devel::PPPort dist/Devel-PPPort/parts/apidoc.fnc 5f2259de48957df7f7f9cc80d86f202f582ecc6a
-Devel::PPPort dist/Devel-PPPort/parts/embed.fnc 4f0089448f0054db52df4684b4b2466a3b629bb8
+Devel::PPPort dist/Devel-PPPort/parts/embed.fnc fecabb6827283452083722e9fb48f5ab46f2ffa2
 Devel::PPPort dist/Devel-PPPort/parts/inc/gv ac0ff3ba4cf4b86852c4338a12c5fe27fe7016a6
 Devel::PPPort dist/Devel-PPPort/parts/inc/HvNAME 5919c59dd593633ffedd07a2d92e49b3b41e0217
 Devel::PPPort dist/Devel-PPPort/parts/inc/magic_defs ac209f122b095dc87065f9bed88e7408a9bccb31

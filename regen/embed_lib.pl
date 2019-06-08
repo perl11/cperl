@@ -57,6 +57,8 @@ sub setup_embed {
     my $prefix = shift || '';
     open IN, '<', $prefix . 'embed.fnc' or die $!;
 
+    my $iscperl = -f $prefix . 'lib/cperl.pm';
+    my $in_cperl_if = 0; # >0 for 1st cperl branch, -1 for 2nd else blead branch
     my @embed;
     my %seen;
     my $macro_depth = 0;
@@ -81,8 +83,23 @@ sub setup_embed {
             if ($args[0] !~ /^#\s*(?:if|ifdef|ifndef|else|endif)/) {
                 die "Illegal line $. '$args[0]' in embed.fnc";
             }
-            $macro_depth++ if $args[0] =~/^#\s*if(n?def)?\b/;
-            $macro_depth-- if $args[0] =~/^#\s*endif\b/;
+            if ($args[0] =~/^#\s*if(n?def)?\b/) {
+              $macro_depth++;
+              if ($args[0] =~/\bUSE_CPERL\b/) {
+                $in_cperl_if = $macro_depth;
+              }
+              # skip OLD versions. any VERSION check means for older only
+              if ($args[0] =~/\bPERL_VERSION\b/) {
+                $in_cperl_if = $iscperl ? -($macro_depth) : $macro_depth;
+              }
+            }
+            if ($macro_depth && $macro_depth == $in_cperl_if && $args[0] =~/^#\s*else/) {
+              $in_cperl_if = -($macro_depth); # the other else branch, for blead
+            }
+            if ($args[0] =~/^#\s*endif\b/) {
+              $in_cperl_if = 0 if $macro_depth == abs($in_cperl_if);
+              $macro_depth--;
+            }
             die "More #endif than #if in embed.fnc:$." if $macro_depth < 0;
 	}
         else  {
@@ -94,11 +111,17 @@ sub setup_embed {
             if ($macro_depth == 0) {
                 die "Duplicate function name: '$name' in embed.fnc:$."
                     if exists $seen{$name};
+            } elsif ($in_cperl_if) {
+              if ($iscperl && $in_cperl_if < 0) { # else !cperl
+                @args = (); # skip the blead part in cperl
+              } elsif (!$iscperl && $macro_depth >= $in_cperl_if) {
+                @args = (); # skip the cperl part in blead
+              }
             }
             $seen{$name} = 1;
         }
 
-	push @embed, \@args;
+	push @embed, \@args if @args;
     }
     die "More #if than #endif by the end of embed.fnc" if $macro_depth != 0;
 
