@@ -30,9 +30,9 @@ BEGIN {
     require 'testutil.pl' if $@;
   }
 
-  if (11) {
+  if (4) {
     load();
-    plan(tests => 11);
+    plan(tests => 4);
   }
 }
 
@@ -53,20 +53,4 @@ ok(!defined Devel::PPPort::HvNAME_get({}));
 
 ok(Devel::PPPort::HvNAMELEN_get(\%Devel::PPPort::), length('Devel::PPPort'));
 ok(Devel::PPPort::HvNAMELEN_get({}), 0);
-
-ok(Devel::PPPort::HvNAMELEN({}), 0);
-ok(Devel::PPPort::HvENAME({}), undef);
-ok(Devel::PPPort::HvENAMELEN({}), 0);
-ok(Devel::PPPort::HvENAMEUTF8({}), 0);
-
-ok(Devel::PPPort::HvNAMEUTF8(\%Devel::PPPort::), 0);
-
-if ($] > 5.015006) {
-   use utf8;
-   ok(Devel::PPPort::HvNAMEUTF8(\%αaαb::), 1);
-   ok(Devel::PPPort::HvENAMEUTF8(\%αaαb::), 1);
-} else {
-  ok(1, 1, "skip HvNAMEUTF8 with $]");
-  ok(1, 1, "skip HvENAMEUTF8 with $]");
-}
 

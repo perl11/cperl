@@ -36,9 +36,6 @@ PL_hexdigit
 PL_hints
 PL_in_my
 PL_in_my_stash
-PL_in_class
-PL_in_pod
-PL_in_sub
 PL_laststatval
 PL_lex_state
 PL_lex_stuff
@@ -194,9 +191,6 @@ __NEED_DUMMY_VAR__ yy_parser PL_parser;
 # define PL_tokenbuf       D_PPP_my_PL_parser_var(tokenbuf)
 # define PL_in_my          D_PPP_my_PL_parser_var(in_my)
 # define PL_in_my_stash    D_PPP_my_PL_parser_var(in_my_stash)
-# define PL_in_class       D_PPP_my_PL_parser_var(in_class)
-# define PL_in_pod         D_PPP_my_PL_parser_var(in_pod)
-# define PL_in_sub         D_PPP_my_PL_parser_var(in_sub)
 # define PL_error_count    D_PPP_my_PL_parser_var(error_count)
 
 
@@ -246,13 +240,6 @@ int dummy_parser_warning(void);
                                     count++;                     \
                                   } STMT_END
 
-#define ppp_PARSERBITVAR(var)  STMT_START {                      \
-                                    int my_i_ ## var = (int)var; \
-                                    mXPUSHi(!my_i_ ## var);      \
-                                    count++;                     \
-                                  } STMT_END
-
-
 #define ppp_PARSERVAR_dummy       STMT_START {                   \
                                     mXPUSHi(1);                  \
                                     count++;                     \
@@ -268,8 +255,6 @@ int dummy_parser_warning(void);
 # define ppp_expect_t expectation
 #elif { VERSION < 5.9.5 }
 # define ppp_expect_t int
-#elif { CPERL && VERSION >= 5.27.1 }
-# define ppp_expect_t expectation
 #else
 # define ppp_expect_t U8
 #endif
@@ -284,8 +269,6 @@ int dummy_parser_warning(void);
 # define ppp_in_my_t bool
 #elif { VERSION < 5.9.5 }
 # define ppp_in_my_t I32
-#elif { CPERL && VERSION >= 5.27.1 }
-# define ppp_in_my_t U8
 #else
 # define ppp_in_my_t U16
 #endif
@@ -422,6 +405,7 @@ other_variables()
                 ppp_TESTVAR(PL_sv_arenaroot);
                 ppp_TESTVAR(PL_tainted);
                 ppp_TESTVAR(PL_tainting);
+
                 ppp_PARSERVAR(ppp_expect_t, PL_expect);
                 ppp_PARSERVAR(line_t, PL_copline);
                 ppp_PARSERVAR(ppp_rsfp_t, PL_rsfp);
@@ -438,11 +422,6 @@ other_variables()
 #else
                 ppp_PARSERVAR_dummy;
 #endif
-#if { CPERL && VERSION >= 5.27.1 }
-                ppp_PARSERBITVAR(PL_in_class);
-                ppp_PARSERBITVAR(PL_in_sub);
-                ppp_PARSERBITVAR(PL_in_pod);
-#endif
                 XSRETURN(count);
 
 int
@@ -452,9 +431,7 @@ no_dummy_parser_vars(check)
 int
 dummy_parser_warning()
 
-=tests plan => no_plan
-
-# plan => $^V =~ /c$/ && $] > 5.027 ? 55 : 52;
+=tests plan => 52
 
 ok(Devel::PPPort::compare_PL_signals());
 
@@ -464,7 +441,7 @@ ok(!&Devel::PPPort::PL_sv_no());
 ok(&Devel::PPPort::PL_na("abcd"), 4);
 ok(&Devel::PPPort::PL_Sv(), "mhx");
 ok(defined &Devel::PPPort::PL_tokenbuf());
-ok($] >= 5.009005 || &Devel::PPPort::PL_parser());
+ok("$]" >= 5.009005 || &Devel::PPPort::PL_parser());
 ok(&Devel::PPPort::PL_hexdigit() =~ /^[0-9a-zA-Z]+$/);
 ok(defined &Devel::PPPort::PL_hints());
 ok(&Devel::PPPort::PL_ppaddr("mhx"), "MHX");
@@ -480,7 +457,7 @@ for (&Devel::PPPort::other_variables()) {
     local $SIG{'__WARN__'} = sub { push @w, @_ };
     ok(&Devel::PPPort::dummy_parser_warning());
   }
-  if ($] >= 5.009005) {
+  if ("$]" >= 5.009005) {
     ok(@w >= 0);
     for (@w) {
       print "# $_";
@@ -496,11 +473,11 @@ for (&Devel::PPPort::other_variables()) {
   ok($fail, 0);
 }
 
-ok(&Devel::PPPort::no_dummy_parser_vars(1) >= ($] < 5.009005 ? 1 : 0));
+ok(&Devel::PPPort::no_dummy_parser_vars(1) >= ("$]" < 5.009005 ? 1 : 0));
 
 eval { &Devel::PPPort::no_dummy_parser_vars(0) };
 
-if ($] < 5.009005) {
+if ("$]" < 5.009005) {
   ok($@, '');
 }
 else {
@@ -512,5 +489,3 @@ else {
     ok(1);
   }
 }
-
-print "1..",$Test::ntest-1,"\n";

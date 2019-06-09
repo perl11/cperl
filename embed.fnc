@@ -245,7 +245,7 @@ Ano	|PerlInterpreter*|perl_clone_using \
 
 Aanop	|Malloc_t|malloc	|MEM_SIZE nbytes
 Aanop	|Malloc_t|calloc	|MEM_SIZE elements|MEM_SIZE size
-ARnop	|Malloc_t|realloc	|Malloc_t where|MEM_SIZE nbytes
+Aanop	|Malloc_t|realloc	|Malloc_t where|MEM_SIZE nbytes
 Anop	|Free_t	|mfree		|Malloc_t where
 #if defined(MYMALLOC)
 npR	|MEM_SIZE|malloced_size	|NN void *p

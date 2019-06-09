@@ -451,9 +451,32 @@ expanded the documentation
 
 adjust Devel::Peek pod to cperl FLAGS
 
-=item L<Devel::PPPort> 3.43_04
+=item L<Devel::PPPort> 3.52_04
 
-Its F<embed.fnc> is the same as the core F<embed.fnc>.
+* Merge 3.52 with cperl improvements:
+
+     cperl croak_no_modify adds now the SV to the message.
+     support make --silent.
+     support devel VERSION with _
+     fix deps
+     sync embed.fnc with cperl core, with #ifdef USE_CPERL
+     sync parts with 5.30 updates
+
+* Revert "Use latest blead embed.fnc"
+
+     It changed the meaning of several flags (n=>T, s=>S,M=>x,...) just for
+     some apidocs troubles which are easily solved otherwise.
+     It breaks backcompat, and breaks the equality of core embed.fnc.
+     perl5.30 also rejected it
+
+* make regen is now in two modes: cperl or perl5 (as in cperl-core
+embed_lib)
+
+* Add croak_no_modify_sv
+
+* Remove implemented TODOs
+
+* Fix for older EUMM <6.46 which has no META_MERGE
 
 =item L<Devel::NYTProf> 6.06_02
 

@@ -15,6 +15,20 @@
 
 use strict;
 $^W = 1;
+my $SILENT;
+
+if (@ARGV and $ARGV[0] =~ /--quiet/) {
+  $SILENT++;
+  shift;
+}
+elsif (defined $ENV{MAKEFLAGS}
+       and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) {
+  $SILENT++;
+}
+elsif ($ENV{PERL_CORE}) {
+  $SILENT++;
+}
+
 require "./parts/ppptools.pl";
 
 my $template = do { local $/; <DATA> };
@@ -38,7 +52,7 @@ sub generate_tests
       exists $spec->{OPTIONS}{tests}{plan}
           or die "No plan for tests in $file\n";
 
-      print "generating $testfile\n";
+      print "generating $testfile\n" unless $SILENT;
 
       my $tmpl = $template;
       $tmpl =~ s/__SOURCE__/$file/mg;

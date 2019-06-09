@@ -6,7 +6,6 @@ ck_entersub_args_proto         # U
 ck_entersub_args_proto_or_list # U
 cv_get_call_checker            # E
 cv_set_call_checker            # E
-isWORDCHAR                     # U
 lex_stuff_pv                   # U
 mg_free_type                   # U
 newSVpv_share                  # U

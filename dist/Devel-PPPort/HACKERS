@@ -160,7 +160,7 @@ hints, dependency information, XS code and tests.
 The files are in a POD-like format that is parsed using the
 functions in F<parts/ppptools.pl>.
 
-The scripts F<PPPort_pm.PL>, F<PPPort_xs.PL> and F<mktests.PL> all
+The scripts F<PPPort_pm.PL>, F<RealPPPort_xs.PL> and F<mktests.PL> all
 use the information in F<parts/inc/> to generate the main module
 F<PPPort.pm>, the XS code in F<RealPPPort.xs> and various test files
 in F<t/>.
@@ -193,10 +193,10 @@ section.
 
 =item *
 
-The code required to add to F<PPPort.xs> for testing the implementation.
+The code required to add to PPPort.xs for testing the implementation.
 This code goes into the C<=xshead>, C<=xsinit>, C<=xsmisc>, C<=xsboot>
 and C<=xsubs> section. Have a look at the template at the bottom
-of F<PPPort_xs.PL> to see where the code ends up.
+of F<RealPPPort_xs.PL> to see where the code ends up.
 
 =item *
 
@@ -232,14 +232,7 @@ instead of
   #  define macro    some definition
   #endif
 
-If you use this, you don't have to list C<"macro"> in the C<=provides> section.
-But that section must contain a single line
-
- __UNDEFINED__
-
-which acts as a stand-in for all the macros defined through its use.
-
-C<"macro"> can have optional arguments and the definition can even
+The macro can have optional arguments and the definition can even
 span multiple lines, like in
 
   __UNDEFINED__ SvMAGIC_set(sv, val) \
@@ -251,8 +244,8 @@ the line C<__UNDEFINED__> to the C<=provides> section to get all macros
 implemented this way to be imported into this section, so they all get
 documented as being provided.
 
-Version checking can be tricky if you want to do it correctly.
-C<Devel::PPPort> provides a facility to make it easier.  You can use
+Version checking can be tricky if you want to do it correct.
+You can use
 
   #if { VERSION < 5.9.3 }
 

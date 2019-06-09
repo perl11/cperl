@@ -30,9 +30,9 @@ BEGIN {
     require 'testutil.pl' if $@;
   }
 
-  if (8) {
+  if (7) {
     load();
-    plan(tests => 8);
+    plan(tests => 7);
   }
 }
 
@@ -55,8 +55,6 @@ ok(Devel::PPPort::isGV_with_GP(), 2);
 ok(Devel::PPPort::get_cvn_flags(), 3);
 
 ok(Devel::PPPort::gv_fetchpvn_flags(), \*Devel::PPPort::VERSION);
-
-ok(Devel::PPPort::gv_fetchpvn(), \*Devel::PPPort::VERSION);
 
 ok(Devel::PPPort::gv_fetchsv("Devel::PPPort::VERSION"), \*Devel::PPPort::VERSION);
 

@@ -112,7 +112,8 @@ ok(Devel::PPPort::GetFileContents(), $data);
 sub comment
 {
   my $c = shift;
-  $c =~ s/^/# | /mg;
+  my $x = 0;
+  $c =~ s/^/sprintf("# %2d| ", ++$x)/meg;
   $c .= "\n" unless $c =~ /[\r\n]$/;
   print $c;
 }
@@ -191,14 +192,12 @@ for $t (@tests) {
     open F, ">$f" or die "open $f: $!\n";
     print F "$txt\n";
     close F;
-    $txt =~ s/^/# | /mg;
-    print "# *** writing $f ***\n$txt\n";
+    print "# *** writing $f ***\n";
+    comment($txt);
   }
 
-  my $code = $t->{code};
-  $code =~ s/^/# | /mg;
-
-  print "# *** evaluating test code ***\n$code\n";
+  print "# *** evaluating test code ***\n";
+  comment($t->{code});
 
   eval $t->{code};
   if ($@) {
@@ -388,7 +387,6 @@ ok($o =~ /^\s*$/);
 ---------------------------- file1.xs -----------------------------------------
 
 #define NEED_newCONSTSUB
-#define NEED_sv_2pv_flags
 #define NEED_PL_parser
 #include "ppport.h"
 
@@ -560,7 +558,6 @@ call_pv();
 #define NEED_eval_pv_GLOBAL
 #define NEED_grok_hex
 #define NEED_newCONSTSUB_GLOBAL
-#define NEED_sv_2pv_flags_GLOBAL
 #include "ppport.h"
 
 newCONSTSUB();
@@ -917,8 +914,6 @@ for (qw(file.xs)) {
 
 ---------------------------- file.xs -----------------------------------------
 
-#define NEED_sv_2pv_flags
-#define NEED_vnewSVpvf
 #define NEED_warner
 #include "ppport.h"
 Perl_croak_nocontext("foo");
@@ -932,8 +927,6 @@ warner("foo");
 
 ---------------------------- file.xsr -----------------------------------------
 
-#define NEED_sv_2pv_flags
-#define NEED_vnewSVpvf
 #define NEED_warner
 #include "ppport.h"
 Perl_croak_nocontext("foo");

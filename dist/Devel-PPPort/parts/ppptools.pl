@@ -59,13 +59,11 @@ sub parse_todo
 
 sub expand_version
 {
-  my($op, $ver, $cperl) = @_;
+  my($op, $ver) = @_;
   my($r, $v, $s) = parse_version($ver);
   $r == 5 or die "only Perl revision 5 is supported\n";
   my $bcdver = sprintf "0x%d%03d%03d", $r, $v, $s;
-  my $ret = "(PERL_BCDVERSION $op $bcdver)";
-  $ret = "defined(USE_CPERL) && " . $ret if $cperl;
-  return $ret;
+  return "(PERL_BCDVERSION $op $bcdver)";
 }
 
 sub parse_partspec
@@ -169,7 +167,7 @@ sub parse_partspec
 
   for $section (qw( implementation xsubs xsinit xsmisc xshead xsboot )) {
     if (exists $data{$section}) {
-      $data{$section} =~ s/\{\s*(CPERL\s*&&\s*)?version\s*(<|>|==|!=|>=|<=)\s*([\d._]+)\s*\}/expand_version($2, $3, $1)/gei;
+      $data{$section} =~ s/\{\s*version\s*(<|>|==|!=|>=|<=)\s*([\d._]+)\s*\}/expand_version($1, $2)/gei;
     }
   }
 
@@ -306,27 +304,46 @@ sub parse_embed
       }
       else {
         my @e = split /\s*\|\s*/, $line;
-        if( @e >= 3 ) {
-          my($flags, $ret, $name, @args) = @e;
-          next if $flags =~ /[DM]/; # Skip entries marked as deprecated or unstable
+        if ( @e >= 3 ) {
+          my ($flags, $ret, $name, @args) = @e;
+          next unless $flags =~ /A/; # Skip non-public entries
+
+          # Skip entries marked as deprecated or unstable,
+          next if $flags =~ /[DM]/;
           if ($name =~ /^[^\W\d]\w*$/) {
             for (@args) {
               $_ = [trim_arg($_)];
             }
             ($ret) = trim_arg($ret);
-            push @func, {
-              name  => $name,
-              flags => { map { $_, 1 } $flags =~ /./g },
-              ret   => $ret,
-              args  => \@args,
-              cond  => ppcond(\@pps),
+            my $cond = $pps[-1];
+            if ($cond and $cond->{cur} and
+                $cond->{cur} =~ /\bdefined\(USE_CPERL\)/ and
+                $^V !~ /c$/) {
+              print "skip cperl-specific $name $flags\n" unless $SILENT;
+            }
+            elsif ($cond and @{$cond->{pre}} and
+                   !defined $cond->{cur} and
+                   @{$cond->{pre}}[-1] =~ /\bdefined\(USE_CPERL\)/ and
+                   $^V =~ /c$/) {
+              print "skip perl5-specific $name $flags\n" unless $SILENT;
+            }
+            else {
+              push @func, {
+                name  => $name,
+                flags => { map { $_, 1 } $flags =~ /./g },
+                ret   => $ret,
+                args  => \@args,
+                cond  => ppcond(\@pps),
+              }
             };
           }
-          elsif ($name =~ /^[^\W\d]\w*-E<gt>[^\W\d]\w*$/) {
-            # silenty ignore entries of the form
-            #    PL_parser-E<gt>linestr
-            # which documents a struct entry rather than a function
+          # like
+          #    PL_parser->linestr
+          # which documents a struct entry rather than a function
+          elsif ($name =~ /^PL_parser->(\w*)$/) {
+            ;
           }
+          # but warn about non names
           else {
             warn "mysterious name [$name] in $file, line $.\n";
           }
@@ -382,7 +399,7 @@ sub parse_version
   if ($ver =~ /^(\d+)\.(\d+)\.(\d+)$/) {
     return ($1, $2, $3);
   }
-  elsif ($ver !~ /^\d+\.[\d_]+$/) {
+  elsif ($ver !~ /^\d+\.\d{3}(?:_\d{2})?$/) {
     die "cannot parse version '$ver'\n";
   }
 

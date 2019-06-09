@@ -5,7 +5,8 @@
 ################################################################################
 #
 #  Version 3.x, Copyright (C) 2004-2013, Marcus Holland-Moritz.
-#               Copyright (C) 2018, The perl5 porters
+#               Copyright (C) 2018-2019, The perl5 porters.
+#               Copyright (C) 2015-2019, Reini Urban.
 #  Version 2.x, Copyright (C) 2001, Paul Marquess.
 #  Version 1.x, Copyright (C) 1999, Kenneth Albanowski.
 #
@@ -16,6 +17,21 @@
 
 use strict;
 $^W = 1;
+
+my $SILENT;
+
+if (@ARGV and $ARGV[0] =~ /--quiet/) {
+  $SILENT++;
+  shift;
+}
+elsif (defined $ENV{MAKEFLAGS}
+       and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) {
+  $SILENT++;
+}
+elsif ($ENV{PERL_CORE}) {
+  $SILENT++;
+}
+
 require "./parts/ppptools.pl";
 
 my $INCLUDE = 'parts/inc';
@@ -121,20 +137,7 @@ $data =~ s{^__UNSUPPORTED_API__(\s*?)^}
           {join "\n", @todo}gem;
 
 $data =~ s{__MIN_PERL__}{5.003}g;
-$data =~ s{__MAX_PERL__}{5.20}g;
-my $SILENT;
-
-if (@ARGV and $ARGV[0] =~ /--quiet/) {
-  $SILENT++;
-  shift;
-}
-elsif (defined $ENV{MAKEFLAGS}
-       and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) {
-  $SILENT++;
-}
-elsif ($ENV{PERL_CORE}) {
-  $SILENT++;
-}
+$data =~ s{__MAX_PERL__}{5.30}g;
 
 # backcompat
 open FH, ">PPPort.pm" or die "PPPort.pm: $!\n";
@@ -565,7 +568,7 @@ package Devel::PPPort;
 use strict;
 use vars qw($VERSION $data);
 
-$VERSION = '3.43_04';
+$VERSION = '3.52_04';
 
 sub _init_data
 {
@@ -642,15 +645,21 @@ __DATA__
 
 %include limits
 
-%include uv
-
-%include memory
-
 %include magic_defs
 
 %include misc
 
+%include sv_xpvf
+
+%include SvPV
+
+%include warn
+
 %include format
+
+%include uv
+
+%include memory
 
 %include mess
 
@@ -672,19 +681,13 @@ __DATA__
 
 %include newSVpv
 
-%include SvPV
-
 %include Sv_set
-
-%include sv_xpvf
 
 %include shared_pv
 
 %include HvNAME
 
 %include gv
-
-%include warn
 
 %include pvs
 

@@ -4606,6 +4606,7 @@ PERL_CALLCONV SV*	Perl_re_intuit_string(pTHX_ REGEXP  *const r)
 
 PERL_CALLCONV Malloc_t	Perl_realloc(Malloc_t where, MEM_SIZE nbytes)
 			__attribute__global__
+			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV void	Perl_reentrant_free(pTHX)

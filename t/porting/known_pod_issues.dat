@@ -356,8 +356,6 @@ dist/data-dumper/dumper.pm	? Should you be using L<...> instead of	1
 dist/devel-ppport/parts/inc/ppphdoc	Unknown directive: =dontwarn	1
 dist/devel-ppport/parts/inc/ppphdoc	Unknown directive: =implementation	1
 dist/devel-ppport/parts/inc/ppphdoc	Unknown directive: =provides	1
-dist/devel-ppport/parts/inc/ppphdoc	Verbatim line length including indents exceeds 79 by	1
-dist/devel-ppport/soak	Verbatim line length including indents exceeds 79 by	1
 dist/exporter/lib/exporter.pm	Verbatim line length including indents exceeds 79 by	2
 dist/extutils-constant/lib/extutils/constant.pm	Apparent broken link	5
 dist/extutils-constant/lib/extutils/constant.pm	Verbatim line length including indents exceeds 79 by	1
@@ -464,6 +462,7 @@ pod/perl5280cdelta.pod	alternative text. contains non-escaped | or /	1
 pod/perl5282cdelta.pod	Apparent broken link	1
 pod/perl5290cdelta.pod	Apparent broken link	3
 pod/perl5292cdelta.pod	Apparent broken link	3
+pod/perl5292cdelta.pod	Verbatim line length including indents exceeds 79 by	2
 pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlapi.pod	? Should you be using L<...> instead of	1
 pod/perlapi.pod	Verbatim line length including indents exceeds 79 by	14
