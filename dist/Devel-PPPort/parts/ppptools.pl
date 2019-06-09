@@ -59,11 +59,13 @@ sub parse_todo
 
 sub expand_version
 {
-  my($op, $ver) = @_;
+  my($op, $ver, $cperl) = @_;
   my($r, $v, $s) = parse_version($ver);
   $r == 5 or die "only Perl revision 5 is supported\n";
   my $bcdver = sprintf "0x%d%03d%03d", $r, $v, $s;
-  return "(PERL_BCDVERSION $op $bcdver)";
+  my $ret = "(PERL_BCDVERSION $op $bcdver)";
+  $ret = "defined(USE_CPERL) && " . $ret if $cperl;
+  return $ret;
 }
 
 sub parse_partspec
@@ -74,6 +76,12 @@ sub parse_partspec
                            xsubs xsinit xsmisc xshead xsboot tests );
   my(%data, %options);
   local *F;
+
+  my $Test_Harness_VERSION = 3;
+  if ($] < 5.008001) { # cannot do no_plan?
+    require Test::Harness;
+    $Test_Harness_VERSION = $Test::Harness::VERSION;
+  }
 
   open F, $file or die "$file: $!\n";
   while (<F>) {
@@ -89,6 +97,17 @@ sub parse_partspec
         my $opt = $2;
         $options{$section} = eval "{ $opt }";
         $@ and die "$file:$.: invalid options ($opt) in section $section: $@\n";
+        if ($opt =~ /plan\s+=>\s+['"]?no_plan['"]?/) {
+          $options{$section}{plan} = "no_plan";
+          if ($Test_Harness_VERSION < 2) {
+            if ($opt =~ /fallback\s+=>\s+(\d+)/) {
+              $options{$section}{plan} = $1;
+            } else {
+              $options{$section}{plan} =
+                'skip => "Test::Harness 2 or fallback required"';
+            }
+          }
+        }
       }
       next;
     }
@@ -167,7 +186,7 @@ sub parse_partspec
 
   for $section (qw( implementation xsubs xsinit xsmisc xshead xsboot )) {
     if (exists $data{$section}) {
-      $data{$section} =~ s/\{\s*version\s*(<|>|==|!=|>=|<=)\s*([\d._]+)\s*\}/expand_version($1, $2)/gei;
+      $data{$section} =~ s/\{\s*(CPERL\s*&&\s*)?version\s*(<|>|==|!=|>=|<=)\s*([\d._]+)\s*\}/expand_version($2, $3, $1)/gei;
     }
   }
 

@@ -13,7 +13,11 @@
 BEGIN {
   if ($ENV{'PERL_CORE'}) {
     chdir 't' if -d 't';
-    @INC = ('../lib', '../ext/Devel-PPPort/t') if -d '../lib' && -d '../ext';
+    if (-d '../lib' && -d '../dist/Devel-PPPort') {
+      @INC = ('../lib', '../dist/Devel-PPPort/t');
+    } elsif (-d '../../../lib' && -d '../../../dist/Devel-PPPort') {
+      @INC = ('../../../lib', '.');
+    }
     require Config; import Config;
     use vars '%Config';
     if (" $Config{'extensions'} " !~ m[ Devel/PPPort ]) {
@@ -26,13 +30,12 @@ BEGIN {
   }
 
   sub load {
-    eval "use Test";
-    require 'testutil.pl' if $@;
+    require 'testutil.pl';
   }
 
-  if (7) {
+  if (8) {
     load();
-    plan(tests => 7);
+    plan(tests => 8);
   }
 }
 
@@ -55,6 +58,8 @@ ok(Devel::PPPort::isGV_with_GP(), 2);
 ok(Devel::PPPort::get_cvn_flags(), 3);
 
 ok(Devel::PPPort::gv_fetchpvn_flags(), \*Devel::PPPort::VERSION);
+
+ok(Devel::PPPort::gv_fetchpvn(), \*Devel::PPPort::VERSION);
 
 ok(Devel::PPPort::gv_fetchsv("Devel::PPPort::VERSION"), \*Devel::PPPort::VERSION);
 

@@ -10,6 +10,7 @@
 \.orig$
 \.cache\.cm$
 \.DS_Store
+^\.github
 ^blib
 ^pm_to_blib
 ^backup

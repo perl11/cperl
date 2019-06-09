@@ -13,7 +13,11 @@
 BEGIN {
   if ($ENV{'PERL_CORE'}) {
     chdir 't' if -d 't';
-    @INC = ('../lib', '../ext/Devel-PPPort/t') if -d '../lib' && -d '../ext';
+    if (-d '../lib' && -d '../dist/Devel-PPPort') {
+      @INC = ('../lib', '../dist/Devel-PPPort/t');
+    } elsif (-d '../../../lib' && -d '../../../dist/Devel-PPPort') {
+      @INC = ('../../../lib', '.');
+    }
     require Config; import Config;
     use vars '%Config';
     if (" $Config{'extensions'} " !~ m[ Devel/PPPort ]) {
@@ -26,13 +30,12 @@ BEGIN {
   }
 
   sub load {
-    eval "use Test";
-    require 'testutil.pl' if $@;
+    require 'testutil.pl';
   }
 
-  if (4) {
+  if (11) {
     load();
-    plan(tests => 4);
+    plan(tests => 11);
   }
 }
 
@@ -53,4 +56,20 @@ ok(!defined Devel::PPPort::HvNAME_get({}));
 
 ok(Devel::PPPort::HvNAMELEN_get(\%Devel::PPPort::), length('Devel::PPPort'));
 ok(Devel::PPPort::HvNAMELEN_get({}), 0);
+
+ok(Devel::PPPort::HvNAMELEN({}), 0);
+ok(Devel::PPPort::HvENAME({}), undef);
+ok(Devel::PPPort::HvENAMELEN({}), 0);
+ok(Devel::PPPort::HvENAMEUTF8({}), 0);
+
+ok(Devel::PPPort::HvNAMEUTF8(\%Devel::PPPort::), 0);
+
+if ($] > 5.015006) {
+   use utf8;
+   ok(Devel::PPPort::HvNAMEUTF8(\%αaαb::), 1);
+   ok(Devel::PPPort::HvENAMEUTF8(\%αaαb::), 1);
+} else {
+  ok(1, 1, "skip HvNAMEUTF8 with $]");
+  ok(1, 1, "skip HvENAMEUTF8 with $]");
+}
 

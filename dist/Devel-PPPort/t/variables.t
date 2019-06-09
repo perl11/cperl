@@ -13,7 +13,11 @@
 BEGIN {
   if ($ENV{'PERL_CORE'}) {
     chdir 't' if -d 't';
-    @INC = ('../lib', '../ext/Devel-PPPort/t') if -d '../lib' && -d '../ext';
+    if (-d '../lib' && -d '../dist/Devel-PPPort') {
+      @INC = ('../lib', '../dist/Devel-PPPort/t');
+    } elsif (-d '../../../lib' && -d '../../../dist/Devel-PPPort') {
+      @INC = ('../../../lib', '.');
+    }
     require Config; import Config;
     use vars '%Config';
     if (" $Config{'extensions'} " !~ m[ Devel/PPPort ]) {
@@ -26,13 +30,12 @@ BEGIN {
   }
 
   sub load {
-    eval "use Test";
-    require 'testutil.pl' if $@;
+    require 'testutil.pl';
   }
 
-  if (52) {
+  if (no_plan) {
     load();
-    plan(tests => 52);
+    plan(tests => no_plan);
   }
 }
 
@@ -48,6 +51,9 @@ bootstrap Devel::PPPort;
 
 package main;
 
+# Note: Test::Harness from <= v5.8.0 cannot handle no_plan
+# plan => $^V =~ /c$/ && $] > 5.027 ? 55 : 52;
+
 ok(Devel::PPPort::compare_PL_signals());
 
 ok(!defined(&Devel::PPPort::PL_sv_undef()));
@@ -56,7 +62,7 @@ ok(!&Devel::PPPort::PL_sv_no());
 ok(&Devel::PPPort::PL_na("abcd"), 4);
 ok(&Devel::PPPort::PL_Sv(), "mhx");
 ok(defined &Devel::PPPort::PL_tokenbuf());
-ok("$]" >= 5.009005 || &Devel::PPPort::PL_parser());
+ok($] >= 5.009005 || &Devel::PPPort::PL_parser());
 ok(&Devel::PPPort::PL_hexdigit() =~ /^[0-9a-zA-Z]+$/);
 ok(defined &Devel::PPPort::PL_hints());
 ok(&Devel::PPPort::PL_ppaddr("mhx"), "MHX");
@@ -72,7 +78,7 @@ for (&Devel::PPPort::other_variables()) {
     local $SIG{'__WARN__'} = sub { push @w, @_ };
     ok(&Devel::PPPort::dummy_parser_warning());
   }
-  if ("$]" >= 5.009005) {
+  if ($] >= 5.009005) {
     ok(@w >= 0);
     for (@w) {
       print "# $_";
@@ -88,11 +94,11 @@ for (&Devel::PPPort::other_variables()) {
   ok($fail, 0);
 }
 
-ok(&Devel::PPPort::no_dummy_parser_vars(1) >= ("$]" < 5.009005 ? 1 : 0));
+ok(&Devel::PPPort::no_dummy_parser_vars(1) >= ($] < 5.009005 ? 1 : 0));
 
 eval { &Devel::PPPort::no_dummy_parser_vars(0) };
 
-if ("$]" < 5.009005) {
+if ($] < 5.009005) {
   ok($@, '');
 }
 else {
@@ -104,4 +110,6 @@ else {
     ok(1);
   }
 }
+
+done_testing();
 

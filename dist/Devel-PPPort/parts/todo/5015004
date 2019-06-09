@@ -1,8 +1,4 @@
 5.015004
-HvENAMELEN                     # U
-HvENAMEUTF8                    # U
-HvNAMELEN                      # U
-HvNAMEUTF8                     # U
 gv_autoload_pv                 # U
 gv_autoload_pvn                # U
 gv_autoload_sv                 # U

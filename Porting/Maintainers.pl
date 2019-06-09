@@ -503,14 +503,15 @@ use File::Glob qw(:case);
     },
 
     'Devel::PPPort' => {
-        'DISTRIBUTION' => 'RURBAN/Devel-PPPort-3.52_04.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Devel-PPPort-3.53_04.tar.gz',
         'FILES'        => q[dist/Devel-PPPort],
         'EXCLUDED'     => [
-            'PPPort.pm',    # we use PPPort_pm.PL instead
+          'PPPort.pm',    # we use PPPort_pm.PL instead
+          '.github/FUNDING.yml',
         ],
         # cperl fix to support make -s
         # 5.16 binary names https://github.com/rurban/Devel-PPPort/tree/cperl
-        # strict hashpairs support
+        # strict hashpairs support, ...
         #'CUSTOMIZED'   => [ qw( Makefile.PL
         #                       PPPort_pm.PL
 	#			PPPort_xs.PL
@@ -521,6 +522,7 @@ use File::Glob qw(:case);
 	#			parts/inc/gv
 	#			parts/inc/magic_defs
 	#			parts/inc/misc
+	#			parts/inc/variables
 	#			parts/todo/5013007
 	#			parts/todo/5015004
 	#			parts/inc/ppphbin

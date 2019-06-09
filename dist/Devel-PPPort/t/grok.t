@@ -13,7 +13,11 @@
 BEGIN {
   if ($ENV{'PERL_CORE'}) {
     chdir 't' if -d 't';
-    @INC = ('../lib', '../ext/Devel-PPPort/t') if -d '../lib' && -d '../ext';
+    if (-d '../lib' && -d '../dist/Devel-PPPort') {
+      @INC = ('../lib', '../dist/Devel-PPPort/t');
+    } elsif (-d '../../../lib' && -d '../../../dist/Devel-PPPort') {
+      @INC = ('../../../lib', '.');
+    }
     require Config; import Config;
     use vars '%Config';
     if (" $Config{'extensions'} " !~ m[ Devel/PPPort ]) {
@@ -26,8 +30,7 @@ BEGIN {
   }
 
   sub load {
-    eval "use Test";
-    require 'testutil.pl' if $@;
+    require 'testutil.pl';
   }
 
   if (10) {

@@ -13,7 +13,11 @@
 BEGIN {
   if ($ENV{'PERL_CORE'}) {
     chdir 't' if -d 't';
-    @INC = ('../lib', '../ext/Devel-PPPort/t') if -d '../lib' && -d '../ext';
+    if (-d '../lib' && -d '../dist/Devel-PPPort') {
+      @INC = ('../lib', '../dist/Devel-PPPort/t');
+    } elsif (-d '../../../lib' && -d '../../../dist/Devel-PPPort') {
+      @INC = ('../../../lib', '.');
+    }
     require Config; import Config;
     use vars '%Config';
     if (" $Config{'extensions'} " !~ m[ Devel/PPPort ]) {
@@ -26,8 +30,7 @@ BEGIN {
   }
 
   sub load {
-    eval "use Test";
-    require 'testutil.pl' if $@;
+    require 'testutil.pl';
   }
 
   if (238) {
@@ -420,10 +423,17 @@ ok($o =~ /^Scanning.*First\.xs/mi);
 ok($o =~ /Analyzing.*First\.xs/mi);
 ok($o =~ /^Scanning.*second\.h/mi);
 ok($o =~ /Analyzing.*second\.h/mi);
-ok($o =~ /^Scanning.*sub.*third\.c/mi);
-ok($o =~ /Analyzing.*sub.*third\.c/mi);
+if ($] < 5.006001) {
+  skip("skip Scanning.*sub.*third with perl $]");  #96
+  skip("skip Analyzing.*sub.*third with perl $]"); #97
+  skip("skip ^Scanning == 3");
+} else {
+  ok($o =~ /^Scanning.*sub.*third\.c/mi);
+  ok($o =~ /Analyzing.*sub.*third\.c/mi);
+  ok(matches($o, '^Scanning', 'm'), 3);
+}
 ok($o !~ /^Scanning.*foobar/mi);
-ok(matches($o, '^Scanning', 'm'), 3);
+# warn '# ',$o;
 
 ---------------------------- First.xs -----------------------------------------
 

@@ -451,7 +451,9 @@ expanded the documentation
 
 adjust Devel::Peek pod to cperl FLAGS
 
-=item L<Devel::PPPort> 3.52_04
+=item L<Devel::PPPort> 3.53_04
+
+* PL_in_sub only with v5.29.0c
 
 * Merge 3.52 with cperl improvements:
 
@@ -477,6 +479,11 @@ embed_lib)
 * Remove implemented TODOs
 
 * Fix for older EUMM <6.46 which has no META_MERGE
+
+* fix 5.6.0 tests with early Test::Harness: add done_testing, support
+plan => no_plan, fallback => NN for 5.6.0 (Test::Harness < 2), avoid
+Test.pm, skip git diff, as make regen is different there,
+skip 3 failing 5.6.0 tests in ppphtest
 
 =item L<Devel::NYTProf> 6.06_02
 

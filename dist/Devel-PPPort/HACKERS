@@ -232,6 +232,13 @@ instead of
   #  define macro    some definition
   #endif
 
+If you use this, you don't have to list C<"macro"> in the C<=provides> section.
+But that section must contain a single line
+
+  __UNDEFINED__
+
+which acts as a stand-in for all the macros defined through its use.
+
 The macro can have optional arguments and the definition can even
 span multiple lines, like in
 

@@ -48,9 +48,13 @@ sub generate_tests
     my $plan = 0;
 
     if (exists $spec->{tests}) {
-      exists $spec->{OPTIONS}{tests} &&
-      exists $spec->{OPTIONS}{tests}{plan}
-          or die "No plan for tests in $file\n";
+      if (!exists $spec->{OPTIONS}{tests} ||
+          !exists $spec->{OPTIONS}{tests}{plan}) {
+        $spec->{OPTIONS}{tests}{plan} = 'no_plan';
+      }
+      if ($spec->{OPTIONS}{tests}{plan} eq 'no_plan') {
+        $spec->{tests} .= "\ndone_testing();\n";
+      }
 
       print "generating $testfile\n" unless $SILENT;
 
@@ -59,7 +63,11 @@ sub generate_tests
       $tmpl =~ s/__PLAN__/$spec->{OPTIONS}{tests}{plan}/mg;
       $tmpl =~ s/^__TESTS__$/$spec->{tests}/mg;
 
-      open FH, ">$testfile" or die "$testfile: $!\n";
+      if ($] >= 5.006) {
+        open FH, ">", $testfile or die "$testfile: $!\n";
+      } else {
+        open FH, ">$testfile" or die "$testfile: $!\n";
+      }
       print FH $tmpl;
       close FH;
 
@@ -86,7 +94,11 @@ __DATA__
 BEGIN {
   if ($ENV{'PERL_CORE'}) {
     chdir 't' if -d 't';
-    @INC = ('../lib', '../ext/Devel-PPPort/t') if -d '../lib' && -d '../ext';
+    if (-d '../lib' && -d '../dist/Devel-PPPort') {
+      @INC = ('../lib', '../dist/Devel-PPPort/t');
+    } elsif (-d '../../../lib' && -d '../../../dist/Devel-PPPort') {
+      @INC = ('../../../lib', '.');
+    }
     require Config; import Config;
     use vars '%Config';
     if (" $Config{'extensions'} " !~ m[ Devel/PPPort ]) {
@@ -99,8 +111,7 @@ BEGIN {
   }
 
   sub load {
-    eval "use Test";
-    require 'testutil.pl' if $@;
+    require 'testutil.pl';
   }
 
   if (__PLAN__) {

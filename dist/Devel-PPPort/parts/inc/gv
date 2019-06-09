@@ -135,6 +135,13 @@ gv_fetchpvn_flags()
                 RETVAL
 
 SV*
+gv_fetchpvn()
+        CODE:
+                RETVAL = newRV_inc((SV*)gv_fetchpvn("Devel::PPPort::VERSION", sizeof("Devel::PPPort::VERSION")-1, 0, SVt_PV));
+         OUTPUT:
+                 RETVAL
+
+SV*
 gv_fetchsv(name)
         SV *name
         CODE:
@@ -159,7 +166,7 @@ gv_init_type(namesv, multi, flags)
         gv_init_pvn(gv, defstash, name, len, flags);
 	XPUSHs( gv ? (SV*)gv : &PL_sv_undef);
 
-=tests plan => 7
+=tests plan => 8
 
 ok(Devel::PPPort::GvSVn(), 1);
 
@@ -168,6 +175,8 @@ ok(Devel::PPPort::isGV_with_GP(), 2);
 ok(Devel::PPPort::get_cvn_flags(), 3);
 
 ok(Devel::PPPort::gv_fetchpvn_flags(), \*Devel::PPPort::VERSION);
+
+ok(Devel::PPPort::gv_fetchpvn(), \*Devel::PPPort::VERSION);
 
 ok(Devel::PPPort::gv_fetchsv("Devel::PPPort::VERSION"), \*Devel::PPPort::VERSION);
 
