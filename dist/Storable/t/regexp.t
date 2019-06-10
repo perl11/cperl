@@ -36,7 +36,7 @@ while (<DATA>) {
     }
 }
 
-plan tests => 9 + 3*scalar(@tests);
+plan tests => 10 + 3*scalar(@tests);
 
 SKIP:
 {
@@ -73,6 +73,8 @@ SKIP:
     use re 'eval';
     ok(!eval { dclone($re) }, "should fail to clone, even with use re 'eval'");
 }
+
+is(ref(dclone(bless qr//, "Foo")), "Foo", "check reblessed regexps");
 
 for my $test (@tests) {
     my ($code, $not, $match, $matchc, $name) = @$test;

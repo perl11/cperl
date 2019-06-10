@@ -6875,8 +6875,7 @@ static SV *retrieve_regexp(pTHX_ stcxt_t *cxt, const char *cname) {
     SV *sv;
     dSP;
     I32 count;
-
-    PERL_UNUSED_ARG(cname);
+    HV *stash;
 
     ENTER;
     SAVETMPS;
@@ -6924,6 +6923,8 @@ static SV *retrieve_regexp(pTHX_ stcxt_t *cxt, const char *cname) {
 
     sv = SvRV(re_ref);
     SvREFCNT_inc(sv);
+    stash = cname ? gv_stashpv(cname, GV_ADD) : 0;
+    SEEN_NN(sv, stash, 0);
     
     FREETMPS;
     LEAVE;
