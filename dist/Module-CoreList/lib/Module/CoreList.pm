@@ -18883,6 +18883,7 @@ our %delta :const = (
             'Time::HiRes'           => '1.9760_02',
             'Unicode::UCD'          => '0.72_03',
             'vars'                  => '1.05_01c',
+            'XS::Typemap'           => '0.17',
         },
         removed => {
             'arybase'               => 1,
