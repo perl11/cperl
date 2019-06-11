@@ -676,7 +676,7 @@ current locale was a UTF-8 locale.
 
 re-order and comment deprecated IDN constants.
 
-=item L<Storable> 3.14_04
+=item L<Storable> 3.15_04
 
 Fix and clarify handling of recurs_sv.
 L<[perl #133326]|https://rt.perl.org/Public/Bug/Display.html?id=133326>
@@ -688,6 +688,8 @@ L<[perl #133706]|https://rt.perl.org/Public/Bug/Display.html?id=133706>
 Keep Storable::Limit, in opposition to L<[perl #133708]|https://rt.perl.org/Public/Bug/Display.html?id=133708>.
 Not my idea, but removing it is even worse. The ticket goal is fine,
 but the implementation not.
+
+Fix cxt->pseen leak
 
 =item L<threads::shared>  1.60
 

@@ -1,3 +1,11 @@
+2019-05-05 rurban
+    Version 3.15_04
+        * Merge with 3.15 (cxt->pseen leak)
+
+2019-04-23 16:00:00 xsawyerx
+    Version 3.15
+        * Fix leaking.
+
 2019-04-16 rurban
     Version 3.14_04
         * (perl #133326) fix and clarify handling of recurs_sv (Tony Cook)
@@ -16,6 +24,11 @@ unreleased p5p
         * (perl #133411) don't probe for stack limits with -Dusecrosscompile
 
 2019-03-11 rurban
+    Version 3.12_04
+        * Fix stacksize probe, and remove Win32 spawn.
+          Wrong end condition check on failure.
+
+2019-03-12 rurban
     Version 3.12_04
         * Fix stacksize probe, and remove Win32 spawn.
           Wrong end condition check on failure.

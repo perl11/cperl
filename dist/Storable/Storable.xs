@@ -7836,12 +7836,12 @@ storable_free(pTHX_ SV *sv, MAGIC* mg) {
     stcxt_t *cxt = (stcxt_t *)SvPVX(sv);
 
     PERL_UNUSED_ARG(mg);
+    if (kbuf)
+        Safefree(kbuf);
 #ifdef USE_PTR_TABLE
     if (cxt->pseen)
         ptr_table_free(cxt->pseen);
 #endif
-    if (kbuf)
-        Safefree(kbuf);
     if (!cxt->membuf_ro && mbase)
         Safefree(mbase);
     if (cxt->membuf_ro && (cxt->msaved).arena)
