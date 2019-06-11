@@ -687,6 +687,8 @@ the strings?).
  Sawyer X  5.28.0       2018-Jun-22
  Steve     5.28.1-RC1   2018-Nov-08
  Steve     5.28.1       2018-Nov-29
+ Steve     5.28.2-RC1   2019-Apr-05
+ Steve     5.28.2       2019-Apr-19
 
  rurban    5.28.0c-RC1  2018-Sep-08     cperl 5.28
  rurban    5.28.0c      2018-Sep-10
@@ -699,9 +701,24 @@ the strings?).
  John      5.29.3       2019-Sep-20
  Aaron     5.29.4       2019-Oct-20
  Ether     5.29.5       2019-Nov-20
+ Abigail   5.29.6       2018-Dec-18
+ Abigail   5.29.7       2019-Jan-20
+ Nicolas R 5.29.8       2019-Feb-20
+ Zak Elep  5.29.9       2019-Mar-20
+ Sawyer X  5.29.10      2019-Apr-20
 
  rurban    5.29.0c      2018-Oct-14
  rurban    5.29.1c      2019-Mar-12
+ rurban    5.29.2c      2019-Jun-11
+
+ Sawyer X  5.30.0-RC1   2019-May-11     The 5.30 maintenance track
+ Sawyer X  5.30.0-RC2   2019-May-17
+ Sawyer X  5.30.0       2019-May-22
+
+ rurban    5.30.0c      2019-Jun-18     cperl 5.30
+
+ Sawyer X  5.31.0       2018-May-24     The 5.31 development track
+
 
 =head2 SELECTED RELEASE MEMORY USAGE
 
@@ -732,7 +749,7 @@ For B<perl -MConfig -Mstrict -Mwarnings -V:ccflags> (I<p0>):
 
   release       memory usage
   ==========================
-  5.6.2d	673653  (w/ DEBUGGING)
+  5.6.2d	445899
   5.8.4d	684487  (w/ DEBUGGING)
   5.8.5d	753069  (w/ DEBUGGING)
   5.8.8		666789
@@ -746,16 +763,16 @@ For B<perl -MConfig -Mstrict -Mwarnings -V:ccflags> (I<p0>):
   5.22.5c	601239
   5.24.3	831401
   5.24.3c	606383
-  5.26.2        834947
+  5.26.3        835942
   5.26.3c	608299
-  5.28.0	771315
-  5.28.0c	606807
+  5.28.2	772854
+  5.28.2c	580950
 
 With unicode: B<perl -C -E'use utf8; my $s="x≈x"; $s=~s/a≈e//i;'> (I<p1>):
 
   release       memory usage
   ==========================
-  5.6.2d	 787375  (w/ DEBUGGING)
+  5.6.2d	 471213
   5.8.4d	1225683  (w/ DEBUGGING)
   5.8.5d	1400612  (w/ DEBUGGING)
   5.8.8		1357073
@@ -769,10 +786,10 @@ With unicode: B<perl -C -E'use utf8; my $s="x≈x"; $s=~s/a≈e//i;'> (I<p1>):
   5.22.5c	2469870
   5.24.3	2485808
   5.24.3c	2487197
-  5.26.2	2601019
+  5.26.3	2601649
   5.26.3c	2661657
-  5.28.0	297044  (compiled mph hashes)
-  5.28.0c	228825
+  5.28.2	204951  (compiled mph hashes)
+  5.28.2c	229689
 
     valgrind --tool=massif --massif-out-file=massif.$r ...
     grep -h mem_heap_B= massif.$r |cut -c12-|sort -rn|head -n1

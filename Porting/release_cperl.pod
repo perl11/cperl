@@ -34,7 +34,7 @@ or:
         --version 5.29.2 \
         -m rurban@cpan.org \
         --url http://perl11.org/cperl/$t/ \
-        --deb-config Porting/debian --deb-changelog pod/perl5252cdelta.pod
+        --deb-config Porting/debian --deb-changelog pod/perl5292cdelta.pod
     done
 
 So far we have no upstream accepted C<cperl> packages yet, so we
@@ -47,8 +47,8 @@ automatically. You just need to edit the Draft and announcement there.
 
 =head2 makerel the src tarball
 
-Look into the F<Porting/release_manager_guide.pod> document how to make a normal
-C<.tar.gz> release.
+Look into the F<Porting/release_manager_guide.pod> document how to
+make a normal C<.tar.gz> release.
 
 In short: Start in a fresh dir, because we don't want to loose our
 internal test files.
@@ -100,7 +100,8 @@ create packages for debian/ubuntu/mint .deb, redhat/centos/fedora
 
     # on i386 and amd64 debian machines. needs the -1 suffix
     fpm -s dir -t deb -n cperl -v 5.29.2-1 -m 'rurban@cpan.org' \
-        -d 'zlib1g (>= 1:1.2.2.3)' -d libbz2-1.0 -d 'libgdbm3 (>= 1.8.3)' -d 'libdb-5.1' \
+        -d 'zlib1g (>= 1:1.2.2.3)' -d libbz2-1.0 -d 'libgdbm3 (>= 1.8.3)' \
+        -d 'libdb-5.1' \
         --url http://perl11.org/cperl/deb/ \
         --deb-changelog pod/perl5222cdelta.pod \
         -C ../cperl-5.29.2-inst .
@@ -127,16 +128,16 @@ create packages for debian/ubuntu/mint .deb, redhat/centos/fedora
         -C ../cperl-5.29.2-inst .
 
     # on i386 and amd64 windows machines
-    # done by tag and branch name by appveyor for MSVC12
-    # (users need the msvcrt120.dll),
+    # done by tag and branch name by appveyor for mingw
+    # (not MSVC12, as users need the msvcrt120.dll),
     # and (untested) for cygwin32 and cygwin64.
 
 =head2 prepare the repos on perl11.org
 
-You need write permissions to the F<perl11/perl11.github.com> repo on github,
-i.e. member of the F<perl11/mongers> group.
-Releases are just static files on the web somewhere, for .deb, .rpm and the others.
-We use our static L<http://perl11.org/cperl/> website on github for now.
+You need write permissions to the F<perl11/perl11.github.com> repo on
+github, i.e. member of the F<perl11/mongers> group.  Releases are just
+static files on the web somewhere, for .deb, .rpm and the others.  We
+use our static L<http://perl11.org/cperl/> website on github for now.
 
     cd ..
     git clone git@github.com:perl11/perl11.github.com.git
@@ -190,15 +191,17 @@ perl11.org/cperl/STATUS.html and the pods.
 From markdown and pod:
 
     ROOT=../perl11.github.com/cperl
-    
+
     #Markdown.pl Changes > $ROOT/Changes.html
     pod2html --podpath=pod pod/perlcperl.pod > $ROOT/index.html
     cdelta=`ls pod/perl5*cdelta.pod|sed 's,pod/perl,,; s,.pod$,,' `
-    for p in "" data cperl sub types obj cdelta delta call util guts hack $cdelta sec hist; do
+    for p in "" data cperl sub types obj cdelta delta call util \
+             guts hack $cdelta sec hist
+    do
         pod2html --podpath=pod pod/perl$p.pod > $ROOT/perl$p.html
     done
     Markdown.pl STATUS.md > $ROOT/STATUS.html
-    
+
     sed -i -e's,href="/pod/,href="/cperl/,' $ROOT/*.html
 
 =head2 publish the website

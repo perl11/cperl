@@ -459,8 +459,7 @@ pod/perl5280cdelta.pod	Verbatim line length including indents exceeds 79 by	4
 pod/perl5280cdelta.pod	alternative text. contains non-escaped | or /	1
 pod/perl5282cdelta.pod	Apparent broken link	1
 pod/perl5290cdelta.pod	Apparent broken link	3
-pod/perl5292cdelta.pod	Apparent broken link	4
-pod/perl5292cdelta.pod	Apparent internal link is missing its forward slash	3
+pod/perl5292cdelta.pod	Apparent broken link	2
 pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlapi.pod	? Should you be using L<...> instead of	1
 pod/perlapi.pod	Verbatim line length including indents exceeds 79 by	14
@@ -472,7 +471,7 @@ pod/perlcperl.pod	Apparent broken link	1
 pod/perlcperl.pod	Verbatim line length including indents exceeds 79 by	11
 pod/perldebguts.pod	Verbatim line length including indents exceeds 79 by	27
 pod/perldebtut.pod	Verbatim line length including indents exceeds 79 by	3
-pod/perldelta.pod	Apparent broken link	1
+pod/perldelta.pod	Apparent broken link	5
 pod/perldiag.pod	Apparent broken link	2
 pod/perldtrace.pod	Verbatim line length including indents exceeds 79 by	12
 pod/perlfunc.pod	Verbatim line length including indents exceeds 79 by	1
@@ -506,8 +505,7 @@ pod/perltypes.pod	Apparent broken link	3
 pod/perltypes.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlwin32.pod	Verbatim line length including indents exceeds 79 by	9
 porting/epigraphs.pod	Verbatim line length including indents exceeds 79 by	32
-porting/release_cperl.pod	Verbatim line length including indents exceeds 79 by	4
-porting/release_cperl.pod	line containing nothing but whitespace in paragraph	2
+porting/release_cperl.pod	Verbatim line length including indents exceeds 79 by	3
 porting/release_managers_guide.pod	Verbatim line length including indents exceeds 79 by	1
 porting/todo.pod	? Should you be using F<...> or maybe L<...> instead of	1
 lib/attributes.pm	Verbatim line length including indents exceeds 79 by	3
