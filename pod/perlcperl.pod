@@ -649,13 +649,14 @@ Use cache-friendly open addressing, not simple, slow and DOS'able
 
 Seperate the keys from the values to fit the search into a cache line.
 
-Provide a special C<:const> hash table type to enable optimizations to
-perfect hashes. With C<study %hash> you can do the similar costly
-optimizations on non-const hashes at run-time to allow faster key access.
-
 Added support for restricted hashes, esp. stashes which we needed for our
 class implementation, to detect wrong fields at compile-time already.
 restricted hashes are not properly supported in perl5.
+
+Later we will provide a special C<:const> hash table type to enable
+optimizations to perfect hashes. With C<study %hash> you can do the
+similar costly optimizations on non-const hashes at run-time to allow
+faster key access.
 
 =head2 Compile-time attribute hooks
 
@@ -1075,6 +1076,41 @@ the core testsuite.
 See L<https://github.com/perl11/p5-coretests> for a generally improved
 testsuite for perl5, cperl and B::C.
 
+=head2 libffi in core
+
+Declare extern functions and libraries and call them. There's no need
+for XS and seperate compilation for most bindings. Not everybody has a
+compiler, the very same compiler perl was compiled with.
+libffi is the slowest ffi library, but has the best platform support, as it is
+integrated with gcc for java jni support.
+
+   extern sub atoi(str $s) :int;
+   extern sub itoa(int $s) :str;
+   extern sub printf(str $s, ...);
+
+Note that this deviates from perl6 synatx with C<is native>, but perl6
+uses the C<is> traits for all function attributes, which we do not.
+And we prefer the more natural C-like syntax over the more obscure perl6 syntax.
+
+The alternative syntax to C<extern sub> is via the C<:native> sub
+attribute, which does allow options, as in C<sub atoi(str $s) :int
+:native($libc);>.
+
+Later with a jit in core we would not need the external F<libffi> dependency.
+
+=head2 unicode folding tables as XS extension
+
+They should be compiled as shared library, with all keys as readonly
+perfect hash or as trie.  Some internal variables are not accessible
+anymore, the API is via the documented functions.  The trie lookup
+should not be implemented vi pure-perl (80x slower) and use esp. the
+memory in a readonly shared library for huge space savings (2M).
+
+Maybe seperate them into a light folding table and heavy names and
+properties.
+
+This was done by p5p with 5.30 eventually.
+
 =head1 Plans for further core features
 
 =head2 Lexical methods
@@ -1113,42 +1149,9 @@ caller depth right from pure perl vs XS, and most extended hooks
 Note that XS calls usually do not get counted in caller, unless you
 use the SCOPE keyword.
 
-=head3 unicode folding tables as XS extension
-
-They should be compiled as shared library, with all keys as readonly
-perfect hash or as trie.  Some internal variables are not accessible
-anymore, the API is via the documented functions.  The trie lookup
-should not be implemented vi pure-perl (80x slower) and use esp. the
-memory in a readonly shared library for huge space savings (2M).
-
-Maybe seperate them into a light folding table and heavy names and
-properties.
-
 =head2 Remove Attribute::Handler from core
 
 This evals all attributes at compile-time. Discourage its usage.
-
-=head2 libffi in core
-
-Declare extern functions and libraries and call them. There's no need
-for XS and seperate compilation for most bindings. Not everybody has a
-compiler, the very same compiler perl was compiled with.
-libffi is the slowest ffi library, but has the best platform support, as it is
-integrated with gcc for java jni support.
-
-   extern sub atoi(str $s) :int;
-   extern sub itoa(int $s) :str;
-   extern sub printf(str $s, ...);
-
-Note that this deviates from perl6 synatx with C<is native>, but perl6
-uses the C<is> traits for all function attributes, which we do not.
-And we prefer the more natural C-like syntax over the more obscure perl6 syntax.
-
-The alternative syntax to C<extern sub> is via the C<:native> sub
-attribute, which does allow options, as in C<sub atoi(str $s) :int
-:native($libc);>.
-
-Later with a jit in core we would not need the external F<libffi> dependency.
 
 =head1 Longer term goals
 

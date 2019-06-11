@@ -159,7 +159,7 @@ valid scripts disallows unicode confusables from different language
 families, which might looks the same but are not. This does not affect
 strings, only names, literals and numbers.
 
-The unicode standard 9.0 defines 137 scripts, i.e. written language
+The unicode standard 12.1 defines 152 scripts, i.e. written language
 families.
 
     perl -alne'/; (\w+) #/ && print $1' lib/unicore/Scripts.txt | \
@@ -169,22 +169,25 @@ Adlam Ahom Anatolian_Hieroglyphs Arabic Armenian Avestan Balinese
 Bamum Bassa_Vah Batak Bengali Bhaiksuki Bopomofo Brahmi Braille
 Buginese Buhid Canadian_Aboriginal Carian Caucasian_Albanian Chakma
 Cham Cherokee Common Coptic Cuneiform Cypriot Cyrillic Deseret
-Devanagari Duployan Egyptian_Hieroglyphs Elbasan Ethiopic Georgian
-Glagolitic Gothic Grantha Greek Gujarati Gurmukhi Han Hangul Hanunoo
-Hatran Hebrew Hiragana Imperial_Aramaic Inherited
-Inscriptional_Pahlavi Inscriptional_Parthian Javanese Kaithi Kannada
-Katakana Kayah_Li Kharoshthi Khmer Khojki Khudawadi Lao Latin Lepcha
-Limbu Linear_A Linear_B Lisu Lycian Lydian Mahajani Malayalam Mandaic
-Manichaean Marchen Meetei_Mayek Mende_Kikakui Meroitic_Cursive
-Meroitic_Hieroglyphs Miao Modi Mongolian Mro Multani Myanmar Nabataean
-New_Tai_Lue Newa Nko Ogham Ol_Chiki Old_Hungarian Old_Italic
-Old_North_Arabian Old_Permic Old_Persian Old_South_Arabian Old_Turkic
-Oriya Osage Osmanya Pahawh_Hmong Palmyrene Pau_Cin_Hau Phags_Pa
-Phoenician Psalter_Pahlavi Rejang Runic Samaritan Saurashtra Sharada
-Shavian Siddham SignWriting Sinhala Sora_Sompeng Sundanese
-Syloti_Nagri Syriac Tagalog Tagbanwa Tai_Le Tai_Tham Tai_Viet Takri
-Tamil Tangut Telugu Thaana Thai Tibetan Tifinagh Tirhuta Ugaritic Vai
-Warang_Citi Yi
+Devanagari Dogra Duployan Egyptian_Hieroglyphs Elbasan Elymaic
+Ethiopic Georgian Glagolitic Gothic Grantha Greek Gujarati
+Gunjala_Gondi Gurmukhi Han Hangul Hanifi_Rohingya Hanunoo Hatran
+Hebrew Hiragana Imperial_Aramaic Inherited Inscriptional_Pahlavi
+Inscriptional_Parthian Javanese Kaithi Kannada Katakana Kayah_Li
+Kharoshthi Khmer Khojki Khudawadi Lao Latin Lepcha Limbu Linear_A
+Linear_B Lisu Lycian Lydian Mahajani Makasar Malayalam Mandaic
+Manichaean Marchen Masaram_Gondi Medefaidrin Meetei_Mayek
+Mende_Kikakui Meroitic_Cursive Meroitic_Hieroglyphs Miao Modi
+Mongolian Mro Multani Myanmar Nabataean Nandinagari Newa New_Tai_Lue
+Nko Nushu Nyiakeng_Puachue_Hmong Ogham Ol_Chiki Old_Hungarian
+Old_Italic Old_North_Arabian Old_Permic Old_Persian Old_Sogdian
+Old_South_Arabian Old_Turkic Oriya Osage Osmanya Pahawh_Hmong
+Palmyrene Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Rejang Runic
+Samaritan Saurashtra Sharada Shavian Siddham SignWriting Sinhala
+Sogdian Sora_Sompeng Soyombo Sundanese Syloti_Nagri Syriac Tagalog
+Tagbanwa Tai_Le Tai_Tham Tai_Viet Takri Tamil Tangut Telugu Thaana
+Thai Tibetan Tifinagh Tirhuta Ugaritic Vai Wancho Warang_Citi Yi
+Zanabazar_Square
 
 Note that this matches the UCD and is a bit different to the old-style
 casing of L<Unicode::UCD/charscript()> in previous versions of
@@ -214,26 +217,35 @@ Latin + Han + Bopomofo; or equivalently: Latn + Hanb
 Latin + Han + Hangul; or equivalently: Latn + Kore
 
 Allow Latin with other Recommended or Aspirational scripts except
-Cyrillic and Greek.
+Cyrillic and Greek. Cyrillic and Greek may not be used together for
+identifiers in the same file.
 
 So these scripts need always to be declared:
 
-Cyrillic Greek Ahom Anatolian_Hieroglyphs Avestan Balinese Bamum
-Bassa_Vah Batak Brahmi Braille Buginese Buhid Carian
-Caucasian_Albanian Chakma Cham Cherokee Common Coptic Cuneiform
-Cypriot Deseret Duployan Egyptian_Hieroglyphs Elbasan Glagolitic
-Gothic Grantha Hanunoo Hatran Imperial_Aramaic Inherited
-Inscriptional_Pahlavi Inscriptional_Parthian Javanese Kaithi Kayah_Li
-Kharoshthi Khojki Khudawadi Lepcha Limbu Linear_A Linear_B Lisu Lycian
-Lydian Mahajani Mandaic Manichaean Meetei_Mayek Mende_Kikakui
-Meroitic_Cursive Meroitic_Hieroglyphs Modi Mro Multani Nabataean
-New_Tai_Lue Nko Ogham Ol_Chiki Old_Hungarian Old_Italic
-Old_North_Arabian Old_Permic Old_Persian Old_South_Arabian Old_Turkic
-Osmanya Pahawh_Hmong Palmyrene Pau_Cin_Hau Phags_Pa Phoenician
-Psalter_Pahlavi Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Rejang
-Runic Samaritan Saurashtra Sharada Shavian Siddham SignWriting
-Sora_Sompeng Sundanese Syloti_Nagri Syriac Tagalog Tagbanwa Tai_Le
-Tai_Tham Tai_Viet Takri Tirhuta Ugaritic Vai Warang_Citi
+Cyrillic Greek Ahom Anatolian_Hieroglyphs Avestan Bassa_Vah Bhaiksuki
+Brahmi Buginese Buhid Carian Caucasian_Albanian Coptic Cuneiform
+Cypriot Deseret Dogra Duployan Egyptian_Hieroglyphs Elbasan Elymaic
+Glagolitic Gothic Grantha Gunjala_Gondi Hanunoo Hatran
+Imperial_Aramaic Inscriptional_Pahlavi Inscriptional_Parthian Kaithi
+Kharoshthi Khojki Khudawadi Linear_A Linear_B Lycian Lydian Mahajani
+Makasar Manichaean Marchen Masaram_Gondi Medefaidrin Mende_Kikakui
+Meroitic_Cursive Meroitic_Hieroglyphs Modi Mongolian Mro Multani
+Nabataean Nandinagari Nushu Ogham Old_Hungarian Old_Italic
+Old_North_Arabian Old_Permic Old_Persian Old_Sogdian
+Old_South_Arabian Old_Turkic Osmanya Pahawh_Hmong Palmyrene
+Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Rejang Runic
+Samaritan Sharada Shavian Siddham SignWriting Sogdian Sora_Sompeng
+Soyombo Tagalog Tagbanwa Takri Tangut Tirhuta Ugaritic Warang_Citi
+Zanabazar_Square
+
+All Limited Use Scripts are disallowed since 5.30.
+See L<http://www.unicode.org/reports/tr31/#Table_Limited_Use_Scripts>.
+
+Adlam Balinese Bamum Batak Canadian_Aboriginal Chakma Cham Cherokee
+Hanifi_Rohingya Javanese Kayah_Li Lepcha Limbu Lisu Mandaic
+Meetei_Mayek Miao New_Tai_Lue Newa Nko Nyiakeng_Puachue_Hmong Ol_Chiki
+Osage Saurashtra Sundanese Syloti_Nagri Syriac Tai_Le Tai_Tham
+Tai_Viet Tifinagh Vai Wancho Yi Katakana_Or_Hiragana Unknown
 
 =head2 Utility functions
 
