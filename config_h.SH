@@ -5460,7 +5460,7 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 /* USE_NAMED_ANONCV:
  *	This symbol, if defined, indicates that Perl is compiled with usenamedanoncv,
  *      using name@ instead of __ANON__.
- *      It is the default since cperl-5.29.2.
+ *      It is the default since cperl-5.30.0.
  */
 #ifndef USE_NAMED_ANONCV
 #$usenamedanoncv	USE_NAMED_ANONCV		/**/

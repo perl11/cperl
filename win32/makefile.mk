@@ -7,9 +7,9 @@
 #	Windows SDK 64-bit compiler and tools
 #
 # This is set up to build a perl.exe that runs off a shared library
-# (cperl529.dll).  Also makes individual DLLs for the XS extensions.
+# (cperl530.dll).  Also makes individual DLLs for the XS extensions.
 #
-PV = 529
+PV = 530
 
 ##
 ## Make sure you read README.win32 *before* you mess with anything here!
@@ -51,7 +51,7 @@ USE_CPERL	*= define
 # versioned installation can be obtained by setting INST_TOP above to a
 # path that includes an arbitrary version string.
 #
-#INST_VER	*= \5.29.2
+#INST_VER	*= \5.30.0
 
 #
 # Comment this out if you DON'T want your perl installation to have
@@ -229,7 +229,7 @@ DEFAULT_INC_EXCLUDES_DOT *= define
 # set this to additionally provide a statically linked perl-static.exe.
 # Note that dynamic loading will not work with this perl, so you must
 # include required modules statically using the STATIC_EXT or ALL_STATIC
-# variables below. A static library cperl529s.lib will also be created.
+# variables below. A static library cperl530s.lib will also be created.
 # Ordinary perl.exe is not affected by this option.
 #
 #BUILD_STATIC	*= define

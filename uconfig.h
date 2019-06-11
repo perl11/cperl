@@ -816,8 +816,8 @@
  *	This symbol contains the ~name expanded version of ARCHLIB, to be used
  *	in programs that are not prepared to deal with ~ expansion at run-time.
  */
-/*#define ARCHLIB "/usr/local/lib/perl5/5.29/unknown"		/ **/
-/*#define ARCHLIB_EXP "/usr/local/lib/perl5/5.29/unknown"		/ **/
+/*#define ARCHLIB "/usr/local/lib/perl5/5.30/unknown"		/ **/
+/*#define ARCHLIB_EXP "/usr/local/lib/perl5/5.30/unknown"		/ **/
 
 /* ARCHNAME:
  *	This symbol holds a string representing the architecture name.
@@ -2969,8 +2969,8 @@
  *	This symbol contains the ~name expanded version of PRIVLIB, to be used
  *	in programs that are not prepared to deal with ~ expansion at run-time.
  */
-#define PRIVLIB "/usr/local/lib/perl5/5.29"		/**/
-#define PRIVLIB_EXP "/usr/local/lib/perl5/5.29"		/**/
+#define PRIVLIB "/usr/local/lib/perl5/5.30"		/**/
+#define PRIVLIB_EXP "/usr/local/lib/perl5/5.30"		/**/
 
 /* PTRSIZE:
  *	This symbol contains the size of a pointer, so that the C preprocessor
@@ -3095,8 +3095,8 @@
  *	This symbol contains the ~name expanded version of SITEARCH, to be used
  *	in programs that are not prepared to deal with ~ expansion at run-time.
  */
-/*#define SITEARCH "/usr/local/lib/perl5/5.29/unknown"		/ **/
-/*#define SITEARCH_EXP "/usr/local/lib/perl5/5.29/unknown"		/ **/
+/*#define SITEARCH "/usr/local/lib/perl5/5.30/unknown"		/ **/
+/*#define SITEARCH_EXP "/usr/local/lib/perl5/5.30/unknown"		/ **/
 
 /* SITELIB:
  *	This symbol contains the name of the private library for this package.
@@ -3118,8 +3118,8 @@
  *	removed.  The elements in inc_version_list (inc_version_list.U) can
  *	be tacked onto this variable to generate a list of directories to search.
  */
-#define SITELIB "/usr/local/lib/perl5/5.29"		/**/
-#define SITELIB_EXP "/usr/local/lib/perl5/5.29"		/**/
+#define SITELIB "/usr/local/lib/perl5/5.30"		/**/
+#define SITELIB_EXP "/usr/local/lib/perl5/5.30"		/**/
 #define SITELIB_STEM "/usr/local/lib/perl5"		/**/
 
 /* Size_t_size:
@@ -5415,7 +5415,7 @@
 /* USE_NAMED_ANONCV:
  *	This symbol, if defined, indicates that Perl is compiled with usenamedanoncv,
  *      using name@ instead of __ANON__.
- *      It is the default since cperl-5.29.2.
+ *      It is the default since cperl-5.30.0.
  */
 #ifndef USE_NAMED_ANONCV
 #define	USE_NAMED_ANONCV		/**/

@@ -18889,6 +18889,14 @@ our %delta :const = (
             'arybase'               => 1,
         }
     },
+    '5.030002c' => {
+        delta_from => '5.029001c',
+        changed => {
+            'B::Op_private'         => '5.030000',
+            'Module::CoreList'      => '5.20190611c',
+            'Module::CoreList::Utils'=> '5.20190611c',
+            'Storable'              => '3.15_04',
+    },
 );
 
 sub is_core
