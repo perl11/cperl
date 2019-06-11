@@ -13,7 +13,7 @@ BEGIN {
   $ENV{PERL_JSON_BACKEND} = 'JSON::PP';
 }
 use Time::Piece;
-plan $] < 5.008 ? (skip_all => "5.6 no AMG yet") : (tests => 17);
+plan $] < 5.008 ? (skip_all => "5.6 no AMG yet") : (tests => 18);
 use JSON ();
 use Cpanel::JSON::XS;
 
@@ -75,4 +75,11 @@ is( $pp->encode  ( {false => \!!""} ),   '{"false":null}' );
 is( $json->encode( {false => \"some"} ), '{"false":"some"}' );
 is( $json->encode( {false => \""} ),     '{"false":null}' );
 is( $json->encode( {false => \!!""} ),   '{"false":null}' );
+
+# GH #124 missing refcnt on stringify result
+package BoolTestOk;
+use overload '""' => sub {"1"};
+package main;
+my $data = {nick => bless({}, 'BoolTestOk')};
+is( $json->convert_blessed->allow_blessed->encode($data), '{"nick":"1"}' );
 

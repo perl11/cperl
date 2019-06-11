@@ -17,7 +17,8 @@ use File::Glob qw(:case);
 
 @IGNORABLE = qw(
     .cvsignore .dualLivedDiffConfig .gitignore .perlcriticrc
-    .perltidyrc .travis.yml appveyor.yml .cirrus.yml
+    .perltidyrc .travis.yml appveyor.yml .appveyor.yml .cirrus.yml
+    .gitlab-ci.yml .github/FUNDING.yml .github/CONTRIBUTING.md .whitesource
     ANNOUNCE Announce Artistic AUTHORS BENCHMARK BUGS Build.PL
     CHANGELOG ChangeLog Changelog CHANGES Changes CONTRIBUTING
     CONTRIBUTING.md CONTRIBUTING.mkdn COPYING Copying cpanfile CREDITS
@@ -203,7 +204,6 @@ use File::Glob qw(:case);
                 TESTS
                 Todo
                 .gitignore
-                .travis.yml
 		regen_lib.pl
 		status_upd
 		store_rpt
@@ -432,11 +432,10 @@ use File::Glob qw(:case);
     },
 
     'Cpanel::JSON::XS' => {
-        'DISTRIBUTION' => 'RURBAN/Cpanel-JSON-XS-4.09.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Cpanel-JSON-XS-4.12.tar.gz',
         'FILES'        => q[cpan/Cpanel-JSON-XS],
         'EXCLUDED'     => [
             '.appveyor.yml',
-            '.travis.yml',
             'ppport.h',
             'eg/bench',
             't/appveyor-test.bat',
@@ -481,7 +480,6 @@ use File::Glob qw(:case);
                 .gitignore
                 .indent.pro
                 .perltidyrc
-                .travis.yml
                 ppport.h
                 META.json
                 META.yml
@@ -758,7 +756,6 @@ use File::Glob qw(:case);
             qr{^tee/},
             qr{^t/z_},
             qw( .appveyor.yml
-                .travis.yml
                 Call/Makefile.PL
                 Call/ppport.h
                 Call/typemap
@@ -1299,7 +1296,7 @@ use File::Glob qw(:case);
         'DISTRIBUTION' => 'RURBAN/Storable-3.14_04.tar.gz',
         'FILES'        => q[dist/Storable],
         'EXCLUDED'     => [
-            qw( ptr_table.h t/leaks_refcnt.t .travis.yml appveyor.yml ),
+            qw( ptr_table.h t/leaks_refcnt.t ),
         ]
     },
 

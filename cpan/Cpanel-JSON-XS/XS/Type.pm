@@ -83,6 +83,10 @@ does not work reliable for dual vars and scalars which were used in
 both numeric and string operations. See L<simple
 scalars|Cpanel::JSON::XS/simple scalars>.
 
+To enforce that specification is always provided use C<require_types>.
+In this case when C<encode> is called without second argument (or is
+undef) then it croaks. It applies recursively for all sub-structures.
+
 =head2 JSON type specification for scalars:
 
 =over 4

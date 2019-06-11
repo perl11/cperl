@@ -439,6 +439,39 @@ Add the FREEBSD_KERNEL_VERSION key for FreeBSD.
 
 Whitespace only
 
+=item L<Cpanel::JSON::XS> 4.12
+
+Make encoder independent on Math::BigInt version
+
+Rethrow error from eval_sv and eval_pv(),
+e.g. when Math::BigInt/BigFloat fails.
+
+Fix encoding Inf and NaN from PV and NV slots to JSON_TYPE_INT
+
+Fix memory corruption in sv_to_ivuv() function
+
+Add new method ->require_types
+
+Fix typed json encoder conversion from scalar's PV and NV slot to
+JSON_TYPE_INT
+
+Fix inconsistency with warnings in typed json encoder
+
+Fix Perl 5.8.0 support
+
+Fixed minor pod typo
+
+Document invalid recursive callbacks or overloads
+
+Fix unicode strings with BOM corrupt ->utf8 state
+The BOM encoding effects only its very own decode call,
+not its object.
+
+Fix incr_text refcounts and add incr_rest testcase
+
+Fix encode_stringify string-overload refcnt problem
+"Attempt to free unreferenced scalar" with convert_blessed and overload.
+
 =item L<Data::Dumper> 2.173
 
 no changes

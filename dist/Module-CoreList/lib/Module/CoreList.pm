@@ -18821,6 +18821,7 @@ our %delta :const = (
             'B::CC'                 => '1.16_03',
             'B::Deparse'            => '1.49_05c',
             'bytes'                 => '1.07',
+            'Cpanel::JSON::XS'      => '4.12',
             'Cwd'                   => '4.78c',
             'Data::Dumper'          => '2.173',
             'deprecate'             => '0.04_01',

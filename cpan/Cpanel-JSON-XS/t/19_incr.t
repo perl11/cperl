@@ -2,7 +2,7 @@
 
 use strict;
 no warnings;
-use Test::More $] < 5.008 ? (tests => 39) : (tests => 697);
+use Test::More $] < 5.008 ? (tests => 39) : (tests => 702);
 
 use Cpanel::JSON::XS;
 
@@ -95,4 +95,18 @@ exit if $] < 5.008;
    is_deeply (eval { $coder->incr_parse("[42]") }, [42], "valid data after incr_skip");
 }
 
-
+# GH 123
+{
+   my $text = '[1][5]';
+   my $coder = new Cpanel::JSON::XS;
+   $coder->incr_parse ($text);
+   $coder->incr_text;
+   is ($@, '', 'incr_text allowed after incr_parse init');
+   ok (eval { $coder->incr_parse }, "incr_parse2");
+   # here incr_text might be at incr_pos 3 or chopped
+   $coder->incr_reset;
+   $coder->incr_text;
+   is ($@, '', 'incr_text is allowed after incr_reset');
+   is (encode_json($coder->incr_parse($text)), '[1]', "incr_parse1");
+   is (encode_json($coder->incr_parse), '[5]', "incr_parse2");
+}

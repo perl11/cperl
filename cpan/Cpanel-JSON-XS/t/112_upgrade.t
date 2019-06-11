@@ -18,7 +18,7 @@ my $value = $json->decode( '"\\u00c8"' );
 is( $value, chr 0xc8 );
 
 SKIP: {
-    skip "UNICODE handling is disabled.", 1 unless $JSON::can_handle_UTF16_and_utf8;
+    skip "UNICODE handling is disabled.", 1 unless $] >= 5.008001 and $JSON::can_handle_UTF16_and_utf8;
     ok( utf8::is_utf8( $value ) );
 }
 

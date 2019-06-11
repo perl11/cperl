@@ -46,11 +46,14 @@ is( $cjson->encode( [ $true, $false] ),
 
 # GH #39
 # perl block which returns sv_no or sv_yes
-is( $nonref_cjson->encode( do{(my $a=0)==1} ), "false", "map do{(my \$a)=0)==1} to false");
-is( $nonref_cjson->encode( do{(my $a=0)==1} ), "false", "map do{(my \$a)=0)==1} to false");
-is( $nonref_cjson->encode( do{(my $a=1)==1} ), "true", "map do{(my \$a)=1)==1} to true");
-is( $nonref_cjson->encode( do{(my $a=1)==1} ), "true", "map do{(my \$a)=1)==1} to true");
+SKIP: {
+  skip "Devel::Cover #92", 4 if $INC{'Devel/Cover.pm'};
 
+  is( $nonref_cjson->encode( do{(my $a=0)==1} ), "false", "map do{(my \$a)=0)==1} to false");
+  is( $nonref_cjson->encode( do{(my $a=0)==1} ), "false", "map do{(my \$a)=0)==1} to false");
+  is( $nonref_cjson->encode( do{(my $a=1)==1} ), "true", "map do{(my \$a)=1)==1} to true");
+  is( $nonref_cjson->encode( do{(my $a=1)==1} ), "true", "map do{(my \$a)=1)==1} to true");
+}
 # GH #39
 # XS function UNIVERSAL::isa returns sv_no or sv_yes
 is( $nonref_cjson->encode( UNIVERSAL::isa('0', '1') ), "false", "map UNIVERSAL::isa('0', '1') to false");
@@ -61,7 +64,10 @@ is( $nonref_cjson->encode( UNIVERSAL::isa('UNIVERSAL', 'UNIVERSAL') ), "true", "
 # GH #39
 # XS function utf8::is_utf8 returns sv_no or sv_yes
 SKIP: {
-  skip 'Perl 5.8 is needed for boolean tests based on utf8::upgrade()+utf8::is_utf8()', 4 if $] < 5.008;
+  skip 'Perl 5.8.1 is needed for boolean tests based on utf8::upgrade()+utf8::is_utf8()', 4
+    if $] < 5.008001;
+  skip "Devel::Cover #92", 4 if $INC{'Devel/Cover.pm'};
+
   is( $nonref_cjson->encode( do{utf8::is_utf8(my $a)} ), "false", "map do{utf8::is_utf8(my \$a)} to false");
   is( $nonref_cjson->encode( do{utf8::is_utf8(my $a)} ), "false", "map do{utf8::is_utf8(my \$a)} to false");
   my $utf8 = '';

@@ -1236,6 +1236,7 @@ cpan/Cpanel-JSON-XS/t/115_tie_ixhash.t
 cpan/Cpanel-JSON-XS/t/116_incr_parse_fixed.t
 cpan/Cpanel-JSON-XS/t/117_numbers.t
 cpan/Cpanel-JSON-XS/t/118_type.t
+cpan/Cpanel-JSON-XS/t/119_type_decode.t
 cpan/Cpanel-JSON-XS/t/11_pc_expo.t
 cpan/Cpanel-JSON-XS/t/12_blessed.t
 cpan/Cpanel-JSON-XS/t/13_limit.t
