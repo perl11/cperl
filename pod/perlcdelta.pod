@@ -168,6 +168,7 @@ we didn't handle them at all.
 I<Table 4. Candidate Characters for Exclusion from Identifiers> scripts
 are still allowed, and still need to be explicitly enabled as a C<use utf8>
 argument.
+cperl-only.
 
 =head1 Incompatible Changes
 

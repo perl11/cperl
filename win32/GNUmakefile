@@ -1926,7 +1926,7 @@ distclean: realclean
 	-if exist $(LIBDIR)\YAML rmdir /s /q $(LIBDIR)\YAML
 	-if exist $(LIBDIR)\YAML\XS rmdir /s /q $(LIBDIR)\YAML\XS
 	-cd $(PODDIR) && del /f *.html *.bat roffitall \
-	    perl5251cdelta.pod perl5240delta.pod perlaix.pod perlamiga.pod \
+	    perl5292cdelta.pod perl5300delta.pod perlaix.pod perlamiga.pod \
 	    perlandroid.pod perlapi.pod perlbs2000.pod perlce.pod \
 	    perlcn.pod perlcygwin.pod perldos.pod perlfreebsd.pod \
 	    perlhaiku.pod perlhpux.pod perlhurd.pod perlintern.pod \
@@ -1936,6 +1936,8 @@ distclean: realclean
 	    perlqnx.pod perlriscos.pod perlsolaris.pod perlsymbian.pod \
 	    perlsynology.pod perltoc.pod perltru64.pod perltw.pod \
 	    perluniprops.pod perlvos.pod perlwin32.pod
+	-cd ..\utils && del /f h2ph splain perlbug pl2pm h2xs \
+	    perldoc perlivp libnetcfg enc2xs encguess piconv cpan *.bat \
 	    xsubpp pod2html instmodsh json_pp prove ptar ptardiff ptargrep shasum corelist zipdetails
 	-del /f ..\config.sh perlmain.c dlutils.c config.h.new \
 	    perlmainst.c
