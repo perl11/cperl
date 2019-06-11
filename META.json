@@ -129,7 +129,7 @@
          "vxs.inc"
       ]
    },
-   "release_status" : "unstable",
+   "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
          "web" : "http://github.com/perl11/cperl/issues"
@@ -142,6 +142,6 @@
          "url" : "http://github.com/perl11/cperl/"
       }
    },
-   "version" : "5.029002c",
+   "version" : "5.030000c",
    "x_serialization_backend" : "Cpanel::JSON::XS version 4.12"
 }
