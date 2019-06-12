@@ -14446,6 +14446,7 @@ Perl_ck_readline(pTHX_ OP *o)
               (kid = OpSIBLING(OpFIRST(kid))) &&
               OpSIBLING(kid) ) /* e.g. readline(1,2) */
               too_many_arguments_pv(o, OP_NAME(o), 0);
+         scalar(kid);
          return o; /* ck_fun(o); fails a few tests */
     }
     else {
