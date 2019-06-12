@@ -681,9 +681,13 @@ plan => no_plan, fallback => NN for 5.6.0 (Test::Harness < 2), avoid
 Test.pm, skip git diff, as make regen is different there,
 skip 3 failing 5.6.0 tests in ppphtest
 
-=item L<Devel::NYTProf> 6.06_02
+=item L<Devel::NYTProf> 6.06_03
 
-simplify pp_subcall_profiler op_type check.
+CVE-2019-11358 + CVE-2015-9251 jquery-1.12.4.js update to
+latest v3.4.1.
+
+Also update the two plugins to latest,
+and adjusted the tablesorter css.
 
 =item L<DynaLoader> 2.09c
 
