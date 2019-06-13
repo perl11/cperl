@@ -727,7 +727,7 @@ releases, non-threaded. (I<m0>)
 
   release       memory usage
   ==========================
-  5.6.2 	 60405
+  5.6.2 	 67947
   5.8.5	         77991
   5.8.9		107468
   5.10.1	114810
@@ -744,6 +744,8 @@ releases, non-threaded. (I<m0>)
   5.26.3c       134819
   5.28.0	163441
   5.28.0c       158761
+  5.30.0        164678
+  5.30.0c       164681
 
 For B<perl -MConfig -Mstrict -Mwarnings -V:ccflags> (I<p0>):
 
@@ -767,6 +769,8 @@ For B<perl -MConfig -Mstrict -Mwarnings -V:ccflags> (I<p0>):
   5.26.3c	608299
   5.28.2	772854
   5.28.2c	580950
+  5.30.0        777908
+  5.30.0c       590372
 
 With unicode: B<perl -C -E'use utf8; my $s="x≈x"; $s=~s/a≈e//i;'> (I<p1>):
 
@@ -790,6 +794,8 @@ With unicode: B<perl -C -E'use utf8; my $s="x≈x"; $s=~s/a≈e//i;'> (I<p1>):
   5.26.3c	2661657
   5.28.2	204951  (compiled mph hashes)
   5.28.2c	229689
+  5.30.0        206130
+  5.30.0c       230087
 
     valgrind --tool=massif --massif-out-file=massif.$r ...
     grep -h mem_heap_B= massif.$r |cut -c12-|sort -rn|head -n1
@@ -878,8 +884,10 @@ explained below.
  5.24.0         7922 113   1287  77  19535 2677   9994 2465   5702 177
  5.26.0         9140 121  24925 1200 40643 3017  10514 2614   7854 211
  5.28.0        13056 128  27267 1230 41745 3130  10952 2715   8185 218
+ 5.30.0        13534 128  26294 1237 39642 3080  11082 2711   8249 222
  5.26.0c        9650 119   1305  79  22011 2950   4237  640   5952 196
  5.28.0c        4048 122   1374  83  20991 2952  11086 2734   6698 199
+ 5.30.0c       14591 122   1416  86  21232 3032  11237 2809   6922 210
 
 The "core"..."doc" mean the following files from the Perl source code
 distribution.  The glob notation ** means recursively, (.) means
@@ -1206,23 +1214,45 @@ the Perl source distribution for somewhat more selected releases.
 
  ======================================================================
 
-                  5.26.0         5.28.0c
+                  5.26.0           5.28.0          5.30.0
 
- Configure    593      1       599      1
- Cross        122     15       118     15
- djgpp         21      7        17      7
- h2pl          24     15        12     15
- hints        376     87       355     85
- NetWare      499     61       462     61
- os2          552     70       509     70
- plan9        322     17       304     17
- Porting     1380     73      1490     85
- qnx            5      4         1      4
- symbian      315     54       292     54
- utils        578     50       242     26
- vms          527     12       523     12
- vos           12      7         8      7
- win32       1313     65      1316     64
+ Configure    593      1       580      1      587      1
+ Cross        122     15       125     15      126     15
+ djgpp         21      7        21      7       21      7
+ h2pl          24     15        24     15       24     15
+ hints        376     87       364     85      372     86
+ mad            -      -         -      -        -      -
+ NetWare      499     61       493     61      493     61
+ os2          552     70       552     70      552     70
+ plan9        322     17       309     17      308     17
+ Porting     1380     73      1462     75     1460     74
+ qnx            5      4         5      4        5      4
+ symbian      315     54       315     54      315     54
+ utils        578     50       584     50      587     50
+ vms          527     12       526     12      559     13
+ vos           12      7        12      7       12      7
+ win32       1313     65      1326     65     1520     69
+ x2p            -      -         -      -        -      -
+
+                  5.26.0c         5.28.0c         5.30.0c
+
+ Configure    593      1       599      1      613      1
+ Cross        122     15       118     15      119     15
+ djgpp         21      7        17      7       17      7
+ h2pl          24     15        12     15       12     15
+ haiku                                           4      6
+ hints        376     87       355     85      361     86
+ NetWare      499     61       462     61      462     61
+ os2          552     70       509     70      509     70
+ plan9        322     17       304     17      304     17
+ Porting     1380     73      1490     85     1571     86
+ qnx            5      4         1      4        1      4
+ symbian      315     54       292     54      292     54
+ utils        578     50       242     26      242     27
+ vms          527     12       523     12      556     13
+ vos           12      7         8      7        8      7
+ win32       1313     65      1316     64     1580     70
+ x2p            -      -         -      -        -      -
 
 =head2 SELECTED PATCH SIZES
 
