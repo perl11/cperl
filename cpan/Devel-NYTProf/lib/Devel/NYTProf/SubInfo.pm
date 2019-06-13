@@ -184,11 +184,10 @@ sub _alter_called_by_fileinfo {
             # merge $cb into $new_cb
             while ( my ($line, $cb_li) = each %$cb ) {
                 my $dst_line_info = $new_cb->{$line} ||= [];
-                _merge_in_caller_info($dst_line_info, delete $cb->{$line},
+                _merge_in_caller_info($dst_line_info, $cb->{$line},
                     tag => "$line:".$self->subname,
                 );
             }
-
         }
     }
 

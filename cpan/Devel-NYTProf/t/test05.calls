@@ -1,0 +1,12 @@
+main::foo1 1
+main::foo1;main::CORE:print 1
+main::foo1;main::bar 1
+main::foo1;main::bar;main::CORE:print 1
+main::foo1;main::bar;main::yeppers 1
+main::foo1;main::bar;main::yeppers;main::CORE:print 1
+main::foo2 1
+main::foo2;main::CORE:print 1
+main::foo2;main::bar 1
+main::foo2;main::bar;main::CORE:print 1
+main::foo2;main::bar;main::yeppers 1
+main::foo2;main::bar;main::yeppers;main::CORE:print 1

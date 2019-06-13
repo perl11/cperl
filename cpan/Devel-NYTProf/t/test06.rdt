@@ -1,0 +1,101 @@
+attribute	application	test06.p
+attribute	basetime	0
+attribute	clock_id	0
+attribute	complete	1
+attribute	nv_size	0
+attribute	perl_version	0
+attribute	profiler_active	0
+attribute	profiler_duration	0
+attribute	profiler_end_time	0
+attribute	profiler_start_time	0
+attribute	ticks_per_sec	0
+attribute	total_stmts_discounted	0
+attribute	total_stmts_duration	0
+attribute	total_stmts_measured	0
+attribute	total_sub_calls	0
+attribute	xs_version	0
+fid_block_time	1	4	[ 0 1 ]
+fid_block_time	1	6	[ 0 410 ]
+fid_block_time	1	10	[ 0 2 ]
+fid_block_time	1	12	[ 0 20 ]
+fid_block_time	1	14	[ 0 100 ]
+fid_block_time	1	20	[ 0 3 ]
+fid_block_time	1	23	[ 0 20 ]
+fid_block_time	1	25	[ 0 100 ]
+fid_block_time	1	31	[ 0 3 ]
+fid_block_time	1	33	[ 0 20 ]
+fid_block_time	1	35	[ 0 200 ]
+fid_block_time	1	42	[ 0 1 ]
+fid_block_time	1	43	[ 0 1 ]
+fid_block_time	1	44	[ 0 1 ]
+fid_fileinfo	1	[ test06.p   1 2 0 0 ]
+fid_fileinfo	1	sub	main::BEGIN	0-0
+fid_fileinfo	1	sub	main::CORE:print	0-0
+fid_fileinfo	1	sub	main::RUNTIME	1-1
+fid_fileinfo	1	sub	main::bar	19-28
+fid_fileinfo	1	sub	main::baz	30-40
+fid_fileinfo	1	sub	main::foo	9-17
+fid_fileinfo	1	sub	main::noop	5-7
+fid_fileinfo	1	call	10	main::CORE:print	[ 1 0 0 0 0 0 0 main::foo ]
+fid_fileinfo	1	call	12	main::noop	[ 10 0 0 0 0 0 0 main::foo ]
+fid_fileinfo	1	call	14	main::noop	[ 100 0 0 0 0 0 0 main::foo ]
+fid_fileinfo	1	call	20	main::CORE:print	[ 1 0 0 0 0 0 0 main::bar ]
+fid_fileinfo	1	call	25	main::noop	[ 100 0 0 0 0 0 0 main::bar ]
+fid_fileinfo	1	call	31	main::CORE:print	[ 1 0 0 0 0 0 0 main::baz ]
+fid_fileinfo	1	call	36	main::noop	[ 100 0 0 0 0 0 0 main::baz ]
+fid_fileinfo	1	call	37	main::noop	[ 100 0 0 0 0 0 0 main::baz ]
+fid_fileinfo	1	call	42	main::foo	[ 1 0 0 0 0 0 0 main::RUNTIME ]
+fid_fileinfo	1	call	43	main::bar	[ 1 0 0 0 0 0 0 main::RUNTIME ]
+fid_fileinfo	1	call	44	main::baz	[ 1 0 0 0 0 0 0 main::RUNTIME ]
+fid_line_time	1	4	[ 0 1 ]
+fid_line_time	1	6	[ 0 410 ]
+fid_line_time	1	10	[ 0 1 ]
+fid_line_time	1	11	[ 0 1 ]
+fid_line_time	1	12	[ 0 10 ]
+fid_line_time	1	13	[ 0 10 ]
+fid_line_time	1	14	[ 0 100 ]
+fid_line_time	1	20	[ 0 1 ]
+fid_line_time	1	21	[ 0 1 ]
+fid_line_time	1	22	[ 0 1 ]
+fid_line_time	1	23	[ 0 10 ]
+fid_line_time	1	24	[ 0 10 ]
+fid_line_time	1	25	[ 0 100 ]
+fid_line_time	1	31	[ 0 1 ]
+fid_line_time	1	32	[ 0 1 ]
+fid_line_time	1	33	[ 0 1 ]
+fid_line_time	1	34	[ 0 10 ]
+fid_line_time	1	35	[ 0 10 ]
+fid_line_time	1	36	[ 0 100 ]
+fid_line_time	1	37	[ 0 100 ]
+fid_line_time	1	42	[ 0 1 ]
+fid_line_time	1	43	[ 0 1 ]
+fid_line_time	1	44	[ 0 1 ]
+fid_sub_time	1	4	[ 0 1 ]
+fid_sub_time	1	6	[ 0 410 ]
+fid_sub_time	1	10	[ 0 122 ]
+fid_sub_time	1	20	[ 0 123 ]
+fid_sub_time	1	31	[ 0 223 ]
+fid_sub_time	1	42	[ 0 1 ]
+fid_sub_time	1	43	[ 0 1 ]
+fid_sub_time	1	44	[ 0 1 ]
+profile_modes	fid_block_time	block
+profile_modes	fid_line_time	line
+profile_modes	fid_sub_time	sub
+sub_subinfo	main::BEGIN	[ 1:0-0 calls 0 times 0 0 0 0 ]
+sub_subinfo	main::CORE:print	[ 1:0-0 calls 3 times 0 0 0 0 ]
+sub_subinfo	main::CORE:print	called_by	1:10	[ 1 0 0 0 0 0 0 main::foo ]
+sub_subinfo	main::CORE:print	called_by	1:20	[ 1 0 0 0 0 0 0 main::bar ]
+sub_subinfo	main::CORE:print	called_by	1:31	[ 1 0 0 0 0 0 0 main::baz ]
+sub_subinfo	main::RUNTIME	[ 1:1-1 calls 0 times 0 0 0 0 ]
+sub_subinfo	main::bar	[ 1:19-28 calls 1 times 0 0 0 0 ]
+sub_subinfo	main::bar	called_by	1:43	[ 1 0 0 0 0 0 0 main::RUNTIME ]
+sub_subinfo	main::baz	[ 1:30-40 calls 1 times 0 0 0 0 ]
+sub_subinfo	main::baz	called_by	1:44	[ 1 0 0 0 0 0 0 main::RUNTIME ]
+sub_subinfo	main::foo	[ 1:9-17 calls 1 times 0 0 0 0 ]
+sub_subinfo	main::foo	called_by	1:42	[ 1 0 0 0 0 0 0 main::RUNTIME ]
+sub_subinfo	main::noop	[ 1:5-7 calls 410 times 0 0 0 0 ]
+sub_subinfo	main::noop	called_by	1:12	[ 10 0 0 0 0 0 0 main::foo ]
+sub_subinfo	main::noop	called_by	1:14	[ 100 0 0 0 0 0 0 main::foo ]
+sub_subinfo	main::noop	called_by	1:25	[ 100 0 0 0 0 0 0 main::bar ]
+sub_subinfo	main::noop	called_by	1:36	[ 100 0 0 0 0 0 0 main::baz ]
+sub_subinfo	main::noop	called_by	1:37	[ 100 0 0 0 0 0 0 main::baz ]

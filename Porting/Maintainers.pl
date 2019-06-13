@@ -471,8 +471,7 @@ use File::Glob qw(:case);
         'DISTRIBUTION' => 'RURBAN/Devel-NYTProf-6.06_03.tar.gz',
         'FILES'        => q[cpan/Devel-NYTProf],
         'EXCLUDED'     => [
-            qr{^t/[79].*\.t},
-            qr{^t/test([0-7]|80)},
+            qr{^t/7[01].*\.t},
             qr{^xt/},
             qr{^demo/},
             qw( Changes
@@ -486,8 +485,6 @@ use File::Glob qw(:case);
                 ppport.h
                 META.json
                 META.yml
-                t/42-global.t
-                t/68-hashline.t
                 )
         ],
         # cperl fixes for PERL_CORE

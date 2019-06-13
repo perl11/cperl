@@ -437,6 +437,10 @@ sub filename_without_inc {
     strip_prefix_from_paths([$self->profile->inc], $f,
         qr/(?: ^ | \[ | \sdefined\sat\s )/x
     );
+    #if ($f->[0] =~ /^\//) {
+    #  warn "filename_without_inc: $f->[0], " .
+    #       "INC=", join(":", $self->profile->inc);
+    #}
     return $f->[0];
 }
 

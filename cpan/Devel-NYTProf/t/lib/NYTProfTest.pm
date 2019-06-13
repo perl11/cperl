@@ -10,7 +10,6 @@ use Getopt::Long;
 use Test::More 0.82; #note
 use Data::Dumper;
 use File::Spec;
-use File::Temp qw(tempfile);
 use List::Util qw(shuffle);
 
 use base qw(Exporter);
@@ -22,7 +21,7 @@ our @EXPORT = qw(
 
 use Devel::NYTProf::Data;
 use Devel::NYTProf::Reader;
-use Devel::NYTProf::Util qw(strip_prefix_from_paths html_safe_filename);
+use Devel::NYTProf::Util qw(html_safe_filename);
 use Devel::NYTProf::Run qw(perl_command_words);
 
 my $diff_opts = ($Config{osname} eq 'MSWin32') ? '-c' : '-u';
@@ -76,7 +75,7 @@ unshift @INC, File::Spec->rel2abs('./t') if -d 't';
 chdir('t') if -d 't';
 
 if ($ENV{PERL_CORE}) {
-    @INC = ('../../../lib/auto', '../../../lib', 'lib');
+    @INC = ('../../../lib/auto', '../../../lib', '.', 'lib');
 } elsif (-d '../blib') {
     unshift @INC, '../blib/arch', '../blib/lib';
 }

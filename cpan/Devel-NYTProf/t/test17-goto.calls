@@ -1,0 +1,6 @@
+main::origin 1
+main::origin;main::other 1
+main::destination 1
+main::destination;main::other 1
+main::foo 1
+main::foo;main::bar 1

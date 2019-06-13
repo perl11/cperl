@@ -1,0 +1,75 @@
+attribute	application	test17-goto.p
+attribute	basetime	0
+attribute	clock_id	0
+attribute	complete	1
+attribute	nv_size	0
+attribute	perl_version	0
+attribute	profiler_active	0
+attribute	profiler_duration	0
+attribute	profiler_end_time	0
+attribute	profiler_start_time	0
+attribute	ticks_per_sec	0
+attribute	total_stmts_discounted	0
+attribute	total_stmts_duration	0
+attribute	total_stmts_measured	0
+attribute	total_sub_calls	0
+attribute	xs_version	0
+fid_block_time	1	5	[ 0 1 ]
+fid_block_time	1	7	[ 0 1 ]
+fid_block_time	1	9	[ 0 2 ]
+fid_block_time	1	14	[ 0 2 ]
+fid_block_time	1	19	[ 0 1 ]
+fid_block_time	1	22	[ 0 1 ]
+fid_block_time	1	27	[ 0 1 ]
+fid_block_time	1	31	[ 0 2 ]
+fid_block_time	1	35	[ 0 1 ]
+fid_fileinfo	1	[ test17-goto.p   1 2 0 0 ]
+fid_fileinfo	1	sub	main::BEGIN	0-0
+fid_fileinfo	1	sub	main::RUNTIME	1-1
+fid_fileinfo	1	sub	main::bar	26-28
+fid_fileinfo	1	sub	main::destination	18-20
+fid_fileinfo	1	sub	main::foo	30-33
+fid_fileinfo	1	sub	main::origin	13-16
+fid_fileinfo	1	sub	main::other	9-9
+fid_fileinfo	1	call	14	main::other	[ 1 0 0 0 0 0 0 main::origin ]
+fid_fileinfo	1	call	15	main::destination	[ 1 0 0 0 0 0 0 main::RUNTIME ]
+fid_fileinfo	1	call	19	main::other	[ 1 0 0 0 0 0 0 main::destination ]
+fid_fileinfo	1	call	22	main::origin	[ 1 0 0 0 0 0 0 main::RUNTIME ]
+fid_fileinfo	1	call	31	main::bar	[ 1 0 0 0 0 0 0 main::foo ]
+fid_fileinfo	1	call	35	main::foo	[ 1 0 0 0 0 0 0 main::RUNTIME ]
+fid_line_time	1	5	[ 0 1 ]
+fid_line_time	1	7	[ 0 1 ]
+fid_line_time	1	9	[ 0 2 ]
+fid_line_time	1	14	[ 0 1 ]
+fid_line_time	1	15	[ 0 1 ]
+fid_line_time	1	19	[ 0 1 ]
+fid_line_time	1	22	[ 0 1 ]
+fid_line_time	1	27	[ 0 1 ]
+fid_line_time	1	31	[ 0 1 ]
+fid_line_time	1	32	[ 0 1 ]
+fid_line_time	1	35	[ 0 1 ]
+fid_sub_time	1	5	[ 0 1 ]
+fid_sub_time	1	7	[ 0 1 ]
+fid_sub_time	1	9	[ 0 2 ]
+fid_sub_time	1	14	[ 0 2 ]
+fid_sub_time	1	19	[ 0 1 ]
+fid_sub_time	1	22	[ 0 1 ]
+fid_sub_time	1	27	[ 0 1 ]
+fid_sub_time	1	31	[ 0 2 ]
+fid_sub_time	1	35	[ 0 1 ]
+profile_modes	fid_block_time	block
+profile_modes	fid_line_time	line
+profile_modes	fid_sub_time	sub
+sub_subinfo	main::BEGIN	[ 1:0-0 calls 0 times 0 0 0 0 ]
+sub_subinfo	main::RUNTIME	[ 1:1-1 calls 0 times 0 0 0 0 ]
+sub_subinfo	main::bar	[ 1:26-28 calls 1 times 0 0 0 0 ]
+sub_subinfo	main::bar	called_by	1:31	[ 1 0 0 0 0 0 0 main::foo ]
+sub_subinfo	main::destination	[ 1:18-20 calls 1 times 0 0 0 0 ]
+sub_subinfo	main::destination	called_by	1:15	[ 1 0 0 0 0 0 0 main::RUNTIME ]
+sub_subinfo	main::foo	[ 1:30-33 calls 1 times 0 0 0 0 ]
+sub_subinfo	main::foo	called_by	1:35	[ 1 0 0 0 0 0 0 main::RUNTIME ]
+sub_subinfo	main::origin	[ 1:13-16 calls 1 times 0 0 0 0 ]
+sub_subinfo	main::origin	called_by	1:22	[ 1 0 0 0 0 0 0 main::RUNTIME ]
+sub_subinfo	main::other	[ 1:9-9 calls 2 times 0 0 0 0 ]
+sub_subinfo	main::other	called_by	1:14	[ 1 0 0 0 0 0 0 main::origin ]
+sub_subinfo	main::other	called_by	1:19	[ 1 0 0 0 0 0 0 main::destination ]
