@@ -495,8 +495,8 @@ mro__nextcan(...)
     const char *subname = NULL;
     bool subname_utf8 = 0;
     STRLEN stashname_len;
-    STRLEN subname_len;
-    SV* sv;
+    STRLEN subname_len = 0;
+    SV* sv = NULL;
     GV** gvp;
     AV* linear_av;
     SV** linear_svp;
@@ -526,7 +526,7 @@ mro__nextcan(...)
         cxix = __dopoptosub_at(ccstack, cxix);
         for (;;) {
 	    GV* cvgv;
-	    STRLEN fq_subname_len;
+	    STRLEN fq_subname_len = 0;
 
             /* we may be in a higher stacklevel, so dig down deeper */
             while (cxix < 0) {

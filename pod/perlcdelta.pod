@@ -809,6 +809,10 @@ reference to the corresponding C<from_(bin|hex|oct|bytes)> method.
 
 No code nor test changes.
 
+=item L<mro> 1.22_02
+
+Fix -Wmaybe-uninitialized warnings
+
 =item L<NDBM_File> 1.15
 
 Add SECURITY AND PORTABILITY warning paragraph to pod.

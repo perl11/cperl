@@ -12,7 +12,7 @@ use warnings;
 
 # mro.pm versions < 1.00 reserved for MRO::Compat
 #  for partial back-compat to 5.[68].x
-our $VERSION = '1.22_01';
+our $VERSION = '1.22_02';
 our $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 

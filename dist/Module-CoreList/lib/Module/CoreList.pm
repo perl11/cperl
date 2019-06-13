@@ -18913,6 +18913,7 @@ our %delta :const = (
             'File::Spec::VMS'       => '3.78',
             'File::Spec::Win32'     => '4.78c',
             'JSON::PP'              => '4.02_01',
+            'mro'                   => '1.22_02',
             'POSIX'                 => '1.87_03',
             'PerlIO::encoding'      => '0.27_01',
             'Storable'              => '3.15_04',
