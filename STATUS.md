@@ -1,6 +1,6 @@
 # cperl status
 
-[![Build Status](https://travis-ci.org/perl11/cperl.svg?branch=master)](https://travis-ci.org/perl11/cperl) [![Coverity Status](https://scan.coverity.com/projects/6933/badge.svg)](https://scan.coverity.com/projects/perl11-cperl) [perl11.org/cperl/STATUS.html](perl11.org/cperl/STATUS.html) [![Donate](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/rurban/donate) [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/perl11/cperl.svg)](http://isitmaintained.com/project/perl11/cperl "Average time to resolve an issue") [![Percentage of issues still open](http://isitmaintained.com/badge/open/perl11/cperl.svg)](http://isitmaintained.com/project/perl11/cperl "Percentage of issues still open")
+[![Build Status](https://travis-ci.org/perl11/cperl.svg?branch=master)](https://travis-ci.org/perl11/cperl) [![Coverity Status](https://scan.coverity.com/projects/6933/badge.svg)](https://scan.coverity.com/projects/perl11-cperl) [perl11.org/cperl/STATUS.html](perl11.org/cperl/STATUS.html) [Sponsor](https://github.com/users/rurban/sponsorship) [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/perl11/cperl.svg)](http://isitmaintained.com/project/perl11/cperl "Average time to resolve an issue") [![Percentage of issues still open](http://isitmaintained.com/badge/open/perl11/cperl.svg)](http://isitmaintained.com/project/perl11/cperl "Percentage of issues still open")
 
 The name **cperl** stands for **a perl with classes, types, compiler
 support, continuation of perl5 development** or just a **company-friendly
@@ -38,13 +38,10 @@ The BSD's and Solaris are only tested before a release.
 
 The current stable releases are
 
+* [5.30.0c](https://github.com/perl11/cperl/releases/tag/cperl-5.30.0) - [perl5300cdelta](perl5300cdelta.html).
 * [5.28.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.28.2) - [perl5282cdelta](perl5282cdelta.html).
 * [5.26.5c](https://github.com/perl11/cperl/releases/tag/cperl-5.26.5) - [perl5265cdelta](perl5265cdelta.html).
   
-the latest development release:
-
-* [5.29.1c](https://github.com/perl11/cperl/releases/tag/cperl-5.29.1) - [perl5291cdelta](perl5291cdelta.html).
-
 We also have:
 
 * [5.24.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.4) - [perl5244cdelta](perl5244cdelta.html),
@@ -56,8 +53,8 @@ Some fixes in my [rurban/distroprefs](https://github.com/rurban/distroprefs/) re
 v5.24.0c, v5.24.1c and v5.24.3c have
 [about 24 fixes](perldelta.html#Known-Problems-fixed-elsewhere),
 for problems which are not fixed in perl-5.24.1.  Ditto with 5.26,
-cperl-5.22.4c has about 20 fixes which are not in the latest
-perl-5.22.3. Similar numbers for v5.29.1c, as p5p is still actively 
+cperl-5.22.4c had about 20 fixes which were not in perl-5.22.3.
+Similar numbers for v5.30.0c, as p5p is continuously
 adding more API, security and performance problems than fixing.
 Since cperl development is about 10x faster than p5p
 development, and damage done within p5p increases, these numbers do
@@ -69,7 +66,7 @@ increase over time.
 
 ![Memory usage with unicode s///i](cperl-p1.png)
 
-![Benchmarks](cperl-bench28.png)
+[![Benchmarks](cperl-bench30.png)](bench-all/index.html)
 For all versions see [bench-all/](bench-all/index.html)
 
 # In the latest stable releases are the following major features:
@@ -151,6 +148,7 @@ For all versions see [bench-all/](bench-all/index.html)
 * hash slice consistency, no autovivification as sub args
 * no perl4 `'` package seperator, `'` was illegal with 5.26c, and later not
   expanded to `::` anymore
+* warn when hash keys are changed during iteration, use hashiter;
 * Less m/{}/ Unescaped left brace in regex is deprecated here warnings
 * keep utf8 flag for method names
 * ffi - a builtin foreign function interface
@@ -253,8 +251,8 @@ Patches are needed for `Module::Build`, `IO::Socket::SSL` and `Net::SSLeay`.
 * Readonly use base @ISA (*since 5.26.0c*)
 * %hash = map under [use strict](/blog/strict-hashpairs.html) (hashpairs since 5.27.0)
 * subroutine names with `'` where illegal with 5.26c.
-* Incomplete OO: role composition, native classes, eval, mop. inlining not yet fully
-  implemented.
+* Incomplete OO: role composition, native classes, eval, mop. inlining
+  not yet fully implemented.
 
 Breakage is much less than with a typical major perl5 release, and the
 patches for most common CPAN modules are provided in
@@ -376,6 +374,11 @@ are limited. So they are based on master.
   
   much faster and much less memory, but 3 minor scope tests fails.
 
+* [feature/gh21-exact_arith_num](https://github.com/perl11/cperl/issues/21)
+  
+  [code](http://github.com/perl11/cperl/commits/feature/gh21-exact_arith_num)
+
+
 * [feature/gh6-no-miniperl](https://github.com/perl11/cperl/issues/6)
   
   [code](http://github.com/perl11/cperl/commits/feature/gh6-no-miniperl)
@@ -415,6 +418,18 @@ are limited. So they are based on master.
 and various [hash tables refactorings](https://github.com/perl11/cperl/issues/24).
 See below.
 
+* [feature/gh205-Test2](https://github.com/perl11/cperl/issues/205)
+  
+  [code](http://github.com/perl11/cperl/commits/feature/gh205-Test2)
+  
+* [feature/gh21-locale-hints](https://github.com/perl11/cperl/issues/21)
+  
+  [code](http://github.com/perl11/cperl/commits/feature/gh21-locale-hints)
+  
+* feature/iassign - iassign superop
+  
+  [code](http://github.com/perl11/cperl/commits/feature/iassign)
+  
 ## A bit more work is needed for
 
 These are major new features, and have no chance to be merged upstream.
@@ -433,6 +448,12 @@ They also revert some wrong decisions p5p already made.
   [code](http://github.com/perl11/cperl/commits/feature/gh23-inline-subs)
 
   some compiler fixes needed.
+
+* feature/unroll-loops
+
+  [code](http://github.com/perl11/cperl/commits/feature/unroll-loops)
+  
+  depends on feature/gh23-inline-subs
 
 * [feature/CM-712-cperl-types-proto](http://github.com/perl11/cperl/commits/feature/CM-712-cperl-types-proto)
 
@@ -458,8 +479,16 @@ They also revert some wrong decisions p5p already made.
 
 * [builtin macros](https://github.com/perl11/cperl/issues/261)
 
-* linear symbol table (not nested stashes) and optree linearization.
+* [feature/gh274-lazyparse](https://github.com/perl11/cperl/issues/274)
+
+* [feature/gh333-oplines](https://github.com/perl11/cperl/issues/333)
+
+* [linear symbol table](https://github.com/perl11/cperl/issues/127) (not nested stashes)
+  [feature/gh127-gvflat](http://github.com/perl11/cperl/commits/feature/gh127-gvflat)
+
+* optree linearization
+  [feature/oplinear](http://github.com/perl11/cperl/commits/feature/oplinear)
 
 --
 
-2019-03-12 rurban
+2019-06-18 rurban
