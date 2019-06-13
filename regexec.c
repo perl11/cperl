@@ -2097,10 +2097,10 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
     /* TRUE if x+ need not match at just the 1st pos of run of x's */
     const I32 doevery = (prog->intflags & PREGf_SKIP) == 0;
 
-    char *pat_string;   /* The pattern's exactish string */
+    char *pat_string;       /* The pattern's exactish string */
     char *pat_end;	    /* ptr to end char of pat_string */
-    re_fold_t folder;	/* Function for computing non-utf8 folds */
-    const U8 *fold_array;   /* array for folding ords < 256 */
+    re_fold_t folder;	    /* Function for computing non-utf8 folds */
+    const U8 *fold_array = PL_fold; /* array for folding ords < 256 */
     STRLEN ln;
     STRLEN lnc;
     U8 c1;
@@ -6445,6 +6445,10 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
 	    fold_utf8_flags = 0;
 
 	  do_exactf:
+            if (UNLIKELY(!fold_array))
+                fold_array = PL_fold;
+            if (UNLIKELY(!folder))
+                folder = foldEQ;
 	    s = STRING(scan);
 	    ln = STR_LEN(scan);
 

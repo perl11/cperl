@@ -1963,7 +1963,7 @@ PERL_STATIC_INLINE OP*
 S_padhv_rv2hv_common(pTHX_ HV *hv, U8 gimme, bool is_keys, bool has_targ)
 {
     dSP;
-    MAGIC *mg;
+    MAGIC *mg = NULL;
     SV *sv;
     IV  i;
     bool is_tied;

@@ -1660,7 +1660,7 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
 
             *len = name_cursor - *name;
             if (name_cursor > nambeg) { /* Skip for initial :: or ' */
-                const char *key;
+                const char *key = NULL;
                 GV**gvp;
                 if (*name_cursor == ':') {
                     key = *name;
