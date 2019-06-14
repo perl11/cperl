@@ -12,7 +12,7 @@ comment: "isn't 5.28c"
 match:
   distribution: "Test-utf8-1\.01"
   perlconfig:
-    version: "^5\.2[789]"
+    version: "^5\.(2[789]|3)"
     usecperl: "define"
 patches:
   - "RURBAN/patches/Test-utf8-1.01-cperl528.patch"

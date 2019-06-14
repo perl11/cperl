@@ -11,7 +11,7 @@ patches:
 comment: "cperl patches: _code_is_mine"
 match:
   perlconfig:
-    version: "^5\.2[456789]"
+    version: "^5\.(2[456789]|3)"
     usecperl: "define"
   distribution: "Moose-2\.201.*"
 patches:
@@ -22,7 +22,7 @@ patches:
 comment: "cperl patches: strict hashpairs"
 match:
   perlconfig:
-    version: "^5\.2[789]"
+    version: "^5\.(2[789]|3)"
     usecperl: "define"
   distribution: "Moose-2\.20"
 patches:

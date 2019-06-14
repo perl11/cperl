@@ -3,7 +3,7 @@ comment: "use base readonly ISA"
 match:
   distribution: "Dancer-1\.32"
   perlconfig:
-    version: "^5\.2[678]"
+    version: "^5\.(2[6789]|3)"
     usecperl: "define"
 patches:
   - "RURBAN/patches/Dancer-526c.patch"

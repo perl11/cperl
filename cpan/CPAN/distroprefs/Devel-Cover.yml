@@ -7,7 +7,7 @@ patches:
 match:
   distribution: "Devel-Cover-1.30"
   perlconfig:
-    version: "^5\.2[789]"
+    version: "^5\.(2[789]|3)"
     usecperl: "define"
 patches:
   - "RURBAN/patches/Devel-Cover-1.30-cperl527.patch"

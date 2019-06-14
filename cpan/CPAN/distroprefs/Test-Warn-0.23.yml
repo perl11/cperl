@@ -1,5 +1,6 @@
 ---
 match:
-  distribution: "Test-Warn-0.23"
+  # todo: 0.36
+  distribution: "Test-Warn-0\.23"
 patches:
   - "RURBAN/patches/Test-Warn-0.23.patch"

@@ -5,5 +5,5 @@ match:
   perlconfig:
     version: "^5\.2(5\.3|[6789]\.\d)"
     usecperl: "define"
-patches:
-  - "RURBAN/patches/CPAN-SQLite-c3.patch"
+#patches:
+#  - "RURBAN/patches/CPAN-SQLite-c3.patch"

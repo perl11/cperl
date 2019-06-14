@@ -12,7 +12,7 @@ comment: "cperl strict hashpairs"
 match:
   distribution: "DBI-1\.6"
   perlconfig:
-    version: "^5\.2[789]"
+    version: "^5\.(2[789]|3)"
     usecperl: "define"
 patches:
   - "RURBAN/patches/DBI-1.636-527c.patch"

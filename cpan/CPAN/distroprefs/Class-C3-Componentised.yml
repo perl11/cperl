@@ -3,7 +3,7 @@ comment: "protected @ISA [cpan #120529]"
 match:
   distribution: "Class-C3-Componentised-1\.001"
   perlconfig:
-    version: "^5\.2[678]"
+    version: "^5\.(2[6789]|3)"
     usecperl: "define"
 patches:
   - "RURBAN/patches/Class-C3-Componentised-cperl526.patch"
