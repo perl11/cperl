@@ -371,6 +371,7 @@ our %released :const = (
     5.029009 => '2019-03-20',
     5.028002 => '2019-04-19',
     5.029010 => '2019-04-20',
+    5.030000 => '2019-05-22',
     '5.029002c' => '2019-06-11',
     '5.030000c' => '2019-06-18',
  );
@@ -3511,7 +3512,7 @@ our %delta :const = (
         }
     },
     5.010001 => {
-        delta_from => 5.01,
+        delta_from => 5.010000,
         changed => {
             'App::Prove'            => '3.17',
             'App::Prove::State'     => '3.17',
@@ -5529,7 +5530,7 @@ our %delta :const = (
         }
     },
     5.013011 => {
-        delta_from => 5.01301,
+        delta_from => 5.013010,
         changed => {
             'App::Prove'            => '3.23',
             'App::Prove::State'     => '3.23',
@@ -9878,7 +9879,7 @@ our %delta :const = (
         }
     },
     5.019011 => {
-        delta_from => 5.01901,
+        delta_from => 5.019010,
         changed => {
             'CPAN'                  => '2.05',
             'CPAN::Distribution'    => '2.02',
@@ -16353,7 +16354,7 @@ our %delta :const = (
         }
     },
     5.027011 => {
-        delta_from => 5.02701,
+        delta_from => 5.027010,
         changed => {
         },
         removed => {
@@ -18817,6 +18818,19 @@ our %delta :const = (
         removed => {
         }
     },
+    5.030000 => {
+        delta_from => 5.029010,
+        changed => {
+            'B::Op_private'         => '5.030000',
+            'Config'                => '5.03',
+            'Devel::PPPort'         => '3.52',
+            'Module::CoreList'      => '5.20190522',
+            'Module::CoreList::Utils'=> '5.20190522',
+            'XS::Typemap'           => '0.17',
+        },
+        removed => {
+        }
+    },
     '5.029002c' => {
         delta_from => '5.029001c',
         changed => {
@@ -19474,7 +19488,7 @@ sub is_core
         }
     },
     5.021011 => {
-        delta_from => 5.02101,
+        delta_from => 5.021010,
         changed => {
         },
         removed => {
@@ -20006,7 +20020,7 @@ sub is_core
         removed => {}
     },
     5.028002 => {
-        delta_from => 5.028001,
+        delta_from => 5.0280010,
         changed => {
         },
         removed => {
@@ -20014,6 +20028,13 @@ sub is_core
     },
     5.029010 => {
         delta_from => 5.029009,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.030000 => {
+        delta_from => 5.029010,
         changed => {
         },
         removed => {
