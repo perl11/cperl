@@ -5,11 +5,11 @@ use Config;
 use CPAN::Distroprefs;
 use File::Spec;
 
-eval "require YAML::XS; 1" or plan skip_all => "YAML::XS required";
+eval "require YAML; 1" or plan skip_all => "YAML required";
 plan tests => 3;
 
 my %ext = (
-  yml => 'YAML::XS',
+  yml => 'YAML',
 );
 
 my $finder = CPAN::Distroprefs->find(
@@ -66,7 +66,7 @@ find_ok(
     distribution => 'HDP/Perl-Version-1',
   },
   {
-    prefs => YAML::XS::LoadFile('distroprefs/HDP.Perl-Version.yml'),
+    prefs => YAML::LoadFile('distroprefs/HDP.Perl-Version.yml'),
     prefs_file => File::Spec->catfile(qw/distroprefs HDP.Perl-Version.yml/),
   },
   'match .yml',

@@ -16,10 +16,12 @@ match:
     ^(?x:
     .^   # never matches, only purpose is to let things align nicely
     |.+/Moose-1.99                           # rt.cpan.org 66211
-    |.+/Net-CLI-Interact-\d                  # hangs
     |.+/Perl6/                               # perl5 only
     |.+/Test-Simple-2.00_                    # rt.cpan.org 66317
-    |.+/Win32(API)?-                         # I have only linux
+    |.+/Win32(API)?-[A-RT-Za-z]              # Win32-ShellQuote
+    |.+/Win32(API)?-S[A-Za-gi-z]             # Win32-ShellQuote
+    |.+/Win32(API)?-Sh[A-Za-df-z]            # Win32-ShellQuote
+    |.+/Win32(API)?-She[A-Za-km-z]           # Win32-ShellQuote
     |.+Net-Whois-IANA-\d                     # endless loop in testing
     |.+Business-PayPal-API-\d                # author writes to me he considers the test does not lend itself to automated testing
     |.*Mojolicious-Plugin-HamlRenderer       # last release 20120604, rather take MojoX-Renderer-Haml which came 2012-08-14 (the two bite each other)
@@ -27,14 +29,16 @@ match:
     |.*/Alt-CPAN-Uploader-tinyua-0.000001    # not conforming installation policy as of Alt-0.19
     |.*/Alt-Module-Runtime-ButEUMM-0.001     # not conforming installation policy as of Alt-0.19
     |.*/Alt-common-sense-TOBYINK-0.001       # not conforming installation policy as of Alt-0.19
-    |.*/ExtUtils-ModuleMaker-                # https://rt.cpan.org/Public/Bug/Display.html?id=111637
+    |.*/ExtUtils-ModuleMaker-0.[0-5]         # https://rt.cpan.org/Public/Bug/Display.html?id=111637
     |.*/Alien-Google-GRPC-                   # a bit too big
     |.*/Net-Fluidinfo-0.45                   # fails since 2012 https://rt.cpan.org/Ticket/Display.html?id=76547
     |.*/Term-EditLine-0.07                   # seems to change terminal settings
     |.*/mod_perl-2.0.\d.tar.gz                 # endless loop seen with 5,6,7,9
     |.*FamilyTreeInfo                        # https://github.com/mishin/Ftree-cpan/issues/2
     |.*/XSConfig-                            # rt.cpan.org #110631
-    |AADLER/Inline-Octave-0.31.zip           # 
+    |.*/GOOGLE-ADWORDS-PERL-CLIENT-\d        # looks like abandoned in favor to Google-Ads-AdWords-Client
+    |AADLER/Inline-Octave-0.31.zip           #
+    |AJGB/AnyEvent-Tickit-0.01.tar.gz        # https://rt.cpan.org/Ticket/Display.html?id=104852
     |AMBS/Lingua/Lingua-PT-Speaker-0.10.tar.gz # does not use prompt() and no $|
     |ADAMK/Acme-Mom-Yours-\d                 # blocks the smoker for too long
     |ADAMK/CPAN-Index-0.01.tar.gz            # https://rt.cpan.org/Ticket/Display.html?id=43349
@@ -44,13 +48,17 @@ match:
     |AGENT/OpenResty-0                       # 0.3.8 hangs after 'cp etc/openresty.conf etc/site-openresty.conf'
     |AHERNIT/Dir-ListFilesRecursive-\d       # Deep recursion with high memory consumption
     |AHICOX/Config-Framework-2.5.tar.gz      # Where is your Virtual Root?
+    |AHICOX/Text-UPF-1.0.5.tar.gz            # asks questions
     |AJOLMA/Geo-Raster-\d                    # requires Raster Algebra Library, no debian package (?)
+    |AKSTE/Term-Query-2.0.tar.gz             # looks like abandoned since 1997
     |ALVAROL/PerlCryptLib-1                  # hangs when searching header files
     |AMALTSEV/XAO-                           # hangs
     |ANDREWF/Template-Plugin-Latex-3         # hangs with 3.02
     |ANONWB/WWW-Patent-Page-\d               # downloads something largish
     |APOCAL/Task-POE-All-1.102.tar.gz        # havoc of a task
+    |ARAK/Fax-Hylafax-Client-1.02.tar.gz     # looks like abandoned since 2006
     |ASNMTAP/ASNMTAP-\d                      # switches to cpanplus and then hangs
+    |ASVBR/DBIx-PgLink-0.01.tar.gz           # looks like abandoned since 2007
     |AUDREYT/DBD-SQLite-Amalgamation-3.5.8.tar.gz # test t/08create_functionhangs with 33430
     |AVAR/Sendmail-PMilter-\d                # asks questions
     |AWRIGLEY/App-Control-\d                 # endless loop
@@ -65,6 +73,7 @@ match:
     |BHODGES/Mail-IMAPFolderSearch-0.03.tar.gz
     |BINGOS/POE-Component-SmokeBox-          # hangs
     |BKCHAPIN/DBIx-Perform-\d                # curses login (?)
+    |BKUHN/B-JVM-Jasmin-0.02.tar.gz          # seems abandoned since 1999
     |BLX/XSDSQL_                             # hangs with high memory usage
     |BOBTFISH/Catalyst-Authentication-Store-LDAP-\d # hangs
     |BOOK/Net-Proxy-0.13                     # hangs always
@@ -72,7 +81,10 @@ match:
     |BRONDSEM/Mail-SpamAssassin-Plugin-OpenPGP-1.0.4.tar.gz
     |BSCHMAL/parrot-0.6.0.tar.gz             # hangs during configure with 5.10
     |BSUGARS/IPC-Shareable-0.60.tar.gz       # hangs
+    |BSUGARS/nsapi_perl-0.24.tar.gz          # seems abandoned since 1998
+    |BTROTT/Catalyst-Plugin-AtomServer-0.04  # seems abandoned since 2006
     |BTROTT/WWW-Blog-Metadata-0.02           # ExtUtils::AutoInstall 0.56 http://rt.cpan.org/Ticket/Display.html?id=40601
+    |BWILLIAM/AltaVista-SDKLinguistics-3.02.tar.gz # looks like abandoned since 2001
     |CAIDAPERL/Chart-Graph-\d                # hangs Makefile.PL: RT 33541
     |CAPOEIRAB/WWW-Salesforce-               # demands username and passwd
     |CEBJYRE/Task-BeLike-Cebjyre-\d          # hangs somewhere
@@ -89,18 +101,33 @@ match:
     |DCANTRELL/Class-DBI-ClassGenerator-1.04.tar.gz # abandoned
     |DCARDWELL/TextLinkAds-0.01.tar.gz       # interactive
     |DCOLLINS/Perlwikipedia-1.5.2            # https://rt.cpan.org/Ticket/Display.html?id=117918 and slow
+    |DCOPPIT/NewsClipper-1.32                # looks like abandoned since 2001
+    |DCRAWFORD/Device-Audiotron-1.02.tar.gz  # asks questions
     |DDUMONT/Tk-ObjEditor-2.004.tar.gz       # http://rt.cpan.org/Ticket/Display.html?id=29559
+    |DDUMONT/Tk-Multi-1.006.tar.gz           # seems abanodoned since 2004
     |DESIMINER/Date-Business-1.2.tar.gz      # https://rt.cpan.org/Ticket/Display.html?id=94415
+    |DIABLO/Rsync-Config-\d                  # https://rt.cpan.org/Ticket/Display.html?id=92998
     |DIEDERICH/App-MultiModule-Tasks-SmartMerge-1.161240.tar.gz
+    |DJASMINE/Net-DLookup-1.01.tar.gz        # asks questions
     |DJBERG/Tk-LabPopEntry-0.05.tar.gz
+    |DLUX/TableMap-1.0.tar.gz                # seems abandoned since 2000
     |DMAKI/Alien-MeCab                       # ditto
     |DMAKI/Text-MeCab                        # hangs asking questions
     |DOM/CGI-Wiki-\d                         # asks database questions
+    |DONSHANK/bbobj-0.5.0.tar.gz             # looks like abandoned since 2002
+    |DROLSKY/Alzabo-GUI-Mason-0.1201.tar.gz  # too much dialog with tendency to loop
+    |.*/Google-Ads-AdWords-Client-[1-4]\.    # avoid non-latest version (5.7.0)
+    |.*/Google-Ads-AdWords-Client-5\.[1-6]\. # avoid non-latest version (5.7.0)
     |DUFF/Module-Install-RPM-0.01            # see https://rt.cpan.org/Ticket/Display.html?id=67027
+    |DWC/DBIx-NamedDSN-0.11.tar.gz           # asks questions
     |EBRUNI/WWW-BBB-API-\d                   # asks questions
+    |EBRUNI/HTML-DBTable-0.05.tar.gz         # user interaction required
+    |EBRUNI/HTML-Puzzle-0                    # looks like abandoned since 2002
+    |EBRUNI/Qmail-Mysql-0.02.tar.gz          # looks like abandoned since 2003
     |ECALDER/Proc-PID-File-1.24.tar.gz       # hangs during test.pl
     |ECALDER/POE-Component-Child-1.39        # hangs during test
     |EDALY/Text-GenderFromName-0.32.tar.gz   # bad prompt
+    |EDAVIS/xmltv-0.5.31.tar.gz              # http://matrix.cpantesters.org/?dist=xmltv+0.5.31
     |EDAVIS/xmltv-0.5.33.tar.gz              # http://matrix.cpantesters.org/?dist=xmltv+0.5.33
     |EIJABB/MARC-Errorchecks-1.13.tar.gz     # complicated interactivity in make test
     |EILARA/XUL-Node-\d                      # asks for port -- 8077?
@@ -109,43 +136,61 @@ match:
     |ERIKRAY/XML-SAX-RTF-0                   # harmful: http://rt.cpan.org/Public/Bug/Display.html?id=5943
     |ERNESTO/Frost-0\.70\.
     |EVO/Term-ShellKit-1.002.tar.gz
+    |EVO/Devel-PreProcessor-2003.1128.tar.gz # looks like abandoned since 2003
+    |EWILHELM/CAD-Drawing-IO-DWGI-0.12.tar.gz # looks like abandoned since 2006
     |EWILHELM/HTTP-Server-Simple-Er-v0.0.3.tar.gz # hangs on some perls
     |FIBO/PNI-Node-Tk-                       # hangs after t/PNI-Node-Tk.t
     |FCO/treadsemulate/threads-emulate-0     # hangs in 00-load.t on 32642
     |FROGGS/Alien-SDL-1.418                  # questions
     |FreeHAL                                 # David Cantrell warns that it is a 137 MB thingy
+    |GAFFER/Relations-Abstract-0.94.tar.gz   # seems abandoned sincce 2001
     |GAISSMAI/Net-SNMP-Mixin-\d              # asks questions about SNMP server
     |GARY/Math-TrulyRandom-1.0.tar.gz        # https://rt.cpan.org/Ticket/Display.html?id=34693
+    |GEOTIGER/Net-SFTP-Recursive-\d          # may call both CPANPLUS::install and CPAN::install
+    |GEOTIGER/Oracle-Trigger-\d              # may call both CPANPLUS::install and CPAN::install
+    |GGARAND/PerlQt-3.008.tar.gz             # disk scans taking forever
     |GKNAUSS/WebService-Upcoming             # for members only
     |GONERI/Ocsinventory-Agent-0.0.8.tar.gz  # hangs
     |GONERI/Ocsinventory-Agent-\d            # hanger
+    |GRICHTER/Apache-SessionX-2.01.tar.gz    # user input required
     |GRICHTER/DBIx-Recordset-\d              # hangs
     |GRICHTER/Embperl-2.5.0.tar.gz           # loops on apache src
+    |GRICHTER/HTML-Embperl-1.2.1.tar.gz      # loops on apache src
     |GRICHTER/HTML-Embperl-1.3.6.tar.gz      # loops on apache src
     |GRM/
     |GRODITI/POE-Component-DirWatch-\d       # the 03editedfile or so seems to take forever
     |GSEAMAN/XML-DB.tar.gz                   # hangs
     |GSLONDON/Tk-CanvasLogo-0.2.tar.gz
+    |GUGOD/Acme-Tests-0.03.tar.gz            # looks like abandoned since 2006
     |GUIMARD/Net-Server-Mail-\d              # hangs
     |/POE-Quickie-\d                          # test hangs
     |GWYN/POE-Component-Server-HTTP-KeepAlive-0.0307.tar.gz # https://rt.cpan.org/Ticket/Display.html?id=82020
     |HANENKAMP/Bot-Net-0.1.0                 # hangs during test t/TestNet/t/atoz-peer.t
+    |HANK/SWISH-Fork-0.13.tar.gz             # Enter the location: waiting since 2003
     |HDIAS/Mail-Salsa-\d                     # hangs/asks for installation directory
     |HERNAN/Catalyst-Example-InstantCRUDStylish- # uninterruptible and demanding but maybe not his fault
+    |HERNAN/WWW-Weather-Yahoo-0.07.tar.gz    # failing since 2016-01
     |HESCO/LedgerSMB-API-\d                  # 0.04a nearly unstoppable endless loop
     |HEYTRAV/POE-Filter-Hessian-\d           # hangs
     |HOLOWAY/Catalyst-Log-Log4perl-1.00.tar.gz # endless loop with deep recursion
     |HOOO/X3D-0                              # hangs at t/nodefield_sfdouble_06 on perl-5.10.0 at 33955
     |HOPCROFTS/Nagios-WebTransact-\d         # asks for a server and port
+    |HOPCROFTS/Nagios-WebTransact-Timed-\d   # asks for a server and port
+    |HORROCKS/CGI-SpeedyCGI-2.22.tar.gz      # looks like abendoned since 2003
     |IKRUGLOV/Sereal-Encoder-4\.\d+_\d+.tar.gz
-    |IMACAT/DbFramework-\d                   # asks questions but I have not time
+    |.*/DbFramework-\d                       # asks questions but I have not time
+    |ILYAM/HTTP-WebTest-2.04.tar.gz          # looks like abandoned since 2003
     |IMACAT/arclog-3.\d                      # one test (01-exhaust) hangs with several perls
     |INA/Modern/Open/Modern-Open-\d          # Message-ID: <87zjfc7itv.fsf at cvrsnica.herceg.de>
+    |INGY/Module-Install-TestML-0.02.tar.gz  # unsuited for testing: https://github.com/testml-lang/testml/wiki/TestML-and-CPAN
     |ISHIGAKI/PPM-Make-\d                    # asks questions
     |IVAN/Business-OnlinePayment-eSelectPlus-\d # hangs with 5.14.0-357
+    |IX/Apache-Wombat-0.5.1.tar.gz           # asks questions
     |JANL/Net-Server-0.99.6.1                # hangs
     |JANPAZ/Font-TFM-\d                      # asks for path to tfm files
     |JASONK/Data-Faker-0.07                  # t/Data-Faker-DateTime.t runs forever
+    |JCHASSLER/HTML-GUI-0.04                 # seems abandoned since 2009
+    |JCLINE/Robotics-023/Robotics-0\.23      # seems abandoned
     |JDDPAUSE/MarpaX-ESLIF-1.0
     |JDPORTER/Crypt-RandPasswd-0.02          # hangs *sometimes*
     |JESSE/HTTP-Server-Simple-Recorder-0.03  # hangs *sometimes*, even on perls that have previously succeeded
@@ -154,12 +199,16 @@ match:
     |JETTERO/Net-Pcap-Easy-\d                # asks questions
     |JETTERO/Net-IMAP-Simple-\d              # questions
     |JEZRA/Finance-TickerSymbols             # talks endlessly with some ticker sites
+    |JHIVER/TripleStore-0.03                 # loops on user input questions
     |JKRAMER/Net-Link-0.01.tar.gz            # hangs in t/00_link on 33955
     |JKUTEJ/Xen-Control-\d                   # calls sudo
     |JLMARTIN/NRD-Daemon-\d                  # hangs with 5.14.1-36
+    |JLLEROY/Tangram-2.04.tar.gz             # waits for user input
     |JMERELO/MP3-Podcast-\d                  # hangs in test
     |JMMILLS/App-Nopaste-Service-AnyPastebin-\d # hangs due Module::Install
     |JOENIO/WWW-Scraper-ISBN-Siciliano_Driver-0.02.tar.gz
+    |JONAS/CGI-Debug-1.0.tar.gz              # looks like abandoned since 2000
+    |JPIERCE/EZDBI-0.16.tgz                  # asks questions
     |JQUELIN/WWW-DaysOfWonder-Memoir44-\d    # hangs
     |JROCKWAY/AnyEvent-Retry-\d              # hangs after release-pod-syntax.t
     |JSTOWE/Term-Screen-\d                   # automated testing impossible
@@ -175,9 +224,9 @@ match:
     |KIMURA/Comprss-Zlib-1.12-bin-1-Mac.tgz
     |KWILLIAMS/Apache-Filter-1.024.tar.gz    # https://rt.cpan.org/Ticket/Display.html?id=34604
     |KESTEB/POE-Component-Client-Stomp-0.05.tar.gz # hangs in t/02_basic.t with 5.10 proper
+    |KHS/AnyEvent-Gearman-WorkerPool-1.0.tar.gz # https://rt.cpan.org/Ticket/Display.html?id=94107
     |KMACLEOD/XML-Grove-0.46alpha.tar.gz     # (1999) seems to be unmaintained
     |KMX/Alien-IUP-v?\d                      # not analysed slowness and CPU hog; then again questions being asked
-    |KNI/IPC-MPS-\d                          # asks questions
     |KNORR/Tk-Image-Cut-0.07.tar.gz          # hangs
     |KTHAKORE/SDL-2\.526                     # hangs with v5.15.4-460-g151cea2 after t/mixer.t
     |KORTY/
@@ -193,40 +242,52 @@ match:
     |LGODDARD/Tk-Wizard-2.158.tar.gz
     |LTP/Audio-Play-MPlayer-\d               # hangs
     |LDS/Bio-BigFile-1.07.tar.gz             # https://rt.cpan.org/Ticket/Display.html?id=56916
+    |LUISMUNOZ/IO-File-Log-1.01.tar.gz       # seems like abandoned since 2002
     |LUPE/Filesys-SamFS-\d                   # have no SamFS
     |LUSHE/Egg-Release-DBI                   # brings laptop to its knees RT #39239
     |LUSOL/tkjuke-2.2.1.tar.gz               # asks questions
     |LZE/CGI-CMS-\d                          # asks questions about paths
     |MACKENNA/IPC-MMA-0.81.tar.gz
+    |MAKLER/Authen-CyrusSASL-0.01.tar.gz     # seems abandoned since 2001
     |MANOWAR/RadiusPerl-0.13.tar.gz          # hangs in test.pl
     |MARNANEL/Flickr-Embed-0.01              # hangs in test basic.t
     |MARNANEL/Net-RGTP-0.10.tar.gz
     |MARTIJN/Data-Transform-SSL-0.02.tar.gz  # memory accident?
     |MATTBM/PGP-Mail-1.7.tar.gz
     |MAUNDER/Apache-AppCluster-0.02.tar.gz
+    |MAXM/MMM-OracleDump-0.01.tar.gz         # user interaction required
     |MCMAHON/WWW-Mechanize-Pluggable-1.03.tar.gz # killed the cpan shell with kill(); I don't understand how
+    |METZZO/TiVo-HME-1.3\.tar.gz             # seems abandoned since 2005
+    |MFERRIS/Class-DBI-DB2-0.16.tar.gz       # asks questions
     |MJGARDNER/Dist-Zilla-Plugin-RequiresExternal-\d # endless loop if JSON::PP missing???
     |MIKEM/Authen-TacacsPlus/Authen-TacacsPlus-0.17 # seems to hang
     |MIKER/Mail-SpamCannibal-0.97.tar.gz     # IIUC it insists on answering aquestion with yes or no
     |MISHIKAL/Net-LDAPapi-\d                 # gives gooood advice and stops
+    |MJBRIGHT/DBIx-XMLServer-0.02.tar.gz     # seems abandoned and hangs
     |MJD/Net-DHCP-Control-0.09.tar.gz        # https://rt.cpan.org/Ticket/Display.html?id=34536
+    |MJD/Rx-0.53.tar.gz                      # asks questions
     |MLAWREN/SQL-Tree-\d                     # hangs before the first test
     |MLEHMANN/AnyEvent-4.232                 # hangs after "t/06_socket.....ok"
     |MLEHMANN/Deliantra                      # looks complicated and not using CheckLib
     |MLEHMANN/PApp-1.42.tar.gz               # the autoconfiguration gets it wrong
     |MMABRY/Device-WxM2-1.03.tar.gz          # hangs
+    |MMACHADO/Geo-Weather-1.41.tar.gz        # user interaction required
     |MOB/Forks-Super-                        # too demanding
     |MOB/Forks-Queue-                        # seems to hang the whole smoker
+    |MOCK/Business-OnlinePayment-Exact-0.01.tar.gz # looks like abandoned since 2005
     |MROZ/Device-Blkid-E2fsprogs-0.2[24]     # asks question without EUMM
     |MSCHILLI/GitMeta-\d                     # all Git stuff seems to hang my v5.15 smoker
     |MSCHILLI/LWP-UserAgent-POE-\d           # seems to hang
     |MSCHWERN/Test-Fork-0.01_01.tar.gz       # test hangs
+    |MSERGEANT/PPerl-0.25.tar.gz             # seems abandoned since 2004
     |MSERGEANT/XML-miniXQL-0.04.tar.gz       # rest in peace: missing dependency decl on XML::Parser but so old (1999) that I do not want to RT it
     |MSHILTONJ/CGI-Test-\d                   # asks if it should strip Carp::Datum calls
     |MSROTH/Db-Documentum-\d                 # press return to continue...
     |MTHURN/Net-Address-Ethernet-\d          # interactive questions that we cannot answer as a bot
     |MTHURN/WWW-Search-Yahoo-\d              # hangs in t/china.t
+    |MTROWBRI/HTTP-ProxySelector-Persistent-0.02.tar.gz # looks like abandoned since 2007
     |MWS/ResourcePool-Resource-SOAP-Lite-\d  # asks questions
+    |NATE/News-Collabra-0.06.tar.gz          # seems abandoned since 2002
     |NEKOKAK/CGI-Application-Plugin-DebugScreen-0 # hangs on some perls (5.10.1 I think)
     |NPEREZ/Reflexive-Stream-Filtering-1.103450 # hangs or fails; unrelated RT 74010
     |NUFFIN/POE-Component-Supervisor-0.01.tar.gz # hangs during t/04_global_restart_policy.
@@ -234,7 +295,9 @@ match:
     |NWCLARK/perl-                           # pumpkin
     |NXADM/App-Unix-RPasswd-\d               # takes too much time, no idea what it does
     |OALDERS/URI-ParseSearchString-More-0.04
+    |OESTERHOL/Aut-0.11.tar.gz               # looks like abandoned since 2004
     |PATL/autorequire-0.08.tar.gz
+    |PERFSONAR/perfSONAR_PS-DB-RRD-0.09.tar.gz # looks like abandoned since 2008
     |PERIGRIN/Git-Wrapper-\d                 # some huge kill triggered?
     |PERLER/CatalystX-ExtJS-Direct-\d        #
     |PEVANS/IPC-PerlSSH-Async-\d             # asks for a password during testing
@@ -243,7 +306,11 @@ match:
     |PFARR/Net-SMS-Clickatell-SOAP-
     |PHILIPS/DBIx-MyParse-\d                 # too complicated to set up (mysql source etc.)
     |PHISH/XML-LibXML-Common-0.13.tar.gz     # could cause a downgrade (yes it did)
+    |PIERS/Jabber-mod_perl-0.15.tar.gz       # user interaction required
+    |PLATO/UID-0.24.tar.gz                   # looks like abandoned since circa 2010
     |PMIC/parrot-0.5.3.tar.gz                # hangs after testing ctags
+    |PREACTION/ETL-Yertl-0.0[0123]..tar.gz   # avoid older version
+    |PREACTION/ETL-Yertl-0.04[012].tar.gz    # avoid older version at the time of 0.043
     |RAM/kit-2.0.38.tar.gz
     |RBDAVISON/XML-API-WIX2-0.02.tar.gz
     |RCAPUTO/POE-Loop-Tk-1.304.tar.gz        # hangs sometimes
@@ -258,6 +325,7 @@ match:
     |ROLAND/jmx4perl-\d                      # asks questions
     |RONAN/Device-Velleman-K8055-Fuse-\d     # asks for a hadness (don't know what that is)
     |RSAVAGE/Data-Session-1.03.tgz           # hangs during basic.t with all CPU consumed
+    |RSOLIV/rrdpoller-1.5.0.tar.gz           # user interaction required
     |RURBAN/B-C-1.34                         # hangs with v5.15-135
     |RURBAN/B-C-1.36                         # hangs with v5.15.4-92
     |RURBAN/B-Debugger-0.01_03.tar.gz        # hangs with perl-5.8.8 at 33430 during test.pl
@@ -270,26 +338,36 @@ match:
     |SCOTT/Attribute-Persistent-1.1.tar.gz   # fails with out of memory and blocks the box for quite a while
     |SDPRICE/Linux-DVB-DVBT-Apps-QuartzPVR-\d
     |SEGAN/POE-Component-LaDBI-1.2.1
+    |SHERZODR/MySQL-TableInfo-1.01.tar.gz    # seems like abandoned since 2001
     |SHLOMIF/XML-Grammar-Screenplay-\d       # t/to-xhtml.t took ~17 minutes
+    |SCHOP/htpl-3.14.tar.gz                  # hangs since Feb 28, 2002
     |SIRROBERT/Set-Toolkit-0.11.tar.gz       # https://rt.cpan.org/Public/Bug/Display.html?id=67343
     |SMEE/P4-\d                              # asks for Perforce api paths
     |SMUELLER/Alien-ROOT-v5.28.0.1           # hangs
+    |SOMMERB/Myco-1.22.tar.gz                # seems like abandoned since 2006
     |SPANG/App-SD-0.75.tar.gz                # hangs in test t/sd-github/basic.t
-    |ZMAN/SPOPSx-Ginsu-0.58.tar.gz
+    |SPRAGST/Sybase-Xfer-0                   # asks questions
     |SPURKIS/Agent-3.20.tar.gz               # https://rt.cpan.org/Ticket/Display.html?id=94430
     |SRI/Catalyst-Plugin-HTML-Widget-1.1.tar.gz # Module::Install 0.54 http://rt.cpan.org/Ticket/Display.html?id=40618
     |SRVANCE/P4-Server-\d                    # or maybe it was this one?
-    |SSCAFFIDI/Stem-0.12.tar.gz              # hangs
+    |SSCAFFIDI/Stem-0.12.tar.gz              #
+    |.*/Net-Peep-0.4.5.1.tar.gz              # needs user interaction
     |STEPHENCA/Cvs-Simple-\d                 # asks for CVS paths
     |STEVAN/FCGI-Engine-\d                   # 0.04 hangs on t/002_basic_with_listen
     |STEVENC/WWW-Myspace-\d                  # tests take too long
+    |STIGMATA/RAS-AS5200-1.04.tar.gz         # looks like abandoned since 2000
+    |STRYTOAST/Data-Pageset-Variable-0.03    # seems to be abandoned
     |STRYTOAST/PluceneSimple-1.04.tar.gz     # seems to be abandoned
     |STSANDER/Device-Davis-\d                # asks me for a tty to use
     |SULLR/Net-INET6Glue-\d                  # asks questions
     |SULLR/Net-SSLGlue-\d                    # asks questions
     |SUMPFRALL/Ezmlm-0.08.2                  # questions
     |SWALTERS/Acme-RPC-\d                    # hangs
+    |SWORDSMAN/TSM_0.60.tar.gz               # looks like abandoned since 2001
     |TBR/Net-RabbitMQ-Simple-0.0004          # hangs
+    |THEDEVIL/Debarnacle-2002.05.15.tar.gz   # looks like abandoned since 2002
+    |TIEDEMANN/uplug-treetagger-0.3.2.tar.gz # asks questions
+    |TJENNESS/Chart-GRACE-0.95.tar.gz        # seems abandoned since 2001
     |TJENNESS/Chart-XMGR-0.95.tar.gz
     |TOBYINK/App-perlrdf-0.006.tar.gz        # https://rt.cpan.org/Ticket/Display.html?id=99158
     |TOKUHIROM/Amon2-                        # test hangs with some perls
@@ -308,7 +386,10 @@ match:
     |VINSWORLD/Cisco-Management-0.05         # asks question
     |VPARSEVAL/Mail-MboxParser-0.55.tar.gz   # hangs during some test
     |VPIT/Acme-CPANAuthors-You-re_using-
+    |WBRASWELL/RPerl-[123]
+    |WMARQ/SNMP-Util-1.8.tar.gz              # looks like abandoned since 2000
     |WONKO/CGI-Application-Dispatch          # endless loop
+    |WORENKD/Log-ErrLogger-1.5.tar.gz        # seems like abansoned since 1999
     |WSMITH/RPC-Oracle-\d                    # asks username for Oracle
     |WSMITH/Email-Folder-Exchange-\d         # asks questions
     |WWOLF/Test-0.001.                       # suggested by Slaven
@@ -318,13 +399,18 @@ match:
     |XAICRON/Module-Install-ExtendsMakeTest  # hangs (0.0{2,3})
     |XAICRON/Module-Install-TestTarget-      # hangs
     |XANTUS/MojoX-AIO-0.02.tar.gz            # hangs
+    |XAOINC/XAO-FS-1.0                       # avoid older version
     |XERN/Bio-MedChunker-0.02.tar.gz
     |XERN/CGI-QuickApp-\d                    # hangs immediately
+    |XERN/Lingua-EN-GeniaTagger-0.01.tar.gz  # looks like abandonded since 2006
+    |XERXES/Microsoft-AdCenter-[1-7]\.\d+\.tar.gz # avoid non-latest version (8.11)
+    |XSAWYERX/AnyEvent-SIP-0.002             # https://github.com/xsawyerx/anyevent-sip/issues/1
     |YAPPO/HTTP-Engine-0.0.15.tar.gz         # hangs in test 020_interface/standalone-restart
     |YAPPO/HTTP-Engine-0.0.16.tar.gz         # ditto but not with all perls
     |YAPPO/HTTP-Engine-0.0.17.tar.gz         # and once again
     |YAPPO/HTTP-Engine-0.0.1..tar.gz         # preventing the next case
     |ANONWB/WWW-Patent-Page-\d               # downloads something largish
+    |YEWEI/Jvm-0.9.\d                        # looks like abandoned since 2002
     |YEWENBIN/PDE-                           # probably a broken Makefile.PL that tries to install Module::Build even if it is installed and calls CPAN recursively; in any case an endless loop
     |ZEFRAM/Lexical-Import-0.002             # hangs quite often with high CPU load, see 74222
     |ZEFRAM/DynaLoader-Functions-0.000       # as above
@@ -332,6 +418,8 @@ match:
     |ZENIN/Tk-MenuHash-1.12.tar.gz
     |ZIEFLE/WWW-LEO-0.01.tar.gz              # rt 34540
     |ZINIGOR/libeve-perl_0.05.orig.tar.gz    # hangs
+    |ZMAN/SPOPSx-Ginsu-0.58.tar.gz
+    |ZMIJ/Cache/Memcached/Cache-Memcached-Semaphore-0.3.tar.gz # looks like abandoned since 2006
     |ZOFFIX/POE-Component-WWW-Google-PageRank-\d # hangs in 00-load with 34437
     |ZOFFIX/POE-Component-WebService-HtmlKitCom-FavIconFromImage-\d # hangs
     |ZSTEVENS/Alien-ActiveMQ-\d              # downloads 50MB and leaves them in /tmp/

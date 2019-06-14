@@ -2,9 +2,7 @@
 comment: |
 
   Users of Module::Install that share a pattern: we can install all
-  optional dependencies with a couple of simple "y\n". The ENVariables
-  seem to be needed to prevent infinite recursion under certain
-  unknown circumstances.
+  optional dependencies with a couple of simple "y\n".
 
   The timeout must really be more, Net::Jifty for example didn't make
   it in ten (once), OpenResty didn't make it in 20 (I took it out
@@ -57,6 +55,7 @@ match:
     |BLBLACK/MooseX-LazyLogDispatch-\d
     |BLBLACK/MooseX-SimpleConfig-\d
     |BLBLACK/Term-Spinner-\d
+    |BLM/App-GUI-Notepad-\d
     |BLUET/MojoX-Session-Store-Redis-\d
     |BOBMATH/Crypt-CAST5_PP-\d
     |BOBTFISH/Catalyst-Action-REST-\d
@@ -86,10 +85,11 @@ match:
     |BRICAS/WWW-OpenSearch-\d
     |BRICAS/WWW-Wikipedia-\d
     |BTROTT/Authen-TypeKey-\d
+    |BTROTT/Catalyst-Plugin-AtomServer-\d
     |BTROTT/Data-ObjectDriver-\d
     |BTROTT/Feed-Find-
     |BTROTT/URI-Fetch-\d
-    |BTROTT/WWW-Blog-Metadata-\d             
+    |BTROTT/XML-FOAF-0\ .04\.
     |BTROTT/XML-Feed-\d
     |CAMELCASE/HTML-TurboForm-\d
     |CFRANKS/Catalyst-Controller-HTML-FormFu-\d
@@ -113,7 +113,7 @@ match:
     |CLKAO/PerlIO-via-dynamic-\d
     |CLKAO/Pushmi-v\d
     |CLKAO/RunApp-\d
-    |CLKAO/SVK-v\d
+    |CLKAO/SVK-v?\d
     |CTBROWN/MooseX-Meta-Attribute-Lvalue-\d
     |CWEST/JSAN-\d
     |DAMOG/Dancer-Template-Haml-\d
@@ -122,7 +122,6 @@ match:
     |DAXIM/Mediawiki-Blame-\d
     |DCOPPIT/Benchmark-Timer-\d
     |DCOPPIT/Getargs-Long-\d
-    |DIABLO/Rsync-Config-\d
     |DIZ/Locale-Geocode-\d
     |DJERIUS/App-Env-\d
     |DJERIUS/HTML-TableParser-\d
@@ -168,6 +167,7 @@ match:
     |GAAL/Perl6-Take-\d
     |GAAL/Task-Smoke-\d
     |GBARR/Authen-SASL-\d
+    |GHENRY/Catalyst-Plugin-Email-Page-\d
     |GHENRY/Samba-LDAP-\d
     |GPHAT/Chart-Clicker-\d
     |GPHAT/Geometry-Primitive-\d
@@ -185,6 +185,7 @@ match:
     |GUGOD/Template-Provider-Markdown-\d
     |GUGOD/Test-Continuous-\d
     |GUGU/Algorithm-FloodControl-\d
+    |HACHI/POE-Component-Client-LDAP-\d
     |HANENKAMP/Bot-Net-\d
     |HANENKAMP/Data-Remember-\d
     |HANENKAMP/HTML-ParagraphSplit-\d
@@ -261,7 +262,6 @@ match:
     |MIKI/Lingua-JA-TFIDF-\d
     |MINIMAL/MojoX-MongoDB
     |MITREHC/HoneyClient-Agent-\d
-    |MITREHC/HoneyClient-Manager-\d
     |MITREHC/HoneyClient-Util-\d
     |MIYAGAWA/Web-Scraper-\d
     |MIYAGAWA/XML-Atom-\d
@@ -298,10 +298,12 @@ match:
     |MSTROUT/Devel-REPL-\d
     |MSTROUT/Reaction-\d
     |MSTROUT/Task-Catalyst-Tutorial-\d
+    |NACHBAUR/Apache-AxKit-Provider-File-Syntax-\d
     |NEKOKAK/DBIx-Class-Stash-\d
     |NEKOKAK/DBIx-Class-TableNames-\d
     |NEKOKAK/Geography-JapanesePrefectures-Walker-\d
     |NEMUX/Net-UCP-\d
+    |NEMUX/Net-UCP-Common-\d
     |NUFFIN/Catalyst-Plugin-Session-State-Cookie-\d
     |NUFFIN/MooseX-Getopt-\d
     |NUFFIN/MooseX-Storage-\d
@@ -349,13 +351,14 @@ match:
     |RSRCHBOY/Archive-RPM-\d
     |RSRCHBOY/CPANPLUS-Dist-RPM-\d
     |RSRCHBOY/Fedora-Bugzilla-\d
+    |RST/FrameMaker-MifTree
     |SARTAK/Acme-Aspartame-\d
     |SARTAK/App-Nopaste-\d
     |SARTAK/Carp-REPL-\d
     |SARTAK/Date-Extract-\d
     |SARTAK/IO-Socket-Telnet-\d
     |SARTAK/IncPatch-\d
-    |SARTAK/Jifty-DBI-\d
+    |/Jifty-DBI-\d
     |SARTAK/Jifty-Plugin-OAuth-\d
     |SARTAK/Moose-\d
     |SARTAK/Net-Hiveminder-\d
@@ -368,6 +371,7 @@ match:
     |SMUELLER/PAR-
     |SPANG/App-SD-\d
     |SPANG/Prophet-\d
+    |SPLICE/Lingua-EN-Segmenter-\d
     |SRI/Catalyst-Plugin-HTML-Widget-\d
     |SRI/HTML-Declare-\d
     |STEVAN/FCGI-Engine-\d
@@ -387,8 +391,11 @@ match:
     |TOMYHERO/Catalyst-Model-DynamicAdaptor-\d
     |TOMYHERO/Catalyst-Plugin-Config-Multi-\d
     |TOMYHERO/Catalyst-Plugin-ConfigLoader-Multi-\d
+    |TPG/Net-Radius-PacketOrdered-\d
+    |TPG/Luka-\d
     |TRAVAIL/DBIx-Class-Schema-Slave-\d
     |VICTORI/perlbal-plugin-backendheaders-\d
+    |YANNK/Catalyst-Plugin-MortalForward-\d
     |YAPPO/Class-Component-\d
     |YAPPO/HTTP-Engine-\d
     |YAPPO/Lingua-JA-Summarize-Extract-\d
@@ -397,6 +404,8 @@ match:
     |YVESAGO/Net-Sieve-\d
     |ZAKAME/Tie-Amazon-S3-\d
     |ZARQUON/Catalyst-Helper-AuthDBIC-\d
+    |ZEV/Test-Chimps-Anna-\d
+    |ZEV/Test-Chimps-Client-\d
     |ZIGOROU/Catalyst-Helper-Model-MozRepl-\d
     |ZIGOROU/Catalyst-Model-MozRepl-\d
     |ZIGOROU/Data-ClearSilver-HDF-\d
@@ -421,3 +430,52 @@ pl:
       - "y\n"
       - "Multiple extensions found for method 'WriteAll':"
       - "\n"
+---
+comment: |
+
+  Same as above but with envariables.
+
+  With the following distros it has been observed that they may bail
+  out to CPANPLUS and redo the whole work that CPAN had already done.
+
+match:
+  distribution: |
+    ^(?x:MITREHC/HoneyClient-Manager-\d
+    |AUTRIJUS/Parse-SVNDiff-\d
+    |BTROTT/WWW-Blog-Metadata-\d
+    |BTROTT/WWW-Blog-Metadata-Icon-\d
+    |BOBTFISH/Catalyst-Plugin-HTML-Widget-\d
+    |DIABLO/Rsync-Config-\d
+    |SMUELLER/Task-Math-Symbolic-\d
+    |XERN/Lingua-LinkParser-FindPath-\d
+    |ZEV/Test-Chimps-\d
+    )|
+pl:
+  eexpect:
+    mode: anyorder
+    timeout: 120
+    reuse: 1
+    talk:
+      - "Auto-install"
+      - "n\n"
+      - "Add.*?to the prerequisites"
+      - "y\n"
+      - "Do you wish to install"
+      - "n\n"
+      - "Multiple extensions found for method 'WriteAll':"
+      - "\n"
+  env:
+    PERL_AUTOINSTALL: --skip
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+make:
+  env:
+    PERL_AUTOINSTALL: --skip
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+test:
+  env:
+    PERL_AUTOINSTALL: --skip
+    PERL_EXTUTILS_AUTOINSTALL: --skip
+install:
+  env:
+    PERL_AUTOINSTALL: --skip
+    PERL_EXTUTILS_AUTOINSTALL: --skip

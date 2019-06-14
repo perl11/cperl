@@ -174,7 +174,8 @@ BEGIN {
 
 my @CPR;
 BEGIN {
-    @CPR = eval { require CPAN::Perl::Releases } ? CPAN::Perl::Releases::perl_versions() : ();
+    @CPR = (eval { require CPAN::Perl::Releases } && CPAN::Perl::Releases->can('perl_versions'))
+        ? CPAN::Perl::Releases::perl_versions() : ();
     $isa_perl_tests = @CPR ? 2 + @CPR : 1;
 }
 
@@ -207,7 +208,7 @@ BEGIN {
         }
         ok !@fail, "no perl distros unrecognized; fail=(@fail)";
     } else {
-        note("No CPAN::Perl::Releases installed");
+        note("No or no sufficiently recent CPAN::Perl::Releases installed");
     }
     my @fail;
     for my $distro (qw(INGY/perl5-0.21.tar.gz)) {

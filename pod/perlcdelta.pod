@@ -559,17 +559,18 @@ Add the FREEBSD_KERNEL_VERSION key for FreeBSD.
 
 Whitespace only
 
-=item L<CPAN> 2.21_01
+=item L<CPAN> 2.27_01
 
-Update to 2.21 upstream with our cperl fixes. Some of our fixes were accepted upstream.
+Update to 2.27-TRIAL upstream with our cperl fixes. Some of our fixes
+were accepted upstream.
 
 Fixed critical rmtree bug with a symlink crossing mountpoints
 previous directory ~/.cpan/build changed before entering tmp-32186,
 expected dev=47 ino=244719549, actual dev=47 ino=33303, aborting at
 CPAN/Distribution.pm line 591
 
-Add many upstream tests and distroprefs. Still need to install them, and
-add the cperl distroprefs.
+Add many upstream tests and distroprefs. Still need to install them,
+and add the cperl distroprefs.
 
 =item L<Cpanel::JSON::XS> 4.12
 

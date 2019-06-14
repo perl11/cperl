@@ -18,3 +18,9 @@ pl:
       - "21\n"
       - "Unicode Codepoint of Won, hexadecimal"
       - "20A9\n"
+install:
+  commandline: "env | grep PERL; make install; env | grep PERL"
+  env:
+    PERL_TEST_DUMMY_PERL5_MAKE_EXPECT_1: Installing
+    PERL_TEST_DUMMY_PERL5_MAKE_EXPECT_2: Catherine
+    PERL_TEST_DUMMY_PERL5_MAKE_EXPECT_3: Deneuve

@@ -7,7 +7,7 @@ comment: |
     answer a question.
 
 match:
-  distribution: '^(FLORA|MIKEM)/Net-SSLeay-\d'
+  distribution: '^(FLORA|MIKEM|CHRISN)/Net-SSLeay-\d'
 pl:
   eexpect:
     mode: anyorder

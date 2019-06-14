@@ -8,3 +8,5 @@ pl:
 make:
   env:
     PERL_AUTOINSTALL: --skip    
+cpanconfig:
+  check_sigs: 0

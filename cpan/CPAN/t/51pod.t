@@ -25,7 +25,7 @@ while (<FH>) {
   next if /^(\w|$)/ && !$seen;
   last if /^(\w|$)/ && $seen;
   chomp;
-  my($leader,$gedoct) = unpack("a2 a40",$_);
+  my($leader,$gedoct) = unpack("a2 a50",$_);
   next if $gedoct =~ /^\s/;
   $gedoct =~ s/\s.*//;
   if (exists $CPAN::HandleConfig::keys{$gedoct}){

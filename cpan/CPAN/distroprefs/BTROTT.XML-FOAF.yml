@@ -1,6 +1,6 @@
 --- 
 match:
-  distribution: "^BTROTT/XML-FOAF-"
+  distribution: "^BTROTT/XML-FOAF-0.03"
 pl: 
   expect:
     - "Auto-install"

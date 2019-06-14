@@ -4,6 +4,15 @@ comment: |
   https://rt.cpan.org/Ticket/Display.html?id=123955
   https://rt.cpan.org/Ticket/Display.html?id=125540
 
+  Additionally, this distroprefs file is an illustration how to deal
+  with allow_installing_outdated_dists when the goal of the goto is
+  to install an outdated dist.
+
 match:
   distribution: "^MAUKE/Keyword-Simple-0.04.tar.gz"
 goto: "MAUKE/Keyword-Simple-0.03.tar.gz"
+---
+match:
+  distribution: "^MAUKE/Keyword-Simple-0.03.tar.gz"
+cpanconfig:
+  allow_installing_outdated_dists: yes

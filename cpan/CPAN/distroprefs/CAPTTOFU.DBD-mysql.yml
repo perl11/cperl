@@ -4,12 +4,15 @@ comment: |
   and a random password is down there because some DBD::mysql versions
   did not understand the --testpassword option with an empty password
 
+  CREATE USER 'testuser'@'localhost' IDENTIFIED BY 'rfjNq4g';
+  GRANT ALL PRIVILEGES ON `test`.* TO 'testuser'@'localhost';
+
 match:
   distribution: '^CAPTTOFU/DBD-mysql-3\.\d+.tar.gz$'
 disabled: 1
 --- 
 match:
-  distribution: '^CAPTTOFU/DBD-mysql-\d+\.\d+.tar.gz$'
+  distribution: '^.*/DBD-mysql-\d+\.\d+.tar.gz$'
 pl: 
   args: 
     - --testdb=test

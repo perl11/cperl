@@ -1,6 +1,6 @@
 ---
 match:
-  distribution: "YVES/Data-Dump-Streamer-"
-patches:
-  - "RURBAN/patches/Data-Dump-Streamer-5.17.3-cvstubs-padlist-rt79127.patch"
-  - "RURBAN/patches/Data-Dump-Streamer-5.17.6-regex-dump-rt82958.patch"
+  distribution: 'YVES/Data-Dump-Streamer-\d'
+pl:
+  args:
+    - "NODDS"
