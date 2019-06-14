@@ -24,7 +24,7 @@ CPAN::Meta::Requirements dist/CPAN-Meta-Requirements/lib/CPAN/Meta/Requirements.
 CPAN::Meta::Requirements dist/CPAN-Meta-Requirements/t/accepts.t 35d1924588d5f9f89aec2164476eb98e93f05a5e
 CPAN::Meta::Requirements dist/CPAN-Meta-Requirements/t/strings.t 86347bcaac1ccbf0eb5e96a544eba22bbdef9365
 CPAN::Meta::YAML cpan/CPAN-Meta-YAML/t/lib/TestUtils.pm 89535dc9f122a77a8320df27e5929aa574196753
-Compress::Raw::Bzip2 cpan/Compress-Raw-Bzip2/Makefile.PL 9987f07ff9fe1b6ab6a436a6512b369089ef4fdc
+Compress::Raw::Bzip2 cpan/Compress-Raw-Bzip2/Makefile.PL f10c5624d218942362a927ad42e58a7d97ec7de6
 Compress::Raw::Zlib cpan/Compress-Raw-Zlib/Makefile.PL 269a30b1f30a0a1458b91372c7d72915e5312d71
 Compress::Raw::Zlib cpan/Compress-Raw-Zlib/zlib-src/deflate.c 974203803c81a2616920c6a7ca1f81bec1ba0113
 Compress::Raw::Zlib cpan/Compress-Raw-Zlib/zlib-src/inflate.c bcf34eed20609e7ea824d6c0002ffb71aab6aea7

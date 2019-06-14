@@ -269,11 +269,15 @@ use File::Glob qw(:case);
     },
 
     'Compress::Raw::Bzip2' => {
-        'DISTRIBUTION' => 'PMQS/Compress-Raw-Bzip2-2.081.tar.gz',
+        'DISTRIBUTION' => 'PMQS/Compress-Raw-Bzip2-2.086.tar.gz',
         'FILES'        => q[cpan/Compress-Raw-Bzip2],
         'EXCLUDED'     => [
             qr{^t/Test/},
             qr{^bzip2-src/.*\.patch},
+            qw( t/meta-json.t
+                t/meta-yaml.t
+                t/99pod.t
+              ),
           ],
         # pgcc support
         'CUSTOMIZED'   => [ 'Makefile.PL' ],

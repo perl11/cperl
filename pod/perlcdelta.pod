@@ -551,6 +551,11 @@ Better way to catch warnings (CPAN RT #126900).
 
 Typo in pod
 
+=item L<Compress::Raw::Bzip2>  2.086
+
+Added transparent lzip and zstd delegation in tests.
+More meta.
+
 =item L<Config> 6.23
 
 Add the FREEBSD_KERNEL_VERSION key for FreeBSD.
