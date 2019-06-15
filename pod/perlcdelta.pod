@@ -824,14 +824,28 @@ Upstream + Keep some of our cperl-specific docs
 
 Hint about $dir/$version is checked by lib.pm and deleted from @INC
 
-=item L<Math::BigInt> 1.999814
+=item L<Math::BigInt> 1.999816
 
-Add C<to_base()> and C<from_base()> to L<Math::BigInt> and corresponding library
-methods C<_to_base()> and C<_from_base()> to L<Math::BigInt::Lib>. This was inspired
-by L<CPAN RT #122681|https://rt.cpan.org/Ticket/Display.html?id=122681>.
+Add C<to_base()> and C<from_base()> to L<Math::BigInt> and
+corresponding library methods C<_to_base()> and C<_from_base()> to
+L<Math::BigInt::Lib>. This was inspired by L<CPAN RT
+#122681|https://rt.cpan.org/Ticket/Display.html?id=122681>.
 
-In the documentation for each of the C<to_(bin|hex|oct|bytes)> methods, add a
-reference to the corresponding C<from_(bin|hex|oct|bytes)> method.
+In the documentation for each of the C<to_(bin|hex|oct|bytes)>
+methods, add a reference to the corresponding
+C<from_(bin|hex|oct|bytes)> method.
+
+C<bnok()> for L<Math::BigInt> and L<Math::BigFloat> now support the
+full Kronenburg extension. The behaviour is identical to the behaviour
+of the Maple and Mathematica function for negative integers n, k. Add
+tests.  L<RT #95628|https://rt.cpan.org/Ticket/Display.html?id=95628>.
+
+Fix POD errors.
+L<RT #125141|https://rt.cpan.org/Ticket/Display.html?id=125141>.
+
+Move bitwise operators signed and, signed or, and signed xor from
+F<lib/Math/BigInt/CalcEmu.pm> into F<lib/Math/BigInt/Lib.pm>. The file
+F<lib/Math/BigInt/CalcEmu.pm> is no longer needed and thus removed.
 
 =item L<Math::BigInt::FastCalc> 0.5008
 

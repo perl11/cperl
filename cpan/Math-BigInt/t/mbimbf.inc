@@ -1112,7 +1112,7 @@ for my $class ($mbi, $mbf) {
        qq|$class->accuracy(2); \$x = $class->bzero(5); \$x->accuracy()|);
 
     SKIP: {
-          skip "this won't work until we have a better OO implementation", 1;
+          skip 1, "this won't work until we have a better OO implementation";
 
           $x = $class->bzero(undef);
           is($x->accuracy(), undef,
@@ -1124,7 +1124,7 @@ for my $class ($mbi, $mbf) {
        qq|$class->accuracy(2); \$x = $class->bone("+", 5); \$x->accuracy()|);
 
     SKIP: {
-          skip "this won't work until we have a better OO implementation", 1;
+          skip 1, "this won't work until we have a better OO implementation";
 
           $x = $class->bone("+", undef);
           is($x->accuracy(), undef,
@@ -1136,7 +1136,7 @@ for my $class ($mbi, $mbf) {
        qq|$class->accuracy(2); \$x = $class->new(2, 5); \$x->accuracy()|);
 
     SKIP: {
-          skip "this won't work until we have a better OO implementation", 1;
+          skip 1, "this won't work until we have a better OO implementation";
 
           $x = $class->new(2, undef);
           is($x->accuracy(), undef,
@@ -1154,7 +1154,7 @@ for my $class ($mbi, $mbf) {
        qq|$class->precision(-2); \$x = $class->bzero(undef, -6); \$x->precision()|);
 
     SKIP: {
-          skip "this won't work until we have a better OO implementation", 1;
+          skip 1, "this won't work until we have a better OO implementation";
 
           $x = $class->bzero(undef, undef);
           is($x->precision(), undef,
@@ -1166,7 +1166,7 @@ for my $class ($mbi, $mbf) {
        qq|$class->precision(-2); \$x = $class->bone("+", undef, -6); \$x->precision()|);
 
     SKIP: {
-          skip "this won't work until we have a better OO implementation", 1;
+          skip 1, "this won't work until we have a better OO implementation";
 
           $x = $class->bone("+", undef, undef);
           is($x->precision(), undef,
@@ -1178,7 +1178,7 @@ for my $class ($mbi, $mbf) {
        qq|$class->precision(-2); \$x = $class->new(2, undef, -6); \$x->precision()|);
 
     SKIP: {
-          skip "this won't work until we have a better OO implementation", 1;
+          skip 1, "this won't work until we have a better OO implementation";
 
           $x = $class->new(2, undef, undef);
           is($x->precision(), undef,

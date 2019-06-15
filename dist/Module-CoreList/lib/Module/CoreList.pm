@@ -18971,6 +18971,10 @@ our %delta :const = (
             'IO::Uncompress::RawInflate'=> '2.086',
             'IO::Uncompress::Unzip' => '2.086',
             'JSON::PP'              => '4.02_01',
+            'Math::BigFloat'        => '1.999816',
+            'Math::BigInt'          => '1.999816',
+            'Math::BigInt::Calc'    => '1.999816',
+            'Math::BigInt::Lib'     => '1.999816',
             'mro'                   => '1.22_02',
             'POSIX'                 => '1.87_03',
             'PerlIO::encoding'      => '0.27_01',
@@ -18979,6 +18983,9 @@ our %delta :const = (
             'Unicode'               => '12.1.0',
             'XS::Typemap'           => '0.17',
         },
+        removed => {
+            'Math::BigInt::CalcEmu' => 1,
+        }
     },
 );
 

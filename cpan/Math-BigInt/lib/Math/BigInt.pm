@@ -18,9 +18,9 @@ use 5.006001;
 use strict;
 use warnings;
 
-use Carp ();
+use Carp qw< carp croak >;
 
-our $VERSION = '1.999814';
+our $VERSION = '1.999816';
 
 require Exporter;
 our @ISA = qw(Exporter);
@@ -233,7 +233,6 @@ my $LIB = 'Math::BigInt::Calc';        # module to do the low level math
 my $IMPORT = 0;                         # was import() called yet?
                                         # used to make require work
 my %WARN;                               # warn only once for low-level libs
-my %CAN;                                # cache for $LIB->can(...)
 my %CALLBACKS;                          # callbacks to notify on lib loads
 my $EMU_LIB = 'Math/BigInt/CalcEmu.pm'; # emulate low-level math
 
@@ -277,7 +276,7 @@ sub round_mode {
     if (defined $_[0]) {
         my $m = shift;
         if ($m !~ /^(even|odd|\+inf|\-inf|zero|trunc|common)$/) {
-            Carp::croak("Unknown round mode '$m'");
+            croak("Unknown round mode '$m'");
         }
         return ${"${class}::round_mode"} = $m;
     }
@@ -315,7 +314,7 @@ sub div_scale {
     my $class = ref($self) || $self || __PACKAGE__;
     if (defined $_[0]) {
         if ($_[0] < 0) {
-            Carp::croak('div_scale must be greater than zero');
+            croak('div_scale must be greater than zero');
         }
         ${"${class}::div_scale"} = $_[0];
     }
@@ -336,12 +335,12 @@ sub accuracy {
         my $a = shift;
         if (defined $a) {
             $a = $a->numify() if ref($a) && $a->can('numify');
-            # also Carp::croak on non-numerical
+            # also croak on non-numerical
             if (!$a || $a <= 0) {
-                Carp::croak('Argument to accuracy must be greater than zero');
+                croak('Argument to accuracy must be greater than zero');
             }
             if (int($a) != $a) {
-                Carp::croak('Argument to accuracy must be an integer');
+                croak('Argument to accuracy must be an integer');
             }
         }
 
@@ -383,7 +382,7 @@ sub precision {
         if (defined $p) {
             $p = $p->numify() if ref($p) && $p->can('numify');
             if ($p != int $p) {
-                Carp::croak('Argument to precision must be an integer');
+                croak('Argument to precision must be an integer');
             }
         }
 
@@ -435,7 +434,7 @@ sub config {
             delete $args->{$key};
         }
         if (keys %$args > 0) {
-            Carp::croak("Illegal key(s) '", join("', '", keys %$args),
+            croak("Illegal key(s) '", join("', '", keys %$args),
                         "' passed to $class\->config()");
         }
         foreach my $key (keys %$set_args) {
@@ -636,7 +635,7 @@ sub new {
     my ($mis, $miv, $mfv, $es, $ev) = _split($wanted);
     if (!ref $mis) {
         if ($_trap_nan) {
-            Carp::croak("$wanted is not a number in $class");
+            croak("$wanted is not a number in $class");
         }
         $self->{value} = $LIB->_zero();
         $self->{sign} = $nan;
@@ -659,7 +658,7 @@ sub new {
         my $diff = $e - CORE::length($$mfv);
         if ($diff < 0) {         # Not integer
             if ($_trap_nan) {
-                Carp::croak("$wanted not an integer in $class");
+                croak("$wanted not an integer in $class");
             }
             #print "NOI 1\n";
             return $upgrade->new($wanted, $a, $p, $r) if defined $upgrade;
@@ -675,7 +674,7 @@ sub new {
         if ($$mfv ne '') {       # e <= 0
             # fraction and negative/zero E => NOI
             if ($_trap_nan) {
-                Carp::croak("$wanted not an integer in $class");
+                croak("$wanted not an integer in $class");
             }
             #print "NOI 2 \$\$mfv '$$mfv'\n";
             return $upgrade->new($wanted, $a, $p, $r) if defined $upgrade;
@@ -690,7 +689,7 @@ sub new {
 
             if ($frac =~ /[^0]/) {
                 if ($_trap_nan) {
-                    Carp::croak("$wanted not an integer in $class");
+                    croak("$wanted not an integer in $class");
                 }
                 #print "NOI 3\n";
                 return $upgrade->new($wanted, $a, $p, $r) if defined $upgrade;
@@ -891,7 +890,7 @@ sub from_bytes {
 
     return if $selfref && $self->modify('from_bytes');
 
-    Carp::croak("from_bytes() requires a newer version of the $LIB library.")
+    croak("from_bytes() requires a newer version of the $LIB library.")
         unless $LIB->can('_from_bytes');
 
     my $str = shift;
@@ -977,7 +976,7 @@ sub bzero {
     # instance with the class variables.
 
     if (@_) {
-        Carp::croak "can't specify both accuracy and precision"
+        croak "can't specify both accuracy and precision"
           if @_ >= 2 && defined $_[0] && defined $_[1];
         $self->{_a} = $_[0];
         $self->{_p} = $_[1];
@@ -1026,7 +1025,7 @@ sub bone {
     # instance with the class variables.
 
     if (@_) {
-        Carp::croak "can't specify both accuracy and precision"
+        croak "can't specify both accuracy and precision"
           if @_ >= 2 && defined $_[0] && defined $_[1];
         $self->{_a} = $_[0];
         $self->{_p} = $_[1];
@@ -1058,7 +1057,7 @@ sub binf {
     {
         no strict 'refs';
         if (${"${class}::_trap_inf"}) {
-            Carp::croak("Tried to create +-inf in $class->binf()");
+            croak("Tried to create +-inf in $class->binf()");
         }
     }
 
@@ -1081,7 +1080,7 @@ sub binf {
     # instance with the class variables.
 
     if (@_) {
-        Carp::croak "can't specify both accuracy and precision"
+        croak "can't specify both accuracy and precision"
           if @_ >= 2 && defined $_[0] && defined $_[1];
         $self->{_a} = $_[0];
         $self->{_p} = $_[1];
@@ -1111,7 +1110,7 @@ sub bnan {
     {
         no strict 'refs';
         if (${"${class}::_trap_nan"}) {
-            Carp::croak("Tried to create NaN in $class->bnan()");
+            croak("Tried to create NaN in $class->bnan()");
         }
     }
 
@@ -1329,8 +1328,8 @@ sub beq {
     my $self    = shift;
     my $selfref = ref $self;
 
-    Carp::croak 'beq() is an instance method, not a class method' unless $selfref;
-    Carp::croak 'Wrong number of arguments for beq()' unless @_ == 1;
+    croak 'beq() is an instance method, not a class method' unless $selfref;
+    croak 'Wrong number of arguments for beq()' unless @_ == 1;
 
     my $cmp = $self -> bcmp(shift);
     return defined($cmp) && ! $cmp;
@@ -1340,8 +1339,8 @@ sub bne {
     my $self    = shift;
     my $selfref = ref $self;
 
-    Carp::croak 'bne() is an instance method, not a class method' unless $selfref;
-    Carp::croak 'Wrong number of arguments for bne()' unless @_ == 1;
+    croak 'bne() is an instance method, not a class method' unless $selfref;
+    croak 'Wrong number of arguments for bne()' unless @_ == 1;
 
     my $cmp = $self -> bcmp(shift);
     return defined($cmp) && ! $cmp ? '' : 1;
@@ -1351,8 +1350,8 @@ sub blt {
     my $self    = shift;
     my $selfref = ref $self;
 
-    Carp::croak 'blt() is an instance method, not a class method' unless $selfref;
-    Carp::croak 'Wrong number of arguments for blt()' unless @_ == 1;
+    croak 'blt() is an instance method, not a class method' unless $selfref;
+    croak 'Wrong number of arguments for blt()' unless @_ == 1;
 
     my $cmp = $self -> bcmp(shift);
     return defined($cmp) && $cmp < 0;
@@ -1362,8 +1361,8 @@ sub ble {
     my $self    = shift;
     my $selfref = ref $self;
 
-    Carp::croak 'ble() is an instance method, not a class method' unless $selfref;
-    Carp::croak 'Wrong number of arguments for ble()' unless @_ == 1;
+    croak 'ble() is an instance method, not a class method' unless $selfref;
+    croak 'Wrong number of arguments for ble()' unless @_ == 1;
 
     my $cmp = $self -> bcmp(shift);
     return defined($cmp) && $cmp <= 0;
@@ -1373,8 +1372,8 @@ sub bgt {
     my $self    = shift;
     my $selfref = ref $self;
 
-    Carp::croak 'bgt() is an instance method, not a class method' unless $selfref;
-    Carp::croak 'Wrong number of arguments for bgt()' unless @_ == 1;
+    croak 'bgt() is an instance method, not a class method' unless $selfref;
+    croak 'Wrong number of arguments for bgt()' unless @_ == 1;
 
     my $cmp = $self -> bcmp(shift);
     return defined($cmp) && $cmp > 0;
@@ -1384,9 +1383,9 @@ sub bge {
     my $self    = shift;
     my $selfref = ref $self;
 
-    Carp::croak 'bge() is an instance method, not a class method'
+    croak 'bge() is an instance method, not a class method'
         unless $selfref;
-    Carp::croak 'Wrong number of arguments for bge()' unless @_ == 1;
+    croak 'Wrong number of arguments for bge()' unless @_ == 1;
 
     my $cmp = $self -> bcmp(shift);
     return defined($cmp) && $cmp >= 0;
@@ -1484,9 +1483,9 @@ sub bdec {
 #    my $selfref = ref $self;
 #    my $class   = $selfref || $self;
 #
-#    Carp::croak 'bstrcmp() is an instance method, not a class method'
+#    croak 'bstrcmp() is an instance method, not a class method'
 #        unless $selfref;
-#    Carp::croak 'Wrong number of arguments for bstrcmp()' unless @_ == 1;
+#    croak 'Wrong number of arguments for bstrcmp()' unless @_ == 1;
 #
 #    return $self -> bstr() CORE::cmp shift;
 #}
@@ -1496,9 +1495,9 @@ sub bdec {
 #    my $selfref = ref $self;
 #    my $class   = $selfref || $self;
 #
-#    Carp::croak 'bstreq() is an instance method, not a class method'
+#    croak 'bstreq() is an instance method, not a class method'
 #        unless $selfref;
-#    Carp::croak 'Wrong number of arguments for bstreq()' unless @_ == 1;
+#    croak 'Wrong number of arguments for bstreq()' unless @_ == 1;
 #
 #    my $cmp = $self -> bstrcmp(shift);
 #    return defined($cmp) && ! $cmp;
@@ -1509,9 +1508,9 @@ sub bdec {
 #    my $selfref = ref $self;
 #    my $class   = $selfref || $self;
 #
-#    Carp::croak 'bstrne() is an instance method, not a class method'
+#    croak 'bstrne() is an instance method, not a class method'
 #        unless $selfref;
-#    Carp::croak 'Wrong number of arguments for bstrne()' unless @_ == 1;
+#    croak 'Wrong number of arguments for bstrne()' unless @_ == 1;
 #
 #    my $cmp = $self -> bstrcmp(shift);
 #    return defined($cmp) && ! $cmp ? '' : 1;
@@ -1522,9 +1521,9 @@ sub bdec {
 #    my $selfref = ref $self;
 #    my $class   = $selfref || $self;
 #
-#    Carp::croak 'bstrlt() is an instance method, not a class method'
+#    croak 'bstrlt() is an instance method, not a class method'
 #        unless $selfref;
-#    Carp::croak 'Wrong number of arguments for bstrlt()' unless @_ == 1;
+#    croak 'Wrong number of arguments for bstrlt()' unless @_ == 1;
 #
 #    my $cmp = $self -> bstrcmp(shift);
 #    return defined($cmp) && $cmp < 0;
@@ -1535,9 +1534,9 @@ sub bdec {
 #    my $selfref = ref $self;
 #    my $class   = $selfref || $self;
 #
-#    Carp::croak 'bstrle() is an instance method, not a class method'
+#    croak 'bstrle() is an instance method, not a class method'
 #        unless $selfref;
-#    Carp::croak 'Wrong number of arguments for bstrle()' unless @_ == 1;
+#    croak 'Wrong number of arguments for bstrle()' unless @_ == 1;
 #
 #    my $cmp = $self -> bstrcmp(shift);
 #    return defined($cmp) && $cmp <= 0;
@@ -1548,9 +1547,9 @@ sub bdec {
 #    my $selfref = ref $self;
 #    my $class   = $selfref || $self;
 #
-#    Carp::croak 'bstrgt() is an instance method, not a class method'
+#    croak 'bstrgt() is an instance method, not a class method'
 #        unless $selfref;
-#    Carp::croak 'Wrong number of arguments for bstrgt()' unless @_ == 1;
+#    croak 'Wrong number of arguments for bstrgt()' unless @_ == 1;
 #
 #    my $cmp = $self -> bstrcmp(shift);
 #    return defined($cmp) && $cmp > 0;
@@ -1561,9 +1560,9 @@ sub bdec {
 #    my $selfref = ref $self;
 #    my $class   = $selfref || $self;
 #
-#    Carp::croak 'bstrge() is an instance method, not a class method'
+#    croak 'bstrge() is an instance method, not a class method'
 #        unless $selfref;
-#    Carp::croak 'Wrong number of arguments for bstrge()' unless @_ == 1;
+#    croak 'Wrong number of arguments for bstrge()' unless @_ == 1;
 #
 #    my $cmp = $self -> bstrcmp(shift);
 #    return defined($cmp) && $cmp >= 0;
@@ -2522,74 +2521,85 @@ sub bexp {
 }
 
 sub bnok {
-    # Calculate n over k (binomial coefficient or "choose" function) as integer.
-    # set up parameters
-    my ($class, $x, $y, @r) = (ref($_[0]), @_);
+    # Calculate n over k (binomial coefficient or "choose" function) as
+    # integer.
 
-    # objectify is costly, so avoid it
+    # Set up parameters.
+    my ($self, $n, $k, @r) = (ref($_[0]), @_);
+
+    # Objectify is costly, so avoid it.
     if ((!ref($_[0])) || (ref($_[0]) ne ref($_[1]))) {
-        ($class, $x, $y, @r) = objectify(2, @_);
+        ($self, $n, $k, @r) = objectify(2, @_);
     }
 
-    return $x if $x->modify('bnok');
-    return $x->bnan() if $x->{sign} eq 'NaN' || $y->{sign} eq 'NaN';
-    return $x->binf() if $x->{sign} eq '+inf';
+    return $n if $n->modify('bnok');
 
-    # k > n or k < 0 => 0
-    my $cmp = $x->bacmp($y);
-    return $x->bzero() if $cmp < 0 || substr($y->{sign}, 0, 1) eq "-";
+    # All cases where at least one argument is NaN.
 
-    if ($LIB->can('_nok')) {
-        $x->{value} = $LIB->_nok($x->{value}, $y->{value});
-    } else {
-        # ( 7 )       7!       1*2*3*4 * 5*6*7   5 * 6 * 7       6   7
-        # ( - ) = --------- =  --------------- = --------- = 5 * - * -
-        # ( 3 )   (7-3)! 3!    1*2*3*4 * 1*2*3   1 * 2 * 3       2   3
+    return $n->bnan() if $n->{sign} eq 'NaN' || $k->{sign} eq 'NaN';
 
-        my $n = $x -> {value};
-        my $k = $y -> {value};
+    # All cases where at least one argument is +/-inf.
 
-        # If k > n/2, or, equivalently, 2*k > n, compute nok(n, k) as
-        # nok(n, n-k) to minimize the number if iterations in the loop.
-
-        {
-            my $twok = $LIB->_mul($LIB->_two(), $LIB->_copy($k));
-            if ($LIB->_acmp($twok, $n) > 0) {
-                $k = $LIB->_sub($LIB->_copy($n), $k);
+    if ($n -> is_inf()) {
+        if ($k -> is_inf()) {                   # bnok(+/-inf,+/-inf)
+            return $n -> bnan();
+        } elsif ($k -> is_neg()) {              # bnok(+/-inf,k), k < 0
+            return $n -> bzero();
+        } elsif ($k -> is_zero()) {             # bnok(+/-inf,k), k = 0
+            return $n -> bone();
+        } else {
+            if ($n -> is_inf("+")) {            # bnok(+inf,k), 0 < k < +inf
+                return $n -> binf("+");
+            } else {                            # bnok(-inf,k), k > 0
+                my $sign = $k -> is_even() ? "+" : "-";
+                return $n -> binf($sign);
             }
         }
+    }
 
-        if ($LIB->_is_zero($k)) {
-            $n = $LIB->_one();
+    elsif ($k -> is_inf()) {            # bnok(n,+/-inf), -inf <= n <= inf
+        return $n -> bnan();
+    }
+
+    # At this point, both n and k are real numbers.
+
+    my $sign = 1;
+
+    if ($n >= 0) {
+        if ($k < 0 || $k > $n) {
+            return $n -> bzero();
+        }
+    } else {
+
+        if ($k >= 0) {
+
+            # n < 0 and k >= 0: bnok(n,k) = (-1)^k * bnok(-n+k-1,k)
+
+            $sign = (-1) ** $k;
+            $n -> bneg() -> badd($k) -> bdec();
+
+        } elsif ($k <= $n) {
+
+            # n < 0 and k <= n: bnok(n,k) = (-1)^(n-k) * bnok(-k-1,n-k)
+
+            $sign = (-1) ** ($n - $k);
+            my $x0 = $n -> copy();
+            $n -> bone() -> badd($k) -> bneg();
+            $k = $k -> copy();
+            $k -> bneg() -> badd($x0);
+
         } else {
 
-            # Make a copy of the original n, since we'll be modifying n
-            # in-place.
+            # n < 0 and n < k < 0:
 
-            my $n_orig = $LIB->_copy($n);
-
-            $LIB->_sub($n, $k);
-            $LIB->_inc($n);
-
-            my $f = $LIB->_copy($n);
-            $LIB->_inc($f);
-
-            my $d = $LIB->_two();
-
-            # while f <= n (the original n, that is) ...
-
-            while ($LIB->_acmp($f, $n_orig) <= 0) {
-                $LIB->_mul($n, $f);
-                $LIB->_div($n, $d);
-                $LIB->_inc($f);
-                $LIB->_inc($d);
-            }
+            return $n -> bzero();
         }
-
-        $x -> {value} = $n;
     }
 
-    $x->round(@r);
+    $n->{value} = $LIB->_nok($n->{value}, $k->{value});
+    $n -> bneg() if $sign == -1;
+
+    $n->round(@r);
 }
 
 sub bsin {
@@ -2769,7 +2779,7 @@ sub bdfac {
     return $x if $x->modify('bdfac') || $x->{sign} eq '+inf'; # inf => inf
     return $x->bnan() if $x->{sign} ne '+'; # NaN, <0 etc => NaN
 
-    Carp::croak("bdfac() requires a newer version of the $LIB library.")
+    croak("bdfac() requires a newer version of the $LIB library.")
         unless $LIB->can('_dfac');
 
     $x->{value} = $LIB->_dfac($x->{value});
@@ -2780,7 +2790,7 @@ sub bfib {
     # compute Fibonacci number(s)
     my ($class, $x, @r) = objectify(1, @_);
 
-    Carp::croak("bfib() requires a newer version of the $LIB library.")
+    croak("bfib() requires a newer version of the $LIB library.")
         unless $LIB->can('_fib');
 
     return $x if $x->modify('bfib');
@@ -2789,7 +2799,7 @@ sub bfib {
 
     if (wantarray) {
         return () if $x ->  is_nan();
-        Carp::croak("bfib() can't return an infinitely long list of numbers")
+        croak("bfib() can't return an infinitely long list of numbers")
             if $x -> is_inf();
 
         # Use the backend library to compute the first $x Fibonacci numbers.
@@ -2836,7 +2846,7 @@ sub blucas {
     # compute Lucas number(s)
     my ($class, $x, @r) = objectify(1, @_);
 
-    Carp::croak("blucas() requires a newer version of the $LIB library.")
+    croak("blucas() requires a newer version of the $LIB library.")
         unless $LIB->can('_lucas');
 
     return $x if $x->modify('blucas');
@@ -2845,7 +2855,7 @@ sub blucas {
 
     if (wantarray) {
         return () if $x -> is_nan();
-        Carp::croak("blucas() can't return an infinitely long list of numbers")
+        croak("blucas() can't return an infinitely long list of numbers")
             if $x -> is_inf();
 
         # Use the backend library to compute the first $x Lucas numbers.
@@ -2991,21 +3001,13 @@ sub band {
 
     return $x->bnan() if ($x->{sign} !~ /^[+-]$/ || $y->{sign} !~ /^[+-]$/);
 
-    my $sx = $x->{sign} eq '+' ? 1 : -1;
-    my $sy = $y->{sign} eq '+' ? 1 : -1;
-
-    if ($sx == 1 && $sy == 1) {
+    if ($x->{sign} eq '+' && $y->{sign} eq '+') {
         $x->{value} = $LIB->_and($x->{value}, $y->{value});
-        return $x->round(@r);
+    } else {
+        ($x->{value}, $x->{sign}) = $LIB->_sand($x->{value}, $x->{sign},
+                                                $y->{value}, $y->{sign});
     }
-
-    if ($CAN{signed_and}) {
-        $x->{value} = $LIB->_signed_and($x->{value}, $y->{value}, $sx, $sy);
-        return $x->round(@r);
-    }
-
-    require $EMU_LIB;
-    __emu_band($class, $x, $y, $sx, $sy, @r);
+    return $x->round(@r);
 }
 
 sub bior {
@@ -3020,29 +3022,18 @@ sub bior {
     }
 
     return $x if $x->modify('bior');
+
     $r[3] = $y;                 # no push!
 
     return $x->bnan() if ($x->{sign} !~ /^[+-]$/ || $y->{sign} !~ /^[+-]$/);
 
-    my $sx = $x->{sign} eq '+' ? 1 : -1;
-    my $sy = $y->{sign} eq '+' ? 1 : -1;
-
-    # the sign of X follows the sign of X, e.g. sign of Y irrelevant for bior()
-
-    # don't use lib for negative values
-    if ($sx == 1 && $sy == 1) {
+    if ($x->{sign} eq '+' && $y->{sign} eq '+') {
         $x->{value} = $LIB->_or($x->{value}, $y->{value});
-        return $x->round(@r);
+    } else {
+        ($x->{value}, $x->{sign}) = $LIB->_sor($x->{value}, $x->{sign},
+                                               $y->{value}, $y->{sign});
     }
-
-    # if lib can do negative values, let it handle this
-    if ($CAN{signed_or}) {
-        $x->{value} = $LIB->_signed_or($x->{value}, $y->{value}, $sx, $sy);
-        return $x->round(@r);
-    }
-
-    require $EMU_LIB;
-    __emu_bior($class, $x, $y, $sx, $sy, @r);
+    return $x->round(@r);
 }
 
 sub bxor {
@@ -3057,27 +3048,18 @@ sub bxor {
     }
 
     return $x if $x->modify('bxor');
+
     $r[3] = $y;                 # no push!
 
     return $x->bnan() if ($x->{sign} !~ /^[+-]$/ || $y->{sign} !~ /^[+-]$/);
 
-    my $sx = $x->{sign} eq '+' ? 1 : -1;
-    my $sy = $y->{sign} eq '+' ? 1 : -1;
-
-    # don't use lib for negative values
-    if ($sx == 1 && $sy == 1) {
+    if ($x->{sign} eq '+' && $y->{sign} eq '+') {
         $x->{value} = $LIB->_xor($x->{value}, $y->{value});
-        return $x->round(@r);
+    } else {
+        ($x->{value}, $x->{sign}) = $LIB->_sxor($x->{value}, $x->{sign},
+                                               $y->{value}, $y->{sign});
     }
-
-    # if lib can do negative values, let it handle this
-    if ($CAN{signed_xor}) {
-        $x->{value} = $LIB->_signed_xor($x->{value}, $y->{value}, $sx, $sy);
-        return $x->round(@r);
-    }
-
-    require $EMU_LIB;
-    __emu_bxor($class, $x, $y, $sx, $sy, @r);
+    return $x->round(@r);
 }
 
 sub bnot {
@@ -3142,7 +3124,7 @@ sub round {
 
     $r = ${"$class\::round_mode"} unless defined $r;
     if ($r !~ /^(even|odd|[+-]inf|zero|trunc|common)$/) {
-        Carp::croak("Unknown round mode '$r'");
+        croak("Unknown round mode '$r'");
     }
 
     # now round, by calling either bround or bfround:
@@ -3425,7 +3407,7 @@ sub sparts {
     my $self  = shift;
     my $class = ref $self;
 
-    Carp::croak("sparts() is an instance method, not a class method")
+    croak("sparts() is an instance method, not a class method")
         unless $class;
 
     # Not-a-number.
@@ -3462,7 +3444,7 @@ sub nparts {
     my $self  = shift;
     my $class = ref $self;
 
-    Carp::croak("nparts() is an instance method, not a class method")
+    croak("nparts() is an instance method, not a class method")
         unless $class;
 
     # Not-a-number.
@@ -3508,7 +3490,7 @@ sub eparts {
     my $self  = shift;
     my $class = ref $self;
 
-    Carp::croak("eparts() is an instance method, not a class method")
+    croak("eparts() is an instance method, not a class method")
         unless $class;
 
     # Not-a-number and Infinity.
@@ -3547,7 +3529,7 @@ sub dparts {
     my $self  = shift;
     my $class = ref $self;
 
-    Carp::croak("dparts() is an instance method, not a class method")
+    croak("dparts() is an instance method, not a class method")
         unless $class;
 
     my $int = $self -> copy();
@@ -3705,10 +3687,10 @@ sub to_bytes {
     my $x = shift;
     $x = $class->new($x) if !ref($x);
 
-    Carp::croak("to_bytes() requires a finite, non-negative integer")
+    croak("to_bytes() requires a finite, non-negative integer")
         if $x -> is_neg() || ! $x -> is_int();
 
-    Carp::croak("to_bytes() requires a newer version of the $LIB library.")
+    croak("to_bytes() requires a newer version of the $LIB library.")
         unless $LIB->can('_to_bytes');
 
     return $LIB->_to_bytes($x->{value});
@@ -3835,7 +3817,7 @@ sub objectify {
     # Check the context.
 
     unless (wantarray) {
-        Carp::croak("${class}::objectify() needs list context");
+        croak("${class}::objectify() needs list context");
     }
 
     # Get the number of arguments to objectify.
@@ -4033,7 +4015,7 @@ sub import {
                                   /) {
                     if (!$lib->can("_$method")) {
                         if (($WARN{$lib} || 0) < 2) {
-                            Carp::carp("$lib is missing method '_$method'");
+                            carp("$lib is missing method '_$method'");
                             $WARN{$lib} = 1; # still warn about the lib
                         }
                         $ok++;
@@ -4046,14 +4028,14 @@ sub import {
                 if ($warn_or_die > 0 && ref($l)) {
                     my $msg = "Math::BigInt: couldn't load specified"
                             . " math lib(s), fallback to $lib";
-                    Carp::carp($msg)  if $warn_or_die == 1;
-                    Carp::croak($msg) if $warn_or_die == 2;
+                    carp($msg)  if $warn_or_die == 1;
+                    croak($msg) if $warn_or_die == 2;
                 }
                 last;           # found a usable one, break
             } else {
                 if (($WARN{$lib} || 0) < 2) {
                     my $ver = eval "\$$lib\::VERSION" || 'unknown';
-                    Carp::carp("Cannot load outdated $lib v$ver, please upgrade");
+                    carp("Cannot load outdated $lib v$ver, please upgrade");
                     $WARN{$lib} = 2; # never warn again
                 }
             }
@@ -4061,24 +4043,16 @@ sub import {
     }
     if ($LIB eq '') {
         if ($warn_or_die == 2) {
-            Carp::croak("Couldn't load specified math lib(s)" .
+            croak("Couldn't load specified math lib(s)" .
                         " and fallback disallowed");
         } else {
-            Carp::croak("Couldn't load any math lib(s), not even fallback to Calc.pm");
+            croak("Couldn't load any math lib(s), not even fallback to Calc.pm");
         }
     }
 
     # notify callbacks
     foreach my $class (keys %CALLBACKS) {
         &{$CALLBACKS{$class}}($LIB);
-    }
-
-    # Fill $CAN with the results of $LIB->can(...) for emulating lower math lib
-    # functions
-
-    %CAN = ();
-    for my $method (qw/ signed_and signed_or signed_xor /) {
-        $CAN{$method} = $LIB->can("_$method") ? 1 : 0;
     }
 
     # import done
@@ -4088,7 +4062,7 @@ sub _register_callback {
     my ($class, $callback) = @_;
 
     if (ref($callback) ne 'CODE') {
-        Carp::croak("$callback is not a coderef");
+        croak("$callback is not a coderef");
     }
     $CALLBACKS{$class} = $callback;
 }
@@ -4312,7 +4286,7 @@ sub _find_round_parameters {
 
     $r = ${"$class\::round_mode"} unless defined $r;
     if ($r !~ /^(even|odd|[+-]inf|zero|trunc|common)$/) {
-        Carp::croak("Unknown round mode '$r'");
+        croak("Unknown round mode '$r'");
     }
 
     $a = int($a) if defined $a;
@@ -5295,13 +5269,28 @@ See also L</blog()>.
     $x->bnok($y);               # x over y (binomial coefficient n over k)
 
 Calculates the binomial coefficient n over k, also called the "choose"
-function. The result is equivalent to:
+function, which is
 
-    ( n )      n!
-    | - |  = -------
+    ( n )       n!
+    |   |  = --------
     ( k )    k!(n-k)!
 
-This method was added in v1.84 of Math::BigInt (April 2007).
+when n and k are non-negative. This method implements the full Kronenburg
+extension (Kronenburg, M.J. "The Binomial Coefficient for Negative Arguments."
+18 May 2011. http://arxiv.org/abs/1105.3689/) illustrated by the following
+pseudo-code:
+
+    if n >= 0 and k >= 0:
+        return binomial(n, k)
+    if k >= 0:
+        return (-1)^k*binomial(-n+k-1, k)
+    if k <= n:
+        return (-1)^(n-k)*binomial(-k-1, n-k)
+    else
+        return 0
+
+The behaviour is identical to the behaviour of the Maple and Mathematica
+function for negative integers n, k.
 
 =item bsin()
 

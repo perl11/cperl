@@ -950,7 +950,7 @@ use File::Glob qw(:case);
     },
 
     'Math::BigInt' => {
-        'DISTRIBUTION' => 'PJACKLAM/Math-BigInt-1.999814.tar.gz',
+        'DISTRIBUTION' => 'PJACKLAM/Math-BigInt-1.999816.tar.gz',
         'FILES'        => q[cpan/Math-BigInt],
         'EXCLUDED'     => [
             qr{^inc/},
@@ -963,12 +963,6 @@ use File::Glob qw(:case);
                 t/03podcov.t
                 ),
         ],
-        # wrong skip
-        'CUSTOMIZED'   => [
-            qw[
-                t/mbimbf.inc
-              ]
-          ],
     },
 
     'Math::BigInt::FastCalc' => {
@@ -1044,7 +1038,7 @@ use File::Glob qw(:case);
     },
 
     'Module::CoreList' => {
-        'DISTRIBUTION' => 'BINGOS/Module-CoreList-5.20180920.tar.gz',
+        'DISTRIBUTION' => 'BINGOS/Module-CoreList-5.20190522.tar.gz',
         'FILES'        => q[dist/Module-CoreList],
         # skip ending 'c' in numeric context on cperl
         #'CUSTOMIZED'   => [ qw( lib/Module/CoreList.pm
