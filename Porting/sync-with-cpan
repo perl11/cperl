@@ -300,7 +300,7 @@ sub update_corelist {
             $found = 1;
           }
         }
-        if (/^\s+'5.0/) {
+        if (/^\s+'?5.0/) {
           $in_section = 0;
         }
       }

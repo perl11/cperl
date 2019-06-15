@@ -1189,6 +1189,12 @@ are illegal.
 
 =back
 
+=head1 Utility Changes
+
+=head2 F<Porting/sync-with-cpan>
+
+Stabilized CoreList updater.
+
 =head1 Configuration and Compilation
 
 =over 4
