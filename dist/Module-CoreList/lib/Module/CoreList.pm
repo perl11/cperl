@@ -19012,6 +19012,7 @@ our %delta :const = (
             'Pod::Text::Termcap'    => '4.12',
             'POSIX'                 => '1.87_03',
             'PerlIO::encoding'      => '0.27_01',
+            'Socket'                => '2.029_05',
             'Storable'              => '3.15_04',
             'threads::shared'       => '1.60',
             'Unicode'               => '12.1.0',
