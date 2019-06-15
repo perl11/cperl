@@ -851,6 +851,11 @@ F<lib/Math/BigInt/CalcEmu.pm> is no longer needed and thus removed.
 
 No code nor test changes.
 
+=item L<Module::Load>  0.34
+
+Added SEE ALSO section to documentation. RT#100575
+Unreachable code cleanup
+
 =item L<mro> 1.22_02
 
 Fix -Wmaybe-uninitialized warnings

@@ -18975,6 +18975,7 @@ our %delta :const = (
             'Math::BigInt'          => '1.999816',
             'Math::BigInt::Calc'    => '1.999816',
             'Math::BigInt::Lib'     => '1.999816',
+            'Module::Load'          => '0.34',
             'mro'                   => '1.22_02',
             'POSIX'                 => '1.87_03',
             'PerlIO::encoding'      => '0.27_01',
