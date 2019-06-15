@@ -6,8 +6,8 @@ use Config ;
 use constant SILENT
     => (defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) ? 1 : 0;
 
-die "DB_File needs Perl 5.8.3 or better. This is $]\n" 
-    if $] < 5.008003; 
+die "DB_File needs Perl 5.8.3 or better. This is $]\n"
+    if $] < 5.008003;
 
 my $VER_INFO ;
 my $LIB_DIR ;
@@ -40,10 +40,9 @@ $LIBS .= " -lpthread" if $^O eq 'aix' ;
 my $OS2 = "" ;
 $OS2 = "-DOS2" if $Config{'osname'} eq 'os2' ;
 
-my $WALL = '' ;
-#$WALL = ' -Wall ';
+my $WALL = $Config{gccversion} ? ' -Wall ' : '';
 
-# Only want ppport.h t to be used by DB_File.xs when not 
+# Only want ppport.h t to be used by DB_File.xs when not
 # building this module with the perl source distribution.
 my $CORE = $ENV{PERL_CORE} ? '' : '-D_NOT_CORE';
 
@@ -51,13 +50,13 @@ WriteMakefile(
 	NAME 		=> 'DB_File',
 	LIBS 		=> ["-L${LIB_DIR} $LIBS"],
 	INC		=> "-I$INC_DIR",
-    VERSION_FROM	=> 'DB_File.pm',
+	VERSION_FROM	=> 'DB_File.pm',
 	XS_VERSION      => eval MM->parse_version('DB_File.pm'),
 	XSPROTOARG	=> '-noprototypes',
-	DEFINE		=> "-D_NOT_CORE $OS2 $VER_INFO $COMPAT185 $WALL",
+	DEFINE		=> "$CORE $OS2 $VER_INFO $COMPAT185 $WALL",
 	OBJECT		=> 'version$(OBJ_EXT) DB_File$(OBJ_EXT)',
-    ((ExtUtils::MakeMaker->VERSION() gt '6.30') 
-        ?  ('LICENSE'  => 'perl')         
+    ((ExtUtils::MakeMaker->VERSION() gt '6.30')
+        ?  ('LICENSE'  => 'perl')
         : ()
     ),
     (
@@ -66,9 +65,9 @@ WriteMakefile(
             AUTHOR       => 'Paul Marquess <pmqs@cpan.org>')
         : ()
     ),
-    
-    ($] < 5.008 || $] > 5.011) 
-        ? (INSTALLDIRS => 'site') 
+
+    ($] < 5.008 || $] > 5.011)
+        ? (INSTALLDIRS => 'site')
         : (INSTALLDIRS => 'perl'),
 
 	#OPTIMIZE	=> '-g',
@@ -76,8 +75,34 @@ WriteMakefile(
                              'version$(OBJ_EXT)' => 'version.c'},
 	'clean'		=> { FILES => 'constants.h constants.xs DB_File.pm.bak t/db-btree.t.bak t/db-hash.t.bak t/db-recno.t.bak t/pod.t.bak' },
 	'macro'		=> { my_files => "@files" },
-        'dist'          => { COMPRESS => 'gzip', SUFFIX => 'gz',
-			     DIST_DEFAULT => 'MyDoubleCheck tardist'},    
+    'dist'      => { COMPRESS => 'gzip', SUFFIX => 'gz',
+			         DIST_DEFAULT => 'MyDoubleCheck tardist'},
+
+     ( eval { ExtUtils::MakeMaker->VERSION(6.46) }
+        ? ( META_MERGE  => {
+
+                "meta-spec" => { version => 2 },
+
+                resources   => {
+
+                    bugtracker  => {
+                        web     => 'https://github.com/pmqs/DB_File/issues'
+                    },
+
+                    homepage    => 'https://github.com/pmqs/DB_File',
+
+                    repository  => {
+                        type    => 'git',
+                        url     => 'git://github.com/pmqs/DB_File.git',
+                        web     => 'https://github.com/pmqs/DB_File',
+                    },
+                },
+            }
+            )
+        : ()
+    ),
+
+
 	);
 
 
@@ -135,16 +160,16 @@ if (eval {require ExtUtils::Constant; 1}) {
         die "The following names are missing from \@EXPORT in DB_File.pm\n" .
             "\t$missing\n" ;
     }
-    
+
 
     ExtUtils::Constant::WriteConstants(
                                      NAME => 'DB_File',
                                      NAMES => \@names,
                                      C_FILE  => 'constants.h',
                                      XS_FILE  => 'constants.xs',
-                                                                       
+
                                     );
-} 
+}
 else {
     use File::Copy;
     copy ('fallback.h', 'constants.h')
@@ -162,10 +187,10 @@ sub MY::libscan
     my $path = shift ;
 
     return undef
-        if $path =~ /(~|\.bak)$/ || 
+        if $path =~ /(~|\.bak)$/ ||
            $path =~ /^\..*\.swp$/ ;
 
-    return $path;    
+    return $path;
 }
 
 
@@ -178,27 +203,27 @@ MyDoubleCheck:
 	grep "^#DBNAME.*" config.in) >/dev/null ||		\
 	    (echo config.in needs fixing ; exit 1)
 	@echo config.in is ok
-	@echo 
+	@echo
 	@echo Checking DB_File.xs is ok for a release.
 	@(perl -ne ' exit 1 if /^\s*#\s*define\s+TRACE/ ; ' DB_File.xs || \
 	    (echo DB_File.xs needs fixing ; exit 1))
 	@echo DB_File.xs is ok
-	@echo 
+	@echo
 	@echo Checking for $$^W in files: $(my_files)
 	@perl -ne '						\
 	    exit 1 if /^\s*local\s*\(\s*\$$\^W\s*\)/;' $(my_files) ||	\
 	  (echo found unexpected $$^W ; exit 1)
 	@echo No $$^W found.
-	@echo 
+	@echo
 	@echo Checking for 'use vars' in files: $(my_files)
 	@perl -ne '						\
 	    exit 0 if /^__(DATA|END)__/;               	\
 	    exit 1 if /^\s*use\s+vars/;' $(my_files) ||	\
 	  (echo found unexpected "use vars"; exit 1)
 	@echo No 'use vars' found.
-	@echo 
+	@echo
 	@echo All files are OK for a release.
-	@echo 
+	@echo
 
 EOM
 
@@ -216,7 +241,7 @@ sub ParseCONFIG
 
     print "Parsing $CONFIG...\n" unless SILENT;
 
-    # DBNAME & COMPAT185 are optional, so pretend they  have 
+    # DBNAME & COMPAT185 are optional, so pretend they  have
     # been parsed.
     delete $Parsed{'DBNAME'} ;
     delete $Parsed{'COMPAT185'} ;
@@ -246,16 +271,16 @@ sub ParseCONFIG
 
     # check parsed values
     my @missing = () ;
-    die "The following keys are missing from $CONFIG file: [@missing]\n" 
+    die "The following keys are missing from $CONFIG file: [@missing]\n"
         if @missing = keys %Parsed ;
 
     $INC_DIR = $ENV{'DB_FILE_INCLUDE'} || $Info{'INCLUDE'} ;
     $LIB_DIR = $ENV{'DB_FILE_LIB'} || $Info{'LIB'} ;
     $DB_NAME = $ENV{'DB_FILE_NAME'} || $Info{'DBNAME'} ;
-    $COMPAT185 = "-DCOMPAT185 -DDB_LIBRARY_COMPATIBILITY_API" 
-        if (defined $ENV{'DB_FILE_COMPAT185'} && 
+    $COMPAT185 = "-DCOMPAT185 -DDB_LIBRARY_COMPATIBILITY_API"
+        if (defined $ENV{'DB_FILE_COMPAT185'} &&
 		$ENV{'DB_FILE_COMPAT185'} =~ /^\s*(on|true|1)\s*$/i) ||
-		$Info{'COMPAT185'} =~ /^\s*(on|true|1)\s*$/i ; 
+		$Info{'COMPAT185'} =~ /^\s*(on|true|1)\s*$/i ;
     my $PREFIX  = $Info{'PREFIX'} ;
     my $HASH    = $Info{'HASH'} ;
 

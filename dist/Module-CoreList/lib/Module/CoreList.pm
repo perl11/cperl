@@ -467,7 +467,7 @@ our %delta :const = (
         removed => {
         }
     },
-    5.002 => {
+    '5.002' => {
         delta_from => 5.001,
         changed => {
             'DB_File'               => '1.01',
@@ -18923,6 +18923,7 @@ our %delta :const = (
             'CPAN::Tarzip'          => '5.5013',
             'Cpanel::JSON::XS'      => '4.12',
             'Cwd'                   => '4.78c',
+            'DB_File'               => '1.852',
             'deprecate'             => '0.04_01',
             'Devel::PPPort'         => '3.53_04',
             'Devel::NYTProf'        => '6.06_03',

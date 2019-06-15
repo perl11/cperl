@@ -649,6 +649,14 @@ Quote glob names better; notably, Unicode globs are
 now handled correctly.
 L<[perl #119831]|https://rt.perl.org/Public/Bug/Display.html?id=119831>
 
+=item L<DB_File>  1.852
+
+ParseOpenInfo() leaks if it croaks
+L<https://github.com/pmqs/DB_File/issues/1>
+
+Added hints files, sourced from
+L<http://cvsweb.netbsd.org/bsdweb.cgi/pkgsrc/lang/perl5/files/>
+
 =item L<deprecate> 0.04_01
 
 expanded the documentation
