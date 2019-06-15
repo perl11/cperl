@@ -914,6 +914,10 @@ Skip the F<man/no-encode.t> test if Encode is already loaded while
 running the test suite, which seems to happen sometimes with CPAN
 Testers tests.
 
+=item L<Pod::Simple>  4.38c
+
+Merge with updates from 3.38
+
 =item L<POSIX> 1.87_03
 
 Use quadmath versions of log10, ldexp and signbit.

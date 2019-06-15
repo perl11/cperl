@@ -2,7 +2,7 @@
 require 5;
 package Pod::Simple::DumpAsText;
 use cperl;
-our $VERSION = '4.36c'; # modernized
+our $VERSION = '4.38c'; # modernized
 $VERSION =~ s/c$//;
 use Pod::Simple ();
 BEGIN {@ISA = ('Pod::Simple')}
@@ -13,7 +13,7 @@ use Carp ();
 
 BEGIN { *DEBUG = \&Pod::Simple::DEBUG unless defined &DEBUG }
 
-sub new ($self, @args) :method {
+sub new ($self, @args) {
   my $new = $self->SUPER::new(@args);
   $new->{'output_fh'} ||= *STDOUT{IO};
   $new->accept_codes('VerbatimFormatted');
@@ -23,7 +23,7 @@ sub new ($self, @args) :method {
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-sub _handle_element_start ($self, $element_name, $attr?) :method {
+sub _handle_element_start ($self, $element_name, $attr?) {
   my $fh = $self->{'output_fh'};
   my($key, $value);
   DEBUG and print STDERR "++ $element_name\n";
@@ -42,7 +42,7 @@ sub _handle_element_start ($self, $element_name, $attr?) :method {
   return;
 }
 
-sub _handle_text ($self, str $text='') :method {
+sub _handle_text ($self, str $text='') {
   DEBUG and print STDERR "== \"$text\"\n";
   
   if (length $text) {
@@ -62,7 +62,7 @@ sub _handle_text ($self, str $text='') :method {
   return;
 }
 
-sub _handle_element_end ($self, str $element_name, $attr?) :method {
+sub _handle_element_end ($self, str $element_name, $attr?) {
   DEBUG and print STDERR "-- $element_name\n";
   print {$self->{'output_fh'}}
    '  ' x --$self->{'indent'}, "--$element_name\n";

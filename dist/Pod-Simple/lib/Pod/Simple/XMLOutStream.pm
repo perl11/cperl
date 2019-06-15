@@ -6,7 +6,7 @@ use Carp ();
 use Pod::Simple ();
 use vars qw( $ATTR_PAD @ISA $VERSION $SORT_ATTRS);
 use cperl;
-our $VERSION = '4.35c'; # modernized
+our $VERSION = '4.38c'; # modernized
 $VERSION =~ s/c$//;
 BEGIN {
   @ISA = ('Pod::Simple');
@@ -18,7 +18,7 @@ $ATTR_PAD = "\n" unless defined $ATTR_PAD;
 
 $SORT_ATTRS = 0 unless defined $SORT_ATTRS;
 
-sub new ($self, @args) :method {
+sub new ($self, @args) {
   my $new = $self->SUPER::new(@args);
   $new->{'output_fh'} ||= *STDOUT{IO};
   $new->keep_encoding_directive(1);
@@ -28,7 +28,7 @@ sub new ($self, @args) :method {
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-sub _handle_element_start ($self, $element_name, $attr) :method {
+sub _handle_element_start ($self, $element_name, $attr) {
   my $fh = $self->{'output_fh'};
   my($key, $value);
   DEBUG and print STDERR "++ $element_name\n";
@@ -54,7 +54,7 @@ sub _handle_element_start ($self, $element_name, $attr) :method {
   return;
 }
 
-sub _handle_text ($self, str $text='') :method {
+sub _handle_text ($self, str $text='') {
   DEBUG and print STDERR "== \"$text\"\n";
   if (length $text) {
     _xml_escape($text);
@@ -63,7 +63,7 @@ sub _handle_text ($self, str $text='') :method {
   return;
 }
 
-sub _handle_element_end ($self, str $element_name, $attr?) :method {
+sub _handle_element_end ($self, str $element_name, $attr?) {
   DEBUG and print STDERR "-- $element_name\n";
   print {$self->{'output_fh'}} "</", $element_name, ">";
   return;

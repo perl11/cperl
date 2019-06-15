@@ -12,14 +12,7 @@ BEGIN {
 use strict;
 use Test;
 BEGIN {
-    if ($] lt 5.007_003) {
-        plan tests => 5, todo => [4, 5];   # Need utf8::decode() to pass #5
-                                           # and isn't available in this
-                                           # release
-    }
-    else {
-        plan tests => 5, todo => [4];
-    }
+    plan tests => 6, todo => [];
 }
 
 # fail with the supplied diagnostic
@@ -107,8 +100,10 @@ else {
 }
 
 
-# Initial accented character followed by 'smart' apostrophe causes heuristic
-# to choose UTF8 (a somewhat contrived example)
+# Initial accented character (E acute) followed by 'smart' apostrophe is legal
+# CP1252, which should be preferred over UTF-8 because the latter
+# interpretation would be "JOS" . \N{LATIN SMALL LETTER TURNED ALPHA} . "S
+# PLACE", and that \N{} letter is an IPA one.
 
 @output_lines = split m/[\r\n]+/, Pod::Simple::XMLOutStream->_out( qq{
 
@@ -146,6 +141,36 @@ else {
 =head1 NAME
 
 Smart::Apostrophe::Fail - L\xE9\x92Strange
+
+=cut
+
+} );
+
+if (ord("A") != 65) { # ASCII-platform dependent test skipped on this platform
+    ok (1);
+}
+else {
+    ($guess) = "@output_lines" =~ m{Non-ASCII.*?Assuming ([\w-]+)};
+    if( $guess ) {
+        if( $guess eq 'CP1252' ) {
+            ok 1;
+        } else {
+            my_nok "parser guessed wrong encoding expected 'CP1252' got '$guess'";
+        }
+    } else {
+        my_nok "parser failed to detect non-ASCII bytes in input";
+    }
+}
+
+# The following is a real word example of something in CP1252 expressible in
+# UTF-8, but doesn't make sense in UTF-8, contributed by Bo Lindbergh.
+# Muvrarášša is a Sami word
+
+@output_lines = split m/[\r\n]+/, Pod::Simple::XMLOutStream->_out( qq{
+
+=head1 NAME
+
+Muvrar\xE1\x9A\x9Aa is a mountain in Norway
 
 =cut
 
