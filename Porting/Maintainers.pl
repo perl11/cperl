@@ -326,14 +326,17 @@ use File::Glob qw(:case);
     },
 
     'Config::Perl::V' => {
-        'DISTRIBUTION' => 'HMBRAND/Config-Perl-V-0.29.tgz',
+        'DISTRIBUTION' => 'HMBRAND/Config-Perl-V-0.31.tgz',
         'FILES'        => q[cpan/Config-Perl-V],
         'EXCLUDED'     => [qw(
-		examples/show-v.pl
-                t/28_plv522c.t t/28_plv526c.t t/28_plv5272c.t
-		)],
-          # added cperl support and 5.22 tests
-        'CUSTOMIZED'   => [ qw[ V.pm t/28_plv522c.t t/28_plv526c.t t/28_plv5272c.t t/28_plv522.t ] ],
+                               examples/show-v.pl
+                           )],
+          # added cperl support and tests
+        'CUSTOMIZED'   => [ qw[ V.pm
+                            t/28_plv522c.t
+                            t/28_plv526c.t
+                            t/28_plv5272c.t
+                            t/28_plv522.t ] ],
     },
 
     'constant' => {

@@ -18909,6 +18909,7 @@ our %delta :const = (
             'B::CC'                 => '1.16_03',
             'App::Cpan'             => '1.675',
             'Compress::Raw::Bzip2'  => '2.086',
+            'Config::Perl::V'       => '0.31_01',
             'CPAN'                  => '2.27_01',
             'CPAN::Bundle'          => '5.5005',
             'CPAN::Distribution'    => '2.27_02',

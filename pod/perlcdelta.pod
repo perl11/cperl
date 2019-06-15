@@ -564,6 +564,10 @@ Add the FREEBSD_KERNEL_VERSION key for FreeBSD.
 
 Whitespace only
 
+=item L<Config::Perl::V>  0.31_01
+
+Added USE_THREAD_SAFE_LOCALE
+
 =item L<CPAN> 2.27_01
 
 Update to 2.27-TRIAL upstream with our cperl fixes. Some of our fixes

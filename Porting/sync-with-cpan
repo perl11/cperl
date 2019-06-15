@@ -272,7 +272,7 @@ sub make {
 
 sub update_corelist {
   my ($module, $new_version) = @_;
-  my $perlversion = "$]";
+  my $perlversion = sprintf("%.06f", $]);
   $perlversion .= 'c' if -f 'STATUS.md';
   my $corelist = 'dist/Module-CoreList/lib/Module/CoreList.pm';
   print "Update $corelist ";
