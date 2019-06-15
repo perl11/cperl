@@ -790,6 +790,8 @@ Fix method of generating names for dummy users and groups during testing
 (i.e. under docker)
 L<[cpan #121967]|https://rt.cpan.org/Ticket/Display.html?id=121967>.
 
+=item L<File::Temp>  0.2309
+
 =item L<GDBM_File> 1.18
 
 Add SECURITY AND PORTABILITY warning paragraph to pod.
