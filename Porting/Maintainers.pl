@@ -1246,7 +1246,7 @@ use File::Glob qw(:case);
     },
 
     'Pod::Man' => {
-        'DISTRIBUTION' => 'RRA/podlators-4.11.tar.gz',
+        'DISTRIBUTION' => 'RRA/podlators-4.12.tar.gz',
         'FILES'        => q[cpan/podlators pod/perlpodstyle.pod],
 
         # cperl fix to support make -s

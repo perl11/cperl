@@ -908,6 +908,12 @@ L<[perl #133422]|https://rt.perl.org/Public/Bug/Display.html?id=133422>
 
 Typos in pod.
 
+=item C<podlators>  4.12
+
+Skip the F<man/no-encode.t> test if Encode is already loaded while
+running the test suite, which seems to happen sometimes with CPAN
+Testers tests.
+
 =item L<POSIX> 1.87_03
 
 Use quadmath versions of log10, ldexp and signbit.
