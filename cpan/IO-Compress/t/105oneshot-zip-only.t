@@ -1,7 +1,7 @@
 BEGIN {
     if ($ENV{PERL_CORE}) {
-	chdir 't' if -d 't';
-	@INC = ("../lib", "lib/compress");
+        chdir 't' if -d 't';
+        @INC = ("../lib", "lib/compress");
     }
 }
 
@@ -24,7 +24,7 @@ BEGIN {
     $extra = 1
         if eval { require Test::NoWarnings ;  import Test::NoWarnings; 1 };
 
-    plan tests => 216 + $extra ;
+    plan tests => 219 + $extra ;
 
     #use_ok('IO::Compress::Zip', qw(zip $ZipError :zip_method)) ;
     use_ok('IO::Compress::Zip', qw(:all)) ;
@@ -42,7 +42,7 @@ sub zipGetHeader
     my $got ;
 
     ok zip($in, \$out, %opts), "  zip ok" ;
-    ok unzip(\$out, \$got), "  unzip ok" 
+    ok unzip(\$out, \$got), "  unzip ok"
         or diag $UnzipError ;
     is $got, $content, "  got expected content" ;
 
@@ -57,7 +57,7 @@ sub zipGetHeader
     ok $gunz->close, "  closed ok" ;
 
     return $hdr ;
-    
+
 }
 
 {
@@ -73,7 +73,7 @@ sub zipGetHeader
     $mtime = (stat($file1))[9];
     # make sure that the zip file isn't created in the same
     # second as the input file
-    sleep 3 ; 
+    sleep 3 ;
     $hdr = zipGetHeader($file1, $content);
 
     is $hdr->{Name}, $file1, "  Name is '$file1'";
@@ -83,7 +83,7 @@ sub zipGetHeader
 
     writeFile($file1, $content);
     $mtime = (stat($file1))[9];
-    sleep 3 ; 
+    sleep 3 ;
     $hdr = zipGetHeader($file1, $content, Name => "abcde");
 
     is $hdr->{Name}, "abcde", "  Name is 'abcde'" ;
@@ -110,7 +110,7 @@ sub zipGetHeader
     title "Filehandle doesn't have default Name or Time" ;
     my $fh = new IO::File "< $file1"
         or diag "Cannot open '$file1': $!\n" ;
-    sleep 3 ; 
+    sleep 3 ;
     my $before = time ;
     $hdr = zipGetHeader($fh, $content);
     my $after = time ;
@@ -151,12 +151,12 @@ sub zipGetHeader
     $hdr = zipGetHeader($file1, $content, FilterName => sub {$_ = "abcde"});
     is $hdr->{Name}, "abcde", "  Name is 'abcde'" ;
 
-    $hdr = zipGetHeader($file1, $content, Name => $abs, 
+    $hdr = zipGetHeader($file1, $content, Name => $abs,
          CanonicalName => 1,
          FilterName => sub { s/joe/jim/ });
     is $hdr->{Name}, "fred/jim", "  Name is 'fred/jim'" ;
 
-    $hdr = zipGetHeader($file1, $content, Name => $abs, 
+    $hdr = zipGetHeader($file1, $content, Name => $abs,
          CanonicalName => 0,
          FilterName => sub { s/joe/jim/ });
     is $hdr->{Name}, File::Spec->catfile("", "fred", "jim"), "  Name is '/fred/jim'" ;
@@ -178,12 +178,12 @@ for my $stream (0, 1)
             my $content = "hello ";
             #writeFile($file1, $content);
 
-            my $status = zip(\$content => $file1 , 
-                               Method => $method, 
+            my $status = zip(\$content => $file1 ,
+                               Method => $method,
                                Stream => $stream,
                                Zip64  => $zip64);
 
-             ok $status, "  zip ok" 
+             ok $status, "  zip ok"
                 or diag $ZipError ;
 
             my $got ;
@@ -229,9 +229,9 @@ for my $stream (0, 1)
                             $file2 => $content2,
                           );
 
-            ok zip([$file1, $file2] => $zipfile , Method => $method, 
+            ok zip([$file1, $file2] => $zipfile , Method => $method,
                                                   Zip64  => $zip64,
-                                                  Stream => $stream), " zip ok" 
+                                                  Stream => $stream), " zip ok"
                 or diag $ZipError ;
 
             for my $file ($file1, $file2)
@@ -244,6 +244,31 @@ for my $stream (0, 1)
             }
         }
     }
+}
+
+{
+    title "Regression: ods streaming issue";
+
+    # The file before meta.xml in test.ods is content.xml.
+    # Issue was triggered because content.xml was stored
+    # as streamed and the code to walk the compressed streaming
+    # content assumed that all of the input buffer was consumed
+    # in a single call to "uncompr".
+
+    my $files = "./t/" ;
+    $files = "./" if $ENV{PERL_CORE} ;
+    $files .= "files/";
+
+    my $zipfile = "$files/test.ods" ;
+    my $file = "meta.xml";
+
+    my $got;
+
+    ok unzip($zipfile => \$got, Name => $file), "  unzip $file ok"
+        or diag $UnzipError ;
+
+    my $meta = readFile("$files/$file");
+    is $got, $meta, "  content ok";
 }
 
 # TODO add more error cases

@@ -86,12 +86,12 @@ sub version_strip {
 our %delta :const = (
     5 => {
         changed => {
-            'a2p'                   => '1',
-            'c2ph'                  => '1',
-            'cppstdin'              => '1',
-            'find2perl'             => '1',
-            'pstruct'               => '1',
-            's2p'                   => '1',
+            'a2p'                   => 1,
+            'c2ph'                  => 1,
+            'cppstdin'              => 1,
+            'find2perl'             => 1,
+            'pstruct'               => 1,
+            's2p'                   => 1,
         },
         removed => {
         }
@@ -100,7 +100,7 @@ our %delta :const = (
     5.001 => {
         delta_from => 5,
         changed => {
-            'h2xs'                  => '1',
+            'h2xs'                  => 1,
         },
         removed => {
         }
@@ -109,13 +109,13 @@ our %delta :const = (
     5.002 => {
         delta_from => 5.001,
         changed => {
-            'h2ph'                  => '1',
-            'perlbug'               => '1',
-            'perldoc'               => '1',
-            'pod2html'              => '1',
-            'pod2latex'             => '1',
-            'pod2man'               => '1',
-            'pod2text'              => '1',
+            'h2ph'                  => 1,
+            'perlbug'               => 1,
+            'perldoc'               => 1,
+            'pod2html'              => 1,
+            'pod2latex'             => 1,
+            'pod2man'               => 1,
+            'pod2text'              => 1,
         },
         removed => {
         }
@@ -124,7 +124,7 @@ our %delta :const = (
     5.00307 => {
         delta_from => 5.002,
         changed => {
-            'pl2pm'                 => '1',
+            'pl2pm'                 => 1,
         },
         removed => {
            'cppstdin'              => 1,
@@ -135,7 +135,7 @@ our %delta :const = (
     5.004 => {
         delta_from => 5.00307,
         changed => {
-            'splain'                => '1',
+            'splain'                => 1,
         },
         removed => {
         }
@@ -144,7 +144,7 @@ our %delta :const = (
     5.005 => {
         delta_from => 5.00405,
         changed => {
-            'perlcc'                => '1',
+            'perlcc'                => 1,
         },
         removed => {
         }
@@ -169,11 +169,11 @@ our %delta :const = (
     5.006 => {
         delta_from => 5.00504,
         changed => {
-            'dprofpp'               => '1',
-            'pod2usage'             => '1',
-            'podchecker'            => '1',
-            'podselect'             => '1',
-            'pstruct'               => '1',
+            'dprofpp'               => 1,
+            'pod2usage'             => 1,
+            'podchecker'            => 1,
+            'podselect'             => 1,
+            'pstruct'               => 1,
         },
         removed => {
         }
@@ -190,10 +190,10 @@ our %delta :const = (
     5.007003 => {
         delta_from => 5.006002,
         changed => {
-            'libnetcfg'             => '1',
-            'perlivp'               => '1',
-            'psed'                  => '1',
-            'xsubpp'                => '1',
+            'libnetcfg'             => 1,
+            'perlivp'               => 1,
+            'psed'                  => 1,
+            'xsubpp'                => 1,
         },
         removed => {
         }
@@ -202,8 +202,8 @@ our %delta :const = (
     5.008 => {
         delta_from => 5.007003,
         changed => {
-            'enc2xs'                => '1',
-            'piconv'                => '1',
+            'enc2xs'                => 1,
+            'piconv'                => 1,
         },
         removed => {
         }
@@ -212,7 +212,7 @@ our %delta :const = (
     5.008001 => {
         delta_from => 5.008,
         changed => {
-            'cpan'                  => '1',
+            'cpan'                  => 1,
         },
         removed => {
         }
@@ -248,8 +248,8 @@ our %delta :const = (
     5.008003 => {
         delta_from => 5.008002,
         changed => {
-            'instmodsh'             => '1',
-            'prove'                 => '1',
+            'instmodsh'             => 1,
+            'prove'                 => 1,
         },
         removed => {
         }
@@ -266,8 +266,8 @@ our %delta :const = (
     5.009001 => {
         delta_from => 5.009,
         changed => {
-            'instmodsh'             => '1',
-            'prove'                 => '1',
+            'instmodsh'             => 1,
+            'prove'                 => 1,
         },
         removed => {
         }
@@ -300,7 +300,7 @@ our %delta :const = (
     5.009002 => {
         delta_from => 5.009001,
         changed => {
-            'corelist'              => '1',
+            'corelist'              => 1,
         },
         removed => {
         }
@@ -317,9 +317,9 @@ our %delta :const = (
     5.009003 => {
         delta_from => 5.009002,
         changed => {
-            'ptar'                  => '1',
-            'ptardiff'              => '1',
-            'shasum'                => '1',
+            'ptar'                  => 1,
+            'ptardiff'              => 1,
+            'shasum'                => 1,
         },
         removed => {
         }
@@ -336,7 +336,7 @@ our %delta :const = (
     5.009004 => {
         delta_from => 5.009003,
         changed => {
-            'config_data'           => '1',
+            'config_data'           => 1,
         },
         removed => {
         }
@@ -345,9 +345,9 @@ our %delta :const = (
     5.009005 => {
         delta_from => 5.009004,
         changed => {
-            'cpan2dist'             => '1',
-            'cpanp'                 => '1',
-            'cpanp-run-perl'        => '1',
+            'cpan2dist'             => 1,
+            'cpanp'                 => 1,
+            'cpanp-run-perl'        => 1,
         },
         removed => {
            'perlcc'                => 1,
@@ -365,7 +365,7 @@ our %delta :const = (
     5.008009 => {
         delta_from => 5.008008,
         changed => {
-            'corelist'              => '1',
+            'corelist'              => 1,
         },
         removed => {
         }
@@ -398,7 +398,7 @@ our %delta :const = (
     5.011002 => {
         delta_from => 5.011001,
         changed => {
-            'perlthanks'            => '1',
+            'perlthanks'            => 1,
         },
         removed => {
         }
@@ -511,7 +511,7 @@ our %delta :const = (
     5.013007 => {
         delta_from => 5.013006,
         changed => {
-            'ptargrep'              => '1',
+            'ptargrep'              => 1,
         },
         removed => {
         }
@@ -528,7 +528,7 @@ our %delta :const = (
     5.013009 => {
         delta_from => 5.013008,
         changed => {
-            'json_pp'               => '1',
+            'json_pp'               => 1,
         },
         removed => {
         }
@@ -642,7 +642,7 @@ our %delta :const = (
     5.015006 => {
         delta_from => 5.015005,
         changed => {
-            'zipdetails'            => '1',
+            'zipdetails'            => 1,
         },
         removed => {
         }
@@ -863,10 +863,10 @@ our %delta :const = (
         changed => {
         },
         removed => {
-            'cpan2dist'             => '1',
-            'cpanp'                 => '1',
-            'cpanp-run-perl'        => '1',
-            'pod2latex'             => '1',
+            'cpan2dist'             => 1,
+            'cpanp'                 => 1,
+            'cpanp-run-perl'        => 1,
+            'pod2latex'             => 1,
         }
     },
     5.019001 => {
@@ -1038,7 +1038,7 @@ our %delta :const = (
     5.021009 => {
         delta_from => 5.021008,
         changed => {
-            'encguess'              => '1',
+            'encguess'              => 1,
         },
         removed => {
         }
@@ -1669,7 +1669,9 @@ our %delta :const = (
     },
     '5.030000c' => {
         delta_from => '5.030000c',
-        changed => {},
+        changed => {
+          'zipdetails'            => 1,
+        },
         removed => {}
     },
 );

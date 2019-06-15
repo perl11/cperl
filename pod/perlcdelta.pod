@@ -802,6 +802,8 @@ Add SECURITY AND PORTABILITY warning paragraph to pod.
 
 Skip EINVAL on FreeBSD tests when binding a tcp listener on localhost.
 
+=item L<IO::Compress::Base>  2.086
+
 =item L<IO::Socket::IP> 0.39_03
 
 Allow ETIMEDOUT on FreeBSD INET6 socket with V6Only true.

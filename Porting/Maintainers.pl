@@ -851,7 +851,7 @@ use File::Glob qw(:case);
     },
 
     'IO::Compress::Base' => {
-        'DISTRIBUTION' => 'PMQS/IO-Compress-2.081.tar.gz',
+        'DISTRIBUTION' => 'PMQS/IO-Compress-2.086.tar.gz',
         'FILES'        => q[cpan/IO-Compress],
         'EXCLUDED'     => [
             qr{^examples/},
@@ -860,18 +860,16 @@ use File::Glob qw(:case);
             't/010examples-zlib.t',
             't/cz-05examples.t',
             't/999pod.t',
+            't/999meta-json.t',
+            't/999meta-yml.t',
           ],
-        # cperl arity error message
-        'CUSTOMIZED'   => [ qw( lib/File/GlobMapper.pm
-                                t/cz-14gzopen.t
-                                t/compress/encode.pl )],
     },
 
     'IO::Socket::IP' => {
         'DISTRIBUTION' => 'PEVANS/IO-Socket-IP-0.39.tar.gz',
         'FILES'        => q[cpan/IO-Socket-IP],
         'EXCLUDED'     => [
-            qr{^examples/},
+          qr{^examples/},
         ],
         # demand-load Carp, allow freebsd ETIMEDOUT on INET6 socket
         'CUSTOMIZED'   => [

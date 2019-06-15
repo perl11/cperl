@@ -9,8 +9,8 @@ use IO::Handle qw(SEEK_SET SEEK_CUR SEEK_END);
 use CompTestUtils;
 
 our ($UncompressClass);
-BEGIN 
-{ 
+BEGIN
+{
     # use Test::NoWarnings, if available
     my $extra = 0 ;
 
@@ -18,7 +18,7 @@ BEGIN
     $extra = 1
         if $st ;
 
-    plan(tests => 794 + $extra) ;
+    plan(tests => 799 + $extra) ;
 }
 
 sub myGZreadFile
@@ -43,7 +43,7 @@ sub myGZreadFile
 sub run
 {
     my $CompressClass   = identify();
-    $UncompressClass = getInverse($CompressClass);
+    $UncompressClass    = getInverse($CompressClass);
     my $Error           = getErrorRef($CompressClass);
     my $UnError         = getErrorRef($UncompressClass);
 
@@ -55,11 +55,11 @@ sub run
         # Buffer not writable
         eval qq[\$a = new $CompressClass(\\1) ;] ;
         like $@, mkEvalErr("^$CompressClass: output buffer is read-only") ;
-            
+
         my($out, $gz);
-            
+
         my $x ;
-        $gz = new $CompressClass(\$x); 
+        $gz = new $CompressClass(\$x);
 
         foreach my $name (qw(read readline getc))
         {
@@ -86,17 +86,17 @@ sub run
         my $lex = new LexFile my $name ;
 
         ok ! -e $name, "  $name does not exist";
-        
+
         $a = new $UncompressClass "$name" ;
         is $a, undef;
 
         my $gc ;
-        my $guz = new $CompressClass(\$gc); 
+        my $guz = new $CompressClass(\$gc);
         $guz->write("abc") ;
         $guz->close();
 
         my $x ;
-        my $gz = new $UncompressClass(\$gc); 
+        my $gz = new $UncompressClass(\$gc);
 
         foreach my $name (qw(print printf write))
         {
@@ -116,12 +116,12 @@ sub run
             # Buffer not a scalar reference
             eval qq[\$a = new $CompressClass \\\@x ;] ;
             like $@, mkEvalErr("^$CompressClass: output parameter not a filename, filehandle or scalar ref");
-                
+
             # Buffer not a scalar reference
             eval qq[\$a = new $UncompressClass \\\@x ;] ;
             like $@, mkEvalErr("^$UncompressClass: input parameter not a filename, filehandle, array ref or scalar ref");
         }
-            
+
         foreach my $Type ( $CompressClass, $UncompressClass)
         {
             # Check error handling with IO::Compress::Deflate and IO::Uncompress::Inflate
@@ -140,12 +140,12 @@ sub run
             eval qq[\$a = new $Type ;] ;
             like $@, mkEvalErr("^$Type: Missing (Input|Output) parameter");
 
-        }    
+        }
 
 
         {
-            # write a very simple compressed file 
-            # and read back 
+            # write a very simple compressed file
+            # and read back
             #========================================
 
 
@@ -187,8 +187,8 @@ EOM
         }
 
         {
-            # write a very simple compressed file 
-            # and read back 
+            # write a very simple compressed file
+            # and read back
             #========================================
 
 
@@ -225,7 +225,7 @@ EOM
 
         {
             # write a very simple file with using an IO filehandle
-            # and read back 
+            # and read back
             #========================================
 
 
@@ -268,7 +268,7 @@ EOM
 
         {
             # write a very simple file with using a glob filehandle
-            # and read back 
+            # and read back
             #========================================
 
 
@@ -281,9 +281,9 @@ this is a test
 EOM
 
             {
-              title "$CompressClass: Input from typeglob filehandle";  
+              title "$CompressClass: Input from typeglob filehandle";
               ok open FH, ">$name" ;
-     
+
               my $x = new $CompressClass *FH  ;
               ok $x, "  create $CompressClass"  ;
 
@@ -299,7 +299,7 @@ EOM
 
             my $uncomp;
             {
-              title "$UncompressClass: Input from typeglob filehandle, append output";  
+              title "$UncompressClass: Input from typeglob filehandle, append output";
               my $x ;
               ok open FH, "<$name" ;
               ok $x = new $UncompressClass *FH, -Append => 1, Transparent => 0
@@ -330,7 +330,7 @@ EOM
               open(SAVEOUT, ">&STDOUT");
               my $dummy = fileno SAVEOUT;
               open STDOUT, ">$name" ;
-     
+
               my $x = new $CompressClass '-'  ;
               $x->write($hello);
               $x->close;
@@ -343,7 +343,7 @@ EOM
             #hexDump($name);
 
             {
-              title "Input from stdin via filename '-'";  
+              title "Input from stdin via filename '-'";
 
               my $x ;
               my $uncomp ;
@@ -366,8 +366,8 @@ EOM
         }
 
         {
-            # write a compressed file to memory 
-            # and read back 
+            # write a compressed file to memory
+            # and read back
             #========================================
 
             #my $name = "test.gz" ;
@@ -382,7 +382,7 @@ EOM
             {
               my $x ;
               ok $x = new $CompressClass(\$buffer) ;
-          
+
               ok ! defined $x->autoflush(1) ;
               ok ! defined $x->autoflush(1) ;
               ok ! defined $x->fileno() ;
@@ -391,7 +391,7 @@ EOM
               ok $x->write($hello) ;
               ok $x->flush();
               ok $x->close ;
-          
+
               writeFile($name, $buffer) ;
               #is anyUncompress(\$buffer), $hello, "  any ok";
             }
@@ -425,7 +425,7 @@ EOM
               $x = new $CompressClass(\$buffer);
               ok $x, "new $CompressClass" ;
               ok $x->close, "close ok" ;
-          
+
             }
 
             my $keep = $buffer ;
@@ -484,10 +484,13 @@ EOM
             #print "length " . length($x) . " \n";
         }
 
+        SKIP:
         {
             # embed a compressed file in another file
             #================================
 
+            skip "zstd doesn't support trailing data", 11
+                if $CompressClass =~ /zstd/i ;
 
             my $lex = new LexFile my $name ;
 
@@ -525,7 +528,7 @@ EOM
             ok $x->binmode();
             1 while $x->read($uncomp) > 0 ;
 
-            ok $uncomp eq $hello ;
+            is $uncomp, $hello ;
             my $rest ;
             read($fh1, $rest, 5000);
             is $x->trailingData() . $rest, $trailer ;
@@ -533,10 +536,13 @@ EOM
 
         }
 
+        SKIP:
         {
             # embed a compressed file in another buffer
             #================================
 
+            skip "zstd doesn't support trailing data", 6
+                if $CompressClass =~ /zstd/i ;
 
             my $hello = <<EOM ;
 hello world
@@ -598,7 +604,7 @@ EOM
             }
 
             my $foo = "1234567890";
-            
+
             is $io->syswrite($foo, length($foo)), length($foo), "  syswrite ok" ;
             if ( $] < 5.6 )
               { is $io->syswrite($foo, length $foo), length $foo, "  syswrite ok" }
@@ -641,18 +647,18 @@ EOT
 
             my %opts = () ;
             my $iow = new $CompressClass $name, %opts;
-            is $iow->input_line_number, undef; 
+            is $iow->input_line_number, undef;
             $iow->print($str) ;
-            is $iow->input_line_number, undef; 
+            is $iow->input_line_number, undef;
             $iow->close ;
 
             my @tmp;
             my $buf;
             {
                 my $io = new $UncompressClass $name ;
-            
-                is $., 0; 
-                is $io->input_line_number, 0; 
+
+                is $., 0;
+                is $io->input_line_number, 0;
                 ok ! $io->eof, "eof";
                 is $io->tell(), 0, "tell 0" ;
                 #my @lines = <$io>;
@@ -661,10 +667,10 @@ EOT
                     or print "# Got " . scalar(@lines) . " lines, expected 6\n" ;
                 is $lines[1], "of a paragraph\n" ;
                 is join('', @lines), $str ;
-                is $., 6; 
-                is $io->input_line_number, 6; 
+                is $., 6;
+                is $io->input_line_number, 6;
                 is $io->tell(), length($str) ;
-            
+
                 ok $io->eof;
 
                 ok ! ( defined($io->getline)  ||
@@ -673,44 +679,44 @@ EOT
                           defined($io->getc)     ||
                           $io->read($buf, 100)   != 0) ;
             }
-            
-            
+
+
             {
                 local $/;  # slurp mode
                 my $io = $UncompressClass->new($name);
-                is $., 0, "line 0"; 
-                is $io->input_line_number, 0; 
+                is $., 0, "line 0";
+                is $io->input_line_number, 0;
                 ok ! $io->eof, "eof";
                 my @lines = $io->getlines;
-                is $., 1, "line 1"; 
-                is $io->input_line_number, 1, "line number 1"; 
+                is $., 1, "line 1";
+                is $io->input_line_number, 1, "line number 1";
                 ok $io->eof, "eof" ;
                 ok @lines == 1 && $lines[0] eq $str;
-            
+
                 $io = $UncompressClass->new($name);
                 ok ! $io->eof;
                 my $line = $io->getline();
                 ok $line eq $str;
                 ok $io->eof;
             }
-            
+
             {
                 local $/ = "";  # paragraph mode
                 my $io = $UncompressClass->new($name);
-                is $., 0; 
-                is $io->input_line_number, 0; 
+                is $., 0;
+                is $io->input_line_number, 0;
                 ok ! $io->eof;
                 my @lines = $io->getlines();
-                is $., 2; 
-                is $io->input_line_number, 2; 
+                is $., 2;
+                is $io->input_line_number, 2;
                 ok $io->eof;
-                ok @lines == 2 
+                ok @lines == 2
                     or print "# Got " . scalar(@lines) . " lines, expected 2\n" ;
                 ok $lines[0] eq "This is an example\nof a paragraph\n\n\n"
                     or print "# $lines[0]\n";
                 ok $lines[1] eq "and a single line.\n\n";
             }
-            
+
             {
                 # Record mode
                 my $reclen = 7 ;
@@ -719,15 +725,15 @@ EOT
                 local $/ = \$reclen;
 
                 my $io = $UncompressClass->new($name);
-                is $., 0; 
-                is $io->input_line_number, 0; 
+                is $., 0;
+                is $io->input_line_number, 0;
 
                 ok ! $io->eof;
                 my @lines = $io->getlines();
-                is $., $expected_records; 
-                is $io->input_line_number, $expected_records; 
+                is $., $expected_records;
+                is $io->input_line_number, $expected_records;
                 ok $io->eof;
-                is @lines, $expected_records, 
+                is @lines, $expected_records,
                     "Got $expected_records records\n" ;
                 ok $lines[0] eq substr($str, 0, $reclen)
                     or print "# $lines[0]\n";
@@ -745,26 +751,26 @@ EOT
                     push(@lines, $a);
                     $err++ if $. != ++$no;
                 }
-            
+
                 ok $err == 0 ;
                 ok $io->eof;
-            
-                is $., 3; 
-                is $io->input_line_number, 3; 
-                ok @lines == 3 
+
+                is $., 3;
+                is $io->input_line_number, 3;
+                ok @lines == 3
                     or print "# Got " . scalar(@lines) . " lines, expected 3\n" ;
                 ok join("-", @lines) eq
                                  "This- is- an example\n" .
                                 "of a paragraph\n\n\n" .
                                 "and a single line.\n\n";
             }
-            
-            
+
+
             # Test read
-            
+
             {
                 my $io = $UncompressClass->new($name);
-            
+
 
                 eval { $io->read(1) } ;
                 like $@, mkErr("buffer parameter is read-only");
@@ -775,18 +781,18 @@ EOT
 
                 is $io->read($buf, 3), 3 ;
                 is $buf, "Thi";
-            
+
                 is $io->sysread($buf, 3, 2), 3 ;
                 is $buf, "Ths i"
                     or print "# [$buf]\n" ;;
                 ok ! $io->eof;
-            
+
                 $buf = "ab" ;
                 is $io->read($buf, 3, 4), 3 ;
                 is $buf, "ab" . "\x00" x 2 . "s a"
                     or print "# [$buf]\n" ;;
                 ok ! $io->eof;
-            
+
                 # read the rest of the file
                 $buf = '';
                 my $remain = length($str) - 9;
@@ -806,15 +812,15 @@ EOT
                 ok $io->eof;
 
         #        $io->seek(-4, 2);
-        #    
+        #
         #        ok ! $io->eof;
-        #    
+        #
         #        ok read($io, $buf, 20) == 4 ;
         #        ok $buf eq "e.\n\n";
-        #    
+        #
         #        ok read($io, $buf, 20) == 0 ;
         #        ok $buf eq "";
-        #   
+        #
         #        ok ! $io->eof;
             }
 
@@ -838,18 +844,18 @@ EOT
             my $buf;
             {
                 my $io = new $UncompressClass $name, -Transparent => 1 ;
-            
+
                 isa_ok $io, $UncompressClass ;
                 ok ! $io->eof, "eof";
                 is $io->tell(), 0, "tell == 0" ;
                 my @lines = $io->getlines();
-                is @lines, 6, "got 6 lines"; 
+                is @lines, 6, "got 6 lines";
                 ok $lines[1] eq "of a paragraph\n" ;
                 ok join('', @lines) eq $str ;
-                is $., 6; 
-                is $io->input_line_number, 6; 
+                is $., 6;
+                is $io->input_line_number, 6;
                 ok $io->tell() == length($str) ;
-            
+
                 ok $io->eof;
 
                 ok ! ( defined($io->getline)  ||
@@ -858,42 +864,42 @@ EOT
                           defined($io->getc)     ||
                           $io->read($buf, 100)   != 0) ;
             }
-            
-            
+
+
             {
                 local $/;  # slurp mode
                 my $io = $UncompressClass->new($name);
                 ok ! $io->eof;
                 my @lines = $io->getlines;
-                is $., 1; 
-                is $io->input_line_number, 1; 
+                is $., 1;
+                is $io->input_line_number, 1;
                 ok $io->eof;
                 ok @lines == 1 && $lines[0] eq $str;
-            
+
                 $io = $UncompressClass->new($name);
                 ok ! $io->eof;
                 my $line = $io->getline;
-                is $., 1; 
-                is $io->input_line_number, 1; 
+                is $., 1;
+                is $io->input_line_number, 1;
                 is $line, $str;
                 ok $io->eof;
             }
-            
+
             {
                 local $/ = "";  # paragraph mode
                 my $io = $UncompressClass->new($name);
                 ok ! $io->eof;
                 my @lines = $io->getlines;
-                is $., 2; 
-                is $io->input_line_number, 2; 
+                is $., 2;
+                is $io->input_line_number, 2;
                 ok $io->eof;
-                ok @lines == 2 
+                ok @lines == 2
                     or print "# expected 2 lines, got " . scalar(@lines) . "\n";
                 ok $lines[0] eq "This is an example\nof a paragraph\n\n\n"
                     or print "# [$lines[0]]\n" ;
                 ok $lines[1] eq "and a single line.\n\n";
             }
-            
+
             {
                 # Record mode
                 my $reclen = 7 ;
@@ -902,15 +908,15 @@ EOT
                 local $/ = \$reclen;
 
                 my $io = $UncompressClass->new($name);
-                is $., 0; 
-                is $io->input_line_number, 0; 
+                is $., 0;
+                is $io->input_line_number, 0;
 
                 ok ! $io->eof;
                 my @lines = $io->getlines();
-                is $., $expected_records; 
-                is $io->input_line_number, $expected_records; 
+                is $., $expected_records;
+                is $io->input_line_number, $expected_records;
                 ok $io->eof;
-                is @lines, $expected_records, 
+                is @lines, $expected_records,
                     "Got $expected_records records\n" ;
                 ok $lines[0] eq substr($str, 0, $reclen)
                     or print "# $lines[0]\n";
@@ -928,12 +934,12 @@ EOT
                     push(@lines, $a);
                     $err++ if $. != ++$no;
                 }
-            
-                is $., 3; 
-                is $io->input_line_number, 3; 
+
+                is $., 3;
+                is $io->input_line_number, 3;
                 ok $err == 0 ;
                 ok $io->eof;
-            
+
 
                 ok @lines == 3 ;
                 ok join("-", @lines) eq
@@ -941,30 +947,30 @@ EOT
                                 "of a paragraph\n\n\n" .
                                 "and a single line.\n\n";
             }
-            
-            
+
+
             # Test Read
-            
+
             {
                 my $io = $UncompressClass->new($name);
-            
+
                 $buf = "abcd";
                 is $io->read($buf, 0), 0, "Requested 0 bytes" ;
                 is $buf, "", "Buffer empty";
 
                 ok $io->read($buf, 3) == 3 ;
                 ok $buf eq "Thi";
-            
+
                 ok $io->sysread($buf, 3, 2) == 3 ;
                 ok $buf eq "Ths i";
                 ok ! $io->eof;
-            
+
                 $buf = "ab" ;
                 is $io->read($buf, 3, 4), 3 ;
                 is $buf, "ab" . "\x00" x 2 . "s a"
                     or print "# [$buf]\n" ;;
                 ok ! $io->eof;
-            
+
                 # read the rest of the file
                 $buf = '';
                 my $remain = length($str) - 9;
@@ -984,15 +990,15 @@ EOT
                 ok $io->eof;
 
         #        $io->seek(-4, 2);
-        #    
+        #
         #        ok ! $io->eof;
-        #    
+        #
         #        ok read($io, $buf, 20) == 4 ;
         #        ok $buf eq "e.\n\n";
-        #    
+        #
         #        ok read($io, $buf, 20) == 0 ;
         #        ok $buf eq "";
-        #    
+        #
         #        ok ! $io->eof;
             }
 
@@ -1034,13 +1040,13 @@ EOT
                             $iow->close ;
                         }
 
-                        
-                        my $io = $UncompressClass->new($name, 
+
+                        my $io = $UncompressClass->new($name,
                                                        -Append => $append,
                                                        -Transparent  => $trans);
-                    
+
                         my $buf;
-                        
+
                         is $io->tell(), 0;
 
                         if ($append) {
@@ -1115,7 +1121,7 @@ EOT
                 ok myGZreadFile($input) eq $first . "\x00" x 10 . $last ;
 
                 my $io = $UncompressClass->new($input, Strict => 1);
-                ok $io->seek(length($first), SEEK_CUR) 
+                ok $io->seek(length($first), SEEK_CUR)
                     or diag $$UnError ;
                 ok ! $io->eof;
                 is $io->tell(), length($first);
@@ -1142,7 +1148,8 @@ EOT
             my $b ;
             my $a = new $CompressClass(\$b)  ;
 
-            ok ! $a->error() ;
+            ok ! $a->error()
+                or die $a->error() ;
             eval { $a->seek(-1, 10) ; };
             like $@, mkErr("^${CompressClass}::seek: unknown value, 10, for whence parameter");
 
@@ -1164,7 +1171,7 @@ EOT
             eval { $u->seek(-1, SEEK_CUR) ; };
             like $@, mkErr("^${UncompressClass}::seek: cannot seek backwards");
         }
-        
+
         foreach my $fb (qw(filename buffer filehandle))
         {
             foreach my $append (0, 1)
@@ -1197,7 +1204,7 @@ EOT
                     $a->write($string);
                     $a->close ;
 
-                    my $data ; 
+                    my $data ;
                     if ($fb eq 'buffer')
                     {
                         $data = $buffer;
@@ -1225,7 +1232,7 @@ EOT
 
                     $x->close ;
                     is $uncomp, $string, '  Got uncompressed data' ;
-                    
+
                 }
             }
         }
@@ -1236,7 +1243,7 @@ EOT
             {
                 title "$UncompressClass -- InputLength, read from $type, good data => $good";
 
-                my $compressed ; 
+                my $compressed ;
                 my $string = "some data";
                 my $appended = "append";
 
@@ -1273,7 +1280,7 @@ EOT
                     $input = $fh ;
                 }
 
-                my $x = new $UncompressClass($input, 
+                my $x = new $UncompressClass($input,
                                              InputLength => $comp_len,
                                              Transparent => 1)  ;
                 ok $x, "  created $UncompressClass";
@@ -1295,7 +1302,7 @@ EOT
 
 
         }
-        
+
         foreach my $append (0, 1)
         {
             title "$UncompressClass -- Append $append" ;
@@ -1303,7 +1310,7 @@ EOT
             my $lex = new LexFile my $name ;
 
             my $string = "appended";
-            my $compressed ; 
+            my $compressed ;
             my $c = new $CompressClass(\$compressed);
             $c->write($string);
             $c->close();
@@ -1327,7 +1334,7 @@ EOT
             }
             is $output, $string, '  Got uncompressed data' ;
         }
-        
+
 
         foreach my $file (0, 1)
         {
@@ -1392,7 +1399,7 @@ EOT
                 ok ! $u->eof();
                 is $u->read($buff), length($extra) ;
                 is $buff, $extra;
-                
+
                 is $u->read($buff, 1), 0;
                 ok $u->eof() ;
 
@@ -1412,13 +1419,13 @@ EOT
             #ok ! -e $name1, "  File $name1 does not exist";
 
             my @data = (
-                [ '{ }',         "${CompressClass}::write: input parameter not a filename, filehandle, array ref or scalar ref" ], 
-                [ '[ { } ]',     "${CompressClass}::write: input parameter not a filename, filehandle, array ref or scalar ref" ], 
-                [ '[ [ { } ] ]', "${CompressClass}::write: input parameter not a filename, filehandle, array ref or scalar ref" ], 
-                [ '[ "" ]',      "${CompressClass}::write: input filename is undef or null string" ], 
-                [ '[ undef ]',   "${CompressClass}::write: input filename is undef or null string" ], 
-                [ '[ \$Answer ]',"${CompressClass}::write: input and output buffer are identical" ], 
-                #[ "not readable", 'xx' ], 
+                [ '{ }',         "${CompressClass}::write: input parameter not a filename, filehandle, array ref or scalar ref" ],
+                [ '[ { } ]',     "${CompressClass}::write: input parameter not a filename, filehandle, array ref or scalar ref" ],
+                [ '[ [ { } ] ]', "${CompressClass}::write: input parameter not a filename, filehandle, array ref or scalar ref" ],
+                [ '[ "" ]',      "${CompressClass}::write: input filename is undef or null string" ],
+                [ '[ undef ]',   "${CompressClass}::write: input filename is undef or null string" ],
+                [ '[ \$Answer ]',"${CompressClass}::write: input and output buffer are identical" ],
+                #[ "not readable", 'xx' ],
                 # same filehandle twice, 'xx'
                ) ;
 
@@ -1436,8 +1443,8 @@ EOT
             }
 
     #        @data = (
-    #            [ '[ $name1 ]',  "input file '$name1' does not exist" ], 
-    #            #[ "not readable", 'xx' ], 
+    #            [ '[ $name1 ]',  "input file '$name1' does not exist" ],
+    #            #[ "not readable", 'xx' ],
     #            # same filehandle twice, 'xx'
     #           ) ;
     #
@@ -1454,7 +1461,7 @@ EOT
     #        }
 
             #exit;
-            
+
         }
 
 
@@ -1488,17 +1495,17 @@ EOT
     #
     #        if (! ref $_[0])
     #        {
-    #            $_[0] = $to 
+    #            $_[0] = $to
     #                if $_[0] eq $from ;
-    #            return ;    
+    #            return ;
     #
     #        }
     #
     #        if (ref $_[0] eq 'SCALAR')
     #        {
-    #            $_[0] = \$to 
+    #            $_[0] = \$to
     #                if defined ${ $_[0] } && ${ $_[0] } eq $from ;
-    #            return ;    
+    #            return ;
     #
     #        }
     #
@@ -1576,7 +1583,7 @@ EOT
     #
     #
     #        }
-    #        
+    #
     #    }
     }
 
@@ -1592,13 +1599,13 @@ EOT
 
                 my $appended = "append";
                 my $string = "some data";
-                my $compressed ; 
+                my $compressed ;
 
                 my $c = new $CompressClass(\$compressed);
                 $c->close();
 
                 my $comp_len = length $compressed;
-                $compressed .= $appended if $append ;
+                $compressed .= $appended if $append && $CompressClass !~ /zstd/i;
 
                 my $lex = new LexFile my $name ;
                 my $input ;
@@ -1638,7 +1645,7 @@ EOT
                 }
 
                 {
-                    # Check that read return an empty string
+                    # Check that read returns an empty string
                     if ($type eq 'filehandle')
                     {
                         my $fh = new IO::File "<$name" ;
@@ -1646,12 +1653,13 @@ EOT
                         $input = $fh ;
                     }
 
-                    my $x = new $UncompressClass $input, Transparent => 0 
+                    my $x = new $UncompressClass $input, Transparent => 0
                         or diag "$$UnError" ;
                     isa_ok $x, $UncompressClass;
 
                     my $buffer;
-                    is $x->read($buffer), 0, "read 0 bytes";
+                    is $x->read($buffer), 0, "read 0 bytes"
+                        or diag "read returned $$UnError";
                     ok defined $buffer, "buffer is defined";
                     is $buffer, "", "buffer is empty string";
 
@@ -1669,7 +1677,7 @@ EOT
                         $input = $fh ;
                     }
                     my $x = new $UncompressClass $input, Transparent => 0,
-                                                         Append => 1 
+                                                         Append => 1
                         or diag "$$UnError" ;
                     isa_ok $x, $UncompressClass;
 
@@ -1702,6 +1710,37 @@ EOT
                 }
             }
         }
+    }
+
+    {
+        # Round trip binary data that happens to contain \r\n
+        # via the filesystem
+
+        my $original = join '', map { chr } 0x00 .. 0xff ;
+        $original .= "data1\r\ndata2\r\ndata3\r\n" ;
+
+
+        title "$UncompressClass -- round trip test";
+
+        my $string = $original;
+
+        my $lex = new LexFile( my $name, my $compressed) ;
+        my $input ;
+        writeFile ($name, $original);
+
+        my $c = new $CompressClass($compressed);
+        isa_ok $c, $CompressClass;
+        $c->print($string);
+        $c->close();
+
+        my $u = new $UncompressClass $compressed, Transparent => 0
+            or diag "$$UnError" ;
+        isa_ok $u, $UncompressClass;
+        my $buffer;
+        is $u->read($buffer), length($original), "read bytes";
+        is $buffer, $original, "  round tripped ok";
+
+
     }
 }
 
