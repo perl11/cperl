@@ -556,6 +556,8 @@ Typo in pod
 Added transparent lzip and zstd delegation in tests.
 More meta.
 
+=item L<Compress::Raw::Zlib>  2.086
+
 =item L<Config> 6.23
 
 Add the FREEBSD_KERNEL_VERSION key for FreeBSD.

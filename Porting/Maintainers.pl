@@ -284,14 +284,16 @@ use File::Glob qw(:case);
     },
 
     'Compress::Raw::Zlib' => {
-        'DISTRIBUTION' => 'PMQS/Compress-Raw-Zlib-2.081.tar.gz',
+        'DISTRIBUTION' => 'PMQS/Compress-Raw-Zlib-2.086.tar.gz',
         'FILES'    => q[cpan/Compress-Raw-Zlib],
         'EXCLUDED' => [
             qr{^examples/},
             qr{^t/Test/},
             qw( t/000prereq.t
                 t/99pod.t
-                ),
+                t/meta-yaml.t
+                t/meta-json.t
+              ),
         ],
         # support make -s, pgcc support
         # deflateParams bug, FALLTHROUGH hints
