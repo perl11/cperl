@@ -1,3 +1,5 @@
+use strict;
+use warnings;
 
 use ExtUtils::MakeMaker;
 use Config;
@@ -8,12 +10,12 @@ if ( $mm_version < 6.58 ) {
     croak("Sorry, but MakeMaker 6.58 or better is needed to build this package.");
 }
 
-&WriteMakefile(
+WriteMakefile(
     NAME       => 'Term::ReadKey',
     DISTNAME   => 'TermReadKey',
     LICENSE    => 'perl',
     ABSTRACT   => 'Change terminal modes, and perform non-blocking reads.',
-    AUTHOR     => ['Kenneth Albanowski','Jonathan Stowe'],
+    AUTHOR     => ['Kenneth Albanowski', 'Jonathan Stowe', 'Reini Urban'],
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 6.58,
     },
@@ -28,16 +30,16 @@ if ( $mm_version < 6.58 ) {
         },
         provides  => {
             'Term::ReadKey' => {
-                file    => 'META.yml',
-                version => '2.37',
+                file    => 'ReadKey_pm.PL',
+                version => '2.38',
             },
         },
         'meta-spec' => { version => 2 },
         resources => {
             repository => {
                 type => 'git',
-                url  => 'https://github.com/jonathanstowe/TermReadKey.git',
-                web  => 'https://github.com/jonathanstowe/TermReadKey',
+                url  => 'https://github.com/rurban/TermReadKey.git',
+                web  => 'https://github.com/rurban/TermReadKey',
             },
         },
     },
@@ -69,10 +71,10 @@ sgtty cchars.h: genchars.pl
 distcc: genchars.pl
 	\$(PERLRUN) genchars.pl dist
 
-ReadKey.c: cchars.h
+ReadKey\$(OBJ_EXT): ReadKey.c cchars.h
 
 ";
-    $_
+    return $_;
 }
 
 # The template needs DynaLoader. don't use miniperl (dual-life only)
@@ -87,7 +89,7 @@ sub MY::processPL {
         if ($useshrplib && $Config{ldlibpthname}) {
           $cmd = "$Config{ldlibpthname}=../.. $cmd";
         }
-        s/\$\(PERLRUN\)(.+)$/$cmd \1 || \$\(PERLRUN\) \1/;
+        s/\$\(PERLRUN\)(.+)$/$cmd $1 || \$\(PERLRUN\) $1/;
     }
     $_
 }
@@ -96,11 +98,11 @@ sub MY::test {
     my $self = shift;
     $_ = $self->MM::test();
     s#example/test.pl#-w example/test.pl#;
-    $_
+    return $_;
 }
 
 sub MY::test_interactive {
-    "Fooo"
+    return "Fooo";
 }
 
 sub MY::pure_site_install {
@@ -108,5 +110,5 @@ sub MY::pure_site_install {
     my $new = $self->MM::test();
 
     $new .= "\n\t./register_module Term::ReadKey";
-    $new
+    return $new;
 }

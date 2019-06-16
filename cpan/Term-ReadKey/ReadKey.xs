@@ -58,15 +58,15 @@
 #include "cchars.h"
 
 STATIC int GetTermSizeVIO _((pTHX_ PerlIO * file,
-                             int * width, int * height, 
+                             int * width, int * height,
                              int * xpix, int * ypix));
 
 STATIC int GetTermSizeGWINSZ _((pTHX_ PerlIO * file,
-                                int * width, int * height, 
+                                int * width, int * height,
                                 int * xpix, int * ypix));
 
 STATIC int GetTermSizeGSIZE _((pTHX_ PerlIO * file,
-                               int * width, int * height, 
+                               int * width, int * height,
                                int * xpix, int * ypix));
 
 STATIC int GetTermSizeWin32 _((pTHX_ PerlIO * file,
@@ -74,7 +74,7 @@ STATIC int GetTermSizeWin32 _((pTHX_ PerlIO * file,
                                int * xpix, int * ypix));
 
 STATIC int SetTerminalSize _((pTHX_ PerlIO * file,
-                              int width, int height, 
+                              int width, int height,
                               int xpix, int ypix));
 
 STATIC void ReadMode _((pTHX_ PerlIO * file,int mode));
@@ -134,10 +134,10 @@ int GetTermSizeGWINSZ(pTHX_ PerlIO *file,int *width,int *height,int *xpix,int *y
 #if defined(TIOCGWINSZ) && !defined(DONT_USE_GWINSZ)
     int handle = PerlIO_fileno(file);
     struct winsize w;
-    
+
     if (ioctl (handle, TIOCGWINSZ, &w) == 0) {
         *width  = w.ws_col;
-        *height = w.ws_row; 
+        *height = w.ws_row;
         *xpix = w.ws_xpixel;
         *ypix = w.ws_ypixel;
         return 0;
@@ -162,10 +162,10 @@ int GetTermSizeGSIZE(pTHX_ PerlIO *file,int *width,int *height,int *xpix,int *yp
     int handle = PerlIO_fileno(file);
 
     struct ttysize w;
-        
+
     if (ioctl (handle, TIOCGSIZE, &w) == 0) {
         *width  = w.ts_cols;
-        *height = w.ts_lines; 
+        *height = w.ts_lines;
         *xpix = 0/*w.ts_xxx*/;
         *ypix = 0/*w.ts_yyy*/;
         return 0;
@@ -195,7 +195,7 @@ int GetTermSizeWin32(pTHX_ PerlIO *file,int *width,int *height,int *xpix,int *yp
         /* Logic: return maximum possible screen width, but return
            only currently selected height */
         if (width)
-            *width = info.dwMaximumWindowSize.X; 
+            *width = info.dwMaximumWindowSize.X;
         /*info.srWindow.Right - info.srWindow.Left;*/
         if (height)
             *height = info.srWindow.Bottom - info.srWindow.Top;
@@ -284,8 +284,8 @@ int SetTerminalSize(pTHX_ PerlIO *file,int width,int height,int xpix,int ypix)
     }
 #  else
     /* Should we could do this and then said we succeeded?
-       sprintf(buffer,"%d",width)   
-       my_setenv("COLUMNS",buffer)   
+       sprintf(buffer,"%d",width)
+       my_setenv("COLUMNS",buffer)
        sprintf(buffer,"%d",height);
        my_setenv("LINES",buffer); */
 
@@ -374,7 +374,7 @@ int getspeed(pTHX_ PerlIO *file, I32 *in, I32 *out)
     *in = *out = -1;
     *in = cfgetispeed(&buf);
     *out = cfgetospeed(&buf);
-    
+
     for (i=0; terminal_speeds[i] !=- 1; i+=2) {
         if (*in == terminal_speeds[i+1]) {
             *in = terminal_speeds[i];
@@ -387,7 +387,7 @@ int getspeed(pTHX_ PerlIO *file, I32 *in, I32 *out)
             break;
         }
     }
-    return 0;	 	
+    return 0;
 
 #elif defined I_TERMIO
     /* SysV stuff */
@@ -403,7 +403,7 @@ int getspeed(pTHX_ PerlIO *file, I32 *in, I32 *out)
         }
     }
     return 0;	 	
-    
+
 #elif defined I_SGTTY
     /* BSD stuff */
     struct sgttyb buf;
@@ -418,15 +418,15 @@ int getspeed(pTHX_ PerlIO *file, I32 *in, I32 *out)
             break;
         }
     }
-    
+
     for (i=0; terminal_speeds[i] != -1; i+=2) {
         if (buf.sg_ispeed == terminal_speeds[i+1]) {
             *in = terminal_speeds[i];
             break;
         }
     }
-    
-    return 0;	 	
+
+    return 0;
 
 #else
 
@@ -512,7 +512,7 @@ void ReadMode(pTHX_ PerlIO *file, int mode)
 #endif
 
     if (firsttime) {
-        firsttime=0; 
+        firsttime=0;
         StructCopy(&work,&savebuf,struct tbuffer);
         if (!hv_store(filehash,(char*)&handle,sizeof(int),
                       newSVpv((char*)&savebuf,sizeof(struct tbuffer)),0))
@@ -521,10 +521,10 @@ void ReadMode(pTHX_ PerlIO *file, int mode)
             croak("Unable to stash terminal mode.\n");
     } else {
         SV ** temp;
-        if (!(temp=hv_fetch(filehash,(char*)&handle,sizeof(int),0))) 
+        if (!(temp=hv_fetch(filehash,(char*)&handle,sizeof(int),0)))
             croak("Unable to retrieve stashed terminal settings.\n");
         StructCopy(SvPV(*temp,PL_na),&savebuf,struct tbuffer);
-        if (!(temp=hv_fetch(modehash,(char*)&handle,sizeof(int),0))) 
+        if (!(temp=hv_fetch(modehash,(char*)&handle,sizeof(int),0)))
             croak("Unable to retrieve stashed terminal mode.\n");
         oldmode=SvIV(*temp);
     }
@@ -599,7 +599,7 @@ void ReadMode(pTHX_ PerlIO *file, int mode)
 #endif
 #ifndef ECHONL
 #define ECHONL 0
-#endif 
+#endif
 #ifndef ECHOPRT
 #define ECHOPRT 0
 #endif
@@ -644,7 +644,7 @@ void ReadMode(pTHX_ PerlIO *file, int mode)
         /*
          *  Disable everything except parity if needed.
          */
-        
+
         /* Hopefully, this should put the tty into unbuffered mode
            with signals and control characters (both posixy and normal)
            disabled, along with flow control. Echo should be off.
@@ -663,9 +663,9 @@ void ReadMode(pTHX_ PerlIO *file, int mode)
             work.c_iflag &= ~ISTRIP;
             work.c_iflag |= IGNPAR;
             work.c_iflag &= ~PARMRK;
-        } 
+        }
         work.c_oflag &= ~(OPOST |ONLCR|OCRNL|ONLRET);
-        
+
         work.c_cc[VTIME] = 0;
         work.c_cc[VMIN] = 1;
     }
@@ -674,7 +674,7 @@ void ReadMode(pTHX_ PerlIO *file, int mode)
            with signals and control characters (both posixy and normal)
            disabled, along with flow control. Echo should be off.
            About the only thing left unchanged is 8-bit/parity */
-        
+
         StructCopy(&savebuf,&work,struct tbuffer);
 
         /*work.c_iflag = savebuf.c_iflag;*/
@@ -726,12 +726,12 @@ void ReadMode(pTHX_ PerlIO *file, int mode)
           work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);*/
     }
     else if (mode==0) {
-        /*work.c_lflag &= ~BITMASK; 
+        /*work.c_lflag &= ~BITMASK;
           work.c_lflag |= savebuf.c_lflag & BITMASK;
           work.c_iflag &= ~(IXON|IXOFF|IXANY);
           work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);*/
         StructCopy(&savebuf,&work,struct tbuffer);
-        
+
         firsttime=1;
     }	
     else {
@@ -751,7 +751,7 @@ void ReadMode(pTHX_ PerlIO *file, int mode)
 
     /*tcsetattr(handle,TCSANOW,&work);*/ /* It might be better to FLUSH
 					   when changing gears to a lower mode,
-					   and only use NOW for higher modes. 
+					   and only use NOW for higher modes.
                                          */
 
 #endif
@@ -781,27 +781,27 @@ void ReadMode(pTHX_ PerlIO *file, int mode)
 
     if (mode==5) {
         /* This mode should be echo disabled, signals disabled,
-           flow control disabled, and unbuffered. CR/LF translation 
+           flow control disabled, and unbuffered. CR/LF translation
            is off, and 8 bits if possible */
 
         StructCopy(&savebuf,&work,struct tbuffer);
-        
+
         work.c_lflag &= ~(ECHO | ISIG | ICANON | XCASE);
         work.c_lflag &= ~(ECHOE | ECHOK | ECHONL | TRK_IDEFAULT);
         work.c_iflag &= ~(IXON | IXOFF | IXANY | ICRNL | BRKINT);
         if ((work.c_cflag | PARENB)!=PARENB ) {
             work.c_iflag &= ~(ISTRIP|INPCK);
             work.c_iflag |= IGNPAR;
-        } 
+        }
         work.c_oflag &= ~(OPOST|ONLCR);
         work.c_cc[VMIN] = 1;
         work.c_cc[VTIME] = 1;
-    } 
+    }
     else if (mode==4) {
         /* This mode should be echo disabled, signals disabled,
            flow control disabled, and unbuffered. Parity is not
            touched. */
-        
+
         StructCopy(&savebuf,&work,struct tbuffer);
 
         work.c_lflag &= ~(ECHO | ISIG | ICANON);
@@ -809,7 +809,7 @@ void ReadMode(pTHX_ PerlIO *file, int mode)
         work.c_iflag &= ~(IXON | IXOFF | IXANY | BRKINT);
         work.c_cc[VMIN] = 1;
         work.c_cc[VTIME] = 1;
-    } 
+    }
     else if (mode==3) {
         /* This mode tries to have echo off, signals enabled,
            flow control as per the original setting, and unbuffered. */
@@ -837,9 +837,9 @@ void ReadMode(pTHX_ PerlIO *file, int mode)
         work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);
 		
         /* This assumes turning ECHO and ICANON back on is
-           sufficient to re-enable cooked mode. If this is a 
+           sufficient to re-enable cooked mode. If this is a
            problem, complain to me */
-    } 
+    }
     else if (mode==1) {
         /* This mode tries to set echo on, signals on, and buffering
            on, with flow control set to whatever it was originally. */
@@ -852,7 +852,7 @@ void ReadMode(pTHX_ PerlIO *file, int mode)
         work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);
 		
         /* This assumes turning ECHO and ICANON back on is
-           sufficient to re-enable cooked mode. If this is a 
+           sufficient to re-enable cooked mode. If this is a
            problem, complain to me */
     }		
     else if (mode==0) {
@@ -865,8 +865,8 @@ void ReadMode(pTHX_ PerlIO *file, int mode)
         croak("ReadMode %d is not implemented on this architecture.",mode);
         return;		
     }
-    
-    if (DisableFlush || oldmode<=mode) 
+
+    if (DisableFlush || oldmode<=mode)
         ioctl(handle,TCSETA,&work);
     else
         ioctl(handle,TCSETAF,&work);
@@ -1008,14 +1008,14 @@ void ReadMode(pTHX_ PerlIO *file, int mode)
         system("/bin/stty -raw  cbreak -isig -echo -ixon  onlcr  icrnl -brkint");
     else if (mode==3)
         system("/bin/stty -raw  cbreak  isig -echo  ixon  onlcr  icrnl  brkint");
-    else if (mode==2) 
+    else if (mode==2)
         system("/bin/stty -raw -cbreak  isig  echo  ixon  onlcr  icrnl  brkint");
     else if (mode==1)
         system("/bin/stty -raw -cbreak  isig -echo  ixon  onlcr  icrnl  brkint");
     else if (mode==0)
         system("/bin/stty -raw -cbreak  isig  echo  ixon  onlcr  icrnl  brkint");
 
-    /* Those probably won't work, but they couldn't hurt 
+    /* Those probably won't work, but they couldn't hurt
        at this point */
 
 #endif
@@ -1030,7 +1030,7 @@ void ReadMode(pTHX_ PerlIO *file, int mode)
                       newSViv(mode),0))
             croak("Unable to stash terminal settings.\n");
     }
-    
+
 }
 
 #ifdef USE_PERLIO
@@ -1081,13 +1081,13 @@ int selectfile(pTHX_ PerlIO *file,double delay)
     struct timeval t;
     int handle = PerlIO_fileno(file);
 
-    /*char buf[32];    
+    /*char buf[32];
       Select_fd_set_t fd=(Select_fd_set_t)&buf[0];*/
-    
+
     fd_set fd;
     if (handle < 0 || (PerlIO_fast_gets(file) && PerlIO_get_cnt(file) > 0))
         return 1;
-    
+
     /*t.tv_sec=t.tv_usec=0;*/
 
     if (delay < 0.0) delay = 0.0;
@@ -1099,7 +1099,7 @@ int selectfile(pTHX_ PerlIO *file,double delay)
     FD_SET(handle,&fd);
     if (select(handle+1,(Select_fd_set_t)&fd,
                (Select_fd_set_t)0,
-               (Select_fd_set_t)&fd, &t)) return -1; 
+               (Select_fd_set_t)&fd, &t)) return -1;
     else return 0;
 #else
     croak("select is not supported on this architecture");
@@ -1183,7 +1183,7 @@ typedef struct {
              goto again;                \
     } while (0)
 
-int Win32PeekChar(pTHX_ PerlIO *file,U32 delay,char *key)
+int Win32PeekChar(pTHX_ PerlIO *file, U32 delay, char *key)
 {
   int handle;
   HANDLE whnd;
@@ -1300,7 +1300,7 @@ again:
         break;
       }
 
-    *key = record.Event.KeyEvent.uChar.AsciiChar; 
+    *key = record.Event.KeyEvent.uChar.AsciiChar;
     keyCount--;
 
     if (keyCount) {
@@ -1308,9 +1308,23 @@ again:
       events[0].ascii = *key;
       eventCount = 1;
     }
- 
+
     return(TRUE);
 
+ /* again:
+	return (FALSE);
+	*/
+
+
+}
+#else
+int Win32PeekChar(pTHX_ PerlIO *file, U32 delay, char *key)
+{
+    PERL_UNUSED_VAR(file);
+    PERL_UNUSED_VAR(delay);
+    PERL_UNUSED_VAR(key);
+    croak("Win32PeekChar is not supported on this architecture");
+    return 0;
     /* again:
        return (FALSE);
     */
@@ -1515,7 +1529,7 @@ PPCODE:
             PUSHs(sv_2mortal(newSViv((IV)out)));
 	}
 
-BOOT: 
+BOOT:
 	newXS("Term::ReadKey::GetControlChars", XS_Term__ReadKey_GetControlChars, file);
 	newXS("Term::ReadKey::SetControlChars", XS_Term__ReadKey_SetControlChars, file);
 	filehash = newHV();

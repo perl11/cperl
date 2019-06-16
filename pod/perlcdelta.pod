@@ -973,6 +973,10 @@ It wrapped around previously. Fixes Coverity CID #187854.
 Move __Storable__.pm into Storable_pm.PL
 L<[cperl #374]|https://github.com/perl11/cperl/issues/374>
 
+=item L<Term::ReadKey> 2.38_03
+
+merge with 2.38
+
 =item L<threads::shared>  1.60
 
 add extra lock tracing via -DSHARED_TRACE_LOCKS

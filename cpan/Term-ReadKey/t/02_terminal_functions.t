@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 
+
 use Test::More ;
 
 if ( $^O =~ /bsd/i ) {
@@ -59,7 +60,7 @@ SKIP:
 
     my $usable_terminal=0;
     for (my $i = 1; $i < 6; $i++){
-        if ( &Term::ReadKey::termoptions() == $i ){
+        if ( Term::ReadKey::termoptions() == $i ){
             $usable_terminal = 1;
             last;
         }
@@ -68,10 +69,10 @@ SKIP:
 
     my @modes;
     eval {
-        push( @modes, "O_NODELAY" ) if &Term::ReadKey::blockoptions() & 1;
-        push( @modes, "poll()" )    if &Term::ReadKey::blockoptions() & 2;
-        push( @modes, "select()" )  if &Term::ReadKey::blockoptions() & 4;
-        push( @modes, "Win32" )     if &Term::ReadKey::blockoptions() & 8;
+        push( @modes, "O_NODELAY" ) if Term::ReadKey::blockoptions() & 1;
+        push( @modes, "poll()" )    if Term::ReadKey::blockoptions() & 2;
+        push( @modes, "select()" )  if Term::ReadKey::blockoptions() & 4;
+        push( @modes, "Win32" )     if Term::ReadKey::blockoptions() & 8;
     };
     is($@, '', "Check non-blocking read");
 

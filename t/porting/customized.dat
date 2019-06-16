@@ -101,8 +101,8 @@ Safe dist/Safe/Safe.pm 22cc4848543d95f3b0d570ad0cbd293df6232833
 Safe dist/Safe/t/safeops.t 9cd164bd5b9038b344e895d73fb061dc5f0fea1f
 Search::Dict dist/Search-Dict/lib/Search/Dict.pm 1a896da1e51d5ab18227b2c28793a37cfd55308b
 Sys::Syslog cpan/Sys-Syslog/t/syslog.t bed4da2de76558f92d354bb83dc01fd7d66cadec
-Term::ReadKey cpan/Term-ReadKey/ReadKey.xs 6ae53ab73fe5aaf21b130fc261cbdf6a8c4a8fbb
-Term::ReadKey cpan/Term-ReadKey/t/02_terminal_functions.t ca51de24b46f62e3865403f923db702a4ce53200
+Term::ReadKey cpan/Term-ReadKey/ReadKey.xs 77e5c08ff6b6cbc6b9f80d1f73a5e018a45425a6
+Term::ReadKey cpan/Term-ReadKey/t/02_terminal_functions.t 7097919b1c558789a499204bea499431846574d9
 Test::Harness cpan/Test-Harness/t/compat/env.t 2632a5e4226e8fac52a051f37952a79326b8c51f
 Test::Harness cpan/Test-Harness/t/compat/inc-propagation.t b006872243d82ffd447e99ff241b6287c6aed36c
 Test::Harness cpan/Test-Harness/t/lib/NoFork.pm e96d39d98c176745a317e2d178713708f03e8cae

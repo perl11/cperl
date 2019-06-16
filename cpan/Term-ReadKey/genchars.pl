@@ -492,8 +492,3 @@ TRTXS(XS_Term__ReadKey_SetControlChars)
 ";
 
 print "Done.\n" unless SILENT;
-
-
-
-
-	
