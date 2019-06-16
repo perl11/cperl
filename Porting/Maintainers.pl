@@ -1552,7 +1552,7 @@ use File::Glob qw(:case);
     },
 
     'Unicode::Collate' => {
-        'DISTRIBUTION' => 'SADAHIRO/Unicode-Collate-1.25.tar.gz',
+        'DISTRIBUTION' => 'SADAHIRO/Unicode-Collate-1.27.tar.gz',
         'FILES'        => q[cpan/Unicode-Collate],
         'EXCLUDED'     => [
             qr{N$},
