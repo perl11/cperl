@@ -890,7 +890,10 @@ Add SECURITY AND PORTABILITY warning paragraph to pod.
 
 Restrict the new op 'enterffi'.
 
-=item L<perlfaq> 5.20180915
+=item L<perlfaq> 5.20190126
+
+Fixed many typos and pod markup.
+Added reference in perlfaq to new ~ syntax in indented here-docs.
 
 =item L<PerlIO::encoding> 0.27_01
 

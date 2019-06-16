@@ -18977,6 +18977,7 @@ our %delta :const = (
             'Math::BigInt::Lib'     => '1.999816',
             'Module::Load'          => '0.34',
             'mro'                   => '1.22_02',
+            'perlfaq'               => '5.20190126',
             'Pod::Man'              => '4.12',
             'Pod::ParseLink'        => '4.12',
             'Pod::Simple'           => '4.38c',

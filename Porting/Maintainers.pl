@@ -1169,7 +1169,7 @@ use File::Glob qw(:case);
     },
 
     'perlfaq' => {
-        'DISTRIBUTION' => 'ETHER/perlfaq-5.20180915.tar.gz',
+        'DISTRIBUTION' => 'ETHER/perlfaq-5.20190126.tar.gz',
         'FILES'        => q[cpan/perlfaq],
         'EXCLUDED'     => [
             qw( inc/CreateQuestionList.pm
