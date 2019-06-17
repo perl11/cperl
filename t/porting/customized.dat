@@ -39,9 +39,9 @@ Devel::NYTProf cpan/Devel-NYTProf/Makefile.PL b6bc167c480874deeca0d5d2f119c16b53
 Devel::NYTProf cpan/Devel-NYTProf/MemoryProfiling.pod c7301ff4ec5c0066db64103e9f68fd5fe0397cc6
 Devel::NYTProf cpan/Devel-NYTProf/NYTProf.xs 0e0280b06d5be7702fae8645b6f449a513d12e16
 Devel::NYTProf cpan/Devel-NYTProf/t/00-load.t 2eeff9e8529b50ba11e0b2264a52a328b2bd0d8c
-Devel::NYTProf cpan/Devel-NYTProf/t/22-readstream.t b9e26daeef0b650b5314034d964184a56cdf61d8
+Devel::NYTProf cpan/Devel-NYTProf/t/22-readstream.t b838af79d172a5bc1eb8f824405da282d39f3a28
 Devel::NYTProf cpan/Devel-NYTProf/t/80-version.t 147085f961c569e6f192a0a3946f355aa03369fe
-Devel::NYTProf cpan/Devel-NYTProf/t/lib/NYTProfTest.pm 799b30477a2c81639a504c4e6fd651651784ce47
+Devel::NYTProf cpan/Devel-NYTProf/t/lib/NYTProfTest.pm c72d3b93db4495aac8d9ae5350835c29045ae6b6
 Digest::MD5 cpan/Digest-MD5/Makefile.PL 3b5b9693e5a22f5189878d84833b10f98136e619
 Digest::MD5 cpan/Digest-MD5/MD5.pm 866a0ca11d63c257f3c90974704b88c9361e705c
 Digest::MD5 cpan/Digest-MD5/MD5.xs 304837872d60ba16300f85771abaa7c40fabadf3

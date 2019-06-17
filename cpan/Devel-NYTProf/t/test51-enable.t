@@ -33,6 +33,8 @@ run_test_group({
             'main::sub7' => 1,
             'DB::finish_profile' => 1,
         }, "$file_c sub calls");
+
+        unlink $file_b, $file_c;
     },
 });
 

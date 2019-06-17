@@ -9,3 +9,7 @@ use NYTProfTest;
 $ENV{DISABLE_NYTPROF_SAWAMPERSAND} = 1;
 
 run_test_group;
+
+unlink glob ('auto/test14/*');
+rmdir 'auto/test14';
+rmdir 'auto';

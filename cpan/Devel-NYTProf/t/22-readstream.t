@@ -121,4 +121,5 @@ is_deeply $prof{NEW_FID}, [
     [ 1, 0, 0, $fid_flags, 0, 0, '-e' ]
 ], 'NEW_FID args';
 
+unlink $out;
 done_testing();

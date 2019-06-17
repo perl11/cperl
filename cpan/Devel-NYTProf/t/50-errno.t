@@ -59,6 +59,8 @@ SKIP: {
 ok not eval { example_xsub(0, "die"); 1; };
 like $@, qr/^example_xsub\(die\)/;
 
+unlink $nytprof_out;
+
 exit 0;
 
 sub busy {

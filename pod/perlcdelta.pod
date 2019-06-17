@@ -685,9 +685,13 @@ skip 3 failing 5.6.0 tests in ppphtest
 
 CVE-2019-11358 + CVE-2015-9251 jquery-1.12.4.js update to
 latest v3.4.1.
+Also update the two plugins to latest, and adjusted the
+tablesorter css.
 
-Also update the two plugins to latest,
-and adjusted the tablesorter css.
+Adjust the short %PL_DBsub keys (without main::) compatible to
+perl5.
+
+Add all the tests, cleanup after the tests.
 
 =item L<DynaLoader> 2.09c
 

@@ -310,6 +310,9 @@ sub run_test_group {
     } );
 
     report_env_influence($group);
+    unlink $profile_datafile;
+    unlink $group."_outdir/*";
+    rmdir $group."_outdir";
 }
 
 
@@ -368,6 +371,7 @@ sub run_test {
         unlink <$outdir/*>;
 
         verify_csv_report($test, $tag, $test_datafile, $outdir);
+        unlink <$outdir/*>;
     }
     elsif ($type eq 'pf') {
         verify_platforms_csv_report($test, $tag, $test_datafile, $outdir);
@@ -445,6 +449,7 @@ sub verify_data {
         $profile->normalize_variables(1); # and options
         dump_profile_to_file($profile, $test.'_new', $test.'_newp');
         is_file_content_same($test.'_new', $test, "$test match generated profile data for $tag");
+        unlink $test.'_new';
     }
 }
 
@@ -570,6 +575,7 @@ sub verify_calls_report {
     note "generating $got_file";
     run_command("$perl $nytprofcalls $profile_datafile -stable --calls > $got_file");
     is_file_content_same($got_file, $test, "$test match generated calls data for $tag");
+    unlink $got_file;
 }
 
 
@@ -597,6 +603,7 @@ sub verify_csv_report {
 
     my @got      = slurp_file($csvfile);
     my @expected = slurp_file($test);
+    unlink $csvfile;
 
     if ($opts{d}) {
         print "GOT:\n";
@@ -672,6 +679,7 @@ sub verify_csv_report {
         write_out_file($test.'_new', join("\n", @got,''), $test.'_newp');
         diff_files($test, $test.'_new', $test.'_newp');
     };
+    unlink $test.'_newp';
     is(join("\n", @accuracy_errors), '', "$test times should be reasonable");
 }
 
@@ -693,7 +701,7 @@ sub verify_platforms_csv_report {
         $match_result = $match_result && $got =~ m/$_/;
     }
     close (EXPECTED);    
-
+    unlink $outfile;
     ok $match_result, "$outfile file matches $test";
 }
 
