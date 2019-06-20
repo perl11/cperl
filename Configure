@@ -1094,6 +1094,7 @@ timeincl=''
 i_unistd=''
 i_ustat=''
 i_utime=''
+i_valgrind=''
 i_vfork=''
 i_wchar=''
 i_wctype=''
@@ -23543,6 +23544,10 @@ case "$yacc" in
 	;;
 esac
 
+: see if valgrind/valgrind.h is available
+set valgrind/valgrind.h i_valgrind
+eval $inhdr
+
 : see if this is a bfd.h system
 set bfd.h i_bfd
 eval $inhdr
@@ -25583,6 +25588,7 @@ i_time='$i_time'
 i_unistd='$i_unistd'
 i_ustat='$i_ustat'
 i_utime='$i_utime'
+i_valgrind='$i_valgrind'
 i_vfork='$i_vfork'
 i_wchar='$i_wchar'
 i_wctype='$i_wctype'

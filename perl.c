@@ -38,8 +38,12 @@
 #include "patchlevel.h"			/* for local_patches */
 #include "XSUB.h"
 
+#ifdef I_VALGRIND
+#  include <valgrind/valgrind.h>
+#endif
+
 #ifdef NETWARE
-#include "nwutil.h"	
+#  include "nwutil.h"
 #endif
 
 #ifdef DEBUG_LEAKING_SCALARS_FORK_DUMP
@@ -640,6 +644,10 @@ perl_destruct(pTHXx)
     PERL_WAIT_FOR_CHILDREN;
 
     destruct_level = PL_perl_destruct_level;
+#ifdef I_VALGRIND
+    if (RUNNING_ON_VALGRIND)
+        destruct_level = 2;
+#endif
 #if defined(DEBUGGING) || defined(PERL_TRACK_MEMPOOL)
     {
 	const char * const s = PerlEnv_getenv("PERL_DESTRUCT_LEVEL");

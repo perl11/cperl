@@ -748,6 +748,12 @@
  */
 /*#define I_UTIME		/ **/
 
+/* I_VALGRIND:
+ *	This symbol, if defined, indicates to the C program that it should
+ *	include valgrind/valgrind.h.
+ */
+/*#define I_VALGRIND	/ **/
+
 /* I_VFORK:
  *	This symbol, if defined, indicates to the C program that it should
  *	include vfork.h.
@@ -5477,6 +5483,6 @@
 #endif
 
 /* Generated from:
- * c6518b8068a349c18bad76cef97a0481d5aad4221ec5224bbcb187c9c5797c67 config_h.SH
- * 7de9e1790e1297fa567edf82226e1e230a8b19ff4e6b1482152d77f14fa1123f uconfig.sh
+ * d295cb5b21070ab7c5076d71ceaa6fe08b12b02a619a95aba11c443ef7f8600a config_h.SH
+ * 1ad21ed3ecb2fac07b7c4aabef76b2fc7354cc6dee0b561e852a1651f8dd6025 uconfig.sh
  * ex: set ro: */

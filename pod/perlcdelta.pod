@@ -172,6 +172,13 @@ multi-threaded.  To always enable them, add
 
 to your F<Configure> flags.
 
+=head2 Check RUNNING_ON_VALGRIND, set destruct_level to 2
+
+Detect if we are running under valgrind and set destruct_level to 2.
+If so, destruct all ops, leading to no valgrind leaks, even with
+--leak-check=full.
+cperl-only L<[cperl #400]|https://github.com/perl11/cperl/issues/400>
+
 =head1 Security
 
 =head2 Variable length lookbehind in regular expression pattern matching
@@ -1355,6 +1362,11 @@ Fixed the error cases when the double or long double probes returned undef.
 =item F<Porting/do-make-cperl-release>
 
 Replace C<sha1sum> with C<sha256sum>, add C<gpg -a -b $pkg>.
+
+=item i_valgrind
+
+Detect F<valgrind/valgrind.h> and check C<RUNNING_ON_VALGRIND> for setting
+C<destruct_level> to 2.
 
 =back
 

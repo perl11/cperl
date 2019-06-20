@@ -793,6 +793,12 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$i_utime I_UTIME		/**/
 
+/* I_VALGRIND:
+ *	This symbol, if defined, indicates to the C program that it should
+ *	include valgrind/valgrind.h.
+ */
+#$i_valgrind I_VALGRIND	/**/
+
 /* I_VFORK:
  *	This symbol, if defined, indicates to the C program that it should
  *	include vfork.h.

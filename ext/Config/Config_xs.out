@@ -266,7 +266,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1295
+#define TOTAL_KEYWORDS 1296
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 37
 #define MIN_HASH_VALUE 5
@@ -1162,6 +1162,7 @@ struct stringpool_t
     char stringpool_str2798[sizeof ("castflags")];
     char stringpool_str2804[sizeof ("d_fs_data_s")];
     char stringpool_str2813[sizeof ("orderlib")];
+    char stringpool_str2814[sizeof ("i_valgrind")];
     char stringpool_str2815[sizeof ("d_siginfo_si_band")];
     char stringpool_str2816[sizeof ("sizetype")];
     char stringpool_str2817[sizeof ("d_malloc_size")];
@@ -2460,6 +2461,7 @@ static const struct stringpool_t stringpool_contents =
     "castflags",
     "d_fs_data_s",
     "orderlib",
+    "i_valgrind",
     "d_siginfo_si_band",
     "sizetype",
     "d_malloc_size",
@@ -5142,7 +5144,8 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str2813,		T_INV,0,ALN64I"@@orderlib@@"},
-      {XSCNO},
+
+      {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str2814,		T_INV,0,ALN64I"@@i_valgrind@@"},
 
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str2815,	T_INV,0,ALN64I"@@d_siginfo_si_band@@"},
 
@@ -7063,7 +7066,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str9579,	T_INV,0,ALN64I"@@d_ndbm_h_uses_prototypes@@"}
     };
 
-#line 7066 "Config.xs"
+#line 7069 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register unsigned int key = Config_hash (str, len);
