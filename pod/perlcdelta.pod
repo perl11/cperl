@@ -32,8 +32,9 @@ eliminating all access to the package via methods.  This is almost
 always an error, unless you want to override access to the package
 or want a data-only package, without any methods.
 cperl added the shadow warnings
-L<perldiag/"Subroutine &%s::%s masks existing package %s::%s">
-and L<perldiag/"Subroutine &%s masks new package %s">.
+L<perldiag/"Subroutine &%s::%s masks existing package %s">,
+L<perldiag/"Subroutine &%s masks new package %s"> and
+L<perldiag/"Subroutine &%s masks new class %s">.
 Use C<no warnings 'shadow';> to silence these new warnings.
 
 =head2 extern sub - libffi
@@ -591,8 +592,8 @@ previous directory ~/.cpan/build changed before entering tmp-32186,
 expected dev=47 ino=244719549, actual dev=47 ino=33303, aborting at
 CPAN/Distribution.pm line 591
 
-Add many upstream tests and distroprefs. Still need to install them,
-and add the cperl distroprefs.
+Add many upstream tests and distroprefs. Still need to install them.
+Added the cperl distroprefs.
 
 Support L<YAML::Safe> for distroprefs.
 
@@ -1203,7 +1204,7 @@ L<Attempt to change hash while iterating over it|perldiag/"Attempt to change has
 
 =item *
 
-L<Subroutine &%s::%s masks existing package %s::%s|perldiag/"Subroutine &%s::%s masks existing package %s::%s">
+L<Subroutine &%s::%s masks existing package %s|perldiag/"Subroutine &%s::%s masks existing package %s">
 
 =item *
 
