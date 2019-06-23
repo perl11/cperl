@@ -28,7 +28,6 @@ cpan/Devel-NYTProf/bin/nytprofpf
 cpan/Test-Harness/bin/prove
 cpan/Test-Harness/t/source_tests/source.sh
 cpan/Test-Harness/t/source_tests/source_args.sh
-cpan/YAML-LibYAML/LibYAML/update.sh
 installperl
 installman
 makedepend.SH

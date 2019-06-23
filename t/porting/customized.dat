@@ -122,9 +122,6 @@ Time::HiRes dist/Time-HiRes/typemap 5da3f9dfd1cac452add4194888173f7b4594e933
 Win32 cpan/Win32/longpath.inc 6a81d65707d11be761285ae3e5d9ae1f91bb1444
 Win32 cpan/Win32/Win32.xs 39725c8892490ccd8fc9ea899f66af39cb9aff92
 Win32API::File cpan/Win32API-File/File.xs 44b80cc1a5c598b75628e92e010c270c75cd6f4b
-YAML::LibYAML cpan/YAML-LibYAML/LibYAML/Makefile.PL af46c9ce20b08189cc0fa26b20c69ea051084365
-YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm 527302db61c55bf695da94adfa66e7c2f34b1f09
-YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm 9716931aaf2305fab4a41f35560362947ba3a805
 autodie cpan/autodie/t/mkdir.t 9e70d2282a3cc7d76a78bf8144fccba20fb37dac
 base dist/base/lib/base.pm 9328b5b1eee7c1771a92d49d3a484b3541a0ffdc
 base dist/base/lib/fields.pm ed23ed73d3e76fe02fd2309b49fa8b1744f027ef

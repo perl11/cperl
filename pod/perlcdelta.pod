@@ -521,6 +521,10 @@ ffi helpers and ffi types.
 Allow hash iterators changing keys for back-compat.
 See L</Protected hash iterators>.
 
+=item L<YAML::Safe> 0.80
+
+Replaces L<YAML::XS>.
+
 =back
 
 =head2 Updated Modules and Pragmata
@@ -1057,6 +1061,11 @@ See L<perldeprecation/Assigning non-zero to C<< $[ >> is fatal>
 
 L<B::Debug> is no longer distributed with the core distribution.
 This was announced with v5.28.0. It remains available on CPAN.
+
+=item *
+
+L<YAML::XS> is no longer distributed with the cperl core distribution.
+It was replaced with L<YAML::Safe>.
 
 =back
 

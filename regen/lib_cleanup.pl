@@ -119,9 +119,8 @@ foreach my $file (@ext) {
 # and more special cperl cases
 if (-f 'cpan/B-C/bytecode.pl') {
   ++$ignore{"/B/Asmdata.pm"}; # add generated compiler file to lib/.gitignore
-  ++$rmdir_s{"YAML\\XS"};
+  ++$rmdir_s{"YAML\\Safe"};
   ++$rmdir_s{"YAML"};
-  delete $rmdir_s{LibYAML};
 }
 
 sub edit_makefile_SH {

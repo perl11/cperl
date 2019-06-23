@@ -1,14 +1,14 @@
 ---
-abstract: The cperl language interpreter
+abstract: 'The cperl language interpreter'
 author:
   - rurban@cpan.org
 build_requires: {}
 dynamic_config: 1
-generated_by: CPAN::Meta version 2.150010, CPAN::Meta::Converter version 2.150010
+generated_by: 'CPAN::Meta version 2.150010, CPAN::Meta::Converter version 2.150010'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
-  version: 1.4
+  version: '1.4'
 name: cperl
 no_index:
   directory:
@@ -130,4 +130,4 @@ resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/perl11/cperl/
 version: 5.030000c
-x_serialization_backend: YAML::XS version 0.75
+x_serialization_backend: 'CPAN::Meta::YAML version 0.018'

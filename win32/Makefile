@@ -1449,7 +1449,7 @@ distclean: realclean
 	-if exist $(LIBDIR)\Win32API rmdir /s /q $(LIBDIR)\Win32API
 	-if exist $(LIBDIR)\XS rmdir /s /q $(LIBDIR)\XS
 	-if exist $(LIBDIR)\YAML rmdir /s /q $(LIBDIR)\YAML
-	-if exist $(LIBDIR)\YAML\XS rmdir /s /q $(LIBDIR)\YAML\XS
+	-if exist $(LIBDIR)\YAML\Safe rmdir /s /q $(LIBDIR)\YAML\Safe
 	-cd $(PODDIR) && del /f *.html *.bat roffitall \
 	    perl5300cdelta.pod perl5300delta.pod perlaix.pod perlamiga.pod \
 	    perlandroid.pod perlapi.pod perlbs2000.pod perlce.pod \

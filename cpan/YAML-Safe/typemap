@@ -1,0 +1,18 @@
+YAML *	T_YAML
+
+INPUT
+
+T_YAML
+        dMY_CXT;
+	if (!(SvROK ($arg)
+           && SvOBJECT (SvRV ($arg))
+           && (sv_derived_from ($arg, \"YAML::Safe\"))
+        ))
+            croak (\"object is not of type YAML::Safe\");
+        /**/
+        $var = (YAML *)SvPVX (SvRV ($arg));
+        assert($var);
+
+OUTPUT
+
+T_YAML

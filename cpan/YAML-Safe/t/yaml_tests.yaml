@@ -1,0 +1,4 @@
+yaml_module: YAML::Safe
+use_blib: 1
+exclude:
+- scalars.t

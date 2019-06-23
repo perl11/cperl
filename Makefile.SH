@@ -1759,8 +1759,7 @@ _cleaner2:
 	-rmdir lib/Module/Load lib/Module/CoreList lib/Module lib/Memoize
 	-rmdir lib/Math/BigInt lib/Math/BigFloat lib/Math lib/MIME
 	-rmdir lib/Locale/Maketext lib/Locale lib/List/Util lib/List
-	-rmdir lib/LibYAML/lib/YAML/XS lib/LibYAML/lib/YAML lib/LibYAML/lib
-	-rmdir lib/LibYAML lib/JSON/PP lib/JSON lib/Internals lib/IPC
+	-rmdir lib/JSON/PP lib/JSON lib/Internals lib/IPC lib/YAML
 	-rmdir lib/IO/Uncompress/Adapter lib/IO/Uncompress lib/IO/Socket
 	-rmdir lib/IO/Compress/Zlib lib/IO/Compress/Zip
 	-rmdir lib/IO/Compress/Gzip lib/IO/Compress/Base

@@ -19027,9 +19027,13 @@ our %delta :const = (
             'Unicode::Collate::CJK::Zhuyin'  => '1.27',
             'Unicode::Collate::Locale'       => '1.27',
             'XS::Typemap'           => '0.17',
+            'YAML::Safe'            => '0.80',
         },
         removed => {
             'Math::BigInt::CalcEmu' => 1,
+            'YAML::XS'              => '0.75',
+            'YAML::LibYAML'         => '0.75',
+            'YAML::XS::LibYAML'     => '0.75',
         }
     },
 );

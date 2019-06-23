@@ -25,4 +25,4 @@ Devel-NYTProf/t/nytprof_readstream.out
 Term-ReadKey/cchars.h
 Term-ReadKey/ReadKey.pm
 Term-ReadKey/blockoptions
-YAML-LibYAML/t/output/
+YAML-Safe/t/output/
