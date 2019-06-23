@@ -4788,7 +4788,9 @@ sub reports {
     }
 
     my $format;
-    if ($CPAN::META->has_inst("YAML::XS") || $CPAN::META->has_inst("YAML::Syck")){
+    if ($CPAN::META->has_inst("YAML::Safe") ||
+        $CPAN::META->has_inst("YAML::XS") ||
+        $CPAN::META->has_inst("YAML::Syck")){
         $format = 'yaml';
     }
     elsif (!$format && $CPAN::META->has_inst("JSON::PP") ) {

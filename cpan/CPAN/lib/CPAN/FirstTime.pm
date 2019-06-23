@@ -11,7 +11,7 @@ use File::Spec ();
 use CPAN::Mirrors ();
 use CPAN::Version ();
 use vars qw($VERSION $auto_config);
-$VERSION = "5.5314_01";
+$VERSION = "5.5314_02";
 
 =head1 NAME
 
@@ -654,12 +654,15 @@ Do you want to enable code deserialisation (yes/no)?
 
 =item yaml_module
 
-At the time of this writing (2009-03) there are three YAML
-implementations working: YAML, YAML::Syck, and YAML::XS. The latter
-two are faster but need a C compiler installed on your system. There
-may be more alternative YAML conforming modules. When I tried two
-other players, YAML::Tiny and YAML::Perl, they seemed not powerful
-enough to work with CPAN.pm. This may have changed in the meantime.
+At the time of this writing (2019-06) there are four YAML
+implementations working: YAML, YAML::Syck, YAML::Safe and
+YAML::XS. The latter three are faster but need a C compiler installed
+on your system. There may be more alternative YAML conforming
+modules. When I tried two other players, YAML::Tiny and YAML::Perl,
+they seemed not powerful enough to work with CPAN.pm. This may have
+changed in the meantime. YAML::XS only works with the version provided
+by cperl, but cperl switched to its own YAML::Safe with v5.30 as the
+upstream version never added CPAN support.
 
 The core module CPAN::Meta::YAML cannot load YAML 1.2 !! features,
 used for C<!!perl/hash:CPAN::Distribution> hashes.
@@ -818,21 +821,22 @@ then restart your command line shell and CPAN before installing modules:
 }
 
 #
-#  YAML::Syck, YAML::XS (cperl only), YAML, YAML::Tiny. CPAN::Meta::YAML not yet
+#  YAML::Syck, YAML::Safe, YAML::XS (cperl only), YAML, YAML::Tiny.
+#  CPAN::Meta::YAML not yet
 #  YAML::XS is broken upstream, CPAN::Meta::YAML cannot read spec v2.
 #
 
 sub _yaml_init {
     my ($matcher) = @_;
-    my $CPERL = $Config::Config{usecperl};
-    my $dflt = $CPERL ? 'YAML::XS' : 'YAML';
+    my $CPERL = $^V =~ /c$/;
+    my $dflt = $CPERL ? 'YAML::Safe' : 'YAML';
     while(1) {
         my_dflt_prompt(yaml_module => $dflt, $matcher);
         my $given = $CPAN::Config->{yaml_module};
         my $forbidden = $CPERL ? qr/^(CPAN::Meta::YAML)$/ : qr/^(CPAN::Meta::YAML|YAML::XS)$/;
         if ($given =~ $forbidden) {
             $CPAN::Frontend->mywarn
-              ("Error: $given cannot be used yet. Try YAML"
+              ("Error: $given cannot be used yet. Try YAML, YAML:::Safe"
                . $CPERL ? ", YAML::Syck or YAML::XS\n" : " or YAML::Syck\n");
             $CPAN::Frontend->mysleep(3);
         } else {

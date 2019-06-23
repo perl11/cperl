@@ -2,7 +2,7 @@
 # vim: ts=4 sts=4 sw=4:
 use strict;
 package CPAN;
-$CPAN::VERSION = '2.27_01'; # with cperl support
+$CPAN::VERSION = '2.27_02'; # with cperl and YAML::Safe support
 $CPAN::VERSION =~ s/_//;
 
 # we need to run chdir all over and we would get at wrong libraries
@@ -525,7 +525,7 @@ sub _flock {
 }
 
 sub _yaml_module () {
-    my $dflt = $CPERL ? "YAML::XS" : "YAML";
+    my $dflt = $CPERL ? "YAML::Safe" : "YAML";
     my $yaml_module = $CPAN::Config->{yaml_module} || $dflt;
     if (
         $yaml_module ne $dflt
@@ -567,10 +567,16 @@ sub _yaml_loadfile {
         my $old_nonstrict = ${"$yaml_module\::NonStrict"};
         ${ "$yaml_module\::NonStrict" } = 1 if $yaml_module =~ /^YAML(::XS)?$/;
 
-        my ($code, @yaml);
+        my ($code, @yaml, $yaml);
         if ($code = UNIVERSAL::can($yaml_module, "SafeLoadFile")) {
-            # TODO: allow CPAN::* classes
-            eval { @yaml = $code->($local_file); };
+            if ($yaml_module eq 'YAML::Safe') {
+                $yaml = YAML::Safe->new->nonstrict->SafeClass("CPAN::Distribution");
+                $yaml->loadcode if $CPAN::Config->{yaml_load_code};
+                eval { @yaml = $yaml->SafeLoadFile($local_file); };
+            } else {
+                # TODO: allow CPAN::* classes
+                eval { @yaml = $code->($local_file); };
+            }
             if ($@) {
                 # this shall not be done by the frontend
                 die CPAN::Exception::yaml_process_error->new($yaml_module,$local_file,"parse",$@);
@@ -615,7 +621,10 @@ sub _yaml_dumpfile {
     my $yaml_module = _yaml_module;
     if ($CPAN::META->has_inst($yaml_module)) {
         my $code;
-        if (UNIVERSAL::isa($local_file, "FileHandle")) {
+        if ($yaml_module eq 'YAML::Safe') {
+            my $yaml = YAML::Safe->new->SafeClass("CPAN::Distribution");
+            eval { $yaml->SafeDumpFile($local_file,@what); };
+        } elsif (UNIVERSAL::isa($local_file, "FileHandle")) {
             $code = UNIVERSAL::can($yaml_module, "Dump");
             eval { print $local_file $code->(@what) };
         } elsif ($code = UNIVERSAL::can($yaml_module, "SafeDumpFile")) {
@@ -1753,10 +1762,10 @@ running shell session.
 
 =item Persistence between sessions
 
-If the C<YAML> or the C<YAML::Syck> module is installed a record of
-the internal state of all modules is written to disk after each step.
-The files contain a signature of the currently running perl version
-for later perusal.
+If the C<YAML>, C<YAML::Safe>, C<YAML::XS> with SafeDump support or
+the C<YAML::Syck> module is installed a record of the internal state
+of all modules is written to disk after each step.  The files contain
+a signature of the currently running perl version for later perusal.
 
 If the configurations variable C<build_dir_reuse> is set to a true
 value, then CPAN.pm reads the collected YAML files. If the stored

@@ -5,12 +5,13 @@ use Config;
 use CPAN::Distroprefs;
 use File::Spec;
 
-eval "require YAML::XS; 1" or plan skip_all => "YAML required";
-plan tests => 3;
-
+my $yamlclass = $^V =~ /c$/ ? 'YAML::Safe' : 'YAML';
 my %ext = (
-  yml => 'YAML::XS',
+  yml => $yamlclass,
 );
+eval "require $ext{yml}; 1"
+  or plan skip_all => "$ext{yml} required";
+plan tests => 3;
 
 my $finder = CPAN::Distroprefs->find(
   './distroprefs', \%ext,
@@ -61,12 +62,17 @@ sub find_ok {
   );
 }
 
+my $LoadFile = sub {
+  no strict 'refs';
+  my $m = "${yamlclass}::LoadFile";
+  $m->(@_)
+};
 find_ok(
   {
     distribution => 'HDP/Perl-Version-1',
   },
   {
-    prefs => YAML::XS::LoadFile('distroprefs/HDP.Perl-Version.yml'),
+    prefs => $LoadFile->('distroprefs/HDP.Perl-Version.yml'),
     prefs_file => File::Spec->catfile(qw/distroprefs HDP.Perl-Version.yml/),
   },
   'match .yml',

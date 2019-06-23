@@ -581,7 +581,7 @@ Whitespace only
 
 Added USE_THREAD_SAFE_LOCALE
 
-=item L<CPAN> 2.27_01
+=item L<CPAN> 2.27_02
 
 Update to 2.27-TRIAL upstream with our cperl fixes. Some of our fixes
 were accepted upstream.
@@ -593,6 +593,8 @@ CPAN/Distribution.pm line 591
 
 Add many upstream tests and distroprefs. Still need to install them,
 and add the cperl distroprefs.
+
+Support L<YAML::Safe> for distroprefs.
 
 =item L<Cpanel::JSON::XS> 4.12
 

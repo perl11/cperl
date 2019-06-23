@@ -2,9 +2,9 @@
 #     ./perl -Ilib t/porting/customized.t --regen
 Archive::Tar cpan/Archive-Tar/t/90_symlink.t 66a29edeff869c6569051aaecfc59b6624477be9
 CPAN cpan/CPAN/lib/App/Cpan.pm 0616c0fccc13b07632af191876792f00997a83cd
-CPAN cpan/CPAN/lib/CPAN.pm 9b9193d2a3759af38f8e9b0abc5a3e6167487170
-CPAN cpan/CPAN/lib/CPAN/Distribution.pm a4a1b8c0f3883936188bfff3269a67cec7301030
-CPAN cpan/CPAN/lib/CPAN/FirstTime.pm d9af7c5b4e90af52accbff32c48967bdfa9cf8b8
+CPAN cpan/CPAN/lib/CPAN.pm 56154a7ed6e08fb26f6f5a6dea9f3dbb23a2e1f2
+CPAN cpan/CPAN/lib/CPAN/Distribution.pm f8350d45d9447c3458806963dd27295f1347e742
+CPAN cpan/CPAN/lib/CPAN/FirstTime.pm 02469e46d752ce220f7daee8c54bb381cc58f24c
 CPAN cpan/CPAN/lib/CPAN/Mirrors.pm 46a88ad7012a6bbe5f405d8c8fa929728aab34f8
 CPAN cpan/CPAN/lib/CPAN/Version.pm 8f5144fc8c46a1eb9c1b87e5050fc2c2b3506ea4
 CPAN cpan/CPAN/t/04clean_load.t 68b32cabbcdb2bcb24f7baba5a41db630cd57b23
