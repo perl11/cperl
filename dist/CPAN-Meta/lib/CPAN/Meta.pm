@@ -3,7 +3,7 @@ use strict;
 use warnings;
 package CPAN::Meta;
 
-our $VERSION = '2.150010c';
+our $VERSION = '2.150011c';
 $VERSION =~ s/c$//;
 
 #pod =head1 SYNOPSIS
@@ -388,9 +388,9 @@ sub load_string {
 #pod
 #pod For C<version> less than 2, the filename should end in '.yml'.
 #pod L<CPAN::Meta::Converter> is used to generate an older metadata structure, which
-#pod is serialized to YAML.  L<YAML::XS> is now the default YAML backend.  You may
+#pod is serialized to YAML.  L<YAML::Safe> is now the default YAML backend.  You may
 #pod set the C<$ENV{PERL_YAML_BACKEND}> to a supported alternative backend. YAML has
-#pod severe limitations, L<YAML::XS> is as strict as L<YAML>, which makes it failing fixable
+#pod severe limitations, L<YAML::Safe> is as strict as L<YAML>, which makes it failing fixable
 #pod yaml data tests.
 #pod L<YAML::Syck> is fast and passes all the tests, but doesn't implement the latest
 #pod YAML 1.2 specification, which is not for CPAN::Meta. L<YAML::Tiny> passes all
@@ -415,10 +415,10 @@ sub save {
 
     # https://github.com/ingydotnet/yaml-libyaml-pm/issues/46
     my $backend = Parse::CPAN::Meta->yaml_backend();
-    $layer = '' if $backend =~ /^YAML::(Syck|XS)$/;
+    $layer = '' if $backend =~ /^YAML::(Syck|XS|Safe)$/;
 
     # TODO: fix utf8 for DumpFile
-    if (0 and $backend =~ /^YAML::(Syck|XS)$/) {
+    if ($backend =~ /^YAML::(Syck|Safe)$/) {
       # rather dump directly to a file
       my $version = $options->{version} || '2';
       my $struct;
@@ -809,7 +809,7 @@ L<JSON::XS>.
 
 For C<version> less than 2, the filename should end in '.yml'.
 L<CPAN::Meta::Converter> is used to generate an older metadata structure, which
-is serialized to YAML.  L<YAML::XS> is the default YAML backend.  You may set
+is serialized to YAML.  L<YAML::Safe> is the default YAML backend.  You may set
 the C<$ENV{PERL_YAML_BACKEND}> to a supported alternative backend. L<YAML> has
 severe limitations, L<YAML::XS> is as strict as L<YAML>, which makes it failing
 fixable yaml data tests.  L<YAML::Syck> is fast and passes all the tests, but
@@ -1192,7 +1192,7 @@ Randy Sims <randys@thepierianspring.org>
 
 Reini Urban <rurban@cpan.org>
 
-cperl, YAML::XS, Cpanel::JSON::XS support
+cperl, L<YAML::Safe>, L<Cpanel::JSON::XS> support
 
 =item *
 

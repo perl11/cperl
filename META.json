@@ -4,7 +4,7 @@
       "rurban@cpan.org"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "CPAN::Meta version 2.150010",
+   "generated_by" : "CPAN::Meta version 2.150011",
    "license" : [
       "perl_5"
    ],

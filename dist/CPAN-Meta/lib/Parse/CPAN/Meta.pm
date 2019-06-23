@@ -3,7 +3,7 @@ use strict;
 package Parse::CPAN::Meta;
 # ABSTRACT: Parse META.yml and META.json CPAN metadata files
 
-our $VERSION = '1.5000c';
+our $VERSION = '1.5002c';
 $VERSION =~ s/c$//;
 
 use Exporter;
@@ -19,9 +19,12 @@ sub load_file {
   if ($filename =~ /\.ya?ml$/) {
     my $backend = $class->yaml_backend();
     {
-      no strict 'refs'; 
+      no strict 'refs';
       if (exists &{"$backend\::LoadFile"} ) {
-        if ($backend eq 'YAML::XS') {
+        if ($backend eq 'YAML::Safe') {
+          my $yaml = YAML::Safe->new->nonstrict->disableblessed;
+          return $yaml->SafeLoadFile($filename);
+        } elsif ($backend eq 'YAML::XS') {
           local ($YAML::XS::NonStrict, $YAML::XS::DisableCode, 
                  $YAML::XS::DisableBlessed) = (1, 1, 1);
           return YAML::XS::LoadFile($filename);
@@ -72,7 +75,10 @@ sub load_yaml_string {
   my ($class, $string) = @_;
   my $backend = $class->yaml_backend();
   my $data;
-  if ($backend eq 'YAML::XS') {
+  if ($backend eq 'YAML::Safe') {
+    my $yaml = YAML::Safe->new->nonstrict->disableblessed;
+    $data = eval { $yaml->SafeLoad($string); };
+  } elsif ($backend eq 'YAML::XS') {
     local ($YAML::XS::NonStrict, $YAML::XS::DisableCode, 
            $YAML::XS::DisableBlessed) = (1, 1, 1);
     $data = eval { YAML::XS::Load($string); };
@@ -88,7 +94,7 @@ sub load_yaml_string {
   # match YAML::Tiny and CPAN::Meta::YAML behavior, which accepts broken YAML
   if ($@) {
     my $err = $@;
-    if ($backend =~ /^YAML(::XS)?$/ and $err =~ $permit_yaml_err) {
+    if ($backend =~ /^YAML(::XS|::Safe)?$/ and $err =~ $permit_yaml_err) {
       warn $err;
     } else {
       croak $err;
@@ -133,8 +139,8 @@ sub load_json_string {
 sub yaml_backend {
   my $backend = $ENV{PERL_YAML_BACKEND};
   if (! defined $backend ) {
-    if (_can_load( 'YAML::XS', 0.73 )) {
-      return "YAML::XS";
+    if (_can_load( 'YAML::Safe', 0.80 )) {
+      return "YAML::Safe";
     } else {
       $backend = 'CPAN::Meta::YAML';
     }

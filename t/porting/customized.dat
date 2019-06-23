@@ -8,14 +8,14 @@ CPAN cpan/CPAN/lib/CPAN/FirstTime.pm 02469e46d752ce220f7daee8c54bb381cc58f24c
 CPAN cpan/CPAN/lib/CPAN/Mirrors.pm 46a88ad7012a6bbe5f405d8c8fa929728aab34f8
 CPAN cpan/CPAN/lib/CPAN/Version.pm 8f5144fc8c46a1eb9c1b87e5050fc2c2b3506ea4
 CPAN cpan/CPAN/t/04clean_load.t 68b32cabbcdb2bcb24f7baba5a41db630cd57b23
-CPAN::Meta dist/CPAN-Meta/lib/CPAN/Meta.pm b0f88791eb04e1d0071dbd89f2773fd2a1a14df1
+CPAN::Meta dist/CPAN-Meta/lib/CPAN/Meta.pm 097dd4ebd9f0b07e9878e71f485992d5ed565bbe
 CPAN::Meta dist/CPAN-Meta/lib/CPAN/Meta/History/Meta_1_4.pod 3a1ae20933b955b5f1e538ea35b502517a3ae391
 CPAN::Meta dist/CPAN-Meta/lib/CPAN/Meta/Spec.pm bcee4a5a8412c8ecc90c7ec3ccbabf622de3b56c
 CPAN::Meta dist/CPAN-Meta/lib/CPAN/Meta/Validator.pm 7d89780911dbd85c10d727de5c5b6497cb745307
-CPAN::Meta dist/CPAN-Meta/lib/Parse/CPAN/Meta.pm 9e519ea5faab72f0fc0c9fc66dbf400ea68b6e9c
+CPAN::Meta dist/CPAN-Meta/lib/Parse/CPAN/Meta.pm 6baa61495b5d8491538bf0c3bde61250b5bb64fb
 CPAN::Meta dist/CPAN-Meta/t/converter-bad.t 330595949e06e85d480d8f4a90a7c56d787a3379
 CPAN::Meta dist/CPAN-Meta/t/converter-fail.t 5bc9abb6831beb24e808e7a0f7561d31e9cd1ff8
-CPAN::Meta dist/CPAN-Meta/t/parse-cpan-meta/02_api.t b7d57ea99f5d6e76a11bbcc4b0cbd8add148df9f
+CPAN::Meta dist/CPAN-Meta/t/parse-cpan-meta/02_api.t 341676c9257868543c34a7b6652b51c600da5ddd
 CPAN::Meta dist/CPAN-Meta/t/parse-cpan-meta/05_errors.t 1893a3223791d2a3fd680e052533858a05eb63e1
 CPAN::Meta dist/CPAN-Meta/t/prereqs.t e448d3ab77fec103397264b4d9b2e90dd94bced6
 CPAN::Meta dist/CPAN-Meta/t/save-load.t e7a526f3facbd4fb8ef29837977f7a725434946e

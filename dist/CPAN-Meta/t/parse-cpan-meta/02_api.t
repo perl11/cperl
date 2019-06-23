@@ -68,8 +68,8 @@ my $json_meta = catfile( test_data_directory(), 'json.meta' );
 ### YAML tests
 {
   # test the default
-  local $ENV{PERL_YAML_BACKEND}; # ensure we get YAML::XS or CPAN::Meta::YAML
-  my $def = $Config{usecperl} ? "YAML::XS" : "CPAN::Meta::YAML";
+  local $ENV{PERL_YAML_BACKEND}; # ensure we get YAML::Safe or CPAN::Meta::YAML
+  my $def = $Config{usecperl} ? "YAML::Safe" : "CPAN::Meta::YAML";
 
   is(Parse::CPAN::Meta->yaml_backend(), $def, "default yaml_backend(): $def");
   my $from_yaml = Parse::CPAN::Meta->load_file( $meta_yaml );
@@ -105,16 +105,21 @@ if ($Config{usecperl}) {
   my @yaml   = Parse::CPAN::Meta::LoadFile( $bad_yaml_meta );
   is($yaml[0]{author}[0], 'Olivier Mengu\xE9', "Bad UTF-8 is replaced");
 } else {
-  local $ENV{PERL_YAML_BACKEND} = 'YAML::XS';
+  SKIP: {
+    skip "YAML::XS module not installed", 3
+      unless eval "require YAML::XS; 1";
 
-  note '';
-  is(Parse::CPAN::Meta->yaml_backend(), 'YAML:XS', 'yaml_backend(): YAML::XS');
-  my $yaml   = load_ok( 'META-VR.yml', $meta_yaml, 100);
-  my $from_yaml = Parse::CPAN::Meta->load_yaml_string( $yaml );
-  is_deeply($from_yaml, $want, "load_yaml_string using PERL_YAML_BACKEND");
-  
-  my @yaml   = Parse::CPAN::Meta::LoadFile( $bad_yaml_meta );
-  is($yaml[0]{author}[0], 'Olivier Mengu\xE9', "UTF-8 via LoadFile");
+    local $ENV{PERL_YAML_BACKEND} = 'YAML::XS';
+
+    note '';
+    is(Parse::CPAN::Meta->yaml_backend(), 'YAML::XS', 'yaml_backend(): YAML::XS');
+    my $yaml   = load_ok( 'META-VR.yml', $meta_yaml, 100);
+    my $from_yaml = Parse::CPAN::Meta->load_yaml_string( $yaml );
+    is_deeply($from_yaml, $want, "load_yaml_string using PERL_YAML_BACKEND");
+ 
+    my @yaml   = Parse::CPAN::Meta::LoadFile( $bad_yaml_meta );
+    is($yaml[0]{author}[0], 'Olivier Mengu\xE9', "UTF-8 via LoadFile");
+  }
 }
 
 SKIP: {
@@ -169,7 +174,9 @@ SKIP: {
   is_deeply($from_json, $want, "load_json_string with PERL_JSON_BACKEND = 0");
 }
 
-{
+SKIP: {
+  skip "Cpanel::JSON::XS module not installed", 2
+    unless eval "require Cpanel::JSON::XS; 1";
   # JSON tests with Cpanel::JSON::XS
   local $ENV{PERL_JSON_BACKEND} = 'Cpanel::JSON::XS';
 

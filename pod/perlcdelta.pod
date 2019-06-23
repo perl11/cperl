@@ -596,6 +596,10 @@ and add the cperl distroprefs.
 
 Support L<YAML::Safe> for distroprefs.
 
+=item L<CPAN::Meta> 2.150011c
+
+Add L<YAML::Safe> support.
+
 =item L<Cpanel::JSON::XS> 4.12
 
 Make encoder independent on Math::BigInt version
@@ -902,6 +906,10 @@ Add SECURITY AND PORTABILITY warning paragraph to pod.
 =item L<Opcode> 1.40_03c
 
 Restrict the new op 'enterffi'.
+
+=item L<Parse::CPAN::Meta> 1.5002c
+
+Replace L<YAML::XS> by L<YAML::Safe>.
 
 =item L<perlfaq> 5.20190126
 
