@@ -2745,7 +2745,7 @@ Perl_gp_free(pTHX_ GV *gv)
       SvREFCNT_dec(sv);
       /* @_ may be some random SP* already freed. [cperl #134] */
       if (av && SvTYPE(av) == SVt_PVAV)
-          SvREFCNT_dec(av);
+          SvREFCNT_dec_NN(av);
       /* FIXME - another reference loop GV -> symtab -> GV ?
          Somehow gp->gp_hv can end up pointing at freed garbage.  */
       if (hv && SvTYPE(hv) == SVt_PVHV) {
@@ -2756,7 +2756,7 @@ Perl_gp_free(pTHX_ GV *gv)
                            HEKfARG(hvname_hek)));
            (void)hv_deletehek(PL_stashcache, hvname_hek, G_DISCARD);
         }
-	SvREFCNT_dec(hv);
+	SvREFCNT_dec_NN(hv);
       }
       if (io && SvREFCNT(io) == 1 && IoIFP(io)
 	     && (IoTYPE(io) == IoTYPE_WRONLY ||
@@ -2771,7 +2771,7 @@ Perl_gp_free(pTHX_ GV *gv)
       SvREFCNT_dec(io);
       /* Safe may have already freed &Safe::Root0::strict::import */
       if (cv && SvTYPE(cv) == SVt_PVCV)
-          SvREFCNT_dec(cv);
+          SvREFCNT_dec_NN(cv);
       SvREFCNT_dec(form);
 
       /* Possibly reallocated by a destructor */
