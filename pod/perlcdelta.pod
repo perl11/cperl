@@ -1917,13 +1917,16 @@ protection of @_ in gp_free.
 
 =item *
 
-Latest msys2 gcc compiler fails on two tests: F<op/sort.t> and
-F<op/signatures.t>.
+The latest msys2 64bit gcc-9 compiler fails on two tests: F<op/sort.t> and
+F<op/signatures.t>, similar to the darwin gcc-9 where the optimizer
+generates wrong code in XSConfig.
+L<[cperl #397]|https://github.com/perl11/cperl/issues/397>
 
 =item *
 
-Detect shared-only import libraries like F<libNAME.dll.a>, which have no static
-counterpart F<libNAME.a>, which happens e.g. for C<libffi> on B<cygwin> or msys.
+Detect shared-only import libraries like F<libNAME.dll.a>, which have
+no static counterpart F<libNAME.a>, which happens e.g. for C<libffi>
+on B<cygwin> or msys.
 
 =back
 
