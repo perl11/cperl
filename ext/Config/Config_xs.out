@@ -175,13 +175,14 @@ my_newSVpvn_flags(pTHX_ const char *s, STRLEN len, U32 flags)
 #  endif
 #endif
 
-/* returns a mortal SV*, empty string is forbidden */
+/* returns a mortal SV*. An empty string is forbidden */
 static SV *
 my_newSVstaticpvn(pTHX_ const char *s, STRLEN len)
 {
   SV * sv;
   if(!len)
     len = strlen(s);
+  assert(len);
 #if (PERL_BCDVERSION < 0x5008009) && ! defined(newSV_type)
   sv = sv_newmortal();
   sv_upgrade(sv, SVt_PV);
@@ -7066,7 +7067,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str9579,	T_INV,0,ALN64I"@@d_ndbm_h_uses_prototypes@@"}
     };
 
-#line 7069 "Config.xs"
+#line 7070 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register unsigned int key = Config_hash (str, len);
@@ -7250,6 +7251,12 @@ PPCODE:
      /* skip implicit PUTBACK, it was done earlier */
      return;
 
+# /* Only gcc defines __GNUC_PATCHLEVEL__, clang and icc define __GNUC__ */
+#if defined(__GNUC__) && defined(__GNUC_PATCHLEVEL__) && (__GNUC__ >= 9)
+#pragma GCC push_options
+#pragma GCC optimize ("-O0")
+#endif
+
 #you would think the prototype croak can be removed and replaced with ...
 #but the check actually makes sure there is 1 SP slot available since the retval
 #SV* winds up ontop of the incoming self arg
@@ -7320,7 +7327,7 @@ PPCODE:
 	PUTBACK;
         /* bounds check to avoid running off the end of stringpool */
         if (*self < sizeof (stringpool_contents)) {
-            const char * key = (const char*)stringpool+*self;
+            const char * key = (const char*)stringpool + *self;
             size_t len = strlen(key);
             *self += len + 1;
             *SP = my_newSVstaticpvn(aTHX_ key, len);
@@ -7328,3 +7335,7 @@ PPCODE:
         else
             *SP = &PL_sv_undef;
         return;
+
+#if defined(__GNUC__) && defined(__GNUC_PATCHLEVEL__) && (__GNUC__ >= 9)
+#pragma GCC pop_options
+#endif

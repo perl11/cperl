@@ -147,10 +147,11 @@ case "$cc" in
     *gcc-mp-9)
         case "$optimize" in
             *-O*)
-	        # Broken is keys %Config. Without any -O it works
-                echo "Error: Macports gcc-mp-9 -O is broken, use an older gcc instead" >&4
-                cc="gcc-mp-8"
-                exit
+	        # Broken is keys %Config. Without any -O it works.
+                # On mingw two other tests are broken. gcc 9.1.0
+                echo "Warning: gcc-9 -O is broken, better use an older gcc instead" >&4
+                #cc="gcc-mp-8"
+                #exit
                 ;;
         esac
         ;;
