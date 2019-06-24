@@ -2769,7 +2769,9 @@ Perl_gp_free(pTHX_ GV *gv)
 	     && !(IoFLAGS(io) & IOf_FAKE_DIRP))
 	io_close(io, gv, FALSE, TRUE);
       SvREFCNT_dec(io);
-      SvREFCNT_dec(cv);
+      /* Safe may have already freed &Safe::Root0::strict::import */
+      if (cv && SvTYPE(cv) == SVt_PVCV)
+          SvREFCNT_dec(cv);
       SvREFCNT_dec(form);
 
       /* Possibly reallocated by a destructor */

@@ -1898,6 +1898,17 @@ accepted the subroutine C<don't>, but the call C<print don't;> was
 invalid, it was looking for a second single-quote string delimiter.
 Note that in cperl C<'> is no perl4-style package seperator.
 
+=item *
+
+Fixed a L<Safe> double-free of a XS import method in a leaf package.
+This really is a problem in Safe (see the outcommented code there),
+but the fix was easiest to do in gp_free.
+
+gp_free in global destruction with Safe may double-free a temporary
+CV, like C<&Safe::Root0::strict::import@>, i.e. with
+F<dist/Storable/t/code.t> The fix is similar to the AV double-free
+protection of @_ in gp_free.
+
 =back
 
 =head1 Known Problems
