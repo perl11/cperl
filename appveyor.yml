@@ -86,7 +86,8 @@ init:
   - if "%PLATFORM%"=="x64" set BITS=64
   #- if "%MINGW%"=="1" set PATH=%MSYS64%\bin;c:\Windows\system32;c:\Windows;C:\MinGW\msys\1.0\bin;c:\Windows\system32\Wbem;C:\MinGW\bin;C:\Program Files\Git\cmd
   - if "%MINGW%"=="1" if "%PLATFORM%"=="x86" cinst --x86 strawberryperl -iy
-  - if "%MINGW%"=="1" if "%PLATFORM%"=="x64" cinst strawberryperl -iy
+  # mingw64 uses the broken gcc-9 compiler
+  - if "%MINGW%"=="1" if "%PLATFORM%"=="x64" cinst strawberryperl --version 5.28.2.1 -iy
   - if "%MINGW%"=="1" set PATH=c:\Windows\system32;c:\Windows;C:\strawberry\c\bin;C:\strawberry\perl\bin;c:\Windows\system32\Wbem;C:\Program Files\Git\cmd
   #- if "%MINGW%"=="1" rename c:\MinGW\lib lib.old
   #- if "%MINGW%"=="1" rename c:\MinGW\include include.old
