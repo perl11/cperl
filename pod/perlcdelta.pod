@@ -1279,11 +1279,6 @@ Stabilized CoreList updater.
 
 =over 4
 
-=item -ULTO
-
-C<ccflags> or C<cc> containing C<-ULTO> does not probe and add
-C<-flto> flags. (This is useful for faster B::C testing)
-
 =item regen.pl
 
 Fixed C<make regen> on cperl with a shared libperl. Need to set
@@ -1309,14 +1304,22 @@ Devel-PPPort F<embed.fnc> can now be the same as the core F<embed.fnc>.
 =item -flto
 
 Without C<DEBUGGING> the best C<-flto> Link Time Optimization flag is
-now added to the default ccflags.
+now added to the default C<ccflags>.
 See L<http://perl11.org/blog/bolt.html> and
 L<[cperl #381]|https://github.com/perl11/cperl/issues/381>.
 
-The correct -flto= variant is then used for ldflags and lddlflags also.
-cldflags contains now also the optimize settings, needed for -flto.
+The correct C<-flto=> variant is then used for C<ldflags> and
+C<lddlflags> also.  C<cldflags> contains now also the optimize
+settings, needed for C<-flto>.
 
-ar is replaced by llvm-ar-$ver if needed.
+C<ar> is replaced by C<llvm-ar-$llvmsuffix> if needed.
+See L</llvmsuffix> below.
+
+=item -ULTO
+
+C<ccflags> or C<cc> containing C<-ULTO> does not probe and add
+C<-flto> flags. This is useful for faster B::C testing.
+E.g. C<./Configure -des -Accflags=-ULTO>
 
 =item ccname clang
 
@@ -1329,8 +1332,9 @@ C<-O2> in most non-DEBUGGING cases with newer compilers.
 
 =item llvmversion
 
-C<llvmversion> string added, like "6.0.1-9.1 (tags/RELEASE_601/final)",
-analog to C<gccversion>. With clang both variables are set.
+C<llvmversion> string added to config, like "6.0.1-9.1
+(tags/RELEASE_601/final)", analog to C<gccversion>. With clang both
+variables are set.
 
 =item llvmsuffix
 
