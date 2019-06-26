@@ -1928,10 +1928,30 @@ protection of @_ in gp_free.
 
 =item *
 
-The latest msys2 64bit gcc-9 compiler fails on two tests: F<op/sort.t> and
-F<op/signatures.t>, similar to the darwin gcc-9 where the optimizer
-generates wrong code in XSConfig.
+Refs in signature args might drop their refcnt to 0 when leaving the sub,
+so use-after-free stack corruption might occur.
+L<[cperl #395]|https://github.com/perl11/cperl/issues/395>
+
+=item *
+
+Signature args are not yet run-time type checked, only at compile-time.
+L<[cperl #389]|https://github.com/perl11/cperl/issues/389>
+
+=item *
+
+The perl debugger C<-d> mostly does not work with signatures,
+esp. with Test::More tests.
+L<[cperl #360]|https://github.com/perl11/cperl/issues/360>
+
+=item *
+
+The latest msys2 64bit gcc-9.1.0 compiler fails on two tests:
+F<op/sort.t> and F<op/signatures.t>, similar to the darwin gcc-9 where
+the optimizer generates wrong code in XSConfig. There are also huge
+performance regressions with the tree-optimizer.
 L<[cperl #397]|https://github.com/perl11/cperl/issues/397>
+
+Don't use gcc-9.1 on x86_64.
 
 =item *
 
