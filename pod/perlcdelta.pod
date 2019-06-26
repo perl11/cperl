@@ -1015,7 +1015,7 @@ t/itimer.t: avoid race condition. don't truncate nanosec utime
 
 fallback/const-c.inc: Avoid compiler warning showing up on darwin.
 
-=item L<Unicode::Collate>  1.27
+=item L<Unicode::Collate>  1.27_01
 
 UCET is updated (for Unicode 10.0.0) as F<Collate/allkeys.txt>.
 The default UCA_Version is 36.
@@ -1024,6 +1024,8 @@ F<Locale/*.pl> and F<CJK/Korean.pm> are updated.
 U::C::Locale newly supports locale: cu.  tailoring Cyrillic YI as
 BYELORUSSIAN-UKRAINIAN I with DIAERESIS, affected locale: kk added
 F<loc_cu.t> in t.
+
+Skip redefinition warnings on cperl since 5.27.2 (Hangul in utf8.h)
 
 =item L<Unicode::UCD> 0.71_03
 
