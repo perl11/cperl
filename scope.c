@@ -539,7 +539,7 @@ Perl_save_iv(pTHX_ IV *ivp)
     SSPUSHIV(*ivp);
     SSPUSHPTR(ivp);
     SSPUSHUV(SAVEt_IV);
-    DEBUG_lv(Perl_deb(aTHX_ "save IV %ld\n", (long)*ivp));
+    DEBUG_lv(Perl_deb(aTHX_ "save IV %ld at &%p\n", (long)*ivp, ivp));
 }
 
 /* Cannot use save_sptr() to store a char* since the SV** cast will
@@ -551,7 +551,7 @@ Perl_save_pptr(pTHX_ char **pptr)
     PERL_ARGS_ASSERT_SAVE_PPTR;
 
     save_pushptrptr(*pptr, pptr, SAVEt_PPTR);
-    DEBUG_lv(Perl_deb(aTHX_ "save PPTR\n"));
+    DEBUG_lv(Perl_deb(aTHX_ "save PPTR %p at &%p\n", *pptr, pptr));
 }
 
 void
@@ -560,7 +560,7 @@ Perl_save_vptr(pTHX_ void *ptr)
     PERL_ARGS_ASSERT_SAVE_VPTR;
 
     save_pushptrptr(*(char**)ptr, ptr, SAVEt_VPTR);
-    DEBUG_lv(Perl_deb(aTHX_ "save VPTR %p\n", *(char**)ptr));
+    DEBUG_lv(Perl_deb(aTHX_ "save VPTR %p at &%p\n", *(char**)ptr, ptr));
 }
 
 void
@@ -569,7 +569,7 @@ Perl_save_sptr(pTHX_ SV **sptr)
     PERL_ARGS_ASSERT_SAVE_SPTR;
 
     save_pushptrptr(*sptr, sptr, SAVEt_SPTR);
-    DEBUG_lv(Perl_deb(aTHX_ "save SPTR %p\n", *sptr));
+    DEBUG_lv(Perl_deb(aTHX_ "save SPTR %p at &%p\n", *sptr, sptr));
 }
 
 void
@@ -593,7 +593,7 @@ Perl_save_hptr(pTHX_ HV **hptr)
     PERL_ARGS_ASSERT_SAVE_HPTR;
 
     save_pushptrptr(*hptr, hptr, SAVEt_HPTR);
-    DEBUG_lv(Perl_deb(aTHX_ "save HPTR\n"));
+    DEBUG_lv(Perl_deb(aTHX_ "save HPTR %p\n", *hptr));
 }
 
 void
@@ -602,7 +602,7 @@ Perl_save_aptr(pTHX_ AV **aptr)
     PERL_ARGS_ASSERT_SAVE_APTR;
 
     save_pushptrptr(*aptr, aptr, SAVEt_APTR);
-    DEBUG_lv(Perl_deb(aTHX_ "save APTR\n"));
+    DEBUG_lv(Perl_deb(aTHX_ "save APTR %p\n", *aptr));
 }
 
 void
@@ -1006,17 +1006,17 @@ Perl_leave_scope(pTHX_ I32 base)
 
 	case SAVEt_GVSV:			/* scalar slot in GV */
             a0 = ap[0]; a1 = ap[1];
+            DEBUG_lv(Perl_deb(aTHX_ "restore GVSV %p = %p %s %s\n",
+                              *a0.any_svp, GvSV(a0.any_gv),
+                              SvPEEK(*a0.any_svp), SvPEEK(GvSV(a0.any_gv))));
 	    a0.any_svp = &GvSV(a0.any_gv);
-            DEBUG_lv(Perl_deb(aTHX_ "restore GVSV %p %p %s %s\n",
-                              a1.any_sv, *a0.any_svp,
-                              SvPEEK(a1.any_sv), SvPEEK(*a0.any_svp)));
 	    goto restore_svp;
 
 	case SAVEt_GENERIC_SVREF:		/* generic sv */
             a0 = ap[0]; a1 = ap[1];
-            DEBUG_lv(Perl_deb(aTHX_ "restore GENERIC_SVREF %p %p %s %s\n",
-                              a1.any_sv, *a0.any_svp,
-                              SvPEEK(a1.any_sv), SvPEEK(*a0.any_svp)));
+            DEBUG_lv(Perl_deb(aTHX_ "restore GENERIC_SVREF %p = %p %s %s\n",
+                              *a0.any_svp, a1.any_sv,
+                              SvPEEK(*a0.any_svp), SvPEEK(a1.any_sv)));
 	restore_svp:
         {
             /* do *a0.any_svp = a1 */
@@ -1033,7 +1033,7 @@ Perl_leave_scope(pTHX_ I32 base)
             a0 = ap[0]; a1 = ap[1]; a2 = ap[2];
             hv = GvSTASH(a0.any_gv);
             DEBUG_lv(Perl_deb(aTHX_ "restore GVSLOT %p %p %p\n",
-                              a2.any_sv, *a1.any_svp, a0.any_gv));
+                              a0.any_gv, *a1.any_svp, a2.any_sv));
 	    if (hv && HvENAME(hv) && (
 		    (a2.any_sv && SvTYPE(a2.any_sv) == SVt_PVCV)
 		 || (*a1.any_svp && SvTYPE(*a1.any_svp) == SVt_PVCV)
@@ -1052,7 +1052,7 @@ Perl_leave_scope(pTHX_ I32 base)
 
 	case SAVEt_AV:				/* array reference */
             a0 = ap[0]; a1 = ap[1];
-            DEBUG_lv(Perl_deb(aTHX_ "restore AV %p %p\n", a1.any_av, a0.any_gv));
+            DEBUG_lv(Perl_deb(aTHX_ "restore AV %p = %p\n", GvAV(a0.any_gv), a1.any_gv));
 	    SvREFCNT_dec(GvAV(a0.any_gv));
 	    GvAV(a0.any_gv) = a1.any_av;
           avhv_common:
@@ -1072,28 +1072,31 @@ Perl_leave_scope(pTHX_ I32 base)
 
 	case SAVEt_HV:				/* hash reference */
             a0 = ap[0]; a1 = ap[1];
-            DEBUG_lv(Perl_deb(aTHX_ "restore HV %p %p %s %s\n",
-                              a1.any_hv, a0.any_gv,
-                              SvPEEK(a1.any_hv), SvPEEK(GvHV(a0.any_gv))));
+            DEBUG_lv(Perl_deb(aTHX_ "restore HV %p = %p: %s = %s\n",
+                              a0.any_hv, a1.any_gv,
+                              SvPEEK(GvHV(a0.any_gv)), SvPEEK(a1.any_hv)));
 	    SvREFCNT_dec(GvHV(a0.any_gv));
 	    GvHV(a0.any_gv) = a1.any_hv;
             goto avhv_common;
 
 	case SAVEt_INT_SMALL:
             a0 = ap[0];
-            DEBUG_lv(Perl_deb(aTHX_ "restore INT_SMALL %d\n", (int)(uv>>SAVE_TIGHT_SHIFT)));
+            DEBUG_lv(Perl_deb(aTHX_ "restore INT_SMALL %p = %d\n", a0.any_ptr,
+                              (int)(uv>>SAVE_TIGHT_SHIFT)));
 	    *(int*)a0.any_ptr = (int)(uv >> SAVE_TIGHT_SHIFT);
 	    break;
 
 	case SAVEt_INT:				/* int reference */
             a0 = ap[0]; a1 = ap[1];
-            DEBUG_lv(Perl_deb(aTHX_ "restore INT %d\n", (int)a0.any_i32));
+            DEBUG_lv(Perl_deb(aTHX_ "restore INT %p = %d\n", a1.any_ptr,
+                              (int)a0.any_i32));
 	    *(int*)a1.any_ptr = (int)a0.any_i32;
 	    break;
 
 	case SAVEt_STRLEN:			/* STRLEN/size_t ref */
             a0 = ap[0]; a1 = ap[1];
-            DEBUG_lv(Perl_deb(aTHX_ "restore STRLEN %ld\n", (long)a0.any_iv));
+            DEBUG_lv(Perl_deb(aTHX_ "restore STRLEN %p = %ld\n", a1.any_ptr,
+                              (long)a0.any_iv));
 	    *(STRLEN*)a1.any_ptr = (STRLEN)a0.any_iv;
 	    break;
 
@@ -1106,7 +1109,8 @@ Perl_leave_scope(pTHX_ I32 base)
 
 	case SAVEt_BOOL:			/* bool reference */
             a0 = ap[0];
-            DEBUG_lv(Perl_deb(aTHX_ "restore BOOL %d\n", (int)(uv>>8)));
+            DEBUG_lv(Perl_deb(aTHX_ "restore BOOL %p = %d\n",
+                              a0.any_ptr, (int)(uv>>8)));
 	    *(bool*)a0.any_ptr = cBOOL(uv >> 8);
 #ifdef NO_TAINT_SUPPORT
             PERL_UNUSED_VAR(was);
@@ -1124,14 +1128,14 @@ Perl_leave_scope(pTHX_ I32 base)
 
 	case SAVEt_I32_SMALL:
             a0 = ap[0];
-            DEBUG_lv(Perl_deb(aTHX_ "restore I32_SMALL %d %d\n",
+            DEBUG_lv(Perl_deb(aTHX_ "restore I32_SMALL %d = %d\n",
                               (int)*(I32*)a0.any_ptr, (int)(uv >> SAVE_TIGHT_SHIFT)));
 	    *(I32*)a0.any_ptr = (I32)(uv >> SAVE_TIGHT_SHIFT);
 	    break;
 
 	case SAVEt_I32:				/* I32 reference */
             a0 = ap[0]; a1 = ap[1];
-            DEBUG_lv(Perl_deb(aTHX_ "restore I32 %d %d\n",
+            DEBUG_lv(Perl_deb(aTHX_ "restore I32 %d = %d\n",
                               (int)*(I32*)a1.any_ptr, (int)a0.any_i32));
 #ifdef PERL_DEBUG_READONLY_OPS
             if (*(I32*)a1.any_ptr != a0.any_i32)
@@ -1141,15 +1145,19 @@ Perl_leave_scope(pTHX_ I32 base)
 
 	case SAVEt_SPTR:			/* SV* reference */
             a0 = ap[0]; a1 = ap[1];
-            DEBUG_lv(Perl_deb(aTHX_ "restore SPTR %p %p\n",
+            DEBUG_lv(Perl_deb(aTHX_ "restore SPTR %p = %p\n",
                               *a1.any_svp, a0.any_sv));
-	    *a1.any_svp= a0.any_sv;
+#if 0
+            DEBUG_lv(Perl_deb(aTHX_ " (%s = %s)\n",
+                              SvPEEK(*a1.any_svp), SvPEEK(a0.any_sv)));
+#endif
+	    *a1.any_svp = a0.any_sv;
 	    break;
 
 	case SAVEt_VPTR:			/* random* reference */
 	case SAVEt_PPTR:			/* char* reference */
             a0 = ap[0]; a1 = ap[1];
-            DEBUG_lv(Perl_deb(aTHX_ "restore %sPTR %p %p\n",
+            DEBUG_lv(Perl_deb(aTHX_ "restore %sPTR %p = %p\n",
                               type == SAVEt_VPTR ? "V" : "P",
                               *a1.any_pvp, a0.any_pv));
 	    *a1.any_pvp = a0.any_pv;
@@ -1157,13 +1165,13 @@ Perl_leave_scope(pTHX_ I32 base)
 
 	case SAVEt_HPTR:			/* HV* reference */
             a0 = ap[0]; a1 = ap[1];
-            DEBUG_lv(Perl_deb(aTHX_ "restore HPTR %p %p\n", *a1.any_svp, a0.any_hv));
+            DEBUG_lv(Perl_deb(aTHX_ "restore HPTR %p = %p\n", *a1.any_svp, a0.any_hv));
 	    *(HV**)a1.any_ptr = a0.any_hv;
 	    break;
 
 	case SAVEt_APTR:			/* AV* reference */
             a0 = ap[0]; a1 = ap[1];
-            DEBUG_lv(Perl_deb(aTHX_ "restore APTR %p %p\n", *a1.any_svp, a0.any_av));
+            DEBUG_lv(Perl_deb(aTHX_ "restore APTR %p = %p\n", *a1.any_svp, a0.any_av));
 	    *(AV**)a1.any_ptr = a0.any_av;
 	    break;
 
@@ -1175,7 +1183,7 @@ Perl_leave_scope(pTHX_ I32 base)
             a0 = ap[0]; a1 = ap[1];
             /* possibly taking a method out of circulation */	
 	    had_method = !!GvCVu(a0.any_gv);
-            DEBUG_lv(Perl_deb(aTHX_ "restore GP %p %p\n", a1.any_ptr, a0.any_gv));
+            DEBUG_lv(Perl_deb(aTHX_ "restore GP %p = %p\n", a1.any_ptr, a0.any_gv));
 	    gp_free(a0.any_gv);
 	    GvGP_set(a0.any_gv, (GP*)a1.any_ptr);
 	    if ((hv=GvSTASH(a0.any_gv)) && HvENAME_get(hv)) {

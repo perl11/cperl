@@ -548,7 +548,7 @@ Perl_sv_peek(pTHX_ SV *sv)
 	    sv_catpvs(t, "...");
 	    goto finish;
 	}
-	sv = SvRV(sv);
+	sv = sv->sv_u.svu_rv;
 	goto retry;
     }
     type = SvTYPE(sv);
