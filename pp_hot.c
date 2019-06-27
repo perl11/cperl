@@ -5844,8 +5844,11 @@ PP(pp_signature)
             assert(argc);
             argc--;
             DEBUG_Xv(Perl_deb(aTHX_ "  sigref padp %p = argp %p\n", *padp, *argp));
-            /* copy back temp pad to old sv at leavesub */
-            save_pushptrptr(argp, padp, SAVEt_SPTR);
+            /* copy back temp pad to old sv at leavesub. [cperl #395] */
+            save_pushptrptr(*argp, *padp, SAVEt_SPTR);
+            DEBUG_lv(Perl_deb(aTHX_ "save SPTR %p %s at &%p\n",
+                              *argp, SvPEEK(*argp), *padp));
+            SvREFCNT_inc_NN(*argp); /* as in save_generic_svref */
             SvPADSTALE_on(*padp); /* mark our pad as inactive */
             *padp++ = *argp++;    /* and overwrite new pad with old sv */
             actions >>= SIGNATURE_SHIFT;

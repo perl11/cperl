@@ -1920,17 +1920,20 @@ CV, like C<&Safe::Root0::strict::import@>, i.e. with
 F<dist/Storable/t/code.t> The fix is similar to the AV double-free
 protection of @_ in gp_free.
 
+=item *
+
+Fixed refs signature args, which dropped their refcnt to 0 when
+leaving the sub, so use-after-free stack corruption might occur.  It
+also restored by ptr (SV**) not by value (SV*), which was unsafe when
+the ptr moved.
+L<[cperl #395]|https://github.com/perl11/cperl/issues/395>
+cperl-only relevant. perl5 uses args in @_, cperl on the stack.
+
 =back
 
 =head1 Known Problems
 
 =over 4
-
-=item *
-
-Refs in signature args might drop their refcnt to 0 when leaving the sub,
-so use-after-free stack corruption might occur.
-L<[cperl #395]|https://github.com/perl11/cperl/issues/395>
 
 =item *
 
