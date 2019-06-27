@@ -1939,6 +1939,7 @@ cperl-only relevant. perl5 uses args in @_, cperl on the stack.
 
 Signature args are not yet run-time type checked, only at compile-time.
 L<[cperl #389]|https://github.com/perl11/cperl/issues/389>
+and L<[cperl #387]|https://github.com/perl11/cperl/issues/387>
 
 =item *
 

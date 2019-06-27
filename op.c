@@ -16102,6 +16102,23 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
 }
 
 /*
+=for apidoc XEp|void  |arg_check_type_sv |NULLOK const PADNAME* pn|NN SV* sv|NN GV *cvname
+
+Check if the declared static type of the argument from pn can be
+fullfilled by the dynamic type of the arg in SV* sv (padsv, const,
+any return type).
+contravariant.
+
+Signatures are new, hence much stricter, than return-types and assignments.
+=cut
+*/
+void
+Perl_arg_check_type_sv(pTHX_ const PADNAME* pn, SV* sv, GV *cvname)
+{
+    PERL_ARGS_ASSERT_ARG_CHECK_TYPE_SV;
+}
+
+/*
 =for apidoc s|OP*  |arg_check_type |NULLOK const PADNAME* pn|NN OP* o|NN GV *cvname
 
 Check if the declared static type of the argument from pn can be
@@ -16770,13 +16787,13 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
             assert(pad_ix);
             /* TODO: o3 needs to return a scalar */
             /* TODO: o3 can be modified, with added type cast, similar to scalar */
-            aop = S_arg_check_type(aTHX_ PAD_NAME(pad_ix), o3, namegv);
+            aop = arg_check_type(PAD_NAME(pad_ix), o3, namegv);
             pad_ix++;
             scalar(aop);
             break;
         case SIGNATURE_array:
         case SIGNATURE_hash:
-            aop = S_arg_check_type(aTHX_ PAD_NAME(pad_ix), o3, namegv);
+            aop = arg_check_type(PAD_NAME(pad_ix), o3, namegv);
             arg++;
             if (actions & SIGNATURE_FLAG_ref) {
                 const PADNAME* pn = PAD_NAME(pad_ix);

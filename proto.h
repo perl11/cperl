@@ -8958,6 +8958,16 @@ STATIC void	S_op_clear_gv(pTHX_ OP* o, PADOFFSET *ixp)
 #    endif
 #  endif
 #endif
+#if defined(PERL_IN_OP_C) || defined(PERL_IN_PP_HOT_C)
+#  if defined(USE_CPERL)
+PERL_CALLCONV void	Perl_arg_check_type_sv(pTHX_ const PADNAME* pn, SV* sv, GV *cvname)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_ARG_CHECK_TYPE_SV	\
+	assert(sv)
+
+#  endif
+#endif
 #if defined(PERL_IN_OP_C) || defined(PERL_IN_SV_C)
 PERL_CALLCONV void	Perl_report_redefined_cv(pTHX_ const SV *name, const CV *old_cv, SV * const *new_const_svp)
 			__attribute__nonnull__(pTHX_1)

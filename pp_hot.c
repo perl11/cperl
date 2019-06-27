@@ -5737,11 +5737,11 @@ PP(pp_signature)
     SV **argp;        /* current position in @_'s AvARRAY */
     SV **padp;        /* pad slot for current var */
     UNOP_AUX_item *items = cUNOP_AUXx(PL_op)->op_aux;
-#ifdef DEBUGGING
+    GV *cvname;
     PADNAME** padnl;
     PADOFFSET po = -1;
-#endif
-    int  defop_skips; /* how many default op statements to skip */
+    PADNAME* pn = NULL; /* for the type check */
+    int  defop_skips;   /* how many default op statements to skip */
 
     /* check arity (process arg count limits) */
     {
@@ -5754,10 +5754,8 @@ PP(pp_signature)
         UV   params = items[0].uv;
         bool slurpy;      /* has a @ or % */
         const bool hassig = cBOOL(CvHASSIG(cv));
-#ifdef DEBUGGING
-        padnl = PadlistNAMESARRAY(CvPADLIST(cv));
-#endif
 
+        padnl = PadlistNAMESARRAY(CvPADLIST(cv));
         /* split on bits [31..16], [15..15], [14..0] */
         mand_params = params >> 16;
         slurpy      = cBOOL((params >> 15) & 1);
@@ -5785,8 +5783,8 @@ PP(pp_signature)
             /* TODO evtl print the name of the first missing arg.
                These errors are already thrown at compile-time. */
             if ((1 == argc - mand_params) && (items->uv & 0xf) == SIGNATURE_padintro) {
-                PADOFFSET pad_ix = (++items)->uv >> OPpPADRANGE_COUNTSHIFT;
-                PADNAME * const pn = padnl[pad_ix];
+                po = (++items)->uv >> OPpPADRANGE_COUNTSHIFT;
+                pn = padnl[po];
                 /* diag_listed_as: Not enough arguments for %s */
                 S_croak_caller("Not enough arguments for %s%s%s %s. Want: %"UVuf
                                ", but got: %"UVuf". Missing %s",
@@ -5805,8 +5803,8 @@ PP(pp_signature)
         if (UNLIKELY(!slurpy && argc > mand_params + opt_params)) {
             if (opt_params)
                 /* diag_listed_as: Too many arguments for %s */
-                S_croak_caller("Too many arguments for %s%s%s %s. Want: %" UVuf "-%" UVuf
-                               ", but got: %" UVuf,
+                S_croak_caller("Too many arguments for %s%s%s %s. Want: %" UVuf
+                               "-%" UVuf ", but got: %" UVuf,
                                CvDESC3(cv),
                                SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
                                mand_params, mand_params + opt_params, argc);
@@ -5823,6 +5821,8 @@ PP(pp_signature)
          * didn't provide any args */
         if (!params)
             return NORMAL;
+
+        cvname = CvGV(cv);
     }
 
     defop_skips = 0;
@@ -5844,6 +5844,8 @@ PP(pp_signature)
             assert(argc);
             argc--;
             DEBUG_Xv(Perl_deb(aTHX_ "  sigref padp %p = argp %p\n", *padp, *argp));
+            if (pn && PadnameTYPE(pn))
+                arg_check_type_sv(pn, *argp, cvname);
             /* copy back temp pad to old sv at leavesub. [cperl #395] */
             save_pushptrptr(*argp, *padp, SAVEt_SPTR);
             DEBUG_lv(Perl_deb(aTHX_ "save SPTR %p %s at &%p\n",
@@ -5868,11 +5870,11 @@ PP(pp_signature)
             UV varcount = data & OPpPADRANGE_COUNTMASK;
             PADOFFSET pad_ix = data >> OPpPADRANGE_COUNTSHIFT;
             SV **svp = padp = &(PAD_SVl(pad_ix));
-#ifdef DEBUGGING
+
             po = pad_ix;
-#endif
+            pn = padnl[po];
             DEBUG_Xv(Perl_deb(aTHX_ "  sigpad padp %p curpad[%lu] %s\n", *padp, po,
-                              PadnamePV(padnl[po])));
+                              PadnamePV(pn)));
             while (varcount--) {
                 if (*svp)
                     SvPADSTALE_off(*svp); /* mark lexical as active */
@@ -5925,19 +5927,20 @@ PP(pp_signature)
             if (argc) {
                 argc--;
                 if (!varsv) {
-#ifdef DEBUGGING
                     po++;
-#endif
                     argp++;
+                    pn = padnl[po];
                     break;
                 }
                 argsv = *argp++;
                 DEBUG_Xv(Perl_deb(aTHX_ "  sigcopy padp %p %s = argp %p %-4s\n", varsv,
-                                  PadnamePV(padnl[po++]), argsv, SvPEEK(argsv)));
+                                  PadnamePV(pn), argsv, SvPEEK(argsv)));
+                pn = padnl[po++];
                 if (UNLIKELY(!argsv))
                     argsv = UNDEF;
                 goto setsv;
             }
+
             if (!varsv)
                 break;
 
@@ -5971,7 +5974,11 @@ PP(pp_signature)
 
             case SIGNATURE_arg_default_iv:
                 i = items->iv;
+
               setiv:
+                if (pn && PadnameTYPE(pn)) /* [cperl #389] */
+                    arg_check_type_sv(pn, varsv, cvname);
+
                 /* do $varsv = i.
                  * NB it's likely that on subsequent calls the cleared
                  * lexical will have formerly been SVt_IV; if this
@@ -6025,7 +6032,9 @@ PP(pp_signature)
                         break;
                     }
                 }
-                /*SvREFCNT_inc(varsv); / * ?? */
+                if (pn && PadnameTYPE(pn)) /* [cperl #389] */
+                    arg_check_type_sv(pn, varsv, cvname);
+
                 sv_setsv(varsv, argsv);
             } /* inner switch */
             break;
@@ -6061,6 +6070,8 @@ PP(pp_signature)
                 SV *arg = *argp++;
 
                 assert(arg);
+                if (pn && PadnameTYPE(pn)) /* typed array? */
+                    arg_check_type_sv(pn, arg, cvname);
                 tmpsv = newSV(0);
                 sv_setsv(tmpsv, arg);
                 av_store((AV*)varsv, i++, tmpsv);
@@ -6155,6 +6166,8 @@ PP(pp_signature)
             assert(!SvMAGICAL(varsv));
             assert(!HvTOTALKEYS(varsv)); /* can skip hv_clear() */
             SvPADSTALE_off(varsv);
+            /*if (pn && PadnameTYPE(pn)) typed hash = otherhash?
+                arg_check_type_sv(pn, varsv, cvname); */
 
             TAINT_NOT;
 
@@ -6171,6 +6184,8 @@ PP(pp_signature)
                 else
                     val = UNDEF;
                 assert(val);
+                if (pn && PadnameTYPE(pn)) /* typed hash? check value */
+                    arg_check_type_sv(pn, val, cvname);
 
                 if (UNLIKELY(SvGMAGICAL(key)))
                     key = sv_mortalcopy(key);

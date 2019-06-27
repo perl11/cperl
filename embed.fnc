@@ -1281,6 +1281,12 @@ s	|OP*	|cv_do_inline|NN const OP *o|NN const OP *cvop|NN CV *cv|bool meth
 i	|OP*	|new_entersubop |NN GV* gv |NN OP* arg
 #  endif
 #endif
+: Used in op.c and pp_hot.c
+#if defined(PERL_IN_OP_C) || defined(PERL_IN_PP_HOT_C)
+#  if defined(USE_CPERL)
+XEp	|void	|arg_check_type_sv |NULLOK const PADNAME* pn|NN SV* sv|NULLOK GV *cvname
+# endif
+#endif
 : Used in op.c and pp_sys.c
 p	|int	|mode_from_discipline	|NULLOK const char* s|STRLEN len
 Ap	|const char*	|moreswitches	|NN const char* s
