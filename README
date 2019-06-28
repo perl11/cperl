@@ -14,10 +14,9 @@ and improvements, but without breaking compatibility. CPAN works. It
 is a "perl 11", 5 + 6 = 11.
 
 The name cperl stands for a perl with classes, types, compiler
-support, continuation of perl5 or just a company-friendly perl, but
-currently it's only a better 5.22 based variant without classes.
+support, continuation of perl5 or just a company-friendly perl.
 
-Currently it is about 15%x faster than perl5.22 overall, more than 2x
+Currently it is about 15%x faster than perl5 overall, more than 2x
 faster then 5.14 and uses the least amount of memory measured since
 5.6, i.e. less than 5.10 and 5.6.2, which were the previous
 leaders. While perl5.22 uses the most memory yet measured.
