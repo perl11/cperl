@@ -1434,7 +1434,7 @@ sub t149 (\%a) { $a->{0} = 1 }
 # int should not bleed into @error
 sub t150 (int $i, @error) { 1 }
 {
-    is scalar(t150(1, "")), 1, "reset tyepstash";
+    is scalar(t150(1, "")), 1, "reset typestash";
 }
 
 # user-types inherited from coretypes (contra-variance)

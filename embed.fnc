@@ -1272,6 +1272,7 @@ i|core_types_t	|op_typed	|NN OP* o
 s|core_types_t	|op_typed_user	|NN OP* o|NULLOK char** usertype|NULLOK int* u8
 i|const char *  |core_type_name	|core_types_t t
 i|core_types_t	|stash_to_coretype|NULLOK const HV* stash
+s|core_types_t	|arg_type_sv	|NN SV* sv|NULLOK char** usertype|NULLOK int* u8
 in	|int	|match_type1	|const U32 sig|core_types_t arg1
 in	|int	|match_type2	|const U32 sig|core_types_t arg1|core_types_t arg2
 #    ifdef PERL_INLINE_SUBS

@@ -8741,6 +8741,11 @@ STATIC OP*	S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
 #define PERL_ARGS_ASSERT_ARG_CHECK_TYPE	\
 	assert(o)
 
+STATIC core_types_t	S_arg_type_sv(pTHX_ SV* sv, char** usertype, int* u8)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_ARG_TYPE_SV	\
+	assert(sv)
+
 STATIC void	S_bad_type_core(pTHX_ const char *argname, GV *gv, core_types_t got, const char* gotname, bool gotu8, const char *wanted, bool wu8)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)

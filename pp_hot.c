@@ -5977,7 +5977,7 @@ PP(pp_signature)
 
               setiv:
                 if (pn && PadnameTYPE(pn)) /* [cperl #389] */
-                    arg_check_type_sv(pn, varsv, cvname);
+                    arg_check_type_sv(pn, argsv, cvname);
 
                 /* do $varsv = i.
                  * NB it's likely that on subsequent calls the cleared
@@ -6029,11 +6029,13 @@ PP(pp_signature)
                         assert(!SvOK(varsv));
                         SvRV_set(varsv, SvREFCNT_inc(SvRV(argsv)));
                         SvROK_on(varsv);
+                        if (pn && PadnameTYPE(pn)) /* [cperl #389] */
+                            arg_check_type_sv(pn, argsv, cvname);
                         break;
                     }
                 }
                 if (pn && PadnameTYPE(pn)) /* [cperl #389] */
-                    arg_check_type_sv(pn, varsv, cvname);
+                    arg_check_type_sv(pn, argsv, cvname);
 
                 sv_setsv(varsv, argsv);
             } /* inner switch */
@@ -6057,6 +6059,7 @@ PP(pp_signature)
              */
             assert(padp);
             varsv = *padp++;
+            pn = padnl[po++];
             assert(!SvMAGICAL(varsv));
             assert(AvFILLp(varsv) == -1); /* can skip av_clear() */
             SvPADSTALE_off(varsv);
@@ -6163,6 +6166,7 @@ PP(pp_signature)
 
             /* see comments above about unrolled pp_aassign() */
             varsv = *padp++;
+            pn = padnl[po++];
             assert(!SvMAGICAL(varsv));
             assert(!HvTOTALKEYS(varsv)); /* can skip hv_clear() */
             SvPADSTALE_off(varsv);

@@ -2070,6 +2070,7 @@
 #define add_does_methods(a,b)	S_add_does_methods(aTHX_ a,b)
 #define add_isa_fields(a,b)	S_add_isa_fields(aTHX_ a,b)
 #define arg_check_type(a,b,c)	S_arg_check_type(aTHX_ a,b,c)
+#define arg_type_sv(a,b,c)	S_arg_type_sv(aTHX_ a,b,c)
 #define bad_type_core(a,b,c,d,e,f,g)	S_bad_type_core(aTHX_ a,b,c,d,e,f,g)
 #define can_class_typecheck(a)	S_can_class_typecheck(aTHX_ a)
 #define cant_declare(a)		S_cant_declare(aTHX_ a)

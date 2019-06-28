@@ -14713,45 +14713,7 @@ S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
     case OP_AELEMFAST_LEX:
     case OP_AELEMFAST_LEX_U:
     case OP_CONST: {
-        SV *sv = cSVOPx(o)->op_sv;
-        switch (SvTYPE(sv)) {
-        case SVt_IV:
-            if (!SvROK(sv)) return SvUOK(sv) ? type_UInt : type_Int;
-            else {
-                SV* rv = SvRV(sv); 
-                if (SvTYPE(rv) >= SVt_PVMG && SvOBJECT(rv) && VALIDTYPE(SvSTASH(rv))) {
-                    if (usertype) {
-                        HV *stash = SvSTASH(rv);
-                        *usertype = (char*)typename(stash);
-                        *u8 = HvNAMEUTF8(stash);
-                    }
-                    return type_Object;
-                }
-                return type_Scalar; /* or Ref, but we don't do Ref isa Scalar yet  */
-            }
-        case SVt_NULL:   return type_none;
-        case SVt_PV:
-            return (o->op_private & OPpCONST_BARE) /* typeglob (filehandle) */
-                   ? type_Scalar : type_Str;
-        case SVt_NV:     return type_Num;
-            /* numified strings as const, stay conservative */
-        case SVt_PVIV:   return type_Scalar; /* no POK check */
-        case SVt_PVNV:   return type_Scalar; /* no POK check */
-        case SVt_PVAV:   return type_Array;
-        case SVt_PVHV:   return type_Hash;
-        case SVt_PVCV:   return type_Sub;
-        case SVt_REGEXP: return type_Regexp;
-        default:
-            {
-                HV* stash = SvSTASH(sv);
-                if (usertype && stash) {
-                    *usertype = (char*)typename(stash);
-                    *u8 = HvNAMEUTF8(stash);
-                }
-                return stash ? type_Object : type_Scalar;
-            }
-        }
-        break;
+        return S_arg_type_sv(aTHX_ cSVOPx(o)->op_sv, usertype, u8);
     }
     case OP_RV2AV: {
         OP* kid = OpFIRST(o);
@@ -16102,12 +16064,61 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
 }
 
 /*
-=for apidoc XEp|void  |arg_check_type_sv |NULLOK const PADNAME* pn|NN SV* sv|NN GV *cvname
+=for apidoc s|void  |arg_type_sv |NN SV* sv|NULLOK char** usertype|NULLOK int* u8
+
+Return the type for the sv. Optionally sets usertype and u8 (if usertype is utf8),
+when usertype is not NULL, and the SV is blessed.
+
+=cut
+*/
+core_types_t
+S_arg_type_sv(pTHX_ SV* sv, char **usertype, int *u8)
+{
+    PERL_ARGS_ASSERT_ARG_TYPE_SV;
+    switch (SvTYPE(sv)) {
+    case SVt_IV:
+        if (!SvROK(sv))
+            return SvUOK(sv) ? type_UInt : type_Int;
+        else {
+            SV* rv = SvRV(sv);
+            if (SvTYPE(rv) >= SVt_PVMG && SvOBJECT(rv) && VALIDTYPE(SvSTASH(rv))) {
+                HV *stash = SvSTASH(rv);
+                if (usertype) {
+                    *usertype = (char*)typename(stash);
+                    *u8 = HvNAMEUTF8(stash);
+                }
+                return type_Object;
+            }
+            return type_Scalar; /* or Ref, but we don't do Ref isa Scalar yet  */
+        }
+    case SVt_NULL:   return type_none;
+    case SVt_PV:     return type_Str;
+    case SVt_NV:     return type_Num;
+    /* numified strings as const, stay conservative */
+    case SVt_PVIV:   return type_Scalar; /* no POK check */
+    case SVt_PVNV:   return type_Scalar; /* no POK check */
+    case SVt_PVAV:   return type_Array;  /* TODO: typed array or hash */
+    case SVt_PVHV:   return type_Hash;
+    case SVt_PVCV:   return type_Sub;
+    case SVt_REGEXP: return type_Regexp;
+    default:
+        {
+            HV* stash = SvSTASH(sv);
+            if (usertype && stash) {
+                *usertype = (char*)typename(stash);
+                *u8 = HvNAMEUTF8(stash);
+            }
+            return stash ? type_Object : type_Scalar;
+        }
+    }
+}
+
+/*
+=for apidoc XEp|void  |arg_check_type_sv |NN const PADNAME* pn|NN SV* sv|NN GV *cvname
 
 Check if the declared static type of the argument from pn can be
-fullfilled by the dynamic type of the arg in SV* sv (padsv, const,
-any return type).
-contravariant.
+fullfilled by the dynamic type of the arg in SV* sv.
+The run-time variant of arg_check_type, contravariant.
 
 Signatures are new, hence much stricter, than return-types and assignments.
 =cut
@@ -16115,7 +16126,40 @@ Signatures are new, hence much stricter, than return-types and assignments.
 void
 Perl_arg_check_type_sv(pTHX_ const PADNAME* pn, SV* sv, GV *cvname)
 {
+    const HV *type = PadnameTYPE(pn);
     PERL_ARGS_ASSERT_ARG_CHECK_TYPE_SV;
+    if (UNLIKELY(VALIDTYPE(type))) {
+        char *usertype = NULL;
+        int argu8 = 0;
+        const char *name = typename(type);
+        core_types_t argtype = arg_type_sv(sv, &usertype, &argu8);
+        const char *argname = usertype ? usertype : core_type_name(argtype);
+        DEBUG_kv(Perl_deb(aTHX_ "  ck_sig(%" SVf ") argtype %s against arg %s\n",
+                         SVfARG(cv_name((CV *)cvname, NULL, CV_NAME_NOMAIN)),
+                         name?name:"none", argname));
+        if (argtype > type_none && argtype < type_Void
+            && name && strNE(argname, name))
+        {
+            int castable = 0;
+            /* check aggregate type: Array(int), Hash(str), ... */
+            if (!PadnamePV(pn))
+                ;
+            else if ((argtype == type_Hash && PadnamePV(pn)[0] == '%') ||
+                     (argtype == type_Array && PadnamePV(pn)[0] == '@'))
+            {
+                argtype = stash_to_coretype(type);
+            }
+
+            if (!match_type(type, argtype, argname, argu8, &castable)) {
+                if (!castable) {
+                    Perl_croak(aTHX_ "Type of arg %s to %" SVf " must be %s (not %s)",
+                               PadnamePV(pn),
+                               SVfARG(cv_name((CV *)cvname, NULL, CV_NAME_NOMAIN)),
+                               name, argname);
+                }
+            }
+        }
+    }
 }
 
 /*
