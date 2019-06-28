@@ -123,19 +123,25 @@ if (1) {
 class Baz5 {
   has int $i;
 }
+use types 'strict';
 my $b5;
-eval { $b5 = new Baz5("wrong"); }; #  typecheck
-print !$@ ? "not " : "", "ok ", $test++, " # compile-time typecheck Mu::new fields\n";
-print $b5->i ? "not " : "", "ok ", $test++, " # ", $b5->i, " value\n";
+eval { $b5 = new Baz5("wrong") };
+#my $typeerr = qr/^Type of arg \$i to Baz5 must be int \(not Str\)/;
+my $typewarn = qr/^Type of arg \$i to Baz5 should be int \(not Str\)/;
+print $@ =~ $typewarn ? "" : "not ", "ok ", $test++,
+  " # compile-time typecheck Mu::new fields\n";
+print $b5 && $b5->i ? "not " : "", "ok ", $test++, " # value\n";
 
 eval { $b5 = new Baz5(1, "wrong"); }; #  arity check
-print $@ =~ /Too many arguments for method / ? "" : "not ", "ok ", $test++, " # arity check Mu::new fields\n";
+print $@ =~ /Too many arguments for method / ? "" : "not ", "ok ", $test++,
+  " # arity check Mu::new fields\n";
 $@ = '';
 
 my $xx = "wrong";
-$b5 = new Baz5($xx);
-print !$@ ? "not " : "", "ok ", $test++, " # run-time typecheck Mu::new fields\n";
-print $b5->i ? "not " : "", "ok ", $test++, " # ", $b5->i, " value\n";
+eval { $b5 = new Baz5($xx) };
+print $@ =~ $typewarn ? "" : "not ", "ok ", $test++,
+  " # run-time typecheck Mu::new fields\n";
+print $b5 && $b5->i ? "not " : "", "ok ", $test++, " # value\n";
 
 # crashed with wrong padoffset [cperl #389]
 eval { do './op/class1.inc'; };

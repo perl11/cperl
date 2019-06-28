@@ -1101,7 +1101,9 @@ XS(XS_Mu_new)
                           || (*PadnamePV(pn) == '%' && SvTYPE(arg) != SVt_PVHV) )
                             Perl_croak(aTHX_ "Invalid object field type");
                     }
-                    /* TODO: typecheck typed fields #387, see op_signature */
+                    /* see pp_signature */
+                    if (PadnameTYPE(pn))
+                        arg_check_type_sv(pn, arg, (GV*)name);
                     AvARRAY(av)[i] = arg;
                 }
                 else { /* new CLASS; copy fields from decl */
