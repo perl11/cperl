@@ -5844,7 +5844,7 @@ PP(pp_signature)
             assert(argc);
             argc--;
             DEBUG_Xv(Perl_deb(aTHX_ "  sigref padp %p = argp %p\n", *padp, *argp));
-            if (pn && PadnameTYPE(pn))
+            if (pn && !PL_op->op_typechecked && PadnameTYPE(pn))
                 arg_check_type_sv(pn, *argp, cvname);
             /* copy back temp pad to old sv at leavesub. [cperl #395] */
             save_pushptrptr(*argp, *padp, SAVEt_SPTR);
@@ -5976,7 +5976,7 @@ PP(pp_signature)
                 i = items->iv;
 
               setiv:
-                if (pn && PadnameTYPE(pn)) /* [cperl #389] */
+                if (pn && !PL_op->op_typechecked && PadnameTYPE(pn)) /* [cperl #389] */
                     arg_check_type_sv(pn, argsv, cvname);
 
                 /* do $varsv = i.
@@ -6029,12 +6029,12 @@ PP(pp_signature)
                         assert(!SvOK(varsv));
                         SvRV_set(varsv, SvREFCNT_inc(SvRV(argsv)));
                         SvROK_on(varsv);
-                        if (pn && PadnameTYPE(pn)) /* [cperl #389] */
+                        if (pn && !PL_op->op_typechecked && PadnameTYPE(pn))
                             arg_check_type_sv(pn, argsv, cvname);
                         break;
                     }
                 }
-                if (pn && PadnameTYPE(pn)) /* [cperl #389] */
+                if (pn && !PL_op->op_typechecked && PadnameTYPE(pn))
                     arg_check_type_sv(pn, argsv, cvname);
 
                 sv_setsv(varsv, argsv);
@@ -6073,7 +6073,8 @@ PP(pp_signature)
                 SV *arg = *argp++;
 
                 assert(arg);
-                if (pn && PadnameTYPE(pn)) /* typed array? */
+                /* typed array? */
+                if (pn && !PL_op->op_typechecked && PadnameTYPE(pn))
                     arg_check_type_sv(pn, arg, cvname);
                 tmpsv = newSV(0);
                 sv_setsv(tmpsv, arg);
@@ -6170,7 +6171,7 @@ PP(pp_signature)
             assert(!SvMAGICAL(varsv));
             assert(!HvTOTALKEYS(varsv)); /* can skip hv_clear() */
             SvPADSTALE_off(varsv);
-            /*if (pn && PadnameTYPE(pn)) typed hash = otherhash?
+            /*if (pn && !PL_op->op_typechecked && PadnameTYPE(pn)) typed hash = otherhash?
                 arg_check_type_sv(pn, varsv, cvname); */
 
             TAINT_NOT;
@@ -6188,7 +6189,8 @@ PP(pp_signature)
                 else
                     val = UNDEF;
                 assert(val);
-                if (pn && PadnameTYPE(pn)) /* typed hash? check value */
+                /* typed hash? check value */
+                if (pn && !PL_op->op_typechecked && PadnameTYPE(pn))
                     arg_check_type_sv(pn, val, cvname);
 
                 if (UNLIKELY(SvGMAGICAL(key)))
