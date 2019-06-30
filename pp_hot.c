@@ -5976,7 +5976,7 @@ PP(pp_signature)
                 i = items->iv;
 
               setiv:
-                if (pn && !PL_op->op_typechecked && PadnameTYPE(pn)) /* [cperl #389] */
+                if (pn && !PL_op->op_typechecked && PadnameTYPE(pn))
                     arg_check_type_sv(pn, argsv, cvname);
 
                 /* do $varsv = i.
@@ -6029,12 +6029,16 @@ PP(pp_signature)
                         assert(!SvOK(varsv));
                         SvRV_set(varsv, SvREFCNT_inc(SvRV(argsv)));
                         SvROK_on(varsv);
-                        if (pn && !PL_op->op_typechecked && PadnameTYPE(pn))
+                        if (pn &&
+                            !PL_op->op_typechecked &&
+                            PadnameTYPE(pn))
                             arg_check_type_sv(pn, argsv, cvname);
                         break;
                     }
                 }
-                if (pn && !PL_op->op_typechecked && PadnameTYPE(pn))
+                /* constant args were already compile-time checked */
+                if (action != SIGNATURE_arg_default_const &&
+                    pn && !PL_op->op_typechecked && PadnameTYPE(pn))
                     arg_check_type_sv(pn, argsv, cvname);
 
                 sv_setsv(varsv, argsv);

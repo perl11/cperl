@@ -16152,7 +16152,8 @@ Perl_arg_check_type_sv(pTHX_ const PADNAME* pn, SV* sv, GV *cvname)
 
             if (!match_type(type, argtype, argname, argu8, &castable)) {
                 if (!castable) {
-                    Perl_croak(aTHX_ "Type of arg %s to %" SVf " must be %s (not %s)",
+                    Perl_warner(aTHX_ packWARN(WARN_TYPES),
+                              "Type of arg %s to %" SVf " must be %s (not %s)",
                                PadnamePV(pn),
                                SVfARG(cv_name((CV *)cvname, NULL, CV_NAME_NOMAIN)),
                                name, argname);
@@ -16696,9 +16697,10 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
 {
     OP *aop, *cvop;
     UNOP_AUX_item *items;
-    const UNOP_AUX* o = CvSIGOP(cv);
+    UNOP_AUX* o = CvSIGOP(cv);
     HV* type;
     PADNAMELIST *namepad = PadlistNAMES(CvPADLIST(cv));
+    PADNAME *pn;
     UV actions, params, mand_params, opt_params;
 #ifdef DEBUGGING
     UV varcount;
@@ -16707,6 +16709,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
     I32 arg = 0;
     bool optional = FALSE;
     bool slurpy = FALSE;
+    bool typechecked = TRUE; /* only if all arguments are constant */
 #define PAD_NAME(pad_ix) padnamelist_fetch(namepad, pad_ix)
     PERL_ARGS_ASSERT_CK_ENTERSUB_ARGS_SIGNATURE;
 
@@ -16789,15 +16792,17 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
                     type = PAD_NAME(pad_ix) ? PadnameTYPE(PAD_NAME(pad_ix)) : NULL;
                     bad_type_gv(arg, namegv, o3, VALIDTYPE(type) ? typename(type) : "scalar");
                 }
+                typechecked = FALSE; /* most refs are run-time evaluated, see {a,h}ref below */
                 pad_ix++;
                 scalar(aop);
                 break;
             } /* fall through */
             items--;
         case SIGNATURE_arg_default_iv:
-        case SIGNATURE_arg_default_const:
-        case SIGNATURE_arg_default_padsv:
         case SIGNATURE_arg_default_gvsv:
+            typechecked = FALSE;          /* run-time evaluated */
+        case SIGNATURE_arg_default_padsv: /* pad can be typed */
+        case SIGNATURE_arg_default_const:
             items++; /* the default sv/gv */
         case SIGNATURE_arg_default_op:
         case SIGNATURE_arg_default_none:
@@ -16831,16 +16836,21 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
             assert(pad_ix);
             /* TODO: o3 needs to return a scalar */
             /* TODO: o3 can be modified, with added type cast, similar to scalar */
-            aop = arg_check_type(PAD_NAME(pad_ix), o3, namegv);
+            pn = PAD_NAME(pad_ix);
+            aop = arg_check_type(pn, o3, namegv);
+            if (!pn || !VALIDTYPE(PadnameTYPE(pn)))
+                typechecked = FALSE;
             pad_ix++;
             scalar(aop);
             break;
         case SIGNATURE_array:
         case SIGNATURE_hash:
-            aop = arg_check_type(PAD_NAME(pad_ix), o3, namegv);
+            pn = PAD_NAME(pad_ix);
+            aop = arg_check_type(pn, o3, namegv);
+            if (!pn || !VALIDTYPE(PadnameTYPE(pn)))
+                typechecked = FALSE;
             arg++;
             if (actions & SIGNATURE_FLAG_ref) {
-                const PADNAME* pn = PAD_NAME(pad_ix);
                 /* o3 needs to be a aref or href. we can typecheck a CONST,
                    but not much else */
                 if (IS_CONST_OP(o3)) {
@@ -16855,12 +16865,15 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
                         bad_type_core(PadnamePV(pn), namegv, type_Object, svshorttypenames[t], 0,
                                       action == SIGNATURE_hash ? "HASH reference"
                                       : "ARRAY reference", 0);
-                } else if (IS_TYPE(o3, ANONHASH) && action == SIGNATURE_array) {
-                    bad_type_core(PadnamePV(pn), namegv, type_Object, "HASH reference", 0,
-                                  "ARRAY reference", 0);
-                } else if (IS_TYPE(o3, ANONLIST) && action == SIGNATURE_hash) {
-                    bad_type_core(PadnamePV(pn), namegv, type_Object, "ARRAY reference", 0,
-                                  "HASH reference", 0);
+                } else {
+                    typechecked = FALSE;
+                    if (IS_TYPE(o3, ANONHASH) && action == SIGNATURE_array) {
+                        bad_type_core(PadnamePV(pn), namegv, type_Object, "HASH reference", 0,
+                                      "ARRAY reference", 0);
+                    } else if (IS_TYPE(o3, ANONLIST) && action == SIGNATURE_hash) {
+                        bad_type_core(PadnamePV(pn), namegv, type_Object, "ARRAY reference", 0,
+                                      "HASH reference", 0);
+                    }
                 }
                 scalar(aop);
                 DEBUG_kv(Perl_deb(aTHX_ "ck_sig: ref action=%d pad_ix=%d items=0x%" UVxf " with %d %s op arg\n",
@@ -16910,6 +16923,8 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
         }
     }
 #undef PAD_NAME
+    if (typechecked)
+        o->op_typechecked = 1;
 
     return entersubop;
 }
