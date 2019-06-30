@@ -2877,6 +2877,8 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
 	do_hv_dump (level, file, "  GvSTASH", GvSTASH(sv));
         SV_SET_STRINGIFY_FLAGS(d,GvFLAGS(sv),gv_flags_names);
         if (GvIMPORTED(sv)) {
+            if (SvCUR(d))
+                sv_catpvs(d, ",");
             sv_catpvs(d, "IMPORT");
             if (GvIMPORTED(sv) == GVf_IMPORTED)
                 sv_catpvs(d, "ALL,");

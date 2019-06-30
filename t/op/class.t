@@ -5,7 +5,7 @@ BEGIN {
     #require './test.pl';
 }
 local($\, $", $,) = (undef, ' ', '');
-print "1..30\n";
+print "1..35\n";
 my $test = 1;
 
 # allow has hash fields (YAML::Mo)
@@ -112,7 +112,7 @@ class Baz4 does Foo2 {
 }
 print "ok $test # parsed role composition\n"; $test++;
 my $b4 = new Baz4;
-if (0) {
+if (1) {
   $b4->test; # TODO type adjustment for does (copied roles)
   $b4->foo2;
 } else {
@@ -121,20 +121,20 @@ if (0) {
 }
 
 # TODO: crash with wrong padoffset
-#eval { do './op/class1.inc'; };
-#eval q|
-#role Foo3 {
-#  has $a3 = 2;
-#  has $b3 = 2;
-#}
-#class Bar3 does Foo3 does Foo2 { #a3 b3 a
-#  method test {
-#    $self->foo2;
-#    print $self->a  != 1 ? "not " : "", "ok ", $test++, " # copied role field\n";
-#    print $self->b3 != 2 ? "not " : "", "ok ", $test++, " # copied role field\n";
-#  }
-#}
-#|;
+eval { do './op/class1.inc'; };
+eval q|
+role Foo3 {
+  has $a3 = 2;
+  has $b3 = 2;
+}
+class Bar3 does Foo3 does Foo2 { #a3 b3 a
+  method test {
+    $self->foo2;
+    print $self->a  != 1 ? "not " : "", "ok ", $test++, " # copied role field\n";
+    print $self->b3 != 2 ? "not " : "", "ok ", $test++, " # copied role field\n";
+  }
+}
+| if 0;
 
 #print $@ eq 'panic: cannot yet adjust field indices when composing role Foo2::foo2 into class Bar3 [cperl #311]' ? "" : "not ",
 #  "ok ", $test++, " # error with not-composible roles $@\n";

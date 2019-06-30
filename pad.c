@@ -2421,6 +2421,8 @@ S_cv_clone(pTHX_ CV *proto, CV *cv, CV *outside, HV *cloned)
 
     if (CvPADLIST(proto))
 	cv = S_cv_clone_pad(aTHX_ proto, cv, outside, cloned, newcv);
+    if (CvHASSIG(proto))
+	CvSIGOP(cv) = CvSIGOP(proto);
 
     DEBUG_Xv(
 	PerlIO_printf(Perl_debug_log, "\nPad CV clone\n");

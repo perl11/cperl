@@ -2104,6 +2104,7 @@
 #define op_sibling_newUNOP(a,b,c,d)	S_op_sibling_newUNOP(aTHX_ a,b,c,d)
 #define op_typed(a)		S_op_typed(aTHX_ a)
 #define op_typed_user(a,b,c)	S_op_typed_user(aTHX_ a,b,c)
+#define padnamelist_type_fixup(a,b,c)	S_padnamelist_type_fixup(aTHX_ a,b,c)
 #define peep_leaveloop(a,b,c)	S_peep_leaveloop(aTHX_ a,b,c)
 #define process_optree(a,b,c)	S_process_optree(aTHX_ a,b,c)
 #define prune_chain_head	S_prune_chain_head

@@ -8925,6 +8925,13 @@ STATIC core_types_t	S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
 #define PERL_ARGS_ASSERT_OP_TYPED_USER	\
 	assert(o)
 
+STATIC void	S_padnamelist_type_fixup(pTHX_ PADNAMELIST *pnl, HV* oldklass, HV* newklass)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT_PADNAMELIST_TYPE_FIXUP	\
+	assert(pnl); assert(oldklass); assert(newklass)
+
 STATIC bool	S_peep_leaveloop(pTHX_ BINOP* leave, OP* from, OP* to)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)

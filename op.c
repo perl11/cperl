@@ -22897,9 +22897,39 @@ S_check_role_field_fixup(pTHX_ HV* klass, HV* newclass, CV* cv, bool doit)
 }
 
 /*
+=for apidoc padnamelist_type_fixup
+
+Changes all types in the padnames from the old klass to a new class.
+Needed for cloned roles.
+
+=cut
+*/
+void
+S_padnamelist_type_fixup(pTHX_ PADNAMELIST *pnl, HV *oldklass, HV *newklass)
+{
+    PADNAME **pnp;
+    PERL_ARGS_ASSERT_PADNAMELIST_TYPE_FIXUP;
+
+    pnp = PadnamelistARRAY(pnl);
+    if (pnp) {
+        SSize_t i, max = PadnamelistMAX(pnl);
+        for (i = 0; i <= max; i++) {
+            PADNAME* pn = PadnamelistARRAY(pnl)[i];
+            if (pn) {
+                if (PadnameOURSTASH(pn) == oldklass)
+                    PadnameOURSTASH(pn) = newklass;
+                if (PadnameTYPE(pn) == oldklass)
+                    PadnameTYPE(pn) = newklass;
+            }
+        }
+    }
+}
+
+/*
 =for apidoc add_does_methods
 
 Copy all not-existing methods from the parent roles to the class/role.
+Fixup ISA for type checks.
 Fixup changed oelemfast indices.
 
 Duplicates are fatal:
@@ -22991,54 +23021,40 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                 if (need_copy) {
                     need_copy = S_check_role_field_fixup(aTHX_ curclass, klass, cv, FALSE);
                 }
-                if (!need_copy) { /* GV alias */
+                if (!need_copy && !CvPADLIST(cv)) { /* GV alias */
                     DEBUG_k(Perl_deb(aTHX_ "add_does_methods: alias %s::%s to %s %s\n",
                                  HvNAME(curclass), HeKEY(entry), HvPKGTYPE_NN(klass),
                                  klassname));
                     sym = gv_fetchsv_nomg(name, GV_ADD, SVt_PVCV);
                     SvSetMagicSV((SV*)sym, (SV*)gv); /* glob_assign_glob */
                 } else {
-                    /* CV copy */
-#if 1
+                    /* CV clone */
+#if 0
                     Perl_die(aTHX_ "panic: cannot yet adjust field indices when composing role "
                                "%s::%s into %s %s [cperl #311]\n",
                                HvNAME(curclass), HeKEY(entry), HvPKGTYPE_NN(klass), klassname);
-#else                
-                    CV* ncv = MUTABLE_CV(newSV_type(SvTYPE(cv)));
+#else               
+                    CV* ncv = cv_clone(cv);
                     DEBUG_k(Perl_deb(aTHX_ "add_does_methods: copy %s::%s to %s %s\n",
                                  HvNAME(curclass), HeKEY(entry), HvPKGTYPE_NN(klass),
                                  klassname));
+                    if (!sym)
+                        sym = gv_fetchsv_nomg(name, GV_ADD, SVt_PVCV);
+                    SvSetMagicSV((SV*)sym, (SV*)gv); /* glob_assign_glob */
                     CvGV_set(ncv, sym);
+                    
                     CvSTASH_set(ncv, klass);
-                    OP_REFCNT_LOCK;
-                    /* TODO: either clone the optree or pessimize oelemfast */
-                    CvROOT(ncv)	     = OpREFCNT_inc(CvROOT(cv));
-                    if (CvHASSIG(cv))
-                        CvSIGOP(ncv) = CvSIGOP(cv);
-                    OP_REFCNT_UNLOCK;
-                    CvSTART(ncv)     = CvSTART(cv);
-                    CvOUTSIDE(ncv)   = CvOUTSIDE(cv); /* ? */
-                    CvOUTSIDE_SEQ(ncv) = CvOUTSIDE_SEQ(cv);
-                    CvFILE(ncv)   = CvFILE(cv); /* ? */
-                    if (SvPOK(cv)) {
-                        SV* const sv = MUTABLE_SV(ncv);
-                        sv_setpvn(sv, SvPVX_const(cv), SvCUR(cv));
-                        if (SvUTF8(cv) && !SvUTF8(sv)) {
-                            if (SvIsCOW(sv)) sv_uncow(sv, 0);
-                            SvUTF8_on(sv);
-                        }
-                    }
-                    SvFLAGS(ncv) = SvFLAGS(cv);
-                    CvFLAGS(ncv) = CvFLAGS(cv);
-                    if (SvMAGIC(cv))
-                        mg_copy((SV *)cv, (SV *)ncv, 0, 0);
-
                     if (CvPADLIST(cv)) {
-                        CvPADLIST(ncv) = CvPADLIST(cv);
-                        /*ncv = S_cv_clone_pad(aTHX_ cv, ncv, CvOUTSIDE(cv), NULL, FALSE);*/
+                        PADNAMELIST *pnl = PadlistNAMES(CvPADLIST(cv));
+                        pnl = cv_clone_padname0(cv, pnl);
+                        S_padnamelist_type_fixup(aTHX_ pnl, curclass, klass);
+                        PadlistNAMES(CvPADLIST(ncv)) = pnl;
                     }
-                    if (!S_check_role_field_fixup(aTHX_ curclass, klass, ncv, TRUE))
+                    GvCV_set(sym, ncv);
+                    S_check_role_field_fixup(aTHX_ curclass, klass, ncv, TRUE);
+                    /*if (!S_check_role_field_fixup(aTHX_ curclass, klass, ncv, TRUE))
                         assert(!"check_role_field_fixup with copied ncv");
+                    */
                     mro_method_changed_in(klass);
                     DEBUG_kv(sv_dump((SV*)ncv));
 #endif

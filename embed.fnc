@@ -628,6 +628,7 @@ s	|OP*	|traverse_op_tree|NN OP* top|NN OP* o
 s       |SV*    |op_const_sv    |NN const OP *o|NN CV *cv|bool allow_lex
 s	|void	|class_isamagic |NN OP* o|NN SV* pkg|NN const char* what|int len
 s	|void	|add_isa_fields	|NN HV* klass|NN AV* isa
+s	|void	|padnamelist_type_fixup	|NN PADNAMELIST *pnl|NN HV* oldklass|NN HV* newklass
 s	|void	|add_does_methods	|NN HV* klass|NN AV* does
 #  endif
 #endif
