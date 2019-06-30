@@ -123,10 +123,10 @@ if (1) {
 class Baz5 {
   has int $i;
 }
-use types 'strict';
+use types 'strict'; # for easier $@ catching
 my $b5;
 eval { $b5 = new Baz5("wrong") };
-#my $typeerr = qr/^Type of arg \$i to Baz5 must be int \(not Str\)/;
+my $typeerr = qr/^Type of arg \$i to Baz5 must be int \(not Str\)/;
 my $typewarn = qr/^Type of arg \$i to Baz5 should be int \(not Str\)/;
 print $@ =~ $typewarn ? "" : "not ", "ok ", $test++,
   " # compile-time typecheck Mu::new fields\n";

@@ -16152,11 +16152,19 @@ Perl_arg_check_type_sv(pTHX_ const PADNAME* pn, SV* sv, GV *cvname)
 
             if (!match_type(type, argtype, argname, argu8, &castable)) {
                 if (!castable) {
-                    Perl_warner(aTHX_ packWARN(WARN_TYPES),
+                    if (PL_phase < PERL_PHASE_RUN) {
+                        Perl_croak(aTHX_
+                              "Type of arg %s to %" SVf " must be %s (not %s)",
+                               PadnamePV(pn),
+                               SVfARG(cv_name((CV *)cvname, NULL, CV_NAME_NOMAIN)),
+                               name, argname);
+                    } else {
+                        Perl_warner(aTHX_ packWARN(WARN_TYPES),
                               "Type of arg %s to %" SVf " should be %s (not %s)",
                                PadnamePV(pn),
                                SVfARG(cv_name((CV *)cvname, NULL, CV_NAME_NOMAIN)),
                                name, argname);
+                    }
                 }
             }
         }
