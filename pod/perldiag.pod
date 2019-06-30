@@ -6767,6 +6767,13 @@ nonetheless has overloading to handle it, will still not be accepted.
 certain type.  Arrays must be @NAME or C<@{EXPR}>.  Hashes must be
 %NAME or C<%{EXPR}>.  No implicit dereferencing is allowed--use the
 {EXPR} forms as an explicit dereference.  See L<perlref>.
+If the problem is found at compile-time or in a class instantiation (via
+C<< Mu->new >>), it's an error. If at run-time, it's only a warning.
+
+=item Type of arg %s to %s should be %s (not %s)
+
+(W types) If the type mismatch is found at run-time, it's only a
+warning, otherwise an error.
 
 =item Type of %s to %s must be %s (not %s)
 

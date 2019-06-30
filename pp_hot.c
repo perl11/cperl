@@ -5977,7 +5977,7 @@ PP(pp_signature)
 
               setiv:
                 if (pn && !PL_op->op_typechecked && PadnameTYPE(pn))
-                    arg_check_type_sv(pn, argsv, cvname);
+                    arg_check_type_sv(pn, sv_2mortal(newSViv(0)), cvname);
 
                 /* do $varsv = i.
                  * NB it's likely that on subsequent calls the cleared
