@@ -2,9 +2,13 @@
 
 use strict;
 use Test::More;
-BEGIN { plan tests => 24576 };
-
-BEGIN { $ENV{PERL_JSON_BACKEND} = 0; }
+my $tests;
+my $loop  = $ENV{PERL_CORE} ? 128 : 768;
+BEGIN {
+  $tests = $ENV{PERL_CORE} ? 4096 : 24576; #7s vs 118s
+  plan tests => $tests;
+  $ENV{PERL_JSON_BACKEND} = 0;
+};
 
 use JSON::PP;
 
@@ -35,10 +39,9 @@ sub test($) {
 
 srand 0; # doesn't help too much, but its at least more deterministic
 
-for (1..768) {
+for (1..$loop) {
    test join "", map chr ($_ & 255), 0..$_;
    test join "", map chr rand 255, 0..$_;
    test join "", map chr ($_ * 97 & ~0x4000), 0..$_;
    test join "", map chr (rand (2**20) & ~0x800), 0..$_;
 }
-
