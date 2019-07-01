@@ -27,7 +27,7 @@ label: {
 EOF
 
 use B::CC;
-if ($ENV{PERL_CORE}) {
+if ($ENV{PERL_CORE} && is_CI()) {
   # needs 587s for all 3 tests => 445s
   ok(1, "skip lengthy test in core"); # which always passes
 } else {
