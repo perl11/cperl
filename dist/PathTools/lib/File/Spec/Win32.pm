@@ -122,11 +122,12 @@ sub file_name_is_absolute ($self, str $file) {
 =item catfile
 
 Concatenate one or more directory names and a filename to form a
-complete path ending with a filename
+complete path ending with a filename.
+@p is either str or File::Temp::Dir.
 
 =cut
 
-sub catfile ($self, str @p) {
+sub catfile ($self, @p) {
 
     # Legacy / compatibility support
     #
@@ -142,7 +143,7 @@ sub catfile ($self, str @p) {
     return _canon_cat( @p );
 }
 
-sub catdir ($self, str @p) {
+sub catdir ($self, @p) {
 
     # Legacy / compatibility support
     #
@@ -182,7 +183,7 @@ sub canonpath ($, $path?) {
     # Legacy / compatibility support
     #
     return $path if !defined($path) or $path eq '';
-    return _canon_cat( $path );
+    return _canon_cat( "$path" );
 }
 
 =item splitpath
@@ -371,7 +372,7 @@ implementation of these methods, not the semantics.
 =cut
 
 
-sub _canon_cat (str $first, str @rest)				# @path -> path
+sub _canon_cat ($first, @rest)				# @path -> path
 {
     #print "# ",$first, ", ", @rest, "\n";
     my $volume = $first =~ s{ \A ([A-Za-z]:) ([\\/]?) }{}x	# drive letter
