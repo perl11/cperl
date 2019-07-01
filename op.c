@@ -22864,9 +22864,11 @@ S_add_isa_fields(pTHX_ HV* klass, AV* isa)
             const PADNAME *pn = PAD_COMPNAME(po);
             char *key;
             I32 klen;
-            if (!pn)
+            if (!pn || po > AvFILLp(PL_comppad))
                 continue;
             key = PadnamePV(pn);
+            if (!key)
+                continue;
             klen = PadnameLEN(pn);
             klen = PadnameUTF8(pn) ? -(klen-1) : klen-1;
             /* check for duplicate */
@@ -22967,7 +22969,7 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
     STRLEN len = HvNAMELEN(klass);
     SV *name = newSVpvn_flags(klassname, len, HvNAMEUTF8(klass)|SVs_TEMP);
     SSize_t i;
-    bool need_copy = TRUE;
+    bool need_fieldfixup = TRUE;
     PERL_ARGS_ASSERT_ADD_DOES_METHODS;
 
     for (i=0; i<=AvFILL(does); i++) {
@@ -23026,12 +23028,13 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                     if (CvXSUB(cv) == S_Mu_sv_xsub ||
                         CvXSUB(cv) == S_Mu_av_xsub) {
                         DEBUG_kv(Perl_deb(aTHX_
-                            "add_does_methods: ignore other field XS accessor\n"));
+                            "add_does_methods: ignore other field XS accessor %s::%s\n",
+                            klassname, HeKEY(entry)));
                     }
-                    need_copy = FALSE; /* GV alias */
+                    need_fieldfixup = FALSE; /* GV alias */
                 }
                 else if (CvCONST(cv)) {
-                    need_copy = FALSE; /* GV alias */
+                    need_fieldfixup = FALSE; /* GV alias */
                     DEBUG_kv(Perl_deb(aTHX_
                         "add_does_methods: CvCONST NYI\n"));
                 }
@@ -23041,22 +23044,19 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                 }
                 /* compare field indices. might need to create a new method
                    with adjusted indices. #311 */
-                if (need_copy) {
-                    need_copy = S_check_role_field_fixup(aTHX_ curclass, klass, cv, FALSE);
+                if (need_fieldfixup) {
+                    need_fieldfixup = S_check_role_field_fixup(aTHX_ curclass, klass, cv, FALSE);
                 }
-                if (!need_copy && !CvPADLIST(cv)) { /* GV alias */
+                /* GV alias */
+                if (!need_fieldfixup && (CvISXSUB(cv) || !CvPADLIST(cv))) {
+                    /* With a padlist, we need to adjust the $self type */
                     DEBUG_k(Perl_deb(aTHX_ "add_does_methods: alias %s::%s to %s %s\n",
                                  HvNAME(curclass), HeKEY(entry), HvPKGTYPE_NN(klass),
                                  klassname));
                     sym = gv_fetchsv_nomg(name, GV_ADD, SVt_PVCV);
                     SvSetMagicSV((SV*)sym, (SV*)gv); /* glob_assign_glob */
                 } else {
-                    /* CV clone */
-#if 0
-                    Perl_die(aTHX_ "panic: cannot yet adjust field indices when composing role "
-                               "%s::%s into %s %s [cperl #311]\n",
-                               HvNAME(curclass), HeKEY(entry), HvPKGTYPE_NN(klass), klassname);
-#else               
+                    /* CV clone with padnamelist type fixup and later field-index fixup */
                     CV* ncv = cv_clone(cv);
                     DEBUG_k(Perl_deb(aTHX_ "add_does_methods: copy %s::%s to %s %s\n",
                                  HvNAME(curclass), HeKEY(entry), HvPKGTYPE_NN(klass),
@@ -23074,13 +23074,17 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                         PadlistNAMES(CvPADLIST(ncv)) = pnl;
                     }
                     GvCV_set(sym, ncv);
-                    S_check_role_field_fixup(aTHX_ curclass, klass, ncv, TRUE);
-                    /*if (!S_check_role_field_fixup(aTHX_ curclass, klass, ncv, TRUE))
-                        assert(!"check_role_field_fixup with copied ncv");
-                    */
+
+                    if (need_fieldfixup &&
+                        !S_check_role_field_fixup(aTHX_ curclass, klass, ncv, TRUE))
+                        Perl_die(aTHX_
+                               "panic: cannot yet adjust field indices when composing role "
+                               "%s::%s into %s %s [cperl #311]\n",
+                               HvNAME(curclass), HeKEY(entry), HvPKGTYPE_NN(klass),
+                               klassname);
+
                     mro_method_changed_in(klass);
                     DEBUG_kv(sv_dump((SV*)ncv));
-#endif
                 }
             }
             SvCUR_set(name, len);

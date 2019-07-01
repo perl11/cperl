@@ -180,6 +180,29 @@ If so, destruct all ops, leading to no valgrind leaks, even with
 --leak-check=full.
 cperl-only L<[cperl #400]|https://github.com/perl11/cperl/issues/400>
 
+=head2 Signature args are run-time type checked
+
+Run-time type violations a throw a new type warning, which can be made fatal
+with C<use types 'strict'> or C<use warnings 'FATAL' => 'types';>
+L<perldiag/"Type of arg %s to %s should be %s (not %s)">.
+The compile-time error uses the word "must" instead of "should".
+
+L<[cperl #389]|https://github.com/perl11/cperl/issues/389> and
+L<[cperl #387]|https://github.com/perl11/cperl/issues/387>
+cperl-only
+
+=head2 Role composition was enhanced
+
+When roles are copied from a class to another, we can now handle XS
+methods and methods without internal lexical variables better, by
+simple GV aliasing.  The other methods are now cloned and the C<$self>
+type is adjusted to the new class for the created new method, because
+v5.30 started argument type checking at run-time.
+
+But cperl still cannot adjust field indices when composing roles, when
+the indices of the used lexical variables of the two methods do not
+match. cperl-only
+
 =head1 Security
 
 =head2 Variable length lookbehind in regular expression pattern matching
@@ -1929,17 +1952,33 @@ the ptr moved.
 L<[cperl #395]|https://github.com/perl11/cperl/issues/395>
 cperl-only relevant. perl5 uses args in @_, cperl on the stack.
 
+=item *
+
+C<Mu::new> arguments (fields) are now checked for arity and type violations.
+C<Mu::new> is the default cperl constructor for all class objects.
+See L<[cperl #387]|https://github.com/perl11/cperl/issues/387>
+
+E.g.
+
+    class Foo { has int $bar };
+    my $foo = Foo->new( bar => "baz" );
+    print $foo->bar;
+
+fails with 'Too many arguments for method new. Want: 1, but got: 2'.
+Named arguments are not yet supported.
+
+    class Foo { has int $bar };
+    my $foo = Foo->new( bar => "baz" );
+    print $foo->bar;
+
+warns with 'Type of arg $bar to Foo should be int (not Str)'.
+cperl-only relevant.
+
 =back
 
 =head1 Known Problems
 
 =over 4
-
-=item *
-
-Signature args are not yet run-time type checked, only at compile-time.
-L<[cperl #389]|https://github.com/perl11/cperl/issues/389>
-and L<[cperl #387]|https://github.com/perl11/cperl/issues/387>
 
 =item *
 
@@ -1956,6 +1995,14 @@ performance regressions with the tree-optimizer.
 L<[cperl #397]|https://github.com/perl11/cperl/issues/397>
 
 Don't use gcc-9.1 on x86_64.
+
+=item *
+
+cperl still cannot adjust field indices when composing roles, when the
+indices of the lexical variables of the two methods do not match.
+When copying methods from roles, the pad's might be different.
+This needs the inliner, which is not yet stable.
+L<[cperl #311]|https://github.com/perl11/cperl/issues/311>
 
 =item *
 

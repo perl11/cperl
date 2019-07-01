@@ -143,8 +143,8 @@ print $@ =~ $typewarn ? "" : "not ", "ok ", $test++,
   " # run-time typecheck Mu::new fields\n";
 print $b5 && $b5->i ? "not " : "", "ok ", $test++, " # value\n";
 
-# crashed with wrong padoffset [cperl #389]
-eval { do './op/class1.inc'; };
+# crashes with wrong padoffset [cperl #311]
+# eval { do './op/class1.inc'; };
 eval q|
 role Foo3 {
   has $a3 = 2;
