@@ -191,17 +191,22 @@ L<[cperl #389]|https://github.com/perl11/cperl/issues/389> and
 L<[cperl #387]|https://github.com/perl11/cperl/issues/387>
 cperl-only
 
-=head2 Role composition was enhanced
+=head2 Better role composition
 
 When roles are copied from a class to another, we can now handle XS
 methods and methods without internal lexical variables better, by
-simple GV aliasing.  The other methods are now cloned and the C<$self>
-type is adjusted to the new class for the created new method, because
-v5.30 started argument type checking at run-time.
+simple GV aliasing.
 
-But cperl still cannot adjust field indices when composing roles, when
+The other methods are now properly cloned and the C<$self> type is
+adjusted to the new class for the created new method, because v5.30
+started argument type checking at run-time.
+
+cperl can also now adjust field indices when composing roles, when
 the indices of the used lexical variables of the two methods do not
-match. cperl-only
+match, by using the new internal experimental inliner API.
+L<[cperl #311]|https://github.com/perl11/cperl/issues/311>
+The error "panic: cannot yet adjust field indices when composing role
+%s::%s into %s %s [cperl #311]" is gone in the general case.
 
 =head1 Security
 
@@ -522,6 +527,12 @@ Improve newSVpvn_share
 Don't downgrade twice, the is_utf8 flags can be taken from the
 returned hek, which does the downgrading to bytes already.
 
+=item *
+
+The oelemfast signature changed from (:Ref,:Int):Any to ():Any.
+The object stays now as RV (as pad) and is not taken from the stack,
+the index neither.
+
 =back
 
 =head1 Modules and Pragmata
@@ -544,6 +555,11 @@ ffi helpers and ffi types.
 
 Allow hash iterators changing keys for back-compat.
 See L</Protected hash iterators>.
+
+=item L<inline> 0.01
+
+Yet unused pragma to disable internal function inlining optimizer, via
+C<no inline;>
 
 =item L<YAML::Safe> 0.80
 
@@ -1682,6 +1698,19 @@ should be a dot or comma.
 Enabled USE_REENTRANT_API with threads by default on all platforms. See F<reentr.c>.
 Previously it was only enabled by default on darwin.
 
+=item *
+
+Added two new yet unused COP nextstate-like ops: B<setstate> for the first
+inlined statement and B<keepstate> for further inlined statements. This
+is part of the general inliner preparation, which is not yet fully
+enabled. The inliner is only internally used to create composed roles
+with different pad indices.
+
+=item *
+
+Added a new C<OP_IS_UNOP_AUXOP(op_type)> macro for consistency.
+And a new C<HV_FETCH_NO_SV> flag to allow storing arbitrary pointers as HeVAL.
+
 =back
 
 =head1 Testing
@@ -1998,14 +2027,6 @@ performance regressions with the tree-optimizer.
 L<[cperl #397]|https://github.com/perl11/cperl/issues/397>
 
 Don't use gcc-9.1 on x86_64.
-
-=item *
-
-cperl still cannot adjust field indices when composing roles, when the
-indices of the lexical variables of the two methods do not match.
-When copying methods from roles, the pad's might be different.
-This needs the inliner, which is not yet stable.
-L<[cperl #311]|https://github.com/perl11/cperl/issues/311>
 
 =item *
 

@@ -557,6 +557,7 @@ core_types_n[] = {
 #define OP_IS_COP(ot)    OpCLASS(ot) == OA_COP
 #define OP_IS_FILESTATOP(ot) OpCLASS(ot) == OA_FILESTATOP
 #define OP_IS_METHOP(ot) OpCLASS(ot) == OA_METHOP
+#define OP_IS_UNOP_AUXOP(ot) OpCLASS(ot) == OA_UNOP_AUX
 
 /* The other OP_IS_* macros are optimized to a simple range check because
    all the member OPs are contiguous in regen/opcodes table.
