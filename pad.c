@@ -2111,7 +2111,8 @@ S_cv_clone_pad(pTHX_ CV *proto, CV *cv, CV *outside, HV *cloned,
 	outside = find_runcv(NULL);
       else {
 	outside = CvOUTSIDE(proto);
-	if ((CvCLONE(outside) && ! CvCLONED(outside))
+	if (!outside
+            || (CvCLONE(outside) && ! CvCLONED(outside))
 	    || !CvPADLIST(outside)
 	    || CvPADLIST(outside)->xpadl_id != protopadlist->xpadl_outid) {
 	    outside = find_runcv_where(
