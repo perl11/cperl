@@ -27,11 +27,16 @@ label: {
 EOF
 
 use B::CC;
-# 5.12 still fails test 1
-ctestok(1, "CC", $base, $script1,
+if ($ENV{PERL_CORE}) {
+  # needs 587s for all 3 tests => 445s
+  ok(1, "skip lengthy test in core"); # which always passes
+} else {
+  # 5.12 still fails test 1
+  ctestok(1, "CC", $base, $script1,
        ($B::CC::VERSION < 1.08 or $] =~ m/5\.01[12]/
 	? "TODO last outside loop fixed with B-CC-1.08"
 	: "last outside loop"));
+}
 
 # computed labels are invalid
 my $script2 = <<'EOF';
