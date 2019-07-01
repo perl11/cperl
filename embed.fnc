@@ -1276,12 +1276,12 @@ i|core_types_t	|stash_to_coretype|NULLOK const HV* stash
 s|core_types_t	|arg_type_sv	|NN SV* sv|NULLOK char** usertype|NULLOK int* u8
 in	|int	|match_type1	|const U32 sig|core_types_t arg1
 in	|int	|match_type2	|const U32 sig|core_types_t arg1|core_types_t arg2
+i	|OP*	|new_entersubop |NN GV* gv |NN OP* arg
 #    ifdef PERL_INLINE_SUBS
 sM	|bool	|cv_check_inline|NN const OP *o|NN CV *compcv
-#    endif
 sM	|OP*	|cv_do_inline   |NULLOK OP *parent|NN OP *o|NN OP *cvop|NN CV *cv
-i	|OP*	|new_entersubop |NN GV* gv |NN OP* arg
 sM	|OP*	|op_clone_sv	|NN OP* o
+#    endif
 #  endif
 #endif
 : Used in op.c, pp_hot.c, and universal.c

@@ -565,7 +565,6 @@
 #define op_append_elem(a,b,c)	Perl_op_append_elem(aTHX_ a,b,c)
 #define op_append_list(a,b,c)	Perl_op_append_list(aTHX_ a,b,c)
 #define op_class(a)		Perl_op_class(aTHX_ a)
-#define op_clone_optree(a,b)	Perl_op_clone_optree(aTHX_ a,b)
 #define op_contextualize(a,b)	Perl_op_contextualize(aTHX_ a,b)
 #define op_convert_list(a,b,c)	Perl_op_convert_list(aTHX_ a,b,c)
 #define op_dump(a)		Perl_op_dump(aTHX_ a)
@@ -1066,6 +1065,7 @@
 #define newPADNAMEpvn_flags	Perl_newPADNAMEpvn_flags
 #define newSVsv(a)		Perl_newSVsv(aTHX_ a)
 #define numfields(a)		Perl_numfields(aTHX_ a)
+#define op_clone_optree(a,b)	Perl_op_clone_optree(aTHX_ a,b)
 #define op_dump_cv(a,b)		Perl_op_dump_cv(aTHX_ a,b)
 #define op_lvalue_flags(a,b,c)	Perl_op_lvalue_flags(aTHX_ a,b,c)
 #define pad_find_outer(a,b)	Perl_pad_find_outer(aTHX_ a,b)
@@ -1896,6 +1896,8 @@
 #    if defined(PERL_IN_OP_C)
 #      if defined(USE_CPERL)
 #define cv_check_inline(a,b)	S_cv_check_inline(aTHX_ a,b)
+#define cv_do_inline(a,b,c,d)	S_cv_do_inline(aTHX_ a,b,c,d)
+#define op_clone_sv(a)		S_op_clone_sv(aTHX_ a)
 #      endif
 #    endif
 #  endif
@@ -2077,7 +2079,6 @@
 #define const_av_xsub(a)	S_const_av_xsub(aTHX_ a)
 #define const_sv_xsub(a)	S_const_sv_xsub(aTHX_ a)
 #define core_type_name(a)	S_core_type_name(aTHX_ a)
-#define cv_do_inline(a,b,c,d)	S_cv_do_inline(aTHX_ a,b,c,d)
 #define do_method_finalize(a,b,c,d)	S_do_method_finalize(aTHX_ a,b,c,d)
 #define io_hints(a)		S_io_hints(aTHX_ a)
 #define is_types_strict()	S_is_types_strict(aTHX)
@@ -2093,7 +2094,6 @@
 #define new_entersubop(a,b)	S_new_entersubop(aTHX_ a,b)
 #define new_slab(a)		S_new_slab(aTHX_ a)
 #define op_check_type(a,b,c,d)	S_op_check_type(aTHX_ a,b,c,d)
-#define op_clone_sv(a)		S_op_clone_sv(aTHX_ a)
 #define op_const_sv(a,b,c)	S_op_const_sv(aTHX_ a,b,c)
 #define op_destroy(a)		S_op_destroy(aTHX_ a)
 #define op_fixup(a,b,c)		S_op_fixup(aTHX_ a,b,c)

@@ -11728,6 +11728,8 @@ Perl_op_clone_optree(pTHX_ OP* o, bool init) {
     return first;
 }
 
+#ifdef PERL_INLINE_SUBS
+
 /* clones the underlying data, not the op.
  * TODO: finish
  */
@@ -11864,7 +11866,7 @@ S_cv_do_inline(pTHX_ OP* parent, OP *o, OP *cvop, CV *cv)
         return NULL;
     firstop = o; /* that's the LEAVESUB, will be converted into a LEAVE or skipped */
     assert(IS_TYPE(firstop, LEAVESUB));
-    /* scan the new body - to be inlined - if enter/leave is needed, 
+    /* scan the new body - to be inlined - if enter/leave is needed,
      * if it's too large, and convert all nextstate to setstate+keepstate's.
      * forgot about the seen_logop.
      */
@@ -12096,6 +12098,8 @@ S_cv_do_inline(pTHX_ OP* parent, OP *o, OP *cvop, CV *cv)
                       args, i, with_enter_leave));
     return firstop;
 }
+
+#endif
 
 static void
 S_already_defined(pTHX_ CV *const cv, OP * const block, OP * const o,
