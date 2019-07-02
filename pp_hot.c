@@ -5757,8 +5757,9 @@ PP(pp_signature)
     UNOP_AUX_item *items = cUNOP_AUXx(PL_op)->op_aux;
     GV *cvname;
     PADNAME** padnl;
-    PADOFFSET po = -1;
     PADNAME* pn = NULL; /* for the type check */
+    PADOFFSET po = -1;
+    PADOFFSET maxpo;
     int  defop_skips;   /* how many default op statements to skip */
 
     /* check arity (process arg count limits) */
@@ -5774,6 +5775,7 @@ PP(pp_signature)
         const bool hassig = cBOOL(CvHASSIG(cv));
 
         padnl = PadlistNAMESARRAY(CvPADLIST(cv));
+        maxpo = PadlistNAMESMAX(CvPADLIST(cv));
         /* split on bits [31..16], [15..15], [14..0] */
         mand_params = params >> 16;
         slurpy      = cBOOL((params >> 15) & 1);
@@ -5890,6 +5892,8 @@ PP(pp_signature)
             SV **svp = padp = &(PAD_SVl(pad_ix));
 
             po = pad_ix;
+            if (po > maxpo)
+                break;
             pn = padnl[po];
             DEBUG_Xv(Perl_deb(aTHX_ "  sigpad padp %p curpad[%lu] %s\n", *padp, po,
                               PadnamePV(pn)));
@@ -5947,6 +5951,8 @@ PP(pp_signature)
                 if (!varsv) {
                     po++;
                     argp++;
+                    if (po > maxpo)
+                        break;
                     pn = padnl[po];
                     break;
                 }
@@ -6189,6 +6195,8 @@ PP(pp_signature)
 
             /* see comments above about unrolled pp_aassign() */
             varsv = *padp++;
+            if (po > maxpo)
+                break;
             pn = padnl[po++];
             assert(!SvMAGICAL(varsv));
             assert(!HvTOTALKEYS(varsv)); /* can skip hv_clear() */
