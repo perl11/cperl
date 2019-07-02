@@ -5806,34 +5806,34 @@ PP(pp_signature)
                 po = (++items)->uv >> OPpPADRANGE_COUNTSHIFT;
                 pn = padnl[po];
                 /* diag_listed_as: Not enough arguments for %s */
-                S_croak_caller("Not enough arguments for %s%s%s %s. Want: %"UVuf
+                S_croak_caller("Not enough arguments for %s%s%s %" SVf ". Want: %"UVuf
                                ", but got: %"UVuf". Missing %s",
                                CvDESC3(cv),
-                               SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
+                               SVfARG(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
                                mand_params, argc, PadnamePV(pn));
             } else
 #endif
             /* diag_listed_as: Not enough arguments for %s */
-            S_croak_caller("Not enough arguments for %s%s%s %s. Want: %" UVuf
+            S_croak_caller("Not enough arguments for %s%s%s %" SVf ". Want: %" UVuf
                            ", but got: %" UVuf,
                            CvDESC3(cv),
-                           SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
+                           SVfARG(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
                            mand_params, argc);
         }
         if (UNLIKELY(!slurpy && argc > mand_params + opt_params)) {
             if (opt_params)
                 /* diag_listed_as: Too many arguments for %s */
-                S_croak_caller("Too many arguments for %s%s%s %s. Want: %" UVuf
+                S_croak_caller("Too many arguments for %s%s%s %" SVf ". Want: %" UVuf
                                "-%" UVuf ", but got: %" UVuf,
                                CvDESC3(cv),
-                               SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
+                               SVfARG(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
                                mand_params, mand_params + opt_params, argc);
             else
                 /* diag_listed_as: Too many arguments for %s */
-                S_croak_caller("Too many arguments for %s%s%s %s. Want: %" UVuf
+                S_croak_caller("Too many arguments for %s%s%s %" SVf ". Want: %" UVuf
                                ", but got: %" UVuf,
                                CvDESC3(cv),
-                               SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
+                               SVfARG(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
                                mand_params, argc);
         }
 
@@ -6183,8 +6183,8 @@ PP(pp_signature)
                     PERL_CONTEXT *cx = &cxstack[cxstack_ix];
                     const CV *cv = cx->blk_sub.cv;
                     /* diag_listed_as: Odd name/value argument for subroutine */
-                    S_croak_caller("Odd name/value argument for %s%s%s %s", CvDESC3(cv),
-                                   SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)));
+                    S_croak_caller("Odd name/value argument for %s%s%s %" SVf, CvDESC3(cv),
+                                   SVfARG(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)));
                 }
                 /* warn */
                 do_oddball(argp + argc -1, argp);

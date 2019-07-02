@@ -896,26 +896,26 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
 
     if (UNLIKELY(num_args < mand_params)) {
 	/* diag_listed_as: Not enough arguments for %s */
-        Perl_croak(aTHX_ "Not enough arguments for %s%s%s %s. Want: %" UVuf
+        Perl_croak(aTHX_ "Not enough arguments for %s%s%s %" SVf ". Want: %" UVuf
                    ", but got: %u",
                    CvDESC3(cv),
-                   SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                   SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN)),
                    mand_params, num_args);
     }
     if (UNLIKELY(!slurpy && num_args > mand_params + opt_params)) {
         if (opt_params)
             /* diag_listed_as: Too many arguments for %s */
-            Perl_croak(aTHX_ "Too many arguments for %s%s%s %s. Want: %" UVuf "-%" UVuf
+            Perl_croak(aTHX_ "Too many arguments for %s%s%s %" SVf ". Want: %" UVuf "-%" UVuf
                        ", but got: %u",
                        CvDESC3(cv),
-                       SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                       SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN)),
                        mand_params, mand_params + opt_params, num_args);
         else
             /* diag_listed_as: Too many arguments for %s */
-            Perl_croak(aTHX_ "Too many arguments for %s%s%s %s. Want: %" UVuf
+            Perl_croak(aTHX_ "Too many arguments for %s%s%s %" SVf ". Want: %" UVuf
                        ", but got: %u",
                        CvDESC3(cv),
-                       SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                       SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN)),
                        mand_params, num_args);
     }
     /* For an empty signature, our only task was to check that the caller
@@ -947,9 +947,9 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
             argtype = S_prep_sig(aTHX_ HvNAME(type), HvNAMELEN(type));
 #endif
         } else {
-            Perl_croak(aTHX_ "Type of arg %s to %s must be %s (not %s)",
+            Perl_croak(aTHX_ "Type of arg %s to %" SVf " must be %s (not %s)",
                        argname ? PadnamePV(argname) : "",
-                       SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                       SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN)),
                        "declared", "empty");
         }
 #if defined(USE_FFI) && !defined(PERL_IS_MINIPERL)
@@ -958,9 +958,9 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
             if (argtype == &ffi_type_pointer)
                 *argvalues++ = &SvPVX(*argp++);
             else
-                Perl_croak(aTHX_ "Type of arg %s to %s must be %s (not %s)",
+                Perl_croak(aTHX_ "Type of arg %s to %" SVf " must be %s (not %s)",
                            PadnamePV(argname),
-                           SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                           SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN)),
                            "of ptr", HvNAME(type));
         }
         else if (SvIOK(*argp)) {
@@ -970,23 +970,23 @@ Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **a
                 else
                     *argvalues++ = &SvIVX(*argp++);
             } else
-                Perl_croak(aTHX_ "Type of arg %s to %s must be %s (not %s)",
+                Perl_croak(aTHX_ "Type of arg %s to %" SVf " must be %s (not %s)",
                            PadnamePV(argname),
-                           SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                           SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN)),
                            "of int", HvNAME(type));
         }
         else if (SvNOK(*argp)) {
             if (argtype != &ffi_type_pointer)
                 *argvalues++ = &SvNVX(*argp++);
             else
-                Perl_croak(aTHX_ "Type of arg %s to %s must be %s (not %s)",
+                Perl_croak(aTHX_ "Type of arg %s to %" SVf " must be %s (not %s)",
                            PadnamePV(argname),
-                           SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                           SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN)),
                            "of num", HvNAME(type));
         } else {
-            Perl_croak(aTHX_ "Type of arg %s to %s must be %s (not %s)",
+            Perl_croak(aTHX_ "Type of arg %s to %" SVf " must be %s (not %s)",
                        PadnamePV(argname),
-                       SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                       SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN)),
                        "valid", HvNAME(type));
         }
 #else

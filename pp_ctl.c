@@ -2943,8 +2943,8 @@ PP(pp_goto)
 #endif
                         padlist = CvPADLIST(cv);
                         DEBUG_k(PerlIO_printf(Perl_debug_log,
-                             "goto %s from sig with sig: keep %ld args\n",
-                             SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
+                             "goto %" SVf " from sig with sig: keep %ld args\n",
+                             SVfARG(cv_name(cv, NULL, CV_NAME_NOMAIN)),
                              (long)argc));
                         padp = &PL_curpad[1]; /* from old pad. 0 has @_ */
                         for (; stack <= cx->blk_sub.argarray; ) {
@@ -2960,16 +2960,16 @@ PP(pp_goto)
                         CX_LEAVE_SCOPE(cx);
                         PAD_SET_CUR(padlist, PadlistMAX(padlist));
                         DEBUG_Xv(PerlIO_printf(Perl_debug_log,
-                            "Pad padlist max=%d, CvDEPTH=%d (goto sig2sig %s)\n",
+                            "Pad padlist max=%d, CvDEPTH=%d (goto sig2sig %" SVf ")\n",
                             (int)PadlistMAX(padlist), (int)CvDEPTH(cv),
-                            SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN))));
+                            SVfARG(cv_name(cv, NULL, CV_NAME_NOMAIN))));
                         goto call_pp_sub;
                     }
                     /* pp2sig: */
                     SvREFCNT_inc_simple_void(cv); /* dec below */
                     DEBUG_k(PerlIO_printf(Perl_debug_log,
-                        "goto %s with sig: keep %ld args\n",
-                        SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
+                        "goto %" SVf " with sig: keep %ld args\n",
+                        SVfARG(cv_name(cv, NULL, CV_NAME_NOMAIN)),
                         (long)AvFILLp(arg)+1)); /* sig arg has no fill */
                     CX_LEAVE_SCOPE(cx);
                 }
@@ -2999,8 +2999,8 @@ PP(pp_goto)
                             }
                         }
                         DEBUG_k(PerlIO_printf(Perl_debug_log,
-                            "goto sig2pp %s: copy %ld args\n",
-                            SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
+                            "goto sig2pp %" SVf ": copy %ld args\n",
+                            SVfARG(cv_name(cv, NULL, CV_NAME_NOMAIN)),
                             (long)argc));
                         /* Note that this can still leave AvARRAY(@_) at 0x0.
                            With args this is alloced at av_store. */
@@ -3017,8 +3017,8 @@ PP(pp_goto)
                         if (!arg || (av == arg) || AvREAL(av))
                             clear_defarray(av, arg && (av == arg));
                         DEBUG_k(PerlIO_printf(Perl_debug_log,
-                            "goto pp %s: keep %ld args\n",
-                            SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
+                            "goto pp %" SVf ": keep %ld args\n",
+                            SVfARG(cv_name(cv, NULL, CV_NAME_NOMAIN)),
                             arg ? (long)AvFILLp(arg)+1 : 0));
                     }
                 }
@@ -3048,9 +3048,9 @@ PP(pp_goto)
 
 	    if (CxTYPE(cx) == CXt_SUB) {
                 DEBUG_Xv(PerlIO_printf(Perl_debug_log,
-                    "Pad CvDEPTH %d => %d (%s)\n",
+                    "Pad CvDEPTH %d => %d (%" SVf ")\n",
                     (int)CvDEPTH(cx->blk_sub.cv), (int) cx->blk_sub.olddepth,
-                    SvPVX_const(cv_name(cx->blk_sub.cv, NULL, CV_NAME_NOMAIN))));
+                    SVfARG(cv_name(cx->blk_sub.cv, NULL, CV_NAME_NOMAIN))));
 		CvDEPTH(cx->blk_sub.cv) = cx->blk_sub.olddepth;
                 SvREFCNT_dec_NN(cx->blk_sub.cv);
             }
@@ -3116,9 +3116,9 @@ PP(pp_goto)
                         /* dist/Test-Simple/t/capture.t? */
                         depth = PadlistMAX(padlist);
                         DEBUG_Xv(PerlIO_printf(Perl_debug_log,
-                            "Pad padlist max=%d, CvDEPTH=%d (tailcall %s)\n",
+                            "Pad padlist max=%d, CvDEPTH=%d (tailcall %" SVf ")\n",
                             (int)depth, (int)CvDEPTH(cv),
-                            SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN))));
+                            SVfARG(cv_name(cv, NULL, CV_NAME_NOMAIN))));
                         if (CvDEPTH(cv) <= depth)
                             CvDEPTH(cv) = depth;
 #endif
@@ -3162,9 +3162,9 @@ PP(pp_goto)
 		    if (CvDEPTH(cv) == PERL_SUB_DEPTH_WARN && ckWARN(WARN_RECURSION))
 			sub_crush_depth(cv);
                     DEBUG_Xv(PerlIO_printf(Perl_debug_log,
-                        "Pad push padlist max=%d, CvDEPTH=%d (goto %s)\n",
+                        "Pad push padlist max=%d, CvDEPTH=%d (goto %" SVf ")\n",
                         (int)PadlistMAX(padlist), (int)CvDEPTH(cv),
-                        SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN))));
+                        SVfARG(cv_name(cv, NULL, CV_NAME_NOMAIN))));
 		    pad_push(padlist, CvDEPTH(cv));
 		}
 		PL_curcop = cx->blk_oldcop;

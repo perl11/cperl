@@ -11415,8 +11415,8 @@ S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
 	CvCONST_on(cv);
 	return NULL;
     }
-    DEBUG_k(Perl_deb(aTHX_ "op_const_sv: inlined SV 0x%p %s\n",
-                     sv, SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN))));
+    DEBUG_k(Perl_deb(aTHX_ "op_const_sv: inlined SV 0x%p %" SVf "\n",
+                     sv, SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN))));
 #ifdef DEBUGGING
     if (sv) {
         DEBUG_kv(Perl_sv_dump(aTHX_ sv));
