@@ -18947,6 +18947,7 @@ our %delta :const = (
             'File::Spec::VMS'       => '3.78',
             'File::Spec::Win32'     => '4.78c',
             'File::Temp'            => '0.2309',
+            'inline'                => '0.01',
             'IO::Compress::Adapter::Bzip2'=> '2.086',
             'IO::Compress::Adapter::Deflate'=> '2.086',
             'IO::Compress::Adapter::Identity'=> '2.086',

@@ -551,15 +551,15 @@ release manager will have to investigate the situation carefully.)
 
 ffi helpers and ffi types.
 
-=item L<hashiter>
+=item L<hashiter> 0.02
 
-Allow hash iterators changing keys for back-compat.
+pragma to allow hash iterators changing keys for back-compat.
 See L</Protected hash iterators>.
 
 =item L<inline> 0.01
 
-Yet unused pragma to disable internal function inlining optimizer, via
-C<no inline;>
+Yet unused pragma to disable the internal function inlining optimizer,
+via C<no inline;>
 
 =item L<YAML::Safe> 0.80
 
