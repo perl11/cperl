@@ -716,6 +716,7 @@ the strings?).
  Sawyer X  5.30.0       2019-May-22
 
  rurban    5.30.0c-RC1  2019-Jul-03     cperl 5.30
+ rurban    5.30.0c      2019-Jul-06
 
  Sawyer X  5.31.0       2018-May-24     The 5.31 development track
 

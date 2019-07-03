@@ -102,8 +102,8 @@ For all versions see [bench-all/](bench-all/index.html)
 * fixes ops and modules using lexical `$_`. The lexical topic feature is supported.
 * fixed the encoding pragma, it is undeprecated.
 * readonly packages can be cloned with threads.
-* security and overlarge data fixes for Storable, YAML not yet.
-* include B::C (the compiler), Cpanel::JSON::XS, YAML::XS, Devel::NYTProf, Term::ReadKey
+* security and overlarge data fixes for Storable and YAML.
+* include B::C (the compiler), Cpanel::JSON::XS, YAML::Safe, Devel::NYTProf, Term::ReadKey
 * improved redefined warnings.
 * cperl specific toolchain modules, with support for cperl-only module.
   versions with a 'c' suffix, and 10x faster JSON and YAML usage. (esp. with cpan).
@@ -251,8 +251,7 @@ Patches are needed for `Module::Build`, `IO::Socket::SSL` and `Net::SSLeay`.
 * Readonly use base @ISA (*since 5.26.0c*)
 * %hash = map under [use strict](/blog/strict-hashpairs.html) (hashpairs since 5.27.0)
 * subroutine names with `'` where illegal with 5.26c.
-* Incomplete OO: role composition, native classes, eval, mop. inlining
-  not yet fully implemented.
+* Incomplete OO: native classes, eval, mop. inlining not yet fully implemented.
 
 Breakage is much less than with a typical major perl5 release, and the
 patches for most common CPAN modules are provided in
@@ -349,14 +348,17 @@ were rejected and 2 were butchered, i.e. rewritten in a worse way.
 Those branches could have theoretically been merged upstream, but the chances
 are limited. So they are based on master.
 
-* [bugfix/gh311-role-meth](https://github.com/perl11/cperl/issues/311)
+* [feature/gh23-inline-subs](https://github.com/perl11/cperl/issues/23)
 
-  See the relevant #16 subtickets:
-  compose role methods, use mro on classes, array and hash field syntax
-  ($obj->array[0], $obj->hash{key}), :before, :after, :around method
-  composition, class :native,
-  multiple dispatch (fast for binary, slow for mega),
-  tiny MOP (Mu, Metamodel::ClassHOW).
+  [code](http://github.com/perl11/cperl/commits/feature/gh23-inline-subs)
+
+  Almost done. Already used for roles. Some minor compiler fixes needed.
+
+* feature/unroll-loops
+
+  [code](http://github.com/perl11/cperl/commits/feature/unroll-loops)
+  
+  depends on feature/gh23-inline-subs
 
 * [bugfix/gh8-cowrefcnt](https://github.com/perl11/cperl/issues/8)
   
@@ -377,7 +379,7 @@ are limited. So they are based on master.
 * [feature/gh21-exact_arith_num](https://github.com/perl11/cperl/issues/21)
   
   [code](http://github.com/perl11/cperl/commits/feature/gh21-exact_arith_num)
-
+q
 
 * [feature/gh6-no-miniperl](https://github.com/perl11/cperl/issues/6)
   
@@ -435,6 +437,15 @@ See below.
 These are major new features, and have no chance to be merged upstream.
 They also revert some wrong decisions p5p already made.
 
+* [gh16-multi-master](https://github.com/perl11/cperl/issues/16)
+  
+  use mro on classes,
+  array and hash field syntax ($obj->array[0], $obj->hash{key}),
+  :before, :after, :around method composition,
+  class :native,
+  multiple dispatch (fast for binary, slow for mega),
+  tiny MOP (Metamodel::ClassHOW).
+
 * [feature/gh14-native-types](https://github.com/perl11/cperl/issues/14)
 
   [code](http://github.com/perl11/cperl/commits/feature/gh14-native-types)
@@ -442,18 +453,6 @@ They also revert some wrong decisions p5p already made.
   int, uint, num, str. unboxed data on the stack and pads. some minor
   compiler fixes needed, esp. for typed pads. boxed or unboxed, that's
   the question.
-
-* [feature/gh23-inline-subs](https://github.com/perl11/cperl/issues/23)
-
-  [code](http://github.com/perl11/cperl/commits/feature/gh23-inline-subs)
-
-  some compiler fixes needed.
-
-* feature/unroll-loops
-
-  [code](http://github.com/perl11/cperl/commits/feature/unroll-loops)
-  
-  depends on feature/gh23-inline-subs
 
 * [feature/CM-712-cperl-types-proto](http://github.com/perl11/cperl/commits/feature/CM-712-cperl-types-proto)
 
