@@ -873,9 +873,9 @@ L<[cpan #105700]|https://rt.cpan.org/Ticket/Display.html?id=1105700>
 
 probe for more external gzips, make t/external.t strict safe.
 
-=item L<JSON::PP>  4.03_01
+=item L<JSON::PP>  4.04_01
 
-Upstream + Keep some of our cperl-specific docs
+Upstream + keep some of our cperl-specific docs and test improvements.
 
 =item L<lib> 0.65
 

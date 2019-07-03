@@ -14,7 +14,7 @@ use JSON::PP::Boolean;
 use Carp ();
 #use Devel::Peek;
 
-$JSON::PP::VERSION = '4.03_01';
+$JSON::PP::VERSION = '4.04_01';
 
 @JSON::PP::EXPORT = qw(encode_json decode_json from_json to_json);
 
@@ -1773,7 +1773,7 @@ JSON::PP - JSON::XS compatible pure-Perl module.
 
 =head1 VERSION
 
-    4.03_01
+    4.04_01
 
 =head1 DESCRIPTION
 
@@ -2366,7 +2366,8 @@ that the object is only a single hash/object or array.
 If no argument is given, the highest possible setting will be used, which
 is rarely useful.
 
-See L<Cpanel::JSON::XS/SECURITY CONSIDERATIONS> for more info on why this is useful.
+See L<Cpanel::JSON::XS/SECURITY CONSIDERATIONS> for more info on why
+this is useful.
 
 =head2 max_size
 
@@ -2383,7 +2384,8 @@ effect on C<encode> (yet).
 If no argument is given, the limit check will be deactivated (same as when
 C<0> is specified).
 
-See L<Cpanel::JSON::XS/SECURITY CONSIDERATIONS> for more info on why this is useful.
+See L<Cpanel::JSON::XS/SECURITY CONSIDERATIONS> for more info on why
+this is useful.
 
 =head2 encode
 

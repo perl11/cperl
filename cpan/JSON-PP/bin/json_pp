@@ -174,7 +174,7 @@ options to JSON::PP
 Acceptable options are:
 
     ascii latin1 utf8 pretty indent space_before space_after relaxed canonical allow_nonref
-    allow_singlequote allow_barekey allow_bignum loose escape_slash
+    allow_singlequote allow_barekey allow_bignum loose escape_slash indent_length
 
 Multiple options must be separated by commas:
 

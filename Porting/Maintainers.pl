@@ -914,10 +914,11 @@ use File::Glob qw(:case);
     },
 
     'JSON::PP' => {
-        'DISTRIBUTION' => 'MAKAMAKA/JSON-PP-4.03.tar.gz',
+        'DISTRIBUTION' => 'MAKAMAKA/JSON-PP-4.04.tar.gz',
         'FILES'        => q[cpan/JSON-PP],
-        # doc only
-        #'CUSTOMIZED'   => [ qw( lib/JSON/PP.pm )],
+        # docs, and one test
+        #'CUSTOMIZED'   => [ qw( lib/JSON/PP.pm
+        #                        t/099_binary.t )],
     },
 
     'lib' => {
