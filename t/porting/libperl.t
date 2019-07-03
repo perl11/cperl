@@ -650,6 +650,10 @@ if (defined $nm_err_tmp) {
                 print "# -flto ignoring output $_";
                 next;
             }
+            if (/nm: mathoms.o: no symbols/ and $Config{ccflags} =~ /-DNO_MATHOMS/) {
+                print "# NO_MATHOMS ignoring output $_";
+                next;
+            }
             warn "$0: Unexpected $nm error: $_";
             $error++;
         }
