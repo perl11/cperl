@@ -51,6 +51,38 @@ wchar, c-struct helpers, native arrays and native classes
 (i.e. structs), callback helpers and support for variadic (varargs)
 functions.
 
+=head2 Signature args are run-time type checked
+
+Run-time type violations a throw a new type warning, which can be made fatal
+with C<use types 'strict'> or C<< use warnings 'FATAL' => 'types'; >>
+L<perldiag/"Type of arg %s to %s should be %s (not %s)">.
+The compile-time error uses the word "must" instead of "should".
+This might be a problem when typing an argument to C<str> or C<Str>,
+but the argument is stringified via overload from a class,
+e.g. File::Temp::Dir. This case, when the argument is not of str|Str,
+but a user-defined class with a stringify overload is not yet handled.
+
+L<[cperl #389]|https://github.com/perl11/cperl/issues/389> and
+L<[cperl #387]|https://github.com/perl11/cperl/issues/387>.
+cperl-only
+
+=head2 Better role composition
+
+When roles are copied from a class to another, we can now handle XS
+methods and methods without internal lexical variables better, by
+simple GV aliasing.
+
+The other methods are now properly cloned and the C<$self> type is
+adjusted to the new class for the created new method, because v5.30
+started argument type checking at run-time.
+
+cperl can also now adjust field indices when composing roles, when
+the indices of the used lexical variables of the two methods do not
+match, by using the new internal experimental B<inliner>.
+L<[cperl #311]|https://github.com/perl11/cperl/issues/311>
+The error "panic: cannot yet adjust field indices when composing role
+%s::%s into %s %s [cperl #311]" is gone in the general case.
+
 =head2 Wildcards in Unicode property value specifications are now
 partially supported
 
@@ -179,34 +211,6 @@ Detect if we are running under valgrind and set destruct_level to 2.
 If so, destruct all ops, leading to no valgrind leaks, even with
 --leak-check=full.
 cperl-only L<[cperl #400]|https://github.com/perl11/cperl/issues/400>
-
-=head2 Signature args are run-time type checked
-
-Run-time type violations a throw a new type warning, which can be made fatal
-with C<use types 'strict'> or C<use warnings 'FATAL' => 'types';>
-L<perldiag/"Type of arg %s to %s should be %s (not %s)">.
-The compile-time error uses the word "must" instead of "should".
-
-L<[cperl #389]|https://github.com/perl11/cperl/issues/389> and
-L<[cperl #387]|https://github.com/perl11/cperl/issues/387>
-cperl-only
-
-=head2 Better role composition
-
-When roles are copied from a class to another, we can now handle XS
-methods and methods without internal lexical variables better, by
-simple GV aliasing.
-
-The other methods are now properly cloned and the C<$self> type is
-adjusted to the new class for the created new method, because v5.30
-started argument type checking at run-time.
-
-cperl can also now adjust field indices when composing roles, when
-the indices of the used lexical variables of the two methods do not
-match, by using the new internal experimental inliner API.
-L<[cperl #311]|https://github.com/perl11/cperl/issues/311>
-The error "panic: cannot yet adjust field indices when composing role
-%s::%s into %s %s [cperl #311]" is gone in the general case.
 
 =head1 Security
 
@@ -563,7 +567,8 @@ via C<no inline;>
 
 =item L<YAML::Safe> 0.80
 
-Replaces L<YAML::XS>.
+Our new L<YAML::Safe> has been added to the Perl core, replacing our
+patched version of L<YAML::XS>.
 
 =back
 
@@ -589,6 +594,8 @@ Add ffi support: CvXFFI, CvFFLIB. CVf_EXTERN flag
 New major release, with dVAR support and
 experimental cross support and -m (module) support.
 Add $dynamic_copwarn needed for v5.29.7+ (not cperl).
+The new script F<buildcc> for module support is not yet
+functional, only a placeholder.
 
 =item L<B::Deparse> 1.49_05c
 
@@ -596,7 +603,8 @@ Removed arybase support.
 
 =item L<bignum> 0.51c
 
-Better way to catch warnings (CPAN RT #126900).
+Better way to catch warnings.
+L<[cpan #126900]|https://rt.cpan.org/Ticket/Display.html?id=126900>.
 
 =item L<bytes> 1.07
 
@@ -692,7 +700,6 @@ L<[perl #123724]|https://rt.perl.org/Public/Bug/Display.html?id=123724>
 
 Add and use C<Internals::getcwd()>.
 
-
 =item L<Data::Dumper> 2.173
 
 Restore deparsing support in the XS dumper, on Perl 5.18 and earlier.
@@ -718,17 +725,17 @@ L<http://cvsweb.netbsd.org/bsdweb.cgi/pkgsrc/lang/perl5/files/>
 
 =item L<deprecate> 0.04_01
 
-expanded the documentation
+Expanded the documentation
 
 =item L<Devel::Peek> 1.28_03
 
-adjust Devel::Peek pod to cperl FLAGS
+Adjust Devel::Peek pod to cperl FLAGS
 
 =item L<Devel::PPPort> 3.53_04
 
-* PL_in_sub only with v5.29.0c
+PL_in_sub only with v5.29.0c
 
-* Merge 3.52 with cperl improvements:
+Merge 3.52 with cperl improvements:
 
      cperl croak_no_modify adds now the SV to the message.
      support make --silent.
@@ -737,23 +744,23 @@ adjust Devel::Peek pod to cperl FLAGS
      sync embed.fnc with cperl core, with #ifdef USE_CPERL
      sync parts with 5.30 updates
 
-* Revert "Use latest blead embed.fnc"
+Revert "Use latest blead embed.fnc"
 
      It changed the meaning of several flags (n=>T, s=>S,M=>x,...) just for
      some apidocs troubles which are easily solved otherwise.
      It breaks backcompat, and breaks the equality of core embed.fnc.
      perl5.30 also rejected it
 
-* make regen is now in two modes: cperl or perl5 (as in cperl-core
+make regen is now in two modes: cperl or perl5 (as in cperl-core
 embed_lib)
 
-* Add croak_no_modify_sv
+Add croak_no_modify_sv
 
-* Remove implemented TODOs
+Remove implemented TODOs
 
-* Fix for older EUMM <6.46 which has no META_MERGE
+Fix for older EUMM <6.46 which has no META_MERGE
 
-* fix 5.6.0 tests with early Test::Harness: add done_testing, support
+Fix 5.6.0 tests with early Test::Harness: add done_testing, support
 plan => no_plan, fallback => NN for 5.6.0 (Test::Harness < 2), avoid
 Test.pm, skip git diff, as make regen is different there,
 skip 3 failing 5.6.0 tests in ppphtest
@@ -871,7 +878,7 @@ L<[cpan #128986]|https://rt.cpan.org/Ticket/Display.html?id=128986>
 Fixed parallel testing
 L<[cpan #105700]|https://rt.cpan.org/Ticket/Display.html?id=1105700>
 
-probe for more external gzips, make t/external.t strict safe.
+Probe for more external gzips, make t/external.t strict safe.
 
 =item L<JSON::PP>  4.04_01
 
@@ -945,8 +952,8 @@ Add SECURITY AND PORTABILITY warning paragraph to pod.
 
 =item L<Opcode> 1.40_04c
 
-Added the new setstate and keepstate ops for the inliner,
-variants of nextstate.
+Added the new setstate and keepstate ops for the new
+inliner, variants of nextstate.
 
 Restrict the new op 'enterffi'.
 
@@ -1012,7 +1019,7 @@ current locale was a UTF-8 locale.
 
 =item L<Socket> 2.029_05
 
-re-order and comment deprecated IDN constants.
+Re-order and comment deprecated IDN constants.
 Old MinGW lacks ADDRESS_FAMILY; use USHORT instead (RT128550).
 Add PF_LOCAL/AF_LOCAL constants (RT127089).
 Provide sockaddr_un on WIN32 (RT128550).
@@ -1040,15 +1047,15 @@ L<[cperl #374]|https://github.com/perl11/cperl/issues/374>
 
 =item L<Term::ReadKey> 2.38_03
 
-merge with 2.38
+Merge with 2.38
 
 =item L<threads::shared>  1.60
 
-add extra lock tracing via -DSHARED_TRACE_LOCKS
+Add extra lock tracing via -DSHARED_TRACE_LOCKS
 
 =item L<Time::HiRes> 1.9760_02
 
-make utime() available only if we have both fd and name setting
+Make utime() available only if we have both fd and name setting
 L<[perl #133030]|https://rt.perl.org/Public/Bug/Display.html?id=133030>
 
 Adjust Makefile.PL for windows: the DEFINE() in Makefile.PL
@@ -1083,7 +1090,7 @@ L<[perl #130674]|https://rt.perl.org/Public/Bug/Display.html?id=130674>
 
 =item L<version> 0.9924_02
 
-more test fixes for 5.6
+More test fixes for 5.6
 
 =item L<warnings> 1.43
 
@@ -1095,7 +1102,7 @@ Fix various -Wunused warnings, added () usage croaks.
 Fixed a -Warray-bounds buffer overflow in LONGPATH,
 and two -Wmaybe-uninitialized.
 
-item L<XS::Typemap> 0.17
+=item L<XS::Typemap> 0.17
 
 Fixed internal leaks
 
@@ -1120,8 +1127,8 @@ This was announced with v5.28.0. It remains available on CPAN.
 
 =item *
 
-L<YAML::XS> is no longer distributed with the cperl core distribution.
-It was replaced with L<YAML::Safe>.
+Our patched version of L<YAML::XS> is no longer distributed with the
+cperl core distribution.  It was replaced with L<YAML::Safe>.
 
 =back
 
@@ -1142,7 +1149,7 @@ Additionally, the following selected changes have been made:
 =item *
 
 prepend "./" to local require calls.
-Mojolicious ands Dancer2 are not called young anymore.
+Mojolicious and Dancer2 are not called young anymore.
 
 =back
 
@@ -1296,7 +1303,7 @@ cperl fatalized Limited_Use scripts in identifiers with v5.29.2c, they
 were valid before and acted like %utf8::EXCLUDED_SCRIPTS, i.e. they
 needed to be declared. Now they throw the
 L<Invalid script %s in identifier %s for U+%X, Limited Use scripts are forbidden|perldiag/"Invalid script %s in identifier %s for U+%X, Limited Use scripts are forbidden"> error.
-See L</"Disallowed Limited Use Scripts">.
+See L</"Disallowed Limited Use Scripts">. cperl-only.
 
 =item *
 
@@ -1307,10 +1314,11 @@ lexical C<syntax> warnings category, not C<-w> anymore.
 
 =item *
 
-Unescaped left brace in regex is deprecated here (and will be fatal in Perl 5.32), passed through in regex; marked by S<<-- HERE> in m/%s/
+Unescaped left brace in regex is deprecated here (and will be fatal in
+Perl 5.32), passed through in regex; marked by S<<-- HERE> in m/%s/
 
-Added note that cperl allows more. In cperl only the combinations with C<\NpPbBxog{}>
-are illegal.
+Added note that cperl allows more. In cperl only the combinations with
+C<\NpPbBxog{}> are illegal.
 
 =back
 
@@ -1318,7 +1326,7 @@ are illegal.
 
 =head2 F<Porting/sync-with-cpan>
 
-Stabilized CoreList updater.
+Stabilized the CoreList updater.
 
 =head1 Configuration and Compilation
 
@@ -1454,7 +1462,7 @@ made:
 
 =item *
 
-All modules can now be tested in parallel.
+All modules can now be tested B<in parallel>.
 From the remaining exceptions F<ext/Pod-Html/t> was fixed a while ago,
 and F<cpan/IO-Zlib/t> with this release.
 
@@ -1465,12 +1473,13 @@ directory containing such files should be tested in serial order.
 But in reality there's no such F<t/00-setup.t> test and if so, it would still
 be run as very first test. CPAN testing via EUMM and Test::Harness does
 not obey this rule neither.
+The only existing exception is F<dist/ExtUtils-MakeMaker/t>.
 The only module to be fixed was F<ext/FileCache/t>.
 cperl-only.
 
 =item *
 
-F<t/TEST> does not need any temp_needs_dot exceptions anymore.
+F<t/TEST> does not need any C<temp_needs_dot> exceptions anymore.
 All core modules are now F<.> in C<@INC> clean.
 The only module to be fixed was F<cpan/libnet/t>.
 cperl-only.
@@ -1499,7 +1508,7 @@ Document all used ENV vars in F<t/harness>.
 =item *
 
 F<op/hash-rt85026.t> finds now almost ever a collision, and skips the test
-with usesafehashiter enabled (the default). Such not easily detectable
+with C<usesafehashiter> enabled (the default). Such not easily detectable
 destructive hash iters are now forbidden, thanks to B<usesafehashiter>.
 
 =item *
@@ -1589,7 +1598,7 @@ The new Windows 10 DTrace support has not been tested yet.
 
 =item *
 
-The hints now detect newer compilers and set optimize=-O3 by default,
+The hints now detect newer compilers and sets B<optimize=-O3> by default,
 needed for better -flto and inlining support, instead of -O2.
 
 =back
@@ -1600,12 +1609,13 @@ needed for better -flto and inlining support, instead of -O2.
 
 =item *
 
-Added F</usr/local/include> to C<incpth>, which helps probing libffi during F<configpm>.
-If was only in ccflags via C<-I>.
+Added F</usr/local/include> to C<incpth>, which helps probing libffi
+during F<configpm>.  If was only in ccflags via C<-I>.
 
 =item *
 
-Fixed wrong clang C<llvm-ar$llvmsuffix> and C<arflags>. BSD ar is fine to use C<-D>.
+Fixed wrong clang C<llvm-ar$llvmsuffix> and C<arflags>.
+BSD F<ar> is fine to use C<-D>.
 
 =item *
 
@@ -1696,8 +1706,9 @@ should be a dot or comma.
 
 =item *
 
-Enabled USE_REENTRANT_API with threads by default on all platforms. See F<reentr.c>.
-Previously it was only enabled by default on darwin.
+Enabled USE_REENTRANT_API with threads by default on all
+platforms. See F<reentr.c>.  Previously it was only enabled by default
+on darwin.
 
 =item *
 
@@ -1710,7 +1721,28 @@ with different pad indices.
 =item *
 
 Added a new C<OP_IS_UNOP_AUXOP(op_type)> macro for consistency.
-And a new C<HV_FETCH_NO_SV> flag to allow storing arbitrary pointers as HeVAL.
+And a new C<HV_FETCH_NO_SV> flag to allow storing arbitrary pointers
+as HeVAL.
+
+=item *
+
+Added the new experimental inliner, which can clone optrees and its
+associated data, and fixup the cloned optree for the new target (types,
+pad indices). This is not yet enabled by default, only used for
+role composition, not yet for general function inlining or loop unrolling.
+API: C<op_clone_optree>, plus several internal functions.
+
+For run-time type-checking this new API was added: C<arg_check_type_sv>
+
+=item *
+
+F<embed.fnc> has now seperated C<#ifdef USE_CPERL> and more features
+from the plain perl5 API, because many perl5 64bit overflow bugs and
+size limitations arise from a broken API already. The lines are
+documented as B<perl5 security risk> or B<perl5 limitation>.  The
+parser seperates any cperl from the perl5 API differences already at
+regen-time, plus the obvious compile-time seperation in the generated
+headers via the ifdef's.
 
 =back
 
@@ -2039,25 +2071,27 @@ on B<cygwin> or msys.
 
 =head1 Acknowledgements
 
-cperl 5.29.2 represents approximately 3 months of development since cperl
-5.29.1c and contains approximately 350,000 lines of changes across 500 files
-from 42 authors.
+cperl 5.30.0c represents approximately 10 months of development since cperl
+5.28.0c and contains approximately 580,000 lines of changes across 2,400
+files from 52 authors.
 
 Excluding auto-generated files, documentation and release tools, there were
-approximately 320,000 lines of changes to 270 .pm, .t, .c and .h files.
+approximately 410,000 lines of changes to 850 .pm, .t, .c and .h files.
 
 The following people are known to have contributed the improvements that
-became cperl 5.29.2:
+became cperl 5.30.0:
 
-Karl Williamson, Reini Urban, Tony Cook, James E Keenan, David Mitchell,
-Sisyphus, Steve Hay, H.Merijn Brand, Dagfinn Ilmari Mannsåker, Tomasz
-Konojacki, Daniel Dragan, Andy Dougherty, Eugen Konkov, Craig A. Berry,
-Aaron Crane, Nicolas Rochelemagne, Abigail, Niko Tyni, Slaven Rezic, Chris
-'BinGOs' Williams, Sawyer X, Phil Pearl (Lobbes), Leon Timmermans, Alexandr
-Savca, Matthias Bethke, David Cantrell, Shlomi Fish, Dan Dedrick, Unicode
-Consortium, Yves Orton, Tina Müller, James Clarke, Petr Písař, Graham
-Knop, François Perrad, Hauke D, E. Choroba, Karen Etheridge, Hugo van der
-Sanden, John SJ Anderson, Pali, Jim Cromie.
+Karl Williamson, Reini Urban, David Mitchell, Tony Cook, James E Keenan,
+Sisyphus, Steve Hay, Tomasz Konojacki, H.Merijn Brand, Dagfinn Ilmari
+Mannsåker, Nicolas Rochelemagne, Aaron Crane, Daniel Dragan, Craig A.
+Berry, Sawyer X, Andy Dougherty, Karen Etheridge, Eugen Konkov, Richard
+Leach, Chris 'BinGOs' Williams, Unicode Consortium, Aristotle Pagaltzis,
+Abigail, Niko Tyni, Ryan Voots, Zak B. Elep, Pali, Hugo van der Sanden, Yves
+Orton, Slaven Rezic, Dan Dedrick, Dominic Hargreaves, François Perrad,
+Hauke D, Jakub Wilk, Matthias Bethke, Shlomi Fish, Andreas König, James
+Clarke, Jim Cromie, Brian Greenfield, E. Choroba, John SJ Anderson, Dan
+Book, Petr Písař, Ed J, Leon Timmermans, David Cantrell, Phil Pearl
+(Lobbes), Alexandr Savca, Tina Müller, Graham Knop.
 
 The list above is almost certainly incomplete as it is automatically
 generated from version control history including the perl and cperl repos.
@@ -2074,7 +2108,7 @@ see the F<AUTHORS> file in the Perl source distribution.
 
 Generated with:
 
-    cperl Porting/acknowledgements.pl cperl-5.29.1..HEAD -c
+    cperl Porting/acknowledgements.pl cperl-5.28.0..HEAD -c
 
 =head1 Reporting Bugs
 
