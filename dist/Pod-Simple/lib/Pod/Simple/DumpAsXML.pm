@@ -2,7 +2,7 @@
 require 5;
 package Pod::Simple::DumpAsXML;
 use cperl;
-our $VERSION = '4.38c'; # modernized
+our $VERSION = '4.39c'; # modernized
 $VERSION =~ s/c$//;
 use Pod::Simple ();
 BEGIN {@ISA = ('Pod::Simple')}

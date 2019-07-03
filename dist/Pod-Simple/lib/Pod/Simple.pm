@@ -1,3 +1,4 @@
+
 require 5;
 package Pod::Simple;
 use strict;
@@ -10,7 +11,7 @@ use Pod::Simple::BlackBox ();
 #use utf8;
 
 use vars qw(
-  $VERSION @ISA
+  @ISA
   @Known_formatting_codes  @Known_directives
   %Known_formatting_codes  %Known_directives
   $NL
@@ -18,7 +19,7 @@ use vars qw(
 
 @ISA = ('Pod::Simple::BlackBox');
 use cperl;
-our $VERSION = '4.38c'; # modernized
+our $VERSION = '4.39c'; # modernized
 $VERSION =~ s/c$//;
 
 @Known_formatting_codes = qw(I B C L E F S X Z); 
@@ -252,13 +253,13 @@ sub _handle_text ($self, $text) {
 #
 # And now directives (not targets)
 
-sub accept_directive_as_verbatim ($self, @args) { 
+sub accept_directive_as_verbatim ($self, @args) {
   $self->_accept_directives('Verbatim', @args)
 }
 sub accept_directive_as_data ($self, @args) {
   $self->_accept_directives('Data', @args)
 }
-sub accept_directive_as_processed ($self, @args) { 
+sub accept_directive_as_processed ($self, @args) {
   $self->_accept_directives('Plain', @args)
 }
 

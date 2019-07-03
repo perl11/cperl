@@ -3,9 +3,9 @@ require 5;
 package Pod::Simple::Methody;
 use strict;
 use Pod::Simple ();
-use vars qw(@ISA $VERSION);
+use vars qw(@ISA);
 use cperl;
-our $VERSION = '4.38c'; # modernized
+our $VERSION = '4.39c'; # modernized
 $VERSION =~ s/c$//;
 BEGIN { @ISA = ('Pod::Simple'); }
 

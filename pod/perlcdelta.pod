@@ -981,9 +981,10 @@ Skip the F<man/no-encode.t> test if Encode is already loaded while
 running the test suite, which seems to happen sometimes with CPAN
 Testers tests.
 
-=item L<Pod::Simple>  4.38c
+=item L<Pod::Simple>  4.39c
 
-Merge with updates from 3.38
+Merge with updates from 3.39
+Releaxed some str types, which could be Pod::Simple::LinkSection also.
 
 =item L<POSIX> 1.87_03
 

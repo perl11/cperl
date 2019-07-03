@@ -1226,10 +1226,8 @@ use File::Glob qw(:case);
     },
 
     'Pod::Simple' => {
-        'DISTRIBUTION' => 'KHW/Pod-Simple-3.38.tar.gz',
+        'DISTRIBUTION' => 'KHW/Pod-Simple-3.39.tar.gz',
         'FILES'        => q[dist/Pod-Simple],
-        # https://rt.cpan.org/Public/Bug/Display.html?id=103439
-        # https://rt.cpan.org/Public/Bug/Display.html?id=105192
         # Modernized for cperl: https://github.com/rurban/pod-simple/tree/cperl
         #'CUSTOMIZED'   => [
         #    qw( dist/Pod-Simple/lib/Pod/Simple/Search.pm

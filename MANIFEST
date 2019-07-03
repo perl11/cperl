@@ -4404,6 +4404,7 @@ dist/Pod-Simple/t/begin.t				Pod::Simple test file
 dist/Pod-Simple/t/cbacks.t				Pod::Simple test file
 dist/Pod-Simple/t/chunking.t				Pod::Simple test file
 dist/Pod-Simple/t/closeys.t				Pod::Simple test file
+dist/Pod-Simple/t/content_seen.t			Pod::Simple test file
 dist/Pod-Simple/t/corpus.t				Pod::Simple test file
 dist/Pod-Simple/t/corpus/2202jp.txt			Pod::Simple test file
 dist/Pod-Simple/t/corpus/2202jp.xml			Pod::Simple test file
