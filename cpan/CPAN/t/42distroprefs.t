@@ -5,27 +5,49 @@ use Config;
 use CPAN::Distroprefs;
 use File::Spec;
 
-my $yamlclass = $^V =~ /c$/ ? 'YAML::Safe' : 'YAML';
+my $yamlclass = $^V =~ /c$/
+  ? ($] >= 5.030 ? 'YAML::Safe' : 'YAML::XS')
+  : 'YAML';
 my %ext = (
   yml => $yamlclass,
 );
 eval "require $ext{yml}; 1"
   or plan skip_all => "$ext{yml} required";
-plan tests => 3;
+plan tests => 4;
 
 my $finder = CPAN::Distroprefs->find(
   './distroprefs', \%ext,
 );
+my $LoadFile = sub {
+  no strict 'refs';
+  my $m = "${yamlclass}::LoadFile";
+  if ($yamlclass eq 'YAML::Safe') {
+    my $c = $yamlclass;
+    my $o = $c->new->nonstrict;
+    $o->SafeLoadFile(@_);
+  } elsif ($^V =~ /c$/ && $yamlclass eq 'YAML::XS') { # only the cperl variant
+    local $YAML::XS::NonStrict = 1;
+    $m->LoadFile(@_);
+  } else {
+    $m->(@_);
+  }
+};
 
 my $last = '0';
-my @errors;
+my (@errors, @ymlerrors);
 while (my $next = $finder->next) {
   if ( $next->file lt $last ) {
       push @errors, $next->file . " lt $last\n";
   }
   $last = $next->file;
+  if ($last =~ /\.ya?ml/) {
+    my $result;
+    eval { $result = $LoadFile->("distroprefs/$last") };
+    push @ymlerrors, $next->file . " $@\n" if !$result or $@;
+  }
 }
 is(scalar @errors, 0, "finder traversed alphabetically") or diag @errors;
+is(scalar @ymlerrors, 0, "all yml parsed") or diag @ymlerrors;
 
 sub find_ok {
   my ($arg, $expect, $label) = @_;
@@ -62,11 +84,6 @@ sub find_ok {
   );
 }
 
-my $LoadFile = sub {
-  no strict 'refs';
-  my $m = "${yamlclass}::LoadFile";
-  $m->(@_)
-};
 find_ok(
   {
     distribution => 'HDP/Perl-Version-1',
@@ -86,7 +103,7 @@ find_ok(
     distribution => 'INGY/YAML-0.66',
   },
   {
-    prefs => do 'distroprefs/INGY.YAML.dd',
+    prefs => do './distroprefs/INGY.YAML.dd',
     prefs_file => File::Spec->catfile(qw/distroprefs INGY.YAML.dd/),
   },
   'match .dd',

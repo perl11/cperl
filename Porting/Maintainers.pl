@@ -369,6 +369,7 @@ use File::Glob qw(:case);
                 t/30shell.coverage
                 t/30shell.t
                 t/31sessions.t
+                t/42distroprefs.t
                 t/44cpanmeta.t
                 t/50pod.t
                 t/52podcover.t
