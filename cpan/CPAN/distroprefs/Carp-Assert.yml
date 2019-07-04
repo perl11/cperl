@@ -3,7 +3,7 @@ comment: "shouldn't"
 match:
   distribution: "Carp-Assert-0\.21"
   perlconfig:
-    version: "^5\.26"
+    version: "^5\.(2[6789]|3)"
     usecperl: "define"
 patches:
   - RURBAN/patches/Carp-Assert-0.21-cperl526.patch

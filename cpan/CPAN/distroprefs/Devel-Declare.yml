@@ -3,7 +3,7 @@ comment: "wrong test, cwd() takes no args"
 match:
   distribution: "Devel-Declare-0\.006"
   perlconfig:
-    version: "^5\.2[45]"
+    version: "^5\.(2[456789]|3)"
     usecperl: "define"
 patches:
   - "RURBAN/patches/Devel-Declare-0.006018-cperl524.patch"

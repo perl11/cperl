@@ -3,7 +3,7 @@ comment: "Support cperl mro c3 [cpan #120241]"
 match:
   distribution: "CPAN-SQLite-0\.2"
   perlconfig:
-    version: "^5\.2(5\.3|[6789]\.\d)"
+    version: "^5\.(2[6789]|3)"
     usecperl: "define"
 #patches:
 #  - "RURBAN/patches/CPAN-SQLite-c3.patch"

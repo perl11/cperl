@@ -2,7 +2,7 @@ comment: "autovivifying hash slices [cperl #347]"
 match:
   distribution: "DateTime-1\.[45]"
   perlconfig:
-    version: "^5\.(27\.3|28\.)"
+    version: "^5\.(2[789]|3)"
     usecperl: "define"
 patches:
   - "RURBAN/patches/DateTime-1.44-hslice.patch"

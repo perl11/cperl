@@ -3,7 +3,7 @@ comment: "allow cperl 'c' suffix"
 match:
   distribution: "CPAN-Meta-Requirements-"
   perlconfig:
-    version: "^5\.2"
+    version: "^5\.[23]"
     usecperl: "define"
 patches:
   - "RURBAN/patches/CPAN-Meta-Requirements.patch"

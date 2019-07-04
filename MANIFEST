@@ -423,6 +423,7 @@ cpan/CPAN/distroprefs/Dancer.yml
 cpan/CPAN/distroprefs/Dancer-Plugin-ElasticSearch.yml
 cpan/CPAN/distroprefs/DANJOU.Net-Google-DocumentsList.yml
 cpan/CPAN/distroprefs/DANKOGAI.Regexp-Optimizer.yml
+cpan/CPAN/distroprefs/Data-Dump.yml
 cpan/CPAN/distroprefs/Data-RuledValidator.yml
 cpan/CPAN/distroprefs/Database-Migrator.yml
 cpan/CPAN/distroprefs/DateTime.yml
@@ -897,6 +898,7 @@ cpan/CPAN/distroprefs/Sub-Install.yml
 cpan/CPAN/distroprefs/Sub-Name.yml
 cpan/CPAN/distroprefs/Sub-Quote.yml
 cpan/CPAN/distroprefs/SULLR.IO-Socket-SSL.yml
+cpan/CPAN/distroprefs/SUPER.yml
 cpan/CPAN/distroprefs/SWALTERS.typesafety.yml
 cpan/CPAN/distroprefs/SZABGAB.Spreadsheet-ParseExcel.yml
 cpan/CPAN/distroprefs/SZABGAB.Term-ProgressBar.yml

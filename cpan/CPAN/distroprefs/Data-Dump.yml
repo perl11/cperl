@@ -1,0 +1,9 @@
+---
+comment: "no strict names"
+match:
+  distribution: "Data-Dump-1\."
+  perlconfig:
+    version: "^5\.(2[789]|3)"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Data-Dump-v5280c.patch"

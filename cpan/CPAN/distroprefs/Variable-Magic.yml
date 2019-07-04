@@ -12,9 +12,20 @@ comment: "cperl 5.27.3 fixes: PADOP removal, multi keyword"
 match:
   distribution: "Variable-Magic-0\.[56]"
   perlconfig:
-    version: "^5\.(27\.[34]|2[89].|3)"
+    version: "^5\.(27\.[34]|2[89]\.)"
     usecperl: "define"
 patches:
   - "RURBAN/patches/Variable-Magic-0.62-padop.patch"
   - "RURBAN/patches/Variable-Magic-0.62-multi.patch"
+  - "RURBAN/patches/Variable-Magic-0.58-cperl.patch"
+---
+comment: "cperl 5.30 fixes: PADOP removal, multi.t, stash.t"
+match:
+  distribution: "Variable-Magic-0\.[56]"
+  perlconfig:
+    version: "^5\.3"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/Variable-Magic-0.62-padop.patch"
+  - "RURBAN/patches/Variable-Magic-0.62-nomulti.patch"
   - "RURBAN/patches/Variable-Magic-0.58-cperl.patch"

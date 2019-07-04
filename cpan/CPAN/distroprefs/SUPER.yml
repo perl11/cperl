@@ -1,0 +1,9 @@
+---
+comment: "no strict names"
+match:
+  distribution: "SUPER-1\.20"
+  perlconfig:
+    version: "^5\.(2[789]|3)"
+    usecperl: "define"
+patches:
+  - "RURBAN/patches/SUPER-v5280c.patch"

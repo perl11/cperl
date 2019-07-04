@@ -3,7 +3,7 @@ comment: "readonly ISA [cpan #120530]"
 match:
   distribution: "Class-C3-0\.3"
   perlconfig:
-    version: "^5\.26"
+    version: "^5\.(2[6789]|3)"
     usecperl: "define"
 patches:
   - "RURBAN/patches/Class-C3-0.32-cperl526.patch"

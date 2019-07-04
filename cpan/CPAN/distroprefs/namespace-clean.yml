@@ -10,15 +10,15 @@ patches:
 comment: "debugging broken cperl with 0.27"
 match:
   perlconfig:
+    version: "^5\.(2[6789]|3)"
     usecperl: define
-    version: "^5\.2[6-9]"
   distribution: "namespace-clean-0\.27"
 depends:
   requires:
     B::Hooks::EndOfScope: 0.12
     Package::Stash: 0.23
 patches:
-  - "RURBAN/patches/namespace-clean-0.27-dbg.patch"
+  - "RURBAN/patches/namespace-clean-0.27-dbg1.patch"
 ---
 comment: |
 

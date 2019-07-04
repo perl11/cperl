@@ -3,7 +3,7 @@ comment: "disable t/Test/More"
 match:
   distribution: "PMQS/Compress-Raw-Zlib-2"
   perlconfig:
-    version: "^5\.2[456]"
+    version: "^5\.(2[6789]|3)"
     usecperl: "define"
 patches:
   - "RURBAN/patches/Compress-Raw-Zlib-2.074-cperl.patch"

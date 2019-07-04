@@ -3,7 +3,7 @@ comment: "cperl Config is readonly. disable a wrong mock test. Fixed with 1.2017
 match:
   distribution: "CPAN-Reporter-1\.2015"
   perlconfig:
-    version: "^5\.2"
+    version: "^5\.[23]"
     usecperl: "define"
 patches:
   - "RURBAN/patches/CPAN-Reporter-1.2015-cperl.patch"
