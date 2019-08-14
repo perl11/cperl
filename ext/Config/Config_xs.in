@@ -58,6 +58,13 @@ write a Config value. Use L<Mock::Config> from CPAN to do that.
 #include "perl.h"
 #include "XSUB.h"
 
+/* Need to disable broken gcc-9.{0,1,2} -O1 */
+/* Only gcc defines __GNUC_PATCHLEVEL__, clang and icc do define __GNUC__ */
+#if defined(__GNUC__) && defined(__GNUC_PATCHLEVEL__) && (__GNUC__ == 9) && \
+    (__GNUC_MINOR__ < 3)
+#  define BROKEN_GCC_OPT
+#endif
+
 /* back compat with old perls */
 #define _dpppDEC2BCD(dec) ((((dec)/100)<<8)|((((dec)%100)/10)<<4)|((dec)%10))
 #define PERL_BCDVERSION ((_dpppDEC2BCD(PERL_REVISION)<<24)|(_dpppDEC2BCD(PERL_VERSION)<<12)|_dpppDEC2BCD(PERL_SUBVERSION))
@@ -1726,8 +1733,7 @@ PPCODE:
      /* skip implicit PUTBACK, it was done earlier */
      return;
 
-# /* Only gcc defines __GNUC_PATCHLEVEL__, clang and icc define __GNUC__ */
-#if defined(__GNUC__) && defined(__GNUC_PATCHLEVEL__) && (__GNUC__ >= 9)
+#ifdef BROKEN_GCC_OPT
 #pragma GCC push_options
 #pragma GCC optimize ("-O0")
 #endif
@@ -1811,6 +1817,6 @@ PPCODE:
             *SP = &PL_sv_undef;
         return;
 
-#if defined(__GNUC__) && defined(__GNUC_PATCHLEVEL__) && (__GNUC__ >= 9)
+#ifdef BROKEN_GCC_OPT
 #pragma GCC pop_options
 #endif
