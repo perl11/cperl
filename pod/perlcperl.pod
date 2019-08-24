@@ -311,16 +311,16 @@ With perl5 upstream all arguments are copied only, as with C<my $arg1 = shift;> 
 alternate syntax for fast C<$_[0]> access is not provided. So they have to keep
 the otherwise unneeded C<@_> array around.
 
-cperl uses C<\$name> to denote references to scalar lvalues, which change the
+cperl uses C<\$name> to denote references to scalar lvalues, which changes the
 calling variable.
 
-    sub myfunc(int \$i) : int { $i++; }
+    sub myfunc(int \$i) : int { ++$i; }
     my $i;
     print myfunc($i); => 1
     print $i;         => 1
 
 For now scalar lvalue references only, C<\@a> or C<\%h> would be nice with
-type checks for arrayref or hashref.  maybe C<\[$]> also.
+type checks for arrayref or hashref.  Maybe C<\[$]> also.
 
 =item B<< Improve C<@_> handling >>
 
