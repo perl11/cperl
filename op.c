@@ -8211,7 +8211,8 @@ Perl_newBINOP(pTHX_ I32 type, I32 flags, OP *first, OP *last)
     if (OpNEXT(binop) || binop->op_type != (OPCODE)type)
 	return (OP*)binop;
 
-    return fold_constants(op_integerize(op_std_init((OP *)binop)));
+    binop = (BINOP*)fold_constants(op_integerize(op_std_init((OP *)binop)));
+    return (OP*)binop;
 }
 
 /* Helper function for S_pmtrans(): comparison function to sort an array
@@ -10153,6 +10154,32 @@ S_search_const(pTHX_ OP *o)
     }
 
     return NULL;
+}
+
+/*
+=for apidoc only_simplescalar
+
+Only direct scalars values, without any sideeffects on double-evaluation.
+Needed for terms in between mult. relops: (0 < $a < 1)
+
+cperl-only, only used in perly.y
+=cut
+*/
+void
+Perl_only_simplescalar (pTHX_ const OP* op)
+{
+    unsigned type;
+    PERL_ARGS_ASSERT_ONLY_SIMPLESCALAR;
+    type = op->op_type;
+    if (OP_IS_SVOP(type) || OP_IS_PADVAR(type) || type == OP_RV2SV ||
+        type == OP_HELEM ||
+        (type >= OP_AELEMFAST && type < OP_ASLICE) ||
+        type == OP_OELEM || type == OP_OELEMFAST || type == OP_MULTIDEREF ||
+        type == OP_LENGTH || type == OP_INDEX || type == OP_ORD || type == OP_CHR
+        )
+        ;
+    else
+        Perl_croak(aTHX_ "syntax error: invalid multtermrelop %s", OP_NAME(op));
 }
 
 static OP *

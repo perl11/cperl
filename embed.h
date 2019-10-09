@@ -2375,6 +2375,7 @@
 #define munge_qwlist_to_paren_list(a)	Perl_munge_qwlist_to_paren_list(aTHX_ a)
 #define newASSIGNOP_maybe_const(a,b,c)	Perl_newASSIGNOP_maybe_const(aTHX_ a,b,c)
 #define num_constlistexpr(a,b)	Perl_num_constlistexpr(aTHX_ a,b)
+#define only_simplescalar(a)	Perl_only_simplescalar(aTHX_ a)
 #define parse_subsignature()	Perl_parse_subsignature(aTHX)
 #define sv_clean_all()		Perl_sv_clean_all(aTHX)
 #  endif

@@ -8,7 +8,7 @@ BEGIN {
     chdir 't' if -d 't';
 }
 
-print "1..216\n";
+print "1..220\n";
 
 sub failed {
     my ($got, $expected, $name) = @_;
@@ -750,6 +750,18 @@ is $@, "", 'substr keys assignment';
   # Note that perl6 prints @file's verbatim, same as HASH. But we need to keep perl5's @ expansion.
   is("@file's test", " test", "accept quote in ARRAY identifier");       # i.e. @file's or @file::s ident
   is("%file's test", "%file's test", "HASH identifier not expanded");
+}
+
+# [cperl #401] Support multtermrelop with double-evaluation
+{
+  my $a = 1;
+  $g = 1;
+  is(0 < $a < 2, (0 < $a) && ($a < 2), '0 < \$a < 2: true');
+  is(0 <= $a < 0.9, (0 <= $a) && ($a < 0.9), '0 <= $a < 0.9: true, false');
+  is(0 < $g < 2, (0 < $g) && ($g < 2), '0 < $g < 2: global');
+  my $s = sub { $a - 0.5 };
+  eval '0 < $s->() < 1';
+  like($@, /Syntax error/, "Cannot call sub in multtermrelop");
 }
 
 # Add new tests HERE (above this line)

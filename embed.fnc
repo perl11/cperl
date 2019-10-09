@@ -2407,7 +2407,9 @@ p	|CV*	|newSTUB	|NN GV *gv|bool fake
 : Used in perly.y
 p	|OP *	|my_attrs	|NN OP *o|NULLOK OP *attrs
 #if defined(USE_CPERL)
-: cperl enhancement
+: cperl enhancements
+: Used in perly.y
+p	|void	|only_simplescalar|NN const OP *op
 : Only used in perl.c
 p	|void	|boot_core_xsutils
 #endif

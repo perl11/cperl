@@ -6413,6 +6413,14 @@ the only way to figure out what's triggering the error is to call
 C<perl -c> repeatedly, chopping away half the program each time to see
 if the error went away.  Sort of the cybernetic version of S<20 questions>.
 
+=item syntax error: invalid multtermrelop %s
+
+(F) Multiple terms in between relation operators, such as the C<$a>
+in C<0 < $a < 1)> may only be simple scalar values, without any sideeffects,
+because those terms are double-evaluated.
+C<0 < $a < 1> is converted to C<(0 < $a) && ($a < 1)>.
+(cperl only)
+
 =item syntax error at line %d: '%s' unexpected
 
 (A) You've accidentally run your script through the Bourne shell instead

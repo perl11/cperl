@@ -11272,6 +11272,11 @@ PERL_CALLCONV U16	Perl_numfields(pTHX_ const HV* klass)
 #define PERL_ARGS_ASSERT_NUMFIELDS	\
 	assert(klass)
 
+PERL_CALLCONV void	Perl_only_simplescalar(pTHX_ const OP *op)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_ONLY_SIMPLESCALAR	\
+	assert(op)
+
 PERL_CALLCONV OP*	Perl_op_clone_optree(pTHX_ OP* o, bool init)
 			__attribute__global__
 			__attribute__warn_unused_result__

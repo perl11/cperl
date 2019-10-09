@@ -858,8 +858,11 @@ multtermrelop:	term RELOP term				 /* 0 < $x */
 			{   parser->mrelop = scalar($3); /* temp. last value */
                             $$ = newBINOP($2, 0, scalar($1), parser->mrelop); }
 	|	multtermrelop RELOP term		 /* 0 < $x < 1 */
-			{ $$ = newLOGOP(OP_AND, 0, scalar($1),
-                                 newBINOP($2, 0, parser->mrelop, scalar($3))); }
+		        { only_simplescalar (parser->mrelop);
+                          $$ = newLOGOP(OP_AND, 0, $1,
+                                 newBINOP($2, 0, op_clone_optree(parser->mrelop, TRUE),
+                                                 scalar($3)));
+                        }
 
 /* Binary operators between terms */
 termbinop:	term ASSIGNOP term 			/* $x = $y */
