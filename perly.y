@@ -855,13 +855,19 @@ subscripted:    gelem '{' expr ';' '}'        /* *main::{something} */
 
 /* Multiple binary comp. operators between terms */
 multtermrelop:	term RELOP term				 /* 0 < $x */
-			{   parser->mrelop = scalar($3); /* temp. last value */
+			{   parser->mrelop = scalar($3); /* temp. middle term */
                             $$ = newBINOP($2, 0, scalar($1), parser->mrelop); }
 	|	multtermrelop RELOP term		 /* 0 < $x < 1 */
-		        { only_simplescalar (parser->mrelop);
+		        { int nulls;
+                          only_simplescalar (parser->mrelop);
+                          parser->mrelop = op_clone_optree(parser->mrelop, TRUE);
+                          if ((nulls = op_null_nexts (parser->mrelop)) > 3)
+                              Perl_warn ("Suspicious multtermrelop %s with %d next pointers,"
+                                         " probably not simple enough",
+                                         OP_NAME(parser->mrelop), nulls);
+                          OpLASTSIB_set(parser->mrelop, NULL);
                           $$ = newLOGOP(OP_AND, 0, $1,
-                                 newBINOP($2, 0, op_clone_optree(parser->mrelop, TRUE),
-                                                 scalar($3)));
+                                 newBINOP($2, 0, parser->mrelop, scalar($3)));
                         }
 
 /* Binary operators between terms */

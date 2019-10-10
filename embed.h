@@ -1068,6 +1068,7 @@
 #define op_clone_optree(a,b)	Perl_op_clone_optree(aTHX_ a,b)
 #define op_dump_cv(a,b)		Perl_op_dump_cv(aTHX_ a,b)
 #define op_lvalue_flags(a,b,c)	Perl_op_lvalue_flags(aTHX_ a,b,c)
+#define op_null_nexts(a)	Perl_op_null_nexts(aTHX_ a)
 #define pad_find_outer(a,b)	Perl_pad_find_outer(aTHX_ a,b)
 #define pad_findmy_real(a,b)	Perl_pad_findmy_real(aTHX_ a,b)
 #define pad_findmy_realoffset(a,b)	Perl_pad_findmy_realoffset(aTHX_ a,b)

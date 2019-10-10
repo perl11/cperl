@@ -6321,6 +6321,21 @@ length of the string.  See L<perlfunc/substr>.  This warning is fatal if
 substr is used in an lvalue context (as the left hand side of an
 assignment or as a subroutine argument for example).
 
+=item Suspicious multtermrelop %s with %d next pointers, probably not simple enough
+
+(S) This warning is an internal extension to L</syntax error: invalid
+multtermrelop %s> when the C<only_simplescalar> check didn't catch
+possibly violations of allowed terms between multiple relation
+operators. Like C<0 < $a[1][2] < 1)>. Extract this middle term to a
+seperate variable then.
+
+   if (0 < $a[1][2] < 1) ...
+   # =>
+   my $tmp = $a[1][2];
+   if (0 < $tmp < 1) ...
+
+(cperl only)
+
 =item sv_upgrade from type %d down to type %d
 
 (P) Perl tried to force the upgrade of an SV to a type which was actually
@@ -6415,10 +6430,11 @@ if the error went away.  Sort of the cybernetic version of S<20 questions>.
 
 =item syntax error: invalid multtermrelop %s
 
-(F) Multiple terms in between relation operators, such as the C<$a>
-in C<0 < $a < 1)> may only be simple scalar values, without any sideeffects,
-because those terms are double-evaluated.
-C<0 < $a < 1> is converted to C<(0 < $a) && ($a < 1)>.
+(F) Multiple terms in between relation operators, such as the C<$a> in
+C<0 < $a < 1)> may only be simple scalar values, without any
+sideeffects, because those terms are double-evaluated.  C<0 < $a < 1>
+is converted to C<(0 < $a) && ($a < 1)>. Not that not all invalid operators are caught,
+some are later warned about with L</Suspicious multtermrelop %s with %d next pointers, probably not simple enough>.
 (cperl only)
 
 =item syntax error at line %d: '%s' unexpected

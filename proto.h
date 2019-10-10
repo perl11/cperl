@@ -11293,6 +11293,13 @@ PERL_CALLCONV void	Perl_op_dump_cv(pTHX_ const OP *o, const CV *cv)
 PERL_CALLCONV OP*	Perl_op_lvalue_flags(pTHX_ OP* o, I32 type, U32 flags)
 			__attribute__global__;
 
+PERL_CALLCONV int	Perl_op_null_nexts(pTHX_ OP* o)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_OP_NULL_NEXTS	\
+	assert(o)
+
 PERL_CALLCONV SV*	Perl_pad_find_outer(pTHX_ PADNAME *pn, CV* cv)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)

@@ -1287,6 +1287,7 @@ sM	|OP*	|op_clone_sv	|NN OP* o
 : Used in op.c, pp_hot.c, and universal.c
 #if defined(USE_CPERL)
 XEp	|void	|arg_check_type_sv |NULLOK const PADNAME* pn|NN SV* sv|NULLOK GV *cvname
+AMRp	|int	|op_null_nexts	|NN OP* o
 AMRp	|OP*	|op_clone_optree|NN OP* o  |bool init
 #endif
 : Used in op.c and pp_sys.c

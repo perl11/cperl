@@ -11452,6 +11452,52 @@ S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
     return sv;
 }
 
+/*
+=pod
+=for apidoc op_null_nexts
+
+NULLs all C<op_next> pointers in the op tree, so they can be
+reconstructed by L</LINKLIST>. LINKLIST ignores subtrees with a valid
+C<op_next>, so we have to clear all.  Needs to be used after
+L</op_clone_optree>.
+
+=cut
+*/
+int
+Perl_op_null_nexts (pTHX_ OP* o)
+{
+    OP *first;
+    int count = 0;
+    PERL_ARGS_ASSERT_OP_NULL_NEXTS;
+
+    if (OpNEXT(o)) {
+        OpNEXT(o) = NULL;
+        count++;
+    }
+    if (OpKIDS(o)) {
+        OP *kid;
+        first = OpFIRST(o);
+        if (!first)
+            return count;
+	count += op_null_nexts(first);
+	kid = first;
+	for (;;) {
+            OP *sibl = OpSIBLING(kid);
+            if (sibl) {
+                count += op_null_nexts(sibl);
+                kid = sibl;
+	    } else {
+                if (OpNEXT(kid)) {
+                    OpNEXT(kid) = NULL;
+                    count++;
+                }
+		break;
+	    }
+	}
+    }
+    return count;
+}
+
 /* op_fixup: update OP *links in a tree.
  * keeps a hash of old => new ptrs.
  * when old is found, update *new with the found *value. which might technically be NULL.
@@ -11613,7 +11659,7 @@ S_op_fixup(pTHX_ OP *old, OP *newop, U32 init) {
 =for apidoc op_clone_optree
 
 Clones just the op tree/graph, not the data.  This is the opposite to
-C<cv_clone>, which clones that pads, but not the ops.
+L</cv_clone>, which clones that pads, but not the ops.
 
 Relinks all ops inside this list, but not the ones outside.
 
@@ -11622,11 +11668,15 @@ store all the locations of the to be fixed up other pointers,
 in the 2nd pass all pointers inside the graph are known, and
 fixup the missing other pointers.
 
+For non-subs you will need to call L</op_null_nexts> afterwards to clear
+all external NEXT pointers, which would point to ops outside the tree, and
+then reconstruct them with C<LINKLIST(OpFIRST(o))>.
+
 C<init> = TRUE will re-initialize the op cache.
 
 Yes, this function is algorithmicly similar to a Garbage Collector.
 
-Note that when op_clone_oplist is called outside of the first compiler
+Note that when op_clone_optree is called outside of the first compiler
 passes, the ops will not be slabbed. The third rpeep pass is already
 to late.
 
