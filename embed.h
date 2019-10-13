@@ -1065,7 +1065,7 @@
 #define newPADNAMEpvn_flags	Perl_newPADNAMEpvn_flags
 #define newSVsv(a)		Perl_newSVsv(aTHX_ a)
 #define numfields(a)		Perl_numfields(aTHX_ a)
-#define op_clone_optree(a,b)	Perl_op_clone_optree(aTHX_ a,b)
+#define op_clone_optree(a)	Perl_op_clone_optree(aTHX_ a)
 #define op_dump_cv(a,b)		Perl_op_dump_cv(aTHX_ a,b)
 #define op_lvalue_flags(a,b,c)	Perl_op_lvalue_flags(aTHX_ a,b,c)
 #define op_null_nexts(a)	Perl_op_null_nexts(aTHX_ a)
@@ -2095,6 +2095,7 @@
 #define new_entersubop(a,b)	S_new_entersubop(aTHX_ a,b)
 #define new_slab(a)		S_new_slab(aTHX_ a)
 #define op_check_type(a,b,c,d)	S_op_check_type(aTHX_ a,b,c,d)
+#define op_clone(a,b,c)		S_op_clone(aTHX_ a,b,c)
 #define op_const_sv(a,b,c)	S_op_const_sv(aTHX_ a,b,c)
 #define op_destroy(a)		S_op_destroy(aTHX_ a)
 #define op_fixup(a,b,c)		S_op_fixup(aTHX_ a,b,c)

@@ -8078,6 +8078,7 @@ STATIC OP*	S_cv_do_inline(pTHX_ OP *parent, OP *o, OP *cvop, CV *cv)
 	assert(o); assert(cvop); assert(cv)
 
 STATIC OP*	S_op_clone_sv(pTHX_ OP* o)
+			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_OP_CLONE_SV	\
 	assert(o)
@@ -8882,6 +8883,12 @@ STATIC void	S_op_check_type(pTHX_ OP* o, OP* left, OP* right, bool is_assign)
 			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_OP_CHECK_TYPE	\
 	assert(o); assert(left); assert(right)
+
+STATIC OP*	S_op_clone(pTHX_ OP* o, OP* clone, int pass2)
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_OP_CLONE	\
+	assert(o)
 
 STATIC SV*	S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
 			__attribute__nonnull__(pTHX_1)
@@ -11277,7 +11284,7 @@ PERL_CALLCONV void	Perl_only_simplescalar(pTHX_ const OP *op)
 #define PERL_ARGS_ASSERT_ONLY_SIMPLESCALAR	\
 	assert(op)
 
-PERL_CALLCONV OP*	Perl_op_clone_optree(pTHX_ OP* o, bool init)
+PERL_CALLCONV OP*	Perl_op_clone_optree(pTHX_ OP* o)
 			__attribute__global__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);

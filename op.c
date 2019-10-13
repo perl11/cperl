@@ -10365,7 +10365,7 @@ S_new_logop(pTHX_ I32 type, I32 flags, OP** firstp, OP** otherp)
         }
     }
 
-    logop = S_alloc_LOGOP(aTHX_ type, first, LINKLIST(other));
+    logop = S_alloc_LOGOP(aTHX_ type, first, LINKLIST(other)); /* !! multtermrelop */
     logop->op_flags |= (U8)flags;
     logop->op_private = (U8)(1 | (flags >> 8));
 
@@ -11592,7 +11592,7 @@ S_op_fixup(pTHX_ OP *old, OP *newop, U32 init) {
         /* check old value of old. if val exists, update its pointer with new.
            update *new with the found *value */
 #ifndef DEBUGGING
-        if (init) {
+        if (init && old != newop) {
 #endif
 #ifdef USE_PTR_TABLE
             op = (OP**)ptr_table_fetch(cache, old);
@@ -11664,15 +11664,13 @@ L</cv_clone>, which clones that pads, but not the ops.
 Relinks all ops inside this list, but not the ones outside.
 
 In the first pass visit and store all op_next pointers, and
-store all the locations of the to be fixed up other pointers,
+store all the locations of the to-be-fixed-up other pointers,
 in the 2nd pass all pointers inside the graph are known, and
 fixup the missing other pointers.
 
 For non-subs you will need to call L</op_null_nexts> afterwards to clear
 all external NEXT pointers, which would point to ops outside the tree, and
 then reconstruct them with C<LINKLIST(OpFIRST(o))>.
-
-C<init> = TRUE will re-initialize the op cache.
 
 Yes, this function is algorithmicly similar to a Garbage Collector.
 
@@ -11683,112 +11681,119 @@ to late.
 =cut
 */
 
+static OP*
+S_op_clone(pTHX_ OP* o, OP* clone, int pass2) {
+    PERL_ARGS_ASSERT_OP_CLONE;
+    switch (OpCLASS(o->op_type)) {
+    case OA_BASEOP:
+        OPCLONE(OP);
+        break;
+    case OA_UNOP:
+    case OA_BASEOP_OR_UNOP:
+    case OA_LOOPEXOP:
+        OPCLONE(UNOP);
+        FIXUP(UNOP,first);
+        break;
+    case OA_UNOP_AUX:
+        OPCLONE(UNOP_AUX);
+        FIXUP(UNOP,first);
+        break;
+    case OA_BINOP:
+        OPCLONE(BINOP);
+        FIXUP(BINOP,first);
+        FIXUP(BINOP,last);
+        break;
+    case OA_LISTOP:
+        OPCLONE(LISTOP);
+        FIXUP(LISTOP,first);
+        FIXUP(LISTOP,last);
+        break;
+    case OA_LOGOP:
+        OPCLONE(LOGOP);
+        FIXUP(LOGOP,first);
+        FIXUP(LOGOP,other);
+        break;
+    case OA_PMOP:
+        OPCLONE(PMOP);
+        FIXUP(PMOP,first);
+        FIXUP(PMOP,last);
+        break;
+    case OA_METHOP: /* 14 */
+        OPCLONE(METHOP);
+        if (o->op_private & 1) {
+            FIXUP(METHOP,u.op_first);   /* dynamic */
+        }
+        break;
+#ifdef USE_ITHREADS
+    case OA_FILESTATOP:
+        {
+            const OP* const kid = OpFIRST(o);
+            if ( IS_TYPE(kid, CONST)
+                 && (kid->op_private & OPpCONST_BARE)
+                 && !kid->op_folded ) {
+                OPCLONE(PADOP);
+            } else {
+                OPCLONE(UNOP);
+                FIXUP(UNOP,first);
+            }
+        }
+        break;
+    case OA_SVOP:
+    case OA_PVOP_OR_SVOP:
+        if ( IS_TYPE(o, GV) ||
+             IS_TYPE(o, GVSV) ||
+             IS_TYPE(o, AELEMFAST) ||
+             ( (IS_TYPE(o, TRANS) ||
+                IS_TYPE(o, TRANSR)) &&
+               (o->op_private & (OPpTRANS_FROM_UTF|OPpTRANS_TO_UTF))) ) {
+            OPCLONE(PADOP);
+        } else {
+            OPCLONE(SVOP);
+        }
+        break;
+#else
+    case OA_FILESTATOP:
+        OPCLONE(UNOP);
+        FIXUP(UNOP,first);
+        break;
+    case OA_SVOP:
+        OPCLONE(SVOP);
+        break;
+    case OA_PVOP_OR_SVOP:
+        OPCLONE(PVOP);
+        break;
+#endif
+    case OA_LOOP:
+        OPCLONE(LOOP);
+        FIXUP(LOOP,first);
+        FIXUP(LOOP,last);
+        FIXUP(LOOP,redoop);
+        FIXUP(LOOP,nextop);
+        FIXUP(LOOP,lastop);
+        break;
+    case OA_COP:
+        OPCLONE(COP);
+        break;
+
+    default:
+        assert(0 && !"op_clone: missing OA_CLASS case");
+    }
+    return clone;
+}
+
 OP*
-Perl_op_clone_optree(pTHX_ OP* o, bool init) {
-    OP *clone = NULL, *prev = NULL, * first = NULL;
+Perl_op_clone_optree(pTHX_ OP* o) {
+    OP *clone = NULL, *prev = NULL, *first = NULL, *start = o;
     int pass2;
     PERL_ARGS_ASSERT_OP_CLONE_OPTREE;
 
-    op_fixup(NULL, NULL, init?1:0); /* init the fixup cache */
+    op_fixup(NULL, NULL, 1); /* init the fixup cache */
 
     /* first pass:  fixup and record all the next pointers, in exec order.
        second pass: the rest first, sibling, last, ... all pointers are now known */
     for (pass2=0; pass2<2; pass2++) {
-        for (; o; o = OpSIBLING(o)) {
-            switch (OpCLASS(o->op_type)) {
-            case OA_BASEOP:
-                OPCLONE(OP);
-                break;
-            case OA_UNOP:
-            case OA_BASEOP_OR_UNOP:
-            case OA_LOOPEXOP:
-                OPCLONE(UNOP);
-                FIXUP(UNOP,first);
-                break;
-            case OA_UNOP_AUX:
-                OPCLONE(UNOP_AUX);
-                FIXUP(UNOP,first);
-                break;
-            case OA_BINOP:
-                OPCLONE(BINOP);
-                FIXUP(BINOP,first);
-                FIXUP(BINOP,last);
-                break;
-            case OA_LISTOP:
-                OPCLONE(LISTOP);
-                FIXUP(LISTOP,first);
-                FIXUP(LISTOP,last);
-                break;
-            case OA_LOGOP:
-                OPCLONE(LOGOP);
-                FIXUP(LOGOP,first);
-                FIXUP(LOGOP,other);
-                break;
-            case OA_PMOP:
-                OPCLONE(PMOP);
-                FIXUP(PMOP,first);
-                FIXUP(PMOP,last);
-                break;
-            case OA_METHOP: /* 14 */
-                OPCLONE(METHOP);
-                if (o->op_private & 1) {
-                    FIXUP(METHOP,u.op_first);   /* dynamic */
-                }
-                break;
-#ifdef USE_ITHREADS
-            case OA_FILESTATOP:
-                {
-                    const OP* const kid = OpFIRST(o);
-                    if ( IS_TYPE(kid, CONST)
-                         && (kid->op_private & OPpCONST_BARE)
-                         && !kid->op_folded ) {
-                        OPCLONE(PADOP);
-                    } else {
-                        OPCLONE(UNOP);
-                        FIXUP(UNOP,first);
-                    }
-                }
-                break;
-            case OA_SVOP:
-            case OA_PVOP_OR_SVOP:
-                if ( IS_TYPE(o, GV) ||
-                     IS_TYPE(o, GVSV) ||
-                     IS_TYPE(o, AELEMFAST) ||
-                     ( (IS_TYPE(o, TRANS) ||
-                        IS_TYPE(o, TRANSR)) &&
-                       (o->op_private & (OPpTRANS_FROM_UTF|OPpTRANS_TO_UTF))) ) {
-                    OPCLONE(PADOP);
-                } else {
-                    OPCLONE(SVOP);
-                }
-                break;
-#else
-            case OA_FILESTATOP:
-                OPCLONE(UNOP);
-                FIXUP(UNOP,first);
-                break;
-            case OA_SVOP:
-                OPCLONE(SVOP);
-                break;
-            case OA_PVOP_OR_SVOP:
-                OPCLONE(PVOP);
-                break;
-#endif
-            case OA_LOOP:
-                OPCLONE(LOOP);
-                FIXUP(LOOP,first);
-                FIXUP(LOOP,last);
-                FIXUP(LOOP,redoop);
-                FIXUP(LOOP,nextop);
-                FIXUP(LOOP,lastop);
-                break;
-            case OA_COP:
-                OPCLONE(COP);
-                break;
-
-            default:
-                assert(0 && !"op_clone_optree: missing OA_CLASS case");
-            }
+	while (o) {
+            clone = S_op_clone(aTHX_ o, clone, pass2);
             if (!pass2) {
                 if (prev)
                     prev->op_next = clone;
@@ -11796,14 +11801,17 @@ Perl_op_clone_optree(pTHX_ OP* o, bool init) {
                     first = clone;
                 prev = clone;
             }
+            if (OpKIDS(o))
+                clone = S_op_clone(aTHX_ OpFIRST(o), clone ? OpFIRST(clone) : NULL,
+                                   pass2);
+            o = OpKIDS(o) ? OpFIRST(o) : OpSIBLING(o);
         }
-        if (o && OpKIDS(o))
-            o = OpFIRST(o);
+        o = start;
     }
-#undef OPCLONE
-#undef FIXUP
     return first;
 }
+#undef OPCLONE
+#undef FIXUP
 
 #ifdef PERL_INLINE_SUBS
 
@@ -11938,7 +11946,7 @@ S_cv_do_inline(pTHX_ OP* parent, OP *o, OP *cvop, CV *cv)
     /* we need to clone the optree, as we most likely change the state and args.
        Note: cv_clone is useless for us. It clones the pad, but not
        the ops. We need to keep the pads, but clone the ops. */
-    o = op_clone_optree(CvROOT(cv), TRUE);
+    o = op_clone_optree(CvROOT(cv));
     if (!o || !OpKIDS(o))
         return NULL;
     firstop = o; /* that's the LEAVESUB, will be converted into a LEAVE or skipped */
@@ -23703,7 +23711,7 @@ S_add_does_methods(pTHX_ HV* klass, AV* does)
                     CvGV_set(ncv, sym);
                     
                     CvSTASH_set(ncv, klass);
-                    CvROOT(ncv)	     = op_clone_optree(CvROOT(cv), TRUE);
+                    CvROOT(ncv)	     = op_clone_optree(CvROOT(cv));
                     CvSTART(ncv)     = LINKLIST(CvROOT(ncv));
                     if (CvHASSIG(cv))
                         CvSIGOP(ncv) = (UNOP_AUX*)CvSTART(ncv);

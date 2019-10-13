@@ -1036,7 +1036,7 @@ case 2:
 #line 861 "perly.y"
     { int nulls;
                           only_simplescalar (parser->mrelop);
-                          parser->mrelop = op_clone_optree(parser->mrelop, TRUE);
+                          parser->mrelop = op_clone_optree(parser->mrelop);
                           if ((nulls = op_null_nexts (parser->mrelop)) > 3)
                               Perl_warn ("Suspicious multtermrelop %s with %d next pointers,"
                                          " probably not simple enough",
@@ -1812,6 +1812,6 @@ case 2:
     
 
 /* Generated from:
- * 61de4e0fed399949a78a8876c029418abfecf88c338d3441743414245da3cfda perly.y
+ * def5961734f91928b9e69f34e2e1abe0223719e516e174827491767713378827 perly.y
  * 5132b115dedc64fcaea289ebf11528abd6f23d9b88e5247a236e1116603edcdb regen_perly.pl
  * ex: set ro: */

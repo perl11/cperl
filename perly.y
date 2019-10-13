@@ -860,7 +860,7 @@ multtermrelop:	term RELOP term				 /* 0 < $x */
 	|	multtermrelop RELOP term		 /* 0 < $x < 1 */
 		        { int nulls;
                           only_simplescalar (parser->mrelop);
-                          parser->mrelop = op_clone_optree(parser->mrelop, TRUE);
+                          parser->mrelop = op_clone_optree(parser->mrelop);
                           if ((nulls = op_null_nexts (parser->mrelop)) > 3)
                               Perl_warn ("Suspicious multtermrelop %s with %d next pointers,"
                                          " probably not simple enough",

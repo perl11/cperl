@@ -240,7 +240,7 @@ static const yytype_uint16 yyrline[] =
 };
 #endif
 
-#if YYDEBUG || YYERROR_VERBOSE || 0
+#if YYDEBUG || YYERROR_VERBOSE || YYTOKEN_TABLE
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
@@ -887,11 +887,11 @@ static const yytype_int16 yytable[] =
      202,   203,     0,     0,   204
 };
 
-#define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-464)))
+#define yypact_value_is_default(yystate) \
+  ((yystate) == (-464))
 
-#define yytable_value_is_error(Yytable_value) \
-  (!!((Yytable_value) == (-281)))
+#define yytable_value_is_error(yytable_value) \
+  ((yytable_value) == (-281))
 
 static const yytype_int16 yycheck[] =
 {
@@ -1355,6 +1355,6 @@ static const toketypes yy_type_tab[] =
 };
 
 /* Generated from:
- * 61de4e0fed399949a78a8876c029418abfecf88c338d3441743414245da3cfda perly.y
+ * def5961734f91928b9e69f34e2e1abe0223719e516e174827491767713378827 perly.y
  * 5132b115dedc64fcaea289ebf11528abd6f23d9b88e5247a236e1116603edcdb regen_perly.pl
  * ex: set ro: */
