@@ -11650,7 +11650,7 @@ S_op_fixup(pTHX_ OP *old, OP *newop, U32 init) {
         }                                       \
         op_fixup(o, clone, 0);                  \
     } else {                                    \
-        clone = op_fixup(o, NULL, 4);           \
+        op_fixup(o, clone, 4);                  \
     }                                           \
     if (o->op_sibparent)                        \
         op_fixup(o->op_sibparent, clone->op_sibparent, pass2+2)
@@ -11683,6 +11683,7 @@ to late.
 
 static OP*
 S_op_clone(pTHX_ OP* o, OP* clone, int pass2) {
+    assert((!pass2 && !clone) || (pass2 && clone));
     PERL_ARGS_ASSERT_OP_CLONE;
     switch (OpCLASS(o->op_type)) {
     case OA_BASEOP:
@@ -11783,7 +11784,7 @@ S_op_clone(pTHX_ OP* o, OP* clone, int pass2) {
 
 OP*
 Perl_op_clone_optree(pTHX_ OP* o) {
-    OP *clone = NULL, *prev = NULL, *first = NULL, *start = o;
+    OP *clone, *prev = NULL, *first = NULL;
     int pass2;
     PERL_ARGS_ASSERT_OP_CLONE_OPTREE;
 
@@ -11791,8 +11792,9 @@ Perl_op_clone_optree(pTHX_ OP* o) {
 
     /* first pass:  fixup and record all the next pointers, in exec order.
        second pass: the rest first, sibling, last, ... all pointers are now known */
-    for (pass2=0; pass2<2; pass2++) {
-	while (o) {
+    while (o) {
+        for (pass2=0; pass2<2; pass2++) {
+            if (!pass2) clone = NULL;
             clone = S_op_clone(aTHX_ o, clone, pass2);
             if (!pass2) {
                 if (prev)
@@ -11801,12 +11803,9 @@ Perl_op_clone_optree(pTHX_ OP* o) {
                     first = clone;
                 prev = clone;
             }
-            if (OpKIDS(o))
-                clone = S_op_clone(aTHX_ OpFIRST(o), clone ? OpFIRST(clone) : NULL,
-                                   pass2);
-            o = OpKIDS(o) ? OpFIRST(o) : OpSIBLING(o);
         }
-        o = start;
+        o = OpKIDS(o) ? OpFIRST(o) : OpSIBLING(o);
+        prev = NULL;
     }
     return first;
 }
