@@ -10182,6 +10182,44 @@ Perl_only_simplescalar (pTHX_ const OP* op)
         Perl_croak(aTHX_ "syntax error: invalid multtermrelop %s", OP_NAME(op));
 }
 
+/*
+=for apidoc newMULTTERMRELOP
+
+Multiple binary comparison operators between terms, such as in
+C<0 < $x < 1>, where the middle term C<$x> is already stored in
+C<<< parser->mrelop >>>, and the new relation C<$x < 1> is added to that.
+The last term is again stored in PL_parser->mrelop for subsequent calls.
+
+cperl-only, only used in perly.y
+=cut
+*/
+OP*
+Perl_newMULTTERMRELOP (pTHX_ OP* first, OP* mrelop, I32 op, OP* other)
+{
+    dVAR;
+    int nulls;
+    OP* logop;
+    PERL_ARGS_ASSERT_NEWMULTTERMRELOP;
+
+    only_simplescalar(mrelop);
+    mrelop = op_clone_optree(mrelop);
+    if ((nulls = op_null_nexts (mrelop)) > 3)
+      Perl_warn ("Suspicious multtermrelop %s with %d next pointers,"
+                 " probably not simple enough",
+                 OP_NAME(mrelop), nulls);
+    OpLASTSIB_set(mrelop, NULL);
+    OpNEXT(other) = NULL;
+    PL_parser->mrelop = other;
+    other = newBINOP(op, 0, mrelop, other);
+    /* (void)op_null_nexts (other); */
+    /* LINKLIST(other); */
+    /* OpNEXT(OpFIRST(other)) = OpLAST(other); */
+    logop = newLOGOP(OP_AND, 0, first, other);
+    /* OpOTHER(OpFIRST(logop)) = OpFIRST(other); */
+    OpNEXT(other) = logop;
+    return logop;
+}
+
 static OP *
 S_new_logop(pTHX_ I32 type, I32 flags, OP** firstp, OP** otherp)
 {

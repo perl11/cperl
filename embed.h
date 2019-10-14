@@ -1062,6 +1062,7 @@
 #define hv_study(a)		Perl_hv_study(aTHX_ a)
 #define hv_undef_flags(a,b)	Perl_hv_undef_flags(aTHX_ a,b)
 #define method_field_type(a)	Perl_method_field_type(aTHX_ a)
+#define newMULTTERMRELOP(a,b,c,d)	Perl_newMULTTERMRELOP(aTHX_ a,b,c,d)
 #define newPADNAMEpvn_flags	Perl_newPADNAMEpvn_flags
 #define newSVsv(a)		Perl_newSVsv(aTHX_ a)
 #define numfields(a)		Perl_numfields(aTHX_ a)

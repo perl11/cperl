@@ -11257,6 +11257,15 @@ PERL_CALLCONV void	Perl_munge_qwlist_to_paren_list(pTHX_ OP* qwlist)
 PERL_CALLCONV OP*	Perl_newASSIGNOP_maybe_const(pTHX_ OP* left, I32 optype, OP* right)
 			__attribute__warn_unused_result__;
 
+PERL_CALLCONV OP*	Perl_newMULTTERMRELOP(pTHX_ OP* first, OP* mrelop, I32 op, OP* other)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_4);
+#define PERL_ARGS_ASSERT_NEWMULTTERMRELOP	\
+	assert(first); assert(mrelop); assert(other)
+
 PERL_CALLCONV PADNAME *	Perl_newPADNAMEpvn_flags(const char *s, STRLEN len, U32 flags)
 			__attribute__global__
 			__attribute__warn_unused_result__
@@ -11302,7 +11311,6 @@ PERL_CALLCONV OP*	Perl_op_lvalue_flags(pTHX_ OP* o, I32 type, U32 flags)
 
 PERL_CALLCONV int	Perl_op_null_nexts(pTHX_ OP* o)
 			__attribute__global__
-			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_OP_NULL_NEXTS	\
 	assert(o)

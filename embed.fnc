@@ -1288,7 +1288,7 @@ sMR	|OP*	|op_clone_sv	|NN OP* o
 : Used in op.c, pp_hot.c, and universal.c
 #if defined(USE_CPERL)
 XEp	|void	|arg_check_type_sv |NULLOK const PADNAME* pn|NN SV* sv|NULLOK GV *cvname
-AMRp	|int	|op_null_nexts	|NN OP* o
+AMp	|int	|op_null_nexts	|NN OP* o
 AMRp	|OP*	|op_clone_optree|NN OP* o
 #endif
 : Used in op.c and pp_sys.c
@@ -1384,6 +1384,7 @@ AMpdRn	|PADNAME *|newPADNAMEouter|NN PADNAME *outer
 AMpdRn	|PADNAME *|newPADNAMEpvn|NN const char *s|STRLEN len
 #if defined(USE_CPERL)
 AMpdRn	|PADNAME *|newPADNAMEpvn_flags|NN const char *s|STRLEN len|U32 flags
+AMpdR	|OP*	|newMULTTERMRELOP|NN OP* first|NN OP* mrelop|I32 op|NN OP* other
 #endif
 AMpdRn	|PADNAMELIST *|newPADNAMELIST|size_t max
 #ifdef USE_ITHREADS
