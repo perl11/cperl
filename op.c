@@ -11543,89 +11543,23 @@ Perl_op_null_nexts (pTHX_ OP* o)
  *
  * init=0: 1st pass: store-only, ptr should not exist.
  * init=1: 1st pass: re-init the cache.
- * init=2: 1st pass: store and check. visit all next. *newop might be already cloned,
- *                   i.e. we may free *newop
+ * init=2: 1st pass: store and check. visit all next, parent.
+ *                   *newop might be already cloned, i.e. we may free *newop.
  * init=3: 2nd pass: visit all other
  * init=4: 2nd pass: ignore newop arg, just return found clone.
- *
- * HACK: sv.c doesn't export a simple head+body free, so repeat it. we may not
- * free our keys and values of the cache.
  */
-
-#define USE_PTR_TABLE /* */
 
 static OP*
 S_op_fixup(pTHX_ OP *old, OP *newop, U32 init) {
-#ifdef USE_PTR_TABLE
     static PTR_TBL_t *cache = NULL;
-#else
-    static HV* cache = NULL;     /* { old => newop } */
-    /* not a good hash but enough for us,
-       OP* are unique during clone */
-# if PTRSIZE > 4
-    Size_t hash8 = INT2PTR(Size_t,(char*)old)>>4;
-    U32 hash = (U32)(hash8 & U32_MAX);
-# else
-    U32 hash = INT2PTR(U32,(char*)old)>>4;
-# endif
-#endif /* !USE_PTR_TABLE */
     if (!cache || (init == 1)) {
-        if (cache) { /* sv_clear(cache); oops, the values are no SV's, the keys no char* */
+        if (cache) {
             DEBUG_H(Perl_deb(aTHX_ "opcache clear\n"));
-#ifdef USE_PTR_TABLE
             ptr_table_free(cache);
-#else
-            Safefree(HvARRAY(cache));
-            SvFLAGS(cache) &= SVf_BREAK;
-            SvFLAGS(cache) |= SVTYPEMASK;
-            /* we cannot yet store any value in an HV */
-#ifndef del_body
-#  define del_body(thing, root)				\
-    STMT_START {					\
-	void ** const thing_copy = (void **)thing;	\
-	*thing_copy = *root;				\
-	*root = (void*)thing_copy;			\
-    } STMT_END
-#endif
-#ifndef plant_SV
-# ifdef DEBUGGING
-#  define plant_SV(p)                                   \
-    STMT_START {					\
-        SvANY(p) = (void*)PL_sv_root;                   \
-        PL_sv_root = (p);				\
-	--PL_sv_count;					\
-    } STMT_END
-# else
-#  define plant_SV(p)                                   \
-    STMT_START {					\
-        SvANY(p) = (void*)PL_sv_root;                   \
-        PL_sv_root = (p);				\
-    } STMT_END
-# endif
-#endif
-            del_body((char *)SvANY(cache), &PL_body_roots[SVt_PVHV]);
-            plant_SV((SV*)cache);
-#endif /* !USE_PTR_TABLE */
         }
-#ifdef USE_PTR_TABLE
         cache = ptr_table_new();
-#else
-        cache = newHV();
-#endif
         DEBUG_H(Perl_deb(aTHX_ "opcache init\n"));
     }
-#ifndef USE_PTR_TABLE
-/* HV_FETCH_JUST_SV returns &HeVAL directly, not the HE*. */
-#define hv_fetch_hash(hv,key,klen,hash) \
-    (hv_common((hv), NULL, (key), (klen), 0, HV_FETCH_JUST_SV|HV_FETCH_EMPTY_HE, \
-               NULL, (hash)))
-/* Uhuh. FETCH_ISSTORE or HV_FETCH_LVALUE do SvREFCNT_dec(HeVAL(entry)).
-   HV_FETCH_LVALUE ok, because this needs to provide a newSV on not found.
-   But FETCH_ISSTORE needs a new combination to omit this. */
-#define hv_store_hash(hv,key,klen,val,hash) \
-    ((void)hv_common((hv), NULL, (key), (klen), 0, HV_FETCH_ISSTORE|HV_FETCH_NO_SV|HV_FETCH_EMPTY_HE, \
-                     val, (hash)))
-#endif
 
     if (old && newop) {
         OP** op = NULL;
@@ -11634,11 +11568,7 @@ S_op_fixup(pTHX_ OP *old, OP *newop, U32 init) {
 #ifndef DEBUGGING
         if (init && old != newop) {
 #endif
-#ifdef USE_PTR_TABLE
             op = (OP**)ptr_table_fetch(cache, old);
-#else
-            op = (OP**)hv_fetch_hash(cache, (char*)old, sizeof(OP*), hash);
-#endif
             assert(!newop || (old->op_type == newop->op_type));
             DEBUG_H(Perl_deb(aTHX_ "opcache fetch %p (%s) => %p (%s)\t[%d]\n",
                         old, OP_NAME(old),
@@ -11646,7 +11576,7 @@ S_op_fixup(pTHX_ OP *old, OP *newop, U32 init) {
 #ifndef DEBUGGING
         }
 #endif
-        if (op) {
+        if (op && *op) {
             OP* o = *op;
             assert(old->op_type == o->op_type);
             assert(old->op_flags == o->op_flags);
@@ -11666,11 +11596,7 @@ S_op_fixup(pTHX_ OP *old, OP *newop, U32 init) {
 #endif
             DEBUG_H(Perl_deb(aTHX_ "opcache store %p (%s), %p (%s)\t[%d]\n", old, OP_NAME(old),
                         newop, newop?OP_NAME(newop):"", init));
-#ifdef USE_PTR_TABLE
             ptr_table_store(cache, old, newop);
-#else
-            hv_store_hash(cache, (char*)old, sizeof(OP*), (SV*)newop, hash);
-#endif
         }
     }
     return NULL;
