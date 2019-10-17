@@ -13994,8 +13994,16 @@ Perl_ptr_table_new(pTHX)
     return tbl;
 }
 
-#define PTR_TABLE_HASH(ptr) \
-  ((PTR2UV(ptr) >> 3) ^ (PTR2UV(ptr) >> (3 + 7)) ^ (PTR2UV(ptr) >> (3 + 17)))
+#ifdef PERL_USE_GCC_BRACE_GROUPS
+#  define PTR_TABLE_HASH(ptr)                    \
+    ({ UV key = PTR2UV(ptr);                     \
+         key = ((key >> 16) ^ key) * 0x45d9f3b;  \
+         key = ((key >> 16) ^ key) * 0x45d9f3b;  \
+         (key >> 16) ^ key; })
+#else
+#  define PTR_TABLE_HASH(ptr) \
+    ((PTR2UV(ptr) >> 3) ^ (PTR2UV(ptr) >> (3 + 7)) ^ (PTR2UV(ptr) >> (3 + 17)))
+#endif
 
 /* map an existing pointer using a table */
 

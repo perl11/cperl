@@ -11552,7 +11552,7 @@ Perl_op_null_nexts (pTHX_ OP* o)
  * free our keys and values of the cache.
  */
 
-/*#define USE_PTR_TABLE / * */
+#define USE_PTR_TABLE /* */
 
 static OP*
 S_op_fixup(pTHX_ OP *old, OP *newop, U32 init) {
@@ -11562,13 +11562,13 @@ S_op_fixup(pTHX_ OP *old, OP *newop, U32 init) {
     static HV* cache = NULL;     /* { old => newop } */
     /* not a good hash but enough for us,
        OP* are unique during clone */
-#if PTRSIZE > 4
+# if PTRSIZE > 4
     Size_t hash8 = INT2PTR(Size_t,(char*)old)>>4;
     U32 hash = (U32)(hash8 & U32_MAX);
-#else
+# else
     U32 hash = INT2PTR(U32,(char*)old)>>4;
-#endif
-#endif
+# endif
+#endif /* !USE_PTR_TABLE */
     if (!cache || (init == 1)) {
         if (cache) { /* sv_clear(cache); oops, the values are no SV's, the keys no char* */
             DEBUG_H(Perl_deb(aTHX_ "opcache clear\n"));
@@ -11605,7 +11605,7 @@ S_op_fixup(pTHX_ OP *old, OP *newop, U32 init) {
 #endif
             del_body((char *)SvANY(cache), &PL_body_roots[SVt_PVHV]);
             plant_SV((SV*)cache);
-#endif
+#endif /* !USE_PTR_TABLE */
         }
 #ifdef USE_PTR_TABLE
         cache = ptr_table_new();
@@ -11614,6 +11614,7 @@ S_op_fixup(pTHX_ OP *old, OP *newop, U32 init) {
 #endif
         DEBUG_H(Perl_deb(aTHX_ "opcache init\n"));
     }
+#ifndef USE_PTR_TABLE
 /* HV_FETCH_JUST_SV returns &HeVAL directly, not the HE*. */
 #define hv_fetch_hash(hv,key,klen,hash) \
     (hv_common((hv), NULL, (key), (klen), 0, HV_FETCH_JUST_SV|HV_FETCH_EMPTY_HE, \
@@ -11624,6 +11625,7 @@ S_op_fixup(pTHX_ OP *old, OP *newop, U32 init) {
 #define hv_store_hash(hv,key,klen,val,hash) \
     ((void)hv_common((hv), NULL, (key), (klen), 0, HV_FETCH_ISSTORE|HV_FETCH_NO_SV|HV_FETCH_EMPTY_HE, \
                      val, (hash)))
+#endif
 
     if (old && newop) {
         OP** op = NULL;
@@ -11647,6 +11649,7 @@ S_op_fixup(pTHX_ OP *old, OP *newop, U32 init) {
         if (op) {
             OP* o = *op;
             assert(old->op_type == o->op_type);
+            assert(old->op_flags == o->op_flags);
             if ((init == 2 || init == 3) && newop != o) {
                 DEBUG_kv(Perl_deb(aTHX_ "fixup %p (%s) = %p (%s)\t[%d]\n", newop, OP_NAME(newop),
                              o, OP_NAME(o), init));
