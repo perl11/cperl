@@ -128,16 +128,25 @@
 #define WARN_EXPERIMENTAL__SCRIPT_RUN	 72
 #define WARN_SHADOW			 73
 
+/* Warnings Categories added in Perl 5.029 */
 
-#define NUM_WARNINGS			 74
-#define WARN_LAST_BIT			 148
-#define WARNsize			 19
+#define WARN_EXPERIMENTAL__PRIVATE_USE	 74
+#define WARN_EXPERIMENTAL__UNIPROP_WILDCARDS 75
+#define WARN_EXPERIMENTAL__VLB		 76
+#define WARN_FFI			 77
+
+
+#define NUM_WARNINGS			 78
+#define WARN_LAST_BIT			 156
+#define WARNsize			 20
 #define WARN_MAX_BYTES			 32
-#define WARN_ALLstring			 "\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125"
-#define WARN_DEADALLstring		 "\252\252\252\252\252\252\252\252\252\252\252\252\252\252\252\252\252\252\252"
+#define WARN_ALLstring			 "\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125"
+#define WARN_DEADALLstring		 "\252\252\252\252\252\252\252\252\252\252\252\252\252\252\252\252\252\252\252\252"
 #define WARN_NONEstring			 "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-/*					 [2,71,56,60,69,53,57,62,63,54,72,55,64,4,65,70,22,23,25] */
-#define WARN_DEFAULTstring		 "\20\1\0\0\0\120\4\0\0\0\0\0\0\124\5\121\5\124\1\0\0\0\0\0\0\0\0\0\0\0\0\0"
+/*					 [2,71,56,60,69,53,57,74,62,63,54,72,55,75,76,64,4,65,70,22,23,25] */
+#define WARN_DEFAULTstring		 "\20\1\0\0\0\120\4\0\0\0\0\0\0\124\5\121\5\124\121\1\0\0\0\0\0\0\0\0\0\0\0\0"
+
+
 
 #define isLEXWARN_on 	(PL_curcop->cop_warnings != pWARN_STD)
 #define isLEXWARN_off	(PL_curcop->cop_warnings == pWARN_STD)

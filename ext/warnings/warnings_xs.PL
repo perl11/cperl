@@ -122,6 +122,12 @@ my $tree = {
                                     [ 5.027, DEFAULT_ON ],
                                 'experimental::alpha_assertions' =>
                                     [ 5.027, DEFAULT_ON ],
+                                'experimental::private_use' =>
+                                    [ 5.029, DEFAULT_ON ],
+                                'experimental::uniprop_wildcards' =>
+                                    [ 5.029, DEFAULT_ON ],
+                                'experimental::vlb' =>
+                                    [ 5.029, DEFAULT_ON ],
                         }],
 
         'missing'       => [ 5.021, DEFAULT_OFF],
@@ -131,6 +137,7 @@ my $tree = {
         'types'         => [ 5.024, DEFAULT_OFF],
         'security'      => [ 5.025, DEFAULT_ON],
         'shadow'        => [ 5.027, DEFAULT_OFF],
+        'ffi'           => [ 5.029, DEFAULT_OFF],
 
          #'default'     => [ 5.008, DEFAULT_ON ],
 }]};
@@ -385,6 +392,14 @@ EOM
   print $warn tab(6, '#define WARN_NONEstring'), ' "', ('\0' x $max_bytes), "\"\n";
   print $warn tab(6, '/*'), ' [', mkRange(@def), "] */\n";
   print $warn tab(6, '#define WARN_DEFAULTstring'), ' "',  mkOct($max_bytes, map $_ * 2, @def) , "\"\n" ;
+  #print $warn "\n/* constants for warnings.in */\n";
+  #foreach $k (sort { $a <=> $b } keys %ValueToName) {
+  #    my ($name, $version) = @{ $ValueToName{$k} };
+  #    next if $name eq 'all';
+  #    $name =~ y/:/_/;
+  #    print $warn tab(6, "#define WARN_${name}string"), " ", mkOct($max_bytes, map $_ * 2, @def), "\n";
+  #}
+  print $warn "\n\n";
 
   print $warn <<'EOM';
 

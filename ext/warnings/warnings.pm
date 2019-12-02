@@ -45,6 +45,7 @@ sub warnif        { _chk("warnif",        NORMAL | FATAL | MESSAGE, @_); }
 
 1;
 __END__
+
 =head1 NAME
 
 warnings - Perl pragma to control optional warnings
@@ -289,18 +290,23 @@ The current hierarchy is:
          +- deprecated
          +- exiting
          +- experimental --+
-         |                 +- experimental::autoderef
+         |                 +- experimental::alpha_assertions
          |                 +- experimental::bitwise
          |                 +- experimental::const_attr
+         |                 +- experimental::declared_refs
          |                 +- experimental::lexical_subs
          |                 +- experimental::lexical_topic
          |                 +- experimental::postderef
          |                 +- experimental::re_strict
          |                 +- experimental::refaliasing
          |                 +- experimental::regex_sets
+         |                 +- experimental::script_run
          |                 +- experimental::signatures
          |                 +- experimental::smartmatch
+         |                 +- experimental::uniprop_wildcards
+         |                 +- experimental::vlb
          |                 +- experimental::win32_perlio
+         +- ffi
          +- glob
          +- imprecision
          +- io ------------+

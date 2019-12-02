@@ -1655,10 +1655,14 @@ lib/warnings/register.pm : ext/warnings/register.pm
 	mkdir -p lib/warnings/
 	$(CPS) ext/warnings/register.pm lib/warnings/
 
-lib/warnings.pm : ext/warnings/warnings.pm FORCE
+lib/warnings.pm : ext/warnings/warnings.pm $(MINIPERL_EXE) FORCE
 	if test -f ext/warnings/Makefile; then \
-          $(MAKE) -C ext/warnings; else \
-          $(MINIPERL) make_ext.pl ext/warnings $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL) LINKTYPE=dynamic $(STATIC_LDFLAGS); fi
+          $(MAKE) preplibrary makeppport $(DYNALOADER); \
+          $(MAKE) -C ext/warnings; \
+        else \
+          $(MAKE) preplibrary makeppport $(DYNALOADER) dist/ExtUtils-ParseXS/pm_to_blib; \
+          $(MINIPERL) make_ext.pl ext/warnings $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL) LINKTYPE=dynamic $(STATIC_LDFLAGS); \
+        fi
 	$(MINIPERL) miniwarn.pl perl
 
 warnings_boot : lib/warnings/register.pm FORCE
@@ -1666,7 +1670,7 @@ warnings_boot : lib/warnings/register.pm FORCE
 
 warnings_post : ext/warnings/warnings.xs lib/warnings.pm lib/warnings/register.pm FORCE
 
-ext/warnings/warnings.xs : ext/warnings/warnings_xs.in $(MINIPERL_EXE)
+ext/warnings/warnings.xs : ext/warnings/warnings_xs.in $(MINIPERL_EXE) preplibrary makeppport $(DYNALOADER)
 	$(MINIPERL) ext/warnings/warnings_xs.PL
 
 d_dummy $(dynamic_ext):	preplibrary makeppport $(DYNALOADER) FORCE $(PERLEXPORT) $(LIBPERL)
