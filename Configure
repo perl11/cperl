@@ -22181,6 +22181,10 @@ $cc $ccflags -c bar1.c >/dev/null 2>&1
 $cc $ccflags -c bar2.c >/dev/null 2>&1
 $cc $ccflags -c foo.c >/dev/null 2>&1
 $test "X$arflags" = "X" && arflags=rDc
+if test -f /usr/bin/gcc-ar -a -n "$gccversion"; then
+    ar=gcc-ar
+    full_ar=/usr/bin/gcc-ar
+fi
 if $test x$osname = xfreebsd; then
     if $test -z $FREEBSD_KERNEL_VERSION -o $FREEBSD_KERNEL_VERSION -ge 1000000; then
         arflags="-r -Dc"
@@ -22236,13 +22240,17 @@ else
     if $test -n "$llvmsuffix"; then
         testranlib=llvm-ranlib$llvmsuffix
     else
-        testranlib=ranlib
+        if $test X$ar = Xgcc-ar; then
+            testranlib=gcc-ranlib
+        else
+            testranlib=ranlib
+        fi
     fi
     case "$ranlib" in
 	:)  ranlib='' ;;
 	'')
 	    ranlib=`./loc $testranlib X /usr/bin /bin /usr/local/bin /opt/local/bin`
-	    $test -f $ranlib || ranlib=''
+	    $test -f "$ranlib" || ranlib=''
             # -D for determinism
             if $ranlib -D bar$_a; then
                 echo "can use $ranlib with -D for determinism. " >&4
@@ -22262,6 +22270,7 @@ else
 fi
 
 if $test -n "$gccversion"; then
+  # redhat gcc provide gcc-ar and gcc-ranlib, which do not need this
   case "$ccflags" in
     *flto*)
         #some old /usr/bin/ar did not support the plugin flag
@@ -22277,12 +22286,13 @@ if $test -n "$gccversion"; then
             echo "lto plugin found"
         else
             for f in $libpth; do
-                $test -f $plugin || plugin="$f/liblto_plugin.$dlext"
+                $test -f "$plugin" || plugin="$f/liblto_plugin.$dlext"
             done
         fi
         if $test -f "$plugin"; then
             case $ar in
                 *llvm-ar*) ;;
+                gcc-ar) ;;
                 *)  if $ar $arflags --plugin $plugin bar$_a bar2$_o bar1$_o >/dev/null 2>&1; then
                         echo "can use $ar with lto --plugin $plugin" >&4
                         arflags="$arflags --plugin $plugin"
@@ -22292,14 +22302,15 @@ if $test -n "$gccversion"; then
             case $ranlib in
                 *llvm-ranlib*) ;;
                 :) ;;
+                *gcc-ranlib) ;;
                 *) if $ranlib --plugin $plugin bar$_a; then
                         echo "can use $ranlib with lto --plugin $plugin" >&4
                         ranlib="$ranlib --plugin $plugin"
                    fi
                    ;;
             esac
-        else
-            echo "$plugin for ar with lto not found" >&4
+        elif test X$ar != Xgcc-ar; then
+            echo "$plugin for $ar with lto not found" >&4
         fi
         unset plugin
         ;;
