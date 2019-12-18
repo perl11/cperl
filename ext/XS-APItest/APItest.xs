@@ -2244,6 +2244,31 @@ xop_from_custom_op ()
     OUTPUT:
         RETVAL
 
+void
+dump_cv (SV *gv)
+    CODE:
+    CV *cv;
+    if (SvROK(gv) && SvTYPE(SvRV((SV*)gv)) == SVt_PVCV)
+        cv = (CV*)SvRV((SV*)gv);
+    else
+        cv = GvCV(gv);
+    if (!CvISXSUB(cv) && CvROOT(cv)) {
+        op_dump_cv (CvROOT(cv), cv);
+    }
+
+void
+dump_cv_clone (SV *gv)
+    CODE:
+    CV *cv;
+    if (SvROK(gv) && SvTYPE(SvRV((SV*)gv)) == SVt_PVCV)
+        cv = (CV*)SvRV((SV*)gv);
+    else
+        cv = GvCV(gv);
+    if (!CvISXSUB(cv) && CvROOT(cv)) {
+        OP* clone = op_clone_optree (CvROOT(cv));
+        op_dump_cv (clone, cv);
+    }
+
 bool
 test_sv_debug_members()
 CODE:
