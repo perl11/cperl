@@ -10348,7 +10348,7 @@ S_new_logop(pTHX_ I32 type, I32 flags, OP** firstp, OP** otherp)
     assert(!OpHAS_SIBLING(first));
     op_sibling_splice((OP*)logop, first, 0, other);
 
-    CHECKOP(type,logop);
+    CHECKOP(type, logop);
 
     o = newUNOP(prepend_not ? OP_NOT : OP_NULL,
 		PL_opargs[type] & OA_RETSCALAR ? OPf_WANT_SCALAR : 0,

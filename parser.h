@@ -54,31 +54,32 @@ typedef struct yy_parser {
     char	tokenbuf[TOKENBUF_SIZE];
     I32		lex_brackets;	/* square and curly bracket count */
     I32		lex_casemods;	/* casemod count */
+    I32		lex_formbrack;	/* bracket count at outer format level */
     char	*lex_brackstack;/* what kind of brackets to pop */
     char	*lex_casestack;	/* what kind of case mods in effect */
-    U8		lex_defer;	/* state after determined token */
-    U8		lex_dojoin;	/* doing an array interpolation
-				   1 = @{...}  2 = ->@ */
-    expectation	expect;		/* how to interpret ambiguous tokens. <5.6 enum, <5.10 int */
-    bool	preambled;
-    bool        sub_no_recover; /* can't recover from a sublex error */
-    I32		lex_formbrack;	/* bracket count at outer format level */
     OP		*lex_inpat;	/* in pattern $) and $| are special */
     OP		*lex_op;	/* extra info to pass back on op */
     SV		*lex_repl;	/* runtime replacement from s/// */
-    U16		lex_inwhat;	/* what kind of quoting are we in */
-    OPCODE	last_lop_op;	/* last named list or unary operator */
-    I32		lex_starts;	/* how many interps done on level */
     SV		*lex_stuff;	/* runtime pattern from m// or s/// */
-    I32		multi_start;	/* 1st line of multi-line string */
-    I32		multi_end;	/* last line of multi-line string */
     UV		multi_open;	/* delimiter of said string */
     UV		multi_close;	/* delimiter of said string */
-    bool        lex_re_reparsing; /* we're doing G_RE_REPARSING */
-    U8		lex_super_state;/* lexer state to save */
-    expectation	lex_attr_state; /* attr lexer state */
-    U16		lex_sub_inwhat;	/* "lex_inwhat" to use in sublex_push */
+    I32		lex_starts;	/* how many interps done on level */
+    I32		multi_start;	/* 1st line of multi-line string */
+    I32		multi_end;	/* last line of multi-line string */
     I32		lex_allbrackets;/* (), [], {}, ?: bracket count */
+    U16		lex_inwhat;	/* what kind of quoting are we in */
+    U16		lex_sub_inwhat;	/* "lex_inwhat" to use in sublex_push */
+    OPCODE	last_lop_op;	/* last named list or unary operator */
+    U8		lex_super_state;/* lexer state to save */
+    U8		lex_defer;	/* state after determined token */
+    U8		lex_dojoin;	/* doing an array interpolation
+				   1 = @{...}  2 = ->@ */
+    expectation	lex_attr_state; /* attr lexer state */
+    expectation	expect;		/* how to interpret ambiguous tokens. <5.6 enum, <5.10 int */
+    bool	preambled;
+    bool        sub_no_recover; /* can't recover from a sublex error */
+    bool        lex_re_reparsing; /* we're doing G_RE_REPARSING */
+    OP		*mrelop;	/* intermediate relop, 0 < $x < 1 */
     OP		*lex_sub_op;	/* current op in y/// or pattern */
     SV		*lex_sub_repl;	/* repl of s/// used in sublex_push */
     LEXSHARED	*lex_shared;

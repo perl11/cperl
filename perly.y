@@ -76,7 +76,7 @@
 %type <opval> formname subname proto optsubbody cont my_scalar my_var
 %type <opval> refgen_topic formblock
 %type <opval> subattrlist myattrlist myattrterm myterm hasterm
-%type <opval> subsignature termbinop termunop anonymous termdo
+%type <opval> subsignature termbinop multtermrelop termunop anonymous termdo
 %type <opval> formstmtseq formline formarg
 
 %nonassoc <ival> PREC_LOW
@@ -95,7 +95,7 @@
 %left <ival> BITOROP
 %left <ival> BITANDOP
 %nonassoc EQOP
-%nonassoc RELOP
+%left RELOP
 %nonassoc UNIOP UNIOPSUB
 %nonassoc REQUIRE
 %left <ival> SHIFTOP
@@ -847,18 +847,26 @@ subscripted:    gelem '{' expr ';' '}'        /* *main::{something} */
 			}
 	|	'(' expr ')' '[' expr ']'            /* list slice */
 			{ $$ = newSLICEOP(0, $5, $2); }
-	|	QWLIST '[' expr ']'            /* list literal slice */
+	|	QWLIST '[' expr ']'                  /* list literal slice */
 			{ $$ = newSLICEOP(0, $3, $1); }
 	|	'(' ')' '[' expr ']'                 /* empty list slice! */
 			{ $$ = newSLICEOP(0, $4, NULL); }
     ;
 
+/* Multiple binary comp. operators between terms */
+multtermrelop:	term RELOP term				 /* 0 < $x */
+			{   parser->mrelop = scalar($3); /* temp. last value */
+                            $$ = newBINOP($2, 0, scalar($1), parser->mrelop); }
+	|	multtermrelop RELOP term		 /* 0 < $x < 1 */
+			{ $$ = newLOGOP(OP_AND, 0, scalar($1),
+                                 newBINOP($2, 0, parser->mrelop, scalar($3))); }
+
 /* Binary operators between terms */
 termbinop:	term ASSIGNOP term 			/* $x = $y */
 			{ $$ = newASSIGNOP_maybe_const($1, $2, $3); }
-	|	term POWOP term                        /* $x ** $y */
+	|	term POWOP term				/* $x ** $y */
 			{ $$ = newBINOP(OP_POW, 0, scalar($1), scalar($3)); }
-	|	term MULOP term                        /* $x * $y, $x x $y */
+	|	term MULOP term				/* $x * $y, $x x $y */
 			{   if ($2 != OP_REPEAT)
 				scalar($1);
 			    $$ = newBINOP($2, 0, $1, scalar($3));
@@ -871,8 +879,6 @@ termbinop:	term ASSIGNOP term 			/* $x = $y */
 	|	term ADDOP term                        /* $x + $y */
 			{ $$ = newBINOP($2, 0, scalar($1), scalar($3)); }
 	|	term SHIFTOP term                      /* $x >> $y, $x << $y */
-			{ $$ = newBINOP($2, 0, scalar($1), scalar($3)); }
-	|	term RELOP term                        /* $x > $y, etc. */
 			{ $$ = newBINOP($2, 0, scalar($1), scalar($3)); }
 	|	term EQOP term                         /* $x == $y, $x eq $y */
 			{ $$ = newBINOP($2, 0, scalar($1), scalar($3)); }
@@ -972,6 +978,7 @@ term:		termbinop
 	|	termunop
 	|	anonymous
 	|	termdo
+	|	multtermrelop
 	|	term '?' term ':' term
 			{ $$ = newCONDOP(0, $1, $3, $5); }
 	|	REFGEN term                          /* \$x, \@y, \%z */
