@@ -49,7 +49,7 @@ PATHNAME: for my $pathname (@files) {
     my @path_components = split('/',$pathname);
     my $filename = pop @path_components;
     for my $component (@path_components) {
-        if ($component =~ /\./) {
+        if ($component =~ /\./ && $component ne '.github') {
             fail("$pathname has directory components containing '.'");
             next PATHNAME;
         }
