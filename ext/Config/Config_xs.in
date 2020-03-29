@@ -58,10 +58,11 @@ write a Config value. Use L<Mock::Config> from CPAN to do that.
 #include "perl.h"
 #include "XSUB.h"
 
-/* Need to disable broken gcc-9.{0,1,2} -O1 */
+/* Need to disable broken gcc-9.[0-3] -O1. Assume gcc-10 is also still broken */
 /* Only gcc defines __GNUC_PATCHLEVEL__, clang and icc do define __GNUC__ */
-#if defined(__GNUC__) && defined(__GNUC_PATCHLEVEL__) && (__GNUC__ == 9) && \
-    (__GNUC_MINOR__ < 3)
+#if defined(__GNUC__) && defined(__GNUC_PATCHLEVEL__) && \
+    (((__GNUC__ == 9) && (__GNUC_MINOR__ <= 3) || \
+      (__GNUC__ > 9)))
 #  define BROKEN_GCC_OPT
 #endif
 
