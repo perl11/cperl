@@ -5011,6 +5011,7 @@ ebcdic_tables.h		Generated tables included in utfebcdic.h
 embed.fnc		Database used by embed.pl
 embed.h			Maps symbols to safer names
 embedvar.h		C namespace management
+epsm.c                  fastest string search
 ext/Amiga-ARexx/__examples/simplecommand.pl	Amiga::ARexx extension
 ext/Amiga-ARexx/__examples/simplehost.pl	Amiga::ARexx extension
 ext/Amiga-ARexx/ARexx.pm	Amiga::ARexx extension

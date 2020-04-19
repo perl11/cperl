@@ -579,7 +579,7 @@ obj3 = av$(OBJ_EXT) pad$(OBJ_EXT) sv$(OBJ_EXT) hv$(OBJ_EXT) pp_hot$(OBJ_EXT) run
 obj4 = scope$(OBJ_EXT) pp_ctl$(OBJ_EXT) pp_sys$(OBJ_EXT) mg$(OBJ_EXT) regcomp$(OBJ_EXT) \
        doop$(OBJ_EXT) doio$(OBJ_EXT) util$(OBJ_EXT) keywords$(OBJ_EXT)
 # xsutilsmini
-obj5 = regexec$(OBJ_EXT) utf8$(OBJ_EXT) universal$(OBJ_EXT) perlapi$(OBJ_EXT) \
+obj5 = regexec$(OBJ_EXT) epsm$(OBJ_EXT) utf8$(OBJ_EXT) universal$(OBJ_EXT) perlapi$(OBJ_EXT) \
        globals$(OBJ_EXT) perlio$(OBJ_EXT) pp_sort$(OBJ_EXT) pp_pack$(OBJ_EXT) \
        numeric$(OBJ_EXT) reentr$(OBJ_EXT) mathoms$(OBJ_EXT) locale$(OBJ_EXT) \
        dquote$(OBJ_EXT) mro_core$(OBJ_EXT) taint$(OBJ_EXT) time64$(OBJ_EXT) \
