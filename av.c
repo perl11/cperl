@@ -477,9 +477,14 @@ Perl_av_make(pTHX_ SSize_t size, SV **strp)
 
 	    SvGETMAGIC(*strp); /* before newSV, in case it dies */
 	    AvFILLp(av)++;
-	    ary[i] = newSV(0);
-	    sv_setsv_flags(ary[i], *strp,
-			   SV_DO_COW_SVSETSV|SV_NOSTEAL);
+            /* keep most immortals asis. cperl only. */
+            if (SvIMMORTAL(*strp)) {
+                ary[i] = *strp;
+            } else {
+                ary[i] = newSV(0);
+                sv_setsv_flags(ary[i], *strp,
+                               SV_DO_COW_SVSETSV|SV_NOSTEAL);
+            }
 	    strp++;
 	}
         /* disarm av's leak guard */

@@ -264,11 +264,19 @@ PPt(pp_sassign, "(:Scalar,:Scalar):Scalar")
                     "Useless assignment to a temporary");
     }
     /* my $i :const = val; initialization must temp. lift constness */
-    if (UNLIKELY(OpSPECIAL(PL_op) && SvREADONLY(left))) {
-        SvREADONLY_off(left);
-        SvSetMagicSV(left, right);
-        SETs(left);
-        SvREADONLY_on(left);
+    else if (UNLIKELY(OpSPECIAL(PL_op) && SvREADONLY(left))) {
+        /* allow writing to array/hash elements */
+        if (SvIMMORTAL(left)) { /* $a=[undef];$a->[0]=1 */
+            /* left = newSV(0); */
+            left = right;
+            SvSETMAGIC(left);
+            SETs(left);
+        } else {
+            SvREADONLY_off(left);
+            SvSetMagicSV(left, right);
+            SETs(left);
+            SvREADONLY_on(left);
+        }
     } else {
         SvSetMagicSV(left, right);
         SETs(left);
