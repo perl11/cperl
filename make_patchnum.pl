@@ -110,9 +110,10 @@ sub backtick {
 }
 
 sub write_files {
-    my %content= map { /WARNING: '([^']+)'/ || die "Bad mojo!"; $1 => $_ } @_;
-    my @files= sort keys %content;
-    my $files= join " and ", map { "'$_'" } @files;
+    my %content = map { /WARNING: '([.A-Za-z_\/]+)'/aa || die "Missing WARNING file '$1' in '$_'";
+                        $1 => $_ } @_;
+    my @files = sort keys %content;
+    my $files = join " and ", map { "'$_'" } @files;
     foreach my $file (@files) {
         if (read_file($file) ne $content{$file} or -M $file > -M __FILE__) {
             print "Updating $files\n"
