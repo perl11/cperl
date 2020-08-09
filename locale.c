@@ -4913,7 +4913,7 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
                            " separator %.*s<-- HERE %s\n",
                            __FILE__, __LINE__,
                            (int) (e - PL_locale_utf8ness), PL_locale_utf8ness,
-                           e);
+                           s);
             }
             e++;
             if (*e != '0' && *e != '1') {
