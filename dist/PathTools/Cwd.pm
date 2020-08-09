@@ -2,7 +2,7 @@ package Cwd;
 use strict;
 use Exporter;
 
-our $VERSION = '4.78c'; # modernized
+our $VERSION = '4.78_01c'; # modernized
 our $XS_VERSION = $VERSION;
 #$VERSION =~ tr/_//;
 $VERSION =~ s/c$//;

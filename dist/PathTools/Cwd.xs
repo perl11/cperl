@@ -16,7 +16,10 @@
 #endif
 
 #ifdef I_UNISTD
-#   include <unistd.h>
+#  if defined(HAS_GET_CURRENT_DIR_NAME) && !defined(_GNU_SOURCE)
+#    define _GNU_SOURCE
+#  endif
+#  include <unistd.h>
 #endif
 
 /* For special handling of os390 sysplexed systems */

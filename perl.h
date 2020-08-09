@@ -49,6 +49,11 @@
 #  define HAS_C99 1
 #endif
 
+/* Needs to bet set early, before features.h. C<man 7 feature_test_macros> */
+#if defined(HAS_GET_CURRENT_DIR_NAME) && !defined(_GNU_SOURCE)
+#  define _GNU_SOURCE
+#endif
+
 /* See L<perlguts/"The Perl API"> for detailed notes on
  * PERL_IMPLICIT_CONTEXT and PERL_IMPLICIT_SYS */
 
