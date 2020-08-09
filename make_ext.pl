@@ -280,6 +280,7 @@ sub build_extension { #build_extensions is not recursion safe
 
     my $up = $ext_dir;
     $up =~ s![^/]+!..!g;
+    $up =~ s!^\.\.\.\.!..!;
 
     $perl ||= "$up/miniperl";
     my $return_dir = $up;
