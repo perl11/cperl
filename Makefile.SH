@@ -289,7 +289,7 @@ CC = $cc
 LD = $ld
 
 LDFLAGS = $ldflags
-CLDFLAGS = $ldflags $optimize
+CLDFLAGS = \$(LDFLAGS) $optimize
 
 mallocsrc = $mallocsrc
 mallocobj = $mallocobj
