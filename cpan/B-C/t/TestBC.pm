@@ -803,6 +803,10 @@ sub run_cc_test {
             return 0;
         }
     }
+    if ($ENV{SKIP_SLOW_TESTS} and $cnt > 1) {
+        ok(1, "skip SKIP_SLOW_TESTS");
+        return 0;
+    }
     # note that the smokers run the c.t and c_o3.t tests in parallel, with possible
     # interleaving file writes even for the .pl.
     my $test = $fnbackend."code".$cnt.$opt.".pl";
@@ -848,9 +852,9 @@ sub run_cc_test {
             } else {
                 $command = $Config{optimize}." ".$Config{ccflags}." -I".$coredir;
                 if ($Config{ccflags} =~ /-flto/ and -s $cfile > 50000) { # too big
-                    diag ("$cfile too big, size ", -s $cfile, " use -O1")
+                    diag ("$cfile too big, size ", -s $cfile, " no -O")
                       if $ENV{TEST_VERBOSE} > 1;
-                    $command =~ s/-O[23] /-O1 /;
+                    $command =~ s/-O[23] / /;
                 }
             }
         } else {
@@ -1110,8 +1114,8 @@ CCTESTS
     if (is_CI() # 2003_063 ms with 10 tests! (33m) 900_000 ms with 5 tests (15m)
         and ($Config{ccflags} =~ /-flto/ or $ENV{SKIP_SLOW_TESTS})
         and $ENV{PERL_CORE}) {
-        diag "skipping slow tests, ".$#tests," => 3";
-        @tests = @tests[0..2];
+        diag "skipping slow tests, ".$#tests," => 2";
+        @tests = @tests[0..1];
     }
 
     plan tests => scalar @tests;
