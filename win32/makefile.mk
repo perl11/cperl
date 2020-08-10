@@ -7,9 +7,9 @@
 #	Windows SDK 64-bit compiler and tools
 #
 # This is set up to build a perl.exe that runs off a shared library
-# (cperl530.dll).  Also makes individual DLLs for the XS extensions.
+# (cperl531.dll).  Also makes individual DLLs for the XS extensions.
 #
-PV = 530
+PV = 531
 
 ##
 ## Make sure you read README.win32 *before* you mess with anything here!
@@ -51,7 +51,7 @@ USE_CPERL	*= define
 # versioned installation can be obtained by setting INST_TOP above to a
 # path that includes an arbitrary version string.
 #
-#INST_VER	*= \5.30.0
+#INST_VER	*= \5.31.0
 
 #
 # Comment this out if you DON'T want your perl installation to have
@@ -229,7 +229,7 @@ DEFAULT_INC_EXCLUDES_DOT *= define
 # set this to additionally provide a statically linked perl-static.exe.
 # Note that dynamic loading will not work with this perl, so you must
 # include required modules statically using the STATIC_EXT or ALL_STATIC
-# variables below. A static library cperl530s.lib will also be created.
+# variables below. A static library cperl531s.lib will also be created.
 # Ordinary perl.exe is not affected by this option.
 #
 #BUILD_STATIC	*= define
@@ -1723,8 +1723,8 @@ utils: $(HAVEMINIPERL) ..\utils\Makefile
 	copy ..\README.tw       ..\pod\perltw.pod
 	copy ..\README.vos      ..\pod\perlvos.pod
 	copy ..\README.win32    ..\pod\perlwin32.pod
-	copy ..\pod\perlcdelta.pod ..\pod\perl5300cdelta.pod
-	copy ..\pod\perldelta.pod ..\pod\perl5300delta.pod
+	copy ..\pod\perlcdelta.pod ..\pod\perl5320cdelta.pod
+	copy ..\pod\perldelta.pod ..\pod\perl5320delta.pod
 	$(MINIPERL) -I..\lib $(PL2BAT) $(UTILS)
 	$(MINIPERL) -I..\lib ..\autodoc.pl ..
 	$(MINIPERL) -I..\lib ..\pod\perlmodlib.PL -q ..
@@ -1829,7 +1829,7 @@ distclean: realclean
 	-if exist $(LIBDIR)\YAML rmdir /s /q $(LIBDIR)\YAML
 	-if exist $(LIBDIR)\YAML\Safe rmdir /s /q $(LIBDIR)\YAML\Safe
 	-cd $(PODDIR) && del /f *.html *.bat roffitall \
-	    perl5300cdelta.pod perl5300delta.pod perlaix.pod perlamiga.pod \
+	    perl5320cdelta.pod perl5320delta.pod perlaix.pod perlamiga.pod \
 	    perlandroid.pod perlapi.pod perlbs2000.pod perlce.pod \
 	    perlcn.pod perlcygwin.pod perldos.pod perlfreebsd.pod \
 	    perlhaiku.pod perlhpux.pod perlhurd.pod perlintern.pod \

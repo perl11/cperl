@@ -6139,6 +6139,8 @@ pod/perl5281cdelta.pod		cperl changes in version 5.28.1c
 pod/perl5281delta.pod		Perl changes in version 5.28.1
 pod/perl5282cdelta.pod		cperl changes in version 5.28.2c
 pod/perl5282delta.pod		Perl changes in version 5.28.2
+pod/perl5300cdelta.pod		cperl changes in version 5.30.0c
+pod/perl5300delta.pod		Perl changes in version 5.30.0
 pod/perl561delta.pod		Perl changes in version 5.6.1
 pod/perl56delta.pod		Perl changes in version 5.6
 pod/perl581delta.pod		Perl changes in version 5.8.1
@@ -6157,7 +6159,7 @@ pod/perlbook.pod		Perl book information
 pod/perlboot.pod		
 pod/perlbot.pod			
 pod/perlcall.pod		Perl calling conventions from C
-pod/perlcdelta.pod		cperl changes in version 5.30.0c
+pod/perlcdelta.pod		cperl changes in version 5.32.0c
 pod/perlcheat.pod		Perl cheat sheet
 pod/perlclass.pod		Modern cperl classes and roles
 pod/perlclib.pod		Internal replacements for standard C library functions
@@ -6168,7 +6170,7 @@ pod/perldbmfilter.pod		Perl DBM filters
 pod/perldebguts.pod		Perl debugging guts and tips
 pod/perldebtut.pod		Perl debugging tutorial
 pod/perldebug.pod		Perl debugging
-pod/perldelta.pod		Perl changes in version 5.30.0
+pod/perldelta.pod		Perl changes in version 5.32.0
 pod/perldeprecation.pod		Perl deprecations
 pod/perldiag.pod		Perl diagnostic messages
 pod/perldsc.pod			Perl data structures intro
