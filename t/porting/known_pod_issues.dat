@@ -467,7 +467,7 @@ pod/perl5282cdelta.pod	Apparent broken link	1
 pod/perl5300cdelta.pod	Apparent broken link	12
 pod/perl5300cdelta.pod	Verbatim line length including indents exceeds 79 by	2
 pod/perl5320cdelta.pod	=item has no contents	6
-pod/perl5320cdelta.pod	empty section in previous paragraph	11
+pod/perl5320cdelta.pod	empty section in previous paragraph	10
 pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlapi.pod	? Should you be using L<...> instead of	1
 pod/perlapi.pod	Verbatim line length including indents exceeds 79 by	14

@@ -41,6 +41,14 @@ release manager will have to investigate the situation carefully.)
 
 =head2 Updated Modules and Pragmata
 
+=over 4
+
+=item L<Encode>  3.07
+
+Updated from 3.01
+
+=back
+
 =head2 Removed Modules and Pragmata
 
 =head1 Documentation

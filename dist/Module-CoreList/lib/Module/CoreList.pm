@@ -20285,6 +20285,7 @@ our %delta :const = (
             'B::Op_private'         => '5.032000',
             'Module::CoreList'      => '5.20200810c',
             'Module::CoreList::Utils'=> '5.20200810c',
+            'Encode'                => '3.07',
             'ExtUtils::Mkconst2perl'     => '1.01',
             'Pod::Simple'                => '4.40c',
             'Pod::Simple::BlackBox'      => '3.40',
