@@ -13,7 +13,7 @@ BEGIN {
     push @ISA, 'Exporter';
     @EXPORT= qw( &Myconst2perl );
     @EXPORT_OK= qw( &ParseAttribs );
-    $VERSION= 1.00;
+    $VERSION= 1.01;
 }
 
 use Carp;
@@ -27,6 +27,8 @@ sub _cc
     return $Config{_cc}   if  $Config{_cc};
     return ".cxx";	# Seems to be the most widely accepted extension.
 }
+
+=over 4
 
 =item ParseAttribs
 
@@ -180,6 +182,8 @@ first part of the Module's F<*.pm> file and then requesting some groups of
 symbols be exported/imported into a dummy package.  Then writes C or C++
 code that can convert each C constant into a Perl "constant subroutine"
 whose name is the constant's name and whose value is the constant's value.
+
+=back
 
 =cut
 
