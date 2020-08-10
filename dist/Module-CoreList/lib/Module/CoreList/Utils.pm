@@ -1667,6 +1667,28 @@ our %delta :const = (
         changed => {},
         removed => {}
     },
+    5.030000 => {
+        delta_from => 5.029010,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.031000 => {
+        delta_from => 5.03,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.031001 => {
+        delta_from => 5.031,
+        changed => {
+        },
+        removed => {
+            'podselect'             => 1,
+        }
+    },
     '5.030000c' => {
         delta_from => '5.029002c',
         changed => {
@@ -1676,7 +1698,118 @@ our %delta :const = (
         },
         removed => {}
     },
-    '5.030002c' => {
+    5.031002 => {
+        delta_from => 5.031001,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.031003 => {
+        delta_from => 5.031002,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.031004 => {
+        delta_from => 5.031003,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.031005 => {
+        delta_from => 5.031004,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.030001 => {
+        delta_from => 5.03,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.031006 => {
+        delta_from => 5.031005,
+        changed => {
+            'streamzip'             => '1',
+        },
+        removed => {
+        }
+    },
+    5.031007 => {
+        delta_from => 5.031006,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.031008 => {
+        delta_from => 5.031007,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.031009 => {
+        delta_from => 5.031008,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.030002 => {
+        delta_from => 5.030001,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.031010 => {
+        delta_from => 5.031009,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.031011 => {
+        delta_from => 5.031010,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.028003 => {
+        delta_from => 5.028002,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.030003 => {
+        delta_from => 5.030002,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.032000 => {
+        delta_from => 5.031011,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    '5.031000c' => { # never released, just temp.
+        delta_from => '5.030000c',
+        changed => {},
+        removed => {}
+    },
+    '5.032000c' => {
         delta_from => '5.030000c',
         changed => {},
         removed => {}
