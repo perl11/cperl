@@ -8,6 +8,7 @@ BEGIN {
 }
  
 use strict;
+use warnings;
 use Test;
 BEGIN { plan tests => 7 };
 
@@ -15,11 +16,18 @@ BEGIN { plan tests => 7 };
 
 use Pod::Simple::HTML;
 
-sub x ($) { Pod::Simple::HTML->_out(
+sub x { Pod::Simple::HTML->_out(
   #sub{  $_[0]->bare_output(1)  },
   "=pod\n\n$_[0]",
 ) }
 
+BEGIN {
+  if ($^V !~ /c$/) {
+    require Sub::Util;
+    import Sub::Util 1.55;
+    Sub::Util::set_prototype('$', \&x);
+  }
+}
 
 # make sure empty file => empty output
 

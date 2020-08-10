@@ -4,7 +4,7 @@ use strict;
 our ( %version, %families, %deprecated );
 
 use version;
-our $VERSION = '5.20190703c';
+our $VERSION = '5.20200810c';
 $VERSION =~ s/c$//;
 
 sub PKG_PATTERN () { q#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z# }
@@ -374,6 +374,7 @@ our %released :const = (
     5.030000 => '2019-05-22',
     '5.029002c' => '2019-06-11',
     '5.030000c' => '2019-07-06',
+    '5.030002c' => '2020-??-??',
  );
 
 sub version_sort {
@@ -19042,6 +19043,41 @@ our %delta :const = (
             'YAML::XS::LibYAML'     => '0.75',
         }
     },
+    '5.030002c' => {
+        delta_from => '5.030000c',
+        changed => {
+            'B::Op_private'         => '5.030002',
+            'Module::CoreList'      => '5.20200810c',
+            'Module::CoreList::Utils'=> '5.20200810c',
+            'Pod::Simple'                => '4.40c',
+            'Pod::Simple::BlackBox'      => '3.40',
+            'Pod::Simple::Checker'       => '3.40',
+            'Pod::Simple::Debug'         => '3.40',
+            'Pod::Simple::DumpAsText'    => '4.40c',
+            'Pod::Simple::DumpAsXML'     => '4.40c',
+            'Pod::Simple::HTML'          => '4.40c',
+            'Pod::Simple::HTMLBatch'     => '3.40',
+            'Pod::Simple::LinkSection'   => '3.40',
+            'Pod::Simple::Methody'       => '4.40c',
+            'Pod::Simple::Progress'      => '3.40',
+            'Pod::Simple::PullParser'    => '4.40c',
+            'Pod::Simple::PullParserEndToken'  => '3.40',
+            'Pod::Simple::PullParserStartToken'=> '3.40',
+            'Pod::Simple::PullParserTextToken' => '3.40',
+            'Pod::Simple::PullParserToken'=> '3.40',
+            'Pod::Simple::RTF'           => '3.40',
+            'Pod::Simple::Search'        => '3.40',
+            'Pod::Simple::SimpleTree'    => '3.40',
+            'Pod::Simple::Text'          => '3.40',
+            'Pod::Simple::TextContent'   => '3.40',
+            'Pod::Simple::TiedOutFH'     => '3.40',
+            'Pod::Simple::Transcode'     => '3.40',
+            'Pod::Simple::TranscodeDumb' => '3.40',
+            'Pod::Simple::TranscodeSmart'=> '3.40',
+            'Pod::Simple::XHTML'         => '3.40',
+            'Pod::Simple::XMLOutStream'  => '4.40c',
+        }
+    },
 );
 
 sub is_core
@@ -20141,6 +20177,11 @@ sub is_core
     },
     '5.030000c' => {
         delta_from => '5.029002c',
+        changed => {},
+        removed => {}
+    },
+    '5.030002c' => {
+        delta_from => '5.030000c',
         changed => {},
         removed => {}
     },

@@ -1,7 +1,7 @@
 require 5;
 package Pod::Simple::PullParser;
 use cperl;
-our $VERSION = '4.39c'; # modernized
+our $VERSION = '4.40c'; # modernized
 $VERSION =~ s/c$//;
 use Pod::Simple ();
 BEGIN {@ISA = ('Pod::Simple')}

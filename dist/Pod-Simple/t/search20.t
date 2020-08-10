@@ -6,6 +6,7 @@ BEGIN {
 }
 
 use strict;
+use warnings;
 use Pod::Simple::Search;
 use Test;
 BEGIN { plan tests => 11 }
@@ -78,16 +79,16 @@ require $ascii_order;
 
 {
 my $names = join "|", sort ascii_order values %$where2name;
-skip $^O eq 'VMS' ? '-- case may or may not be preserved' : 0, 
-     $names, 
-     "Blorm|Suzzle|Zonk::Pronk|hinkhonk::Glunk|hinkhonk::Vliff|perlflif|perlthng|perlzuk|squaa|squaa::Glunk|squaa::Vliff|squaa::Wowo|zikzik";
+skip $^O eq 'VMS' ? '-- case may or may not be preserved' : 0,
+     $names,
+     "Blorm|Suzzle|Zonk::Pronk|hinkhonk::Glunk|hinkhonk::Vliff|perlflif|perlthng|perlzoned|perlzuk|squaa|squaa::Glunk|squaa::Vliff|squaa::Wowo|zikzik";
 }
 
 {
 my $names = join "|", sort ascii_order keys %$name2where;
-skip $^O eq 'VMS' ? '-- case may or may not be preserved' : 0, 
-     $names, 
-     "Blorm|Suzzle|Zonk::Pronk|hinkhonk::Glunk|hinkhonk::Vliff|perlflif|perlthng|perlzuk|squaa|squaa::Glunk|squaa::Vliff|squaa::Wowo|zikzik";
+skip $^O eq 'VMS' ? '-- case may or may not be preserved' : 0,
+     $names,
+     "Blorm|Suzzle|Zonk::Pronk|hinkhonk::Glunk|hinkhonk::Vliff|perlflif|perlthng|perlzoned|perlzuk|squaa|squaa::Glunk|squaa::Vliff|squaa::Wowo|zikzik";
 }
 
 ok( ($name2where->{'squaa'} || 'huh???'), '/squaa\.pm$/');

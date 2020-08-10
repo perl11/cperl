@@ -8,6 +8,7 @@ BEGIN {
 }
 
 use strict;
+use warnings;
 use Test;
 BEGIN { plan tests => 14 };
 
@@ -15,12 +16,20 @@ BEGIN { plan tests => 14 };
 
 use Pod::Simple::HTML;
 
-sub x ($;&) {
+sub x {
   my $code = $_[1];
   Pod::Simple::HTML->_out(
   sub{  $_[0]->bare_output(1); $code->($_[0]) if $code  },
   "=pod\n\n$_[0]",
 ) }
+
+BEGIN {
+  if ($^V !~ /c$/) {
+    require Sub::Util;
+    import Sub::Util 1.55;
+    Sub::Util::set_prototype('$;&', \&x);
+  }
+}
 
 ok( x(
 q{

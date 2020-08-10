@@ -7,6 +7,7 @@ BEGIN {
 }
 
 use strict;
+use warnings;
 use lib '../lib';
 use Test::More tests => 62;
 #use Test::More 'no_plan';
@@ -51,12 +52,20 @@ initialize($parser, $results);
 $parser->parse_string_document( "=head4 Zort & Zog!" );
 is($results, qq{<h4 id="Zort-Zog">Zort &amp; Zog!</h4>\n\n}, "head4 level output");
 
-sub x ($;&) {
+sub x {
   my $code = $_[1];
   Pod::Simple::XHTML->_out(
   sub { $code->($_[0]) if $code },
   "=pod\n\n$_[0]",
 ) }
+
+BEGIN {
+  if ($^V !~ /c$/) {
+    require Sub::Util;
+    import Sub::Util 1.55;
+    Sub::Util::set_prototype('$;&', \&x);
+  }
+}
 
 like(
   x("=head1 Header\n\n=for html <div>RAW<span>!</span></div>\n\nDone."),

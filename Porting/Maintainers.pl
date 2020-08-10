@@ -1227,7 +1227,7 @@ use File::Glob qw(:case);
     },
 
     'Pod::Simple' => {
-        'DISTRIBUTION' => 'KHW/Pod-Simple-3.39.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Pod-Simple-4.40c.tar.gz',
         'FILES'        => q[dist/Pod-Simple],
         # Modernized for cperl: https://github.com/rurban/pod-simple/tree/cperl
         #'CUSTOMIZED'   => [

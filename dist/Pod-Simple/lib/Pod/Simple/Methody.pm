@@ -5,7 +5,7 @@ use strict;
 use Pod::Simple ();
 use vars qw(@ISA);
 use cperl;
-our $VERSION = '4.39c'; # modernized
+our $VERSION = '4.40c'; # modernized
 $VERSION =~ s/c$//;
 BEGIN { @ISA = ('Pod::Simple'); }
 
