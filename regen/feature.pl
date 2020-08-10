@@ -63,6 +63,7 @@ $feature_bundle{"5.19"} = $feature_bundle{"5.15"};
 $feature_bundle{"5.21"} = $feature_bundle{"5.15"};
 $feature_bundle{"5.25"} = $feature_bundle{"5.23"};
 $feature_bundle{"5.29"} = $feature_bundle{"5.27"};
+$feature_bundle{"5.31"} = $feature_bundle{"5.27"};
 
 my @noops = qw( postderef lexical_subs );
 my @removed = qw( array_base );
