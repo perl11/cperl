@@ -130,6 +130,10 @@ unless (defined $nm_style) {
 if (defined $nm_style) {
     if ($nm_style eq 'gnu') {
         $nm = '/usr/bin/nm';
+        if ($Config{ccflags} =~ /-flto/ and $^O eq 'linux') {
+          $nm = `which gcc-nm`; chomp $nm;
+          $nm = '/usr/bin/nm' unless $nm;
+        }
     } elsif ($nm_style eq 'darwin') {
         $nm = '/usr/bin/nm';
         # With the -m option we get better information than the BSD-like
