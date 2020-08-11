@@ -43,6 +43,16 @@ my $trial = "$nm globals$Config{_o} 2>&1";
 my $yes = `$trial`;
 
 skip_all("Could not run `$trial`") if $?;
+if ($yes =~ /plugin needed to handle lto object/) {
+  $nm = "gcc-nm";
+  @nm = split / /, $nm;
+  $trial = "$nm globals$Config{_o} 2>&1";
+  $yes = `$trial`;
+  skip_all("Could not run `$trial`") if $?;
+  if ($yes =~ /plugin needed to handle lto object/) {
+    skip_all("$trial needs plugin to handle lto object");
+  }
+}
 
 my $defined = qr/^[0-9a-fA-F-]{8,16}\s+[^Uu]\s+_?/m;
 
