@@ -1918,19 +1918,20 @@ S_find_default_stash(pTHX_ HV **stash, const char *name, STRLEN len,
 #define SvREADONLY_on(sv) (SvFLAGS(sv) |= SVf_READONLY)
 
 /*
-=for apidoc s|bool|gv_magicalize|NN GV *gv|NN HV *stash|NN const char *name \
+=for apidoc S|bool|gv_magicalize|NN GV *gv|NN HV *stash|NN const char *name \
                      |STRLEN len|const svtype sv_type
 
- * gv_magicalize() is called by gv_fetchpvn_flags when creating
- * a new GV, gv is NN.
- * Note that it does not insert the GV into the stash prior to
- * magicalization, which some variables require need in order
- * to work (like %+, %-, %!), so callers must take care of
- * that.
- * 
- * It returns true if the gv did turn out to be magical one; i.e.,
- * if gv_magicalize actually did something.
- */
+gv_magicalize() is called by gv_fetchpvn_flags when creating
+a new GV, gv is NN.
+Note that it does not insert the GV into the stash prior to
+magicalization, which some variables require need in order
+to work (like %+, %-, %!), so callers must take care of
+that.
+
+It returns true if the gv did turn out to be magical one; i.e.,
+if gv_magicalize actually did something.
+=cut
+*/
 PERL_STATIC_INLINE bool
 S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len,
                       const svtype sv_type)

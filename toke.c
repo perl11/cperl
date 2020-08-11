@@ -1737,7 +1737,7 @@ Perl_lex_read_space(pTHX_ U32 flags)
 }
 
 /*
-=for apidoc EXMp|bool|validate_proto|SV *name|SV *proto|bool dowarn
+=for apidoc EXxp|bool|validate_proto|SV *name|SV *proto|bool dowarn
 
 This function performs syntax checking on a prototype, C<proto>.
 If C<warn> is true, any illegal characters or mismatched brackets

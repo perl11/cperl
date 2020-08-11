@@ -220,7 +220,7 @@ static const char array_passed_to_stat[] =
 #endif
 
 /*
-=for apidoc s|const char*	|typename	|HV* stash
+=for apidoc S|const char*	|typename	|HV* stash
 
 Returns the sanitized typename of the stash of the padname type,
 without main:: prefix.
@@ -287,7 +287,7 @@ const char * S_typename(pTHX_ const HV* stash)
 #define POP_DEFERRED_OP() (defer_ix >= 0 ? defer_stack[defer_ix--] : (OP *)NULL)
 
 /*
-=for apidoc in|OP*	|op_next_nn	|OP* o
+=for apidoc iT|OP*	|op_next_nn	|OP* o
 
 Returns the next non-NULL op, skipping all NULL ops in the chain.
 
@@ -302,7 +302,7 @@ S_op_next_nn(OP* o) {
 }
 
 /*
-=for apidoc in|OP*	|op_prev_nn	|OP* us
+=for apidoc iT|OP*	|op_prev_nn	|OP* us
 
 Returns the previous sibling or parent op, pointing via OpSIBLNG or
 OpFIRST to us.  Walks the the siblings until the parent, and then
@@ -327,7 +327,7 @@ S_op_prev_nn(const OP* us) {
 }
 
 /*
-=for apidoc in|OP*	|op_prevstart_nn	|const OP* start|OP* us
+=for apidoc iT|OP*	|op_prevstart_nn	|const OP* start|OP* us
 
 Returns the previous op, pointing via OpNEXT to us.
 Walks down the CvSTART until it finds us.
@@ -342,7 +342,7 @@ S_op_prevstart_nn(const OP* start, const OP* us) {
     return o;
 }
 /*
-=for apidoc sn|void	|prune_chain_head |OP** op_p
+=for apidoc ST|void	|prune_chain_head |OP** op_p
 
 remove any leading "empty" ops from the op_next chain whose first
 node's address is stored in op_p. Store the updated address of the
@@ -385,7 +385,7 @@ S_prune_chain_head(OP** op_p)
 #define DIFF(o,p)		((size_t)((I32 **)(p) - (I32**)(o)))
 
 /*
-=for apidoc s|OPSLAB*	|new_slab	|size_t sz
+=for apidoc S|OPSLAB*	|new_slab	|size_t sz
 
 Creates a new memory region, a slab, for ops, with room for sz
 pointers. sz starts with PERL_SLAB_SIZE (=64) and is then extended by
@@ -854,7 +854,7 @@ Perl_op_refcnt_dec(pTHX_ OP *o)
 #define RETURN_UNLIMITED_NUMBER (PERL_INT_MAX / 2)
 
 /*
-=for apidoc sR	|OP*	|no_fh_allowed	|NN OP *o
+=for apidoc SR	|OP*	|no_fh_allowed	|NN OP *o
 
 Throws a parser error: Missing comma after first argument to %s function
 for an op which does not take an optional comma-less filehandle argument.
@@ -1727,7 +1727,7 @@ Perl_op_refcnt_unlock(pTHX)
 
 
 /*
-=for apidoc Apdn|OP*	|op_sibling_splice	|\
+=for apidoc ApdT|OP*	|op_sibling_splice	|\
 	NULLOK OP *parent |NULLOK OP *start |int del_count |NULLOK OP* insert
 
 A general function for editing the structure of an existing chain of
@@ -1946,7 +1946,7 @@ Perl_op_parent(OP *o)
 }
 
 /*
-=for apidoc s|OP*  |op_sibling_newUNOP	|NULLOK OP *parent|NULLOK OP *start|I32 type|I32 flags
+=for apidoc S|OP*  |op_sibling_newUNOP	|NULLOK OP *parent|NULLOK OP *start|I32 type|I32 flags
 
 replace the sibling following start with a new UNOP, which becomes
 the parent of the original sibling; e.g.
@@ -2038,7 +2038,7 @@ Perl_op_contextualize(pTHX_ OP *o, I32 context)
 }
 
 /*
-=for apidoc s|OP*	|scalarkids	|NN OP* o
+=for apidoc S|OP*	|scalarkids	|NN OP* o
 
 Sets scalar context for all kids.
 
@@ -2085,7 +2085,7 @@ S_set_boolean(pTHX_ OP* o)
 }
 
 /*
-=for apidoc s|OP*	|scalarboolean	|NN OP* o
+=for apidoc S|OP*	|scalarboolean	|NN OP* o
 
 Checks boolean context for the op, merely for syntax warnings.
 
@@ -2908,7 +2908,7 @@ S_modkids(pTHX_ OP *o, I32 type)
 
 
 /*
-=for apidoc s|void	|check_hash_fields_and_hekify	|NULLOK UNOP *rop|NN SVOP *key_op|int real
+=for apidoc S|void	|check_hash_fields_and_hekify	|NULLOK UNOP *rop|NN SVOP *key_op|int real
 
 for a helem/hslice/kvslice, if its a fixed hash, croak on invalid
 const fields. Also, convert CONST keys to HEK-in-SVs.
@@ -4029,7 +4029,7 @@ S_cv_check_inline(pTHX_ const OP *o, CV *compcv)
 #endif
 
 /*
-=for apidoc s|void |process_optree	|NULLOK CV *cv|NN OP *root|NN OP *start
+=for apidoc S|void |process_optree	|NULLOK CV *cv|NN OP *root|NN OP *start
 
 Do the post-compilation processing of an op_tree with specified
 root and start
@@ -4105,7 +4105,7 @@ S_process_optree(pTHX_ CV *cv, OP *root, OP *start)
 
 
 /*
-=for apidoc s||maybe_op_signature|NN CV *cv|NN OP *o
+=for apidoc S||maybe_op_signature|NN CV *cv|NN OP *o
 
 Does fake_signatures.
 If the sub starts with 'my (...) = @_',
@@ -4445,7 +4445,7 @@ Perl_op_relocate_sv(pTHX_ SV** svp, PADOFFSET* targp)
 #endif
 
 /*
-=for apidoc s|OP*|	traverse_op_tree	|OP* top|OP* o
+=for apidoc S|OP*|	traverse_op_tree	|OP* top|OP* o
 
 Return the next op in a depth-first traversal of the op tree,
 returning NULL when the traversal is complete.
@@ -11349,7 +11349,7 @@ Perl_cv_const_sv_or_av(const CV * const cv)
 }
 
 /*
-=for apidoc s|SV*    |op_const_sv    |NN const OP *o|NN CV *cv|bool allow_lex
+=for apidoc S|SV*    |op_const_sv    |NN const OP *o|NN CV *cv|bool allow_lex
 
 op_const_sv:  examine an optree to determine whether it's in-lineable
               into a single CONST op.
@@ -16758,7 +16758,7 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
 }
 
 /*
-=for apidoc s|void  |arg_type_sv |NN SV* sv|NULLOK char** usertype|NULLOK int* u8
+=for apidoc S|void  |arg_type_sv |NN SV* sv|NULLOK char** usertype|NULLOK int* u8
 
 Return the type for the sv. Optionally sets usertype and u8 (if usertype is utf8),
 when usertype is not NULL, and the SV is blessed.
@@ -16866,7 +16866,7 @@ Perl_arg_check_type_sv(pTHX_ const PADNAME* pn, SV* sv, GV *cvname)
 }
 
 /*
-=for apidoc s|OP*  |arg_check_type |NULLOK const PADNAME* pn|NN OP* o|NN GV *cvname
+=for apidoc S|OP*  |arg_check_type |NULLOK const PADNAME* pn|NN OP* o|NN GV *cvname
 
 Check if the declared static type of the argument from pn can be
 fullfilled by the dynamic type of the arg in OP* o (padsv, const,
@@ -16961,7 +16961,7 @@ S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
 }
 
 /*
-=for apidoc s|bool  |is_types_strict
+=for apidoc S|bool  |is_types_strict
 
 Check if the current lexical block has C<use types 'strict'> enabled.
 
@@ -16977,7 +16977,7 @@ S_is_types_strict(pTHX)
 }
 
 /*
-=for apidoc s|OP*  |_op_check_type |NULLOK const PADNAME* pn|NN OP* o|NN const char *opdesc
+=for apidoc S|OP*  |_op_check_type |NULLOK const PADNAME* pn|NN OP* o|NN const char *opdesc
 
 Check if the declared static type of the op (i.e. assignment) from the
 lhs pn can be fullfilled by the dynamic type of the rhs in OP* o
@@ -17101,7 +17101,7 @@ S__op_check_type(pTHX_ const PADNAME* pn, OP* o, const char *opdesc)
 /* yet unused */
 #if 0
 /*
-=for apidoc s|OP*  |ret_check_type |NULLOK const PADNAME* pn|NN OP* o|NN const char *opdesc
+=for apidoc S|OP*  |ret_check_type |NULLOK const PADNAME* pn|NN OP* o|NN const char *opdesc
 
 Check if the declared static type of the return type from the
 lhs pn can be fullfilled by the dynamic type of the rhs in OP* o
@@ -19688,7 +19688,7 @@ S_aassign_scan(pTHX_ OP* o, bool rhs, bool top, int *scalars_p)
 
 
 /*
-=for apidoc s||	  inplace_aassign	|NN OP* o
+=for apidoc S||	  inplace_aassign	|NN OP* o
 Check for in place reverse and sort assignments like "@a = reverse @a"
 and modify the optree to make them work inplace.
 

@@ -148,7 +148,7 @@ HDR_DOC:
 	    my($flags, $ret, $name, @args) = split /\s*\|\s*/, $proto;
             warn "$in empty apidoc" unless $name;
             warn ("'$name' not \\w+ in '$proto_in_file' in $file")
-                        if $flags !~ /N/ && ($name and $name !~ / ^ [_[:alpha:]] \w* $ /x);
+              if $flags !~ /N/ && ($name and $name !~ / ^ [_[:alpha:]] \w* $ /x);
             $ret = "void" if $flags and !$ret;
 	    my $docs = "";
 DOC:
@@ -173,11 +173,9 @@ DOC:
 	    if ($embed_docref and %$embed_docref) {
 		$embed_where = $embed_docref->{flags} =~ /A/ ? 'api' : 'guts';
 		$embed_may_change = $embed_docref->{flags} =~ /x/;
-                $flags .= 'D' if $embed_docref->{flags} =~ /D/;
-                $flags .= 'O' if $embed_docref->{flags} =~ /O/;
-                $flags .= 'p' if $embed_docref->{flags} =~ /p/;
-                $flags .= 'M' if $embed_docref->{flags} =~ /M/;
-                $flags .= 'T' if $embed_docref->{flags} =~ /T/;
+                for qw(D O p M T) {
+                  $flags .= $_ if $embed_docref->{flags} =~ /$_/;
+                }
 	    } elsif ($name =~ /^PerlIO_/ and $perlio->{$name}) {
 		$embed_where = 'apio';
 	    } elsif ($name =~ /^pp_/) {
@@ -191,7 +189,8 @@ DOC:
 		$inline_may_change = $flags =~ /x/;
 
 		if (defined $embed_where && $inline_where ne $embed_where) {
-		    warn "Function '$name' inconsistency: embed.fnc says $embed_where, Pod says $inline_where";
+                  warn "Function '$name' inconsistency: embed.fnc says $embed_where," .
+                    " Pod says $inline_where";
 		}
 
 		if (defined $embed_may_change
@@ -268,14 +267,15 @@ removed without notice.\n\n$docs" if $flags =~ /x/;
     }
 
     print $fh "=item $name\nX<$name>\n$docs";
+    print $fh "\n" unless $docs =~ m/\n\n$/;
 
     if ($flags =~ /U/) { # no usage
         warn("U and s flags are incompatible") if $flags =~ /s/;
 	# nothing
     } else {
         if ($flags =~ /n/) { # no args
-            warn("n flag without m") unless $flags =~ /m/;
-            warn("n flag but apparently has args") if @args;
+            warn("$name: Wrong n flag without m") unless $flags =~ /m/;
+            warn("$name: Wrong n flag but apparently has args") if @args;
             print $fh "\t$ret\t$name";
         } else { # full usage
             my $n            = "Perl_"x$p . $name;
