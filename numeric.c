@@ -36,6 +36,7 @@ S_strtod(pTHX_ const char * const s, char ** e)
 {
     DECLARATION_FOR_LC_NUMERIC_MANIPULATION;
     NV result;
+    PERL_ARGS_ASSERT_STRTOD;
 
     STORE_LC_NUMERIC_SET_TO_NEEDED();
 

@@ -5984,6 +5984,7 @@ PERL_STATIC_INLINE bool
 S_gv_has_usable_name(pTHX_ GV *gv)
 {
     GV **gvp;
+    PERL_ARGS_ASSERT_GV_HAS_USABLE_NAME;
     return GvSTASH(gv)
 	&& HvENAME(GvSTASH(gv))
 	&& (gvp = (GV **)hv_fetchhek(

@@ -11150,13 +11150,19 @@ Perl_sv_vsetpvfn(pTHX_ SV *const sv, const char *const pat, const STRLEN patlen,
 }
 
 
-/* simplified inline Perl_sv_catpvn_nomg() when you know the SV's SvPOK */
+/*
+=for apidoc sv_catpvn_simple
 
+Simplified inline C<Perl_sv_catpvn_nomg()> when you know the SV's C<SvPOK>.
+
+=cut
+*/
 PERL_STATIC_INLINE void
 S_sv_catpvn_simple(pTHX_ SV *const sv, const char* const buf, const STRLEN len)
 {
     STRLEN const need = len + SvCUR(sv) + 1;
     char *end;
+    PERL_ARGS_ASSERT_SV_CATPVN_SIMPLE;
 
     /* can't wrap as both len and SvCUR() are allocated in
      * memory and together can't consume all the address space

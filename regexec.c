@@ -2013,6 +2013,7 @@ STMT_START {                                                                    
 PERL_STATIC_INLINE SSize_t
 S_get_break_val_cp_checked(SV* const invlist, const UV cp_in) {
   SSize_t cp_out = Perl__invlist_search(invlist, cp_in);
+  PERL_ARGS_ASSERT_GET_BREAK_VAL_CP_CHECKED;
   assert(cp_out >= 0); /* abort with invalid codepoint? */
   return LIKELY(cp_out >= 0) ? cp_out : (SSize_t)LB_EDGE;
 }

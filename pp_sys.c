@@ -3027,6 +3027,7 @@ static OP *
 S_ft_return_false(pTHX_ SV *ret) {
     OP *next = NORMAL;
     dSP;
+    PERL_ARGS_ASSERT_FT_RETURN_TRUE;
 
     if (PL_op->op_flags & OPf_REF) XPUSHs(ret);
     else			   SETs(ret);
@@ -3043,6 +3044,8 @@ S_ft_return_false(pTHX_ SV *ret) {
 PERL_STATIC_INLINE OP *
 S_ft_return_true(pTHX_ SV *ret) {
     dSP;
+    PERL_ARGS_ASSERT_FT_RETURN_FALSE;
+
     if (PL_op->op_flags & OPf_REF)
         XPUSHs(PL_op->op_private & OPpFT_STACKING ? (SV *)cGVOP_gv : (ret));
     else if (!(PL_op->op_private & OPpFT_STACKING))

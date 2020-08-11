@@ -143,24 +143,29 @@ static const char* const illegal_nul = "Illegal NUL, syntax error";
 
 /* => or ⇒ U+021D2 \342\207\222 */
 PERL_STATIC_INLINE
-int S_isFATARROW(pTHX_ const char *s) {
+int S_isFATARROW(pTHX_ const char *s)
+{
+    PERL_ARGS_ASSERT_ISFATARROW;
     return (strnEQ(s,"=>",2) ||
             (UTF && FEATURE_UNICODE_IS_ENABLED
              ? strnEQ(s,"\xE2\x87\x92",3) : 0));
 }
 /* -> or → U+02192 \342\206\222 */
 PERL_STATIC_INLINE
-int S_isRIGHTARROW(pTHX_ const char *s) {
+int S_isRIGHTARROW(pTHX_ const char *s)
+{
+    PERL_ARGS_ASSERT_ISRIGHTARROW;
     return (strnEQ(s,"->",2) ||
             (UTF && FEATURE_UNICODE_IS_ENABLED
              ? strnEQ(s,"\xE2\x86\x92",3) : 0));
 }
-#define isFATARROW(s)    S_isFATARROW(aTHX_ s)
-#define isRIGHTARROW(s)  S_isRIGHTARROW(aTHX_ s)
 
 PERL_STATIC_INLINE
-U8 UNIsuperscript(const char *t) {
+U8 S_UNIsuperscript(const char *t)
+{
     const U8* s = (U8*)t;
+    PERL_ARGS_ASSERT_UNISUPERSCRIPT;
+
     switch (*s) {
     default: return 0xff;
     case 0xC2:
@@ -13447,11 +13452,11 @@ Perl_parse_listexpr(pTHX_ U32 flags)
 PERL_STATIC_INLINE bool
 S_is_constexpr(pTHX_ OP* o)
 {
-    const bool result = ( OP_TYPE_IS_NN(o, OP_CONST) ||
-                          OP_TYPE_IS_NN(o, OP_AELEM) ||
-                          OP_TYPE_IS_NN(o, OP_PADSV) ||
-                          OP_TYPE_IS_NN(o, OP_HELEM) );
-    return result;
+    PERL_ARGS_ASSERT_IS_CONSTEXPR;
+    return ( OP_TYPE_IS_NN(o, OP_CONST) ||
+             OP_TYPE_IS_NN(o, OP_AELEM) ||
+             OP_TYPE_IS_NN(o, OP_PADSV) ||
+             OP_TYPE_IS_NN(o, OP_HELEM) );
 }
 
 /*

@@ -316,6 +316,7 @@ S_do_concat(pTHX_ SV *left, SV *right, SV *targ, U8 targmy)
     bool lbyte = FALSE;
     bool rbyte = FALSE;
     bool rcopied = FALSE;
+    PERL_ARGS_ASSERT_DO_CONCAT;
 
     if (TARG == right && right != left) { /* $r = $l.$r */
 	rpv = SvPV_nomg_const(right, rlen);
@@ -1979,7 +1980,7 @@ S_padhv_rv2hv_common(pTHX_ HV *hv, U8 gimme, bool is_keys, bool has_targ)
     IV  i;
     bool is_tied;
     bool is_bool;
-
+    PERL_ARGS_ASSERT_PADHV_RV2HV_COMMON;
     assert(PL_op->op_type == OP_PADHV || PL_op->op_type == OP_RV2HV);
 
     if (gimme == G_ARRAY) {
@@ -2272,9 +2273,9 @@ S_do_oddball(pTHX_ SV **oddkey, SV **firstkey)
 
 PERL_STATIC_INLINE void
 S_aassign_copy_common(pTHX_ SV **firstlelem, SV **lastlelem,
-        SV **firstrelem, SV **lastrelem
+                      SV **firstrelem, SV **lastrelem
 #ifdef DEBUGGING
-        , bool fake
+                      , bool fake
 #endif
 )
 {
@@ -2286,6 +2287,7 @@ S_aassign_copy_common(pTHX_ SV **firstlelem, SV **lastlelem,
     bool const do_rc1 = PL_op->op_private & OPpASSIGN_COMMON_RC1;
     bool copy_all = FALSE;
 
+    PERL_ARGS_ASSERT_AASSIGN_COPY_COMMON;
     assert(!PL_in_clean_all); /* SVf_BREAK not already in use */
     assert(firstlelem < lastlelem); /* at least 2 LH elements */
     assert(firstrelem < lastrelem); /* at least 2 RH elements */

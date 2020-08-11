@@ -97,8 +97,8 @@ my ($embed, $core, $ext, $api) = setup_embed();
 	    warn "It is nonsensical to require the return value of a void function ($plain_func) to be checked";
 	}
 
-	die_at_end "$plain_func: S flag is mutually exclusive from the i and p plags"
-					    if $flags =~ /S/ && $flags =~ /[ip]/;
+	die_at_end "$plain_func: S flag is mutually exclusive from the i and p flags"
+					    if $flags =~ /S/ && $flags =~ /[ip]/g;
 
 	my $static_inline = 0;
 	if ($flags =~ /([Si])/) {

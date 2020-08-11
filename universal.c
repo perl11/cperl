@@ -1198,27 +1198,32 @@ XS(XS_Mu_fields)
         XSRETURN(num);
     }
 }
+
 #define FIELDS_OBJ_ASSERT \
     assert(SvTYPE(obj) == SVt_PVAV); \
     assert(AvFILLp((AV*)obj) >= FIELDS_INDEX_CLASS)
 
 PERL_STATIC_INLINE PADOFFSET
 S_fields_po(SV* obj) {
+    PERL_ARGS_ASSERT_FIELDS_PO;
     FIELDS_OBJ_ASSERT;
     return SvUVX(AvARRAY(obj)[FIELDS_INDEX_PO]);
 }
 PERL_STATIC_INLINE U16
 S_fields_ix(SV* obj) {
+    PERL_ARGS_ASSERT_FIELDS_IX;
     FIELDS_OBJ_ASSERT;
     return (U16)SvUVX(AvARRAY(obj)[FIELDS_INDEX_IX]);
 }
 PERL_STATIC_INLINE HV*
 S_fields_class(SV* obj) {
+    PERL_ARGS_ASSERT_FIELDS_CLASS;
     FIELDS_OBJ_ASSERT;
     return (HV*)(AvARRAY(obj)[FIELDS_INDEX_CLASS]);
 }
 PERL_STATIC_INLINE SV*
 S_fields_obj(SV* obj) {
+    PERL_ARGS_ASSERT_FIELDS_OBJ;
     FIELDS_OBJ_ASSERT;
     return AvARRAY(obj)[FIELDS_INDEX_OBJ];
 }

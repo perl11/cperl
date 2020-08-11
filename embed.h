@@ -1213,6 +1213,11 @@
 #define invlist_trim		S_invlist_trim
 #    endif
 #  endif
+#  if 0
+#    if defined(PERL_IN_REGCOMP_C)
+#define get_extended_utf8_msg(a)	S_get_extended_utf8_msg(aTHX_ a)
+#    endif
+#  endif
 #  if defined(DEBUGGING)
 #define cop_dump(a)		Perl_cop_dump(aTHX_ a)
 #    if defined(PERL_IN_REGCOMP_C)
@@ -1706,6 +1711,9 @@
 #define sv_2iuv_non_preserve(a)	S_sv_2iuv_non_preserve(aTHX_ a)
 #      endif
 #    endif
+#    if defined(PERL_IN_PP_HOT_C)
+#define aassign_copy_common(a,b,c,d)	S_aassign_copy_common(aTHX_ a,b,c,d)
+#    endif
 #  endif
 #  if !(defined(HAS_NL_LANGINFO))
 #    if defined(PERL_IN_LOCALE_C)
@@ -1812,6 +1820,9 @@
 #    endif
 #    if defined(PERL_IN_PAD_C)
 #define cv_dump(a,b)		S_cv_dump(aTHX_ a,b)
+#    endif
+#    if defined(PERL_IN_PP_HOT_C)
+#define aassign_copy_common(a,b,c,d,e)	S_aassign_copy_common(aTHX_ a,b,c,d,e)
 #    endif
 #    if defined(PERL_IN_SV_C)
 #define del_sv(a)		S_del_sv(aTHX_ a)
@@ -2052,6 +2063,7 @@
 #define op_std_init(a)		S_op_std_init(aTHX_ a)
 #define optimize_op(a)		S_optimize_op(aTHX_ a)
 #define pmtrans(a,b,c)		S_pmtrans(aTHX_ a,b,c)
+#define potential_mod_type	S_potential_mod_type
 #define process_special_blocks(a,b,c,d)	S_process_special_blocks(aTHX_ a,b,c,d)
 #define prune_chain_head	S_prune_chain_head
 #define ref_array_or_hash(a)	S_ref_array_or_hash(aTHX_ a)
@@ -2166,6 +2178,7 @@
 #  if defined(PERL_IN_PP_C)
 #define do_chomp(a,b,c)		S_do_chomp(aTHX_ a,b,c)
 #define do_delete_local()	S_do_delete_local(aTHX)
+#define negate_string()		S_negate_string(aTHX)
 #define refto(a)		S_refto(aTHX_ a)
 #  endif
 #  if defined(PERL_IN_PP_C) || defined(PERL_IN_PP_HOT_C)
@@ -2200,8 +2213,10 @@
 #    endif
 #  endif
 #  if defined(PERL_IN_PP_HOT_C)
+#define do_concat(a,b,c,d)	S_do_concat(aTHX_ a,b,c,d)
 #define do_oddball(a,b)		S_do_oddball(aTHX_ a,b)
 #define opmethod_stash(a)	S_opmethod_stash(aTHX_ a)
+#define padhv_rv2hv_common(a,b,c,d)	S_padhv_rv2hv_common(aTHX_ a,b,c,d)
 #  endif
 #  if defined(PERL_IN_PP_PACK_C)
 #define div128(a,b)		S_div128(aTHX_ a,b)
@@ -2313,6 +2328,9 @@
 #define update_debugger_info(a,b,c)	S_update_debugger_info(aTHX_ a,b,c)
 #define yywarn(a,b)		S_yywarn(aTHX_ a,b)
 #    if defined(USE_CPERL)
+#define UNIsuperscript		S_UNIsuperscript
+#define isFATARROW(a)		S_isFATARROW(aTHX_ a)
+#define isRIGHTARROW(a)		S_isRIGHTARROW(aTHX_ a)
 #define lop(a,b,c)		S_lop(aTHX_ a,b,c)
 #define parse_ident(a,b,c,d,e,f,g)	S_parse_ident(aTHX_ a,b,c,d,e,f,g)
 #define postderef(a,b)		S_postderef(aTHX_ a,b)
@@ -2321,6 +2339,13 @@
 #  endif
 #  if defined(PERL_IN_UNIVERSAL_C)
 #define isa_lookup(a,b,c,d)	S_isa_lookup(aTHX_ a,b,c,d)
+#    if defined(USE_CPERL)
+#define fields_class		S_fields_class
+#define fields_ix		S_fields_ix
+#define fields_obj		S_fields_obj
+#define fields_objcheck		S_fields_objcheck
+#define fields_po		S_fields_po
+#    endif
 #  endif
 #  if defined(PERL_IN_UTF8_C)
 #define _to_utf8_case(a,b,c,d,e,f,g,h,i)	S__to_utf8_case(aTHX_ a,b,c,d,e,f,g,h,i)
