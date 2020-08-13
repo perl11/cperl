@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 package Storable;
-our $VERSION = '3.15_04';
+our $VERSION = '3.16_04';
 
 use Config;
 use File::Basename qw(dirname);

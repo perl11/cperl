@@ -20314,6 +20314,7 @@ our %delta :const = (
             'Pod::Simple::TranscodeSmart'=> '3.40',
             'Pod::Simple::XHTML'         => '3.40',
             'Pod::Simple::XMLOutStream'  => '4.40c',
+            'Storable' => '3.16_04',
         }
     },
 );

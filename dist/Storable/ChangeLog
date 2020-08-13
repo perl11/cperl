@@ -1,3 +1,12 @@
+2020-08-13 rurban
+    Version 3.16_04
+        * Merge with 3.16
+
+2019-06-11 10:43:00 TonyC
+    Version 3.16
+        * (perl #134179) fix self-referencing structures that include regexps
+        * bless regexps to preserve bless qr//, "Foo"
+
 2019-05-05 rurban
     Version 3.15_04
         * Merge with 3.15 (cxt->pseen leak)
