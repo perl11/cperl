@@ -1168,7 +1168,7 @@ foreach(
 # large sizesize needed so the STRLEN check doesn't
 if ($Config{intsize} == 4 && $Config{uvsize} > 4 && $Config{sizesize} > 4) {
     eval { my $x = sprintf("%7000000000E", 0) };
-    like($@, qr/^Numeric format result too large at /,
+    like($@, qr/^Integer overflow in format string for sprintf /,
          "croak for very large numeric format results");
 }
 done_testing();
