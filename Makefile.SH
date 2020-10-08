@@ -2093,7 +2093,10 @@ ctags:
 !NO!SUBS!
 
 $eunicefix Makefile
+# for case-insensitive filesystems (ie WSL)
+mv Makefile Makefile.new
 $rm -f $firstmakefile
+mv Makefile.new Makefile
 
 # Now do any special processing required before building.
 
