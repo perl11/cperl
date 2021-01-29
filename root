@@ -1,0 +1,1 @@
+{"version":1,"ops":[{"type":1,"author":{"id":"04135dc995e2fdcd322aaf4268dbf04630a3cc7c"},"timestamp":1588423880,"metadata":{"github-id":"MDU6SXNzdWU2MTExODE4NzE=","github-url":"https://github.com/perl11/cperl/issues/411","origin":"github"},"title":"Add swap, dup and rot ops","message":"See forth and python.","files":null}]}
