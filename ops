@@ -1,0 +1,1 @@
+{"version":1,"ops":[{"type":1,"author":{"id":"04135dc995e2fdcd322aaf4268dbf04630a3cc7c"},"timestamp":1500537044,"metadata":{"github-id":"MDU6SXNzdWUyNDQyNzQxODA=","github-url":"https://github.com/perl11/cperl/issues/314","origin":"github"},"title":"class :native","message":"c-like struct layout.\ndepends on native types #14 and the ffi #22","files":null}]}
