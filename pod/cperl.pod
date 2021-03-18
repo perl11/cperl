@@ -353,7 +353,7 @@ Reini Urban <rurban@cpan.org> for the cperl variant.
 
 =head1 SEE ALSO
 
- http://perl11.org/cperl/   the cperl homepage
+ http://perl11.github.io/cperl/   the cperl homepage
  http://www.perl.org/       the Perl homepage
  http://www.perl.com/       Perl articles (O'Reilly)
  http://www.cpan.org/       the Comprehensive Perl Archive

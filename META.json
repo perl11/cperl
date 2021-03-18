@@ -134,7 +134,7 @@
       "bugtracker" : {
          "web" : "http://github.com/perl11/cperl/issues"
       },
-      "homepage" : "http://perl11.org/cperl/",
+      "homepage" : "http://perl11.github.io/cperl/",
       "license" : [
          "http://dev.perl.org/licenses/"
       ],

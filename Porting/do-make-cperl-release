@@ -31,8 +31,8 @@ Darwin)
     fpm -s dir -t osxpkg -v $ver-$rev \
         -n cperl \
         -m 'rurban@cpan.org' \
-        --vendor 'perl11.org' \
-        --url 'http://perl11.org/cperl/' \
+        --vendor 'perl11.github.io' \
+        --url 'http://perl11.github.io/cperl/' \
         --description 'a perl5 with classes, types, compiler support, company-friendly.' \
         -C $destdir .
     ;;
@@ -54,7 +54,7 @@ Linux)
         fpm -s dir -t rpm -n cperl -v $ver --iteration $rev --epoch '' -a $arch \
             -m 'rurban@cpan.org' \
             -d 'zlib' -d bzip2-libs -d 'gdbm' -d $db4 $d_ffi \
-            --url http://perl11.org/cperl/rpm/ \
+            --url http://perl11.github.io/cperl/rpm/ \
             --description 'a perl5 with classes, types, compiler support, company-friendly.' \
             -C $destdir .
     else
@@ -78,7 +78,7 @@ Linux)
                     -m 'rurban@cpan.org' \
                     -d 'zlib1g >= 1:1.2.2.3' -d libbz2-1.0 -d 'libgdbm3 >= 1.8.3' \
                     -d 'libdb5.1' $d_ffi \
-                    --url http://perl11.org/deb/ \
+                    --url http://perl11.github.io/deb/ \
                     --deb-changelog cperl/pod/perlcdelta.pod \
                     --description 'a perl5 with classes, types, compiler support, company-friendly.' \
                     --deb-field 'Built-Using: gcc' \
@@ -99,8 +99,8 @@ SunOS)
         -n cperl \
         -m 'rurban@cpan.org' \
         -d 'libffi6' \
-        --vendor 'perl11.org' \
-        --url 'http://perl11.org/cperl/' \
+        --vendor 'perl11.github.io' \
+        --url 'http://perl11.github.io/cperl/' \
         --description 'a perl5 with classes, types, compiler support, company-friendly.' \
         -C $destdir .
     ;;
@@ -112,8 +112,8 @@ SunOS)
         -n cperl \
         -m 'rurban@cpan.org' \
         -d 'libffi' \
-        --vendor 'perl11.org' \
-        --url 'http://perl11.org/cperl/' \
+        --vendor 'perl11.github.io' \
+        --url 'http://perl11.github.io/cperl/' \
         --description 'a perl5 with classes, types, compiler support, company-friendly.' \
         -C $destdir .
     ;;

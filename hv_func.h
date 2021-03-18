@@ -233,7 +233,7 @@
  * alternatives.  But's by far the slowest of all suitable hash functions
  * and its security relies in the non-exposability of the seed.
  * With the seed it's still trivially brute-forcable.
- * See http://perl11.org/blog/seed.html
+ * See http://perl11.github.io/blog/seed.html
  *
  * It is 64 bit only.
  */

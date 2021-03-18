@@ -806,7 +806,7 @@ NULL		=
 
 DEL		= del
 
-#Improved order with cperl, see http://perl11.org/blog/bolt.html
+#Improved order with cperl, see http://perl11.github.io/blog/bolt.html
 MICROCORE_SRC	=		\
 		..\gv.c		\
 		..\perl.c	\

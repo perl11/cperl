@@ -521,7 +521,7 @@ the same property as another simultaneously.  These have now been fixed.
 Optimized the static link order of objects for the default case,
 when you cannot use lto, pgo, autofdo nor bolt.
 Added lto to the default ccflags.
-See L<http://perl11.org/blog/bolt.html> and
+See L<http://perl11.github.io/blog/bolt.html> and
 L<[cperl #381]|https://github.com/perl11/cperl/issues/381>.
 
 =item *
@@ -692,7 +692,7 @@ the current PWD, i.e. fastcwd, and not the C<realpath()> (i.e the
 abs_path) of it. This e.g. broke some DBD::File tests, when behind symlinks.
 
 For getcwd with C<get_current_dir_name()> - i.e. fastcwd - add abs_path.
-See also L<http://perl11.org/blog/fastcwd.html>
+See also L<http://perl11.github.io/blog/fastcwd.html>
 
 Don't translate F<...> to F<..\..> on Win32.
 (an old C<command.com> limitation)
@@ -1358,7 +1358,7 @@ Devel-PPPort F<embed.fnc> can now be the same as the core F<embed.fnc>.
 
 Without C<DEBUGGING> the best C<-flto> Link Time Optimization flag is
 now added to the default C<ccflags>.
-See L<http://perl11.org/blog/bolt.html> and
+See L<http://perl11.github.io/blog/bolt.html> and
 L<[cperl #381]|https://github.com/perl11/cperl/issues/381>.
 
 The correct C<-flto=> variant is then used for C<ldflags> and

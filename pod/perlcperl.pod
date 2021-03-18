@@ -671,7 +671,7 @@ L</"Rewrote critical core modules in C as builtins"> below.
 
 cperl defers the C<<< attribute->import >>> call from compile-time to
 run-time with non-constant attribute arguments. See
-L<http://perl11.org/blog/attributes-args.html>.
+L<http://perl11.github.io/blog/attributes-args.html>.
 
 =head2 coretypes: Int, UInt, Num, Str
 
@@ -1462,6 +1462,6 @@ You cannot do an object system without types.
 
 =item L<http://blogs.perl.org/users/rurban/2012/09/my-perl5-todo-list.html> (the old plan, ignored)
 
-=item L<http://perl11.org/cperl/>
+=item L<http://perl11.github.io/cperl/>
 
 =back

@@ -1093,7 +1093,7 @@ NOOP		= @rem
 
 #first ones are arrange in compile time order for faster parallel building
 #see #123867 for details.
-#Improved with cperl, see http://perl11.org/blog/bolt.html
+#Improved with cperl, see http://perl11.github.io/blog/bolt.html
 MICROCORE_SRC	=		\
 		..\gv.c		\
 		..\perl.c	\

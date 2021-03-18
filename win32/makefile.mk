@@ -1024,7 +1024,7 @@ XCOPY		= xcopy /f /r /i /d /y
 RCOPY		= xcopy /f /r /i /e /d /y
 NOOP		= @rem
 
-#Improved order with cperl, see http://perl11.org/blog/bolt.html
+#Improved order with cperl, see http://perl11.github.io/blog/bolt.html
 MICROCORE_SRC	=		\
 		..\gv.c		\
 		..\perl.c	\

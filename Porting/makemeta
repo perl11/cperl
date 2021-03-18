@@ -62,7 +62,7 @@ if ($Config{usecperl}) {
     $distmeta->{abstract} = 'The cperl language interpreter';
     $distmeta->{resources}->{bugtracker}->{web}
       = 'http://github.com/perl11/cperl/issues';
-    $distmeta->{resources}->{homepage} = 'http://perl11.org/cperl/';
+    $distmeta->{resources}->{homepage} = 'http://perl11.github.io/cperl/';
     $distmeta->{resources}->{repository}->{url}
       = 'http://github.com/perl11/cperl/';
 }

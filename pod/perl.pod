@@ -399,7 +399,7 @@ see L<perlvar> for more information.
  http://www.perl.com/       Perl articles (O'Reilly)
  http://www.cpan.org/       the Comprehensive Perl Archive
  http://www.pm.org/         the Perl Mongers
- http://perl11.org/cperl/   cperl
+ http://perl11.github.io/cperl/   cperl
 
 =head1 DIAGNOSTICS
 

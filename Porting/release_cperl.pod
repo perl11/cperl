@@ -33,7 +33,7 @@ or:
       fpm -s dir -t $t -C cperl -p ../cperl-5.30.0-inst/ \
         --version 5.30.0 \
         -m rurban@cpan.org \
-        --url http://perl11.org/cperl/$t/ \
+        --url http://perl11.github.io/cperl/$t/ \
         --deb-config Porting/debian --deb-changelog pod/perl5292cdelta.pod
     done
 
@@ -102,29 +102,29 @@ create packages for debian/ubuntu/mint .deb, redhat/centos/fedora
     fpm -s dir -t deb -n cperl -v 5.30.0-1 -m 'rurban@cpan.org' \
         -d 'zlib1g (>= 1:1.2.2.3)' -d libbz2-1.0 -d 'libgdbm3 (>= 1.8.3)' \
         -d 'libdb-5.1' \
-        --url http://perl11.org/cperl/deb/ \
+        --url http://perl11.github.io/cperl/deb/ \
         --deb-changelog pod/perl5222cdelta.pod \
         -C ../cperl-5.30.0-inst .
 
     # on i386 and x86_64 centos6 and a centos7 machine. no -1 suffix
     fpm -s dir -t rpm -n cperl -v 5.30.0 -m 'rurban@cpan.org' \
         -d 'zlib' -d bzip2-libs -d 'gdbm' -d 'db4' \
-        --url http://perl11.org/cperl/rpm/ \
+        --url http://perl11.github.io/cperl/rpm/ \
         -C ../cperl-5.30.0-inst .
 
     # on an amd64 osx machine
     fpm -s dir -t osxpkg -n cperl -v 5.30.0 -m 'rurban@cpan.org' \
-        --url http://perl11.org/cperl/osxpkg/ \
+        --url http://perl11.github.io/cperl/osxpkg/ \
         -C ../cperl-5.30.0-inst .
 
     # on i386 and amd64 solaris machines
     fpm -s dir -t solaris -n cperl -v 5.30.0 -m 'rurban@cpan.org' \
-        --url http://perl11.org/cperl/solaris/ \
+        --url http://perl11.github.io/cperl/solaris/ \
         -C ../cperl-5.30.0-inst .
 
     # on i386 and amd64 bsd machines
     fpm -s dir -t pkgin -n cperl -v 5.30.0 -m 'rurban@cpan.org' \
-        --url http://perl11.org/cperl/pkgin/ \
+        --url http://perl11.github.io/cperl/pkgin/ \
         -C ../cperl-5.30.0-inst .
 
     # on i386 and amd64 windows machines
@@ -132,12 +132,12 @@ create packages for debian/ubuntu/mint .deb, redhat/centos/fedora
     # (not MSVC12, as users need the msvcrt120.dll),
     # and (untested) for cygwin32 and cygwin64.
 
-=head2 prepare the repos on perl11.org
+=head2 prepare the repos on perl11.github.io
 
 You need write permissions to the F<perl11/perl11.github.io> repo on
 github, i.e. member of the F<perl11/mongers> group.  Releases are just
 static files on the web somewhere, for .deb, .rpm and the others.  We
-use our static L<http://perl11.org/cperl/> website on github for now.
+use our static L<http://perl11.github.io/cperl/> website on github for now.
 
     cd ..
     git clone git@github.com:perl11/perl11.github.io.git
@@ -186,7 +186,7 @@ Copy the created rpms into the rpm dest dirs.
 
 =head2 update the static website
 
-perl11.org/cperl/STATUS.html and the pods.
+perl11.github.io/cperl/STATUS.html and the pods.
 
 From markdown and pod:
 

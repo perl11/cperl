@@ -1,6 +1,6 @@
 # cperl status
 
-[![Build Status](https://travis-ci.org/perl11/cperl.svg?branch=master)](https://travis-ci.org/perl11/cperl) [![Coverity Status](https://scan.coverity.com/projects/6933/badge.svg)](https://scan.coverity.com/projects/perl11-cperl) [perl11.org/cperl/STATUS.html](perl11.org/cperl/STATUS.html) [Sponsor](https://github.com/users/rurban/sponsorship) [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/perl11/cperl.svg)](http://isitmaintained.com/project/perl11/cperl "Average time to resolve an issue") [![Percentage of issues still open](http://isitmaintained.com/badge/open/perl11/cperl.svg)](http://isitmaintained.com/project/perl11/cperl "Percentage of issues still open")
+[![Build Status](https://travis-ci.org/perl11/cperl.svg?branch=master)](https://travis-ci.org/perl11/cperl) [![Coverity Status](https://scan.coverity.com/projects/6933/badge.svg)](https://scan.coverity.com/projects/perl11-cperl) [perl11.github.io/cperl/STATUS.html](perl11.github.io/cperl/STATUS.html) [Sponsor](https://github.com/users/rurban/sponsorship) [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/perl11/cperl.svg)](http://isitmaintained.com/project/perl11/cperl "Average time to resolve an issue") [![Percentage of issues still open](http://isitmaintained.com/badge/open/perl11/cperl.svg)](http://isitmaintained.com/project/perl11/cperl "Percentage of issues still open")
 
 The name **cperl** stands for **a perl with classes, types, compiler
 support, continuation of perl5 development** or just a **company-friendly
@@ -183,9 +183,9 @@ add this file to `/etc/yum.repos.d/perl11.repo`, with either `el6` or `el7`.
 
     [perl11]
     name=perl11
-    baseurl=http://perl11.org/rpm/el7/$basearch
+    baseurl=http://perl11.github.io/rpm/el7/$basearch
     enabled=1
-    gpgkey==http://perl11.org/rpm/RPM-GPG-KEY-rurban
+    gpgkey==http://perl11.github.io/rpm/RPM-GPG-KEY-rurban
     gpgcheck=1
 
 run as root: `yum update; yum install cperl`
@@ -194,22 +194,22 @@ run as root: `yum update; yum install cperl`
 
 add this file to `/etc/apt/sources.list.d/perl11.list`
 
-    deb http://perl11.org/deb/ sid main
+    deb http://perl11.github.io/deb/ sid main
 
 run as root:
 
     apt update
-    wget http://perl11.org/deb/rurban.gpg.key
+    wget http://perl11.github.io/deb/rurban.gpg.key
     apt-key add rurban.gpg.key
     apt install cperl
 
 ## osx
 
-download the pkg installer from [http://perl11.org/osx/](http://perl11.org/osx/)
+download the pkg installer from [http://perl11.github.io/osx/](http://perl11.github.io/osx/)
 
 ## windows
 
-download the self-extracting zip from [http://perl11.org/win/](http://perl11.org/win/)
+download the self-extracting zip from [http://perl11.github.io/win/](http://perl11.github.io/win/)
 and install it into `C:\cperl` via the `cperl-5.26.1.3407-win32.exe -InstallPath="C:\\cperl"`
 cmdline option, or install the latest msvc `.zip` or mingw `.tar.xz` files.
 Preferred is now mingw, which works fine parallel to the current strawberry perl
