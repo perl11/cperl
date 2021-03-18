@@ -134,13 +134,13 @@ create packages for debian/ubuntu/mint .deb, redhat/centos/fedora
 
 =head2 prepare the repos on perl11.org
 
-You need write permissions to the F<perl11/perl11.github.com> repo on
+You need write permissions to the F<perl11/perl11.github.io> repo on
 github, i.e. member of the F<perl11/mongers> group.  Releases are just
 static files on the web somewhere, for .deb, .rpm and the others.  We
 use our static L<http://perl11.org/cperl/> website on github for now.
 
     cd ..
-    git clone git@github.com:perl11/perl11.github.com.git
+    git clone git@github.com:perl11/perl11.github.io.git
 
 =head2 setup the debian apt repo
 
@@ -158,7 +158,7 @@ Add the debs to the pool:
 
     aptly repo add cperl ../../cperl_5.30.0-1_{i386,amd64}.deb
     aptly publish repo cperl
-    rsync -av ~/.aptly/public/* perl11.github.com/deb/
+    rsync -av ~/.aptly/public/* perl11.github.io/deb/
 
 =head2 setup the yum rpm repos
 
@@ -172,7 +172,7 @@ Copy the created rpms into the rpm dest dirs.
     pre=`pwd`
     ver=5.30.0
     rev=1
-    cd perl11.github.com/rpm
+    cd perl11.github.io/rpm
 
     for d in el6 el7; do
         for a in i686 x86_64; do
@@ -190,7 +190,7 @@ perl11.org/cperl/STATUS.html and the pods.
 
 From markdown and pod:
 
-    ROOT=../perl11.github.com/cperl
+    ROOT=../perl11.github.io/cperl
 
     #Markdown.pl Changes > $ROOT/Changes.html
     pod2html --podpath=pod pod/perlcperl.pod > $ROOT/index.html
@@ -206,7 +206,7 @@ From markdown and pod:
 
 =head2 publish the website
 
-    cd ../perl11.github.com/cperl
+    cd ../perl11.github.io/cperl
     git ci -am'update cperl release'
     git push
 
