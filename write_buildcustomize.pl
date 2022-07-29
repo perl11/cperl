@@ -44,6 +44,7 @@ my @toolchain = qw(cpan/AutoLoader/lib
 		   cpan/Pod-Escapes/lib
 		   cpan/Getopt-Long/lib
 		   cpan/File-Path/lib
+		   dist/if
 		   );
 
 # Text-ParseWords used only in ExtUtils::Liblist::Kid::_win32_ext()
@@ -53,7 +54,6 @@ push @toolchain, qw(
 	cpan/Text-ParseWords/lib
 	dist/ExtUtils-ParseXS/lib
 	cpan/parent/lib
-        dist/if
 	dist/ExtUtils-Constant/lib
 ) if $^O eq 'MSWin32';
 push @toolchain, 'ext/VMS-Filespec/lib' if $^O eq 'VMS';
