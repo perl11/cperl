@@ -345,7 +345,7 @@ if test "$cc" != "pgcc"; then
    # We now use MACOSX_DEPLOYMENT_TARGET, if set, as an override by
    # capturing its value and adding it to the flags.
     case "$MACOSX_DEPLOYMENT_TARGET" in
-    10.*)
+    [1-9][0-9].*|[1-9][0-9])
       add_macosx_version_min ccflags $MACOSX_DEPLOYMENT_TARGET
       add_macosx_version_min ldflags $MACOSX_DEPLOYMENT_TARGET
       ;;
@@ -357,40 +357,19 @@ if test "$cc" != "pgcc"; then
 
 *** Unexpected MACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET
 ***
-*** Please either set it to 10.something, or to empty.
+*** Please either set it to a valid macOS version number (e.g., 10.15 or 11.0) or to empty.
 
 EOM
       exit 1
       ;;
     esac
 
-    # Keep the prodvers leading whitespace (Configure magic).
-    # Cannot use $osvers here since that is the kernel version.
-    # sw_vers output                 what we want
-    # "ProductVersion:    10.10.5"   "10.10"
-    # "ProductVersion:    10.11"     "10.11"
-        prodvers=`sw_vers|awk '/^ProductVersion:/{print $2}'|awk -F. '{print $1"."$2}'`
-    case "$prodvers" in
-    10.*)
-      add_macosx_version_min ccflags $prodvers
-      add_macosx_version_min ldflags $prodvers
-      ;;
-    *)
-      cat <<EOM >&4
+    # Cannot use the ProductVersion from sw_vers: since macOS 11 it is
+    # not 10.x anymore. The darwin kernel version is stable instead.
+    darwin_major=$(echo $osvers|awk -F. '{print $1}')
 
-*** Unexpected product version $prodvers.
-***
-*** Try running sw_vers and see what its ProductVersion says.
-
-EOM
-      exit 1
-    esac
-
-    # The X in 10.X
-    prodvers_minor=$(echo $prodvers|awk -F. '{print $2}')
-
-    # macOS (10.12) deprecated syscall().
-    if [ "$prodvers_minor" -ge 12 ]; then
+    # macOS 10.12 (darwin 16.0.0) deprecated syscall().
+    if [ "$darwin_major" -ge 16 ]; then
         d_syscall='undef'
         # If deploying to pre-10.12, suppress Time::HiRes's detection of the system clock_gettime()
         case "$MACOSX_DEPLOYMENT_TARGET" in
