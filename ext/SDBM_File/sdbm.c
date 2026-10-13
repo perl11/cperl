@@ -34,8 +34,6 @@
 extern "C" {
 #endif
 
-extern Malloc_t malloc(MEM_SIZE);
-extern Free_t free(Malloc_t);
 
 #ifdef __cplusplus
 }

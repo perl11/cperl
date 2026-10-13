@@ -69,7 +69,7 @@ sdbm_DESTROY(db)
 		if (db->filter[i])
 		    SvREFCNT_dec_NN(db->filter[i]);
 	    } while (i-- > 0);
-	    safefree(db) ;
+	    Safefree(db) ;
 	}
 
 datum_value

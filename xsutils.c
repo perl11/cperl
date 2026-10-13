@@ -755,8 +755,8 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv, const char *encoded)
         argtypes[0] = &ffi_type_void;
         status = ffi_prep_cif(cif, abi, 1, rtype, argtypes);
         if (status != FFI_OK) {
-            safefree(cif);
-            safefree(argtypes);
+            Safefree(cif);
+            Safefree(argtypes);
             CvFFILIB(cv) = 0;
             Perl_croak(aTHX_ "ffi_prep_cif error %d: %s at %s, line %d",
                    status,
@@ -812,8 +812,8 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv, const char *encoded)
                     argtypes[i] = S_prep_sig(aTHX_ HvNAME(type), HvNAMELEN(type));
                 }
             } else {
-                safefree(cif);
-                safefree(argtypes);
+                Safefree(cif);
+                Safefree(argtypes);
                 CvFFILIB(cv) = 0;
                 Perl_croak(aTHX_ "Missing type for extern sub argument %s",
                            PadnamePV(argname));
@@ -838,8 +838,8 @@ S_prep_cif(pTHX_ CV* cv, const char *nativeconv, const char *encoded)
 
     status = ffi_prep_cif(cif, abi, num_args, rtype, argtypes);
     if (status != FFI_OK) {
-        safefree(cif);
-        safefree(argtypes);
+        Safefree(cif);
+        Safefree(argtypes);
         CvFFILIB(cv) = 0;
         Perl_croak(aTHX_ "ffi_prep_cif error %d: %s at %s, line %d",
                    status,
@@ -1287,7 +1287,7 @@ S_find_symbol(pTHX_ CV* cv, char *name)
         XSUBADDR_t ptr = INT2PTR(XSUBADDR_t, POPi);
         memcpy(&CvXFFI(cv), &ptr, sizeof(XSUBADDR_t));
 #else
-        CvXFFI(cv) = INT2PTR(XSUBADDR_t, POPi);
+        CvXFFI(cv) = INT2PTR(void (*)(void), POPi);
 #endif
         DEBUG_v(PerlIO_printf(Perl_debug_log, "CvXFFI(%s)=0x%" UVxf "\n", SvPVX(pv), INT2PTR(UV, CvXFFI(cv))));
         CvSLABBED_off(cv);
@@ -1358,7 +1358,7 @@ S_find_native(pTHX_ CV* cv, char *libname)
             XSUBADDR_t ptr = INT2PTR(XSUBADDR_t, POPi);
             memcpy(&CvXFFI(cv), &ptr, sizeof(XSUBADDR_t));
 #else
-            CvXFFI(cv) = INT2PTR(XSUBADDR_t, POPi);
+            CvXFFI(cv) = INT2PTR(void (*)(void), POPi);
 #endif
             DEBUG_v(PerlIO_printf(Perl_debug_log, "CvXFFI(%s)=0x%" UVxf "\n", SvPVX(symname), INT2PTR(UV, CvXFFI(cv))));
             CvSLABBED_off(cv);
