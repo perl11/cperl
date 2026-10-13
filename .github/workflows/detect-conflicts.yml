@@ -1,0 +1,19 @@
+on:
+  push:
+    branches:
+      - master
+permissions: {}
+jobs:
+  conflicts:
+    permissions:
+      pull-requests: write # to add labels to pull requests
+
+    runs-on: ubuntu-latest
+    if: github.repository == 'perl11/cperl'
+    steps:
+      - uses: mschilde/auto-label-merge-conflicts@master
+        with:
+          CONFLICT_LABEL_NAME: "hasConflicts"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAX_RETRIES: 600 # 600 * 10 sec => 100 minutes
+          WAIT_MS: 10000 # 10 sec
