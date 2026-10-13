@@ -952,8 +952,10 @@ Perl_sv_string_from_errnum(pTHX_ int errnum, SV *tgtsv)
 /* the strEQc checks below are not asan safe. ignore it.
    we don't cross pages. */
 #if defined(USE_SANITIZE_ADDRESS)
-# if defined(__clang__) && defined(__has_feature) && __has_feature(address_sanitizer)
+# if defined(__clang__) && defined(__has_feature)
+#  if __has_feature(address_sanitizer)
 __attribute__((no_address_safety_analysis))
+#  endif
 # elif defined(__GNUC__) && ((__GNUC__ * 100) + __GNUC_MINOR__) >= 409
 __attribute__((no_sanitize_address))
 # endif

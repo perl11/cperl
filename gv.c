@@ -414,7 +414,7 @@ Perl_gv_init_pvn(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len, U32 flag
 	    SvPV_set(gv, NULL);
 	    SvLEN_set(gv, 0);
 	    SvPOK_off(gv);
-	} else if (!GvSTATIC(gv)) {
+	} else if (old_type < SVt_PVGV || !GvSTATIC(gv)) {
 	    Safefree(SvPVX_mutable(gv));
         }
     }
