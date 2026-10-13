@@ -254,7 +254,8 @@ sub nm_parse_gnu {
 sub nm_parse_darwin {
     my $symbols = shift;
     my $line = $_;
-    if (m{^(?:.+)?libperl\.a\((\w+\.o)\):$}) {
+    if (m{^(?:.+)?libperl\.a\((\w+\.o)\):$} ||
+        m{^(\w+\.o):$}) {
         # object file name
         $symbols->{obj}{$1}++;
         $symbols->{o} = $1;
@@ -363,7 +364,8 @@ if ($Config{ccflags} =~ /flto/ and
 {
     ok(exists $symbols{data}{common}, "has data common symbols");
     ok($symbols{data}{common}{PL_beginav}{'globals.o'}, "has PL_beginav");
-} elsif ($nm_style eq 'llvm' and !exists $symbols{data}{const}) {
+} elsif (($nm_style eq 'llvm' or $Config{ccflags} =~ /flto/)
+         and !exists $symbols{data}{const}) {
     ok(exists $symbols{data}{data}, "has data data symbols");
     ok($symbols{data}{data}{PL_no_mem}{'globals.o'}, "has PL_no_mem");
 } else {
