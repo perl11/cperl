@@ -1100,9 +1100,9 @@
  */
 #define USE_STDIO_PTR 	/**/
 #ifdef USE_STDIO_PTR
-#define FILE_ptr(fp)	((fp)->_ptr)
+#define FILE_ptr(fp)	PERLIO_FILE_ptr(fp)
 #define STDIO_PTR_LVALUE 		/**/
-#define FILE_cnt(fp)	((fp)->_cnt)
+#define FILE_cnt(fp)	PERLIO_FILE_cnt(fp)
 #define STDIO_CNT_LVALUE 		/**/
 /*#define STDIO_PTR_LVAL_SETS_CNT	/ **/
 #define STDIO_PTR_LVAL_NOCHANGE_CNT	/**/
@@ -1130,8 +1130,8 @@
  */
 #define USE_STDIO_BASE 	/**/
 #ifdef USE_STDIO_BASE
-#define FILE_base(fp)	((fp)->_base)
-#define FILE_bufsiz(fp)	((fp)->_cnt + (fp)->_ptr - (fp)->_base)
+#define FILE_base(fp)	PERLIO_FILE_base(fp)
+#define FILE_bufsiz(fp)	(PERLIO_FILE_cnt(fp) + PERLIO_FILE_ptr(fp) - PERLIO_FILE_base(fp))
 #endif
 
 /* HAS_VPRINTF:
