@@ -621,7 +621,7 @@ DllExport void win32_wait_for_children(pTHX);
  * the rewritten CRT in VS2015 so they are removed once again for VS2015
  * onwards, which will therefore suffer from the reintroduction of the
  * close socket bug. */
-#if (!defined(_MSC_VER)) || (defined(_MSC_VER) && _MSC_VER < 1900)
+#if (!defined(_MSC_VER) && !defined(_UCRT)) || (defined(_MSC_VER) && _MSC_VER < 1900)
 
 #ifdef PERL_CORE
 

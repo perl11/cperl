@@ -353,7 +353,7 @@ if ($opt{usecplusplus} eq 'define') {
     $opt{extern_C}    = 'extern "C"';
 }
 
-if (-f 'include/ffi.h' || -f 'c:/strawberry/c/include/ffi.h' || $opt{useffi} ne 'undef') {
+if (-f 'include/ffi.h' || $opt{useffi} ne 'undef') {
     $opt{useffi}    = 'define';
 }
 

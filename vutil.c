@@ -666,7 +666,9 @@ VER_NV:
 
             LC_NUMERIC_LOCK(0);    /* Start critical section */
 
-            locale_name_on_entry = setlocale(LC_NUMERIC, NULL);
+            /* setlocale() returns a pointer into static storage that the
+             * next setlocale() call overwrites, so copy it */
+            locale_name_on_entry = savepv(setlocale(LC_NUMERIC, NULL));
             if (   strNEc(locale_name_on_entry, "C")
                 && strNEc(locale_name_on_entry, "POSIX"))
             {
@@ -674,6 +676,7 @@ VER_NV:
             }
             else {  /* This value indicates to the restore code that we didn't
                        change the locale */
+                Safefree(locale_name_on_entry);
                 locale_name_on_entry = NULL;
             }
 
@@ -690,7 +693,9 @@ VER_NV:
                  * isn't C, set it to C. */
                 LC_NUMERIC_LOCK(0);
 
-                locale_name_on_entry = setlocale(LC_NUMERIC, NULL);
+                /* setlocale() returns a pointer into static storage that the
+                 * next setlocale() call overwrites, so copy it */
+                locale_name_on_entry = savepv(setlocale(LC_NUMERIC, NULL));
                 if (   strNEc(locale_name_on_entry, "C")
                     && strNEc(locale_name_on_entry, "POSIX"))
                 {
@@ -698,6 +703,7 @@ VER_NV:
                 }
                 else {  /* This value indicates to the restore code that we
                            didn't change the locale */
+                    Safefree(locale_name_on_entry);
                     locale_name_on_entry = NULL;
 	    }
 	}
@@ -743,6 +749,7 @@ VER_NV:
 
             if (locale_name_on_entry) {
                 setlocale(LC_NUMERIC, locale_name_on_entry);
+                Safefree(locale_name_on_entry);
             }
 
             LC_NUMERIC_UNLOCK;  /* End critical section */
@@ -751,6 +758,7 @@ VER_NV:
 
             if (locale_name_on_entry) {
                 setlocale(LC_NUMERIC, locale_name_on_entry);
+                Safefree(locale_name_on_entry);
                 LC_NUMERIC_UNLOCK;
             }
             else if (locale_obj_on_entry == PL_underlying_numeric_obj) {
