@@ -890,7 +890,8 @@
                                     * on unthreaded builds */
 #  elif   (defined(USE_ITHREADS) || defined(USE_THREAD_SAFE_LOCALE))         \
        && (    defined(HAS_POSIX_2008_LOCALE)                                \
-           || (defined(WIN32) && defined(_MSC_VER) && _MSC_VER >= 1400))     \
+           || (defined(WIN32) && (   (defined(_MSC_VER) && _MSC_VER >= 1400) \
+                                  || defined(_UCRT))))                       \
        && ! defined(NO_THREAD_SAFE_LOCALE)
 #    ifndef USE_THREAD_SAFE_LOCALE
 #      define USE_THREAD_SAFE_LOCALE
@@ -906,8 +907,12 @@
  *     per-thread locale is enabled. In previous versions of the library, this
  *     function would return the lconv data for the global locale, not the
  *     thread's locale."
+ *  MingW built with the Universal C Run Time (UCRT) shares that fix, but
+ *  MingW without UCRT is assumed to have the broken localeconv().
  */
-#if defined(WIN32) && defined(USE_THREAD_SAFE_LOCALE) && _MSC_VER < 1900
+#if defined(WIN32) && defined(USE_THREAD_SAFE_LOCALE)                       \
+ && (   (defined(_MSC_VER) && _MSC_VER < 1900)                              \
+     || (! defined(_MSC_VER) && ! defined(_UCRT)))
 #  define TS_W32_BROKEN_LOCALECONV
 #endif
 

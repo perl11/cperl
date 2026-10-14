@@ -1613,9 +1613,13 @@ $(DLL_OBJ)	: $(CORE_H)
 perllibst.h : $(HAVEMINIPERL) $(CONFIGPM) create_perllibst_h.pl
 	$(MINIPERL) -I..\lib create_perllibst_h.pl
 
+# MingW built with the UCRT defines _UCRT. makedef.pl must mirror the
+# thread-safe locale logic of perl.h, which depends on it.
+GCCUCRT		= $(if $(filter GCC,$(CCTYPE)),$(shell $(GCCBIN) -dM -E -include stdlib.h -x c nul 2>NUL | findstr /b /c:"\#define _UCRT"))
+
 perldll.def : $(HAVEMINIPERL) $(CONFIGPM) ..\embed.fnc ..\makedef.pl
 	$(MINIPERL) -I..\lib -w ..\makedef.pl PLATFORM=win32 $(OPTIMIZE) $(DEFINES) \
-	$(BUILDOPT) CCTYPE=$(CCTYPE) TARG_DIR=..\ > perldll.def
+	$(BUILDOPT) $(if $(GCCUCRT),-D_UCRT) CCTYPE=$(CCTYPE) TARG_DIR=..\ > perldll.def
 
 $(PERLEXPLIB) : $(PERLIMPLIB)
 

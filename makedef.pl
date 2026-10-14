@@ -155,8 +155,9 @@ if (! $define{HAS_SETLOCALE} && $define{HAS_POSIX_2008_LOCALE}) {
 }
 elsif (   ($define{USE_ITHREADS} || $define{USE_THREAD_SAFE_LOCALE})
        && (    $define{HAS_POSIX_2008_LOCALE}
-           || ($ARGS{PLATFORM} eq 'win32' && (   $cctype !~ /\D/
-                                              && $cctype >= 80)))
+           || ($ARGS{PLATFORM} eq 'win32' && (   $define{_UCRT}
+                                              || (   $cctype !~ /\D/
+                                                  && $cctype >= 80))))
        && ! $define{NO_THREAD_SAFE_LOCALE})
 {
     $define{USE_THREAD_SAFE_LOCALE} = 1 unless $define{USE_THREAD_SAFE_LOCALE};
@@ -165,7 +166,9 @@ elsif (   ($define{USE_ITHREADS} || $define{USE_THREAD_SAFE_LOCALE})
 
 if (   $ARGS{PLATFORM} eq 'win32'
     && $define{USE_THREAD_SAFE_LOCALE}
-    && $cctype < 140)
+    && (   $cctype =~ /\D/      # not MSVC: MingW has the fix only with UCRT
+         ? ! $define{_UCRT}
+         : $cctype < 140))
 {
     $define{TS_W32_BROKEN_LOCALECONV} = 1;
 }
