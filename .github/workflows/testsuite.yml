@@ -54,7 +54,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Configure
-        run: ./Configure -des -Dusedevel -Uversiononly -Accflags=-fno-strict-aliasing -DDEBUGGING -Accflags='-fsanitize=address -fno-omit-frame-pointer' -Aldflags=-fsanitize=address -Alddlflags=-fsanitize=address
+        run: ./Configure -des -Dusedevel -Uversiononly -Accflags=-fno-strict-aliasing -DDEBUGGING -Accflags='-fsanitize=address -fno-omit-frame-pointer' -Aldflags=-fsanitize=address -Alddlflags='-shared -fsanitize=address'
       - name: Build
         run: make -s -j$(nproc) ECHO=true
       - name: Test
