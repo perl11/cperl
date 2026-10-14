@@ -106,6 +106,17 @@ jobs:
         run: |
           .\perl.exe -V
           .\perl.exe -e "use Config; print Config::config_sh"
+      - name: Debug locale tests
+        shell: cmd
+        continue-on-error: true
+        run: |
+          cd t
+          ..\perl.exe -I..\lib -e "use POSIX; print qq{start\n}; for $l ('', 'C', 'English_United States.1252', 'German_Germany.1252', 'Turkish_Turkey.1254') { my $r = setlocale(LC_CTYPE, $l); print qq{[$l] => }, $r // 'undef', qq{\n} } print qq{done\n}"
+          echo exit=%errorlevel%
+          ..\perl.exe -I..\lib op\lc.t
+          echo lc.t exit=%errorlevel%
+          ..\perl.exe -I..\lib re\charset.t
+          echo charset.t exit=%errorlevel%
       - name: Run Tests
         shell: cmd
         run: |
