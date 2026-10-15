@@ -71,7 +71,7 @@ buffers.
 Fix the HAS_GET_CURRENT_DIR_NAME check, and the is_ENAMETOOLONG macro.
 
 For getcwd with C<get_current_dir_name()> - i.e. fastcwd - add
-abs_path.  See also L<http://perl11.org/blog/fastcwd.html>
+abs_path.  See also L<http://perl11.com/blog/fastcwd.html>
 
 =item L<Data::Dumper>  2.172
 

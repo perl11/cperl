@@ -271,7 +271,7 @@ modules still, and I need to time to properly modernize it (as v2.x)
 
 Modernized and stricter type checks.
 B<skip> does the switched argument check at compile-time.
-See the FAQ at L<http://perl11.org/cperl/STATUS.html> why we enforce
+See the FAQ at L<http://perl11.com/cperl/STATUS.html> why we enforce
 stricter types there.
 
 Enable F<t/is_deeply_with_threads.t>

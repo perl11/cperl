@@ -111,7 +111,7 @@ would be rejected at compile-time. cperl-only.
     ${"\xc3\x28"} => Invalid identifier "\303(" while "strict names"
 
 See L<perldata/"Identifier parsing"> and
-L<http://perl11.org/blog/strict-names.html>
+L<http://perl11.com/blog/strict-names.html>
 cperl-only.
 
 =head2 Optimize static methods to subs
@@ -472,8 +472,8 @@ secret seed, which is easily exposed in perl5. Hash table security can
 only be done via a secure collision strategy. Hash table hash
 functions must be small and fast.
 
-See also L<cperl hash tables|http://perl11.org/blog/cperl-hash-tables.html>
-and L<The dangerous SipHash myth|http://perl11.org/blog/seed.html>
+See also L<cperl hash tables|http://perl11.com/blog/cperl-hash-tables.html>
+and L<The dangerous SipHash myth|http://perl11.com/blog/seed.html>
 
 =head1 Incompatible Changes
 

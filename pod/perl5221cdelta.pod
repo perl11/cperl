@@ -192,7 +192,7 @@ and memory reasons.
 =item * Config as XS
 
 Config is now a XS extension, implemented as perfect hash leading to
-dramatic memory savings. See L<http://perl11.org/cperl/STATUS.html>
+dramatic memory savings. See L<http://perl11.com/cperl/STATUS.html>
 
 =item * Safe
 

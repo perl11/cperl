@@ -88,7 +88,7 @@ buffers.
 Fix the HAS_GET_CURRENT_DIR_NAME check, and the is_ENAMETOOLONG macro.
 
 For getcwd with C<get_current_dir_name()> - i.e. fastcwd - add
-abs_path.  See also L<http://perl11.org/blog/fastcwd.html>
+abs_path.  See also L<http://perl11.com/blog/fastcwd.html>
 
 =item L<DynaLoader> 2.09c
 
@@ -132,7 +132,7 @@ L<[cperl #374]|https://github.com/perl11/cperl/issues/374>
 =item *
 
 Document the perl4-style single-quote C<'> behaviour in identifiers.
-See also L<http://perl11.org/blog/quote-identifiers.html>
+See also L<http://perl11.com/blog/quote-identifiers.html>
 
 =back
 
